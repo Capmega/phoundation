@@ -14,7 +14,6 @@ use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Requests\Response;
 
-
 /**
  * Class InputDateRange
  *
@@ -29,7 +28,6 @@ class InputDateRange extends InputText
 {
     use TraitDataStartDate;
     use TraitDataStopDate;
-
 
     /**
      * The HTML selector to which the daterange will respond
@@ -86,8 +84,10 @@ class InputDateRange extends InputText
     public function setParentSelector(?string $selector): static
     {
         $this->parent_selector = $selector;
+
         return $this;
     }
+
 
     /**
      * Specify what pre-programmed ranges to use
@@ -100,9 +100,9 @@ class InputDateRange extends InputText
     {
         switch ($ranges) {
             case 'default':
-                $this->getRanges()->useDefault();
+                $this->getRanges()
+                     ->useDefault();
                 break;
-
             default:
                 throw new OutOfBoundsException(tr('Unknown ranges ":ranges" specified, specify one of "default"', [
                     ':ranges' => $ranges,
@@ -111,6 +111,7 @@ class InputDateRange extends InputText
 
         return $this;
     }
+
 
     /**
      * Returns the date ranges object
@@ -126,6 +127,7 @@ class InputDateRange extends InputText
         return $this->ranges;
     }
 
+
     /**
      * Render and return the HTML for this Input Element
      *
@@ -137,11 +139,9 @@ class InputDateRange extends InputText
         Response::loadJavascript('adminlte/plugins/moment/moment');
         Response::loadJavascript('adminlte/plugins/daterangepicker/daterangepicker');
         Response::loadJavascript('adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
-
         // Required CSS
         Response::loadCss('adminlte/plugins/daterangepicker/daterangepicker');
         Response::loadCss('adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
-
         // Setup & configuration script for daterangepicker
         Script::new()
               ->setJavascriptWrapper(EnumJavascriptWrappers::window)
@@ -175,9 +175,7 @@ class InputDateRange extends InputText
         if (empty($this->ranges) or $this->ranges->isEmpty()) {
             return null;
         }
-
         $return = [];
-
         foreach ($this->ranges as $key => $range) {
             $return[] = '"' . $key . '"  : ' . $range;
         }

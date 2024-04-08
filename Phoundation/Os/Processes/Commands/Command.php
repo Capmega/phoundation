@@ -16,7 +16,6 @@ use Phoundation\Os\Processes\ProcessCore;
 use Phoundation\Utils\Arrays;
 use Stringable;
 
-
 /**
  * Class Command
  *
@@ -39,12 +38,10 @@ abstract class Command extends ProcessCore implements CommandInterface
     public function __construct(RestrictionsInterface|array|string|null $restrictions = null, Stringable|string|null $operating_system = null, ?string $packages = null)
     {
         parent::__construct($restrictions);
-
         // Ensure that the run files directory is available
-        Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run', true))->ensure();
-
+        Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run', true))
+                 ->ensure();
         $this->setRestrictions($restrictions);
-
         if ($operating_system or $packages) {
             $this->setPackages($operating_system, $packages);
         }
@@ -81,7 +78,6 @@ abstract class Command extends ProcessCore implements CommandInterface
     {
         try {
             $command = null;
-
             foreach (Arrays::force($commands) as $command) {
                 Process::new($command, $restrictions)
                        ->setSudo(true)

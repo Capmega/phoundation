@@ -6,7 +6,6 @@ namespace Phoundation\Geo\GeoIp\Exception;
 
 use Phoundation\Geo\Exception\GeoException;
 
-
 /**
  * Class GeoIpException
  *

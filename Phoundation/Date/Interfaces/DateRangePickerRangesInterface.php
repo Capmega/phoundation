@@ -6,7 +6,6 @@ namespace Phoundation\Date\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 
-
 /**
  * Interface DateRangePickerRangesInterface
  *

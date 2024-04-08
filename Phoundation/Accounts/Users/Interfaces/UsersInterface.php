@@ -8,7 +8,6 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Stringable;
 
-
 /**
  * Interface UsersInterface
  *
@@ -31,6 +30,7 @@ interface UsersInterface extends DataListInterface
      */
     public function setUsers(?array $list): static;
 
+
     /**
      * Add the specified user to the data list
      *
@@ -43,6 +43,7 @@ interface UsersInterface extends DataListInterface
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
 
+
     /**
      * Remove the specified data entry from the data list
      *
@@ -52,12 +53,14 @@ interface UsersInterface extends DataListInterface
      */
     public function deleteKeys(User|Stringable|array|string|float|int $user): static;
 
+
     /**
      * Remove all rights for this right
      *
      * @return static
      */
     public function clear(): static;
+
 
     /**
      * Load the data for this users list into the object
@@ -67,6 +70,7 @@ interface UsersInterface extends DataListInterface
      * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static;
+
 
     /**
      * Save the data for this users list in the database

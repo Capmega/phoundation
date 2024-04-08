@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 
-
 /**
  * Trait TraitDataSql
  *
@@ -48,6 +47,7 @@ trait TraitDataSql
     public function setQuery(SqlInterface|null $sql): static
     {
         $this->sql = $sql;
+
         return $this;
     }
 }

@@ -30,7 +30,6 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
 
-
 /**
  * Class DataList
  *
@@ -47,7 +46,6 @@ abstract class DataList extends Iterator implements DataListInterface
     use TraitDataParent {
         setParent as protected __setParent;
     }
-
 
     /**
      * The iterator position
@@ -98,6 +96,7 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     protected string $input_select_class = InputSelect::class;
 
+
     /**
      * Returns true if the ID column is the specified column
      *
@@ -110,6 +109,7 @@ abstract class DataList extends Iterator implements DataListInterface
         return static::getIdColumn() === $column;
     }
 
+
     /**
      * Returns the column considered the "id" column
      *
@@ -119,6 +119,7 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         return 'id';
     }
+
 
     /**
      * Access the direct list operations for this class
@@ -130,6 +131,7 @@ abstract class DataList extends Iterator implements DataListInterface
         return new ListOperations(static::class);
     }
 
+
     /**
      * Return the object source contents in JSON string format
      *
@@ -140,6 +142,7 @@ abstract class DataList extends Iterator implements DataListInterface
         return Json::encode($this->source);
     }
 
+
     /**
      * Return the object contents in JSON string format
      *
@@ -149,6 +152,7 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         return $this->source;
     }
+
 
     /**
      * Returns if the specified data entry key exists in the data list
@@ -166,6 +170,7 @@ abstract class DataList extends Iterator implements DataListInterface
         return parent::keyExists($key);
     }
 
+
     /**
      * Returns if the DataEntry entries are stored with ID or key
      *
@@ -175,6 +180,7 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         return $this->keys_are_unique_column;
     }
+
 
     /**
      * Sets if the DataEntry entries are stored with ID or key
@@ -186,8 +192,10 @@ abstract class DataList extends Iterator implements DataListInterface
     public function setKeysareUniqueColumn(bool $keys_are_unique_column): static
     {
         $this->keys_are_unique_column = $keys_are_unique_column;
+
         return $this;
     }
+
 
     /**
      * Returns the query for this object when generating internal content
@@ -197,8 +205,10 @@ abstract class DataList extends Iterator implements DataListInterface
     public function getQuery(): string
     {
         $this->selectQuery();
+
         return $this->query;
     }
+
 
     /**
      * Set the query for this object when generating internal content
@@ -215,6 +225,7 @@ abstract class DataList extends Iterator implements DataListInterface
 
         return $this;
     }
+
 
     /**
      * Selects if we use the default query or a query from the QueryBuilder
@@ -238,13 +249,13 @@ abstract class DataList extends Iterator implements DataListInterface
             } else {
                 $parent_filter = null;
             }
-
             // Set default query
             $this->query = 'SELECT                        ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
                             FROM                         `' . static::getTable() . '`
                             WHERE  ' . $parent_filter . '`' . static::getTable() . '`.`status` IS NULL';
         }
     }
+
 
     /**
      * Returns the execute array for the query for this object when generating internal content
@@ -254,8 +265,10 @@ abstract class DataList extends Iterator implements DataListInterface
     public function getExecute(): ?array
     {
         $this->selectQuery();
+
         return $this->execute;
     }
+
 
     /**
      * Returns the table name used by this object
@@ -263,6 +276,7 @@ abstract class DataList extends Iterator implements DataListInterface
      * @return string
      */
     abstract public static function getTable(): string;
+
 
     /**
      * Returns the column that (by default) is used for keys
@@ -273,7 +287,6 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         if ($this->keys_are_unique_column) {
             $column = static::getUniqueColumn();
-
             if (!$column) {
                 throw new OutOfBoundsException(tr('The DataList type class ":class" is configured to use its unique column as keys, but no unique column has been defined', [
                     ':class' => get_class($this),
@@ -286,12 +299,14 @@ abstract class DataList extends Iterator implements DataListInterface
         return '`' . static::getTable() . '`.`id`';
     }
 
+
     /**
      * Returns the column that is unique for this object
      *
      * @return string|null
      */
     abstract public static function getUniqueColumn(): ?string;
+
 
     /**
      * Returns the item with the specified identifier
@@ -318,6 +333,7 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this->ensureDataEntry($key);
     }
 
+
     /**
      * Ensure the entry we're going to return is from DataEntryInterface interface
      *
@@ -338,12 +354,14 @@ abstract class DataList extends Iterator implements DataListInterface
                 $this->source[$key] = static::getEntryClass()::get($key);
 
             } else {
-                $this->source[$key] = static::getEntryClass()::new()->setSource($this->source[$key]);
+                $this->source[$key] = static::getEntryClass()::new()
+                                            ->setSource($this->source[$key]);
             }
         }
 
         return $this->source[$key];
     }
+
 
     /**
      * Returns the name of this DataEntry class
@@ -351,6 +369,7 @@ abstract class DataList extends Iterator implements DataListInterface
      * @return string
      */
     abstract public static function getEntryClass(): string;
+
 
     /**
      * Sets the value for the specified key
@@ -366,13 +385,13 @@ abstract class DataList extends Iterator implements DataListInterface
         if ($value instanceof DataEntryInterface) {
             return parent::set($key, $value);
         }
-
         throw new OutOfBoundsException(tr('Cannot set value ":value" to key ":key" in the list ":list", it does not have a DataEntryInterface', [
             ':list'  => get_class($this),
             ':key'   => $key,
             ':value' => $value,
         ]));
     }
+
 
     /**
      * Returns a QueryBuilder object to modify the internal query for this object
@@ -387,6 +406,7 @@ abstract class DataList extends Iterator implements DataListInterface
 
         return $this->query_builder;
     }
+
 
     /**
      * Creates and returns an HTML table for the data in this list
@@ -406,7 +426,6 @@ abstract class DataList extends Iterator implements DataListInterface
                             ->setCallbacks($this->callbacks)
                             ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
         }
-
         $this->selectQuery();
 
         // Create and return the table
@@ -418,6 +437,7 @@ abstract class DataList extends Iterator implements DataListInterface
                         ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
 
+
     /**
      * Returns the default database connector to use for this table
      *
@@ -427,6 +447,7 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         return 'system';
     }
+
 
     /**
      * Creates and returns a fancy HTML data table for the data in this list
@@ -446,7 +467,6 @@ abstract class DataList extends Iterator implements DataListInterface
                                 ->setCallbacks($this->callbacks)
                                 ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
         }
-
         $this->selectQuery();
 
         // Create and return the table
@@ -457,6 +477,7 @@ abstract class DataList extends Iterator implements DataListInterface
                             ->setCallbacks($this->callbacks)
                             ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
+
 
     /**
      * Returns an HTML <select> for the available object entries
@@ -473,11 +494,9 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         $select  = $this->input_select_class::new();
         $execute = [];
-
         if (!$key_column) {
             $key_column = static::getIdColumn();
         }
-
         if ($this->is_loaded or count($this->source)) {
             // Data was either loaded from DB or manually added. $value_column may contain query parts, strip em.
             $value_column = trim($value_column);
@@ -489,35 +508,29 @@ abstract class DataList extends Iterator implements DataListInterface
             $query = 'SELECT ' . $key_column . ', ' . $value_column . ' 
                       FROM   `' . static::getTable() . '` 
                       ' . Strings::force($joins, ' ');
-
             if ($filters) {
                 $where = [];
-
                 foreach ($filters as $key => $value) {
                     $where[] = SqlQueries::is($key, $value, 'value', $execute);
                 }
-
                 $query .= ' WHERE ' . implode(' AND ', $where);
             }
-
             if ($order === null) {
                 // Default order by the value column. Value column may have SQL, make sure its stripped
                 $order = Strings::fromReverse($value_column, ' ') . ' ASC';
             }
-
             // Only order if an order column has been specified
             if ($order) {
                 $query .= ' ORDER BY ' . $order;
             }
-
             // No data was loaded from DB or manually added
-            $select
-                ->setConnector(static::getDefaultConnectorName())
-                ->setSourceQuery($query, $execute);
+            $select->setConnector(static::getDefaultConnectorName())
+                   ->setSourceQuery($query, $execute);
         }
 
         return $select;
     }
+
 
     /**
      * Creates and returns a CLI table for the data in this list
@@ -539,6 +552,7 @@ abstract class DataList extends Iterator implements DataListInterface
         return parent::displayCliTable($columns, $filters, $id_column);
     }
 
+
     /**
      * Delete all the entries in this list
      *
@@ -550,6 +564,7 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         return $this->setStatus('deleted', $comments);
     }
+
 
     /**
      * Set the specified status for the specified entries
@@ -568,6 +583,7 @@ abstract class DataList extends Iterator implements DataListInterface
         return count($this->source);
     }
 
+
     /**
      * Erase (as in SQL DELETE) the specified entries from the database, also erasing their meta data
      *
@@ -577,13 +593,10 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         $ids  = [];
         $meta = [];
-
         $this->loadAll();
-
         // Delete the meta data entries
         foreach ($this->source as $id => $entry) {
             $ids[] = $id;
-
             if (is_array($entry)) {
                 $meta[] = $entry['meta_id'];
 
@@ -591,17 +604,16 @@ abstract class DataList extends Iterator implements DataListInterface
                 $meta[] = $entry->getMetaId();
             }
         }
-
         if ($ids) {
             // Delete the meta data
             Meta::eraseEntries($meta);
-
             // Delete the entries themselves
             sql(static::getDefaultConnectorName())->erase(static::getTable(), ['id' => $ids]);
         }
 
         return $this;
     }
+
 
     /**
      * This method will load ALL database entries into this object
@@ -612,8 +624,10 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         $this->source = sql(static::getDefaultConnectorName())->listKeyValues('SELECT ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
                                                                                      FROM  `' . static::getTable() . '`');
+
         return $this;
     }
+
 
     /**
      * Undelete the specified entries
@@ -628,6 +642,7 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         return $this->setStatus(null, $comments);
     }
+
 
     /**
      * Returns an array with all id's for the specified entry identifiers
@@ -649,6 +664,7 @@ abstract class DataList extends Iterator implements DataListInterface
         return [];
     }
 
+
     /**
      * Add the specified data entry to the data list
      *
@@ -669,7 +685,6 @@ abstract class DataList extends Iterator implements DataListInterface
                 ]));
             }
         }
-
         if ($this->keys_are_unique_column) {
             if ($key) {
                 if (!$value->isNew() and ($key != $value->getUniqueColumnValue())) {
@@ -682,14 +697,11 @@ abstract class DataList extends Iterator implements DataListInterface
                         ':key'    => $key,
                     ]));
                 }
-
                 // Either the specified DataEntry object has no value for its unique column, or the unique column
                 // matches the specified key. Either way, we're good to go
-
             } else {
                 $key = $value->getUniqueColumnValue();
             }
-
             if (!$key) {
                 throw new OutOfBoundsException(tr('Cannot add entry ":value" because the ":class" DataList object should uses unique columns as keys, but has no unique column configured', [
                     ':value' => $value,
@@ -709,7 +721,6 @@ abstract class DataList extends Iterator implements DataListInterface
                 }
 
                 // Either the specified DataEntry object is new or the id matches the specified key, we're good to go
-
             } else {
                 $key = $value->getId();
             }
@@ -717,6 +728,7 @@ abstract class DataList extends Iterator implements DataListInterface
 
         return parent::add($value, $key, $skip_null, $exception);
     }
+
 
     /**
      * Returns the current item
@@ -728,6 +740,7 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this->ensureDataEntry(key($this->source));
     }
 
+
     /**
      * Returns the first element contained in this object without changing the internal pointer
      *
@@ -738,6 +751,7 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this->ensureDataEntry(array_key_first($this->source));
     }
 
+
     /**
      * Returns the last element contained in this object without changing the internal pointer
      *
@@ -747,6 +761,7 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         return $this->ensureDataEntry(array_key_last($this->source));
     }
+
 
     /**
      * Load the id list from the database
@@ -759,7 +774,6 @@ abstract class DataList extends Iterator implements DataListInterface
     public function load(bool $clear = true, bool $only_if_empty = false): static
     {
         $this->selectQuery();
-
         if (!empty($this->source)) {
             if (!$only_if_empty) {
                 if (!$clear) {
@@ -769,10 +783,11 @@ abstract class DataList extends Iterator implements DataListInterface
 
             return $this;
         }
-
         $this->source = sql(static::getDefaultConnectorName())->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? static::getUniqueColumn() : static::getIdColumn());
+
         return $this;
     }
+
 
     /**
      * Adds the specified source to the internal source
@@ -786,6 +801,7 @@ abstract class DataList extends Iterator implements DataListInterface
         return parent::addSources($source);
     }
 
+
     /**
      * Sets the parent
      *
@@ -797,8 +813,10 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         // Clear the source to avoid having a parent with the wrong children
         $this->source = [];
+
         return $this->__setParent($parent);
     }
+
 
     /**
      * Returns an array of
@@ -810,11 +828,10 @@ abstract class DataList extends Iterator implements DataListInterface
     public function autoCompleteFind(?string $word = null): array
     {
         return sql(static::getDefaultConnectorName())->listKeyValue('SELECT `id`, `' . static::getUniqueColumn() . '`
-                                                                           FROM   `' . static::getTable() . '`'
-                                                                    . ($word ? ' WHERE  `' . static::getUniqueColumn() . '` LIKE :like' : null) . '
-                                                                           LIMIT   ' . CliAutoComplete::getLimit(),
-                                                                    $word ? [':like' => $word . '%'] : null);
+                                                                           FROM   `' . static::getTable() . '`' . ($word ? ' WHERE  `' . static::getUniqueColumn() . '` LIKE :like' : null) . '
+                                                                           LIMIT   ' . CliAutoComplete::getLimit(), $word ? [':like' => $word . '%'] : null);
     }
+
 
     /**
      * Ensures that all objects in the source are DataEntry objects
@@ -829,6 +846,7 @@ abstract class DataList extends Iterator implements DataListInterface
 
         return $this;
     }
+
 
     /**
      * Will throw an OutOfBoundsException exception if no parent was set for this list

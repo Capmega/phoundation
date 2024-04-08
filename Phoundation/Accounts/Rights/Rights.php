@@ -23,7 +23,6 @@ use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
 
-
 /**
  * Class Rights
  *
@@ -55,7 +54,6 @@ class Rights extends DataList implements RightsInterface
                                WHERE      `accounts_rights`.`status` IS NULL
                                GROUP BY   `accounts_rights`.`name`
                                ORDER BY   `accounts_rights`.`name`');
-
         parent::__construct();
     }
 
@@ -70,6 +68,7 @@ class Rights extends DataList implements RightsInterface
         return 'accounts_rights';
     }
 
+
     /**
      * Returns the field that is unique for this object
      *
@@ -79,6 +78,7 @@ class Rights extends DataList implements RightsInterface
     {
         return 'seo_name';
     }
+
 
     /**
      * Checks the list of specified rights if they exist and returns those rights that do not exist.
@@ -92,17 +92,16 @@ class Rights extends DataList implements RightsInterface
         $rights = Arrays::force($rights);
         $values = SqlQueries::in($rights);
         $rights = array_flip($rights);
-
         $exist = sql()->query('SELECT `seo_name` 
                                       FROM   `accounts_rights` 
                                       WHERE  `seo_name` IN (' . implode(', ', array_keys($values)) . ')', $values);
-
         while ($right = $exist->fetchColumn(0)) {
             unset($rights[$right]);
         }
 
         return array_flip($rights);
     }
+
 
     /**
      * Ensure that the specified rights exist
@@ -121,17 +120,16 @@ class Rights extends DataList implements RightsInterface
                     ':right' => $right,
                 ]));
             }
-
             if (!is_string($right)) {
                 // Who dis?
                 throw new OutOfBoundsException(tr('Cannot add right ":right", it is not a string. Right names must be a string', [
                     ':right' => $right,
                 ]));
             }
-
             if (Right::notExists($right, 'name')) {
-                Right::new()->setName($right)->save();
-
+                Right::new()
+                     ->setName($right)
+                     ->save();
                 Incident::new()
                         ->setSeverity(Severity::medium)
                         ->setType('Right created automatically')
@@ -142,6 +140,7 @@ class Rights extends DataList implements RightsInterface
             }
         }
     }
+
 
     /**
      * Save the data for this rights list in the database
@@ -186,9 +185,9 @@ class Rights extends DataList implements RightsInterface
 //                ]);
 //            }
 //        }
-
         return $this;
     }
+
 
     /**
      * Set the new rights for the current parents to the specified list
@@ -201,24 +200,20 @@ class Rights extends DataList implements RightsInterface
     public function setRights(?array $list, ?string $column = null): static
     {
         $this->ensureParent(tr('save entries'));
-
         if (is_array($list)) {
             // Convert the list with whatever is specified (id, seo_name, role object) to seo_names
             $rights_list = [];
-
             foreach ($list as $right) {
                 if ($right) {
-                    $rights_list[] = static::getEntryClass()::get($right)->getSeoName();
+                    $rights_list[] = static::getEntryClass()::get($right)
+                                           ->getSeoName();
                 }
             }
-
             // Get a list of what we have to add and remove to get the same list, and apply
             $diff = Arrays::valueDiff(array_keys($this->source), $rights_list);
-
             foreach ($diff['add'] as $right) {
                 $this->add($right, $column);
             }
-
             foreach ($diff['delete'] as $right) {
                 $this->deleteKeys($right);
             }
@@ -226,6 +221,7 @@ class Rights extends DataList implements RightsInterface
 
         return $this;
     }
+
 
     /**
      * Returns the name of this DataEntry class
@@ -236,6 +232,7 @@ class Rights extends DataList implements RightsInterface
     {
         return Right::class;
     }
+
 
     /**
      * Add the specified data entry to the data list
@@ -251,7 +248,6 @@ class Rights extends DataList implements RightsInterface
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         $this->ensureParent(tr('add Right entry to parent'));
-
         if ($value) {
             if (is_array($value)) {
                 // Add multiple rights
@@ -262,27 +258,23 @@ class Rights extends DataList implements RightsInterface
             } else {
                 // Add single right. Since this is a Right object, the entry already exists in the database
                 $value = Right::get($value);
-
                 // Right already exists for this parent?
                 if ($this->hasRight($value)) {
                     // Ignore and continue
                     return $this;
                 }
-
                 // Add entry to parent, User or Role
                 if ($this->parent instanceof UserInterface) {
                     Log::action(tr('Adding right ":right" to user ":user"', [
                         ':user'  => $this->parent->getLogId(),
                         ':right' => $value->getLogId(),
-                    ]),         3);
-
+                    ]), 3);
                     sql()->insert('accounts_users_rights', [
                         'users_id'  => $this->parent->getId(),
                         'rights_id' => $value->getId(),
                         'name'      => $value->getName(),
                         'seo_name'  => $value->getSeoName(),
                     ]);
-
                     // Add right to the internal list
                     $this->add($value);
 
@@ -290,19 +282,18 @@ class Rights extends DataList implements RightsInterface
                     Log::action(tr('Adding right ":right" to role ":role"', [
                         ':role'  => $this->parent->getLogId(),
                         ':right' => $value->getLogId(),
-                    ]),         3);
-
+                    ]), 3);
                     sql()->insert('accounts_roles_rights', [
                         'roles_id'  => $this->parent->getId(),
                         'rights_id' => $value->getId(),
                     ]);
-
                     // Add right to the internal list
                     $this->add($value);
-
                     // Update all users with this role to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user)->getRights()->add($value);
+                        User::get($user)
+                            ->getRights()
+                            ->add($value);
                     }
                 }
             }
@@ -310,6 +301,7 @@ class Rights extends DataList implements RightsInterface
 
         return $this;
     }
+
 
     /**
      * Returns true if the parent has the specified right
@@ -323,9 +315,8 @@ class Rights extends DataList implements RightsInterface
         if (!$this->parent) {
             throw OutOfBoundsException::new('Cannot check if parent has the specified right, this rights list has no parent specified');
         }
-
         if ($this->parent instanceof UserInterface) {
-            return (bool)sql()->get('SELECT `id` 
+            return (bool) sql()->get('SELECT `id` 
                                             FROM   `accounts_users_rights` 
                                             WHERE  `users_id`  = :users_id 
                                             AND    `rights_id` = :rights_id', [
@@ -335,7 +326,7 @@ class Rights extends DataList implements RightsInterface
         }
 
         // No user? Then it must be a role
-        return (bool)sql()->get('SELECT `id` 
+        return (bool) sql()->get('SELECT `id` 
                                         FROM   `accounts_roles_rights` 
                                         WHERE  `roles_id`  = :roles_id 
                                         AND    `rights_id` = :rights_id', [
@@ -343,6 +334,7 @@ class Rights extends DataList implements RightsInterface
             ':rights_id' => $right->getId(),
         ]);
     }
+
 
     /**
      * Remove the specified data entry from the data list
@@ -354,12 +346,10 @@ class Rights extends DataList implements RightsInterface
     public function deleteKeys(RightInterface|Stringable|array|string|float|int $keys): static
     {
         $this->ensureParent(tr('remove entry from parent'));
-
         if (!$keys) {
             // Nothing to do
             return $this;
         }
-
         if (is_array($keys)) {
             // Add multiple rights
             foreach ($keys as $key) {
@@ -369,18 +359,15 @@ class Rights extends DataList implements RightsInterface
         } else {
             // Add single right. Since this is a Right object, the entry already exists in the database
             $right = Right::get($keys);
-
             if ($this->parent instanceof UserInterface) {
                 Log::action(tr('Removing right ":right" from user ":user"', [
                     ':user'  => $this->parent->getLogId(),
                     ':right' => $right->getLogId(),
-                ]),         3);
-
+                ]), 3);
                 sql()->delete('accounts_users_rights', [
                     'users_id'  => $this->parent->getId(),
                     'rights_id' => $right->getId(),
                 ]);
-
                 // Delete right from the internal list
                 $this->removeKeys($right->getId());
 
@@ -388,18 +375,17 @@ class Rights extends DataList implements RightsInterface
                 Log::action(tr('Removing right ":right" from role ":role"', [
                     ':role'  => $this->parent->getLogId(),
                     ':right' => $right->getLogId(),
-                ]),         3);
-
+                ]), 3);
                 sql()->delete('accounts_roles_rights', [
                     'roles_id'  => $this->parent->getId(),
                     'rights_id' => $right->getId(),
                 ]);
-
                 // Update all users with this role to get the new right as well!
                 foreach ($this->parent->getUsers() as $user) {
-                    User::get($user, null)->getRights()->deleteKeys($right);
+                    User::get($user, null)
+                        ->getRights()
+                        ->deleteKeys($right);
                 }
-
                 // Delete right from the internal list
                 $this->removeKeys($right->getId());
             }
@@ -407,6 +393,7 @@ class Rights extends DataList implements RightsInterface
 
         return $this;
     }
+
 
     /**
      * Remove all rights for this role
@@ -416,12 +403,10 @@ class Rights extends DataList implements RightsInterface
     public function clear(): static
     {
         $this->ensureParent(tr('clear all entries from parent'));
-
         if ($this->parent instanceof UserInterface) {
             Log::action(tr('Removing all rights from user ":user"', [
                 ':user' => $this->parent->getLogId(),
             ]));
-
             sql()->query('DELETE FROM `accounts_users_rights` WHERE `users_id` = :users_id', [
                 'users_id' => $this->parent->getId(),
             ]);
@@ -430,7 +415,6 @@ class Rights extends DataList implements RightsInterface
             Log::action(tr('Removing all rights from role ":role"', [
                 ':role' => $this->parent->getLogId(),
             ]));
-
             sql()->query('DELETE FROM `accounts_roles_rights` WHERE `roles_id` = :roles_id', [
                 'roles_id' => $this->parent->getId(),
             ]);
@@ -438,6 +422,7 @@ class Rights extends DataList implements RightsInterface
 
         return parent::clear();
     }
+
 
     /**
      * Load the data for this rights list into the object
@@ -461,7 +446,6 @@ class Rights extends DataList implements RightsInterface
                                                    ORDER BY `accounts_rights`.`name` ASC', [
                     ':users_id' => $this->parent->getId(),
                 ]);
-
                 // Added the "everybody" right
                 $this->source['everybody'] = [
                     'id'          => 0,
@@ -492,6 +476,7 @@ class Rights extends DataList implements RightsInterface
         return $this;
     }
 
+
     /**
      * Load the data for this right list
      *
@@ -506,28 +491,23 @@ class Rights extends DataList implements RightsInterface
         if (!$columns) {
             $columns = 'id,name,roles';
         }
-
         // Default ordering
         if (!$order_by) {
             $order_by = ['name' => false];
         }
-
         // Get column information
         $columns = Arrays::force($columns);
         $users   = Arrays::replaceIfExists($columns, 'users', '1 AS `users`');
         $roles   = Arrays::replaceIfExists($columns, 'roles', '1 AS `roles`');
         $columns = Strings::force($columns);
-
         // Build query
         $builder = new QueryBuilder();
         $builder->addSelect($columns);
         $builder->addFrom('`accounts_rights`');
-
         // Add ordering
         foreach ($order_by as $column => $direction) {
             $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
-
         // Build filters
         foreach ($filters as $key => $value) {
             switch ($key) {
@@ -538,7 +518,6 @@ class Rights extends DataList implements RightsInterface
                                             ON   `accounts_users_rights`.`users_id`  = `accounts_users`.`id` 
                                             AND  `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`');
                     break;
-
                 case 'roles':
                     $builder->addJoin('JOIN `accounts_roles` 
                                             ON   `accounts_roles`.`name` ' . $builder->compareQuery('role', $value) . ' 
@@ -548,9 +527,7 @@ class Rights extends DataList implements RightsInterface
                     break;
             }
         }
-
         $return = sql()->list($builder->getQuery(), $builder->getExecute());
-
         if ($users) {
             // Add roles information to each user
             foreach ($return as $id => &$item) {
@@ -561,13 +538,10 @@ class Rights extends DataList implements RightsInterface
                                               AND    `accounts_users_rights`.`users_id` = `accounts_users`.`id`', [
                     ':rights_id' => $id,
                 ]);
-
                 $item['users'] = implode(', ', $item['users']);
             }
-
             unset($item);
         }
-
         if ($roles) {
             // Add roles information to each user
             // Add roles information to each user
@@ -579,15 +553,14 @@ class Rights extends DataList implements RightsInterface
                                                AND    `accounts_roles_rights`.`roles_id` = `accounts_roles`.`id`', [
                     ':rights_id' => $id,
                 ]);
-
                 $item['roles'] = implode(', ', $item['roles']);
             }
-
             unset($item);
         }
 
         return $return;
     }
+
 
     /**
      * Returns a select with the available rights

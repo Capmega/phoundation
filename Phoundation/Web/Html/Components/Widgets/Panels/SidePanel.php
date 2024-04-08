@@ -8,7 +8,6 @@ use Phoundation\Web\Html\Components\Widgets\Modals\SignInModal;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 
-
 /**
  * SidePanel class
  *
@@ -29,7 +28,8 @@ class SidePanel extends Panel
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-        $this->getModals()->addModal('sign-in', new SignInModal());
+        $this->getModals()
+             ->addModal('sign-in', new SignInModal());
     }
 
 
@@ -39,14 +39,13 @@ class SidePanel extends Panel
     public function render(): ?string
     {
         $sign_in = new SignInModal();
-        $sign_in
-            ->useForm(true)
-            ->getForm()
-            ->setId('form-sign-in')
-            ->setMethod('post')
-            ->setAction(UrlBuilder::getAjax('sign-in'));
-
-        $this->setMenu(Request::getMenusObject()->getPrimaryMenu())
+        $sign_in->useForm(true)
+                ->getForm()
+                ->setId('form-sign-in')
+                ->setMethod('post')
+                ->setAction(UrlBuilder::getAjax('sign-in'));
+        $this->setMenu(Request::getMenusObject()
+                              ->getPrimaryMenu())
              ->getModals()
              ->addModal('sign-in', $sign_in);
 

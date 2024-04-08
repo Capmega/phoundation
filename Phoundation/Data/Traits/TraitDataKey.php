@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataKey
  *
@@ -46,6 +45,7 @@ trait TraitDataKey
     public function setKey(?string $key): static
     {
         $this->key = $key;
+
         return $this;
     }
 }

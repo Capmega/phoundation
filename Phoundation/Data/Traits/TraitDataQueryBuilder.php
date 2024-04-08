@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 
-
 /**
  * Trait TraitDataQueryBuilder
  *
@@ -48,6 +47,7 @@ trait TraitDataQueryBuilder
     public function setQueryBuilder(QueryBuilderInterface $query_builder): static
     {
         $this->query_builder = $query_builder;
+
         return $this;
     }
 }

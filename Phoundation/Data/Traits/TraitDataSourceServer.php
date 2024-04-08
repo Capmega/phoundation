@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Servers\Interfaces\ServerInterface;
 
-
 /**
  * Trait TraitDataSourceServer
  *
@@ -46,6 +45,7 @@ trait TraitDataSourceServer
     public function setSourceServer(?ServerInterface $source_server): static
     {
         $this->source_server = $source_server;
+
         return $this;
     }
 }

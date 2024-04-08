@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Cli\Interfaces;
 
-
 /**
  * Class RunFile
  *
@@ -30,12 +29,14 @@ interface CliRunFileInterface
      */
     public function getCommand(): string;
 
+
     /**
      * Returns the pid for this runfile
      *
      * @return int
      */
     public function getPid(): int;
+
 
     /**
      * Returns the path where all run files are located
@@ -44,6 +45,7 @@ interface CliRunFileInterface
      */
     public function getDirectory(): string;
 
+
     /**
      * Returns the run file for this process
      *
@@ -51,12 +53,14 @@ interface CliRunFileInterface
      */
     public function getFile(): string;
 
+
     /**
      * Returns true if this run file object still has a run file available
      *
      * @return bool
      */
     public function exists(): bool;
+
 
     /**
      * Returns the first found PID for the specified command, if it currently runs. NULL otherwise
@@ -67,6 +71,7 @@ interface CliRunFileInterface
      */
     public function getPidForCommand(): ?int;
 
+
     /**
      * Returns an array with all PIDs for the specified command, if it currently runs.
      *
@@ -74,12 +79,14 @@ interface CliRunFileInterface
      */
     public function getPidsForCommand(): array;
 
+
     /**
      * Return the number of this command being run
      *
      * @return int
      */
     public function getCount(): int;
+
 
     /**
      * Delete the run file and clean up the run path

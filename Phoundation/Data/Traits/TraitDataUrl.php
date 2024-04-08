@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Stringable;
 
-
 /**
  * Trait TraitDataUrl
  *
@@ -25,6 +24,7 @@ trait TraitDataUrl
      * @var string|null $url
      */
     protected ?string $url = null;
+
 
     /**
      * Returns the url
@@ -46,7 +46,8 @@ trait TraitDataUrl
      */
     public function setUrl(Stringable|string|null $url): static
     {
-        $this->url = get_null((string)$url);
+        $this->url = get_null((string) $url);
+
         return $this;
     }
 }

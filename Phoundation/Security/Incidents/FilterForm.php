@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Security\Incidents;
 
-
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Web\Html\Enums\EnumElement;
@@ -27,7 +26,6 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     public function __construct()
     {
         parent::__construct();
-
         $this->definitions = Definitions::new()
                                         ->add(Definition::new(null, 'type[]')
                                                         ->setLabel(tr('Type'))

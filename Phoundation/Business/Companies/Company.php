@@ -13,7 +13,6 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 
-
 /**
  *  Class Company
  *
@@ -28,7 +27,6 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 class Company extends DataEntry implements CompanyInterface
 {
     use TraitDataEntryNameDescription;
-
 
     /**
      * The branches for this company

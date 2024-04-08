@@ -12,7 +12,6 @@ use Phoundation\Web\Html\Html;
 use Phoundation\Web\Html\Traits\TraitMode;
 use Stringable;
 
-
 /**
  * Trait InputElement
  *
@@ -26,7 +25,6 @@ use Stringable;
 trait InputElement
 {
     use TraitMode;
-
 
     /**
      * Input element type
@@ -64,6 +62,7 @@ trait InputElement
     public function setType(?EnumInputTypeInterface $type): static
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -156,9 +155,10 @@ trait InputElement
      */
     protected function renderInputAttributes(): IteratorInterface
     {
-        return Iterator::new()->setSource([
-                                              'type'  => $this->type?->value,
-                                              'value' => $this->value,
-                                          ]);
+        return Iterator::new()
+                       ->setSource([
+                           'type'  => $this->type?->value,
+                           'value' => $this->value,
+                       ]);
     }
 }

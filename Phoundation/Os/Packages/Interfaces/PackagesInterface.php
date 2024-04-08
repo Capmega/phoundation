@@ -7,7 +7,6 @@ namespace Phoundation\Os\Packages\Interfaces;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Stringable;
 
-
 /**
  * Interface PackagesInterface
  *
@@ -30,6 +29,7 @@ interface PackagesInterface
      */
     public function addForOperatingSystem(Stringable|string $operating_system, IteratorInterface|array|string $packages): static;
 
+
     /**
      * Installs the required packages for this operating system
      *
@@ -38,6 +38,7 @@ interface PackagesInterface
      * @return $this
      */
     public function install(Stringable|string|null $operating_system = null): static;
+
 
     /**
      * Returns the package manager for the specified operating system

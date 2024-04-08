@@ -11,7 +11,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Throwable;
 
-
 /**
  * Hook class
  *
@@ -52,11 +51,11 @@ class Hook implements HookInterface
     public function __construct(?string $class = null)
     {
         $this->class = Strings::endsNotWith(trim($class), '/') . '/';
-
         if ($this->class) {
             $this->directory .= $this->class;
         }
     }
+
 
     /**
      * Attempts to execute the specified hooks
@@ -69,34 +68,31 @@ class Hook implements HookInterface
     {
         foreach (Arrays::force($hooks) as $hook) {
             $file = $this->directory . $hook;
-
             if (!file_exists($file)) {
                 // Only execute existing files
                 continue;
             }
-
             // Ensure its readable, not a path, within the filesystem restrictions, etc...
-            File::new($file, $this->directory)->checkReadable();
-
+            File::new($file, $this->directory)
+                ->checkReadable();
             // Try executing it!
             try {
                 Log::action(tr('Executing hook ":hook"', [
                     ':hook' => $this->class . '/' . $hook,
                 ]));
-
                 include($file);
 
             } catch (Throwable $e) {
                 Log::error(tr('Hook ":hook" failed to execute with the following exception', [
                     ':hook' => $hook,
                 ]));
-
                 Log::error($e);
             }
         }
 
         return $this;
     }
+
 
     /**
      * Returns a new Hook object

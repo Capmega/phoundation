@@ -8,7 +8,6 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Strings;
 
-
 /**
  * ArrayValidator class
  *
@@ -37,6 +36,7 @@ class ArrayValidator extends Validator
         $this->construct($parent, $source);
     }
 
+
     /**
      * Selects the specified key within the array that we are validating
      *
@@ -48,6 +48,7 @@ class ArrayValidator extends Validator
     {
         return $this->standardSelect($field);
     }
+
 
     /**
      * Throws an exception if there are still arguments left in the POST source
@@ -61,15 +62,12 @@ class ArrayValidator extends Validator
         if (!$apply) {
             return $this;
         }
-
         if (count($this->selected_fields) === count($this->source)) {
             return $this;
         }
-
         $messages = [];
         $fields   = [];
         $post     = array_keys($this->source);
-
         foreach ($post as $field) {
             if (!in_array($field, $this->selected_fields)) {
                 $fields[]   = $field;
@@ -78,11 +76,14 @@ class ArrayValidator extends Validator
                 ]);
             }
         }
-
         throw ValidatorException::new(tr('Unknown ARRAY fields ":fields" encountered', [
             ':fields' => Strings::force($fields, ', '),
-        ]))->addData($messages)->makeWarning()->log();
+        ]))
+                                ->addData($messages)
+                                ->makeWarning()
+                                ->log();
     }
+
 
     /**
      * Returns a new array data Validator object

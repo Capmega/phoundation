@@ -6,7 +6,6 @@ namespace Phoundation\Servers\Exception;
 
 use Phoundation\Exception\Exception;
 
-
 /**
  * Class ServersException
  *

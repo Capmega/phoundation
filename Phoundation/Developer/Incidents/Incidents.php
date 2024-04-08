@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Incidents class
  *
@@ -36,6 +35,7 @@ class Incidents extends DataList
         parent::__construct();
     }
 
+
     /**
      * Returns the name of this DataEntry class
      *
@@ -46,6 +46,7 @@ class Incidents extends DataList
         return Incident::class;
     }
 
+
     /**
      * Returns the field that is unique for this object
      *
@@ -55,6 +56,7 @@ class Incidents extends DataList
     {
         return null;
     }
+
 
     /**
      * Creates and returns an HTML table for the data in this list
@@ -70,6 +72,7 @@ class Incidents extends DataList
 
         return $table;
     }
+
 
     /**
      * Returns an HTML <select> for the available object entries
@@ -95,6 +98,7 @@ class Incidents extends DataList
                           ->setNone(tr('Select an incident'))
                           ->setObjectEmpty(tr('No incidents available'));
     }
+
 
     /**
      * Returns the table name used by this object

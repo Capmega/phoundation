@@ -7,7 +7,6 @@ namespace Phoundation\Exception;
 use Phoundation\Developer\Debug;
 use Throwable;
 
-
 /**
  * Class UnderConstructionException
  *
@@ -22,9 +21,7 @@ class UnderConstructionException extends Exception
         if (!$messages) {
             $messages = tr(':location IS UNDER CONSTRUCTION', [':location' => Debug::currentLocation(1)]);
         }
-
         $this->makeWarning();
-
         parent::__construct($messages, $previous);
     }
 }

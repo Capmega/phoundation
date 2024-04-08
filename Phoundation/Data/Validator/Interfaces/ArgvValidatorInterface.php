@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator\Interfaces;
 
-
 /**
  * ArgvValidator class
  *
@@ -26,6 +25,7 @@ interface ArgvValidatorInterface extends ValidatorInterface
      * @return static
      */
     public function select(string|int $fields, string|bool $next = false): static;
+
 
     /**
      * Returns the $argv array

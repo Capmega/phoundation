@@ -19,7 +19,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Routing\Interfaces\RoutingParametersInterface;
 use Templates\AdminLte\AdminLte;
 
-
 /**
  * Class RouteParameters
  *
@@ -120,6 +119,7 @@ class RoutingParameters implements RoutingParametersInterface
         $this->pattern = $pattern;
     }
 
+
     /**
      * Returns the template as an object
      *
@@ -129,6 +129,7 @@ class RoutingParameters implements RoutingParametersInterface
     {
         return $this->template::new();
     }
+
 
     /**
      * Returns a new RouteParameters object
@@ -141,6 +142,7 @@ class RoutingParameters implements RoutingParametersInterface
     {
         return new static($pattern);
     }
+
 
     /**
      * Returns the template to use
@@ -173,8 +175,8 @@ class RoutingParameters implements RoutingParametersInterface
                 ':interface' => TemplateInterface::class,
             ]));
         }
-
         $this->template = $template;
+
         return $this;
     }
 
@@ -192,7 +194,6 @@ class RoutingParameters implements RoutingParametersInterface
         if ($this->rights_exceptions and in_array(basename($target), $this->rights_exceptions)) {
             return [];
         }
-
         // Check defined rights and directory rights, both have to pass
         if ($this->require_directory_rights) {
             if (substr_count($this->require_directory_rights, '/') > 1) {
@@ -200,7 +201,6 @@ class RoutingParameters implements RoutingParametersInterface
             } else {
                 $dirname = $this->require_directory_rights;
             }
-
             // First cut to WWW directory
             // Then the rest, as the directory may be partial
             // Then remove the file name to only have the directory parts
@@ -210,7 +210,6 @@ class RoutingParameters implements RoutingParametersInterface
             $directory = Strings::from($directory, $dirname);
             $directory = Strings::startsNotWith($directory, '/');
             $directory = dirname($directory);
-
             if ($directory === '.') {
                 // Current directory, there is no directory
                 $directory = [];
@@ -241,6 +240,7 @@ class RoutingParameters implements RoutingParametersInterface
         return $this->require_directory_rights;
     }
 
+
     /**
      * Sets if (and from what directory onwards) rights should be taken from the directories automatically for each page
      *
@@ -256,13 +256,13 @@ class RoutingParameters implements RoutingParametersInterface
     public function setRequireDirectoryRights(string $require_directory_rights, array|string|null $rights_exceptions = null): static
     {
         $this->require_directory_rights = Strings::slash($require_directory_rights);
-
         if ($rights_exceptions) {
             $this->rights_exceptions = Arrays::force($rights_exceptions, null);
         }
 
         return $this;
     }
+
 
     /**
      * Returns filename exceptions to required directory rights
@@ -274,6 +274,7 @@ class RoutingParameters implements RoutingParametersInterface
         return $this->rights_exceptions;
     }
 
+
     /**
      * Returns filename exceptions to required directory rights
      *
@@ -284,8 +285,10 @@ class RoutingParameters implements RoutingParametersInterface
     public function setRightsExceptions(array|string $exceptions): static
     {
         $this->rights_exceptions = Arrays::force($exceptions);
+
         return $this;
     }
+
 
     /**
      * Returns the URI being processed
@@ -308,6 +311,7 @@ class RoutingParameters implements RoutingParametersInterface
     public function setUri(string $uri): static
     {
         $this->uri = $uri;
+
         return $this;
     }
 
@@ -333,6 +337,7 @@ class RoutingParameters implements RoutingParametersInterface
     public function setMatches(array $matches): static
     {
         $this->matches = $matches;
+
         return $this;
     }
 
@@ -347,9 +352,7 @@ class RoutingParameters implements RoutingParametersInterface
         if (!isset($this->root_directory)) {
             $this->root_directory = '';
         }
-
         $directory = $this->root_directory;
-
         if ($this->matches) {
             // Apply matches for this parameters pattern
             foreach ($this->matches as $key => $value) {
@@ -371,6 +374,7 @@ class RoutingParameters implements RoutingParametersInterface
     public function setRootDirectory(string $root_directory): static
     {
         $this->root_directory = $root_directory;
+
         return $this;
     }
 
@@ -396,6 +400,7 @@ class RoutingParameters implements RoutingParametersInterface
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions): static
     {
         $this->restrictions = Restrictions::default($restrictions, Restrictions::new(DIRECTORY_WEB, false, 'Routing parameter'));
+
         return $this;
     }
 
@@ -411,7 +416,6 @@ class RoutingParameters implements RoutingParametersInterface
             // If not specified, use the default configured root uri for this domain
             return Domains::getRootUrl();
         }
-
         $root_url = $this->root_url;
         $root_url = str_replace(':LANGUAGE', Session::getLanguage(), $root_url);
 
@@ -429,7 +433,8 @@ class RoutingParameters implements RoutingParametersInterface
     public function setRootUrl(string $root_url): static
     {
         // Make it a correct local URL
-        $this->root_url = (string)UrlBuilder::getWww($root_url, true);
+        $this->root_url = (string) UrlBuilder::getWww($root_url, true);
+
         return $this;
     }
 
@@ -459,6 +464,7 @@ class RoutingParameters implements RoutingParametersInterface
     public function setPattern(string $pattern): static
     {
         $this->pattern = $pattern;
+
         return $this;
     }
 
@@ -484,6 +490,7 @@ class RoutingParameters implements RoutingParametersInterface
     public function setSystemPagesOnly(bool $system_pages_only): static
     {
         $this->system_pages_only = $system_pages_only;
+
         return $this;
     }
 
@@ -512,6 +519,7 @@ class RoutingParameters implements RoutingParametersInterface
     {
         $this->rights = [];
         $this->addRights($rights);
+
         return $this;
     }
 
@@ -526,13 +534,13 @@ class RoutingParameters implements RoutingParametersInterface
     public function addRights(Rights|Right|array|string|null $rights): static
     {
         $this->rights = [];
-
         foreach ($this->getRightsArray($rights) as $right) {
             $this->add($right);
         }
 
         return $this;
     }
+
 
     /**
      * Returns an array of rights from whatever is specified
@@ -559,6 +567,7 @@ class RoutingParameters implements RoutingParametersInterface
         return $rights;
     }
 
+
     /**
      * Adds a required right to access this page
      *
@@ -572,7 +581,6 @@ class RoutingParameters implements RoutingParametersInterface
             if (is_object($right)) {
                 $right = $right->getSeoName();
             }
-
             $this->rights[] = $right;
         }
 

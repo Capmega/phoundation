@@ -9,7 +9,6 @@ use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 
-
 /**
  * Trait TraitGit
  *
@@ -94,7 +93,6 @@ trait TraitGit
     {
         $this->directory = Path::getAbsolute($directory);
         $this->git       = Git::new($this->directory);
-
         if (!$this->directory) {
             if (!file_exists($directory)) {
                 throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [

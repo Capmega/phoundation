@@ -6,7 +6,6 @@ namespace Phoundation\Network\Browsers;
 
 use Phoundation\Utils\Arrays;
 
-
 /**
  * Class UserAgents
  *
@@ -37,6 +36,7 @@ class UserAgents
         return new static();
     }
 
+
     /**
      * Returns a random user agent
      *
@@ -46,6 +46,7 @@ class UserAgents
     {
         return Arrays::getRandomValue(static::list());
     }
+
 
     /**
      * Returns all available user agents
@@ -66,6 +67,7 @@ class UserAgents
         return $return;
     }
 
+
     /**
      * Adds a filter
      *
@@ -76,6 +78,7 @@ class UserAgents
     public function addFilter(string $filter): static
     {
         $this->filters[] = $filter;
+
         return $this;
     }
 }

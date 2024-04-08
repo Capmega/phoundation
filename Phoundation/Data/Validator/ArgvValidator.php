@@ -16,7 +16,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
-
 /**
  * ArgvValidator class
  *
@@ -35,24 +34,28 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * @var array $argv
      */
     protected static array $argv = [];
+
     /**
      * Internal backup array of $argv
      *
      * @var array $backup
      */
     protected static array $backup = [];
+
     /**
      * Tracks if for selecting the current value, we have to take the current argument or the next
      *
      * @var bool $next
      */
     protected bool $next = false;
+
     /**
      * The fields that were originally selected as they might be expected on the CLI, like "-u,users"
      *
      * @var string|null $cli_fields
      */
     protected ?string $cli_fields = null;
+
 
     /**
      * Validator constructor.
@@ -72,15 +75,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         $this->construct($parent);
     }
 
-    /**
-     * Returns the entire source for this validator object
-     *
-     * @return array|null
-     */
-    public function getSource(): ?array
-    {
-        return static::$argv;
-    }
 
     /**
      * Move all $argv data to internal array to ensure developers cannot access them until validation has been completed
@@ -96,23 +90,20 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             if (isset_get($argv[0]) === 'php') {
                 array_shift($argv);
             }
-
             if (!empty($argv)) {
                 if (str_ends_with(isset_get($argv[0]), '/' . Strings::fromReverse($_SERVER['PHP_SELF'], '/'))) {
                     array_shift($argv);
                 }
             }
         }
-
         // Expand "single dash + multiple letters" entries to individual "single dash + single letter" entries
         $argv = static::expandSingleDashMultipleLetters($argv);
-
         // Copy $argv data and reset the global $argv
         static::$argv   = $argv;
         static::$backup = $argv;
-
         $argv = [];
     }
+
 
     /**
      * Expand "single dash + multiple letters" entries to individual "single dash + single letter" entries
@@ -124,12 +115,10 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     protected static function expandSingleDashMultipleLetters(array $argv): array
     {
         $return = [];
-
         foreach ($argv as $value) {
             if (preg_match('/^-[a-z]+$/i', $value)) {
                 // Expand
                 $length = strlen($value);
-
                 for ($i = 1; $i < $length; $i++) {
                     $return[] = '-' . $value[$i];
                 }
@@ -142,6 +131,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return $return;
     }
 
+
     /**
      * Recovers an untouched backup of the command line arguments to the internal $argv array
      *
@@ -151,6 +141,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     {
         static::$argv = static::$backup;
     }
+
 
     /**
      * Returns an untouched backup of the command line arguments to the internal $argv array
@@ -162,6 +153,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return static::$backup;
     }
 
+
     /**
      * Returns the number of command line arguments still available.
      *
@@ -171,6 +163,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     {
         return count(static::$argv);
     }
+
 
     /**
      * Returns the number of command line command arguments still available.
@@ -188,22 +181,20 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     public static function getCommandCount(): int
     {
         $count = 0;
-
         foreach (static::$argv as $argument) {
             if (!trim($argument)) {
                 // Ignore empty items
                 continue;
             }
-
             if (str_starts_with($argument, '-')) {
                 break;
             }
-
             $count++;
         }
 
         return $count;
     }
+
 
     /**
      * Returns an array of command line commands
@@ -213,26 +204,23 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     public static function getCommands(): array
     {
         $commands = [];
-
         // Scan all arguments until named parameters start
         foreach (static::$argv as $argument) {
             $argument = trim($argument);
-
             if (!$argument) {
                 // Ignore empty items
                 continue;
             }
-
             if (str_starts_with($argument, '-')) {
                 // This is a modifier argument, not a command
                 break;
             }
-
             $commands[] = $argument;
         }
 
         return $commands;
     }
+
 
     /**
      * Returns an array of all UNVALIDATED command line arguments that are left
@@ -244,6 +232,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return array_values(static::$argv);
     }
 
+
     /**
      * Remove the specified method from the arguments list
      *
@@ -254,15 +243,14 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     public static function removeCommand(string $method): void
     {
         $key = array_search($method, static::$argv);
-
         if ($key === false) {
             throw new ValidatorException(tr('Cannot remove method ":method", it does not exist', [
                 ':method' => $method,
             ]));
         }
-
         unset(static::$argv[$key]);
     }
+
 
     /**
      * Find the specified method, basically any argument without - or --
@@ -284,10 +272,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     {
         global $argv;
         static $method = [];
-
         if (isset($method[$index])) {
             $reappeared = array_search($method[$index], $argv);
-
             if (is_numeric($reappeared)) {
                 // The argument has been re-added to $argv. This is very likely happened by safe_exec() that included
                 // the specified script into itself, and had to reset the arguments array
@@ -296,17 +282,29 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             return $method[$index];
         }
-
         foreach ($argv as $key => $value) {
             if (!str_starts_with($value, '-')) {
                 unset($argv[$key]);
                 $method[$index] = $value;
+
                 return $value;
             }
         }
 
         return $default;
     }
+
+
+    /**
+     * Returns the entire source for this validator object
+     *
+     * @return array|null
+     */
+    public function getSource(): ?array
+    {
+        return static::$argv;
+    }
+
 
     /**
      * Selects all arguments
@@ -319,57 +317,47 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     {
         // Check if we can select
         static::checkSelectAllowed(true);
-
         // Initialize select
         $fields      = static::initSelect($fields);
         $clean_field = null;
-
         // Determine the correct clean field name for the specified argument field
         foreach (Arrays::force($fields, ',') as $field) {
             // Clean the field by stripping parameter information
             $field       = trim($field);
             $clean_field = Strings::until($field, ' ');
-
             if (str_starts_with($clean_field, '--')) {
                 // This is the long form argument
                 $clean_field = Strings::startsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 break;
             }
-
             if (str_starts_with($clean_field, '-')) {
                 // This is the short form argument, won't be a variable name unless there is no alternative
                 $clean_field = Strings::startsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 continue;
             }
-
             // This is not a modifier field but a command or value argument instead. Do not modify the field name
             // Do change the field value to NULL, which will cause ArgvValidator::argument() to return the next
             // available argument
             $clean_field = $fields;
             $fields      = null;
         }
-
         if (!$clean_field) {
             throw new ValidatorException(tr('Failed to determine clean field name for ":field"', [
                 ':field' => $field,
             ]));
         }
-
         // Get the value from the argument list
         $value        = static::$argv;
         static::$argv = [];
-
         // Add the cleaned field to the source array
         $this->source[$clean_field] = $value;
-
         if (in_array($clean_field, $this->selected_fields)) {
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
                 ':key' => $clean_field,
             ]));
         }
-
         // Select the field.
         $this->selected_field    = $clean_field;
         $this->selected_fields[] = $clean_field;
@@ -380,6 +368,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return $this;
     }
 
+
     /**
      * Check if selecting is allowed
      *
@@ -388,14 +377,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     protected function checkSelectAllowed(bool $selecting_all): void
     {
         static $select_allowed = true;
-
         if (!$select_allowed) {
             throw new ValidatorException(tr('Cannot select another cli argument again after using ArgvValidator::selectAll()'));
         }
-
         // Once ArgvValidator::selectAll() has been executed once, we cannot ever select anything else!
         $select_allowed = !$selecting_all;
     }
+
 
     /**
      * Initializes a select() request
@@ -411,19 +399,15 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 ':fields' => $fields,
             ]));
         }
-
         if (!$fields) {
             throw new OutOfBoundsException(tr('No field specified'));
         }
-
         // Make sure the field value doesn't have any extras like -e,--email EMAIL <<< The EMAIL part is extra
         $fields = Strings::until($fields, ' ');
-
         // Unset various values first to ensure the byref link is broken
         unset($this->process_value);
         unset($this->process_values);
         unset($this->selected_value);
-
         $this->process_value_failed = false;
         $this->selected_is_optional = false;
         $this->selected_is_default  = false;
@@ -432,6 +416,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         return $fields;
     }
+
 
     /**
      * Selects the specified key within the command line arguments that we are validating
@@ -445,44 +430,37 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     {
         // Check if selecting is allowed
         static::checkSelectAllowed(false);
-
         // Initialize select
         $fields      = $this->initSelect($fields, $next);
         $clean_field = null;
-
         // Determine the correct clean field name for the specified argument field
         foreach (Arrays::force($fields, ',') as $field) {
             // Clean the field by stripping parameter information
             $field       = trim($field);
             $clean_field = Strings::until($field, ' ');
-
             if (str_starts_with($clean_field, '--')) {
                 // This is the long form argument
                 $clean_field = Strings::startsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 break;
             }
-
             if (str_starts_with($clean_field, '-')) {
                 // This is the short form argument, won't be a variable name unless there is no alternative
                 $clean_field = Strings::startsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 continue;
             }
-
             // This is not a modifier field but a command or value argument instead. Do not modify the field name
             // Do change the field value to NULL, which will cause ArgvValidator::argument() to return the next
             // available argument
             $clean_field = $fields;
             $fields      = null;
         }
-
         if (!$clean_field) {
             throw new ValidatorException(tr('Failed to determine clean field name for ":field"', [
                 ':field' => $field,
             ]));
         }
-
         // Get the value from the argument list
         try {
             $value = static::argument($fields, $next);
@@ -491,24 +469,20 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             // The field was not specified
             $value = null;
         }
-
         if (in_array($clean_field, $this->selected_fields)) {
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
                 ':key' => $clean_field,
             ]));
         }
-
-        if (!$field and str_starts_with((string)$value, '-')) {
+        if (!$field and str_starts_with((string) $value, '-')) {
             // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can't
             // We're looking not for a modifier, but for a command or value. This is a modifier, so don't use it. Put
             // the value back on the arguments list
             static::$argv[] = $value;
             $value          = null;
         }
-
         // Add the cleaned field to the source array
         $this->source[$clean_field] = $value;
-
         // Select the field.
         $this->selected_field    = $clean_field;
         $this->selected_fields[] = $clean_field;
@@ -518,6 +492,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         return $this;
     }
+
 
     /**
      * Returns arguments from the command line
@@ -551,24 +526,18 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                     if ($argv_key < $keys) {
                         continue;
                     }
-
                     if ($argv_key == $keys) {
                         if (!$test) {
                             unset(static::$argv[$keys]);
                         }
-
                         continue;
                     }
-
                     if (str_starts_with($argv_value, '-')) {
                         // Encountered a new option, stop!
                         break;
                     }
-
-
                     // Add this argument to the list
                     $value[] = $argv_value;
-
                     if (!$test) {
                         unset(static::$argv[$argv_key]);
                     }
@@ -576,10 +545,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
                 return isset_get($value);
             }
-
             if (isset(static::$argv[$keys++])) {
                 $argument = static::$argv[$keys - 1];
-
                 if (!$test) {
                     unset(static::$argv[$keys - 1]);
                 }
@@ -590,7 +557,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             // No arguments found (except perhaps for test or force)
             return null;
         }
-
         if ($keys === null) {
             // Get the next argument?
             if ($test) {
@@ -599,33 +565,28 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             return array_shift(static::$argv);
         }
-
         // Detect multiple key options for the same command, but ensure only one is specified
         if (is_array($keys) or (is_string($keys) and str_contains($keys, ','))) {
             $keys       = Arrays::force($keys);
             $return_key = static::getReturnKey($keys);
             $results    = [];
-
             foreach ($keys as $key) {
                 if ($next === 'all') {
                     // We're requesting all values for all specified keys. It will return null in case the specified key
                     // does not exist
                     $value = static::argument($key, 'all', $test);
-
                     if (is_array($value)) {
                         $found   = true;
                         $results = array_merge($results, $value);
                     }
                 } else {
                     $value = static::argument($key, $next, $test);
-
                     if ($value) {
                         $results[$return_key] = $value;
                         break;
                     }
                 }
             }
-
             if (($next === 'all') and isset($found)) {
                 return $results;
             }
@@ -639,37 +600,29 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                                                       ->makeWarning()
             };
         }
-
         if (($key = array_search($keys, static::$argv)) === false) {
             return null;
         }
-
         if ($next) {
             if ($next === 'all') {
                 // Return all following arguments, if available, until the next option
                 $value = [];
-
                 foreach (static::$argv as $argv_key => $argv_value) {
                     if (empty($start)) {
                         if ($argv_value == $keys) {
                             $start = true;
-
                             if (!$test) {
                                 unset(static::$argv[$argv_key]);
                             }
                         }
-
                         continue;
                     }
-
                     if (str_starts_with($argv_value, '-')) {
                         // Encountered a new option, stop!
                         break;
                     }
-
                     //Add this argument to the list
                     $value[] = $argv_value;
-
                     if (!$test) {
                         unset(static::$argv[$argv_key]);
                     }
@@ -677,7 +630,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
                 return $value;
             }
-
             try {
                 // Return next argument, if available
                 $value = Arrays::nextValue(static::$argv, $keys, !$test);
@@ -687,8 +639,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 throw CliArgumentsException::new($e)
                                            ->makeWarning();
             }
-
-            if (str_starts_with((string)$value, '-')) {
+            if (str_starts_with((string) $value, '-')) {
                 throw CliArgumentsException::new(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
                     ':keys'  => $keys,
                     ':value' => $value,
@@ -699,13 +650,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             return $value;
         }
-
         if (!$test) {
             unset(static::$argv[$key]);
         }
 
         return true;
     }
+
 
     /**
      * Returns the key that will be used internally as an argument key
@@ -721,9 +672,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         if (empty($keys)) {
             throw new OutOfBoundsException(tr('No keys specified'));
         }
-
         $return = '';
-
         foreach ($keys as $key) {
             if (str_starts_with($key, '--')) {
                 // This key MUST have more than one letter!
@@ -732,7 +681,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                         ':argument' => $key,
                     ]));
                 }
-
                 if (!preg_match('/^--(?:[a-z0-9]+-?)+$/i', $key)) {
                     throw new ValidationFailedException(tr('Specified word argument ":argument" is invalid, it must follow the expression /^--(?:[a-z0-9]+-)+]$/i', [
                         ':argument' => $key,
@@ -750,13 +698,11 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                     ]));
 
                 }
-
                 if (!preg_match('/^-[a-z0-9]$/i', $key)) {
                     throw new ValidationFailedException(tr('Specified letter argument ":argument" is invalid, it must follow the expression /^-[a-z0-9]$/i', [
                         ':argument' => $key,
                     ]));
                 }
-
                 // So far we encountered a letter, if that is all, that is what we will return
                 $return = $key;
 
@@ -770,6 +716,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return $return;
     }
 
+
     /**
      * Returns a new Command Line Arguments data Validator object
      *
@@ -782,6 +729,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return new static($parent);
     }
 
+
     /**
      * Returns the $argv array
      *
@@ -790,8 +738,10 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     public function getArgv(): array
     {
         global $argv;
+
         return $argv;
     }
+
 
     /**
      * This method will make sure that either this field OR the other specified field will have a value
@@ -812,14 +762,12 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      */
     public function xor(string $field, bool $rename = false): static
     {
-        if (!str_starts_with($field, (string)$this->field_prefix)) {
+        if (!str_starts_with($field, (string) $this->field_prefix)) {
             $field = $this->field_prefix . $field;
         }
-
         if ($this->selected_field === $field) {
             throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
         }
-
         if (isset_get($this->source[$this->selected_field])) {
             // The currently selected field exists, the specified field cannot exist
             if (isset_get($this->source[$field]) or static::argument($this->cli_fields, $this->next, true)) {
@@ -828,7 +776,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                     ':selected_field' => $this->selected_field,
                 ]));
             }
-
             if ($rename) {
                 // Rename this field to the specified field
                 $this->rename($field);
@@ -849,6 +796,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return $this;
     }
 
+
     /**
      * This method will make sure that either this field OR the other specified field optionally will have a value
      *
@@ -867,14 +815,12 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      */
     public function or(string $field): static
     {
-        if (!str_starts_with($field, (string)$this->field_prefix)) {
+        if (!str_starts_with($field, (string) $this->field_prefix)) {
             $field = $this->field_prefix . $field;
         }
-
         if ($this->selected_field === $field) {
             throw new ValidatorException(tr('Cannot validate OR field ":field" with itself', [':field' => $field]));
         }
-
         if (!isset_get($this->source[$this->selected_field])) {
             if (!$this->selected_is_optional) {
                 // The currently selected field is required but does not exist, so the other must exist
@@ -892,6 +838,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         return $this;
     }
+
 
     /**
      * Called at the end of defining all validation rules.
@@ -914,6 +861,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return parent::validate();
     }
 
+
     /**
      * Throws an exception if there are still arguments left in the argv source
      *
@@ -926,16 +874,15 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         if (!$apply) {
             return $this;
         }
-
         if (empty(static::$argv)) {
             return $this;
         }
-
         throw CliInvalidArgumentsException::new(tr('Invalid command line arguments ":arguments" encountered', [
             ':arguments' => Strings::force(static::$argv, ', '),
         ]))
                                           ->makeWarning();
     }
+
 
     /**
      * Adds the STDIN stream to the ARGV source with the specified key
@@ -954,7 +901,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                     ':key' => $key,
                 ]));
             }
-
             static::$argv[] = $key;
             static::$argv[] = CliCommand::getStdInStream();
         }

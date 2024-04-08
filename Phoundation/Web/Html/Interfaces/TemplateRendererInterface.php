@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Interfaces;
 
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 
-
 /**
  * Class Renderer
  *
@@ -28,12 +27,14 @@ interface TemplateRendererInterface
      */
     public function setParentRenderFunction(callable $render_function): static;
 
+
     /**
      * Returns the parent rendering function
      *
      * @return callable
      */
     public function getParentRenderFunction(): callable;
+
 
     /**
      * Sets the element to be rendered
@@ -44,12 +45,14 @@ interface TemplateRendererInterface
      */
     public function setComponent(RenderInterface $component): static;
 
+
     /**
      * Returns the element to be rendered
      *
      * @return RenderInterface
      */
     public function getComponent(): RenderInterface;
+
 
     /**
      * Render and return the HTML for this object

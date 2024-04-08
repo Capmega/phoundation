@@ -7,7 +7,6 @@ namespace Phoundation\Content\Images;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 
-
 /**
  * Phoundation UsesImage trait
  *
@@ -22,7 +21,6 @@ use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 trait UsesImage
 {
     use TraitDataRestrictions;
-
 
     /**
      * The image
@@ -55,8 +53,8 @@ trait UsesImage
         if (!is_object($image)) {
             $image = new Image($image, $this->restrictions);
         }
-
         $this->image = $image;
+
         return $this;
     }
 }

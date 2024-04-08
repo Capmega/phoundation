@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataStatus
  *
@@ -46,6 +45,7 @@ trait TraitDataStatus
     public function setStatus(?string $status): static
     {
         $this->status = $status;
+
         return $this;
     }
 }

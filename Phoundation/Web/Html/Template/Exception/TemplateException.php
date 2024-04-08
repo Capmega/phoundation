@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Template\Exception;
 
 use Phoundation\Web\Html\Exception\HtmlException;
 
-
 /**
  * Class TemplateException
  *

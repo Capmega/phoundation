@@ -7,7 +7,6 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Filesystem\Path;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Trait TraitDataDirectory
  *

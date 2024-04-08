@@ -69,19 +69,6 @@ class Statistic
 
 
     /**
-     * Set the time for this statistic
-     *
-     * @param float $time
-     * @return Statistic
-     */
-    public function setTime(float $time): Statistic
-    {
-        $this->time = $time;
-        return $this;
-    }
-
-
-    /**
      * Returns the time for this statistic
      *
      * @return float $time
@@ -93,14 +80,16 @@ class Statistic
 
 
     /**
-     * Set the query for this statistic
+     * Set the time for this statistic
      *
-     * @param string $query
+     * @param float $time
+     *
      * @return Statistic
      */
-    public function setQuery(string $query): Statistic
+    public function setTime(float $time): Statistic
     {
-        $this->query = $query;
+        $this->time = $time;
+
         return $this;
     }
 
@@ -113,6 +102,21 @@ class Statistic
     public function getQuery(): string
     {
         return $this->query;
+    }
+
+
+    /**
+     * Set the query for this statistic
+     *
+     * @param string $query
+     *
+     * @return Statistic
+     */
+    public function setQuery(string $query): Statistic
+    {
+        $this->query = $query;
+
+        return $this;
     }
 
 

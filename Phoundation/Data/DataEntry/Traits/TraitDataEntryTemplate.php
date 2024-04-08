@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Templates\Html\Pages\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Pages\Template;
 
-
 /**
  * Trait TraitDataEntryTemplate
  *
@@ -52,7 +51,6 @@ trait TraitDataEntryTemplate
     public function getTemplate(): ?TemplateInterface
     {
         $templates_id = $this->getSourceValue('int', 'templates_id');
-
         if ($templates_id) {
             return new Template($templates_id);
         }

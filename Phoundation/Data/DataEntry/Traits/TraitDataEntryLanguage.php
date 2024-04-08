@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Core\Locale\Language\Language;
 
-
 /**
  * Trait TraitDataEntryLanguage
  *
@@ -51,7 +50,6 @@ trait TraitDataEntryLanguage
     public function getLanguage(): ?Language
     {
         $languages_id = $this->getValueTypesafe('int', 'languages_id');
-
         if ($languages_id) {
             return new Language($languages_id);
         }

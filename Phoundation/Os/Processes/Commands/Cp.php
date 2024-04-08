@@ -10,7 +10,6 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Stringable;
 
-
 /**
  * Class Cp
  *
@@ -36,14 +35,12 @@ class Cp extends Command
      */
     public function archive(Stringable|string $source, Restrictions $source_restrictions, Stringable|string $target, Restrictions $target_restrictions, EnumExecuteMethodInterface $method = EnumExecuteMethod::noReturn): void
     {
-        $source = (string)$source;
-        $target = (string)$target;
-
+        $source = (string) $source;
+        $target = (string) $target;
         $source_restrictions->check($source, false);
         $target_restrictions->check($target, true);
-
-        Directory::new(dirname($target), $target_restrictions)->ensure();
-
+        Directory::new(dirname($target), $target_restrictions)
+                 ->ensure();
         // Build the process parameters, then execute
         $this->setCommand('cp')
              ->clearArguments()

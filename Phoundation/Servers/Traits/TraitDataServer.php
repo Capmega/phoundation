@@ -7,7 +7,6 @@ namespace Phoundation\Servers\Traits;
 use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Servers\Server;
 
-
 /**
  * Trait TraitDataServer
  *
@@ -49,6 +48,7 @@ trait TraitDataServer
     public function setServer(ServerInterface|string|null $server): static
     {
         $this->server = $server ? Server::get($server) : null;
+
         return $this;
     }
 }

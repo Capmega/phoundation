@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Web\Html\Html;
 
-
 /**
  * Trait TraitDataProcess
  *

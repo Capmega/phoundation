@@ -8,7 +8,6 @@ use Phoundation\Data\Traits\TraitDataStartDate;
 use Phoundation\Data\Traits\TraitDataStopDate;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 
-
 /**
  * Class InputDateRangeButton
  *
@@ -23,7 +22,6 @@ class InputDateRangeButton extends InputText
 {
     use TraitDataStartDate;
     use TraitDataStopDate;
-
 
     /**
      * InputDateRangeButton class constructor

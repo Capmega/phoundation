@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Locale\Language\Interfaces;
 
-
 /**
  * Language class
  *
@@ -25,6 +24,7 @@ interface LanguageInterface
      */
     public function getCode_639_1(): ?string;
 
+
     /**
      * Sets the code_639_1 for this language
      *
@@ -34,12 +34,14 @@ interface LanguageInterface
      */
     public function setCode_639_1(?string $code_639_1): static;
 
+
     /**
      * Returns the code_639_2_b for this language
      *
      * @return string|null
      */
     public function getCode_639_2_b(): ?string;
+
 
     /**
      * Sets the code_639_2_b for this language
@@ -50,12 +52,14 @@ interface LanguageInterface
      */
     public function setCode_639_2_b(?string $code_639_2_b): static;
 
+
     /**
      * Returns the code_639_2_t for this language
      *
      * @return string|null
      */
     public function getCode_639_2_t(): ?string;
+
 
     /**
      * Sets the code_639_2_t for this language
@@ -66,12 +70,14 @@ interface LanguageInterface
      */
     public function setCode_639_2_t(?string $code_639_2_t): static;
 
+
     /**
      * Returns the code_639_3 for this language
      *
      * @return string|null
      */
     public function getCode_639_3(): ?string;
+
 
     /**
      * Sets the code_639_3 for this language

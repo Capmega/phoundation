@@ -20,7 +20,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Throwable;
 
-
 /**
  * Class Deploy
  *
@@ -123,6 +122,7 @@ class Deploy implements DeployInterface
         $this->targets       = $target_environments ?? Arrays::force($this->configuration['targets']);
     }
 
+
     /**
      * Return all deployment configuration
      *
@@ -146,6 +146,7 @@ class Deploy implements DeployInterface
         }
     }
 
+
     /**
      * Start the deployment process
      *
@@ -156,130 +157,98 @@ class Deploy implements DeployInterface
         if (!$this->targets) {
             throw new OutOfBoundsException(tr('No deployment target environments configured or specified on the commandline'));
         }
-
         foreach ($this->targets as $environment) {
             // Read environment config, update global config and then check which sections should be executed
             $env_config = $this->getEnvironmentConfig($environment);
-
             $this->configuration['execute_hooks'] = $env_config['execute_hooks'];
             $this->configuration['force']         = ($env_config['force'] or FORCE);
-
             if (!$env_config['ignore_changes']) {
-                if ($this->project->getGit()->hasChanges()) {
+                if (
+                    $this->project->getGit()
+                                  ->hasChanges()
+                ) {
                     throw new DeployException(tr('The project has pending git changes. Please commit or stash first'));
                 }
             }
-
             static::executeHook('start,pre-content-check');
-
             if (!$env_config['content_check']) {
                 Log::action(tr('Executing content check'));
 
             }
-
             static::executeHook('post-content-check,pre-bom-check');
-
             if ($env_config['bom_check']) {
                 Log::action(tr('Executing BOM check'));
 //                BomDirectory::new(DIRECTORY_ROOT, DIRECTORY_ROOT)->clearBom();
             }
-
             static::executeHook('post-bom-check,pre-test-syntax');
-
             if ($env_config['test_syntax']) {
                 Log::action(tr('Executing syntax check'));
             }
-
             static::executeHook('post-test-syntax,pre-test-unit');
-
             if ($env_config['test_unit']) {
                 Log::action(tr('Executing unit tests'));
 
             }
-
             static::executeHook('post-test-unit,pre-sync');
-
             if ($env_config['sync']) {
                 Log::action(tr('Executing system synchronisation'));
 
             }
-
             static::executeHook('post-sync,pre-init');
-
             if ($env_config['init']) {
                 // Initialize the system
                 Log::action(tr('Executing system initialization'));
                 Libraries::initialize(true, true, true, 'Executed by the Phoundation deployment system');
             }
-
             static::executeHook('post-init,pre-translate');
-
             if ($env_config['translate']) {
                 Log::action(tr('Executing translation'));
 
             }
-
             static::executeHook('post-translate,pre-minify');
-
             if ($env_config['minify']) {
                 Log::action(tr('Executing CDN data minification'));
 
             }
-
             static::executeHook('post-minify,pre-update-sitemap');
-
             if ($env_config['update_sitemap']) {
                 Log::action(tr('Executing sitemap update'));
 
             }
-
             static::executeHook('post-update-sitemap,pre-push');
-
             if ($env_config['push']) {
                 Log::action(tr('Pushing updates to remote GIT'));
 
             }
-
             static::executeHook('post-push,pre-connect,pre-backup');
-
             if ($env_config['backup']) {
                 Log::action(tr('Executing remote backup'));
 
             }
-
             static::executeHook('post-backup,pre-parallel');
-
             if ($env_config['parallel']) {
                 Log::action(tr('Executing remote project copy to prepare for parallel rsync'));
             }
-
             static::executeHook('post-parallel,pre-rsync');
-
             // Build the rsync target
             if (empty($env_config['server']['host'])) {
                 throw new OutOfBoundsException(tr('No host configured for target ":target"', [
                     ':target' => $environment,
                 ]));
             }
-
             $rsync_target = Strings::endsWith($env_config['server']['host'], ':');
             $rsync_target .= $env_config['server']['path'];
-
             if ($env_config['server']['user']) {
                 $rsync_target = $env_config['server']['user'] . '@' . $rsync_target;
             }
-
 // TODO Add support for languages!
 //            foreach (Translations::getLanguages() as $language)
-
             // Add the project directory to the rsync_target
             $project = Strings::fromReverse(Strings::endsNotWith(DIRECTORY_ROOT, '/'), '/');
-
             // Execute rsync
             Log::action(tr('Executing rsync to target ":target"', [
                 ':target' => Strings::endsWith($rsync_target, '/') . $project,
             ]));
-
             // First ensure the target base directory exists!
             Process::new('mkdir')
                    ->setServer(Server::new()
@@ -287,11 +256,10 @@ class Deploy implements DeployInterface
                                      ->setPort($env_config['server']['port'])
                                      ->setSshAccount())
                    ->addArguments([
-                                      '-p',
-                                      $env_config['server']['path'],
-                                  ])
+                       '-p',
+                       $env_config['server']['path'],
+                   ])
                    ->execute(EnumExecuteMethod::noReturn);
-
             // And then rsync!
             Rsync::new()
                  ->setArchive(true)
@@ -313,25 +281,21 @@ class Deploy implements DeployInterface
                  ->addExclude('data/cookies')
                  ->addExclude('data/sessions')
                  ->execute();
-
             static::executeHook('post-rsync,pre-update-file-modes');
-
             if ($env_config['update_file_modes']) {
                 Log::action(tr('Executing file mode update'));
             }
-
             static::executeHook('post-update-file-modes,pre-notify');
-
             if ($env_config['notify']) {
                 Log::action(tr('Sending out notifications'));
 
             }
-
             static::executeHook('post-notify,finish');
         }
 
         return $this;
     }
+
 
     /**
      * Loads and returns the configuration for the specified environment
@@ -343,35 +307,28 @@ class Deploy implements DeployInterface
     protected function getEnvironmentConfig($environment): array
     {
         $return = [];
-
         try {
             if (!Config::environmentExists('deploy/' . $environment)) {
                 throw new DeployException(tr('The specified environment ":environment" has no configuration file available in DIRECTORY_ROOT/config/deploy/', [
                     ':environment' => $environment,
                 ]));
             }
-
             Config::setEnvironment('deploy/' . $environment, false);
             $config = Config::get('');
             Config::setEnvironment(ENVIRONMENT);
-
             foreach ($this->keys as $key => $default) {
                 $key = str_replace('-', '_', $key);
-
                 switch ($key) {
                     case 'server':
                         Arrays::default($return, $key, isset_get_typed('array', $config[$key], $default));
                         Arrays::ensure($return[$key], 'host,path,port,user,sudo');
                         break;
-
                     case 'hooks':
                         Arrays::default($return, $key, isset_get_typed('array', $config[$key], $default));
                         break;
-
                     default:
                         Arrays::default($return, $key, isset_get_typed('bool', $config[$key], $default));
                 }
-
                 if (array_key_exists($key, $this->modifiers)) {
                     if ($this->modifiers[$key] !== null) {
                         // Override was specified on the command line
@@ -389,6 +346,7 @@ class Deploy implements DeployInterface
         }
     }
 
+
     /**
      * Try to execute the specified hook
      *
@@ -399,11 +357,13 @@ class Deploy implements DeployInterface
     protected function executeHook(array|string $hooks): static
     {
         if ($this->configuration['execute_hooks']) {
-            Hook::new('deploy')->execute($hooks);
+            Hook::new('deploy')
+                ->execute($hooks);
         }
 
         return $this;
     }
+
 
     /**
      * Sets if compression should be used or not
@@ -417,6 +377,7 @@ class Deploy implements DeployInterface
     {
         return $this->setModifier('compress', $do, $dont);
     }
+
 
     /**
      * Sets the requested modifier configuration
@@ -436,7 +397,6 @@ class Deploy implements DeployInterface
                 ]));
 
             }
-
             $value = true;
 
         } elseif ($dont) {
@@ -445,11 +405,11 @@ class Deploy implements DeployInterface
         } else {
             $value = null;
         }
-
         $this->modifiers[$modifier] = $value;
 
         return $this;
     }
+
 
     /**
      * Sets if hooks should be executed or not
@@ -464,6 +424,7 @@ class Deploy implements DeployInterface
         return $this->setModifier('execute_hooks', $do, $dont);
     }
 
+
     /**
      * Sets if content checks should be executed or not
      *
@@ -476,6 +437,7 @@ class Deploy implements DeployInterface
     {
         return $this->setModifier('content_check', $do, $dont);
     }
+
 
     /**
      * Sets if init should be executed or not
@@ -490,6 +452,7 @@ class Deploy implements DeployInterface
         return $this->setModifier('init', $do, $dont);
     }
 
+
     /**
      * Sets if notifications should be sent out or not
      *
@@ -502,6 +465,7 @@ class Deploy implements DeployInterface
     {
         return $this->setModifier('notifications', $do, $dont);
     }
+
 
     /**
      * Sets if git should push all changes to another repository or not

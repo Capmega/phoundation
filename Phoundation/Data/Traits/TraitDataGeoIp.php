@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryGeo;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryLongLat;
 use Phoundation\Geo\GeoIp\GeoIp;
 
-
 /**
  * Trait TraitDataEntryGeoIp
  *
@@ -23,7 +22,6 @@ trait TraitDataGeoIp
 {
     use TraitDataEntryGeo;
     use TraitDataEntryLongLat;
-
 
     /**
      * A GeoIP object
@@ -43,7 +41,6 @@ trait TraitDataGeoIp
     public function setGeoIp(?GeoIp $geo_ip): static
     {
         $this->geo_ip = $geo_ip;
-
         if ($geo_ip) {
             $this->setLatitude($geo_ip->getLocation()?->location->latitude);
             $this->setLongitude($geo_ip->getLocation()?->location->longitude);

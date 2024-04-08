@@ -7,7 +7,6 @@ namespace Phoundation\Web\Json;
 use Phoundation\Web\Json\Interfaces\JsonInterface;
 use Phoundation\Web\Requests\Response;
 
-
 /**
  * Class Json
  *

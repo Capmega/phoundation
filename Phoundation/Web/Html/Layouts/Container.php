@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Layouts;
 
 use Phoundation\Web\Html\Traits\TraitUsesTier;
 
-
 /**
  * Container class
  *

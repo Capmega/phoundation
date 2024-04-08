@@ -10,7 +10,6 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 
-
 /**
  * Modal class
  *
@@ -24,7 +23,6 @@ use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 abstract class Modal extends ElementsBlock
 {
     use TraitDataTitle;
-
 
     /**
      * The Modal identifier
@@ -116,8 +114,8 @@ abstract class Modal extends ElementsBlock
         if ($size === 'md') {
             $size = null;
         }
-
         $this->size = $size;
+
         return $this;
     }
 
@@ -143,6 +141,7 @@ abstract class Modal extends ElementsBlock
     public function setFade(bool $fade): static
     {
         $this->fade = $fade;
+
         return $this;
     }
 
@@ -168,6 +167,7 @@ abstract class Modal extends ElementsBlock
     public function setBackdrop(?string $backdrop): static
     {
         $this->backdrop = $backdrop;
+
         return $this;
     }
 
@@ -193,6 +193,7 @@ abstract class Modal extends ElementsBlock
     public function setVerticalCenter($vertical_center): static
     {
         $this->vertical_center = $vertical_center;
+
         return $this;
     }
 
@@ -218,6 +219,7 @@ abstract class Modal extends ElementsBlock
     public function setEscape(bool $escape): static
     {
         $this->escape = $escape;
+
         return $this;
     }
 

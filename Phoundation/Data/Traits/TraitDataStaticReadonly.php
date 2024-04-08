@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 
-
 /**
  * Trait TraitDataStaticReadonly
  *

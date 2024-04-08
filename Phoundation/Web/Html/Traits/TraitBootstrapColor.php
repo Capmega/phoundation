@@ -6,7 +6,6 @@ use Phoundation\Core\Sessions\Config;
 use Phoundation\Web\Html\Enums\EnumBootstrapColor;
 use Phoundation\Web\Html\Enums\Interfaces\EnumBootstrapColorInterface;
 
-
 /**
  * Trait TraitBootstrapColor
  *
@@ -56,6 +55,7 @@ trait TraitBootstrapColor
     {
         // Configurable theming allows colors to be remapped from configuration
         $this->foreground_color = EnumBootstrapColor::from(Config::get('web.bootstrap.theme.colors.' . $color->value, $color->value));
+
         return $this;
     }
 
@@ -86,6 +86,7 @@ trait TraitBootstrapColor
     {
         // Configurable theming allows colors to be remapped from configuration
         $this->background_color = EnumBootstrapColor::from(Config::get('web.bootstrap.theme.colors.' . $color->value, $color->value));
+
         return $this;
     }
 }

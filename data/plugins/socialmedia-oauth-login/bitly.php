@@ -22,26 +22,21 @@
 */
 
 include "socialmedia_oauth_connect.php";
-
-$oauth = new socialmedia_oauth_connect();
-$oauth->provider="Bitly";
-$oauth->client_id = "4cfed21a38e6b8e25f5da9b74bfad075710e96d4";
+$oauth                = new socialmedia_oauth_connect();
+$oauth->provider      = "Bitly";
+$oauth->client_id     = "4cfed21a38e6b8e25f5da9b74bfad075710e96d4";
 $oauth->client_secret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-$oauth->redirect_uri  ="http://ngiriraj.com/socialMedia/oauthlogin/bitly.php";
-
+$oauth->redirect_uri  = "http://ngiriraj.com/socialMedia/oauthlogin/bitly.php";
 $oauth->Initialize();
-
-$code = ($_REQUEST["code"]) ?  ($_REQUEST["code"]) : "";
-
+$code = ($_REQUEST["code"]) ? ($_REQUEST["code"]) : "";
 if (empty($code)) {
-	$oauth->Authorize();
+    $oauth->Authorize();
 } else {
-	$oauth->code = $code;
+    $oauth->code = $code;
 #	$oauth->getAccessToken();
-	$getData = json_decode($oauth->getUserProfile());
-	$oauth->debugJson($getData);
-	print "Name :".$getData->data->full_name;
+    $getData = json_decode($oauth->getUserProfile());
+    $oauth->debugJson($getData);
+    print "Name :" . $getData->data->full_name;
 
 }
-
 ?>

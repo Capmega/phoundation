@@ -10,7 +10,6 @@ use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class Lsblk
  *
@@ -35,12 +34,12 @@ class Lsblk extends Command
                         ->setCommand('lsblk')
                         ->addArgument('-J')
                         ->executeReturnString();
-
         $return  = Iterator::new();
         $devices = Json::decode($devices);
 
         return $this->convertDevicesTree($return, $devices['blockdevices']);
     }
+
 
     /**
      * Loads the specified devices into the specified iterator,
@@ -53,17 +52,17 @@ class Lsblk extends Command
     protected function convertDevicesTree(IteratorInterface $iterator, array $devices): IteratorInterface
     {
         foreach ($devices as $data) {
-            $data['mountpoints'] = Iterator::new()->setSource($data['mountpoints']);
-
+            $data['mountpoints'] = Iterator::new()
+                                           ->setSource($data['mountpoints']);
             if (!empty($data['children'])) {
                 $data['children'] = $this->convertDevicesTree($iterator, $data['children']);
             }
-
             $iterator->add($data, $data['name']);
         }
 
         return $iterator;
     }
+
 
     /**
      * Returns true if the specified device is a storage device
@@ -74,8 +73,10 @@ class Lsblk extends Command
      */
     public function isStorageDevice(FileInterface|string $device): bool
     {
-        return $this->getStorageDevices()->keyExists(Strings::startsNotWith($device, '/dev/'));
+        return $this->getStorageDevices()
+                    ->keyExists(Strings::startsNotWith($device, '/dev/'));
     }
+
 
     /**
      * Returns all available storage block devices
@@ -89,12 +90,12 @@ class Lsblk extends Command
                         ->setCommand('lsblk')
                         ->addArgument('-J')
                         ->executeReturnString();
-
         $return  = Iterator::new();
         $devices = Json::decode($devices);
 
         return $this->flattenDevicesTree($return, $devices['blockdevices']);
     }
+
 
     /**
      * Loads the specified devices into the specified iterator, flattening the device tree into a list
@@ -109,13 +110,11 @@ class Lsblk extends Command
     {
         foreach ($devices as $data) {
             $data['parent']      = $parent;
-            $data['mountpoints'] = Iterator::new()->setSource($data['mountpoints']);
-
+            $data['mountpoints'] = Iterator::new()
+                                           ->setSource($data['mountpoints']);
             $children = isset_get($data['children']);
             unset($data['children']);
-
             $iterator->add($data, $data['name']);
-
             if ($children) {
                 $this->flattenDevicesTree($iterator, $children, $data['name']);
             }

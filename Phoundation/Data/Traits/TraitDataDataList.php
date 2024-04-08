@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 
-
 /**
  * Trait TraitDataDataList
  *
@@ -48,6 +47,7 @@ trait TraitDataDataList
     public function setDataList(DataListInterface $data_entry): static
     {
         $this->data_entry = $data_entry;
+
         return $this;
     }
 }

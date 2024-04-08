@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Enums\Interfaces\EnumOrientationInterface;
 
-
 /**
  * Trait TraitDataOrientation
  *
@@ -46,6 +45,7 @@ trait TraitDataOrientation
     public function setOrientation(?EnumOrientationInterface $orientation): static
     {
         $this->orientation = $orientation;
+
         return $this;
     }
 }

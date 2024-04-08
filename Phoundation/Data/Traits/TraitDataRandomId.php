@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataRandomId
  *
@@ -46,6 +45,7 @@ trait TraitDataRandomId
     public function setRandomId(bool $random_id): static
     {
         $this->random_id = $random_id;
+
         return $this;
     }
 }

@@ -13,7 +13,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Throwable;
 
-
 /**
  * GeoIp class
  *
@@ -44,12 +43,13 @@ class GeoIp
     public static function detect(?string $ip_address): ?static
     {
         try {
-            return static::getProvider()?->detect($ip_address);
+            return static::getProvider()
+                         ?->detect($ip_address);
 
         } catch (Throwable $e) {
             throw new GeoIpException(tr('Failed to detect Geo location from IP ":ip"', [
                 ':ip' => $ip_address,
-            ]),                      $e);
+            ]), $e);
         }
     }
 
@@ -67,19 +67,15 @@ class GeoIp
             $provider = null;
             $enabled  = Config::get('geo.ip.enabled', true);
             $provider = Config::get('geo.ip.provider', null, $provider);
-
             if (!$enabled) {
                 // GeoIP detection has been disabled
                 return null;
             }
-
             switch ($provider) {
                 case 'maxmind':
                     return new MaxMind();
-
                 case 'ip2location':
                     throw new UnderConstructionException();
-
                 default:
                     throw new OutOfBoundsException(tr('Unknown GeoIP provider ":provider" specified', [
                         ':provider' => $provider,
@@ -90,7 +86,6 @@ class GeoIp
             if (Core::isProductionEnvironment()) {
                 throw $e;
             }
-
             Log::warning($e->makeWarning());
         }
 
@@ -119,6 +114,7 @@ class GeoIp
     public function setIpAddress(?string $ip_address): static
     {
         $this->ip_address = $ip_address;
+
         return $this;
     }
 

@@ -10,7 +10,6 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
 use Stringable;
 
-
 /**
  * Interface FlashMessagesInterface
  *
@@ -32,6 +31,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      */
     public function pullMessagesFrom(?FlashMessagesInterface $messages): static;
 
+
     /**
      * Add a "Success!" flash message
      *
@@ -42,6 +42,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      * @return $this
      */
     public function addSuccessMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static;
+
 
     /**
      * Add a "Warning!" flash message
@@ -54,6 +55,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      */
     public function addWarningMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static;
 
+
     /**
      * Add a "Validation failed" flash message
      *
@@ -64,6 +66,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      * @return $this
      */
     public function addValidationFailedMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static;
+
 
     /**
      * Add an "Error!" flash message
@@ -76,6 +79,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      */
     public function addErrorMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static;
 
+
     /**
      * Add a "Notice!" flash message
      *
@@ -86,6 +90,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      * @return $this
      */
     public function addNoticeMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static;
+
 
     /**
      * Add a flash message
@@ -100,6 +105,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      */
     public function addMessage(FlashMessageInterface|Exception|Stringable|string|null $message, ?string $title = null, ?EnumDisplayModeInterface $mode = EnumDisplayMode::error, string $icon = null, ?int $auto_close = 5000): static;
 
+
     /**
      * Renders all flash messages
      *
@@ -107,12 +113,14 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      */
     public function render(): ?string;
 
+
     /**
      * Export the flash messages in this object to an array
      *
      * @return array
      */
     public function export(): array;
+
 
     /**
      * Import the flash messages in the specified array to this object

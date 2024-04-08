@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataPrefix
  *
@@ -46,6 +45,7 @@ trait TraitDataPrefix
     public function setPrefix(?string $prefix): static
     {
         $this->prefix = $prefix;
+
         return $this;
     }
 }

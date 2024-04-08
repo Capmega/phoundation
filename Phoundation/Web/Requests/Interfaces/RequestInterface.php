@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Requests\Interfaces;
 
-
 /**
  * Interface RequestInterface
  *

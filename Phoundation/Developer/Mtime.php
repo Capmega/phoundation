@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer;
 
-
 use DateTime;
 use Phoundation\Filesystem\Directory;
 use Stringable;
@@ -42,8 +41,10 @@ class Mtime
      */
     protected function __construct()
     {
-        Directory::new(static::$directory)->ensure();
+        Directory::new(static::$directory)
+                 ->ensure();
     }
+
 
     /**
      * Returns true if the mtime for the specified file is different than the cached mtime, meaning the file has been
@@ -59,6 +60,7 @@ class Mtime
         return filemtime($file) === static::read($class);
     }
 
+
     /**
      * Updates the mtime for the specified class
      *
@@ -69,13 +71,13 @@ class Mtime
     protected static function read(string $class): ?int
     {
         static::getInstance();
-
         if (file_exists(static::$directory . $class)) {
             return filemtime(static::$directory . $class);
         }
 
         return null;
     }
+
 
     /**
      * Returns the singleton
@@ -91,6 +93,7 @@ class Mtime
         return static::$instance;
     }
 
+
     /**
      * Updates the mtime for the specified class
      *
@@ -104,6 +107,7 @@ class Mtime
         static::write($class, $datetime);
     }
 
+
     /**
      * Updates the mtime for the specified class
      *
@@ -115,13 +119,11 @@ class Mtime
     protected static function write(string $class, DateTime|int|null $datetime): void
     {
         static::getInstance();
-
         if ($datetime) {
             if ($datetime instanceof DateTime) {
                 $datetime = $datetime->getTimestamp();
             }
         }
-
         touch(static::$directory . $class, $datetime);
     }
 }

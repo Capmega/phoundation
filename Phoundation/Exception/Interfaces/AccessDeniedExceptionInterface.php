@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception\Interfaces;
 
-
 /**
  * Class AccessDeniedException
  *
@@ -21,10 +20,12 @@ interface AccessDeniedExceptionInterface
      */
     public function getNewTarget(): string|int|null;
 
+
     /**
      * Sets the new target
      *
      * @param string|int|null $new_target
+     *
      * @return static
      */
     public function setNewTarget(string|int|null $new_target): static;

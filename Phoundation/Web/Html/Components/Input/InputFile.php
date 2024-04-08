@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 
-
 /**
  * Class InputFile
  *
@@ -25,6 +24,7 @@ class InputFile extends Input
      * @var string|null $accept
      */
     protected ?string $accept = null;
+
 
     /**
      * InputFile class constructor

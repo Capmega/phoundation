@@ -11,7 +11,6 @@ use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Html\Layouts\GridRow;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * MetaModal class
  *
@@ -45,15 +44,16 @@ class MetaModal extends Modal
     {
         // Build the form
         $form = $this->form->render();
-
         // Build the layout
         $layout = Grid::new()
                       ->addRow(GridRow::new()
-                                      ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::three))
-                                      ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::six)->setContent($form))
-                                      ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::three))
-                      );
-
+                                      ->addColumn(GridColumn::new()
+                                                            ->setSize(EnumDisplaySize::three))
+                                      ->addColumn(GridColumn::new()
+                                                            ->setSize(EnumDisplaySize::six)
+                                                            ->setContent($form))
+                                      ->addColumn(GridColumn::new()
+                                                            ->setSize(EnumDisplaySize::three)));
         // Set defaults
         $this->setId('MetaModal')
              ->setSize('lg')
@@ -73,6 +73,7 @@ class MetaModal extends Modal
                 // Load the meta-information here                
                     
                 return false;
-            })')->render();
+            })')
+                                        ->render();
     }
 }

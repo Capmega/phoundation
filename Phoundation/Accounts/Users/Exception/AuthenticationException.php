@@ -8,7 +8,6 @@ use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInter
 use Phoundation\Data\Traits\TraitDataNewTarget;
 use Throwable;
 
-
 /**
  * Class AuthenticationException
  *
@@ -22,7 +21,6 @@ use Throwable;
 class AuthenticationException extends UsersException implements AuthenticationExceptionInterface
 {
     use TraitDataNewTarget;
-
 
     /**
      * AuthenticationException class constructor

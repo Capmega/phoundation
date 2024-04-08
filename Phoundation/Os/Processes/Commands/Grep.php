@@ -10,7 +10,6 @@ use Phoundation\Data\Traits\TraitDataValue;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
-
 /**
  * Class Grep
  *
@@ -27,7 +26,6 @@ class Grep extends Command
     use TraitDataDirectory;
     use TraitDataValue;
 
-
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
@@ -40,18 +38,16 @@ class Grep extends Command
         if (!$this->directory and !$this->file) {
             throw new CommandsException(tr('Cannot execute grep, no file or path specified'));
         }
-
         if (!$this->value) {
             throw new CommandsException(tr('Cannot execute grep, no filter value specified'));
         }
 
         // Return results
-        return $this
-            ->clearArguments()
-            ->setCommand('grep')
-            ->addArgument($this->value)
-            ->addArgument($this->directory ?? $this->file)
-            ->addArgument($this->directory ? '-R' : null)
-            ->execute($method);
+        return $this->clearArguments()
+                    ->setCommand('grep')
+                    ->addArgument($this->value)
+                    ->addArgument($this->directory ?? $this->file)
+                    ->addArgument($this->directory ? '-R' : null)
+                    ->execute($method);
     }
 }

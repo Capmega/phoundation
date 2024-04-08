@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Buttons class
  *
@@ -30,7 +29,6 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
 {
     use ButtonProperties;
 
-
     /**
      * If true, the buttons will be grouped in one larger button
      *
@@ -49,6 +47,7 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
     public function setButtons(ArrayableInterface|array $buttons): static
     {
         $this->source = [];
+
         return $this->addButtons($buttons);
     }
 
@@ -87,12 +86,10 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
             // Don't add anything
             return $this;
         }
-
         if (is_string($button)) {
             if ($button === tr('Save')) {
                 $type_or_anchor_url = EnumButtonType::submit;
             }
-
             // Button was specified as string, create a button first
             $button = Button::new()
                             ->setWrapping($this->wrapping)
@@ -105,7 +102,6 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
                             ->setFloatRight($right)
                             ->setMode($mode)
                             ->setName('submit');
-
             switch ($type_or_anchor_url) {
                 case EnumButtonType::submit:
                     // no break
@@ -115,21 +111,18 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
                     // One of the submit, reset, or button buttons
                     $button->setType($type_or_anchor_url);
                     break;
-
                 default:
                     // This is a URL button, place an anchor with href instead
                     $button->setAnchorUrl($type_or_anchor_url);
             }
 
         }
-
         if (empty($button->getValue())) {
             if (empty($button->getContent())) {
                 throw new OutOfBoundsException(tr('No name specified for button ":button"', [
                     ':button' => $button,
                 ]));
             }
-
             $this->source[$button->getContent()] = $button;
         } else {
             $this->source[$button->getValue()] = $button;
@@ -149,6 +142,7 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
         return $this->source;
     }
 
+
     /**
      * Returns the button grouping
      *
@@ -158,6 +152,7 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
     {
         return $this->group;
     }
+
 
     /**
      * Sets the button grouping
@@ -169,8 +164,10 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
     public function setGroup(bool $group): static
     {
         $this->group = $group;
+
         return $this;
     }
+
 
     /**
      * Returns the current button

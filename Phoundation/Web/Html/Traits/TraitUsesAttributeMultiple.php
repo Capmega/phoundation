@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Traits;
 
-
 /**
  * Trait TraitUsesAttributeMultiple
  *
@@ -23,6 +22,7 @@ trait TraitUsesAttributeMultiple
      * @var bool $multiple
      */
     protected bool $multiple = false;
+
 
     /**
      * Returns if this object allows multiple data entries
@@ -45,6 +45,7 @@ trait TraitUsesAttributeMultiple
     public function setRendered(bool $multiple): static
     {
         $this->multiple = $multiple;
+
         return $this;
     }
 }

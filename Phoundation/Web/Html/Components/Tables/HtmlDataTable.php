@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class HtmlDataTable
  *
@@ -222,34 +221,33 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-
         // Set defaults
-        $this
-            ->setPagingEnabled(Config::getBoolean('data.paging.enabled', true))
-            ->setPagingType(EnumPagingType::from(Config::getString('data.paging.type', 'simple_numbers')))
-            ->setPageLength(Config::getInteger('data.paging.limit', 25))
-            ->setOrderClassesEnabled(Config::getBoolean('data.paging.order-classes', true))
-            ->setButtons([
-                             'copy',
-                             'csv',
-                             'excel',
-                             'pdf',
-                             'print',
-                             'colvis',
-                         ])
-            ->addCallback(function (IteratorInterface|array &$row, EnumTableRowTypeInterface $type, &$params) {
-                if (isset($row['created_on'])) {
-                    $row['created_on'] = DateTime::new($row['created_on'])->setTimezone('user')->format($this->php_date_format);
-                }
-            })
-            ->setLengthMenu([
-                                10  => 10,
-                                25  => 25,
-                                50  => 50,
-                                100 => 100,
-                                -1  => tr('All'),
-                            ]);
-
+        $this->setPagingEnabled(Config::getBoolean('data.paging.enabled', true))
+             ->setPagingType(EnumPagingType::from(Config::getString('data.paging.type', 'simple_numbers')))
+             ->setPageLength(Config::getInteger('data.paging.limit', 25))
+             ->setOrderClassesEnabled(Config::getBoolean('data.paging.order-classes', true))
+             ->setButtons([
+                 'copy',
+                 'csv',
+                 'excel',
+                 'pdf',
+                 'print',
+                 'colvis',
+             ])
+             ->addCallback(function (IteratorInterface|array &$row, EnumTableRowTypeInterface $type, &$params) {
+                 if (isset($row['created_on'])) {
+                     $row['created_on'] = DateTime::new($row['created_on'])
+                                                  ->setTimezone('user')
+                                                  ->format($this->php_date_format);
+                 }
+             })
+             ->setLengthMenu([
+                 10  => 10,
+                 25  => 25,
+                 50  => 50,
+                 100 => 100,
+                 -1  => tr('All'),
+             ]);
         $this->js_date_format  = 'YYYY-MM-DD HH:mm:ss';
         $this->php_date_format = 'Y-m-d H:i:s';
     }
@@ -284,10 +282,8 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             'print'  => '{ extend: "print" , text: "' . tr('Print') . '" }',
             'colvis' => '{ extend: "colvis", text: "' . tr('Column visibility') . '" }',
         ];
-
         // Validate buttons & reformat definition
         $buttons = Arrays::force($buttons);
-
         foreach ($buttons as &$button) {
             if (!array_key_exists($button, $builtin)) {
                 throw new OutOfBoundsException(tr('Unknown button ":button" specified. Please specify one of ":builtin"', [
@@ -295,13 +291,11 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                     ':builtin' => $builtin,
                 ]));
             }
-
             $button = $builtin[$button];
         }
-
         $this->buttons = $buttons;
-
         unset($button);
+
         return $this;
     }
 
@@ -327,6 +321,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setResponsiveEnabled(?bool $enabled): static
     {
         $this->responsive_enabled = $enabled;
+
         return $this;
     }
 
@@ -498,6 +493,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     {
         $this->js_date_format  = $date_format;
         $this->php_date_format = DateTime::convertJsToPhpFormat($date_format);
+
         return $this;
     }
 
@@ -527,6 +523,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     {
         $this->php_date_format = $php_date_format;
         $this->js_date_format  = DateTime::convertPhpToJsFormat($php_date_format);
+
         return $this;
     }
 
@@ -552,7 +549,6 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setResponsiveBreakpoints(?array $breakpoints): static
     {
         $return = [];
-
         // Validate given order data and reformat
         foreach ($breakpoints as $column => $width) {
             if (is_integer($width)) {
@@ -564,20 +560,17 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             } else {
                 $width = trim($width);
                 $width = strtolower($width);
-
                 if ($width !== 'infinity') {
                     throw new OutOfBoundsException(tr('Invalid width ":width" specified, must be either "Infinity" or integer between 0 and 100.000', [
                         ':width' => $width,
                     ]));
                 }
-
                 $width = 'Infinity';
             }
-
             $this->responsive_breakpoints[] = '{name: "' . $column . '", width: ' . $width . '}';
         }
-
         $this->responsive_breakpoints = $breakpoints;
+
         return $this;
     }
 
@@ -603,6 +596,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setInfoEnabled(?bool $enabled): static
     {
         $this->info_enabled = $enabled;
+
         return $this;
     }
 
@@ -628,6 +622,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setSearchingEnabled(?bool $enabled): static
     {
         $this->searching_enabled = $enabled;
+
         return $this;
     }
 
@@ -653,6 +648,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setSearchCaseInsensitiveEnabled(?bool $enabled): static
     {
         $this->search_case_insensitive_enabled = $enabled;
+
         return $this;
     }
 
@@ -678,6 +674,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setSearchRegexEnabled(?bool $enabled): static
     {
         $this->search_regex_enabled = $enabled;
+
         return $this;
     }
 
@@ -703,6 +700,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setSearchSmartEnabled(?bool $enabled): static
     {
         $this->search_smart_enabled = $enabled;
+
         return $this;
     }
 
@@ -728,6 +726,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setSearchReturnEnabled(?bool $enabled): static
     {
         $this->search_return_enabled = $enabled;
+
         return $this;
     }
 
@@ -753,6 +752,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setSearch(?string $search): static
     {
         $this->search = $search;
+
         return $this;
     }
 
@@ -778,6 +778,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setPagingEnabled(?bool $enabled): static
     {
         $this->paging_enabled = $enabled;
+
         return $this;
     }
 
@@ -803,6 +804,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setPagingType(EnumPagingTypeInterface $type): static
     {
         $this->paging_type = $type;
+
         return $this;
     }
 
@@ -830,9 +832,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         foreach ($length_menu as &$label) {
             $label = quote($label);
         }
-
         $this->length_menu = $length_menu;
         unset($label);
+
         return $this;
     }
 
@@ -858,6 +860,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setLengthChangeEnabled(?bool $enabled): static
     {
         $this->length_change_enabled = $enabled;
+
         return $this;
     }
 
@@ -883,6 +886,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setPageLength(int $length): static
     {
         $this->page_length = $length;
+
         return $this;
     }
 
@@ -908,6 +912,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setAutoWidthEnabled(?bool $enabled): static
     {
         $this->auto_width_enabled = $enabled;
+
         return $this;
     }
 
@@ -933,6 +938,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setDeferRenderEnabled(?bool $enabled): static
     {
         $this->defer_render_enabled = $enabled;
+
         return $this;
     }
 
@@ -958,6 +964,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setDisplayStart(int $start): static
     {
         $this->display_start = $start;
+
         return $this;
     }
 
@@ -986,8 +993,10 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setOrder(?array $order): static
     {
         $this->order = $this->reformatOrdering($order);
+
         return $this;
     }
+
 
     /**
      * Reformats and returns the given [col0 => order, col1 => order] array to DataTable's [[0, order], [1, order]]
@@ -999,7 +1008,6 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     protected function reformatOrdering(array $order): array
     {
         $return = [];
-
         // Validate given order data and reformat
         foreach ($order as $column => $direction) {
             if (!is_really_integer($column)) {
@@ -1007,35 +1015,31 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                     ':column' => $column,
                 ]));
             }
-
             $direction = trim($direction);
             $direction = strtolower($direction);
-
             switch ($direction) {
                 case 'up':
                     // no break;
                 case 'asc':
                     $direction = 'asc';
                     break;
-
                 case 'down':
                     // no break
                 case 'desc':
                     $direction = 'desc';
                     break;
-
                 default:
                     throw new OutOfBoundsException(tr('Invalid table order specified. Order direction ":direction" for column ":column" must be one of "desc" or "asc"', [
                         ':column'    => $column,
                         ':direction' => $direction,
                     ]));
             }
-
             $return[] = $column . ', "' . $direction . '"';
         }
 
         return $return;
     }
+
 
     /**
      * Returns ordering to always be applied to the table
@@ -1047,6 +1051,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         return $this->order_fixed;
     }
 
+
     /**
      * Sets ordering to always be applied to the table
      *
@@ -1057,8 +1062,10 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setOrderFixed(?array $order): static
     {
         $this->order_fixed = $this->reformatOrdering($order);
+
         return $this;
     }
+
 
     /**
      * Returns the columns that can be ordered
@@ -1069,6 +1076,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     {
         return $this->columns_orderable;
     }
+
 
     /**
      * Sets the columns that can be ordered
@@ -1086,7 +1094,6 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                     ':key' => $key,
                 ]));
             }
-
             if (!is_bool($value) and ($value !== null)) {
                 throw new OutOfBoundsException(tr('Specified key ":key" has invalid value ":value", values must be boolean', [
                     ':key'   => $key,
@@ -1094,10 +1101,11 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                 ]));
             }
         }
-
         $this->columns_orderable = $columns;
+
         return $this;
     }
+
 
     /**
      * Sets if ordering (sorting) abilities are available in DataTables
@@ -1109,6 +1117,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         return $this->ordering_enabled;
     }
 
+
     /**
      * Sets if ordering (sorting) abilities are available in DataTables
      *
@@ -1119,8 +1128,10 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setOrderingEnabled(?bool $enabled): static
     {
         $this->ordering_enabled = $enabled;
+
         return $this;
     }
+
 
     /**
      * Sets if the columns being ordered in the table's body is highlighted
@@ -1132,6 +1143,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         return $this->order_classes_enabled;
     }
 
+
     /**
      * Sets if the columns being ordered in the table's body is highlighted
      *
@@ -1142,8 +1154,10 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setOrderClassesEnabled(?bool $enabled): static
     {
         $this->order_classes_enabled = $enabled;
+
         return $this;
     }
+
 
     /**
      * Returns if multiple column ordering ability is available or not
@@ -1155,6 +1169,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         return $this->order_multi_enabled;
     }
 
+
     /**
      * Sets if multiple column ordering ability is available or not
      *
@@ -1165,8 +1180,10 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setOrderMultiEnabled(?bool $enabled): static
     {
         $this->order_multi_enabled = $enabled;
+
         return $this;
     }
+
 
     /**
      * Generates and returns the HTML string for this resource element
@@ -1178,130 +1195,102 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     {
         // TODO Load many of these javascripts conditionally and only if their functions are enabled (button is there, functionality is required, etc)
         Response::loadJavascript([
-                                     'adminlte/plugins/datatables/jquery.dataTables',
-                                     'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4',
-                                     'adminlte/plugins/datatables-responsive/js/dataTables.responsive',
-                                     'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4',
-                                     'adminlte/plugins/datatables-buttons/js/dataTables.buttons',
-                                     'adminlte/plugins/datatables-buttons/js/buttons.bootstrap4',
-                                     'adminlte/plugins/jszip/jszip',
-                                     'adminlte/plugins/pdfmake/pdfmake',
-                                     'adminlte/plugins/pdfmake/vfs_fonts',
-                                     'adminlte/plugins/datatables-buttons/js/buttons.html5',
-                                     'adminlte/plugins/datatables-buttons/js/buttons.print',
-                                     'adminlte/plugins/datatables-buttons/js/buttons.colVis',
-                                 ]);
-
+            'adminlte/plugins/datatables/jquery.dataTables',
+            'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4',
+            'adminlte/plugins/datatables-responsive/js/dataTables.responsive',
+            'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4',
+            'adminlte/plugins/datatables-buttons/js/dataTables.buttons',
+            'adminlte/plugins/datatables-buttons/js/buttons.bootstrap4',
+            'adminlte/plugins/jszip/jszip',
+            'adminlte/plugins/pdfmake/pdfmake',
+            'adminlte/plugins/pdfmake/vfs_fonts',
+            'adminlte/plugins/datatables-buttons/js/buttons.html5',
+            'adminlte/plugins/datatables-buttons/js/buttons.print',
+            'adminlte/plugins/datatables-buttons/js/buttons.colVis',
+        ]);
         Response::loadCss('adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4');
         Response::loadCss('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4');
         Response::loadCss('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4');
-
         // Build options
         $options = [];
         $content = '';
-
         if ($this->page_length !== null) {
             $options[] = 'pageLength: ' . $this->page_length;
         }
-
         if ($this->display_start !== null) {
             $options[] = 'displayStart: ' . $this->display_start;
         }
-
         if ($this->info_enabled !== null) {
             $options[] = 'info: ' . Strings::fromBoolean($this->info_enabled);
         }
-
         if ($this->searching_enabled !== null) {
             $options[] = 'searching: ' . Strings::fromBoolean($this->searching_enabled);
         }
-
         if ($this->search_case_insensitive_enabled !== null) {
             $options[] = 'searchCaseInsensitive: ' . Strings::fromBoolean($this->search_case_insensitive_enabled);
         }
-
         if ($this->search_regex_enabled !== null) {
             $options[] = 'searchRegex: ' . Strings::fromBoolean($this->search_regex_enabled);
         }
-
         if ($this->search_smart_enabled !== null) {
             $options[] = 'searchSmart: ' . Strings::fromBoolean($this->search_smart_enabled);
         }
-
         if ($this->search_return_enabled !== null) {
             $options[] = 'searchReturn: ' . Strings::fromBoolean($this->search_return_enabled);
         }
-
         if ($this->search !== null) {
             $options[] = 'search": "' . ($this->search) . '"';
         }
-
         if ($this->paging_enabled !== null) {
             $options[] = 'paging: ' . Strings::fromBoolean($this->paging_enabled);
         }
-
         if ($this->paging_type !== null) {
             $options[] = 'pagingType: "' . $this->paging_type->value . '"';
         }
-
         if ($this->length_menu !== null) {
             $options[] = 'lengthMenu: ' . $this->getDataTableLengthMenu();
         }
-
         if ($this->length_change_enabled !== null) {
             $options[] = 'lengthChange: ' . Strings::fromBoolean($this->length_change_enabled);
         }
-
         if ($this->auto_width_enabled !== null) {
             $options[] = 'autoWidth: ' . Strings::fromBoolean($this->auto_width_enabled);
         }
-
         if ($this->defer_render_enabled !== null) {
             $options[] = 'deferRender: ' . Strings::fromBoolean($this->defer_render_enabled);
         }
-
         if ($this->ordering_enabled !== null) {
             $options[] = 'ordering: ' . Strings::fromBoolean($this->ordering_enabled);
         }
-
         if ($this->order_classes_enabled !== null) {
             $options[] = 'orderClasses: ' . Strings::fromBoolean($this->order_classes_enabled);
         }
-
         if ($this->order_multi_enabled !== null) {
             $options[] = 'orderMulti: ' . Strings::fromBoolean($this->order_multi_enabled);
         }
-
         if ($this->order !== null) {
             $options[] = 'order: [' . implode(', ' . PHP_EOL, $this->order) . ']';
         }
-
         if ($this->order_fixed !== null) {
             $options[] = 'orderFixed: { pre: [' . implode(', ' . PHP_EOL, $this->order_fixed) . '] }';
         }
-
         if ($this->buttons !== null) {
             $options[] = 'buttons: { buttons: [ ' . implode(', ' . PHP_EOL, $this->buttons) . ' ] }';
         }
-
         if ($this->responsive) {
             $options[] = $this->getDataTableResponsive();
         }
-
         if ($this->columns_orderable) {
             $options[] = $this->getDataTableColumnDefinitions();
         }
-
         if ($this->js_date_format) {
             Response::loadJavascript([
-                                         'adminlte/plugins/moment/moment',
-                                         'adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
-                                         'adminlte/plugins/datatables-sorting/datetime-moment',
-                                     ]);
-
+                'adminlte/plugins/moment/moment',
+                'adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
+                'adminlte/plugins/datatables-sorting/datetime-moment',
+            ]);
             $content .= 'DataTable.moment("' . $this->js_date_format . '")' . PHP_EOL;
         }
-
         $id     = $this->getId();
         $render = Script::new()
                         ->setJavascriptWrapper(EnumJavascriptWrappers::dom_content)
@@ -1311,16 +1300,15 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                 })
                     .buttons()
                     .container()
-                    .appendTo("#' . Html::safe($id) . '_wrapper .col-md-6:eq(0)");')->render();
-
+                    .appendTo("#' . Html::safe($id) . '_wrapper .col-md-6:eq(0)");')
+                        ->render();
 //        ' . ($this->date_format ? '.datetime("' . $this->date_format . '")' . PHP_EOL : '') . '
-
 //showdie('$("#' . Html::safe($id) . '").DataTable({
 //                  ' . implode(', ' . PHP_EOL, $options) . '
 //                }).buttons().container().appendTo("#' . Html::safe($id) . '_wrapper .col-md-6:eq(0)");');
-
         return $render . parent::render();
     }
+
 
     /**
      * Returns a JSON string for DataTables containing page length menu definitions
@@ -1331,6 +1319,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     {
         return '[ [ ' . implode(', ', array_keys($this->length_menu)) . ' ], [ ' . implode(', ', $this->length_menu) . ' ] ]';
     }
+
 
     /**
      * Returns a JSON string for DataTables containing responsiveness definitions
@@ -1346,13 +1335,13 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
 
             return 'responsive: false';
         }
-
         if ($this->responsive_breakpoints) {
             return 'responsive: {' . PHP_EOL . 'breakpoints: [' . PHP_EOL . implode(',' . PHP_EOL, $this->responsive_breakpoints) . '] }' . PHP_EOL;
         }
 
         return 'responsive: true';
     }
+
 
     /**
      * Returns a JSON string for DataTables containing column definition information
@@ -1364,10 +1353,8 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         if (!$this->columns_orderable) {
             return null;
         }
-
         $highest = Arrays::getHighestKey($this->columns_orderable);
         $columns = [];
-
         for ($column = 0; $column <= $highest; $column++) {
             if (array_key_exists($column, $this->columns_orderable)) {
                 $columns[] = '{ orderable: ' . Strings::fromBoolean($this->columns_orderable[$column]) . ' }';

@@ -7,7 +7,6 @@ namespace Phoundation\Accounts\Users;
 use Phoundation\Accounts\Users\Interfaces\GuestUserInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
-
 /**
  * Class GuestUser
  *
@@ -30,7 +29,6 @@ class GuestUser extends User implements GuestUserInterface
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
         parent::__construct($identifier, $column, $meta_enabled);
-
         $this->source['email'] = 'guest';
         $this->setValidate(false);
         $this->setNickname('Guest');

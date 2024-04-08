@@ -10,7 +10,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Widgets\Widget;
 use Phoundation\Web\Html\Html;
 
-
 /**
  * Box class
  *
@@ -24,7 +23,6 @@ use Phoundation\Web\Html\Html;
 abstract class Box extends Widget
 {
     use TraitDataTitle;
-
 
     /**
      * The icon to display on this infobox
@@ -91,6 +89,7 @@ abstract class Box extends Widget
     public function setIcon(?string $icon): static
     {
         $this->icon = $icon;
+
         return $this;
     }
 
@@ -116,6 +115,7 @@ abstract class Box extends Widget
     public function setUrl(?string $url): static
     {
         $this->url = $url;
+
         return $this;
     }
 
@@ -142,6 +142,7 @@ abstract class Box extends Widget
     public function setShadow(#[ExpectedValues(null, 'shadow-sm', 'shadow', 'shadow-lg')] ?string $shadow): static
     {
         $this->shadow = $shadow;
+
         return $this;
     }
 
@@ -202,8 +203,8 @@ abstract class Box extends Widget
                 ':value' => $progress,
             ]));
         }
-
         $this->progress = $progress;
+
         return $this;
     }
 
@@ -229,6 +230,7 @@ abstract class Box extends Widget
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
         return $this;
     }
 }

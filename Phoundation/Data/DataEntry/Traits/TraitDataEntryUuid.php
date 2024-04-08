@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Utils\Strings;
 use Stringable;
 
-
 /**
  * Trait TraitDataEntryUuid
  *
@@ -29,8 +28,9 @@ trait TraitDataEntryUuid
      */
     public function setUuid(Stringable|string|null $uuid): static
     {
-        return $this->setValue('uuid', (string)$uuid);
+        return $this->setValue('uuid', (string) $uuid);
     }
+
 
     /**
      * Generates a uuid for this object
@@ -43,6 +43,7 @@ trait TraitDataEntryUuid
     {
         return $this->setValue('uuid', Strings::getUuid($data));
     }
+
 
     /**
      * Returns the uuid for this object

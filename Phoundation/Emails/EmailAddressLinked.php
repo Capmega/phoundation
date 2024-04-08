@@ -12,7 +12,6 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryEmail;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryName;
 use Phoundation\Emails\Enums\Interfaces\EnumEmailAddressTypeInterface;
 
-
 /**
  * Class EmailAddressLinked
  *
@@ -27,7 +26,6 @@ class EmailAddressLinked extends DataEntry
 {
     use TraitDataEntryName;
     use TraitDataEntryEmail;
-
 
     /**
      * The type of email address for this email, to, from, cc, or bcc
@@ -127,21 +125,20 @@ class EmailAddressLinked extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions
-            ->add(DefinitionFactory::getDatabaseId($this, 'emails_id')
-                                   ->setRender(false))
-            ->add(DefinitionFactory::getDatabaseId($this, 'address_id')
-                                   ->setRender(false))
-            ->add(Definition::new($this, 'type')
-                            ->setRender(false)
-                            ->setDataSource([
-                                                'from' => tr('From'),
-                                                'to'   => tr('To'),
-                                                'cc'   => tr('Cc'),
-                                                'bcc'  => tr('Bcc'),
-                                            ])
-                            ->setMaxlength(4))
-            ->add(DefinitionFactory::getEmail($this))
-            ->add(DefinitionFactory::getName($this));
+        $definitions->add(DefinitionFactory::getDatabaseId($this, 'emails_id')
+                                           ->setRender(false))
+                    ->add(DefinitionFactory::getDatabaseId($this, 'address_id')
+                                           ->setRender(false))
+                    ->add(Definition::new($this, 'type')
+                                    ->setRender(false)
+                                    ->setDataSource([
+                                        'from' => tr('From'),
+                                        'to'   => tr('To'),
+                                        'cc'   => tr('Cc'),
+                                        'bcc'  => tr('Bcc'),
+                                    ])
+                                    ->setMaxlength(4))
+                    ->add(DefinitionFactory::getEmail($this))
+                    ->add(DefinitionFactory::getName($this));
     }
 }

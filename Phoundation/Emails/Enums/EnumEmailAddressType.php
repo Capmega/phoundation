@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Emails\Enums;
 
-
 use Phoundation\Emails\Enums\Interfaces\EnumEmailAddressTypeInterface;
 
 /**

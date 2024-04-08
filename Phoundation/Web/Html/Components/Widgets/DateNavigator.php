@@ -16,7 +16,6 @@ use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Stringable;
 
-
 /**
  * Class DateNavigator
  *
@@ -30,7 +29,6 @@ use Stringable;
 class DateNavigator extends ElementsBlock
 {
     use TraitDataDate;
-
 
     /**
      * The link for the previous button
@@ -67,7 +65,6 @@ class DateNavigator extends ElementsBlock
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-
         // Create the next button
         $this->next_button = Button::new();
     }
@@ -93,7 +90,8 @@ class DateNavigator extends ElementsBlock
      */
     public function setPrevLink(Stringable|string $link): static
     {
-        $this->prev_link = (string)$link;
+        $this->prev_link = (string) $link;
+
         return $this;
     }
 
@@ -118,7 +116,8 @@ class DateNavigator extends ElementsBlock
      */
     public function setSelectorLink(Stringable|string $link): static
     {
-        $this->selector_link = (string)$link;
+        $this->selector_link = (string) $link;
+
         return $this;
     }
 
@@ -143,7 +142,8 @@ class DateNavigator extends ElementsBlock
      */
     public function setNextLink(Stringable|string $link): static
     {
-        $this->next_link = (string)$link;
+        $this->next_link = (string) $link;
+
         return $this;
     }
 
@@ -169,6 +169,7 @@ class DateNavigator extends ElementsBlock
     public function setNextDisabled(bool $disabled): static
     {
         $this->next_button->setDisabled($disabled);
+
         return $this;
     }
 
@@ -188,12 +189,11 @@ class DateNavigator extends ElementsBlock
     public function render(): ?string
     {
         // Set up the tomorrow button. It may be disabled
-        $this->next_button
-            ->setName('nav_next')
-            ->setMode(EnumDisplayMode::primary)
-            ->setBlock(true)
-            ->setContent(tr('>'))
-            ->setAnchorUrl($this->next_link);
+        $this->next_button->setName('nav_next')
+                          ->setMode(EnumDisplayMode::primary)
+                          ->setBlock(true)
+                          ->setContent(tr('>'))
+                          ->setAnchorUrl($this->next_link);
 
         // Build the date selector
         return Grid::new()

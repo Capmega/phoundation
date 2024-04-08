@@ -6,7 +6,6 @@ namespace Phoundation\Business\Exception;
 
 use Phoundation\Exception\Exception;
 
-
 /**
  * Class BusinessException
  *

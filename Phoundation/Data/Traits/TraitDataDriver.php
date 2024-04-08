@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataDriver
  *
@@ -46,6 +45,7 @@ trait TraitDataDriver
     public function setDriver(?string $driver): static
     {
         $this->driver = get_null($driver);
+
         return $this;
     }
 }

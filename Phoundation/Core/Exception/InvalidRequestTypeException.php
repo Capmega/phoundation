@@ -6,7 +6,6 @@ namespace Phoundation\Core\Exception;
 
 use Phoundation\Web\Requests\Exception\RequestException;
 
-
 /**
  * Class InvalidRequestTypeException
  *

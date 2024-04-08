@@ -12,7 +12,6 @@ use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\Timezones\Timezone;
 
-
 /**
  * Class County
  *
@@ -27,7 +26,6 @@ use Phoundation\Geo\Timezones\Timezone;
 class County extends DataEntry
 {
     use TraitDataEntryNameDescription;
-
 
     /**
      * Returns the table name used by this object
@@ -114,7 +112,6 @@ class County extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions;
-
 //        throw new UnderConstructionException();
 //
 //        $data = $validator

@@ -18,7 +18,6 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class MysqlDump
  *
@@ -33,7 +32,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
 {
     use TraitDataDebug;
     use TraitDataConnector;
-
 
     /**
      * The databases that will be dumped
@@ -138,6 +136,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setDatabases(array|string $databases): static
     {
         $this->databases = Arrays::force($databases);
+
         return $this;
     }
 
@@ -169,6 +168,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setDisableKeys(bool $disable_keys): static
     {
         $this->disable_keys = $disable_keys;
+
         return $this;
     }
 
@@ -196,6 +196,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setRoutines(bool $routines): static
     {
         $this->routines = $routines;
+
         return $this;
     }
 
@@ -223,6 +224,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setEvents(bool $events): static
     {
         $this->events = $events;
+
         return $this;
     }
 
@@ -248,6 +250,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setCreateDatabases(bool $create_databases): static
     {
         $this->create_databases = $create_databases;
+
         return $this;
     }
 
@@ -273,6 +276,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setCreateTables(bool $create_tables): static
     {
         $this->create_tables = $create_tables;
+
         return $this;
     }
 
@@ -300,6 +304,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setExtendedInsert(bool $extended_insert): static
     {
         $this->extended_insert = $extended_insert;
+
         return $this;
     }
 
@@ -327,6 +332,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setComments(bool $comments): static
     {
         $this->comments = $comments;
+
         return $this;
     }
 
@@ -352,6 +358,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setDumpDate(bool $dump_date): static
     {
         $this->dump_date = $dump_date;
+
         return $this;
     }
 
@@ -377,6 +384,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setGzip(bool $gzip): static
     {
         $this->gzip = $gzip;
+
         return $this;
     }
 
@@ -393,23 +401,23 @@ class MysqlDump extends Command implements MysqlDumpInterface
     {
         if (!$file) {
             // Generate default file
-            $file = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName() . DateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
+            $file = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName() . DateTime::new()
+                                                                                                ->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
         }
-
         $file = Path::getAbsolute($file, DIRECTORY_DATA . 'sources/', false);
         $file = File::new($file, $this->restrictions);
-        $file->getParentDirectory()->ensure();
-
+        $file->getParentDirectory()
+             ->ensure();
         // Build the process parameters, then execute
         $this->setCommand('mysqldump')
              ->clearArguments()
              ->addArguments([
-                                '-h',
-                                $this->connector->getHostname(),
-                                '-u',
-                                $this->connector->getUsername(),
-                                '-p' . $this->connector->getPassword(),
-                            ])
+                 '-h',
+                 $this->connector->getHostname(),
+                 '-u',
+                 $this->connector->getUsername(),
+                 '-p' . $this->connector->getPassword(),
+             ])
              ->addArgument($this->disable_keys ? '--disable-keys' : null)
              ->addArgument($this->events ? '--events' : null)
              ->addArgument($this->routines ? '--routines' : null)
@@ -418,36 +426,31 @@ class MysqlDump extends Command implements MysqlDumpInterface
              ->addArgument($this->extended_insert ? '--extended-insert' : null)
              ->addArgument($this->comments ? '--comments' : '--skip-comments')
              ->addArgument(($this->comments and $this->dump_date) ? '--dump-date' : null);
-
         if ($this->connector->getPort()) {
             $this->addArguments([
-                                    '-p',
-                                    $this->connector->getPort(),
-                                ]);
+                '-p',
+                $this->connector->getPort(),
+            ]);
         }
-
         // Add databases
         $this->addArgument('--databases')
              ->addArguments($this->databases);
-
         // Optionally add gzip
         if ($this->gzip) {
             $this->setPipe('gzip');
         }
-
         Log::action(tr('Creating MySQL dump file ":file" from databases ":databases", this may take a while...', [
             ':file'      => $file,
             ':databases' => Strings::force($this->databases, ', '),
         ]));
-
         // Add pipe to output and execute
-        $results = $this->setOutputRedirect((string)$file)->executeReturnArray();
-
+        $results = $this->setOutputRedirect((string) $file)
+                        ->executeReturnArray();
         if ($this->debug) {
             Log::information(tr('Output of the mysqldump command:'), 4);
             Log::debug($results, 4);
         }
 
-        return (string)$file;
+        return (string) $file;
     }
 }

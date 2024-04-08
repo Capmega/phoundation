@@ -7,7 +7,6 @@ namespace Phoundation\Web\Http\Json;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 
-
 /**
  * Class AutoSuggestRequest
  *
@@ -28,6 +27,7 @@ class AutoSuggestRequest
      */
     protected static array $get;
 
+
     /**
      * Will already execute the GET data validation so that subsequent GET data validations that might clear GET will
      * not cause the loss of auto suggest data
@@ -41,6 +41,7 @@ class AutoSuggestRequest
         static::ensureGet($term_optional);
     }
 
+
     /**
      * AutoSuggestRequest class constructor
      *
@@ -51,21 +52,29 @@ class AutoSuggestRequest
         if (isset(static::$get)) {
             return;
         }
-
         // Validate request data
         $validator = GetValidator::new()
-                                 ->select('callback')->hasMaxCharacters(48)->matchesRegex('/jQuery\d+_\d+/')
-                                 ->select('_')->isNatural();
-
+                                 ->select('callback')
+                                 ->hasMaxCharacters(48)
+                                 ->matchesRegex('/jQuery\d+_\d+/')
+                                 ->select('_')
+                                 ->isNatural();
         if ($term_optional) {
-            $validator->select('term')->isOptional('')->sanitizeTrim()->hasMaxCharacters(255)->isPrintable();
+            $validator->select('term')
+                      ->isOptional('')
+                      ->sanitizeTrim()
+                      ->hasMaxCharacters(255)
+                      ->isPrintable();
 
         } else {
-            $validator->select('term')->sanitizeTrim()->hasMaxCharacters(255)->isPrintable();
+            $validator->select('term')
+                      ->sanitizeTrim()
+                      ->hasMaxCharacters(255)
+                      ->isPrintable();
         }
-
         static::$get = $validator->validate(false);
     }
+
 
     /**
      * Returns the jQuery callback
@@ -75,6 +84,7 @@ class AutoSuggestRequest
     public static function getCallback(): string
     {
         static::ensureGet();
+
         return static::$get['callback'];
     }
 
@@ -89,7 +99,6 @@ class AutoSuggestRequest
     public static function getTerm(int $max_size = 255): string
     {
         static::ensureGet();
-
         if (strlen(static::$get['term']) > $max_size) {
             throw new ValidationFailedException(tr('The field term must have ":count" characters or less', [
                 ':count' => $max_size,
@@ -122,6 +131,7 @@ class AutoSuggestRequest
     public static function get_(): string
     {
         static::ensureGet();
+
         return static::$get['_'];
     }
 }

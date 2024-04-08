@@ -16,7 +16,6 @@ use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
 
-
 /**
  * MaxMind class
  *
@@ -58,21 +57,20 @@ class MaxMindImport extends GeoIpImport
     {
         $license_key = Config::getString('geo.ip.max-mind.api-key');
         $wget        = Wget::new();
-        $directory   = $wget->setTimeout(1200)->setExecutionDirectoryToTemp()->getExecutionDirectory();
-
+        $directory   = $wget->setTimeout(1200)
+                            ->setExecutionDirectoryToTemp()
+                            ->getExecutionDirectory();
         Log::action(tr('Storing GeoIP files in directory ":directory"', [':directory' => $directory]));
-
         foreach (static::getMaxMindFiles(true) as $file => $url) {
             Log::action(tr('Downloading MaxMind URL ":url"', [':url' => $url]));
-
-            $wget
-                ->setSource(str_replace('YOUR_LICENSE_KEY', $license_key, $url))
-                ->setTarget($file)
-                ->execute();
+            $wget->setSource(str_replace('YOUR_LICENSE_KEY', $license_key, $url))
+                 ->setTarget($file)
+                 ->execute();
         }
 
         return $directory;
     }
+
 
     /**
      * Returns a list of MaxMind files that will be downloaded
@@ -92,13 +90,11 @@ class MaxMindImport extends GeoIpImport
             'cities.tar.gz'       => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=YOUR_LICENSE_KEY&suffix=tar.gz',
             'countries.tar.gz'    => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=YOUR_LICENSE_KEY&suffix=tar.gz',
         ];
-
         $sha_files = [
             'geolite2-asn.tar.gz.sha256' => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=YOUR_LICENSE_KEY&suffix=tar.gz.sha256',
             'cities.tar.gz.sha256'       => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=YOUR_LICENSE_KEY&suffix=tar.gz.sha256',
             'countries.tar.gz.sha256'    => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=YOUR_LICENSE_KEY&suffix=tar.gz.sha256',
         ];
-
         if ($return_sha_files) {
             // Return the list of files AND the sha256 files
             return array_merge($sha_files, $files);
@@ -107,6 +103,7 @@ class MaxMindImport extends GeoIpImport
         // Return only the files themselves
         return $files;
     }
+
 
     /**
      * Process downloaded GeoIP files
@@ -123,31 +120,30 @@ class MaxMindImport extends GeoIpImport
         $restrictions = $restrictions ?? Restrictions::new(DIRECTORY_DATA, true);
         $target_path  = Config::getString('geo.ip.max-mind.path', DIRECTORY_DATA . 'sources/geoip/maxmind/', $target_path);
         $target_path  = Path::getAbsolute($target_path, DIRECTORY_ROOT, false);
-
-        Directory::new($target_path, $restrictions)->ensure();
+        Directory::new($target_path, $restrictions)
+                 ->ensure();
         Log::action(tr('Processing GeoIP files and moving to directory ":directory"', [':directory' => $target_path]));
-
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            File::new(DIRECTORY_DATA . 'garbage/maxmind', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/'))->delete();
-            File::new($source_path . 'GeoLite2-*', $restrictions)->delete(false, false, false);
-
-            $previous = Directory::new($target_path, $restrictions)->movePath(DIRECTORY_DATA . 'garbage/');
+            File::new(DIRECTORY_DATA . 'garbage/maxmind', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/'))
+                ->delete();
+            File::new($source_path . 'GeoLite2-*', $restrictions)
+                ->delete(false, false, false);
+            $previous = Directory::new($target_path, $restrictions)
+                                 ->movePath(DIRECTORY_DATA . 'garbage/');
             $shas     = [];
-
             // Perform sha256 check on all files
             foreach (static::getMaxMindFiles(true) as $file => $url) {
                 if (str_ends_with($file, 'sha256')) {
                     // Get the required sha256 code for the following file
-                    $sha = File::new($source_path . $file, $restrictions)->checkReadable()->getContentsAsString();
+                    $sha = File::new($source_path . $file, $restrictions)
+                               ->checkReadable()
+                               ->getContentsAsString();
                     $sha = Strings::until($sha, ' ');
-
                     $shas[Strings::until($file, '.sha256')] = $sha;
                     continue;
                 }
-
                 Log::action(tr('Processing GeoIP file ":file"', [':file' => $file]));
-
                 // Take the downloaded file, check sha256, untar it, and move the datafile from the resulting directory
                 // to the target
                 $directory = File::new($source_path . $file, $restrictions)
@@ -155,12 +151,11 @@ class MaxMindImport extends GeoIpImport
                                  ->checkSha256($shas[$file])
                                  ->untar()
                                  ->getSingleDirectory('/GeoLite2.+?/i');
-
                 // Move the file to the target path and delete the source path
-                $directory->getSingleFile('/.+?.mmdb/i')->movePath($target_path);
+                $directory->getSingleFile('/.+?.mmdb/i')
+                          ->movePath($target_path);
                 $directory->delete();
             }
-
             // Delete the previous data files from garbage
             $previous->delete();
 
@@ -170,7 +165,6 @@ class MaxMindImport extends GeoIpImport
             if (isset($previous)) {
                 $previous->movePath($target_path);
             }
-
             throw $e;
         }
 

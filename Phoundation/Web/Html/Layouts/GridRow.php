@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Layouts;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
 
-
 /**
  * GridRow class
  *
@@ -32,6 +31,7 @@ class GridRow extends Layout
     public function setColumns(array $source, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
     {
         $this->source = [];
+
         return $this->addColumns($source, $size, $use_form);
     }
 
@@ -54,7 +54,6 @@ class GridRow extends Layout
                     ':datatype' => gettype($column),
                 ]));
             }
-
             $this->addColumn($column, $size, $use_form);
         }
 
@@ -77,22 +76,20 @@ class GridRow extends Layout
             if (is_object($column) and !($column instanceof GridColumn)) {
                 // This is not a GridColumn object, try to render the object to HTML string
                 static::canRenderHtml($column);
-
                 // Render the HTML string
                 $column = $column->render();
             }
-
             if (is_string($column)) {
                 // This is not a column, it is content (should be an HTML string). Place the content in a column and add
                 // that column instead
-                $column = GridColumn::new()->setContent($column)->useForm($use_form);
+                $column = GridColumn::new()
+                                    ->setContent($column)
+                                    ->useForm($use_form);
             }
-
             // Shortcut to set column size
             if ($size !== null) {
                 $column->setSize($size);
             }
-
             $this->source[] = $column;
         }
 

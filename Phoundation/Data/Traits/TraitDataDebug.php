@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataDebug
  *
@@ -46,6 +45,7 @@ trait TraitDataDebug
     public function setDebug(bool $debug): static
     {
         $this->debug = $debug;
+
         return $this;
     }
 }

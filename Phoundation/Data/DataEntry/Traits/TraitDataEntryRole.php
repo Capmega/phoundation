@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Role;
 
-
 /**
  * Trait TraitDataEntryRole
  *
@@ -25,6 +24,7 @@ trait TraitDataEntryRole
      */
     protected ?RoleInterface $role;
 
+
     /**
      * Sets the roles_id for this object
      *
@@ -35,8 +35,10 @@ trait TraitDataEntryRole
     public function setRolesId(?int $roles_id): static
     {
         unset($this->role);
+
         return $this->setValue('roles_id', $roles_id);
     }
+
 
     /**
      * Returns the role name for this object
@@ -45,8 +47,10 @@ trait TraitDataEntryRole
      */
     public function getRolesName(): ?string
     {
-        return $this->getRole()?->getname();
+        return $this->getRole()
+                    ?->getname();
     }
+
 
     /**
      * Returns the RoleInterface object for this object
@@ -74,11 +78,13 @@ trait TraitDataEntryRole
     {
         if ($role) {
             $this->role = $role;
+
             return $this->setValue('roles_id', $role->getId());
         }
 
         return $this->setRolesId(null);
     }
+
 
     /**
      * Returns the roles_id for this object
@@ -90,6 +96,7 @@ trait TraitDataEntryRole
         return $this->getValueTypesafe('int', 'roles_id');
 
     }
+
 
     /**
      * Sets the role name for this object

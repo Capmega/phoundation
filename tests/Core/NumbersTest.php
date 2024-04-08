@@ -7,7 +7,6 @@ namespace Core;
 use Phoundation\Utils\Numbers;
 use PHPUnit\Framework\TestCase;
 
-
 /**
  * \Phoundation\Utils\Numbers test class
  */

@@ -13,7 +13,6 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Config;
 use Throwable;
 
-
 /**
  * Environment class
  *
@@ -61,6 +60,7 @@ class Environment
         $this->config  = new Configuration($project);
     }
 
+
     /**
      * Returns if the specified environment name is valid or not
      *
@@ -71,25 +71,26 @@ class Environment
     public static function sanitize(string $environment): string
     {
         if (!$environment) {
-            throw OutOfBoundsException::new(tr('No environment specified'))->makeWarning();
+            throw OutOfBoundsException::new(tr('No environment specified'))
+                                      ->makeWarning();
         }
-
         if (strlen($environment) > 32) {
             throw OutOfBoundsException::new(tr('Specified environment is ":size" characters long, please specify an environment equal or less than 32 characters', [
                 ':size' => strlen($environment),
-            ]))->makeWarning();
+            ]))
+                                      ->makeWarning();
         }
-
         $environment = strtoupper($environment);
-
         if (!preg_match('/[A-Z0-9_]+/', $environment)) {
             throw OutOfBoundsException::new(tr('Specified environment ":environment" contains invalid characters, please ensure it has only A-Z, 0-9 or _', [
                 ':environment' => $environment,
-            ]))->makeWarning();
+            ]))
+                                      ->makeWarning();
         }
 
         return $environment;
     }
+
 
     /**
      * Returns a new environment with the specified name
@@ -102,7 +103,6 @@ class Environment
     public static function new(string $project, string $environment): static
     {
         Log::action(tr('Generating new environment ":env"', [':env' => $environment]));
-
         if (static::exists($environment)) {
             throw new OutOfBoundsException(tr('Specified environment ":environment" already exist', [
                 ':environment' => $environment,
@@ -111,6 +111,7 @@ class Environment
 
         return new static($project, $environment);
     }
+
 
     /**
      * Returns if the specified environment exists or not
@@ -124,8 +125,10 @@ class Environment
     public static function exists(string $environment): bool
     {
         $environment = static::sanitize($environment);
+
         return file_exists(static::getConfigurationFile($environment));
     }
+
 
     /**
      * Returns the configuration file for the specified environment
@@ -138,6 +141,7 @@ class Environment
     {
         return DIRECTORY_ROOT . 'config/' . strtolower($environment) . '.yaml';
     }
+
 
     /**
      * Returns the specified environment
@@ -158,6 +162,7 @@ class Environment
         return new Environment($project, $environment);
     }
 
+
     /**
      * Returns the name for this environment
      *
@@ -167,6 +172,7 @@ class Environment
     {
         return $this->name;
     }
+
 
     /**
      * Remove this environment
@@ -179,29 +185,31 @@ class Environment
     {
         // Use the requested environment
         Config::setEnvironment($this->name);
-
         Log::action(tr('Removing environment ":env"', [':env' => strtolower($this->name)]));
-
         // Drop core database
         try {
-            sql('system', false)->schema()->database()->drop();
+            sql('system', false)
+                ->schema()
+                ->database()
+                ->drop();
         } catch (Throwable $e) {
             Log::warning(tr('Failed to drop system database for environment ":env" because ":message", continuing...', [
                 ':env'     => strtolower($this->name),
-                ':message' => $e->getMessage() . ($e->getPrevious() ? ', ' . $e->getPrevious()->getMessage() : null),
+                ':message' => $e->getMessage() . ($e->getPrevious() ? ', ' . $e->getPrevious()
+                                                                               ->getMessage() : null),
             ]));
         }
-
         // Stop using this environment, if it was used
         if (Config::getEnvironment() === $this->name) {
             Config::setEnvironment('');
         }
-
         // delete the environment configuration file
-        File::new(static::getConfigurationFile($this->name), Restrictions::new(DIRECTORY_ROOT . 'config/', true))->delete();
+        File::new(static::getConfigurationFile($this->name), Restrictions::new(DIRECTORY_ROOT . 'config/', true))
+            ->delete();
 
         return true;
     }
+
 
     /**
      * Create this environment
@@ -214,14 +222,12 @@ class Environment
             Log::action(tr('Generating configuration for environment ":env"...', [
                 ':env' => strtolower($this->name),
             ]));
-
             // Create production configuration
             if ($this->name !== 'production') {
                 Config::setEnvironment('production');
                 Config::import($this->getConfiguration());
                 Config::save();
             }
-
             Config::setEnvironment($this->name);
             Config::import($this->getConfiguration());
             Config::save();
@@ -230,18 +236,19 @@ class Environment
             if (str_contains($e->getMessage(), 'must not be accessed before initialization')) {
                 throw new EnvironmentException(tr('Failed to generate new environment configuration because not all setup parameters were copied into the project environment configuration. Please check your setup script.'));
             }
-
             throw new EnvironmentException(tr('Failed to generate new environment configuration because ":e"', [
                 ':e' => $e->getMessage(),
             ]));
         }
-
         Log::action(tr('Ensuring system database is gone'));
-        sql(null, false)->schema()->database()->drop();
-
+        sql(null, false)
+            ->schema()
+            ->database()
+            ->drop();
         Log::action(tr('Initializing system...'));
         Libraries::initialize(true, true, true, 'System setup');
     }
+
 
     /**
      * Returns the configuration for this environment

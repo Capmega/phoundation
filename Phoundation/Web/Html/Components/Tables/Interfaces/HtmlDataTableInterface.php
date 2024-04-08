@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Tables\Interfaces;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Web\Html\Enums\Interfaces\EnumPagingTypeInterface;
 
-
 /**
  * Interface HtmlDataTableInterface
  *
@@ -27,6 +26,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function getButtons(): array;
 
+
     /**
      * Sets table top-buttons
      *
@@ -36,12 +36,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setButtons(ArrayableInterface|array|string|null $buttons): static;
 
+
     /**
      * Returns if responsive table is enabled or not
      *
      * @return bool|null
      */
     public function getResponsiveEnabled(): ?bool;
+
 
     /**
      * Sets if responsive table is enabled or not
@@ -52,12 +54,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setResponsiveEnabled(?bool $enabled): static;
 
+
     /**
      * Returns responsive breakpoints
      *
      * @return array|null
      */
     public function getResponsiveBreakpoints(): ?array;
+
 
     /**
      * Sets responsive breakpoints
@@ -68,12 +72,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setResponsiveBreakpoints(?array $breakpoints): static;
 
+
     /**
      * Returns if table information display field is enabled or not
      *
      * @return bool|null
      */
     public function getInfoEnabled(): ?bool;
+
 
     /**
      * Sets if table information display field is enabled or not
@@ -84,12 +90,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setInfoEnabled(?bool $enabled): static;
 
+
     /**
      * Returns if search (filtering) abilities are enabled or disabled
      *
      * @return bool|null
      */
     public function getSearchingEnabled(): ?bool;
+
 
     /**
      * Sets if search (filtering) abilities are enabled or disabled
@@ -100,12 +108,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setSearchingEnabled(?bool $enabled): static;
 
+
     /**
      * Returns if case-sensitive filtering is enabled or not
      *
      * @return bool|null
      */
     public function getSearchCaseInsensitiveEnabled(): ?bool;
+
 
     /**
      * Returns if escaping of regular expression characters in the search term is enabled or not
@@ -116,12 +126,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setSearchCaseInsensitiveEnabled(?bool $enabled): static;
 
+
     /**
      * Returns if escaping of regular expression characters in the search term is enabled or not
      *
      * @return bool|null
      */
     public function getSearchRegexEnabled(): ?bool;
+
 
     /**
      * Sets if escaping of regular expression characters in the search term is enabled or not
@@ -132,12 +144,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setSearchRegexEnabled(?bool $enabled): static;
 
+
     /**
      * Returns if DataTables' smart filtering is enabled or not
      *
      * @return bool|null
      */
     public function getSearchSmartEnabled(): ?bool;
+
 
     /**
      * Sets if DataTables' smart filtering is enabled or not
@@ -148,12 +162,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setSearchSmartEnabled(?bool $enabled): static;
 
+
     /**
      * Returns if search on return is enabled or not
      *
      * @return bool|null
      */
     public function getSearchReturnEnabled(): ?bool;
+
 
     /**
      * Sets if search on return is enabled or not
@@ -164,12 +180,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setSearchReturnEnabled(?bool $enabled): static;
 
+
     /**
      * Returns the initial filtering condition on the table
      *
      * @return string
      */
     public function getSearch(): string;
+
 
     /**
      * Sets the initial filtering condition on the table
@@ -180,12 +198,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setSearch(?string $search): static;
 
+
     /**
      * Returns if paging is enabled or disabled
      *
      * @return bool|null
      */
     public function getPagingEnabled(): ?bool;
+
 
     /**
      * Sets if paging is enabled or disabled
@@ -196,12 +216,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setPagingEnabled(?bool $enabled): static;
 
+
     /**
      * Sets pagination button display options
      *
      * @return EnumPagingTypeInterface
      */
     public function getPagingType(): EnumPagingTypeInterface;
+
 
     /**
      * Sets pagination button display options
@@ -212,12 +234,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setPagingType(EnumPagingTypeInterface $type): static;
 
+
     /**
      * Returns the menu available to the user displaying the optional paging lengths
      *
      * @return array
      */
     public function getLengthMenu(): array;
+
 
     /**
      * Sets the menu available to the user displaying the optional paging lengths
@@ -228,12 +252,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setLengthMenu(?array $length_menu): static;
 
+
     /**
      * Returns if the length menu is displayed or not
      *
      * @return bool|null
      */
     public function getLengthChangeEnabled(): ?bool;
+
 
     /**
      * Sets if the length menu is displayed or not
@@ -244,12 +270,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setLengthChangeEnabled(?bool $enabled): static;
 
+
     /**
      * Returns the default page length
      *
      * @return int
      */
     public function getPageLength(): int;
+
 
     /**
      * Sets the default page length
@@ -260,12 +288,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setPageLength(int $length): static;
 
+
     /**
      * Sets the feature control DataTables' smart column width handling
      *
      * @return bool|null
      */
     public function getAutoWidthEnabled(): ?bool;
+
 
     /**
      * Sets the feature control DataTables' smart column width handling
@@ -276,12 +306,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setAutoWidthEnabled(?bool $enabled): static;
 
+
     /**
      * Returns if deferred rendering for additional speed of initialisation is used
      *
      * @return bool|null
      */
     public function getDeferRenderEnabled(): ?bool;
+
 
     /**
      * Sets if deferred rendering for additional speed of initialisation is used
@@ -292,12 +324,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setDeferRenderEnabled(?bool $enabled): static;
 
+
     /**
      * Returns initial paging start point.
      *
      * @return int
      */
     public function getDisplayStart(): int;
+
 
     /**
      * Sets initial paging start point.
@@ -308,12 +342,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setDisplayStart(int $start): static;
 
+
     /**
      * Returns initial order (sort) to apply to the table
      *
      * @return array
      */
     public function getOrder(): array;
+
 
     /**
      * Sets initial order (sort) to apply to the table
@@ -324,12 +360,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setOrder(?array $order): static;
 
+
     /**
      * Returns ordering to always be applied to the table
      *
      * @return array
      */
     public function getOrderFixed(): array;
+
 
     /**
      * Sets ordering to always be applied to the table
@@ -340,12 +378,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setOrderFixed(?array $order): static;
 
+
     /**
      * Returns the columns that can be ordered
      *
      * @return array
      */
     public function getColumnsOrderable(): array;
+
 
     /**
      * Sets the columns that can be ordered
@@ -356,12 +396,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setColumnsOrderable(?array $columns): static;
 
+
     /**
      * Sets if ordering (sorting) abilities are available in DataTables
      *
      * @return bool|null
      */
     public function getOrderingEnabled(): ?bool;
+
 
     /**
      * Sets if ordering (sorting) abilities are available in DataTables
@@ -372,12 +414,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setOrderingEnabled(?bool $enabled): static;
 
+
     /**
      * Sets if the columns being ordered in the table's body is highlighted
      *
      * @return bool|null
      */
     public function getOrderClassesEnabled(): ?bool;
+
 
     /**
      * Sets if the columns being ordered in the table's body is highlighted
@@ -388,12 +432,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setOrderClassesEnabled(?bool $enabled): static;
 
+
     /**
      * Returns if multiple column ordering ability is available or not
      *
      * @return bool|null
      */
     public function getOrderMultiEnabled(): ?bool;
+
 
     /**
      * Sets if multiple column ordering ability is available or not
@@ -404,12 +450,14 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      */
     public function setOrderMultiEnabled(?bool $enabled): static;
 
+
     /**
      * Generates and returns the HTML string for this resource element
      *
      * @return string|null
      */
     public function render(): ?string;
+
 
     /**
      * Returns date format for date ordering
@@ -489,6 +537,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * @return string|null
      */
     public function getJsDateFormat(): ?string;
+
 
     /**
      * Sets date format for date ordering

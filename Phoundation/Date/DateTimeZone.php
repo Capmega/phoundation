@@ -11,7 +11,6 @@ use Phoundation\Date\Interfaces\DateTimeZoneInterface;
 use Phoundation\Utils\Config;
 use Throwable;
 
-
 /**
  * Class DateTimeZone
  *
@@ -38,30 +37,26 @@ class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
                 case 'system':
                     $detected = Config::get('locale.timezone', 'UTC');
                     break;
-
                 case 'server':
                     // The timezone which the server is using
                     $detected = static::getServerTimezone();
                     break;
-
                 case 'user':
                     // no break
                 case 'display':
                     // The timezone requested by the user
-                    $detected = Session::getUser()->getTimezone();
+                    $detected = Session::getUser()
+                                       ->getTimezone();
                     $detected = 'PDT';
                     break;
-
                 default:
                     $detected = $timezone;
             }
-
             if (!$detected) {
                 throw new DateTimeZoneException(tr('Failed to convert requested timezone ":timezone"', [
                     ':timezone' => $timezone,
                 ]));
             }
-
             // Ensure the specified timezone is valid
             if (!in_array($detected, DateTimeZone::listIdentifiers())) {
                 if (!array_key_exists(strtolower($detected), DateTimeZone::listAbbreviations())) {
@@ -71,15 +66,14 @@ class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
                     ]));
                 }
             }
-
             $timezone = $detected;
 
         } elseif (!($timezone instanceof DateTimeZone)) {
             $timezone = $timezone->getName();
         }
-
         parent::__construct($timezone);
     }
+
 
     /**
      * Returns the timezone for this server
@@ -89,7 +83,6 @@ class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
     protected static function getServerTimezone(): string
     {
         static $timezone;
-
         if (empty($timezone)) {
             try {
                 $timezone = Config::get('server.timezone', exec('date +%Z'));
@@ -102,6 +95,7 @@ class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
         return $timezone;
     }
 
+
     /**
      * Returns a new DateTimeZone object
      *
@@ -113,6 +107,7 @@ class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
     {
         return new DateTimeZone($timezone);
     }
+
 
     /**
      * Returns a PHP DateTimeZone object from this Phoundation DateTimeZone object

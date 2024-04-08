@@ -16,7 +16,6 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class Device
  *
@@ -39,9 +38,7 @@ class Device extends File implements DeviceInterface
         if (!$restrictions) {
             $restrictions = Restrictions::new(Restrictions::new('/dev/'), false, 'default device');
         }
-
         parent::__construct($file, $restrictions);
-
         $this->checkDeviceFile();
     }
 
@@ -55,13 +52,16 @@ class Device extends File implements DeviceInterface
     protected function checkDeviceFile(): void
     {
         $this->path = Strings::startsWith($this->path, '/dev/');
-
-        if (!Lsblk::new()->isStorageDevice($this->path)) {
+        if (
+            !Lsblk::new()
+                  ->isStorageDevice($this->path)
+        ) {
             throw new StorageException(tr('Specified device ":device" is not a storage device', [
                 ':device' => $this->path,
             ]));
         }
     }
+
 
     /**
      * Throws an exception if the device is not mounted
@@ -77,6 +77,7 @@ class Device extends File implements DeviceInterface
         return $this;
     }
 
+
     /**
      * Returns true if this device is mounted once or more
      *
@@ -84,8 +85,10 @@ class Device extends File implements DeviceInterface
      */
     public function isMounted(): bool
     {
-        return Mount::new()->deviceIsMounted($this->path);
+        return Mount::new()
+                    ->deviceIsMounted($this->path);
     }
+
 
     /**
      * Scrambles this storage device with random data
@@ -95,24 +98,24 @@ class Device extends File implements DeviceInterface
     public function scramble(): static
     {
         $this->checkUnmounted();
-
         Process::new('dd', $this->restrictions)
                ->setSudo(true)
                ->setAcceptedExitCodes([
-                                          0,
-                                          1,
-                                      ]) // Accept 1 if the DD process stopped due to disk full, which is expected
+                   0,
+                   1,
+               ]) // Accept 1 if the DD process stopped due to disk full, which is expected
                ->setTimeout(0)
                ->addArguments([
-                                  'if=/dev/urandom',
-                                  'of=' . $this->path,
-                                  'bs=4096',
-                                  'status=progress',
-                              ])
+                   'if=/dev/urandom',
+                   'of=' . $this->path,
+                   'bs=4096',
+                   'status=progress',
+               ])
                ->execute(EnumExecuteMethod::passthru);
 
         return $this;
     }
+
 
     /**
      * Throws an exception if the device is mounted
@@ -128,6 +131,7 @@ class Device extends File implements DeviceInterface
         return $this;
     }
 
+
     /**
      * Formats this device for encryption using LUKS
      *
@@ -139,8 +143,8 @@ class Device extends File implements DeviceInterface
     public function encrypt(?string $key, ?string $key_file = null): static
     {
         $this->checkUnmounted();
-
-        Cryptsetup::new($this->restrictions)->luksFormat($this, $key, $key_file);
+        Cryptsetup::new($this->restrictions)
+                  ->luksFormat($this, $key, $key_file);
 
         return $this;
     }

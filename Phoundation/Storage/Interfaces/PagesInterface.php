@@ -6,7 +6,6 @@ namespace Phoundation\Storage\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 
-
 /**
  * Interface PagesInterface
  *

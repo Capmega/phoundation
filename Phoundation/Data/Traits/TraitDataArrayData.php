@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataArrayData
  *
@@ -35,6 +34,7 @@ trait TraitDataArrayData
         return $this->data;
     }
 
+
     /**
      * Sets the data
      *
@@ -45,8 +45,10 @@ trait TraitDataArrayData
     public function setData(?array $data): static
     {
         $this->data = [];
+
         return $this->addData($data);
     }
+
 
     /**
      * Adds the specified data
@@ -60,7 +62,6 @@ trait TraitDataArrayData
     {
         if (is_array($key)) {
             $data = $key;
-
             foreach ($data as $key => $value) {
                 if (is_numeric($key)) {
                     $value = explode('=', $value);
@@ -78,6 +79,7 @@ trait TraitDataArrayData
         return $this;
     }
 
+
     /**
      * Clears the data
      *
@@ -86,6 +88,7 @@ trait TraitDataArrayData
     public function clearData(): static
     {
         $this->data = [];
+
         return $this;
     }
 }

@@ -9,7 +9,6 @@ use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Traits\TraitInputElement;
 
-
 /**
  * Class Input
  *
@@ -24,7 +23,6 @@ abstract class Input extends Element implements InputInterface
 {
     use TraitInputElement;
 
-
     /**
      * Input class constructor
      *
@@ -33,7 +31,6 @@ abstract class Input extends Element implements InputInterface
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-
         $this->requires_closing_tag = false;
         $this->element              = 'input';
     }
@@ -48,7 +45,9 @@ abstract class Input extends Element implements InputInterface
      */
     protected function renderAttributes(): IteratorInterface
     {
-        $this->attributes = $this->renderInputAttributes()->appendSource($this->attributes);
+        $this->attributes = $this->renderInputAttributes()
+                                 ->appendSource($this->attributes);
+
         return parent::renderAttributes();
     }
 }

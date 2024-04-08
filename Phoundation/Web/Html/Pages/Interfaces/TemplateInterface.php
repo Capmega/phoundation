@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Interface TemplateInterface
  *
@@ -25,6 +24,7 @@ interface TemplateInterface extends RenderInterface
      * @return string|null
      */
     public function getText(): ?string;
+
 
     /**
      * Set the template text

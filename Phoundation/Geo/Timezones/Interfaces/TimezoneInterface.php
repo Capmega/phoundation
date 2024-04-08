@@ -6,7 +6,6 @@ namespace Phoundation\Geo\Timezones\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
-
 /**
  * Interface TimezoneInterface
  *
@@ -29,12 +28,14 @@ interface TimezoneInterface extends DataEntryInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null);
 
+
     /**
      * Returns the description for this object
      *
      * @return string|null
      */
     public function getDescription(): ?string;
+
 
     /**
      * Sets the description for this object
@@ -45,12 +46,14 @@ interface TimezoneInterface extends DataEntryInterface
      */
     public function setDescription(?string $description): static;
 
+
     /**
      * Returns the name for this object
      *
      * @return string|null
      */
     public function getName(): ?string;
+
 
     /**
      * Sets the name for this object

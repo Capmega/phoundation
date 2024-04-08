@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
-
 /**
  * Class MemcachedNamespace
  *
@@ -102,7 +101,6 @@ class MemcachedNamespace
 //        }
 //    }
 //
-
         return $this->mc->getConfiguration('prefix') . $key;
     }
 

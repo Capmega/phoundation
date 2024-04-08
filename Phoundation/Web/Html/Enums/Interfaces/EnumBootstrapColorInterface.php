@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Html\Enums\Interfaces;
 
-
 /**
  * enum EnumBootstrapColor
  *

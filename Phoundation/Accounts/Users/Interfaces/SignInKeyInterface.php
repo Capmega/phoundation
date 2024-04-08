@@ -7,7 +7,6 @@ namespace Phoundation\Accounts\Users\Interfaces;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Stringable;
 
-
 /**
  * Class SignInKey
  *
@@ -28,6 +27,7 @@ interface SignInKeyInterface extends DataEntryInterface
      */
     public function getValidUntil(): ?string;
 
+
     /**
      * Sets the allow_navigation for this object
      *
@@ -37,12 +37,14 @@ interface SignInKeyInterface extends DataEntryInterface
      */
     public function setValidUntil(?string $valid_until): static;
 
+
     /**
      * Returns the allow_navigation for this object
      *
      * @return bool
      */
     public function getAllowNavigation(): bool;
+
 
     /**
      * Sets the allow_navigation for this object
@@ -53,12 +55,14 @@ interface SignInKeyInterface extends DataEntryInterface
      */
     public function setAllowNavigation(int|bool|null $allow_navigation): static;
 
+
     /**
      * Returns the once for this object
      *
      * @return ?bool
      */
     public function getOnce(): ?bool;
+
 
     /**
      * Sets the once for this object
@@ -69,6 +73,7 @@ interface SignInKeyInterface extends DataEntryInterface
      */
     public function setOnce(?bool $once): static;
 
+
     /**
      * Generates the requested sign-in key and returns the corresponding UUID
      *
@@ -78,6 +83,7 @@ interface SignInKeyInterface extends DataEntryInterface
      */
     public function generate(?string $redirect): static;
 
+
     /**
      * Apply this sign-in key
      *
@@ -85,12 +91,14 @@ interface SignInKeyInterface extends DataEntryInterface
      */
     public function execute(): static;
 
+
     /**
      * Returns the redirect for this object
      *
      * @return string|null
      */
     public function getRedirect(): ?string;
+
 
     /**
      * Sets the redirect for this object
@@ -101,6 +109,7 @@ interface SignInKeyInterface extends DataEntryInterface
      */
     public function setRedirect(Stringable|string|null $redirect): static;
 
+
     /**
      * Returns true if this object's redirect URL
      *
@@ -109,5 +118,5 @@ interface SignInKeyInterface extends DataEntryInterface
      *
      * @return bool
      */
-    public function signKeyAllowsUrl(Stringable|String $url, string $target): bool;
+    public function signKeyAllowsUrl(Stringable|string $url, string $target): bool;
 }

@@ -12,7 +12,6 @@ use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\UnderConstructionException;
 
-
 /**
  * Databases class
  *
@@ -91,7 +90,7 @@ class Databases
     public static function fromConnector(ConnectorInterface $connector, bool $use_database = true): DatabaseInterface
     {
         return match ($connector->getType()) {
-            'sql' => Databases::sql($connector, $use_database),
+            'sql'   => Databases::sql($connector, $use_database),
             default => throw new UnderConstructionException(),
         };
     }
@@ -111,10 +110,8 @@ class Databases
             // Default to system connector
             $connector = 'system';
         }
-
         if ($connector instanceof ConnectorInterface) {
             $connector_name = $connector->getName();
-
             if (!$connector_name) {
                 throw new ConnectorException(tr('Specified connector ":connector" has empty name', [
                     ':connector' => $connector->getSource(),
@@ -125,7 +122,6 @@ class Databases
             // The connector specified was a connector name
             $connector_name = $connector;
         }
-
         if (!array_key_exists($connector_name, static::$sql)) {
             // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it.
             // Connect and add it
@@ -150,7 +146,6 @@ class Databases
             // Default to system connector
             $connector = 'system_mc';
         }
-
         if (!array_key_exists($connector, static::$mc)) {
             // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
@@ -175,7 +170,6 @@ class Databases
             // Default to system connector
             $connector = 'system_redis';
         }
-
         if (!array_key_exists($connector, static::$redis)) {
             // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
@@ -200,7 +194,6 @@ class Databases
             // Default to system connector
             $connector = 'system_mongodb';
         }
-
         if (!array_key_exists($connector, static::$mongo)) {
             // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
@@ -225,7 +218,6 @@ class Databases
             // Default to system connector
             $connector = 'system_nulldb';
         }
-
         if (!array_key_exists($connector, static::$null_db)) {
             // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it
             // Try connecting

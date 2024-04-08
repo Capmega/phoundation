@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
-
 
 /**
  * FileValidator class
@@ -25,7 +23,6 @@ class FileValidator
 {
     use ValidatorBasics;
 
-
     /**
      * FileValidator constructor
      *
@@ -37,7 +34,6 @@ class FileValidator
         if (!$source) {
             throw new OutOfBoundsException(tr('No source file specified'));
         }
-
         $this->source = &$source;
         $this->parent = $parent;
     }
@@ -54,7 +50,6 @@ class FileValidator
             // Validation already failed, don't test anything more
             return $this;
         }
-
         if (!is_file($this->source)) {
             $this->addFailure(tr('must be a file'));
         }

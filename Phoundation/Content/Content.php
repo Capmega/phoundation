@@ -10,7 +10,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class View
  *
@@ -30,10 +29,10 @@ class Content extends File implements ContentInterface
      */
     public function view(): void
     {
-        $file     = File::new($this->path)->checkReadable('image');
+        $file     = File::new($this->path)
+                        ->checkReadable('image');
         $mimetype = $file->getMimetype();
         $primary  = Strings::until($mimetype, '/');
-
         match ($primary) {
             'image'     => static::viewImage(),
             'video'     => static::viewVideo(),
@@ -59,6 +58,7 @@ class Content extends File implements ContentInterface
                ->executeBackground();
     }
 
+
     /**
      * Display the video file
      *
@@ -66,12 +66,14 @@ class Content extends File implements ContentInterface
      */
     protected function viewVideo(): void {}
 
+
     /**
      * Display the PDF file
      *
      * @return void
      */
     protected function viewPdf(): void {}
+
 
     /**
      * Display the files in this directory

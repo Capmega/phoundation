@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-
 /**
  * Trait TraitDataEntryIpAddress
  *
@@ -39,6 +38,7 @@ trait TraitDataEntryIpAddress
     {
         $this->setValue('net_len', strlen($ip_address));
         $this->setValue('ip_address', $ip_address);
+
         return $this->setValue('ip_address_human', $ip_address);
     }
 }

@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
-
 /**
  * Class StaticRoutes
  *
@@ -34,6 +33,7 @@ class StaticRoutes extends DataList
         parent::__construct();
     }
 
+
     /**
      * Returns the name of this DataEntry class
      *
@@ -44,6 +44,7 @@ class StaticRoutes extends DataList
         return StaticRoute::class;
     }
 
+
     /**
      * Returns the field that is unique for this object
      *
@@ -53,6 +54,7 @@ class StaticRoutes extends DataList
     {
         return null;
     }
+
 
     /**
      * Returns an HTML <select> for the available object entries
@@ -77,6 +79,7 @@ class StaticRoutes extends DataList
                           ->setNone(tr('Select a static route'))
                           ->setObjectEmpty(tr('No static routes available'));
     }
+
 
     /**
      * Returns the table name used by this object

@@ -6,7 +6,6 @@ namespace Phoundation\Os\Processes\Enum;
 
 use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
 
-
 /**
  * Enum EnumIoNice
  *

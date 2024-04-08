@@ -6,7 +6,6 @@ namespace Phoundation\Web;
 
 use Phoundation\Core\Libraries\Libraries;
 
-
 /**
  * Class Web
  *
@@ -163,8 +162,6 @@ class Web
 //
 //        return $return;
 //    }
-
-
 //    /**
 //     * Returns the language for this process
 //     *
@@ -175,8 +172,6 @@ class Web
 //        // TODO implement
 //        return 'en';
 //    }
-
-
 //    /**
 //     * Return complete URL for the specified API URL section with HTTP and all
 //     *
@@ -201,8 +196,6 @@ class Web
 //    {
 //        return static::getDomain($url, $query, $prefix, $_CONFIG['api']['domain'], $language, $allow_url_cloak);
 //    }
-
-
 //    /**
 //     * Return complete URL for the specified AJAX URL section with HTTP and all
 //     *

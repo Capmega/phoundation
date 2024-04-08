@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Seo\Seo;
 
-
 /**
  * Trait TraitDataEntryVersion
  *
@@ -29,6 +28,7 @@ trait TraitDataEntryVersion
         return $this->getValueTypesafe('string', 'seo_version');
     }
 
+
     /**
      * Returns the version for this object
      *
@@ -38,6 +38,7 @@ trait TraitDataEntryVersion
     {
         return $this->getValueTypesafe('string', 'version');
     }
+
 
     /**
      * Sets the version for this object
@@ -54,12 +55,14 @@ trait TraitDataEntryVersion
         } else {
             // Get SEO version and ensure that the seo_version does NOT surpass the version maxlength because MySQL
             // won't find the entry if it does!
-            $seo_version = Seo::unique(substr($version, 0, $this->definitions->get('version')->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_version');
+            $seo_version = Seo::unique(substr($version, 0, $this->definitions->get('version')
+                                                                             ->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_version');
             $this->setValue('seo_version', $seo_version, true);
         }
 
         return $this->setValue('version', $version);
     }
+
 
     /**
      * Sets the seo_version for this object

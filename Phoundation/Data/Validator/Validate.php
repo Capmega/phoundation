@@ -9,7 +9,6 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
-
 /**
  * Validate class
  *
@@ -23,7 +22,6 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 class Validate
 {
     use TraitDataMaxStringSize;
-
 
     /**
      * The source data that will be validated
@@ -97,6 +95,7 @@ class Validate
         return $this;
     }
 
+
     /**
      * Validates if the selected field is an array
      *
@@ -110,6 +109,7 @@ class Validate
 
         return $this;
     }
+
 
     /**
      * Validates if the specified value is a valid port
@@ -125,7 +125,6 @@ class Validate
         } else {
             $failed = !in_array($this->source, $compare);
         }
-
         if ($failed) {
             throw new ValidationFailedException(tr('The specified value must be one of ":list"', [
                 ':list' => $compare,
@@ -134,6 +133,7 @@ class Validate
 
         return $this;
     }
+
 
     /**
      * Validates that the selected field is equal or larger than the specified number of characters
@@ -145,7 +145,6 @@ class Validate
     public function hasCharacters(int $characters): static
     {
         $this->isString();
-
         if (strlen($this->source) != $characters) {
             throw new ValidationFailedException(tr('The specified valuemust have exactly ":count" characters', [
                 ':count' => $characters,
@@ -154,6 +153,7 @@ class Validate
 
         return $this;
     }
+
 
     /**
      * Validates if the selected field is a string value
@@ -169,6 +169,7 @@ class Validate
         return $this;
     }
 
+
     /**
      * Validates if the specified value is a valid port
      *
@@ -176,8 +177,11 @@ class Validate
      */
     public function isPort(): static
     {
-        return $this->isNumeric()->isMoreThan(0)->isLessThan(65536);
+        return $this->isNumeric()
+                    ->isMoreThan(0)
+                    ->isLessThan(65536);
     }
+
 
     /**
      * Validates if the selected field is a valid domain name
@@ -192,21 +196,19 @@ class Validate
         if ($this->source < $amount) {
             return $this;
         }
-
         if (($this->source == $amount) and $equal) {
             return $this;
         }
-
         if ($equal) {
             throw new ValidationFailedException(tr('The specified value must be less than or equal to ":amount"', [
                 ':amount' => $amount,
             ]));
         }
-
         throw new ValidationFailedException(tr('The specified value must be less than ":amount"', [
             ':amount' => $amount,
         ]));
     }
+
 
     /**
      * Validates if the selected field is a valid domain name
@@ -221,22 +223,19 @@ class Validate
         if ($this->source > $amount) {
             return $this;
         }
-
         if (($this->source == $amount) and $equal) {
             return $this;
         }
-
-
         if ($equal) {
             throw new ValidationFailedException(tr('The specified value must be more than or equal to ":amount"', [
                 ':amount' => $amount,
             ]));
         }
-
         throw new ValidationFailedException(tr('The specified value must be more than ":amount"', [
             ':amount' => $amount,
         ]));
     }
+
 
     /**
      * Validates if the selected field is a valid domain name
@@ -252,6 +251,7 @@ class Validate
         return $this;
     }
 
+
     /**
      * Validates if the selected field is a valid version number
      *
@@ -263,17 +263,14 @@ class Validate
     public function isVersion(int $characters = 11, bool $allow_post = false): static
     {
         $this->hasMaxCharacters($characters);
-
         if (!preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}/', $this->source)) {
             switch ($this->source) {
                 case 'post_once':
                     // no break
-
                 case 'post_always':
                     if ($allow_post) {
                         break;
                     }
-
                 // no break
                 default:
                     throw new ValidationFailedException(tr('The specified value must contain a valid version number'));
@@ -285,6 +282,7 @@ class Validate
         return $this;
     }
 
+
     /**
      * Validates that the selected field is equal or shorter than the specified number of characters
      *
@@ -295,10 +293,8 @@ class Validate
     public function hasMaxCharacters(?int $characters = null): static
     {
         $this->isString();
-
         // Validate the maximum number of characters
         $characters = $this->getMaxStringSize($characters);
-
         if (strlen($this->source) > $characters) {
             throw new ValidationFailedException(tr('The specified value must have ":count" characters or less', [
                 ':count' => $characters,
@@ -307,6 +303,7 @@ class Validate
 
         return $this;
     }
+
 
     /**
      * Validates if the selected field is a valid email address
@@ -318,13 +315,13 @@ class Validate
     public function isEmail(int $characters = 2048): static
     {
         $this->hasMaxCharacters($characters);
-
         if (!filter_var($this->source, FILTER_VALIDATE_EMAIL)) {
             throw new ValidationFailedException(tr('The specified value must contain a valid email address'));
         }
 
         return $this;
     }
+
 
     /**
      * Validates if the selected field is a valid phone number
@@ -343,6 +340,7 @@ class Validate
         return $this;
     }
 
+
     /**
      * Validates that the selected field matches the specified regex
      *
@@ -354,6 +352,7 @@ class Validate
     {
         return $this->contains($regex, true);
     }
+
 
     /**
      * Ensures that the value has the specified string
@@ -369,7 +368,6 @@ class Validate
     {
         // This value must be scalar
         $this->isScalar();
-
         if ($regex) {
             if (!preg_match($string, $this->source)) {
                 throw new ValidationFailedException(tr('The specified value must match regex ":value"', [
@@ -387,6 +385,7 @@ class Validate
         return $this;
     }
 
+
     /**
      * Validates if the selected field is a scalar value
      *
@@ -401,6 +400,7 @@ class Validate
         return $this;
     }
 
+
     /**
      * Validates that the selected field is equal or larger than the specified number of characters
      *
@@ -411,7 +411,6 @@ class Validate
     public function hasMinCharacters(int $characters): static
     {
         $this->isString();
-
         if (strlen($this->source) < $characters) {
             throw new ValidationFailedException(tr('The specified value must have ":count" characters or more', [
                 ':count' => $characters,
@@ -421,6 +420,7 @@ class Validate
         return $this;
     }
 
+
     /**
      * Validates if the specified field is a valid password
      */
@@ -429,7 +429,6 @@ class Validate
         if ($this->source !== $validation_password) {
             throw new ValidationFailedException(tr('The specified password must match the validation password'));
         }
-
         $this->source = Password::testSecurity($this->source);
 
         return $this;

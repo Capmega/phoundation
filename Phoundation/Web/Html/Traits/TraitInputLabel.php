@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Trait TraitInputLabel
  *
@@ -58,6 +57,7 @@ trait TraitInputLabel
     public function setLabel(?string $label): static
     {
         $this->label = $label;
+
         return $this;
     }
 
@@ -83,6 +83,7 @@ trait TraitInputLabel
     public function setLabelClass(?string $label_class): static
     {
         $this->label_class = $label_class;
+
         return $this;
     }
 
@@ -108,6 +109,7 @@ trait TraitInputLabel
     public function setLabelHidden(bool $label_hidden): static
     {
         $this->label_hidden = $label_hidden;
+
         return $this;
     }
 }

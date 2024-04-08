@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Employees\Employee;
 
-
 /**
  * Trait TraitDataEntryEmployee
  *
@@ -51,7 +50,6 @@ trait TraitDataEntryEmployee
     public function getEmployee(): ?Employee
     {
         $employees_id = $this->getSourceValue('int', 'employees_id');
-
         if ($employees_id) {
             return new Employee($employees_id);
         }

@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Customers\Customer;
 
-
 /**
  * Trait TraitDataEntryCustomer
  *
@@ -51,7 +50,6 @@ trait TraitDataEntryCustomer
     public function getCustomer(): ?Customer
     {
         $customers_id = $this->getValueTypesafe('int', 'customers_id');
-
         if ($customers_id) {
             return new Customer($customers_id);
         }

@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Stringable;
 
-
 /**
  * Trait TraitDataEntryModel
  *
@@ -39,6 +38,6 @@ trait TraitDataEntryModel
      */
     public function setModel(Stringable|string|null $model): static
     {
-        return $this->setValue('model', (string)$model);
+        return $this->setValue('model', (string) $model);
     }
 }

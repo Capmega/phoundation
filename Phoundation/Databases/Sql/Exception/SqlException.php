@@ -8,7 +8,6 @@ use PDOStatement;
 use Phoundation\Databases\Exception\DatabasesException;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 
-
 /**
  * Class SqlException
  *

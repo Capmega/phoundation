@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataInline
  *
@@ -45,6 +44,7 @@ trait TraitDataInline
     public function setInline(bool $inline): static
     {
         $this->inline = $inline;
+
         return $this;
     }
 }

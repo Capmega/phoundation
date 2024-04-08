@@ -10,7 +10,6 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumAnchorTargetInterface;
 use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * A class
  *
@@ -56,7 +55,8 @@ class A extends Span implements AInterface
     public function setHref(UrlBuilderInterface|string|null $href): static
     {
         // Run the href through UrlBuilder to ensure that preconfigured URL's like "sign-out" are converted to full URLs
-        $this->attributes->set((string)UrlBuilder::getWww($href), 'href');
+        $this->attributes->set((string) UrlBuilder::getWww($href), 'href');
+
         return $this;
     }
 
@@ -82,6 +82,7 @@ class A extends Span implements AInterface
     public function setTarget(?EnumAnchorTargetInterface $target): static
     {
         $this->attributes->set($target, 'target');
+
         return $this;
     }
 
@@ -100,7 +101,6 @@ class A extends Span implements AInterface
                     ':content' => $this->content,
                 ]));
             }
-
             $this->child_element->setAnchor(null);
             $this->content = $this->child_element->render();
         }

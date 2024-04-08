@@ -7,7 +7,6 @@ namespace Phoundation\Accounts\Rights\Interfaces;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
-
 /**
  * Interface RightInterface
  *

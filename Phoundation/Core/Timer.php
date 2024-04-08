@@ -8,7 +8,6 @@ use Phoundation\Core\Exception\TimerException;
 use Phoundation\Core\Interfaces\TimerInterface;
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Class Timer
  *
@@ -69,11 +68,11 @@ class Timer implements TimerInterface
     protected function __construct(string $label = '', bool $start = true)
     {
         $this->label = get_null($label) ?? '-';
-
         if ($start) {
             $this->start();
         }
     }
+
 
     /**
      * Starts the timer
@@ -83,12 +82,12 @@ class Timer implements TimerInterface
     public function start(): static
     {
         static::checkTimer('start', true, 'start timer');
-
         $this->start = microtime(true);
         $this->last  = $this->start;
 
         return $this;
     }
+
 
     /**
      * Check if timer registration matches requirements
@@ -105,12 +104,10 @@ class Timer implements TimerInterface
             $status = match ($status) {
                 'start' => tr('not yet started'),
                 'stop'  => tr('already stopped'),
-                default =>
-                throw new OutOfBoundsException(tr('Unknown status ":status" specified, only "start" and "stop" are allowed', [
+                default => throw new OutOfBoundsException(tr('Unknown status ":status" specified, only "start" and "stop" are allowed', [
                     ':status' => $status,
                 ]))
             };
-
             throw new TimerException(tr('Cannot :message for timer ":label", it has :status', [
                 ':status'  => $status,
                 ':message' => $message,
@@ -118,6 +115,7 @@ class Timer implements TimerInterface
             ]));
         }
     }
+
 
     /**
      * Returns a new Timer object
@@ -132,6 +130,7 @@ class Timer implements TimerInterface
         return new static($label, $start);
     }
 
+
     /**
      * Returns the sub key for this timer
      *
@@ -141,6 +140,7 @@ class Timer implements TimerInterface
     {
         return $this->label;
     }
+
 
     /**
      * Returns the start time for this timer
@@ -152,6 +152,7 @@ class Timer implements TimerInterface
         return $this->start;
     }
 
+
     /**
      * Returns the stop time for this timer
      *
@@ -161,6 +162,7 @@ class Timer implements TimerInterface
     {
         return $this->stop;
     }
+
 
     /**
      * Returns the passed time for this timer
@@ -175,6 +177,7 @@ class Timer implements TimerInterface
         return microtime(true) - $this->start;
     }
 
+
     /**
      * Returns the passed time for this timer
      *
@@ -188,6 +191,7 @@ class Timer implements TimerInterface
         return $this->stop - $this->start;
     }
 
+
     /**
      * Returns all the passed laps for this timer
      *
@@ -197,8 +201,10 @@ class Timer implements TimerInterface
     {
         static::checkTimer('start', false, 'get laps');
         static::checkTimer('stop', false, 'get laps');
+
         return $this->laps;
     }
+
 
     /**
      * Returns the number of laps
@@ -210,6 +216,7 @@ class Timer implements TimerInterface
         return count($this->laps);
     }
 
+
     /**
      * Records a passed lap and returns the time for that lap
      *
@@ -219,13 +226,13 @@ class Timer implements TimerInterface
     {
         static::checkTimer('start', false, 'lap timer');
         static::checkTimer('stop', true, 'lap timer');
-
         $time         = microtime(true);
         $this->laps[] = $time - $this->last;
         $this->last   = $time;
 
         return $this;
     }
+
 
     /**
      * Stop the specified timer and returns the passed time
@@ -240,10 +247,8 @@ class Timer implements TimerInterface
             // Timer was already stopped, ignore, this was just stopped "to be sure", usually by Core::exit()
             return $this;
         }
-
         static::checkTimer('start', false, 'stop timer');
         static::checkTimer('stop', true, 'stop timer');
-
         // Get the passed time for this lap and calculate the passed time
         $this->stop   = microtime(true);
         $this->laps[] = $this->stop - $this->last;

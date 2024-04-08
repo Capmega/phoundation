@@ -9,7 +9,6 @@ use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\Path;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class Lsblk
  *
@@ -36,12 +35,10 @@ class Lsof extends Command
                           ->setCommand('lsof')
                           ->addArgument($file)
                           ->executeReturnArray();
-
         foreach ($processes as $line => $process) {
             if ($line <= 2) {
                 continue;
             }
-
             $return[] = Strings::characterSplit($process, ' ', [
                 'command',
                 'pid',

@@ -8,16 +8,15 @@ use Phoundation\Data\Traits\TraitDataFile;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 
-
 /**
  * Class KubernetesFile
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Virtualization
+ * @package   Phoundation\Virtualization
  */
 abstract class KubernetesFile
 {
@@ -29,6 +28,7 @@ abstract class KubernetesFile
      * @var string $kind
      */
     protected string $kind;
+
 
     /**
      * KubernetesFile class constructor
@@ -50,7 +50,6 @@ abstract class KubernetesFile
         $data = yaml_emit($data);
 //        $data = Strings::from($data, PHP_EOL);
 //        $data = Strings::untilReverse($data, PHP_EOL);
-
         File::new($this->file)
             ->setRestrictions(DIRECTORY_ROOT . 'config/kubernetes/' . $this->kind . '/', true, 'kubernetes')
             ->create($data);
@@ -63,6 +62,7 @@ abstract class KubernetesFile
      * Builds the configuration data
      *
      * @param array|null $configuration
+     *
      * @return array
      */
     protected function renderConfiguration(array $configuration = null): array
@@ -73,7 +73,7 @@ abstract class KubernetesFile
 
         return array_merge([
             'apiVersion' => 'apps/v1',
-            'kind'       => $this->kind
+            'kind'       => $this->kind,
         ], $configuration);
     }
 }

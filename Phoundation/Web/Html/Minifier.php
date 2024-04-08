@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html;
 use Minify_HTML;
 use Phoundation\Core\Log\Log;
 
-
 /**
  * Class Minifier
  *
@@ -35,7 +34,6 @@ class Minifier
 //        include_once(DIRECTORY_ROOT.'libs/vendor/mrclay/jsmin-php/src/JSMin/JSMin.php');
 //        include_once(DIRECTORY_ROOT.'libs/vendor/mrclay/minify/lib/Minify/CSS/Compressor.php');
 //        include_once(DIRECTORY_ROOT.'libs/vendor/mrclay/minify/lib/Minify/CommentPreserver.php');
-
         $html = Minify_HTML::minify($html, [
             'cssMinifier' => [
                 'Minify_CSS',
@@ -46,11 +44,9 @@ class Minifier
                 'minify',
             ],
         ]);
-
 // :FIX: This is a temp fix because the minifier appears to use \n as a space?
 // :TODO: This fails because it also removes \n from content that NEEDS \n like <textarea>
 //        $html = str_replace("\n", ' ', $html);
-
         return $html;
     }
 
@@ -65,6 +61,7 @@ class Minifier
     public static function css(string $file): string
     {
         Log::warning('The Minifier::css() function is not yet implemented!');
+
         return $file;
     }
 
@@ -79,6 +76,7 @@ class Minifier
     public static function js(string $file): string
     {
         Log::warning('The Minifier::js() function is not yet implemented!');
+
         return $file;
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Html\Template\Interfaces;
 
-
 /**
  * Interface TemplatePageInterface
  *
@@ -24,6 +23,7 @@ interface TemplatePageInterface
      */
     public function execute(): ?string;
 
+
     /**
      * Build the page body
      *
@@ -31,12 +31,14 @@ interface TemplatePageInterface
      */
     public function renderBody(): ?string;
 
+
     /**
      * Build the HTML footer
      *
      * @return string|null
      */
     public function renderHtmlFooters(): ?string;
+
 
     /**
      * Build and send HTTP headers

@@ -6,7 +6,6 @@ namespace Phoundation\Cli\Exception;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Class CliInvalidArgumentsException
  *

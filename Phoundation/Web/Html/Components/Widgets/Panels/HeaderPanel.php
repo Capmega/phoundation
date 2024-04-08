@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Panels;
 
-
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Utils\Config;
@@ -60,6 +59,7 @@ class HeaderPanel extends Panel
     public function setMini(bool $mini): static
     {
         $this->mini = $mini;
+
         return $this;
     }
 }

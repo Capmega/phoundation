@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Pages;
 use Phoundation\Data\Traits\TraitDataEmail;
 use Phoundation\Web\Html\Components\ElementsBlock;
 
-
 /**
  * Class LostPasswordPage
  *
@@ -21,7 +20,6 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 class LostPasswordPage extends ElementsBlock
 {
     use TraitDataEmail;
-
 
     /**
      * SignIn class constructor

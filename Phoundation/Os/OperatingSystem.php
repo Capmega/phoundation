@@ -12,7 +12,6 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryVersion;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Os\Interfaces\OperatingSystemInterface;
 
-
 /**
  * Class OperatingSystem
  *
@@ -27,7 +26,6 @@ class OperatingSystem extends DataEntry implements OperatingSystemInterface
 {
     use TraitDataEntryNameDescription;
     use TraitDataEntryVersion;
-
 
     /**
      * @inheritDoc
@@ -55,6 +53,7 @@ class OperatingSystem extends DataEntry implements OperatingSystemInterface
         return null;
     }
 
+
     /**
      * Returns either the specified operating system, or the current one
      *
@@ -71,6 +70,7 @@ class OperatingSystem extends DataEntry implements OperatingSystemInterface
         return static::get($operating_system);
     }
 
+
     /**
      * Detects the current operating system and returns an operating system object for it
      *
@@ -81,13 +81,13 @@ class OperatingSystem extends DataEntry implements OperatingSystemInterface
         throw new UnderConstructionException();
     }
 
+
     /**
      * @inheritDoc
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions
-            ->add(DefinitionFactory::getName($this))
-            ->add(DefinitionFactory::getDescription($this));
+        $definitions->add(DefinitionFactory::getName($this))
+                    ->add(DefinitionFactory::getDescription($this));
     }
 }

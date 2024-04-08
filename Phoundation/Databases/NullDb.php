@@ -6,7 +6,6 @@ namespace Phoundation\Databases;
 
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 
-
 /**
  * Class NullDb
  *

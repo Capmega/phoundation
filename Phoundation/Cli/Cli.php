@@ -7,7 +7,6 @@ namespace Phoundation\Cli;
 use Phoundation\Cli\Exception\CliNoTtyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -134,11 +133,11 @@ class Cli
                 $row     = current($source);
                 $exists  = false;
                 foreach (Arrays::force($row, null) as $header => $value) {
-                    $value = str_replace([
+                    $value            = str_replace([
                         '_',
                         '-',
                     ], ' ', (string) $header);
-                    $value = Strings::capitalize($value) . ':';
+                    $value            = Strings::capitalize($value) . ':';
                     $headers[$header] = $value;
                     if ($header === $id_column) {
                         $exists = true;

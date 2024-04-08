@@ -6,7 +6,6 @@ namespace Phoundation\Puks\Exception;
 
 use Phoundation\Exception\Exception;
 
-
 /**
  * Class PuksException
  *

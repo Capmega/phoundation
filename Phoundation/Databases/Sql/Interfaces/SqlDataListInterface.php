@@ -2,7 +2,6 @@
 
 namespace Phoundation\Databases\Sql\Interfaces;
 
-
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 
 /**
@@ -24,6 +23,7 @@ interface SqlDataListInterface
      */
     public function getSql(): SqlInterface;
 
+
     /**
      * Sets the Sql object used by this SqlDataList object
      *
@@ -33,6 +33,7 @@ interface SqlDataListInterface
      */
     public function setSql(SqlInterface $sql): static;
 
+
     /**
      * Sets the data list
      *
@@ -41,6 +42,7 @@ interface SqlDataListInterface
      * @return static
      */
     public function setDataList(DataListInterface $data_list): static;
+
 
     /**
      * Update the status for the data row in the specified table to "deleted"
@@ -57,6 +59,7 @@ interface SqlDataListInterface
      */
     public function delete(array $row, ?string $comments = null): int;
 
+
     /**
      * Update the status for the data row in the specified table to the specified status
      *
@@ -67,6 +70,7 @@ interface SqlDataListInterface
      * @return int
      */
     public function setStatus(?string $status, DataListInterface|array $list, ?string $comments = null): int;
+
 
     /**
      * Simple "Does a row with this value exist in that table" method

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
-
 /**
  * SQL Exists library
  *
@@ -23,7 +22,7 @@ class SqlExists
      *
      * @param string $database The dtaabase to be tested
      * @param null string $query The query to be executed if the database exists. If the query starts with an
-     *                    exclamation mark (!), the query will be executed if the database does NOT exist
+     *                         exclamation mark (!), the query will be executed if the database does NOT exist
      *
      * @return boolean True if the specified index exists, false otherwise
      * @category  Function reference
@@ -37,7 +36,6 @@ class SqlExists
     {
         try {
             $return = sql()->query('SHOW DATABASES LIKE "' . cfm($database) . '"', null, $connector);
-
             if (str_starts_with($query, '!')) {
                 $not   = true;
                 $query = substr($query, 1);
@@ -45,11 +43,9 @@ class SqlExists
             } else {
                 $not = false;
             }
-
             if (empty($return) xor $not) {
                 return false;
             }
-
             if ($query) {
                 sql_query($query, null, $connector);
             }
@@ -71,9 +67,9 @@ class SqlExists
      *
      * @param string $table The table which should be checked for
      * @param null string $query The query to be executed if the database exists. If the query starts with an
-     *                    exclamation mark (!), the query will be executed if the database does NOT exist
+     *                      exclamation mark (!), the query will be executed if the database does NOT exist
      * @param null mixed $connector If specified, executed this function on the specified database connector. If not
-     *                   specified, use the current database connector
+     *                      specified, use the current database connector
      *
      * @return boolean True if the specified index exists, false otherwise
      * @package   sql-exists
@@ -86,10 +82,8 @@ class SqlExists
     public static function tableExists($table, $query = null, $connector = null)
     {
         global $pdo;
-
         try {
             $return = sql_list('SHOW TABLES LIKE "' . cfm($table) . '"', null, null, $connector);
-
             if (substr($query, 0, 1) == '!') {
                 $not   = true;
                 $query = substr($query, 1);
@@ -97,11 +91,9 @@ class SqlExists
             } else {
                 $not = false;
             }
-
             if (empty($return) xor $not) {
                 return false;
             }
-
             if ($query) {
                 sql_query($query, null, $connector);
             }
@@ -135,10 +127,8 @@ class SqlExists
     public static function indexExists($table, $index, $query = null, $connector = null)
     {
         global $pdo;
-
         try {
             $return = sql_list('SHOW INDEX FROM `' . cfm($table) . '` WHERE `Key_name` = "' . cfm($index) . '"', null, null, $connector);
-
             if (substr($query, 0, 1) == '!') {
                 $not   = true;
                 $query = substr($query, 1);
@@ -146,11 +136,9 @@ class SqlExists
             } else {
                 $not = false;
             }
-
             if (empty($return) xor $not) {
                 return false;
             }
-
             if ($query) {
                 sql_query($query, null, $connector);
             }
@@ -184,10 +172,8 @@ class SqlExists
     public static function columnExists($table, $column, $query = null, $connector = null)
     {
         global $pdo;
-
         try {
             $return = sql_get('SHOW COLUMNS FROM `' . cfm($table) . '` WHERE `Field` = "' . cfm($column) . '"', null, null, $connector);
-
             if (substr($query, 0, 1) == '!') {
                 $not   = true;
                 $query = substr($query, 1);
@@ -195,11 +181,9 @@ class SqlExists
             } else {
                 $not = false;
             }
-
             if (empty($return) xor $not) {
                 return false;
             }
-
             if ($query) {
                 sql_query($query, null, $connector);
             }
@@ -233,11 +217,9 @@ class SqlExists
     public static function foreignKeyExists($table, $foreign_key, $query = null, $connector = null)
     {
         global $pdo, $_CONFIG;
-
         try {
             $connector = sql_connector_name($connector);
             $database  = $_CONFIG['db'][$connector]['db'];
-
             $return = sql_get('SELECT *
 
                               FROM   `information_schema`.`TABLE_CONSTRAINTS`
@@ -246,7 +228,6 @@ class SqlExists
                               AND    `CONSTRAINT_SCHEMA` = "' . cfm($database) . '"
                               AND    `TABLE_NAME`        = "' . cfm($table) . '"
                               AND    `CONSTRAINT_NAME`   = "' . cfm($foreign_key) . '"', null, null, $connector);
-
             if (substr($query, 0, 1) == '!') {
                 $not   = true;
                 $query = substr($query, 1);
@@ -254,11 +235,9 @@ class SqlExists
             } else {
                 $not = false;
             }
-
             if (empty($return) xor $not) {
                 return false;
             }
-
             if ($query) {
                 sql_query($query, null, $connector);
             }
@@ -292,14 +271,11 @@ class SqlExists
     public static function functionExists($name, $query = null, $database = null, $connector = null)
     {
         global $pdo, $_CONFIG;
-
         try {
             $connector = sql_connector_name($connector);
-
             if (!$database) {
                 $database = $_CONFIG['db'][$connector]['db'];
             }
-
             $return = sql_get('SELECT `ROUTINE_NAME`
 
                            FROM   `INFORMATION_SCHEMA`.`ROUTINES`
@@ -307,7 +283,6 @@ class SqlExists
                            WHERE  `ROUTINE_SCHEMA` = "' . cfm($database) . '"
                            AND    `ROUTINE_TYPE`   = "FUNCTION"
                            AND    `ROUTINE_NAME`   = "' . cfm($name) . '"', null, null, $connector);
-
             if (substr($query, 0, 1) == '!') {
                 $not   = true;
                 $query = substr($query, 1);
@@ -315,11 +290,9 @@ class SqlExists
             } else {
                 $not = false;
             }
-
             if (empty($return) xor $not) {
                 return false;
             }
-
             if ($query) {
                 sql_query($query, null, $connector);
             }
@@ -346,7 +319,6 @@ class SqlExists
      * @param null mixed $connector If specified, executed this function on the specified database connector. If not specified, use the current database connector
      * @return array The foreign keys for the specified table and column
      */
-
     public static function listForeignKeys($table, $column = null, $connector = null)
     {
         try {

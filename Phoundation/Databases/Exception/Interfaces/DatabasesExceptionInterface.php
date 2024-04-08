@@ -6,7 +6,6 @@ namespace Phoundation\Databases\Exception\Interfaces;
 
 use Phoundation\Exception\Interfaces\ExceptionInterface;
 
-
 /**
  * interface DatabasesExceptionInterface
  *

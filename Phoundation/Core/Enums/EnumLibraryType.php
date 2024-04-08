@@ -6,7 +6,6 @@ namespace Phoundation\Core\Enums;
 
 use Phoundation\Core\Enums\Interfaces\EnumLibraryTypeInterface;
 
-
 /**
  * Enum EnumLibraryType
  *

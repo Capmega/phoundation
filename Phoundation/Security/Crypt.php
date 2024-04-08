@@ -9,7 +9,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 
-
 /**
  * Class Crypt
  *
@@ -31,7 +30,8 @@ class Crypt
      */
     public static function createCryptString(int $size = 32): string
     {
-        return File::new('/dev/urandom')->readBytes($size);
+        return File::new('/dev/urandom')
+                   ->readBytes($size);
     }
 
 
@@ -52,10 +52,11 @@ class Crypt
                 ':size' => $size,
             ]));
         }
+        $bytes = File::new('/dev/urandom', '/dev/')
+                     ->readBytes($size);
 
-        $bytes = File::new('/dev/urandom', '/dev/')->readBytes($size);
-
-        return File::new($filename, $restrictions)->putContents($bytes);
+        return File::new($filename, $restrictions)
+                   ->putContents($bytes);
     }
 
 }

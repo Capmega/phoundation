@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Icons;
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Web\Html\Components\Element;
 
-
 /**
  * Icons class
  *
@@ -89,6 +88,7 @@ class Icons extends Element
     ])] string $size): static
     {
         $this->size = $size;
+
         return $this;
     }
 }

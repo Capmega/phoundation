@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Exception;
 
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 
-
 /**
  * Class DataEntryDeletedException
  *

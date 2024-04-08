@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Template;
 use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
 use Phoundation\Web\Requests\Response;
 
-
 /**
  * Class TemplatePage
  *
@@ -49,7 +48,6 @@ abstract class TemplatePage implements TemplatePageInterface
     public function renderHtmlFooters(): ?string
     {
         $footers = Response::renderHtmlFooters();
-
         if (Response::getBuildBodyWrapper()) {
             return $footers . '
                       </body>

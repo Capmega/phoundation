@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Layouts;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Layouts\Interfaces\LayoutInterface;
 
-
 /**
  * Layout class
  *

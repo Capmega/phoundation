@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Tests;
 
-
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Os\Processes\Process;
@@ -29,14 +28,14 @@ class Tests
         // First try loading all classes, plugins, and templates to see if there are any syntax errors
         Libraries::loadAllPhoundationClassesIntoMemory();
         Libraries::loadAllPluginClassesIntoMemory();
-
         // No update unit tests cache
         static::rebuildCache();
-
         // Now run unit tests
         Log::action(tr('Executing unit tests'));
-        Process::new('phpunit')->executePassthru();
+        Process::new('phpunit')
+               ->executePassthru();
     }
+
 
     /**
      * Rebuilds the test cache
@@ -45,6 +44,7 @@ class Tests
     {
         Libraries::rebuildTestsCache();
     }
+
 
     /**
      * Clears the test cache

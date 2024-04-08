@@ -10,7 +10,6 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
-
 /**
  * Countries class
  *
@@ -69,6 +68,7 @@ class Countries extends DataList
         return null;
     }
 
+
     /**
      * Returns an HTML <select> object with all states available in this country
      *
@@ -88,6 +88,7 @@ class Countries extends DataList
                           ->setObjectEmpty(tr('No countries available'));
     }
 
+
     /**
      * Creates and returns an HTML table for the data in this list
      *
@@ -102,6 +103,7 @@ class Countries extends DataList
 
         return $table;
     }
+
 
     /**
      * Returns an HTML <select> for the available object entries

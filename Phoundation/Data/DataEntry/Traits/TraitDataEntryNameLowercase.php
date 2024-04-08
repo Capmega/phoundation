@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Seo\Seo;
 
-
 /**
  * Trait TraitDataEntryNameLowercase
  *
@@ -29,6 +28,7 @@ trait TraitDataEntryNameLowercase
         return $this->getSourceFieldValue('string', 'seo_name');
     }
 
+
     /**
      * Returns the name for this object
      *
@@ -38,6 +38,7 @@ trait TraitDataEntryNameLowercase
     {
         return $this->getSourceFieldValue('string', 'name');
     }
+
 
     /**
      * Sets the name for this object
@@ -55,12 +56,14 @@ trait TraitDataEntryNameLowercase
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
             // the entry if it does!
             $name     = strtolower($name);
-            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceFieldValue('int', 'id'), 'seo_name');
+            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')
+                                                                       ->getMaxlength()), static::getTable(), $this->getSourceFieldValue('int', 'id'), 'seo_name');
             $this->setSourceValue('seo_name', $seo_name, true);
         }
 
         return $this->setSourceValue('name', $name);
     }
+
 
     /**
      * Sets the seo_name for this object

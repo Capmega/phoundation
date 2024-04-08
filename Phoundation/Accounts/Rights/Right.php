@@ -20,7 +20,6 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 
-
 /**
  * Class Right
  *
@@ -36,7 +35,6 @@ class Right extends DataEntry implements RightInterface
 {
     use TraitDataEntryNameLowercaseDash;
     use TraitDataEntryDescription;
-
 
     /**
      * Right class constructor
@@ -122,7 +120,9 @@ class Right extends DataEntry implements RightInterface
             ]));
         }
 
-        return Roles::new()->setParent($this)->load();
+        return Roles::new()
+                    ->setParent($this)
+                    ->load();
     }
 
 
@@ -133,17 +133,16 @@ class Right extends DataEntry implements RightInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions
-            ->add(DefinitionFactory::getName($this)
-                                   ->setInputType(EnumElementInputType::name)
-                                   ->setSize(12)
-                                   ->setMaxlength(64)
-                                   ->setHelpText(tr('The name for this right'))
-                                   ->addValidationFunction(function (ValidatorInterface $validator) {
-                                       $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
-                                   }))
-            ->add(DefinitionFactory::getSeoName($this))
-            ->add(DefinitionFactory::getDescription($this)
-                                   ->setHelpText(tr('The description for this right')));
+        $definitions->add(DefinitionFactory::getName($this)
+                                           ->setInputType(EnumElementInputType::name)
+                                           ->setSize(12)
+                                           ->setMaxlength(64)
+                                           ->setHelpText(tr('The name for this right'))
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
+                                           }))
+                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(DefinitionFactory::getDescription($this)
+                                           ->setHelpText(tr('The description for this right')));
     }
 }

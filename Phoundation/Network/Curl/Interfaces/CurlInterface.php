@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Network\Curl\Interfaces;
 
-
 use Phoundation\Filesystem\Restrictions;
 use Stringable;
 
@@ -27,6 +26,7 @@ interface CurlInterface
      */
     public function getUrl(): ?string;
 
+
     /**
      * Sets the url
      *
@@ -36,12 +36,14 @@ interface CurlInterface
      */
     public function setUrl(Stringable|string|null $url): static;
 
+
     /**
      * Returns the request method
      *
      * @return int
      */
     public function getHttpVersion(): int;
+
 
     /**
      * Sets the request method
@@ -52,12 +54,14 @@ interface CurlInterface
      */
     public function setHttpVersion(int $http_version): static;
 
+
     /**
      * Returns the request method
      *
      * @return string
      */
     public function getMethod(): string;
+
 
     /**
      * Sets the request method
@@ -68,12 +72,14 @@ interface CurlInterface
      */
     public function setMethod(string $method): static;
 
+
     /**
      * Returns if cURL will be verbose or not
      *
      * @return bool
      */
     public function getVerbose(): bool;
+
 
     /**
      * Sets if cURL will be verbose or not
@@ -84,12 +90,14 @@ interface CurlInterface
      */
     public function setVerbose(bool $verbose): static;
 
+
     /**
      * Returns if the request will follow page redirects
      *
      * @return bool
      */
     public function getFollowLocation(): bool;
+
 
     /**
      * Sets if the request will follow page redirects
@@ -100,12 +108,14 @@ interface CurlInterface
      */
     public function setFollowLocation(bool $follow_location): static;
 
+
     /**
      * Returns the user agent to be used for this request
      *
      * @return string
      */
     public function getUserAgent(): string;
+
 
     /**
      * Sets the user agent to be used for this request
@@ -116,6 +126,7 @@ interface CurlInterface
      */
     public function setUserAgent(?string $user_agent): static;
 
+
     /**
      * Returns the path to where cURL will log. "" if logging was disabled
      *
@@ -123,12 +134,14 @@ interface CurlInterface
      */
     public function getLogDirectory(): string;
 
+
     /**
      * Returns the restrictions for curl output logging
      *
      * @return Restrictions|null
      */
     public function getLogRestrictions(): ?Restrictions;
+
 
     /**
      * Sets the path to where cURL will log. NULL or "" if logging has to be disabled
@@ -140,6 +153,7 @@ interface CurlInterface
      */
     public function setLogDirectory(string $log_directory, string $restrictions = DIRECTORY_DATA . 'log/'): static;
 
+
     /**
      * Returns the number of retries executed for this request
      *
@@ -147,12 +161,14 @@ interface CurlInterface
      */
     public function getRetry(): int;
 
+
     /**
      * Sets the maximum number of retries executed for this request
      *
      * @return int
      */
     public function getRetries(): int;
+
 
     /**
      * Returns the maximum number of retries executed for this request
@@ -163,12 +179,14 @@ interface CurlInterface
      */
     public function setRetries(int $retries): static;
 
+
     /**
      * Sets the number of time this object will wait before retrying a failed connection
      *
      * @return int
      */
     public function getSleep(): int;
+
 
     /**
      * Returns the number of time this object will wait before retrying a failed connection
@@ -179,12 +197,14 @@ interface CurlInterface
      */
     public function setSleep(int $sleep): static;
 
+
     /**
      * Sets the number of time in seconds before a complete request times out
      *
      * @return int
      */
     public function getTimeout(): int;
+
 
     /**
      * Returns the number of time in seconds before a complete request times out
@@ -195,12 +215,14 @@ interface CurlInterface
      */
     public function setTimeout(int $timeout): static;
 
+
     /**
      * Sets the number of time in seconds before a connection times out
      *
      * @return int
      */
     public function getConnectTimeout(): int;
+
 
     /**
      * Returns the number of time in seconds before a connection times out
@@ -211,6 +233,7 @@ interface CurlInterface
      */
     public function setConnectTimeout(int $connect_timeout): static;
 
+
     /**
      * Returns the cURL interface
      *
@@ -218,12 +241,14 @@ interface CurlInterface
      */
     public function getCurl(): mixed;
 
+
     /**
      * Returns if the request should use multipart or not
      *
      * @return bool
      */
     public function getMultipart(): bool;
+
 
     /**
      * Sets if the request should use multipart or not
@@ -234,12 +259,14 @@ interface CurlInterface
      */
     public function setMultipart(bool $multipart): static;
 
+
     /**
      * Returns if the connection will be closed once the request has been completed
      *
      * @return bool
      */
     public function getClose(): bool;
+
 
     /**
      * Returns if the connection will be closed once the request has been completed
@@ -250,12 +277,14 @@ interface CurlInterface
      */
     public function setClose(bool $close): static;
 
+
     /**
      * Returns if the DNS should use cache or not
      *
      * @return bool
      */
     public function getDnsCache(): bool;
+
 
     /**
      * Sets if the DNS should use cache or not
@@ -266,12 +295,14 @@ interface CurlInterface
      */
     public function setDnsCache(bool $dns_cache): static;
 
+
     /**
      * Returns if the request will verify the SSL certificate or not
      *
      * @return bool
      */
     public function getVerifySsl(): bool;
+
 
     /**
      * Sets if the request will verify the SSL certificate or not
@@ -282,12 +313,14 @@ interface CurlInterface
      */
     public function setVerifySsl(bool $verify_ssl): static;
 
+
     /**
      * Sets if object will store and use cookies
      *
      * @return bool
      */
     public function getGetCookies(): bool;
+
 
     /**
      * Returns if object will store and use cookies
@@ -298,12 +331,14 @@ interface CurlInterface
      */
     public function setGetCookies(bool $get_cookies): static;
 
+
     /**
      * Sets what file cookies should be written to
      *
      * @return string
      */
     public function getCookieFile(): string;
+
 
     /**
      * Returns if object will store and use cookies
@@ -314,12 +349,14 @@ interface CurlInterface
      */
     public function setCookieFile(string $cookie_file): static;
 
+
     /**
      * Returns the cookies that were sent by the remote server for this request
      *
      * @return array
      */
     public function getResultCookies(): array;
+
 
     /**
      * Returns the cookies that will be sent for this request
@@ -328,12 +365,14 @@ interface CurlInterface
      */
     public function getCookies(): array;
 
+
     /**
      * Clears the cookies that will be sent for this request
      *
      * @return static
      */
     public function clearCookies(): static;
+
 
     /**
      * Sets the cookies that will be sent for this request
@@ -344,6 +383,7 @@ interface CurlInterface
      */
     public function setCookies(array $cookies): static;
 
+
     /**
      * Adds the specified cookies that will be sent for this request
      *
@@ -352,6 +392,7 @@ interface CurlInterface
      * @return static
      */
     public function addCookies(array $cookies): static;
+
 
     /**
      * Adds the specified cookie that will be sent for this request
@@ -362,12 +403,14 @@ interface CurlInterface
      */
     public function addCookie(string $cookie): static;
 
+
     /**
      * Sets if object will use local cache for this request
      *
      * @return int
      */
     public function getCacheTimeout(): int;
+
 
     /**
      * Returns if object will use local cache for this request
@@ -378,12 +421,14 @@ interface CurlInterface
      */
     public function setCacheTimeout(int $cache_timeout): static;
 
+
     /**
      * Returns the user_password header
      *
      * @return string
      */
     public function getReferer(): string;
+
 
     /**
      * Sets the user_password header
@@ -394,12 +439,14 @@ interface CurlInterface
      */
     public function setReferer(string $user_password): static;
 
+
     /**
      * Returns the file to which the result will be saved
      *
      * @return string
      */
     public function getSaveToFile(): string;
+
 
     /**
      * Sets the file to which the result will be saved
@@ -410,6 +457,7 @@ interface CurlInterface
      */
     public function setSaveToFile(string $save_to_file): static;
 
+
     /**
      * Returns other extra cURL options
      *
@@ -417,12 +465,14 @@ interface CurlInterface
      */
     public function getOptions(): array;
 
+
     /**
      * Clears other extra cURL options
      *
      * @return static
      */
     public function clearsOptions(): static;
+
 
     /**
      * Sets other extra cURL options
@@ -433,6 +483,7 @@ interface CurlInterface
      */
     public function setOptions(array $options): static;
 
+
     /**
      * Adds other extra cURL options
      *
@@ -441,6 +492,7 @@ interface CurlInterface
      * @return static
      */
     public function addOptions(array $options): static;
+
 
     /**
      * Adds another extra cURL option
@@ -452,12 +504,14 @@ interface CurlInterface
      */
     public function addOption(int $key, mixed $value): static;
 
+
     /**
      * Returns the result headers
      *
      * @return array|null
      */
     public function getRequestHeaders(): ?array;
+
 
     /**
      * Sets the request headers
@@ -468,6 +522,7 @@ interface CurlInterface
      */
     public function setRequestHeaders(array $headers): static;
 
+
     /**
      * Returns the result headers
      *
@@ -476,6 +531,7 @@ interface CurlInterface
      * @return static
      */
     public function addRequestHeaders(array $headers): static;
+
 
     /**
      * Returns the result headers
@@ -487,12 +543,14 @@ interface CurlInterface
      */
     public function addRequestHeader(string $key, string|float|int|null $value): static;
 
+
     /**
      * Clears the request headers
      *
      * @return static
      */
     public function clearRequestHeaders(): static;
+
 
     /**
      * Returns the result headers
@@ -501,6 +559,7 @@ interface CurlInterface
      */
     public function getResultHeaders(): ?array;
 
+
     /**
      * Returns the result status
      *
@@ -508,12 +567,14 @@ interface CurlInterface
      */
     public function getResultStatus(): ?array;
 
+
     /**
      * Returns the result data
      *
      * @return array|null
      */
     public function getResultData(): ?string;
+
 
     /**
      * Executes the request

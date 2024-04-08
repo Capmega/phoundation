@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataType
  *
@@ -46,6 +45,7 @@ trait TraitDataType
     public function setType(?string $type): static
     {
         $this->type = get_null($type);
+
         return $this;
     }
 }

@@ -21,7 +21,6 @@ use Phoundation\Web\Requests\Response;
 use Stringable;
 use Throwable;
 
-
 /**
  * Class Json
  *
@@ -50,11 +49,9 @@ class Json
                     ':code' => $code,
                 ]));
             }
-
             // This is (presumably) an exception
             $code = $code->getCode();
         }
-
         if (str_contains($code, '_')) {
             // Codes should always use -, never _
             Notification::new()
@@ -63,104 +60,83 @@ class Json
                         ])))
                         ->send();
         }
-
         switch ($code) {
             case 301:
                 // no-break
             case 'redirect':
                 Json::error(null, ['location' => $data], 'REDIRECT', 301);
-
             case 302:
                 Json::error(null, ['location' => UrlBuilder::getAjax($_CONFIG['redirects']['signin'])], 'REDIRECT', 302);
-
             case 'signin':
                 Json::error(null, ['location' => UrlBuilder::getAjax($_CONFIG['redirects']['signin'])], 'SIGNIN', 302);
-
             case 400:
                 // no-break
             case 'invalid':
                 // no-break
             case 'validation':
                 Json::error(null, $data, 'BAD-REQUEST', 400);
-
             case 'locked':
                 Json::error(null, $data, 'LOCKED', 403);
-
             case 403:
                 // no-break
             case 'forbidden':
                 // no-break
             case 'access-denied':
                 Json::error(null, $data, 'FORBIDDEN', 403);
-
             case 404:
                 // no-break
             case 'not-found':
                 Json::error(null, $data, 'NOT-FOUND', 404);
-
             case 'not-exists':
                 Json::error(null, $data, 'NOT-EXISTS', 404);
-
             case 405:
                 // no-break
             case 'method-not-allowed':
                 Json::error(null, $data, 'METHOD-NOT-ALLOWED', 405);
-
             case 406:
                 // no-break
             case 'not-acceptable':
                 Json::error(null, $data, 'NOT-ACCEPTABLE', 406);
-
             case 408:
                 // no-break
             case 'timeout':
                 Json::error(null, $data, 'TIMEOUT', 408);
-
             case 409:
                 // no-break
             case 'conflict':
                 Json::error(null, $data, 'CONFLICT', 409);
-
             case 412:
                 // no-break
             case 'expectation-failed':
                 Json::error(null, $data, 'EXPECTATION-FAILED', 412);
-
             case 418:
                 // no-break
             case 'im-a-teapot':
                 Json::error(null, $data, 'IM-A-TEAPOT', 418);
-
             case 429:
                 // no-break
             case 'too-many-requests':
                 Json::error(null, $data, 'TOO-MANY-REQUESTS', 429);
-
             case 451:
                 // no-break
             case 'unavailable-for-legal-reasons':
                 Json::error(null, $data, 'UNAVAILABLE-FOR-LEGAL-REASONS', 451);
-
             case 500:
                 // no-break
             case 'error':
                 Json::error(null, $data, 'ERROR', 500);
-
             case 503:
                 // no-break
             case 'maintenance':
                 // no-break
             case 'service-unavailable':
                 Json::error(null, null, 'SERVICE-UNAVAILABLE', 503);
-
             case 504:
                 // no-break
             case 'gateway-timeout':
                 Json::error(null, null, 'GATEWAY-TIMEOUT', 504);
-
             case 'reload':
                 Json::reply(null, 'RELOAD');
-
             default:
                 Notification::new()
                             ->setMode(EnumDisplayMode::exception)
@@ -168,10 +144,10 @@ class Json
                             ->setRoles('developer')
                             ->setTitle('Unknown message specified')
                             ->setMessage(tr('Json::message(): Unknown code ":code" specified', [':code' => $code]));
-
                 Json::error(null, (Debug::getEnabled() ? $data : null), 'ERROR', 500);
         }
     }
+
 
     /**
      * Send JSON error to client
@@ -209,7 +185,6 @@ class Json
                 $default = $message['default'];
                 unset($message['default']);
             }
-
             if (empty($message['e'])) {
                 if (Core::isProductionEnvironment()) {
                     $message = $default;
@@ -225,9 +200,7 @@ class Json
             } else {
                 if (Core::isProductionEnvironment()) {
                     Log::notice($message['e']);
-
                     $code = $message['e']->getCode();
-
                     if (empty($message[$code])) {
                         $message = $default;
 
@@ -239,7 +212,6 @@ class Json
                     $message = $message['e']->getMessages("\n<br>");
                 }
             }
-
             $message = trim(Strings::from($message, '():'));
 
         } elseif (is_object($message)) {
@@ -247,18 +219,14 @@ class Json
             if (!($message instanceof CoreException)) {
                 if (!($message instanceof Exception)) {
                     $type = gettype($message);
-
                     if ($type === 'object') {
                         $type .= '/' . get_class($message);
                     }
-
                     throw new JsonException(tr('Specified message must either be a string or an CoreException ojbect, or PHP Exception ojbect, but is a ":type"', [
                         ':type' => $type,
                     ]));
                 }
-
                 $code = $message->getCode();
-
                 if (Debug::getEnabled()) {
                     /*
                      * This is a user visible message
@@ -271,20 +239,16 @@ class Json
 
             } else {
                 $result = $message->getCode();
-
                 switch ($result) {
                     case 'access-denied':
                         $http_code = '403';
                         break;
-
                     case 'ssl-required':
                         $http_code = '403.4';
                         break;
-
                     default:
                         $http_code = '500';
                 }
-
                 if (Strings::until($result, '/') == 'warning') {
                     $data = $message->getMessage();
 
@@ -292,17 +256,13 @@ class Json
                     if (Debug::getEnabled()) {
                         // This is a user visible message
                         $messages = $message->getMessages();
-
                         foreach ($messages as $id => &$message) {
                             $message = trim(Strings::from($message, '():'));
-
                             if ($message == tr('Failed')) {
                                 unset($messages[$id]);
                             }
                         }
-
                         unset($message);
-
                         $data = implode("\n", $messages);
 
                     } elseif (!empty($default)) {
@@ -311,11 +271,10 @@ class Json
                 }
             }
         }
-
         $data = Arrays::force($data);
-
         Json::reply($data, ($result ? $result : 'ERROR'), $http_code);
     }
+
 
     /**
      * Send correct JSON reply
@@ -338,43 +297,38 @@ class Json
 
             }, $data);
         }
-
         if (!is_string($data)) {
             if (is_object($data)) {
                 // Stringable object
-                $data = (string)$data;
+                $data = (string) $data;
 
             } else {
                 // Array, JSON encode
                 $data = Json::encode($data);
             }
         }
-
         Response::setContentType('application/json');
         Response::setOutput($data);
         Response::send(false);
-
         switch ($action_after) {
             case EnumJsonAfterReply::die:
                 // We're done, kill the connection % process (default)
                 exit();
-
             case EnumJsonAfterReply::continue:
                 // Continue running, keep the HTTP connection open
                 break;
-
             case EnumJsonAfterReply::closeConnectionContinue:
                 // Close the current HTTP connection but continue in the background
                 session_write_close();
                 fastcgi_finish_request();
                 break;
-
             default:
                 throw new OutOfBoundsException(tr('Unknown after ":after" specified. Use one of "JsonAfterReply::die", "JsonAfterReply::continue", or "JsonAfterReply::closeConnectionContinue"', [
                     ':after' => $action_after,
                 ]));
         }
     }
+
 
     /**
      * Encode the specified variable into a JSON string
@@ -391,9 +345,7 @@ class Json
         if ($source === null) {
             return '';
         }
-
         $return = json_encode($source, $options, $depth);
-
         if (json_last_error()) {
             throw new JsonException(tr('JSON encoding failed with :error', [':error' => json_last_error_msg()]));
         }
@@ -424,6 +376,7 @@ class Json
         return static::encode($source, $options, $depth);
     }
 
+
     /**
      * Ensure the given variable is decoded.
      *
@@ -448,6 +401,7 @@ class Json
         return $source;
     }
 
+
     /**
      * Decode the given JSON string back into the original data. Can optionally decode into standard object classes or
      * arrays [default]
@@ -466,15 +420,14 @@ class Json
         if ($source === null) {
             return null;
         }
-
         $return = json_decode($source, $as_array, $depth, $options);
-
         if (json_last_error()) {
             throw new JsonException(tr('JSON decoding failed with ":error"', [':error' => json_last_error_msg()]));
         }
 
         return $return;
     }
+
 
     /**
      * Returns the specified source, but limiting its maximum size to the specified $max_size.
@@ -498,29 +451,24 @@ class Json
                 // We're already done, no need for more!
                 return $source;
             }
-
             $string = $source;
             $array  = static::decode($source, $options, $depth);
         } else {
             $array  = $source;
             $string = static::encode($source, $options, $depth);
         }
-
         if ($max_size < 64) {
             throw new OutOfBoundsException(tr('Cannot truncate JSON string to ":size" characters, the minimum is 64 characters', [
                 ':size' => $max_size,
             ]));
         }
-
         while (strlen($string) > $max_size) {
             // Okay, we're over max size
             $keys    = count($source);
             $average = floor((strlen($string) / $keys) - ($keys * 8));
-
             if ($average < 1) {
                 $average = 10;
             }
-
             // Truncate and re-encode the truncated array and check size again
             $array  = Arrays::truncate($array, $average, $fill, $method, $on_word);
             $string = Json::encode($array);

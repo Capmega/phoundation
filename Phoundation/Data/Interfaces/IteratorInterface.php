@@ -15,7 +15,6 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Stringable;
 
-
 /**
  * Class IteratorCore
  *
@@ -46,6 +45,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getInputSelectClass(): string;
 
+
     /**
      * Sets the class used to generate the select input
      *
@@ -55,12 +55,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function setInputSelectClass(string $input_select_class): static;
 
+
     /**
      * Returns the current entry
      *
      * @return mixed
      */
     public function current(): mixed;
+
 
     /**
      * Progresses the internal pointer to the next entry
@@ -69,12 +71,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function next(): void;
 
+
     /**
      * Progresses the internal pointer to the previous entry
      *
      * @return void
      */
     public function previous(): void;
+
 
     /**
      * Returns the current key for the current button
@@ -83,6 +87,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function key(): mixed;
 
+
     /**
      * Returns if the current pointer is valid or not
      *
@@ -90,12 +95,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function valid(): bool;
 
+
     /**
      * Rewinds the internal pointer
      *
      * @return void
      */
     public function rewind(): void;
+
 
     /**
      * Sets the value for the specified key
@@ -108,6 +115,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return mixed
      */
     public function set(mixed $value, Stringable|string|float|int $key): static;
+
 
     /**
      * Add the specified value to the iterator array using an optional key
@@ -123,6 +131,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
 
+
     /**
      * Add the specified value to the iterator array using an optional key
      *
@@ -137,6 +146,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
 
+
     /**
      * Add the specified value to the iterator array using an optional key
      *
@@ -150,6 +160,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return static
      */
     public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
+
 
     /**
      * Add the specified value to the iterator array using an optional key BEFORE the specified $before_key
@@ -166,6 +177,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $before = null, bool $skip_null = true, bool $exception = true): static;
 
+
     /**
      * Add the specified value to the iterator array using an optional key AFTER the specified $after_key
      *
@@ -180,6 +192,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return static
      */
     public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $after = null, bool $skip_null = true, bool $exception = true): static;
+
 
     /**
      * Add the specified value to the iterator array using an optional key BEFORE the specified $before_value
@@ -197,6 +210,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static;
 
+
     /**
      * Add the specified value to the iterator array using an optional key AFTER the specified $after_value
      *
@@ -213,6 +227,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static;
 
+
     /**
      * Adds the specified source(s) to the internal source
      *
@@ -221,6 +236,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return $this
      */
     public function addSources(IteratorInterface|array|string|null $source): static;
+
 
     /**
      * Append the specified source to the end of this Iterator
@@ -231,6 +247,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function appendSource(IteratorInterface|array ...$sources): static;
 
+
     /**
      * Prepend the specified source at the beginning of this Iterator
      *
@@ -240,12 +257,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function prependSource(IteratorInterface|array ...$sources): static;
 
+
     /**
      * Returns the datatype restrictions for all elements in this iterator, NULL if none
      *
      * @return array|null
      */
     public function getDataTypes(): ?array;
+
 
     /**
      * Sets the datatype restrictions for all elements in this iterator, NULL if none
@@ -255,12 +274,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function setDataTypes(array|string|null $data_types): static;
 
+
     /**
      * Returns a list of all internal values with their keys
      *
      * @return mixed
      */
     public function getSource(): array;
+
 
     /**
      * Sets the internal source directly
@@ -272,6 +293,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
+
     /**
      * Returns a list of all internal definition keys
      *
@@ -279,12 +301,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getKeys(): array;
 
+
     /**
      * Returns a list of all internal definition keys with their indices (positions within the array)
      *
      * @return mixed
      */
     public function getKeyIndices(): array;
+
 
     /**
      * Returns value for the specified key
@@ -296,6 +320,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
 
+
     /**
      * Returns value for the specified key, defaults that key to the specified value if it does not yet exist
      *
@@ -306,12 +331,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getValueOrDefault(Stringable|string|float|int $key, mixed $value): mixed;
 
+
     /**
      * Returns the number of items contained in this object
      *
      * @return int
      */
     public function getCount(): int;
+
 
     /**
      * Returns the first element contained in this object without changing the internal pointer
@@ -320,6 +347,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getFirstValue(): mixed;
 
+
     /**
      * Returns the last element contained in this object without changing the internal pointer
      *
@@ -327,12 +355,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getLastValue(): mixed;
 
+
     /**
      * Clears all the internal content for this object
      *
      * @return static
      */
     public function clear(): static;
+
 
     /**
      * Returns if the specified key exists or not
@@ -342,6 +372,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return bool
      */
     public function keyExists(Stringable|string|float|int $key): bool;
+
 
     /**
      * Returns if the specified value exists in this Iterator or not
@@ -354,12 +385,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function valueExists(mixed $value): bool;
 
+
     /**
      * Returns if the list is empty
      *
      * @return bool
      */
     public function isEmpty(): bool;
+
 
     /**
      * Returns if the list is not empty
@@ -368,6 +401,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function isNotEmpty(): bool;
 
+
     /**
      * Returns the length of the longest value
      *
@@ -375,12 +409,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getLongestKeyLength(): int;
 
+
     /**
      * Returns the length of the shortest value
      *
      * @return int
      */
     public function getShortestKeyLength(): int;
+
 
     /**
      * Returns the length of the longest value
@@ -392,6 +428,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getLongestValueLength(?string $key = null, bool $exception = false): int;
 
+
     /**
      * Returns the length of the shortest value
      *
@@ -401,6 +438,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return int
      */
     public function getShortestValueLength(?string $key = null, bool $exception = false): int;
+
 
     /**
      * Remove source keys on the specified needles with the specified match mode
@@ -412,6 +450,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function removeKeys(Stringable|array|string|float|int $keys, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
 
+
     /**
      * Keep source keys on the specified needles with the specified match mode
      *
@@ -421,6 +460,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return $this
      */
     public function keepKeys(array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
+
 
     /**
      * Remove source values on the specified needles with the specified match mode
@@ -433,6 +473,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function removeValues(Stringable|array|string|float|int $values, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
 
+
     /**
      * Deletes the entries that have columns with the specified value(s)
      *
@@ -442,6 +483,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return static
      */
     public function removeValuesByColumn(Stringable|array|string|float|int $values, string $column): static;
+
 
     /**
      * Keep source values on the specified needles with the specified match mode
@@ -454,6 +496,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function keepValues(array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
 
+
     /**
      * Returns the total amounts for all columns together
      *
@@ -462,6 +505,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return array
      */
     public function getTotals(array|string $columns): array;
+
 
     /**
      * Displays a message on the command line
@@ -472,6 +516,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return $this
      */
     public function displayCliMessage(?string $message = null, bool $header = false): static;
+
 
     /**
      * Creates and returns a CLI table for the data in this list
@@ -484,12 +529,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static;
 
+
     /**
      * Sorts the Iterator source in ascending order
      *
      * @return $this
      */
     public function sort(): static;
+
 
     /**
      * Sorts the Iterator source in descending order
@@ -498,12 +545,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function rsort(): static;
 
+
     /**
      * Sorts the Iterator source keys in ascending order
      *
      * @return $this
      */
     public function ksort(): static;
+
 
     /**
      * Sorts the Iterator source keys in descending order
@@ -512,12 +561,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function krsort(): static;
 
+
     /**
      * Sorts the Iterator source using the specified callback
      *
      * @return $this
      */
     public function uasort(callable $callback): static;
+
 
     /**
      * Sorts the Iterator source keys using the specified callback
@@ -526,12 +577,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function uksort(callable $callback): static;
 
+
     /**
      * Will limit the amount of entries in the source of this DataList to the
      *
      * @return $this
      */
     public function limitAutoComplete(): static;
+
 
     /**
      * Returns if all (or optionally any) of the specified entries are in this list
@@ -544,6 +597,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function containsKeys(IteratorInterface|array|string $list, bool $all = true, string $always_match = null): bool;
 
+
     /**
      * Returns a list of items that are specified, but not available in this Iterator
      *
@@ -555,6 +609,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getMissingKeys(IteratorInterface|array|string $list, string $always_match = null): array;
 
+
     /**
      * Returns a list with all the keys that match the specified key
      *
@@ -565,6 +620,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getMatchingKeys(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface;
 
+
     /**
      * Returns a list with all the values that match the specified value
      *
@@ -574,6 +630,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return \Phoundation\Data\Interfaces\IteratorInterface
      */
     public function getMatchingValues(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface;
+
 
     /**
      * Returns a list with all the values that have a sub value in the specified key that match the specified value
@@ -586,6 +643,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getMatchingColumnValues(string $column, array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface;
 
+
     /**
      * Returns multiple column values for a single entry
      *
@@ -597,6 +655,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getSingleRowMultipleColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): IteratorInterface;
 
+
     /**
      * Returns multiple column values for multiple entries
      *
@@ -607,6 +666,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return mixed
      */
     public function getSingleRowsSingleColumn(Stringable|string|float|int $key, string $column, bool $exception = true): mixed;
+
 
     /**
      * Returns an array with array values containing only the specified columns
@@ -622,6 +682,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getAllRowsMultipleColumns(array|string|null $columns): IteratorInterface;
 
+
     /**
      * Returns an array with each value containing a scalar with only the specified column value
      *
@@ -634,6 +695,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getAllRowsSingleColumn(string $column): IteratorInterface;
 
+
     /**
      * Same as Arrays::splice() but for this Iterator
      *
@@ -645,6 +707,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return static
      */
     public function splice(int $offset, ?int $length = null, IteratorInterface|array $replacement = [], array &$spliced = null): static;
+
 
     /**
      * Same as Arrays::spliceKey() but for this Iterator
@@ -659,6 +722,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, array &$spliced = null): static;
 
+
     /**
      * Renames and returns the specified value
      *
@@ -670,6 +734,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function renameKey(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): mixed;
 
+
     /**
      * Creates and returns an HTML table for the data in this list
      *
@@ -678,6 +743,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return HtmlTableInterface
      */
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface;
+
 
     /**
      * Creates and returns a fancy HTML data table for the data in this list
@@ -688,12 +754,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      */
     public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface;
 
+
     /**
      * Returns an HTML <select> for the entries in this list
      *
      * @return InputSelectInterface
      */
     public function getHtmlSelect(): InputSelectInterface;
+
 
     /**
      * Executes the specified callback function on each

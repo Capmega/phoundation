@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Exception\Interfaces;
 
-
 /**
  * Class DataEntryReadonlyException
  *
@@ -25,6 +24,7 @@ interface DataEntryReadonlyExceptionInterface extends DataEntryExceptionInterfac
      * @return $this
      */
     public function setAllow(string|array $allow): static;
+
 
     /**
      * Returns the list of actions that are allowed

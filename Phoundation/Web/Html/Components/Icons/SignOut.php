@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Components\Icons;
 
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * SignOut class
  *
@@ -27,6 +26,7 @@ class SignOut extends Icon
     public function __construct(?string $content = null)
     {
         parent::__construct('fas fa-sign-out-alt');
-        $this->getAnchor()->setHref(UrlBuilder::getWww('sign-out'));
+        $this->getAnchor()
+             ->setHref(UrlBuilder::getWww('sign-out'));
     }
 }

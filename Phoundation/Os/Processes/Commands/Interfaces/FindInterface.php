@@ -6,7 +6,6 @@ use Phoundation\Filesystem\Interfaces\FilesInterface;
 use Phoundation\Filesystem\Interfaces\PathInterface;
 use Stringable;
 
-
 /**
  * interface FindInterface
  *
@@ -28,6 +27,7 @@ interface FindInterface extends CommandInterface
      */
     public function setPath(PathInterface|string|null $path): static;
 
+
     /**
      * Sets if find should descend into other filesystems
      *
@@ -39,12 +39,14 @@ interface FindInterface extends CommandInterface
      */
     public function setFindPath(PathInterface|string|null $find_path): static;
 
+
     /**
      * Returns if find should find empty files
      *
      * @return string|null
      */
     public function getFindPath(): ?string;
+
 
     /**
      * Sets if find should descend into other filesystems
@@ -57,12 +59,14 @@ interface FindInterface extends CommandInterface
      */
     public function setMount(bool $mount): static;
 
+
     /**
      * Returns if find should find empty files
      *
      * @return bool
      */
     public function getMount(): bool;
+
 
     /**
      * Returns if find should descend into other filesystems
@@ -71,6 +75,7 @@ interface FindInterface extends CommandInterface
      * @return bool
      */
     public function getFollowSymlinks(): bool;
+
 
     /**
      * Sets if find should find follow_symlinks files
@@ -81,6 +86,7 @@ interface FindInterface extends CommandInterface
      */
     public function setFollowSymlinks(bool $follow_symlinks): static;
 
+
     /**
      * Returns if find should descend into other filesystems
      *
@@ -88,6 +94,7 @@ interface FindInterface extends CommandInterface
      * @return bool
      */
     public function getEmpty(): bool;
+
 
     /**
      * Sets if find should find empty files
@@ -98,12 +105,14 @@ interface FindInterface extends CommandInterface
      */
     public function setEmpty(bool $empty): static;
 
+
     /**
      * Returns the iname
      *
      * @return string|null
      */
     public function getIname(): ?string;
+
 
     /**
      * Sets the iname
@@ -114,12 +123,14 @@ interface FindInterface extends CommandInterface
      */
     public function setIname(?string $iname): static;
 
+
     /**
      * Returns the size for which to look
      *
      * @return string
      */
     public function getSize(): string;
+
 
     /**
      * Sets the size in which to find
@@ -130,12 +141,14 @@ interface FindInterface extends CommandInterface
      */
     public function setSize(Stringable|string $size): static;
 
+
     /**
      * Returns the last modified time in minutes for which to look
      *
      * @return string
      */
     public function getMtime(): string;
+
 
     /**
      * Sets the last modified time in minutes for which to find
@@ -146,12 +159,14 @@ interface FindInterface extends CommandInterface
      */
     public function setMtime(Stringable|string $mtime): static;
 
+
     /**
      * Returns the access time in minutes for which to look
      *
      * @return string
      */
     public function getAtime(): string;
+
 
     /**
      * Sets the access time in minutes for which to find
@@ -162,12 +177,14 @@ interface FindInterface extends CommandInterface
      */
     public function setAtime(Stringable|string $atime): static;
 
+
     /**
      * Returns the file status change time in minutes for which to look
      *
      * @return string
      */
     public function getCtime(): string;
+
 
     /**
      * Sets the file status change time in minutes for which to find
@@ -178,12 +195,14 @@ interface FindInterface extends CommandInterface
      */
     public function setCtime(Stringable|string $ctime): static;
 
+
     /**
      * Returns the file types for which to look
      *
      * @return string
      */
     public function getTypes(): string;
+
 
     /**
      * Sets the file types in which to find
@@ -194,12 +213,14 @@ interface FindInterface extends CommandInterface
      */
     public function setTypes(Stringable|array|string $types): static;
 
+
     /**
      * Returns the regex in which to find
      *
      * @return string|null
      */
     public function getRegex(): ?string;
+
 
     /**
      * Sets the regex in which to find
@@ -210,12 +231,14 @@ interface FindInterface extends CommandInterface
      */
     public function setRegex(?string $regex): static;
 
+
     /**
      * Returns the depth in which to find
      *
      * @return bool
      */
     public function getDepth(): bool;
+
 
     /**
      * Sets the depth in which to find
@@ -226,12 +249,14 @@ interface FindInterface extends CommandInterface
      */
     public function setDepth(bool $depth): static;
 
+
     /**
      * Returns the min_depth in which to find
      *
      * @return int|null
      */
     public function getMinDepth(): ?int;
+
 
     /**
      * Sets the min_depth in which to find
@@ -242,12 +267,14 @@ interface FindInterface extends CommandInterface
      */
     public function setMinDepth(?int $min_depth): static;
 
+
     /**
      * Returns the max_depth in which to find
      *
      * @return int|null
      */
     public function getMaxDepth(): ?int;
+
 
     /**
      * Sets the max_depth in which to find
@@ -258,12 +285,14 @@ interface FindInterface extends CommandInterface
      */
     public function setMaxDepth(?int $max_depth): static;
 
+
     /**
      * Returns the callback in which to find
      *
      * @return callable|null
      */
     public function getCallback(): ?callable;
+
 
     /**
      * Sets the callback in which to find
@@ -274,12 +303,14 @@ interface FindInterface extends CommandInterface
      */
     public function setCallback(?callable $callback): static;
 
+
     /**
      * Returns what shell command to execute on each file
      *
      * @return string|null
      */
     public function getExec(): ?string;
+
 
     /**
      * Sets what shell command to execute on each file
@@ -290,12 +321,14 @@ interface FindInterface extends CommandInterface
      */
     public function setExec(?string $exec = null): static;
 
+
     /**
      * Returns the type in which to find
      *
      * @return string
      */
     public function getType(): string;
+
 
     /**
      * Sets the type in which to find
@@ -317,6 +350,7 @@ interface FindInterface extends CommandInterface
      */
     public function setType(string $type): static;
 
+
     /**
      * Returns a Files-object containing the found files
      *
@@ -324,12 +358,14 @@ interface FindInterface extends CommandInterface
      */
     public function getFoundFiles(): FilesInterface;
 
+
     /**
      * Returns an array containing the found files
      *
      * @return array
      */
     public function executeReturnArray(): array;
+
 
     /**
      * Returns a Files-object containing the found files

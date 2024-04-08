@@ -6,7 +6,6 @@ namespace Phoundation\Utils\Exception;
 
 use Phoundation\Exception\Exception;
 
-
 /**
  * Class UtilsException
  *

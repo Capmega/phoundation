@@ -13,7 +13,6 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Requests\Response;
 use Stringable;
 
-
 /**
  * Class AutoSuggest
  *
@@ -27,7 +26,6 @@ use Stringable;
 class InputAutoSuggest extends InputText
 {
     use TraitDataWidth;
-
 
     /**
      * The URL where the auto suggest will retrieve the displayed data
@@ -94,7 +92,8 @@ class InputAutoSuggest extends InputText
      */
     public function setSourceUrl(Stringable|string|null $source_url): static
     {
-        $this->source_url = (string)$source_url;
+        $this->source_url = (string) $source_url;
+
         return $this;
     }
 
@@ -129,7 +128,9 @@ class InputAutoSuggest extends InputText
      */
     public function setVariables(IteratorInterface|array|null $variables): static
     {
-        $this->variables = Iterator::new()->setSource($variables);
+        $this->variables = Iterator::new()
+                                   ->setSource($variables);
+
         return $this;
     }
 
@@ -155,6 +156,7 @@ class InputAutoSuggest extends InputText
     public function setMinSuggestLength(int $min_suggest_length): static
     {
         $this->min_suggest_length = $min_suggest_length;
+
         return $this;
     }
 
@@ -180,6 +182,7 @@ class InputAutoSuggest extends InputText
     public function setDelay(int $delay): static
     {
         $this->delay = $delay;
+
         return $this;
     }
 
@@ -195,17 +198,14 @@ class InputAutoSuggest extends InputText
         if ($this->readonly or $this->disabled) {
             return parent::render();
         }
-
         if (empty($this->name)) {
             throw new OutOfBoundsException(tr('No required HTML name attribute specified for auto suggest component'));
         }
-
         if (empty($this->source_url)) {
             throw new OutOfBoundsException(tr('No source URL specified for auto suggest component ":name"', [
                 ':name' => $this->name,
             ]));
         }
-
         if ($this->variables) {
             $variables = $this->variables->getSource();
             $variables = ',' . Arrays::implodeWithKeys($variables, ',', ':');
@@ -213,12 +213,11 @@ class InputAutoSuggest extends InputText
         } else {
             $variables = null;
         }
-
         // This input element requires some javascript
         Response::loadJavascript('adminlte/plugins/jquery-ui/jquery-ui');
-
         // Setup javascript for the component
-        $script = Script::new()->setContent('$(\'[name="' . $this->name . '"]\').autocomplete({
+        $script = Script::new()
+                        ->setContent('$(\'[name="' . $this->name . '"]\').autocomplete({
               source: function(request, response) {
                 let $selected = $(\'[name="' . $this->name . '"]\');
 
@@ -245,8 +244,9 @@ class InputAutoSuggest extends InputText
                 console.log("Selected: " + ui.item.value + " aka " + ui.item.id);
               }
             });');
+        $this->attributes = $this->renderInputAttributes()
+                                 ->appendSource($this->attributes);
 
-        $this->attributes = $this->renderInputAttributes()->appendSource($this->attributes);
         return $script->render() . parent::render();
     }
 }

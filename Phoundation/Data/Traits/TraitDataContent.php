@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataContent
  *
@@ -46,6 +45,7 @@ trait TraitDataContent
     public function setContent(?string $content): static
     {
         $this->content = $content;
+
         return $this;
     }
 }

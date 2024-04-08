@@ -8,7 +8,6 @@ use Phoundation\Web\Ajax\Interfaces\AjaxInterface;
 use Phoundation\Web\Json\Json;
 use Phoundation\Web\Requests\Response;
 
-
 /**
  * Class Ajax
  *

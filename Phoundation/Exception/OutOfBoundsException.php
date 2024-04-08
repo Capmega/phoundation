@@ -6,7 +6,6 @@ namespace Phoundation\Exception;
 
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 
-
 /**
  * Class OutOfBoundsException
  *

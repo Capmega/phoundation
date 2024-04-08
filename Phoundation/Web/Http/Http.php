@@ -12,7 +12,6 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Exception\HttpException;
 
-
 /**
  * Class Http
  *
@@ -72,12 +71,12 @@ class Http
         $allow_self_signed = not_null($verify_peer, Config::get('security.ssl.verify.self_signed', true));
 
         return stream_context_set_default([
-                                              'ssl' => [
-                                                  'verify_peer'       => $verify_peer,
-                                                  'verify_peer_name'  => $verify_peer_name,
-                                                  'allow_self_signed' => $allow_self_signed,
-                                              ],
-                                          ]);
+            'ssl' => [
+                'verify_peer'       => $verify_peer,
+                'verify_peer_name'  => $verify_peer_name,
+                'allow_self_signed' => $allow_self_signed,
+            ],
+        ]);
     }
 
 
@@ -108,14 +107,11 @@ class Http
                         ':content' => $value,
                     ]));
                 }
-
                 // The value is NULL
                 $value = '';
             }
         }
-
         unset($value);
-
 // TODO Implement
 // TODO This would break Route class when no query variables may be passed!
 //        $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], Config::get('paging.limit', 50)), array_keys(Config::get('paging.list', [10 => tr('Show 10 entries')])), Config::get('paging.limit', 50));
@@ -148,7 +144,6 @@ class Http
         if (!$key or !$value) {
             return $url;
         }
-
         if (str_contains($url, '?')) {
             return $url . '&' . urlencode($key) . '=' . urlencode($value);
         }
@@ -288,8 +283,6 @@ class Http
 //        header('Location:' . Response::redirect($url), true, $http_code);
 //        exit();
 //    }
-
-
     /**
      * Redirect if the session redirector is set
      *
@@ -318,18 +311,14 @@ class Http
              * Redirect by _SESSION redirect
              */
             $redirect = $_GET['redirect'];
-
             unset($_GET['redirect']);
             unset($_SESSION['sso_referrer']);
         }
-
         switch ($method) {
             case 'json':
                 /*
                  * Send JSON redirect. json_reply() will end script, so no break needed
-                 */
-                Json::reply(isset_get($redirect, '/'), 'redirect');
-
+                 */ Json::reply(isset_get($redirect, '/'), 'redirect');
             case 'http':
                 /*
                  * Send HTTP redirect. redirect() will end script, so no break
@@ -337,9 +326,7 @@ class Http
                  *
                  * Also, no need to unset SESSION redirect and sso_referrer,
                  * since redirect() will also do this
-                 */
-                redirect($redirect);
-
+                 */ redirect($redirect);
             default:
                 throw new HttpException(tr('Unknown method ":method" specified. Please speficy one of "json", or "http"', [
                     ':method' => $method,
@@ -362,14 +349,12 @@ class Http
     public static function getSubmit()
     {
         static $submit;
-
         if ($submit !== null) {
             /*
              * We have a cached value
              */
             return $submit;
         }
-
         /*
          * Get submit value
          */
@@ -386,7 +371,6 @@ class Http
             $submit = $_POST['dosubmit'];
             unset($_POST['dosubmit']);
         }
-
         $submit = strtolower($submit);
 
         return $submit;
@@ -529,11 +513,9 @@ class Http
 //        }
 //    }
 //
-
     public static function encodePostVariable(string $key)
     {
         static $translations = [];
-
         if (!isset($translations[$name])) {
             $translations[$name] = '__HT' . $name . '__' . substr(unique_code('sha256'), 0, 16);
         }
@@ -548,7 +530,6 @@ class Http
      * Generate and return a randon name for the specified $name, and store the
      * link between the two under "group"
      */
-
     /**
      * Limit the HTTP request to the specified request type, typically GET or POST
      *
@@ -574,11 +555,9 @@ class Http
     /*
      * Return the $_POST value for the translated specified key
      */
-
     function untranslate()
     {
         $count = 0;
-
         foreach ($_POST as $key => $value) {
             if (substr($key, 0, 4) == '__HT') {
                 $_POST[Strings::until(substr($key, 4), '__')] = $value;

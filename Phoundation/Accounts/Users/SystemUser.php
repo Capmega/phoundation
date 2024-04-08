@@ -7,7 +7,6 @@ namespace Phoundation\Accounts\Users;
 use Phoundation\Accounts\Users\Interfaces\SystemUserInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
-
 /**
  * Class GuestUser
  *
@@ -30,7 +29,6 @@ class SystemUser extends User implements SystemUserInterface
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
         parent::__construct($identifier, $column, $meta_enabled);
-
         $this->source['id'] = null;
         $this->setNickname('System');
     }

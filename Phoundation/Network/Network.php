@@ -11,7 +11,6 @@ use Phoundation\Network\Exception\NetworkException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 
-
 /**
  * Network class
  *
@@ -44,7 +43,9 @@ class Network
                 Log::warning(tr('This issue might be caused by a VPN, retrying with curl'));
                 Log::warning($e);
 
-                return Get::new('https://ipinfo.io/ip')->execute()->getResultData();
+                return Get::new('https://ipinfo.io/ip')
+                          ->execute()
+                          ->getResultData();
 
             } catch (CurlException $f) {
                 Log::warning(tr('Failed to get public IP address from ipinfo.io'));

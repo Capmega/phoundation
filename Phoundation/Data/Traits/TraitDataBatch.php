@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataBatch
  *
@@ -44,6 +43,7 @@ trait TraitDataBatch
     public function setBatch(bool $batch): static
     {
         $this->batch = $batch;
+
         return $this;
     }
 }

@@ -8,7 +8,6 @@ use Phoundation\Core\Core;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Seo\Seo;
 
-
 /**
  * Trait TraitDataEntryName
  *
@@ -31,6 +30,7 @@ trait TraitDataEntryName
         return $this->getValueTypesafe('string', 'seo_name');
     }
 
+
     /**
      * Returns the name for this object
      *
@@ -40,6 +40,7 @@ trait TraitDataEntryName
     {
         return $this->getValueTypesafe('string', 'name');
     }
+
 
     /**
      * Sets the name for this object
@@ -59,7 +60,8 @@ trait TraitDataEntryName
                 // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
                 // the entry if it does!
                 try {
-                    $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_name');
+                    $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')
+                                                                               ->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_name');
                     $this->setValue('seo_name', $seo_name, true);
                 } catch (SqlTableDoesNotExistException $e) {
                     // Crap, the table we're working on doesn't exist, WTF? No biggie, we're likely in init mode, and
@@ -73,6 +75,7 @@ trait TraitDataEntryName
 
         return $this->setValue('name', $name);
     }
+
 
     /**
      * Sets the seo_name for this object

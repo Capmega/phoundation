@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Enums\Interfaces;
 
-
 /**
  * Enum EnumAccountType
  *

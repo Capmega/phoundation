@@ -8,7 +8,6 @@ use Phoundation\Data\Traits\TraitDataNewTarget;
 use Phoundation\Exception\Interfaces\AccessDeniedExceptionInterface;
 use Throwable;
 
-
 /**
  * Class AccessDeniedException
  *
@@ -20,12 +19,11 @@ class AccessDeniedException extends Exception implements AccessDeniedExceptionIn
 {
     use TraitDataNewTarget;
 
-
     /**
      * AccessDeniedException class constructor
      *
      * @param Throwable|array|string|null $messages
-     * @param Throwable|null $previous
+     * @param Throwable|null              $previous
      */
     public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
     {

@@ -6,7 +6,6 @@ namespace Phoundation\Security\Incidents;
 
 use Phoundation\Security\Incidents\Exception\Interfaces\SeverityInterface;
 
-
 /**
  * Enum Severity
  *

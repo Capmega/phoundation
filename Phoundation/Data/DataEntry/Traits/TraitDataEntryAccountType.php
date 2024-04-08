@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Accounts\Enums\EnumAccountType;
 use Phoundation\Accounts\Enums\Interfaces\EnumAccountTypeInterface;
 
-
 /**
  * Trait TraitDataEntryVerificationCode
  *

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * interface AInterface
  *
@@ -15,7 +14,6 @@ namespace Phoundation\Web\Html\Components\Interfaces;
 
 use Phoundation\Web\Html\Enums\Interfaces\EnumAnchorTargetInterface;
 
-
 interface AInterface extends SpanInterface
 {
     /**
@@ -24,6 +22,7 @@ interface AInterface extends SpanInterface
      * @return string|null
      */
     public function getHref(): ?string;
+
 
     /**
      * Sets the href for this anchor
@@ -34,12 +33,14 @@ interface AInterface extends SpanInterface
      */
     public function setHref(?string $href): static;
 
+
     /**
      * Returns the target for this anchor
      *
      * @return EnumAnchorTargetInterface|null
      */
     public function getTarget(): ?EnumAnchorTargetInterface;
+
 
     /**
      * Sets the target for this anchor

@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Requests\Response;
 
-
 /**
  * Class InputSelect2
  *
@@ -31,7 +30,6 @@ class InputSelect2 extends InputSelect
         showdie();
         parent::__construct($content);
         $this->addClass('select2bs4');
-
         Response::loadCss('css/plugins/select2/css/select2');
         Response::loadCss('css/plugins/select2-bootstrap4-theme/select2-bootstrap4');
         Response::loadJavascript('js/plugins/select2/js/select2.full');
@@ -46,7 +44,6 @@ class InputSelect2 extends InputSelect
     public function render(): ?string
     {
         static $rendered = false;
-
         if (!$rendered) {
             $rendered   = true;
             $javascript = Script::new('
@@ -56,7 +53,8 @@ class InputSelect2 extends InputSelect
                 $(".select2bs4").select2({
                   theme: "bootstrap4"
                 })
-            ')->render();
+            ')
+                                ->render();
         }
 
         return parent::render() . isset_get($javascript);

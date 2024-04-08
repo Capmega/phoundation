@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Phoundation\Web\Html\Traits\TraitUsesAttributeMultiple;
 
-
 /**
  * Class InputEmail
  *

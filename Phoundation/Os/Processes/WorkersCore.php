@@ -13,7 +13,6 @@ use Phoundation\Os\Processes\Exception\WorkersException;
 use Phoundation\Os\Processes\Interfaces\WorkersCoreInterface;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class WorkersCore
  *
@@ -28,7 +27,6 @@ use Phoundation\Utils\Strings;
 class WorkersCore extends ProcessCore implements WorkersCoreInterface
 {
     use TraitDataLabel;
-
 
     /**
      * The workers that are managed by this class
@@ -126,6 +124,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     public function setWaitWorkerFinish(bool $wait_worker_finish): static
     {
         $this->wait_worker_finish = $wait_worker_finish;
+
         return $this;
     }
 
@@ -150,7 +149,8 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
      */
     public function setMinimumWorkers(?int $minimum): static
     {
-        $this->minimum = (int)$minimum;
+        $this->minimum = (int) $minimum;
+
         return $this;
     }
 
@@ -175,7 +175,8 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
      */
     public function setMaximumWorkers(?int $maximum): static
     {
-        $this->maximum = (int)$maximum;
+        $this->maximum = (int) $maximum;
+
         return $this;
     }
 
@@ -201,6 +202,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     public function setWaitSleep(int $wait_sleep): static
     {
         $this->wait_sleep = $wait_sleep;
+
         return $this;
     }
 
@@ -227,6 +229,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     public function setCycleSleep(int $cycle_sleep): static
     {
         $this->cycle_sleep = $cycle_sleep;
+
         return $this;
     }
 
@@ -256,8 +259,8 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
                 ':key' => $key,
             ]));
         }
-
         $this->key = $key;
+
         return $this;
     }
 
@@ -290,10 +293,11 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
                 ]));
             }
         }
-
         $this->values = $values;
+
         return $this;
     }
+
 
     /**
      * Start running the workers as background processes
@@ -306,19 +310,15 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         if (!$this->key and $this->values) {
             throw new WorkersException(tr('Values specified without key'));
         }
-
         if ($this->key and !$this->values) {
             throw new WorkersException(tr('Key specified without values'));
         }
-
         $current = 0;
-
         while (true) {
             if (!$this->values) {
                 Log::success(tr('Finished processing values list with ":count" workers', [':count' => $this->workers_executed]));
                 break;
             }
-
             if ($current < $this->maximum) {
                 $this->startWorker();
 
@@ -326,28 +326,24 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
                 Log::warning(tr('Current number of workers ":current" is higher than the maximum of ":max", not starting new workers', [
                     ':current' => $current,
                     ':max'     => $this->maximum,
-                ]),          4);
+                ]), 4);
             }
-
             usleep($this->cycle_sleep * 1000);
             $current = $this->getCurrent();
         }
-
         if ($this->wait_worker_finish) {
             while (true) {
                 $current = $this->getCurrent();
-
                 Log::notice(tr('Waiting for ":count" workers to finish', [':count' => $current]));
-
                 if (!$this->getCurrent()) {
                     Log::success(tr('All workers finished'));
                     break;
                 }
-
                 usleep($this->wait_sleep * 1000);
             }
         }
     }
+
 
     /**
      * Start a background worker
@@ -359,22 +355,19 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         $value  = array_shift($this->values);
         $worker = clone $this;
         $worker->setVariables([$this->key => $value]);
-
         Log::action(tr('Starting worker with command ":command"', [
             ':command' => $worker->getFullCommandLine(),
-        ]),         3);
-
+        ]), 3);
         $worker->executeBackground();
-
         $this->workers[$worker->getPid()] = $worker;
         $this->workers_executed++;
-
         Log::success(tr('Started worker with PID ":pid" for ":label" ":value"', [
             ':pid'   => $worker->getPid(),
             ':label' => not_empty($this->label, tr('value')),
             ':value' => $value,
         ]));
     }
+
 
     /**
      * Returns the current number of workers running
@@ -384,8 +377,10 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     public function getCurrent(): int
     {
         $this->cleanWorkers();
+
         return count($this->workers);
     }
+
 
     /**
      * Clean gone workers from the workers list
@@ -396,24 +391,23 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     {
         // Check the workers that are still active
         foreach ($this->workers as $pid => $worker) {
-            $ps = Ps::new($this->restrictions)->ps($pid);
-
+            $ps = Ps::new($this->restrictions)
+                    ->ps($pid);
             if ($ps) {
                 // There is A process, but is it the right one? Cleanup both commands to compare
                 $args    = trim(Strings::from(Strings::untilReverse($worker->getFullCommandLine(), ';'), 'set -o'));
                 $ps_args = trim(Strings::from(Strings::untilReverse($ps['args'], ';'), 'set -o'));
-
                 if ($ps_args === $args) {
                     // Yep, this worker is still active
                     continue;
                 }
             }
-
             // This worker is dead, remove it from the list
             Log::notice(tr('Worker with PI ":pid" finished process, removing from list', [':pid' => $pid]));
             unset($this->workers[$pid]);
         }
     }
+
 
     /**
      * Stop all background-running workers

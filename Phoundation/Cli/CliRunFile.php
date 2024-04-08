@@ -14,7 +14,6 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Ps;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class RunFile
  *
@@ -39,18 +38,21 @@ class CliRunFile implements CliRunFileInterface
      * @var Restrictions $restrictions
      */
     protected static Restrictions $restrictions;
+
     /**
      * The directory where all run files are located
      *
      * @var string $directory
      */
     protected static string $directory = DIRECTORY_ROOT . 'data/run/';
+
     /**
      * The command for which we are creating a run file
      *
      * @var string $command
      */
     protected string $command;
+
     /**
      * The exact run file for this command
      *
@@ -74,7 +76,6 @@ class CliRunFile implements CliRunFileInterface
     public function __construct(string $command)
     {
         static::$restrictions = Restrictions::new(static::$directory, true, 'runfile');
-
         $this->setCommand(Strings::from($command, DIRECTORY_COMMANDS));
         $this->setPid(getmypid());
         $this->create();
@@ -93,6 +94,7 @@ class CliRunFile implements CliRunFileInterface
         return new static($command);
     }
 
+
     /**
      * Creates the run file
      *
@@ -100,12 +102,14 @@ class CliRunFile implements CliRunFileInterface
      */
     protected function create(): static
     {
-        Directory::new(static::$directory . $this->command . '/', static::$restrictions)->ensure();
+        Directory::new(static::$directory . $this->command . '/', static::$restrictions)
+                 ->ensure();
         $this->file = static::$directory . $this->command . '/' . $this->pid;
-
         touch($this->file);
+
         return $this;
     }
+
 
     /**
      * Returns true if the specified command has an active run file
@@ -116,8 +120,9 @@ class CliRunFile implements CliRunFileInterface
      */
     public static function commandExists(string $command): bool
     {
-        return (bool)static::getPidForCommand($command);
+        return (bool) static::getPidForCommand($command);
     }
+
 
     /**
      * Returns the first found PID for the specified command, if it currently runs. NULL otherwise
@@ -127,21 +132,21 @@ class CliRunFile implements CliRunFileInterface
     public function getPidForCommand(): ?int
     {
         $directory = static::findCommandDirectory($this->command);
-
         if (!$directory) {
             // The command currently isn't running
             return null;
         }
-
         try {
             // Yay, a directory for this command exists! Return the first run file (PID file) we can find.
-            return (int)Directory::new($directory)->getSingleFile('/\d+/');
+            return (int) Directory::new($directory)
+                                  ->getSingleFile('/\d+/');
 
         } catch (FilesystemException) {
             // No run file found
             return null;
         }
     }
+
 
     /**
      * Returns the run directory for the command, if it exists, NULL otherwise
@@ -154,11 +159,9 @@ class CliRunFile implements CliRunFileInterface
     {
         $directory = static::$directory;
         $sections  = explode('/', $command);
-
         // Search the command as a hierarchical tree.
         foreach ($sections as $section) {
             $directory .= $section;
-
             if (!file_exists($directory)) {
                 // Run file does not exist
                 return null;
@@ -167,6 +170,7 @@ class CliRunFile implements CliRunFileInterface
 
         return $directory;
     }
+
 
     /**
      * Will validate all existing run files and delete all those run files that are stale
@@ -184,31 +188,28 @@ class CliRunFile implements CliRunFileInterface
                          // This is the pids directory, ignore it.
                          return;
                      }
-
                      // Extract command and PID from the file
                      $pid     = Strings::fromReverse($file, '/');
                      $command = Strings::until($file, '/' . $pid);
                      $command = Strings::fromReverse($command, '/');
-
                      if (!static::validateRunFile($pid, $file)) {
                          // This run file was messed up
                          return;
                      }
-
                      // Ensure that this PID exist, and that it's the correct process
-                     $process = Ps::new()->ps($pid);
+                     $process = Ps::new()
+                                  ->ps($pid);
                      $cmd     = Strings::from($process['cmd'], '/pho ');
-
                      show($process['cmd']);
                      showdie($cmd);
-
                      if ($cmd !== $command) {
                          // The PID exists, but its a different command. Remove the runfile and all PID files
-                         File::new($runfile, static::$restrictions)->delete(DIRECTORY_DATA . 'run/');
-                         File::new(static::$directory . 'pids/' . $pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/pids/');
+                         File::new($runfile, static::$restrictions)
+                             ->delete(DIRECTORY_DATA . 'run/');
+                         File::new(static::$directory . 'pids/' . $pid, static::$restrictions)
+                             ->delete(DIRECTORY_DATA . 'run/pids/');
                      }
                  });
-
         // Purge orphaned PID files
         Directory::new(static::$directory)
                  ->execute()
@@ -217,6 +218,7 @@ class CliRunFile implements CliRunFileInterface
 // TODO
                  });
     }
+
 
     /**
      * Validates the run file and returns true if all is well, false if not
@@ -231,15 +233,16 @@ class CliRunFile implements CliRunFileInterface
         if (is_really_natural($pid)) {
             return true;
         }
-
         // Wut? Get rid of this, next!
         Log::warning(tr('Encountered invalid PID file ":pid", removing the file', [
             ':pid' => $pid,
         ]));
+        File::new($file, static::$restrictions)
+            ->delete(DIRECTORY_DATA . 'run/');
 
-        File::new($file, static::$restrictions)->delete(DIRECTORY_DATA . 'run/');
         return false;
     }
+
 
     /**
      * Delete the run file and clean up the run directory
@@ -250,10 +253,14 @@ class CliRunFile implements CliRunFileInterface
     {
         // Delete the runfile and delete all possible PID files associated with this PID
         // Don't use runfiles here because we're deleting the runfile directories...
-        File::new(DIRECTORY_DATA . 'run/' . $this->command . '/' . $this->pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/', use_run_file: false);
-        Directory::new(DIRECTORY_DATA . 'run/pids/' . $this->pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/', use_run_file: false);
+        File::new(DIRECTORY_DATA . 'run/' . $this->command . '/' . $this->pid, static::$restrictions)
+            ->delete(DIRECTORY_DATA . 'run/', use_run_file: false);
+        Directory::new(DIRECTORY_DATA . 'run/pids/' . $this->pid, static::$restrictions)
+                 ->delete(DIRECTORY_DATA . 'run/', use_run_file: false);
+
         return $this;
     }
+
 
     /**
      * Returns the command for this runfile
@@ -264,6 +271,7 @@ class CliRunFile implements CliRunFileInterface
     {
         return $this->command;
     }
+
 
     /**
      * Sets the command
@@ -277,10 +285,11 @@ class CliRunFile implements CliRunFileInterface
         if (!$command) {
             throw new OutOfBoundsException(tr('No command specified'));
         }
-
         $this->command = $command;
+
         return $this;
     }
+
 
     /**
      * Returns the pid for this runfile
@@ -291,6 +300,7 @@ class CliRunFile implements CliRunFileInterface
     {
         return $this->pid;
     }
+
 
     /**
      * Sets the pid
@@ -306,10 +316,11 @@ class CliRunFile implements CliRunFileInterface
                 ':pid' => $pid,
             ]));
         }
-
         $this->pid = $pid;
+
         return $this;
     }
+
 
     /**
      * Returns the directory where all run files are located
@@ -321,6 +332,7 @@ class CliRunFile implements CliRunFileInterface
         return static::$directory;
     }
 
+
     /**
      * Returns the run file for this process
      *
@@ -330,6 +342,7 @@ class CliRunFile implements CliRunFileInterface
     {
         return $this->file;
     }
+
 
     /**
      * Returns true if this run file object still has a run file available
@@ -341,6 +354,7 @@ class CliRunFile implements CliRunFileInterface
         return file_exists($this->file);
     }
 
+
     /**
      * Return the number of this command being run
      *
@@ -350,6 +364,7 @@ class CliRunFile implements CliRunFileInterface
     {
         return count($this->getPidsForCommand());
     }
+
 
     /**
      * Returns an array with all PIDs and mtimes for the specified command, if it currently runs.
@@ -361,16 +376,14 @@ class CliRunFile implements CliRunFileInterface
     public function getPidsForCommand(): array
     {
         $directory = static::findCommandDirectory($this->command);
-
         if (!$directory) {
             // The command currently isn't running
             return [];
         }
-
         // Yay, a directory for this command exists! Return all the run files (PID files) we can find.
-        $pids   = Directory::new($directory)->scanRegex('/\d+/');
+        $pids   = Directory::new($directory)
+                           ->scanRegex('/\d+/');
         $return = [];
-
         // Build PID > MTIME array
         foreach ($pids as $pid) {
             $return[$pid] = stat($pid)['mtime'];

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries\Interfaces;
 
-
 /**
  * Library class
  *
@@ -26,6 +25,7 @@ interface LibraryInterface
      */
     public function init(?string $comments): bool;
 
+
     /**
      * Executes POST init files for this library
      *
@@ -35,12 +35,14 @@ interface LibraryInterface
      */
     public function initPost(?string $comments): bool;
 
+
     /**
      * Returns the type of library; system or plugin
      *
      * @return string
      */
     public function getType(): string;
+
 
     /**
      * Returns true if the library is a system library
@@ -49,12 +51,14 @@ interface LibraryInterface
      */
     public function isSystem(): bool;
 
+
     /**
      * Returns true if the library is a plugin library
      *
      * @return bool
      */
     public function isPlugin(): bool;
+
 
     /**
      * Returns true if the library is a template library
@@ -63,12 +67,14 @@ interface LibraryInterface
      */
     public function isTemplate(): bool;
 
+
     /**
      * Returns the library path
      *
      * @return string
      */
     public function getDirectory(): string;
+
 
     /**
      * Returns the library name
@@ -77,12 +83,14 @@ interface LibraryInterface
      */
     public function getName(): string;
 
+
     /**
      * Returns the code version for this library
      *
      * @return string|null
      */
     public function getCodeVersion(): ?string;
+
 
     /**
      * Returns the database version for this library
@@ -91,12 +99,14 @@ interface LibraryInterface
      */
     public function getDatabaseVersion(): ?string;
 
+
     /**
      * Returns the database version for this library
      *
      * @return string|null
      */
     public function getNextInitVersion(): ?string;
+
 
     /**
      * Returns the size of all files in this library in bytes
@@ -105,12 +115,14 @@ interface LibraryInterface
      */
     public function getSize(): int;
 
+
     /**
      * Returns the version for this library
      *
      * @return string|null
      */
     public function getVersion(): ?string;
+
 
     /**
      * Returns the description for this library
@@ -119,12 +131,14 @@ interface LibraryInterface
      */
     public function getDescription(): ?string;
 
+
     /**
      * Returns the PhpStatistics object for this library
      *
      * @return array
      */
     public function getPhpStatistics(): array;
+
 
     /**
      * Update the version registration for this version to be the specified version

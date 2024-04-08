@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Http\Interfaces;
 
-
 /**
  * Interface UrlBuilderInterface
  *
@@ -24,12 +23,14 @@ interface UrlBuilderInterface
      */
     public function getUrl(bool $strip_queries = false): string;
 
+
     /**
      * Returns if generated URL's is cloaked or not
      *
      * @return bool
      */
     public function isCloaked(): bool;
+
 
     /**
      * Cloak the specified URL.
@@ -41,6 +42,7 @@ interface UrlBuilderInterface
      */
     public function cloak(): static;
 
+
     /**
      * Uncloak the specified URL.
      *
@@ -50,12 +52,14 @@ interface UrlBuilderInterface
      */
     public function decloak(): static;
 
+
     /**
      * Clear the query part from the URL
      *
      * @return static
      */
     public function clearQueries(): static;
+
 
     /**
      * Add the specified query / queries to the specified URL and return
@@ -65,6 +69,7 @@ interface UrlBuilderInterface
      * @return static
      */
     public function addQueries(array|string|bool|null ...$queries): static;
+
 
     /**
      * Remove specified queries from the specified URL and return

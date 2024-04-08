@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Stringable;
 
-
 /**
  * Trait TraitDataEntryProduct
  *
@@ -39,6 +38,6 @@ trait TraitDataEntryProduct
      */
     public function setProduct(Stringable|string|null $product): static
     {
-        return $this->setValue('product', (string)$product);
+        return $this->setValue('product', (string) $product);
     }
 }

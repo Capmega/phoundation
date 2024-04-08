@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Traits;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 
-
 /**
  * Trait TraitUsesSize
  *
@@ -27,6 +26,7 @@ trait TraitUsesSize
      */
     protected EnumDisplaySize|null $size = EnumDisplaySize::twelve;
 
+
     /**
      * Returns the type for this container
      *
@@ -36,6 +36,7 @@ trait TraitUsesSize
     {
         return $this->size;
     }
+
 
     /**
      * Sets the type for this container
@@ -52,11 +53,10 @@ trait TraitUsesSize
                     ':size' => $size,
                 ]));
             }
-
-            $size = EnumDisplaySize::from((string)$size);
+            $size = EnumDisplaySize::from((string) $size);
         }
-
         $this->size = $size;
+
         return $this;
     }
 }

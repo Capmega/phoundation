@@ -12,7 +12,6 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
-
 /**
  * SshAccounts class
  *
@@ -122,26 +121,21 @@ class SshAccounts extends DataList
         if (!$columns) {
             $columns = 'id,name,created_on';
         }
-
         // Default ordering
         if (!$order_by) {
             $order_by = ['name' => false];
         }
-
         // Get column information
         $columns = Arrays::force($columns);
         $columns = Strings::force($columns);
-
         // Build query
         $builder = new QueryBuilder();
         $builder->addSelect($columns);
         $builder->addFrom('`ssh_accounts`');
-
         // Add ordering
         foreach ($order_by as $column => $direction) {
             $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
-
         // Build filters
         foreach ($filters as $key => $value) {
             switch ($key) {
@@ -149,7 +143,6 @@ class SshAccounts extends DataList
                     $no_delete = true;
             }
         }
-
         if (isset($no_delete)) {
             $builder->addWhere('`status` IS NULL');
         }

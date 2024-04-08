@@ -11,16 +11,15 @@ use Phoundation\Developer\Versioning\Git\Interfaces\StashInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Developer\Versioning\Versioning;
 
-
 /**
  * Class Stash
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class Stash extends Versioning implements StashInterface
 {
@@ -28,22 +27,20 @@ class Stash extends Versioning implements StashInterface
         setDirectory as protected setTraitDirectory;
     }
 
-
     /**
      * Unstashes the git changes
      *
      * @param array|string|null $path
+     *
      * @return static
      */
     public function stash(array|string|null $path = null): static
     {
-        $output = $this->git_process
-            ->clearArguments()
-            ->addArgument('stash')
-            ->addArgument('--')
-            ->addArguments($path)
-            ->executeReturnArray();
-
+        $output = $this->git_process->clearArguments()
+                                    ->addArgument('stash')
+                                    ->addArgument('--')
+                                    ->addArguments($path)
+                                    ->executeReturnArray();
         Log::notice($output, 4, false);
 
         return $this;
@@ -57,12 +54,10 @@ class Stash extends Versioning implements StashInterface
      */
     public function pop(): static
     {
-        $output = $this->git_process
-            ->clearArguments()
-            ->addArgument('stash')
-            ->addArgument('pop')
-            ->executeReturnArray();
-
+        $output = $this->git_process->clearArguments()
+                                    ->addArgument('stash')
+                                    ->addArgument('pop')
+                                    ->executeReturnArray();
         Log::notice($output, 4, false);
 
         return $this;
@@ -77,17 +72,15 @@ class Stash extends Versioning implements StashInterface
     public function getList(): IteratorInterface
     {
         $return  = [];
-        $results = $this->git_process
-            ->clearArguments()
-            ->addArgument('stash')
-            ->addArgument('list')
-            ->executeReturnArray();
-
+        $results = $this->git_process->clearArguments()
+                                     ->addArgument('stash')
+                                     ->addArgument('list')
+                                     ->executeReturnArray();
         foreach ($results as $result) {
             preg_match_all('/stash@\{(\d+)\}:\s(.+)/', $result, $matches);
             $return[$matches[0][0]] = $matches[2][0];
         }
-        
+
         return new Iterator($return);
     }
 
@@ -99,10 +92,9 @@ class Stash extends Versioning implements StashInterface
      */
     public function getShow(): array
     {
-        return $this->git_process
-            ->clearArguments()
-            ->addArgument('stash')
-            ->addArgument('show')
-            ->executeReturnArray();
+        return $this->git_process->clearArguments()
+                                 ->addArgument('stash')
+                                 ->addArgument('show')
+                                 ->executeReturnArray();
     }
 }

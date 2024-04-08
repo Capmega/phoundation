@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-
 /**
  * Trait TraitDataEntrySync
  *
@@ -37,6 +36,6 @@ trait TraitDataEntrySync
      */
     public function setSync(int|bool|null $sync): static
     {
-        return $this->setValue('sync', (bool)$sync);
+        return $this->setValue('sync', (bool) $sync);
     }
 }

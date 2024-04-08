@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Traits;
 
 use Phoundation\Web\Html\Enums\EnumContainerTier;
 
-
 /**
  * Trait TraitUsesTier
  *
@@ -26,6 +25,7 @@ trait TraitUsesTier
      */
     protected EnumContainerTier $tier = EnumContainerTier::md;
 
+
     /**
      * Returns the type for this container
      *
@@ -35,6 +35,7 @@ trait TraitUsesTier
     {
         return $this->tier;
     }
+
 
     /**
      * Sets the type for this container
@@ -46,6 +47,7 @@ trait TraitUsesTier
     public function setTier(EnumContainerTier $tier): static
     {
         $this->tier = $tier;
+
         return $this;
     }
 }

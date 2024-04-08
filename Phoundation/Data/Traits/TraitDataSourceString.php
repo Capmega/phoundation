@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataSourceString
  *
@@ -46,6 +45,7 @@ trait TraitDataSourceString
     public function setSource(string $source): static
     {
         $this->source = $source;
+
         return $this;
     }
 }

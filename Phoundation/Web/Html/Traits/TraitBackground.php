@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Traits;
 
 use JetBrains\PhpStorm\ExpectedValues;
 
-
 /**
  * Trait TraitBackground
  *
@@ -71,6 +70,7 @@ trait TraitBackground
     ])] ?string $background): static
     {
         $this->background = $background;
+
         return $this;
     }
 }

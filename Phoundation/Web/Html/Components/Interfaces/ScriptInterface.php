@@ -14,6 +14,7 @@ interface ScriptInterface
      */
     public function getAsync(): bool;
 
+
     /**
      * Sets if this script is loaded async
      *
@@ -23,12 +24,14 @@ interface ScriptInterface
      */
     public function setAsync(bool $async): static;
 
+
     /**
      * Returns if this script is loaded from a file instead of included internally
      *
      * @return bool
      */
     public function getToFile(): bool;
+
 
     /**
      * Sets if this script is loaded from a file instead of included internally
@@ -39,12 +42,14 @@ interface ScriptInterface
      */
     public function setToFile(bool $to_file): static;
 
+
     /**
      * Returns the script src
      *
      * @return string
      */
     public function getSrc(): string;
+
 
     /**
      * Sets the script src
@@ -55,12 +60,14 @@ interface ScriptInterface
      */
     public function setSrc(string $src): static;
 
+
     /**
      * Returns where this script is attached to the document
      *
      * @return EnumAttachJavascript
      */
     public function getAttach(): EnumAttachJavascript;
+
 
     /**
      * Sets where this script is attached to the document
@@ -71,12 +78,14 @@ interface ScriptInterface
      */
     public function setAttach(EnumAttachJavascript $attach): static;
 
+
     /**
      * Returns if this script is loaded defer
      *
      * @return bool
      */
     public function getDefer(): bool;
+
 
     /**
      * Sets if this script is loaded defer
@@ -87,12 +96,14 @@ interface ScriptInterface
      */
     public function setDefer(bool $defer): static;
 
+
     /**
      * Returns the event wrapper code for this script
      *
      * @return EnumJavascriptWrappersInterface
      */
     public function getJavascriptWrapper(): EnumJavascriptWrappersInterface;
+
 
     /**
      * Sets the event wrapper code for this script
@@ -102,6 +113,7 @@ interface ScriptInterface
      * @return static
      */
     public function setJavascriptWrapper(EnumJavascriptWrappersInterface $javascript_wrapper): static;
+
 
     /**
      * Generates and returns the HTML string for a <script> element

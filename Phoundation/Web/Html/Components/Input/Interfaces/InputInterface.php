@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 
-
 /**
  * Interface InputInterface
  *
@@ -26,6 +25,7 @@ interface InputInterface extends ElementInterface
      */
     function __construct();
 
+
     /**
      * Returns a new input element from
      *
@@ -35,12 +35,14 @@ interface InputInterface extends ElementInterface
      */
     public static function newFromDataEntryDefinition(DefinitionInterface $definition): static;
 
+
     /**
      * Returns the description
      *
      * @return string|null
      */
     public function getDescription(): ?string;
+
 
     /**
      * Sets the description
@@ -52,12 +54,14 @@ interface InputInterface extends ElementInterface
      */
     public function setDescription(?string $description, bool $make_safe = true): static;
 
+
     /**
      * Returns the icon
      *
      * @return IconInterface|null
      */
     public function getIcon(): ?IconInterface;
+
 
     /**
      * Sets the icon
@@ -68,12 +72,14 @@ interface InputInterface extends ElementInterface
      */
     public function setIcon(?IconInterface $icon): static;
 
+
     /**
      * Returns if the input element has a clear button or not
      *
      * @return bool
      */
     public function getClearButton(): bool;
+
 
     /**
      * Sets if the input element has a clear button or not

@@ -11,7 +11,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Captcha\Interfaces\CaptchaInterface;
 use Phoundation\Web\Html\Components\ElementsBlock;
 
-
 /**
  * Interface Captcha
  *
@@ -36,10 +35,8 @@ abstract class Captcha extends ElementsBlock implements CaptchaInterface
         switch (Config::getString('security.web.captcha.provider', 'recaptcha')) {
             case 'recaptcha':
                 return new ReCaptcha2($source);
-
             case '':
                 throw new OutOfBoundsException(tr('No captcha provider specified'));
-
             default:
                 throw new OutOfBoundsException(tr('Unknown captcha provider ":provider" specified', [
                     ':provider' => Config::getString('', 'recaptcha'),

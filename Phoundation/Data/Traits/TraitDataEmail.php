@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataEmail
  *
@@ -46,6 +45,7 @@ trait TraitDataEmail
     public function setEmail(?string $email): static
     {
         $this->email = $email;
+
         return $this;
     }
 }

@@ -4,7 +4,6 @@ namespace Phoundation\Web\Ajax\Interfaces;
 
 use Phoundation\Web\Json\Interfaces\JsonInterface;
 
-
 /**
  * Interface AjaxInterface
  *
@@ -23,6 +22,7 @@ interface AjaxInterface extends JsonInterface
      * @return string|null
      */
     public function execute(): ?string;
+
 
     /**
      * Build and send AJAX API specific HTTP headers

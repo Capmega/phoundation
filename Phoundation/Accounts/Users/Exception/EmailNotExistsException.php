@@ -7,7 +7,6 @@ namespace Phoundation\Accounts\Users\Exception;
 use Phoundation\Accounts\Users\Exception\Interfaces\EmailNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 
-
 /**
  * Class EmailNotExistsException
  *

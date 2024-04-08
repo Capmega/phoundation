@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
-use Composer\Repository\PlatformRepository;
 use Exception;
 use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ConfigInterface;
@@ -22,7 +21,6 @@ use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
 use Phoundation\Utils\Exception\ConfigParseFailedException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Throwable;
-
 
 /**
  * Class Config
@@ -101,6 +99,7 @@ class Config implements ConfigInterface
      */
     protected static bool $include_production = true;
 
+
     /**
      * Returns the current environment for the configuration object
      *
@@ -110,6 +109,7 @@ class Config implements ConfigInterface
     {
         return static::$environment;
     }
+
 
     /**
      * Lets the Config object use the specified (or if not specified, the current global) environment
@@ -125,16 +125,16 @@ class Config implements ConfigInterface
             // Environment was specified as "", use no environment!
             static::$environment = null;
             static::reset();
+
             return;
         }
-
         // Use the specified environment
         static::$include_production = $include_production;
         static::$environment        = strtolower(trim($environment));
-
         static::reset();
         static::read(false);
     }
+
 
     /**environment
      * Returns the current section for the configuration object
@@ -145,6 +145,7 @@ class Config implements ConfigInterface
     {
         return substr(static::$section, 0, -1);
     }
+
 
     /**
      * Lets the Config object use the specified (or if not specified, the current global) environment
@@ -158,25 +159,23 @@ class Config implements ConfigInterface
     public static function setSection(string $section, string $environment, bool $include_production = true): void
     {
         static::$section = get_null(strtolower(trim($section)));
-
         if (static::$section) {
             static::$section .= '/';
         }
-
         if (!$environment) {
             // Environment was specified as "", use no environment!
             static::$environment = null;
             static::reset();
+
             return;
         }
-
         // Use the specified environment
         static::$include_production = $include_production;
         static::$environment        = strtolower(trim($environment));
-
         static::reset();
         static::read(true);
     }
+
 
     /**
      * Returns a config object for the specified environment
@@ -195,6 +194,7 @@ class Config implements ConfigInterface
         return static::$instances[$environment];
     }
 
+
     /**
      * Returns a config object for the specified environment
      *
@@ -206,7 +206,6 @@ class Config implements ConfigInterface
     public static function forSection(string $section, string $environment): ConfigInterface
     {
         $key = $section . '-' . $environment;
-
         if (empty(static::$instances[$key])) {
             static::$instances[$key] = new static();
             static::$instances[$key]->setSection($section, $environment);
@@ -214,6 +213,7 @@ class Config implements ConfigInterface
 
         return static::$instances[$key];
     }
+
 
     /**
      * Returns true if the Config object has failed
@@ -224,6 +224,7 @@ class Config implements ConfigInterface
     {
         return static::$failed;
     }
+
 
     /**
      * Return configuration BOOLEAN for the specified key path
@@ -239,7 +240,6 @@ class Config implements ConfigInterface
     public static function getBoolean(string|array $path, ?bool $default = null, mixed $specified = null): bool
     {
         $return = static::get($path, $default, $specified);
-
         try {
             if (is_bool($return)) {
                 return $return;
@@ -251,12 +251,12 @@ class Config implements ConfigInterface
         } catch (OutOfBoundsException) {
             // Do nothing, following exception will do the job
         }
-
         throw new ConfigException(tr('The configuration path ":path" should be a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has value ":value" instead', [
             ':path'  => $path,
             ':value' => $return,
         ]));
     }
+
 
     /**
      * Return configuration data for the specified key path
@@ -278,9 +278,8 @@ class Config implements ConfigInterface
             // We don't really have an environment, don't check configuration, just return default values
             return $default;
         }
-
-        Debug::counter('Config::get()')->increase();
-
+        Debug::counter('Config::get()')
+             ->increase();
         if (static::$failed) {
             // Config class failed, return all default values when not NULL
             if ($default === null) {
@@ -291,47 +290,36 @@ class Config implements ConfigInterface
 
             return $default;
         }
-
         // Do we have cached configuration information?
         $path = Strings::force($path, '.');
-
         if (array_key_exists($path, static::$cache)) {
             return static::$cache[$path];
         }
-
         static::getInstance();
-
         if ($specified) {
             return $specified;
         }
-
         if (!$path) {
             // No path specified, return everything
             return static::fixKeys(static::$data);
         }
-
         // Replace escaped . in the path
         $path = str_replace('\\.', ':', $path);
         $data = &static::$data;
-
         // Go over each key and if the value for the key is an array, request a subsection
         foreach (Arrays::force($path, '.') as $section) {
             $section = str_replace(':', '.', $section);
-
             if (!is_array($data)) {
 //                echo "<pre>";var_dump($path);var_dump($section);var_dump($data);echo "\n";
-
                 if ($data !== null) {
                     Log::warning(tr('Encountered invalid configuration structure whilst looking for ":path". Section ":section" should contain sub values but does not. Please check your configuration files that this structure exists correctly', [
                         ':path'    => $path,
                         ':section' => $section,
                     ]));
                 }
-
                 // This section is missing in config files. No biggie, initialize it as an array
                 $data = [];
             }
-
             if (!array_key_exists($section, $data)) {
                 // The requested key does not exist
                 if ($default === null) {
@@ -340,19 +328,20 @@ class Config implements ConfigInterface
                         ':environment' => ENVIRONMENT,
                         ':section'     => $section,
                         ':path'        => Strings::force($path, '.'),
-                    ]))->makeWarning();
+                    ]))
+                                                          ->makeWarning();
                 }
 
                 // The requested key does not exist in configuration, return the default value instead
                 return static::$cache[$path] = $default;
             }
-
             // Get the requested subsection. This subsection must be an array!
             $data = &$data[$section];
         }
 
         return static::$cache[$path] = $data;
     }
+
 
     /**
      * Singleton, ensure to always return the same Config object.
@@ -368,6 +357,7 @@ class Config implements ConfigInterface
         return static::$instance;
     }
 
+
     /**
      * Fixes configuration key names, - will be replaced with _
      *
@@ -378,18 +368,17 @@ class Config implements ConfigInterface
     protected static function fixKeys(array $data): array
     {
         $return = [];
-
         foreach ($data as $key => $value) {
             if (is_array($value)) {
                 // Recurse
                 $value = static::fixKeys($value);
             }
-
-            $return[str_replace('-', '_', (string)$key)] = $value;
+            $return[str_replace('-', '_', (string) $key)] = $value;
         }
 
         return $return;
     }
+
 
     /**
      * Return configuration INTEGER for the specified key path
@@ -405,16 +394,15 @@ class Config implements ConfigInterface
     public static function getInteger(string|array $path, ?int $default = null, mixed $specified = null): int
     {
         $return = static::get($path, $default, $specified);
-
         if (is_integer($return)) {
             return $return;
         }
-
         throw new ConfigException(tr('The configuration path ":path" should be an integer number but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]));
     }
+
 
     /**
      * Return configuration NUMBER for the specified key path
@@ -430,16 +418,15 @@ class Config implements ConfigInterface
     public static function getNatural(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
     {
         $return = static::get($path, $default, $specified);
-
         if (is_natural($return)) {
             return $return;
         }
-
         throw new ConfigException(tr('The configuration path ":path" should be a natural number, integer 0 or above, but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]));
     }
+
 
     /**
      * Return configuration NUMBER for the specified key path
@@ -455,16 +442,15 @@ class Config implements ConfigInterface
     public static function getFloat(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
     {
         $return = static::get($path, $default, $specified);
-
         if (is_float($return)) {
             return $return;
         }
-
         throw new ConfigException(tr('The configuration path ":path" should be a number but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]));
     }
+
 
     /**
      * Return configuration IteratorInterface for the specified key path
@@ -482,6 +468,7 @@ class Config implements ConfigInterface
         return new Iterator(static::getArray($path, $default, $specified));
     }
 
+
     /**
      * Return configuration ARRAY for the specified key path
      *
@@ -496,16 +483,15 @@ class Config implements ConfigInterface
     public static function getArray(string|array $path, array|null $default = null, mixed $specified = null): array
     {
         $return = static::get($path, $default, $specified);
-
         if (is_array($return)) {
             return static::fixKeys($return);
         }
-
         throw new ConfigException(tr('The configuration path ":path" should be an array but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]));
     }
+
 
     /**
      * Return configuration STRING for the specified key path
@@ -521,16 +507,15 @@ class Config implements ConfigInterface
     public static function getString(string|array $path, string|null $default = null, mixed $specified = null): string
     {
         $return = static::get($path, $default, $specified);
-
         if (is_string($return)) {
             return $return;
         }
-
         throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]));
     }
+
 
     /**
      * Return configuration STRING or BOOLEAN for the specified key path
@@ -546,16 +531,15 @@ class Config implements ConfigInterface
     public static function getBoolString(string|array $path, string|bool|null $default = null, mixed $specified = null): string|bool
     {
         $return = static::get($path, $default, $specified);
-
         if (is_string($return) or is_bool($return)) {
             return $return;
         }
-
         throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]));
     }
+
 
     /**
      * Returns true of the specified configuration path exists
@@ -568,7 +552,6 @@ class Config implements ConfigInterface
     public static function exists(string|array $path): bool
     {
         $uuid = Strings::getUuid();
-
         if (static::get($path, $uuid) === $uuid) {
             // We got the default value, the requested path does not exist
             return false;
@@ -576,6 +559,7 @@ class Config implements ConfigInterface
 
         return true;
     }
+
 
     /**
      * Return configuration data for the specified key path
@@ -589,36 +573,33 @@ class Config implements ConfigInterface
     public static function set(string|array $path, mixed $value = null): mixed
     {
         static::getInstance();
-
         $path = Strings::force($path, '.');
         $path = str_replace('\\.', ':', $path);
         $data = &static::$data;
-
         // Go over each key and if the value for the key is an array, request a subsection
         foreach (Arrays::force($path, '.') as $section) {
             $section = str_replace(':', '.', $section);
-
             if (!is_array($data)) {
                 // Oops, this data section should be an array
                 throw ConfigException::new(tr('The configuration section ":section" from requested path ":path" does not exist', [
                     ':section' => $section,
                     ':path'    => $path,
-                ]))->makeWarning();
+                ]))
+                                     ->makeWarning();
             }
-
             if (!array_key_exists($section, $data)) {
                 // The requested key does not exist, initialize with an array just in case
                 $data[$section] = [];
             }
-
             // Get the requested subsection
             $data = &$data[$section];
         }
-
         // The variable $data should now be the correct leaf node. Assign it $value and return it.
         $data = $value;
+
         return static::$cache[$path] = $value;
     }
+
 
     /**
      * Returns true if a configuration file for the specified environment exists, false if not
@@ -632,6 +613,7 @@ class Config implements ConfigInterface
         return file_exists(DIRECTORY_ROOT . 'config/' . $environment . '.yaml');
     }
 
+
     /**
      * Scan the entire project from ROOT for Config::get() and Config::set() and generate a config/default.yaml file
      * with all default values
@@ -642,22 +624,22 @@ class Config implements ConfigInterface
     {
         $count = 0;
         $store = [];
-
         // Scan all files for Config::get() and Config::set() calls
-        Directory::new(DIRECTORY_ROOT, DIRECTORY_ROOT)->execute()
+        Directory::new(DIRECTORY_ROOT, DIRECTORY_ROOT)
+                 ->execute()
                  ->addSkipDirectories([
-                                          DIRECTORY_DATA,
-                                          DIRECTORY_ROOT . 'tests',
-                                          DIRECTORY_ROOT . 'garbage',
-                                      ])
+                     DIRECTORY_DATA,
+                     DIRECTORY_ROOT . 'tests',
+                     DIRECTORY_ROOT . 'garbage',
+                 ])
                  ->setRecurse(true)
                  ->setRestrictions(new Restrictions(DIRECTORY_ROOT))
                  ->onFiles(function (string $file) use (&$store) {
-                     $files = File::new($file, DIRECTORY_ROOT)->grep([
-                                                                         'Config::get(\'',
-                                                                         'Config::set(\'',
-                                                                     ]);
-
+                     $files = File::new($file, DIRECTORY_ROOT)
+                                  ->grep([
+                                      'Config::get(\'',
+                                      'Config::set(\'',
+                                  ]);
                      foreach ($files as $file) {
                          foreach ($file as $lines) {
                              foreach ($lines as $line) {
@@ -668,22 +650,19 @@ class Config implements ConfigInterface
                                              ':file' => $file,
                                              ':line' => $line,
                                          ]));
-
                                          continue;
                                      }
                                  }
-
                                  // Pass over all matches
                                  foreach ($matches[0] as $match => $value) {
                                      $path    = str_replace([
-                                                                '"',
-                                                                "'",
-                                                            ], '', trim($matches[1][$match]));
+                                         '"',
+                                         "'",
+                                     ], '', trim($matches[1][$match]));
                                      $default = str_replace([
-                                                                '"',
-                                                                "'",
-                                                            ], '', trim($matches[2][$match]));
-
+                                         '"',
+                                         "'",
+                                     ], '', trim($matches[2][$match]));
                                      // Log all Config::get() and Config::set() calls that have the same configuration path but different
                                      // default values
                                      if (array_key_exists($path, $store)) {
@@ -695,7 +674,6 @@ class Config implements ConfigInterface
                                              ]));
                                          }
                                      }
-
                                      // Store the configuration path
                                      $store[$path] = $default;
                                  }
@@ -703,7 +681,6 @@ class Config implements ConfigInterface
                          }
                      }
                  });
-
         // Convert all entries ending in . to array values (these typically have variable subkeys following)
         foreach ($store as $path => $default) {
             if (str_ends_with($path, '.')) {
@@ -711,55 +688,45 @@ class Config implements ConfigInterface
                 unset($store[$path]);
             }
         }
-
         // Fix all entries that have variables or weird values
         foreach ($store as $path => $default) {
             if (!is_scalar($default)) {
                 continue;
             }
-
             if (str_starts_with($default, '$')) {
                 $store[$path] = null;
             }
-
             if (str_contains($default, '::')) {
                 $store[$path] = null;
             }
-
             if (str_contains($default, ',')) {
                 $store[$path] = Strings::from($store[$path], ',');
                 $store[$path] = trim($store[$path]);
             }
         }
-
         // Sort so that we have a nice alphabetically ordered list
         asort($store);
-
         // Great, we have all used configuration paths and their default values! Now construct the config/default.yaml
         // file
         $data = [];
-
         // Convert the store to an array map
         foreach ($store as $path => $default) {
             $path    = explode('.', $path);
             $section = &$data;
             $count++;
-
             foreach ($path as $key) {
                 if (!array_key_exists($key, $section)) {
                     // Initialize with subarray and jump in
                     $section[$key] = [];
                 }
-
                 $section = &$section[$key];
             }
-
             $section = $default;
             unset($section);
         }
-
         // Save and return count
         static::save();
+
         return $count;
     }
 
@@ -777,13 +744,11 @@ class Config implements ConfigInterface
             // Save the data from this Config object
             $data = static::$data;
         }
-
         // Convert the data into yaml and store the data in the default file
         $data = yaml_emit($data);
         $data = Strings::from($data, "\n");
         $data = Strings::untilReverse($data, "\n");
         $data = Strings::untilReverse($data, "\n") . "\n";
-
         Log::action(tr('Saving environment ":env"', [':env' => static::$environment]));
         file_put_contents(DIRECTORY_ROOT . 'config/' . static::$environment . '.yaml', $data);
     }
@@ -801,7 +766,6 @@ class Config implements ConfigInterface
     {
         // Reset data, then import data
         static::reset();
-
         static::$data = [
             'security'      => [
                 'seed' => Strings::getRandom(random_int(16, 32)),
@@ -824,14 +788,17 @@ class Config implements ConfigInterface
                     'instances' => [
                         'system' => [
                             'type'   => 'mysql',
-                            'server' => $configuration->getDatabase()->getHost(),
-                            'name'   => $configuration->getDatabase()->getName(),
-                            'user'   => $configuration->getDatabase()->getUser(),
-                            'pass'   => $configuration->getDatabase()->getPass(),
+                            'server' => $configuration->getDatabase()
+                                                      ->getHost(),
+                            'name'   => $configuration->getDatabase()
+                                                      ->getName(),
+                            'user'   => $configuration->getDatabase()
+                                                      ->getUser(),
+                            'pass'   => $configuration->getDatabase()
+                                                      ->getPass(),
                         ],
                     ],
                 ],
-
                 'memcached' => [
                     'instances' => [
                         'system' => null,
@@ -864,12 +831,12 @@ class Config implements ConfigInterface
                     ],
                 ],
                 'route'    => [
-                    'known-hacks' => [
-                    ],
+                    'known-hacks' => [],
                 ],
             ],
         ];
     }
+
 
     /**
      * Reset this Config object
@@ -884,6 +851,7 @@ class Config implements ConfigInterface
         static::$cache  = [];
     }
 
+
     /**
      * Escapes . in the specified path section
      *
@@ -895,6 +863,7 @@ class Config implements ConfigInterface
     {
         return str_replace('.', '\\.', $path);
     }
+
 
     /**
      * Reads the configuration file for the specified configuration environment
@@ -910,7 +879,6 @@ class Config implements ConfigInterface
                 // We don't really have an environment, don't read configuration
                 return;
             }
-
             // What environments should be read?
             if (static::$environment === 'production') {
                 $environments = [
@@ -929,19 +897,17 @@ class Config implements ConfigInterface
                 // Read only the specified environment
                 $environments = [static::$environment];
             }
-
             // Read the section for each environment
             foreach ($environments as $environment) {
                 $file = DIRECTORY_ROOT . 'config/' . self::$section . $environment . '.yaml';
-                Restrictions::new(DIRECTORY_ROOT . 'config/')->check($file, false);
-
+                Restrictions::new(DIRECTORY_ROOT . 'config/')
+                            ->check($file, false);
                 // Check if a configuration file exists for this environment
                 if (!file_exists($file)) {
                     // Do NOT use tr() here as it will cause endless loops!
                     throw ConfigFileDoesNotExistsException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" does not exist')
                                                           ->makeWarning();
                 }
-
                 try {
                     // Read the configuration data and merge it in the internal configuration data array
                     $data = yaml_parse_file($file);
@@ -949,43 +915,36 @@ class Config implements ConfigInterface
                 } catch (Throwable $e) {
                     // Failed to read YAML data from configuration file
                     static::$failed = 'Failed to read configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" because "' . $e->getMessage() . '"';
-                    throw ConfigParseFailedException::new(static::$failed, $e)->makeWarning();
+                    throw ConfigParseFailedException::new(static::$failed, $e)
+                                                    ->makeWarning();
                 }
-
                 if (!is_array($data)) {
                     if ($data) {
                         throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [
                             ':file' => $file,
                         ]));
                     }
-
                     // It looks like the configuration file was empty
                     $data = [];
                 }
-
                 static::$data = Arrays::mergeFull(static::$data, $data);
             }
 
         } catch (ConfigException $e) {
             // Do NOT use Log class here as log class requires config which just now failed... Same goes for tr()!
             static::$failed = 'Failed to load configuration file "' . isset_get($file) . '" because: ' . $e->getMessage();
-
             if ($exception) {
                 throw $e;
             }
-
             if (Core::inStartupState()) {
                 error_log(static::$failed);
                 echo 'Failed to start, see framework and web server logs for more information';
-
                 if (PLATFORM_CLI) {
                     echo PHP_EOL;
                     exit(1);
                 }
-
                 exit();
             }
-
             echo static::$failed . PHP_EOL;
         }
     }

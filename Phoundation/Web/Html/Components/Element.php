@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class Element
  *
@@ -32,7 +31,6 @@ abstract class Element implements ElementInterface
 {
     use ElementAttributes;
 
-
     /**
      * The element type
      *
@@ -57,9 +55,9 @@ abstract class Element implements ElementInterface
     {
         $this->classes    = new Iterator();
         $this->attributes = new Iterator();
-
         $this->setContent($content);
     }
+
 
     /**
      * Returns the rendered version of this element
@@ -68,8 +66,9 @@ abstract class Element implements ElementInterface
      */
     public function __toString(): string
     {
-        return (string)$this->render();
+        return (string) $this->render();
     }
+
 
     /**
      * Renders and returns the HTML for this object using the template renderer if available
@@ -94,18 +93,14 @@ abstract class Element implements ElementInterface
                 }
             }
         }
-
         if (!$this->element) {
             if ($this->element === null) {
                 // This is a NULL element, only return the contents
                 return $this->content;
             }
-
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
-
         $postfix = null;
-
         if ($this->attributes->get('auto_submit', false)) {
             // Add javascript to automatically submit on change
             $this->attributes->removeKeys('auto_submit');
@@ -113,35 +108,27 @@ abstract class Element implements ElementInterface
                               ->setContent('$("[name=' . $this->name . ']").change(function (e){ e.target.closest("form").submit(); });')
                               ->setJavascriptWrapper(EnumJavascriptWrappers::window);
         }
-
         $renderer_class = Request::getTemplate()
                                  ->getRendererClass($this);
-
         $render_function = function () use ($postfix) {
             $attributes = $this->renderAttributes();
             $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
             $attributes .= $this->extra;
-
             if ($attributes) {
                 $attributes = ' ' . $attributes;
             }
-
             $this->render = '<' . $this->element . $attributes;
-
             if ($this->requires_closing_tag) {
                 return $this->render . '>' . $this->content . '</' . $this->element . '>';
 
             }
-
             $render       = $this->render . ' />';
             $this->render = null;
 
             return $render . $postfix;
         };
-
         if ($renderer_class) {
             TemplateRenderer::ensureClass($renderer_class, $this);
-
             $render = $renderer_class::new($this)
                                      ->setParentRenderFunction($render_function)
                                      ->render() . $postfix;
@@ -150,15 +137,12 @@ abstract class Element implements ElementInterface
             // The template component does not exist, return the basic Phoundation version
             Log::warning(tr('No template render class found for element component ":component", rendering basic HTML', [
                 ':component' => get_class($this),
-            ]),          3);
-
+            ]), 3);
             $render = $render_function() . $postfix;
         }
-
         if (isset($this->tooltip)) {
             $render = $this->tooltip->render($render);
         }
-
         if ($this->anchor) {
             // This element has an anchor. Render the anchor -which will render this element to be its contents- instead
             return $this->anchor->setContent($render)
@@ -169,6 +153,7 @@ abstract class Element implements ElementInterface
         return $render;
     }
 
+
     /**
      * Returns a new ElementAttributes class
      *
@@ -178,6 +163,7 @@ abstract class Element implements ElementInterface
     {
         return new static($content);
     }
+
 
     /**
      * Add the system arguments to the arguments list
@@ -198,14 +184,12 @@ abstract class Element implements ElementInterface
             'readonly'  => ($this->readonly ? 'readonly' : null),
             'disabled'  => ($this->disabled ? 'disabled' : null),
         ];
-
         // Remove empty entries
         foreach ($return as $key => $value) {
             if ($value === null) {
                 unset($return[$key]);
             }
         }
-
         // Add data-* entries
         if (isset($this->data)) {
             foreach ($this->data as $key => $value) {
@@ -217,7 +201,6 @@ abstract class Element implements ElementInterface
                 }
             }
         }
-
         // Add aria-* entries
         if (isset($this->aria)) {
             foreach ($this->aria as $key => $value) {
@@ -229,6 +212,7 @@ abstract class Element implements ElementInterface
         return $this->attributes->appendSource($return);
     }
 
+
     /**
      * Returns the HTML class element attribute
      *
@@ -238,6 +222,7 @@ abstract class Element implements ElementInterface
     {
         return $this->element;
     }
+
 
     /**
      * Sets the type of element to display
@@ -251,7 +236,6 @@ abstract class Element implements ElementInterface
         if (is_enum($element)) {
             $element = $element->value;
         }
-
         if ($element) {
             $this->requires_closing_tag = match ($element) {
                 'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr' => false,
@@ -263,10 +247,11 @@ abstract class Element implements ElementInterface
                 ':element' => $element,
             ]));
         }
-
         $this->element = $element;
+
         return $this;
     }
+
 
     /**
      * Builds and returns the class string
@@ -276,7 +261,6 @@ abstract class Element implements ElementInterface
     protected function renderClassString(): ?string
     {
         $class = $this->getClass();
-
         if ($class) {
             return ' class="' . $class . '"';
         }

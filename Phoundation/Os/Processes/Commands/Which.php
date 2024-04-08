@@ -8,7 +8,6 @@ use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
-
 /**
  * Class Which
  *
@@ -31,22 +30,18 @@ class Which extends Command
     public function which(string $command): string
     {
         static $cache = [];
-
         // Do we have this which command in cache?
         if (array_key_exists($command, $cache)) {
             return $cache[$command];
         }
-
         $this->setCommand('which', false)
              ->addArgument($command)
              ->setRegisterRunfile(false)
              ->setTimeout(1);
-
         try {
             $output   = $this->executeReturnArray();
             $result   = reset($output);
             $realpath = realpath($result);
-
             if (!$realpath) {
                 // So which gave us a path that doesn't exist or that we can't access
                 throw new CommandsException(tr('Failed to get realpath for which result ":result" for command  ":command"', [
@@ -54,9 +49,9 @@ class Which extends Command
                     ':result'  => $result,
                 ]));
             }
-
             // Cache and return
             $cache[$command] = $realpath;
+
             return $realpath;
 
         } catch (ProcessFailedException $e) {

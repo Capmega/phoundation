@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataMetaColumns
  *
@@ -46,6 +45,7 @@ trait TraitDataMetaColumns
     public function setMetaColumns(?array $columns): static
     {
         $this->meta_columns = $columns;
+
         return $this;
     }
 }

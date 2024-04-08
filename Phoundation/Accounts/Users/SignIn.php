@@ -22,7 +22,6 @@ use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 
-
 /**
  * SignIn class
  *
@@ -40,7 +39,6 @@ class SignIn extends DataEntry
     use TraitDataEntryIpAddress;
     use TraitDataEntryTimezone;
     use TraitDataGeoIp;
-
 
     /**
      * SignIn class constructor
@@ -98,7 +96,6 @@ class SignIn extends DataEntry
         $signin = static::new()
                         ->setIpAddress($_SERVER['REMOTE_ADDR'])
                         ->setUserAgent($_SERVER['HTTP_USER_AGENT']);
-
         try {
             $signin->setGeoIp(GeoIp::detect($_SERVER['REMOTE_ADDR']));
 
@@ -118,71 +115,72 @@ class SignIn extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions
-            ->add(Definition::new($this, 'ip_address')
-                            ->setRender(false))
-            ->add(Definition::new($this, 'net_len')
-                            ->setRender(false))
-            ->add(Definition::new($this, 'ip_address_human')
-                            ->setReadonly(true)
-                            ->setSize(6)
-                            ->setMaxlength(48)
-                            ->setLabel(tr('IP Address')))
-            ->add(Definition::new($this, 'user_agent')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setSize(6)
-                            ->setMaxlength(2040)
-                            ->setLabel(tr('User agent')))
-            ->add(Definition::new($this, 'latitude')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setInputType(EnumElementInputType::number)
-                            ->setSize(6)
-                            ->setMin(-90)
-                            ->setMax(90)
-                            ->setStep('any')
-                            ->setLabel(tr('Latitude')))
-            ->add(Definition::new($this, 'longitude')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setInputType(EnumElementInputType::number)
-                            ->setSize(6)
-                            ->setMin(-180)
-                            ->setMax(180)
-                            ->setStep('any')
-                            ->setLabel(tr('Longitude')))
-            ->add(Definition::new($this, 'countries_id')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setInputType(EnumElementInputType::dbid)
-                            ->setElement(EnumElement::select)
-                            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                                return Countries::getHtmlCountriesSelect()
-                                                ->setDisabled(true)
-                                                ->setName($field_name)
-                                                ->setSelected(isset_get($source['countries_id']));
-                            })
-                            ->setSize(6)
-                            ->setLabel(tr('Country'))
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isQueryResult('SELECT `name` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
-                            }))
-            ->add(Definition::new($this, 'timezones_id')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setInputType(EnumElementInputType::dbid)
-                            ->setElement(EnumElement::select)
-                            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                                return Timezones::new()->getHtmlSelect()
-                                                ->setDisabled(true)
-                                                ->setName($field_name)
-                                                ->setSelected(isset_get($source['timezones_id']));
-                            })
-                            ->setSize(6)
-                            ->setLabel(tr('Timezone'))
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isDbId()->isQueryResult('SELECT `id` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
-                            }));
+        $definitions->add(Definition::new($this, 'ip_address')
+                                    ->setRender(false))
+                    ->add(Definition::new($this, 'net_len')
+                                    ->setRender(false))
+                    ->add(Definition::new($this, 'ip_address_human')
+                                    ->setReadonly(true)
+                                    ->setSize(6)
+                                    ->setMaxlength(48)
+                                    ->setLabel(tr('IP Address')))
+                    ->add(Definition::new($this, 'user_agent')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setSize(6)
+                                    ->setMaxlength(2040)
+                                    ->setLabel(tr('User agent')))
+                    ->add(Definition::new($this, 'latitude')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setInputType(EnumElementInputType::number)
+                                    ->setSize(6)
+                                    ->setMin(-90)
+                                    ->setMax(90)
+                                    ->setStep('any')
+                                    ->setLabel(tr('Latitude')))
+                    ->add(Definition::new($this, 'longitude')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setInputType(EnumElementInputType::number)
+                                    ->setSize(6)
+                                    ->setMin(-180)
+                                    ->setMax(180)
+                                    ->setStep('any')
+                                    ->setLabel(tr('Longitude')))
+                    ->add(Definition::new($this, 'countries_id')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setInputType(EnumElementInputType::dbid)
+                                    ->setElement(EnumElement::select)
+                                    ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                        return Countries::getHtmlCountriesSelect()
+                                                        ->setDisabled(true)
+                                                        ->setName($field_name)
+                                                        ->setSelected(isset_get($source['countries_id']));
+                                    })
+                                    ->setSize(6)
+                                    ->setLabel(tr('Country'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isQueryResult('SELECT `name` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
+                                    }))
+                    ->add(Definition::new($this, 'timezones_id')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setInputType(EnumElementInputType::dbid)
+                                    ->setElement(EnumElement::select)
+                                    ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                        return Timezones::new()
+                                                        ->getHtmlSelect()
+                                                        ->setDisabled(true)
+                                                        ->setName($field_name)
+                                                        ->setSelected(isset_get($source['timezones_id']));
+                                    })
+                                    ->setSize(6)
+                                    ->setLabel(tr('Timezone'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isDbId()
+                                                  ->isQueryResult('SELECT `id` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
+                                    }));
     }
 }

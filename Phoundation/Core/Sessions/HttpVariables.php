@@ -7,7 +7,6 @@ namespace Phoundation\Core\Sessions;
 use Phoundation\Data\Iterator;
 use Phoundation\Utils\Config;
 
-
 /**
  * Class HttpVariables
  *
@@ -35,6 +34,7 @@ abstract class HttpVariables extends Iterator
      */
     abstract static public function decode(): void;
 
+
     /**
      * Decode the HTTP variables
      *
@@ -48,16 +48,15 @@ abstract class HttpVariables extends Iterator
             // Don't encode / decode HTTP variables
             return;
         }
-
         // Copy $variables locally
         $local     = $variables;
         $variables = [];
-
         // Decode key and copy variables back
         foreach ($local as $key => $value) {
             $variables[$key] = $value;
         }
     }
+
 
     /**
      * Encode the HTTP variables
@@ -72,11 +71,9 @@ abstract class HttpVariables extends Iterator
             // Don't encode / decode HTTP variables
             return;
         }
-
         // Copy $variables locally
         $local     = $variables;
         $variables = [];
-
         // Encode key and copy variables back
         foreach ($local as $key => $value) {
             $variables[$key] = $value;

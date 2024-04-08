@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Interfaces;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 
-
 /**
  * Interface ResourceElementInterface
  *
@@ -29,6 +28,7 @@ interface ResourceElementInterface extends ElementInterface
      */
     public function setNone(?string $none): static;
 
+
     /**
      * Returns the HTML none element attribute
      *
@@ -36,12 +36,14 @@ interface ResourceElementInterface extends ElementInterface
      */
     public function getNone(): ?string;
 
+
     /**
      * Returns the HTML empty element attribute
      *
      * @return string|null
      */
     public function getEmpty(): ?string;
+
 
     /**
      * Sets the HTML empty element attribute
@@ -52,12 +54,14 @@ interface ResourceElementInterface extends ElementInterface
      */
     public function setObjectEmpty(?string $empty): static;
 
+
     /**
      * Returns whether query sources will be cached or not
      *
      * @return bool
      */
     public function getCache(): bool;
+
 
     /**
      * Sets whether query sources will be cached or not
@@ -68,6 +72,7 @@ interface ResourceElementInterface extends ElementInterface
      */
     public function setCache(bool $cache): static;
 
+
     /**
      * Sets if this element will be hidden (Element::render() will return an empty string) if the resource is empty
      *
@@ -77,6 +82,7 @@ interface ResourceElementInterface extends ElementInterface
      */
     public function setHideEmpty(bool $hide_empty): static;
 
+
     /**
      * Returns if this element will be hidden (Element::render() will return an empty string) if the resource is empty
      *
@@ -84,12 +90,14 @@ interface ResourceElementInterface extends ElementInterface
      */
     public function getHideEmpty(): bool;
 
+
     /**
      * Returns the array source
      *
      * @return IteratorInterface|null
      */
     public function getSource(): ?IteratorInterface;
+
 
     /**
      * Sets the array source
@@ -101,12 +109,14 @@ interface ResourceElementInterface extends ElementInterface
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source, array|string|null $execute = null): static;
 
+
     /**
      * Returns the array source
      *
      * @return PDOStatement|null
      */
     public function getSourceQuery(): ?PDOStatement;
+
 
     /**
      * Sets a query source
@@ -117,6 +127,7 @@ interface ResourceElementInterface extends ElementInterface
      * @return $this
      */
     public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null): static;
+
 
     /**
      * Sets the source for "data-*" attributes where the data key matches the source key
@@ -130,6 +141,7 @@ interface ResourceElementInterface extends ElementInterface
      */
     public function setSourceData(array $source_data): static;
 
+
     /**
      * Returns the source for "data-*" attributes where the data key matches the source key
      *
@@ -139,12 +151,14 @@ interface ResourceElementInterface extends ElementInterface
      */
     public function getSourceData(): array;
 
+
     /**
      * Generates and returns the HTML string for this resource element
      *
      * @return string|null
      */
     public function render(): ?string;
+
 
     /**
      * Generates and returns the HTML body

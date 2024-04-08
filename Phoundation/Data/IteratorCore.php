@@ -36,7 +36,6 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
 
-
 /**
  * Class IteratorCore
  *
@@ -61,7 +60,6 @@ use Stringable;
 class IteratorCore implements IteratorInterface
 {
     use TraitDataCallbacks;
-
 
     /**
      * Tracks the datatype required for all elements in this iterator, NULL if none is required
@@ -95,6 +93,7 @@ class IteratorCore implements IteratorInterface
         return Json::encode($this->source);
     }
 
+
     /**
      * Returns the class used to generate the select input
      *
@@ -104,6 +103,7 @@ class IteratorCore implements IteratorInterface
     {
         return $this->input_select_class;
     }
+
 
     /**
      * Sets the class used to generate the select input
@@ -116,13 +116,14 @@ class IteratorCore implements IteratorInterface
     {
         if (is_a($input_select_class, InputSelectInterface::class, true)) {
             $this->input_select_class = $input_select_class;
+
             return $this;
         }
-
         throw new OutOfBoundsException(tr('Cannot use specified class ":class" to generate input select, the class must be an instance of InputSelectInterface', [
             ':class' => $input_select_class,
         ]));
     }
+
 
     /**
      * Returns the current entry
@@ -134,6 +135,7 @@ class IteratorCore implements IteratorInterface
         return current($this->source);
     }
 
+
     /**
      * Progresses the internal pointer to the next entry
      *
@@ -143,6 +145,7 @@ class IteratorCore implements IteratorInterface
     {
         next($this->source);
     }
+
 
     /**
      * Progresses the internal pointer to the previous entry
@@ -154,6 +157,7 @@ class IteratorCore implements IteratorInterface
         prev($this->source);
     }
 
+
     /**
      * Returns the current key for the current button
      *
@@ -164,6 +168,7 @@ class IteratorCore implements IteratorInterface
         return key($this->source);
     }
 
+
     /**
      * Returns if the current pointer is valid or not
      *
@@ -173,14 +178,11 @@ class IteratorCore implements IteratorInterface
     {
         $key    = key($this->source);
         $exists = array_key_exists($key, $this->source);
-
         if (!$exists) {
             return false;
         }
-
         // The entry MIGHT exist, but we can't be 100% sure if the source array has a NULL key!
         // Weird PHP quirk coming up due to isset() / array_key_exists() not being typesafe...
-
         if ($key === null) {
             // key() will give NULL when the internal array pointer is out of range, great! However, this  messes up
             // when having an array with '', null or 0 because isset() and or array_key_exists() will both claim that
@@ -188,22 +190,17 @@ class IteratorCore implements IteratorInterface
             // doesn't exist.
             // We can't check if IteratorCore::source[null] exists because IteratorCore::source[""] will also respond to that,
             // same goes for isset() and array_key_exists()
-
             // current() will also return NULL when out of range, so assume that IteratorCore::source[null]
             // has a non-NULL value. If we're really in range, current() will give a non-NULL value, like
             // IteratorCore::source[null], and we'll know we're in range. If they are not equal (current() gives NULL) then
             // we're out of range.
-
             // However... This will still fail if some clever dipshit decides to use an array with an empty key with
             // a null value, like [null => null, 'a' => 'a'] or [null, 'a' => 'a']
-
             $exists = current($this->source) === $this->source[null];
-
             if (!$exists) {
                 // Yay, the current value doesn't match the empty key value, we're out of range
                 return false;
             }
-
             // null value, perhaps?
             if ($this->source[null] === null) {
                 // Oh fork me...
@@ -215,6 +212,7 @@ class IteratorCore implements IteratorInterface
         return true;
     }
 
+
     /**
      * Rewinds the internal pointer
      *
@@ -224,6 +222,7 @@ class IteratorCore implements IteratorInterface
     {
         reset($this->source);
     }
+
 
     /**
      * Sets the value for the specified key
@@ -240,6 +239,7 @@ class IteratorCore implements IteratorInterface
         return $this->add($value, $key, false, false);
     }
 
+
     /**
      * Wrapper for Iterator::append()
      *
@@ -254,6 +254,7 @@ class IteratorCore implements IteratorInterface
     {
         return $this->append($value, $key, $skip_null, $exception);
     }
+
 
     /**
      * Add the specified value to the iterator array using an optional key
@@ -275,9 +276,7 @@ class IteratorCore implements IteratorInterface
                 return $this;
             }
         }
-
         $this->checkDataType($value);
-
         // NULL keys will be added as numerical "next" entries
         if ($key === null) {
             $this->source[] = $value;
@@ -289,12 +288,12 @@ class IteratorCore implements IteratorInterface
                     ':class' => get_class($this),
                 ]));
             }
-
             $this->source[$key] = $value;
         }
 
         return $this;
     }
+
 
     /**
      * Check if the datatype of the given value or Interface (in case of an object) is allowed
@@ -310,7 +309,6 @@ class IteratorCore implements IteratorInterface
         if (!$this->data_types) {
             return;
         }
-
         foreach ($this->data_types as $data_type) {
             if (str_starts_with($data_type, 'object:')) {
                 if ($value instanceof $data_type) {
@@ -323,12 +321,12 @@ class IteratorCore implements IteratorInterface
                 }
             }
         }
-
         throw new OutOfBoundsException(tr('Specified value has an invalid datatype or Interface ":type" where the only allowed datatypes or Interfaces are ":allowed"', [
             ':type'    => (is_object($value) ? get_class($value) : gettype($value)),
             ':allowed' => Strings::force($this->data_types, ', '),
         ]));
     }
+
 
     /**
      * Forces the specified source to become an Iterator
@@ -345,17 +343,14 @@ class IteratorCore implements IteratorInterface
         if (($source === '') or ($source === null)) {
             return new Iterator();
         }
-
         if ($source instanceof IteratorInterface) {
             // This already is an Iterator (or DataList) object
             return $source;
         }
-
         if (is_string($source)) {
             // Explode the string to an Iterator object, as we would to an array as well
             return static::explode($separator, $source);
         }
-
         if ($source instanceof ArrayableInterface) {
             // This is an object that can convert to array. Extract the array
             $source = $source->__toArray();
@@ -366,8 +361,10 @@ class IteratorCore implements IteratorInterface
         }
 
         // As of here, we have an array. Set it as an Iterator source and return
-        return Iterator::new()->setSource($source);
+        return Iterator::new()
+                       ->setSource($source);
     }
+
 
     /**
      * Explodes the specified string into an Iterator object and returns it
@@ -379,8 +376,7 @@ class IteratorCore implements IteratorInterface
      */
     public static function explode(Stringable|string $source, ?string $separator = ','): IteratorInterface
     {
-        $source = (string)$source;
-
+        $source = (string) $source;
         if ($separator) {
             $source = explode($separator, $source);
 
@@ -389,8 +385,10 @@ class IteratorCore implements IteratorInterface
             $source = [$source];
         }
 
-        return Iterator::new()->setSource($source);
+        return Iterator::new()
+                       ->setSource($source);
     }
+
 
     /**
      * Returns the contents of this iterator object as an array
@@ -401,6 +399,7 @@ class IteratorCore implements IteratorInterface
     {
         return $this->source;
     }
+
 
     /**
      * Add the specified value to the iterator array using an optional key
@@ -422,9 +421,7 @@ class IteratorCore implements IteratorInterface
                 return $this;
             }
         }
-
         $this->checkDataType($value);
-
         // NULL keys will be added as numerical "first" entries
         if ($key === null) {
             array_unshift($this->source, $value);
@@ -436,12 +433,12 @@ class IteratorCore implements IteratorInterface
                     ':class' => get_class($this),
                 ]));
             }
-
             $this->source = array_merge([$key => $value], $this->source);
         }
 
         return $this;
     }
+
 
     /**
      * Add the specified value to the iterator array using an optional key BEFORE the specified $before_key
@@ -464,9 +461,7 @@ class IteratorCore implements IteratorInterface
                 return $this;
             }
         }
-
         $this->checkDataType($value);
-
         // Ensure the before key exists
         if (!array_key_exists($before, $this->source)) {
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the before key ":before" does not exist', [
@@ -475,7 +470,6 @@ class IteratorCore implements IteratorInterface
                 ':class'  => get_class($this),
             ]));
         }
-
         // NULL keys will be added as numerical "next" entries
         if (array_key_exists($key, $this->source) and $exception) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
@@ -484,10 +478,11 @@ class IteratorCore implements IteratorInterface
                 ':class'  => get_class($this),
             ]));
         }
-
         Arrays::spliceByKey($this->source, $before, 0, [$key => $value], false);
+
         return $this;
     }
+
 
     /**
      * Same as Arrays::spliceKey() but for this Iterator
@@ -503,8 +498,10 @@ class IteratorCore implements IteratorInterface
     public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, array &$spliced = null): static
     {
         $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
+
         return $this;
     }
+
 
     /**
      * Add the specified value to the iterator array using an optional key AFTER the specified $after_key
@@ -527,9 +524,7 @@ class IteratorCore implements IteratorInterface
                 return $this;
             }
         }
-
         $this->checkDataType($value);
-
         // Ensure the after key exists
         if (!array_key_exists($after, $this->source)) {
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the after key ":after" does not exist', [
@@ -538,7 +533,6 @@ class IteratorCore implements IteratorInterface
                 ':class' => get_class($this),
             ]));
         }
-
         // NULL keys will be added as numerical "next" entries
         if (array_key_exists($key, $this->source) and $exception) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
@@ -547,10 +541,11 @@ class IteratorCore implements IteratorInterface
                 ':class' => get_class($this),
             ]));
         }
-
         Arrays::spliceByKey($this->source, $after, 0, [$key => $value], true);
+
         return $this;
     }
+
 
     /**
      * Add the specified value to the iterator array using an optional key BEFORE the specified $before_value
@@ -574,12 +569,9 @@ class IteratorCore implements IteratorInterface
                 return $this;
             }
         }
-
         $this->checkDataType($value);
-
         // Ensure the before key exists
         $before_key = array_search($before, $this->source, $strict);
-
         if ($before_key === false) {
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before value ":before" because the before value ":before" does not exist', [
                 ':key'    => $key,
@@ -587,7 +579,6 @@ class IteratorCore implements IteratorInterface
                 ':class'  => get_class($this),
             ]));
         }
-
         // NULL keys will be added as numerical "next" entries
         if (array_key_exists($key, $this->source) and $exception) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
@@ -596,10 +587,11 @@ class IteratorCore implements IteratorInterface
                 ':class'  => get_class($this),
             ]));
         }
-
         Arrays::spliceByKey($this->source, $before_key, 0, [$key => $value], false);
+
         return $this;
     }
+
 
     /**
      * Add the specified value to the iterator array using an optional key AFTER the specified $after_value
@@ -623,12 +615,9 @@ class IteratorCore implements IteratorInterface
                 return $this;
             }
         }
-
         $this->checkDataType($value);
-
         // Ensure the after value exists
         $after_key = array_search($after, $this->source, $strict);
-
         if ($after_key === false) {
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after value ":after" because the after value ":after" does not exist', [
                 ':key'   => $key,
@@ -636,7 +625,6 @@ class IteratorCore implements IteratorInterface
                 ':class' => get_class($this),
             ]));
         }
-
         // NULL keys will be added as numerical "next" entries
         if (array_key_exists($key, $this->source) and $exception) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
@@ -645,10 +633,11 @@ class IteratorCore implements IteratorInterface
                 ':class' => get_class($this),
             ]));
         }
-
         Arrays::spliceByKey($this->source, $after_key, 0, [$key => $value], true);
+
         return $this;
     }
+
 
     /**
      * Adds the specified source(s) to the internal source
@@ -662,7 +651,6 @@ class IteratorCore implements IteratorInterface
         if ($source instanceof IteratorInterface) {
             $source = $source->getSource();
         }
-
         // Add each entry
         foreach (Arrays::force($source) as $key => $value) {
             $this->add($value, $key);
@@ -670,6 +658,7 @@ class IteratorCore implements IteratorInterface
 
         return $this;
     }
+
 
     /**
      * Returns a list of all internal values with their keys
@@ -680,6 +669,7 @@ class IteratorCore implements IteratorInterface
     {
         return $this->source;
     }
+
 
     /**
      * Sets the internal source directly
@@ -715,6 +705,7 @@ class IteratorCore implements IteratorInterface
         return $this;
     }
 
+
     /**
      * Append the specified source to the end of this Iterator
      *
@@ -728,12 +719,12 @@ class IteratorCore implements IteratorInterface
             if (is_object($source)) {
                 $source = $source->__toArray();
             }
-
             $this->source = array_merge($this->source, $source);
         }
 
         return $this;
     }
+
 
     /**
      * Prepend the specified source at the beginning of this Iterator
@@ -748,12 +739,12 @@ class IteratorCore implements IteratorInterface
             if (is_object($source)) {
                 $source = $source->__toArray();
             }
-
             $this->source = array_merge($source, $this->source);
         }
 
         return $this;
     }
+
 
     /**
      * Returns the datatype restrictions for all elements in this iterator, NULL if none
@@ -765,6 +756,7 @@ class IteratorCore implements IteratorInterface
         return $this->data_types;
     }
 
+
     /**
      * Sets the datatype restrictions for all elements in this iterator, NULL if none
      *
@@ -774,7 +766,6 @@ class IteratorCore implements IteratorInterface
     public function setDataTypes(array|string|null $data_types): static
     {
         $data_types = Arrays::force($data_types, '|');
-
         foreach ($data_types as $data_type) {
             if ($data_type) {
                 if (!preg_match('/^int|float|array|string|object:\\\?([A-Z][a-z0-9\\\]+)+$/', $data_type)) {
@@ -787,10 +778,11 @@ class IteratorCore implements IteratorInterface
                 $data_type = null;
             }
         }
-
         $this->data_types = $data_types;
+
         return $this;
     }
+
 
     /**
      * Returns a list of all internal definition keys with their indices (positions within the array)
@@ -801,6 +793,7 @@ class IteratorCore implements IteratorInterface
     {
         return array_flip(array_keys($this->source));
     }
+
 
     /**
      * Returns value for the specified key, defaults that key to the specified value if it does not yet exist
@@ -819,6 +812,7 @@ class IteratorCore implements IteratorInterface
         return $this->source[$key];
     }
 
+
     /**
      * Returns the number of items contained in this object
      *
@@ -828,6 +822,7 @@ class IteratorCore implements IteratorInterface
     {
         return count($this->source);
     }
+
 
     /**
      * Returns the first element contained in this object without changing the internal pointer
@@ -839,6 +834,7 @@ class IteratorCore implements IteratorInterface
         return $this->source[array_key_first($this->source)];
     }
 
+
     /**
      * Returns the last element contained in this object without changing the internal pointer
      *
@@ -849,6 +845,7 @@ class IteratorCore implements IteratorInterface
         return $this->source[array_key_last($this->source)];
     }
 
+
     /**
      * Clears all the internal content for this object
      *
@@ -857,8 +854,10 @@ class IteratorCore implements IteratorInterface
     public function clear(): static
     {
         $this->source = [];
+
         return $this;
     }
+
 
     /**
      * Returns if the specified key exists or not
@@ -871,6 +870,7 @@ class IteratorCore implements IteratorInterface
     {
         return array_key_exists($key, $this->source);
     }
+
 
     /**
      * Returns if the specified value exists in this Iterator or not
@@ -886,6 +886,7 @@ class IteratorCore implements IteratorInterface
         return in_array($value, $this->source);
     }
 
+
     /**
      * Returns if the list is empty
      *
@@ -896,6 +897,7 @@ class IteratorCore implements IteratorInterface
         return !count($this->source);
     }
 
+
     /**
      * Returns if the list is not empty
      *
@@ -903,8 +905,9 @@ class IteratorCore implements IteratorInterface
      */
     public function isNotEmpty(): bool
     {
-        return (bool)count($this->source);
+        return (bool) count($this->source);
     }
+
 
     /**
      * Returns the length of the longest value
@@ -916,6 +919,7 @@ class IteratorCore implements IteratorInterface
         return Arrays::getLongestKeyLength($this->source);
     }
 
+
     /**
      * Returns the length of the shortest value
      *
@@ -925,6 +929,7 @@ class IteratorCore implements IteratorInterface
     {
         return Arrays::getShortestKeyLength($this->source);
     }
+
 
     /**
      * Returns the length of the longest value
@@ -939,6 +944,7 @@ class IteratorCore implements IteratorInterface
         return Arrays::getLongestValueLength($this->source, $key, $exception);
     }
 
+
     /**
      * Returns the length of the shortest value
      *
@@ -952,6 +958,7 @@ class IteratorCore implements IteratorInterface
         return Arrays::getShortestValueLength($this->source, $key, $exception);
     }
 
+
     /**
      * Remove source keys on the specified needles with the specified match mode
      *
@@ -963,8 +970,10 @@ class IteratorCore implements IteratorInterface
     public function removeKeys(Stringable|array|string|float|int $keys, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::removeKeys($this->source, $keys, $match_mode);
+
         return $this;
     }
+
 
     /**
      * Remove source values on the specified needles with the specified match mode
@@ -978,8 +987,10 @@ class IteratorCore implements IteratorInterface
     public function removeValues(Stringable|array|string|float|int $values, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::removeValues($this->source, $values, $column, $match_mode);
+
         return $this;
     }
+
 
     /**
      * Deletes the entries that have columns with the specified value(s)
@@ -1001,7 +1012,6 @@ class IteratorCore implements IteratorInterface
                             ':column' => $column,
                         ]));
                     }
-
                     if ($data[$key] === $value) {
                         unset($this->source[$key]);
                     }
@@ -1013,7 +1023,6 @@ class IteratorCore implements IteratorInterface
                             ':column' => $column,
                         ]));
                     }
-
                     // This entry is not an array but DataEntry object. Compare using DataEntry::getSourceValue()
                     if ($data->getValue($key) === $value) {
                         unset($this->source[$key]);
@@ -1024,6 +1033,7 @@ class IteratorCore implements IteratorInterface
 
         return $this;
     }
+
 
     /**
      * Keep source values on the specified needles with the specified match mode
@@ -1037,8 +1047,10 @@ class IteratorCore implements IteratorInterface
     public function keepValues(array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::keepValues($this->source, $needles, $column, $match_mode);
+
         return $this;
     }
+
 
     /**
      * Returns the total amounts for all columns together
@@ -1051,19 +1063,16 @@ class IteratorCore implements IteratorInterface
     {
         $columns = Arrays::force($columns);
         $return  = [tr('Totals')];
-
         foreach ($this->source as &$entry) {
             if (!is_array($entry)) {
                 throw new OutOfBoundsException(tr('Cannot generate source totals, source contains non-array entry ":entry"', [
                     ':entry' => $entry,
                 ]));
             }
-
             foreach ($columns as $column => $total) {
                 if (!array_key_exists($column, $entry)) {
                     continue;
                 }
-
                 // Get data from array
                 if ($total) {
                     if (array_key_exists($column, $return)) {
@@ -1081,6 +1090,7 @@ class IteratorCore implements IteratorInterface
 
         return $return;
     }
+
 
     /**
      * Displays a message on the command line
@@ -1102,6 +1112,7 @@ class IteratorCore implements IteratorInterface
         return $this;
     }
 
+
     /**
      * Creates and returns a CLI table for the data in this list
      *
@@ -1114,6 +1125,7 @@ class IteratorCore implements IteratorInterface
     public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static
     {
         Cli::displayTable($this->source, $columns, $id_column);
+
         return $this;
     }
 
@@ -1130,8 +1142,10 @@ class IteratorCore implements IteratorInterface
     public function displayCliKeyValueTable(?string $key_header = null, string $value_header = null, int $offset = 0): static
     {
         Cli::displayForm($this->source, $key_header, $value_header, $offset);
+
         return $this;
     }
+
 
     /**
      * Sorts the Iterator source in ascending order
@@ -1141,8 +1155,10 @@ class IteratorCore implements IteratorInterface
     public function sort(): static
     {
         asort($this->source);
+
         return $this;
     }
+
 
     /**
      * Sorts the Iterator source in descending order
@@ -1152,8 +1168,10 @@ class IteratorCore implements IteratorInterface
     public function rsort(): static
     {
         arsort($this->source);
+
         return $this;
     }
+
 
     /**
      * Sorts the Iterator source keys in ascending order
@@ -1163,8 +1181,10 @@ class IteratorCore implements IteratorInterface
     public function ksort(): static
     {
         ksort($this->source);
+
         return $this;
     }
+
 
     /**
      * Sorts the Iterator source keys in descending order
@@ -1174,8 +1194,10 @@ class IteratorCore implements IteratorInterface
     public function krsort(): static
     {
         krsort($this->source);
+
         return $this;
     }
+
 
     /**
      * Sorts the Iterator source using the specified callback
@@ -1185,8 +1207,10 @@ class IteratorCore implements IteratorInterface
     public function uasort(callable $callback): static
     {
         uasort($this->source, $callback);
+
         return $this;
     }
+
 
     /**
      * Sorts the Iterator source keys using the specified callback
@@ -1196,8 +1220,10 @@ class IteratorCore implements IteratorInterface
     public function uksort(callable $callback): static
     {
         uksort($this->source, $callback);
+
         return $this;
     }
+
 
     /**
      * Will limit the amount of entries in the source of this DataList to the
@@ -1207,8 +1233,10 @@ class IteratorCore implements IteratorInterface
     public function limitAutoComplete(): static
     {
         $this->source = Arrays::limit($this->source, Limit::shellAutoCompletion());
+
         return $this;
     }
+
 
     /**
      * Returns if all (or optionally any) of the specified entries are in this list
@@ -1244,6 +1272,7 @@ class IteratorCore implements IteratorInterface
         return true;
     }
 
+
     /**
      * Returns a list of items that are specified, but not available in this Iterator
      *
@@ -1256,23 +1285,21 @@ class IteratorCore implements IteratorInterface
     public function getMissingKeys(IteratorInterface|array|string $list, string $always_match = null): array
     {
         $return = [];
-
         foreach (Arrays::force($list) as $key) {
             if (array_key_exists($key, $this->source)) {
                 continue;
             }
-
             // Can still match if $always_match is available!
             if ($always_match and array_key_exists($always_match, $this->source)) {
                 // Okay, this list contains ALL the requested entries due to $always_match
                 return [];
             }
-
             $return[] = $key;
         }
 
         return $return;
     }
+
 
     /**
      * Returns a list with all the keys that match the specified key
@@ -1287,6 +1314,7 @@ class IteratorCore implements IteratorInterface
         return new Iterator(Arrays::getMatches($this->getKeys(), $needles, $options));
     }
 
+
     /**
      * Returns a list of all internal definition keys
      *
@@ -1296,6 +1324,7 @@ class IteratorCore implements IteratorInterface
     {
         return array_keys($this->source);
     }
+
 
     /**
      * Returns a list with all the values that match the specified value
@@ -1310,6 +1339,7 @@ class IteratorCore implements IteratorInterface
         return new Iterator(Arrays::getMatches($this->source, $needles, $options));
     }
 
+
     /**
      * Returns a list with all the values that have a sub value in the specified key that match the specified value
      *
@@ -1323,6 +1353,7 @@ class IteratorCore implements IteratorInterface
     {
         return new Iterator(Arrays::getSubMatches($this->source, $needles, $column, $options));
     }
+
 
     /**
      * Returns multiple column values for a single entry
@@ -1340,12 +1371,12 @@ class IteratorCore implements IteratorInterface
                 ':this' => get_class($this),
             ]));
         }
-
         $value = $this->get($key, $exception);
         $value = $this->checkSourceValueHasColumns($value, $columns);
 
         return new Iterator(Arrays::keepKeys($value, $columns));
     }
+
 
     /**
      * Returns value for the specified key
@@ -1371,6 +1402,7 @@ class IteratorCore implements IteratorInterface
         return $this->source[$key];
     }
 
+
     /**
      * Validate that the specified value has the requested columns
      *
@@ -1388,10 +1420,8 @@ class IteratorCore implements IteratorInterface
                     ':this' => get_class($this),
                 ]));
             }
-
             $value = $value->__toArray();
         }
-
         foreach (Arrays::force($columns) as $column) {
             if (!array_key_exists($column, $value)) {
                 throw new OutOfBoundsException(tr('The requested column ":column" does not exist', [
@@ -1402,6 +1432,7 @@ class IteratorCore implements IteratorInterface
 
         return $value;
     }
+
 
     /**
      * Keep source keys on the specified needles with the specified match mode
@@ -1414,8 +1445,10 @@ class IteratorCore implements IteratorInterface
     public function keepKeys(array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::keepKeys($this->source, $needles, $match_mode);
+
         return $this;
     }
+
 
     /**
      * Returns multiple column values for multiple entries
@@ -1433,13 +1466,13 @@ class IteratorCore implements IteratorInterface
                 ':this' => get_class($this),
             ]));
         }
-
         $value = $this->get($key, $exception);
         $value = $this->checkSourceValueHasColumns($value, $column);
         $value = Arrays::keepKeys($value, $column);
 
         return $value[$column];
     }
+
 
     /**
      * Returns an array with each value containing a scalar with only the specified column value
@@ -1458,9 +1491,7 @@ class IteratorCore implements IteratorInterface
                 ':this' => get_class($this),
             ]));
         }
-
         $return = [];
-
         foreach ($this->source as $key => $value) {
             $value        = $this->checkSourceValueHasColumns($value, $column);
             $return[$key] = $value[$column];
@@ -1483,8 +1514,10 @@ class IteratorCore implements IteratorInterface
     public function splice(int $offset, ?int $length = null, IteratorInterface|array $replacement = [], array &$spliced = null): static
     {
         $spliced = Arrays::splice($this->source, $offset, $length, $replacement);
+
         return $this;
     }
+
 
     /**
      * Renames and returns the specified value
@@ -1504,10 +1537,8 @@ class IteratorCore implements IteratorInterface
                 ':target' => $target,
             ]));
         }
-
         // Then, get the entry
         $entry = $this->get($key, $exception);
-
         // Now rename
         $this->source[$target] = $this->source[$key];
         unset($this->source[$key]);
@@ -1515,6 +1546,7 @@ class IteratorCore implements IteratorInterface
         // Done, return!
         return $entry;
     }
+
 
     /**
      * Creates and returns an HTML table for the data in this list
@@ -1534,6 +1566,7 @@ class IteratorCore implements IteratorInterface
                         ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
 
+
     /**
      * Returns an array with array values containing only the specified columns
      *
@@ -1552,11 +1585,9 @@ class IteratorCore implements IteratorInterface
             // Return all columns
             return new Iterator($this->source);
         }
-
         // Already ensure columns is an array here to avoid Arrays::keep() having to convert all the time, just in case.
         $return  = [];
         $columns = Arrays::force($columns);
-
         foreach ($this->source as $key => $value) {
             $value        = $this->checkSourceValueHasColumns($value, $columns);
             $return[$key] = Arrays::keepKeys($value, $columns);
@@ -1564,6 +1595,7 @@ class IteratorCore implements IteratorInterface
 
         return new Iterator($return);
     }
+
 
     /**
      * Creates and returns a fancy HTML data table for the data in this list

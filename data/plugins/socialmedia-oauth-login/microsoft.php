@@ -21,29 +21,23 @@
 
 */
 
-include(dirname(__FILE__).'/socialmedia_oauth_connect.php');
-
-$config               = $_CONFIG['sso']['microsoft'];
-$oauth                = new socialmedia_oauth_connect();
-
+include(dirname(__FILE__) . '/socialmedia_oauth_connect.php');
+$config = $_CONFIG['sso']['microsoft'];
+$oauth  = new socialmedia_oauth_connect();
 $oauth->provider      = 'Microsoft';
 $oauth->client_id     = $config['appid'];
 $oauth->client_secret = $config['secret'];
 $oauth->scope         = $config['scope'];
 $oauth->redirect_uri  = $config['redirect'];
-
 $oauth->Initialize();
-
-$code = (!empty($_REQUEST["code"])) ?  ($_REQUEST["code"]) : "";
-
+$code = (!empty($_REQUEST["code"])) ? ($_REQUEST["code"]) : "";
 if (empty($code)) {
-	$oauth->Authorize();
+    $oauth->Authorize();
 
 } else {
-	$oauth->code = $code;
+    $oauth->code = $code;
 #	print $oauth->getAccessToken();
-	$getData = json_decode($oauth->getUserProfile());
-	$oauth->debugJson($getData);
+    $getData = json_decode($oauth->getUserProfile());
+    $oauth->debugJson($getData);
 }
-
 ?>

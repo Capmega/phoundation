@@ -9,7 +9,6 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
-
 /**
  * MessagesDropDown class
  *
@@ -58,6 +57,7 @@ class MessagesDropDown extends ElementsBlock
     public function setMessages(?Messages $messages): static
     {
         $this->messages = $messages;
+
         return $this;
     }
 
@@ -83,6 +83,7 @@ class MessagesDropDown extends ElementsBlock
     public function setMessagesUrl(Stringable|string|null $messages_url): static
     {
         $this->messages_url = UrlBuilder::getWww($messages_url);
+
         return $this;
     }
 }

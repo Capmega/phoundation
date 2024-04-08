@@ -7,7 +7,6 @@ namespace Phoundation\Databases\Sql\Tunnel;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Servers\Server;
 
-
 /**
  * Tunnel class
  *
@@ -30,11 +29,9 @@ class Tunnel extends Server
         $this->instance = 'test';
         $port           = 6000;
         $restrictions   = servers_get($restrictions, true);
-
         if (!$restrictions['database_accounts_id']) {
             throw new SqlException(tr('Cannot test SQL over SSH tunnel, server ":server" has no database account linked', [':server' => $restrictions['domain']]));
         }
-
         $this->makeConnector($this->instance, [
             'port'       => $port,
             'user'       => $restrictions['db_username'],
@@ -44,7 +41,6 @@ class Tunnel extends Server
                 'domain'      => $restrictions['domain'],
             ],
         ]);
-
         $this->get('SELECT TRUE', true, null, $this->instance);
 
         return $this;

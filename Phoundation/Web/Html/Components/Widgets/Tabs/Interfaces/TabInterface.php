@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces;
 
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
-
 /**
  * Tab class
  *

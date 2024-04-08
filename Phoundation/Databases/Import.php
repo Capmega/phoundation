@@ -23,7 +23,6 @@ use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
-
 /**
  * Class Import
  *
@@ -47,7 +46,6 @@ class Import
         setConnector as __setConnector;
     }
     use TraitDataRestrictions;
-
 
     /**
      * The database that will be dumped
@@ -73,6 +71,7 @@ class Import
     {
         $this->restrictions = Restrictions::default($restrictions, Restrictions::writable('/', 'Mysql exporter'));
     }
+
 
     /**
      * Sets the driver
@@ -101,6 +100,7 @@ class Import
         return $this;
     }
 
+
     /**
      * Sets if the database should be dropped before import
      *
@@ -110,6 +110,7 @@ class Import
     {
         return $this->drop;
     }
+
 
     /**
      * Sets if the database should be dropped before import
@@ -121,8 +122,10 @@ class Import
     public function setDrop(bool $drop): static
     {
         $this->drop = $drop;
+
         return $this;
     }
+
 
     /**
      * Returns the database that will be imported
@@ -134,6 +137,7 @@ class Import
         return $this->database;
     }
 
+
     /**
      * Sets the database that will be imported
      *
@@ -144,8 +148,10 @@ class Import
     public function setDatabase(?string $database): static
     {
         $this->database = $database;
+
         return $this;
     }
+
 
     /**
      * Execute the rsync operation and return the PID (background) or -1
@@ -162,21 +168,17 @@ class Import
                     ':file'     => $this->file,
                     ':database' => $this->database,
                 ]));
-
                 MySql::new()
                      ->setTimeout($this->timeout)
                      ->setConnector($this->connector)
                      ->drop($this->drop ? $this->database : null)
                      ->create($this->drop ? $this->database : null)
                      ->import($this->file, Restrictions::new('/'));
-
                 Log::success(tr('Finished importing MySQL dump file ":file" to database ":database"', [
                     ':file'     => $this->file,
                     ':database' => $this->database,
                 ]));
-
                 break;
-
             case 'redis':
                 // no break
             case 'mongo':
@@ -193,6 +195,7 @@ class Import
         return $this;
     }
 
+
     /**
      * Sets the source
      *
@@ -204,7 +207,6 @@ class Import
     public function setConnector(ConnectorInterface|string|null $connector, bool $ignore_sql_exceptions = false): static
     {
         $this->__setConnector($connector, $ignore_sql_exceptions);
-
         if ($this->getDriver()) {
             // Driver was specified separately, must match driver for this connector
             if ($this->getDriver() !== $this->connector->getDriver()) {
@@ -220,6 +222,7 @@ class Import
 
         return $this;
     }
+
 
     /**
      * Returns a new Export object

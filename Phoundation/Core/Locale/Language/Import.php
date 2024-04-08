@@ -9,7 +9,6 @@ use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\File;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Import class
  *
@@ -44,30 +43,26 @@ class Import extends \Phoundation\Developer\Project\Import
     public function execute(): int
     {
         Log::information(tr('Starting languages import'));
-
         if ($this->demo) {
             Log::notice('Ignoring "demo" mode for Languages, this does not do anything for this library');
         }
-
-        $file  = File::new(DIRECTORY_DATA . 'sources/languages/languages')->open(EnumFileOpenMode::readOnly);
-        $table = sql()->schema()->table('core_languages');
+        $file  = File::new(DIRECTORY_DATA . 'sources/languages/languages')
+                     ->open(EnumFileOpenMode::readOnly);
+        $table = sql()
+            ->schema()
+            ->table('core_languages');
         $count = $table->getCount();
-
         if ($count and !FORCE) {
             Log::warning(tr('Not importing data for "languages", the table already contains data'));
+
             return 0;
         }
-
         sql()->query('DELETE FROM `core_languages`');
-
         $count  = 0;
         $buffer = $file->getBufferSize();
-
         Log::action(tr('Importing languages, this may take a few seconds...'));
-
         while ($line = $file->readLine($buffer)) {
             $count++;
-
             // Parse the line
             switch ($line[0]) {
                 case '#':
@@ -77,9 +72,7 @@ class Import extends \Phoundation\Developer\Project\Import
                 case '//':
                     continue 2;
             }
-
             $line = explode("\t", $line);
-
             // Import the language data into a language object and save.
             $language = Language::new();
             $language->setName(Strings::until(isset_get($line[0]), '('));
@@ -90,8 +83,8 @@ class Import extends \Phoundation\Developer\Project\Import
             $language->setDescription(isset_get($line[5]));
             $language->save();
         }
-
         $file->close();
+
         return $count;
     }
 }

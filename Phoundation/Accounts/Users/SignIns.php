@@ -11,7 +11,6 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
-
 /**
  * SignIns class
  *
@@ -43,8 +42,10 @@ class SignIns extends DataList
                                LEFT JOIN `geo_cities`
                                ON        `accounts_signins`.`cities_id`    = `geo_cities`.`id` 
                                WHERE     `accounts_signins`.`created_by`   = :created_by 
-                               ORDER BY  `created_on`', [':created_by' => Session::getUser()->getId()]);
-
+                               ORDER BY  `created_on`', [
+            ':created_by' => Session::getUser()
+                                    ->getId(),
+        ]);
         parent::__construct();
     }
 
@@ -101,11 +102,11 @@ class SignIns extends DataList
     /**
      * Returns an HTML <select> for the available object entries
      *
-     * @param string      $value_column
+     * @param string $value_column
      * @param string|null $key_column
      * @param string|null $order
-     * @param array|null  $joins
-     * @param array|null  $filters
+     * @param array|null $joins
+     * @param array|null $filters
      *
      * @return InputSelectInterface
      */
@@ -116,7 +117,10 @@ class SignIns extends DataList
                           ->setSourceQuery('SELECT    `accounts_signins`.`' . $key_column . '`,
                                                    `accounts_signins`.`' . $value_column . '`,
                                          WHERE     `created_by` = :created_by 
-                                         ORDER BY  `created_on`', [':created_by' => Session::getUser()->getId()])
+                                         ORDER BY  `created_on`', [
+                              ':created_by' => Session::getUser()
+                                                      ->getId(),
+                          ])
                           ->setName('sign_ins_id')
                           ->setNone(tr('Select a sign-in'))
                           ->setObjectEmpty(tr('No sign-ins available'));

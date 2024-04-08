@@ -6,16 +6,15 @@ namespace Phoundation\Virtualization\Kubernetes\ConfigMaps;
 
 use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 
-
 /**
  * Class ConfigMap
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Virtualization
+ * @package   Phoundation\Virtualization
  */
 class ConfigMap extends KubernetesObject
 {

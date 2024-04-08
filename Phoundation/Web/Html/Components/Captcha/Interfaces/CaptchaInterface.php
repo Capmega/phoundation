@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Captcha\Interfaces;
 
-
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
-
 
 /**
  * Interface Captcha
@@ -31,6 +29,7 @@ interface CaptchaInterface extends ElementsBlockInterface
      */
     function validateResponse(?string $response, string $remote_ip = null, string $secret = null): void;
 
+
     /**
      * Returns true if the token is valid for the specified action
      *
@@ -42,12 +41,14 @@ interface CaptchaInterface extends ElementsBlockInterface
      */
     function isValid(?string $response, string $remote_ip = null, string $secret = null): bool;
 
+
     /**
      * Renders and returns the HTML for the google ReCAPTCHA
      *
      * @return string|null
      */
     function render(): ?string;
+
 
     /**
      * Returns the script required for this ReCaptcha

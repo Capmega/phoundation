@@ -7,7 +7,6 @@ namespace Phoundation\Databases\Sql\Exception\Interfaces;
 use PDOStatement;
 use Phoundation\Databases\Exception\Interfaces\DatabasesExceptionInterface;
 
-
 /**
  * Class SqlException
  *
@@ -27,6 +26,7 @@ interface SqlExceptionInterface extends DatabasesExceptionInterface
      */
     public function getSqlState(): ?string;
 
+
     /**
      * Sets the SQL state at this exception
      *
@@ -36,12 +36,14 @@ interface SqlExceptionInterface extends DatabasesExceptionInterface
      */
     public function setSqlState(?string $state): static;
 
+
     /**
      * Returns the SQL query at this exception
      *
      * @return PDOStatement|string|null
      */
     public function getQuery(): PDOStatement|string|null;
+
 
     /**
      * Sets the SQL query at this exception
@@ -52,12 +54,14 @@ interface SqlExceptionInterface extends DatabasesExceptionInterface
      */
     public function setQuery(PDOStatement|string|null $query): static;
 
+
     /**
      * Returns the SQL execute at this exception
      *
      * @return array|null
      */
     public function getExecute(): ?array;
+
 
     /**
      * Sets the SQL execute at this exception

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataStringId
  *
@@ -24,6 +23,7 @@ trait TraitDataStringId
      * @var string|null $id
      */
     protected ?string $id = null;
+
 
     /**
      * Returns the string id for this object or null

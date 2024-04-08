@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataStaticContentType
  *
@@ -47,7 +46,6 @@ trait TraitDataStaticContentType
     {
         // Validate status code
         // TODO implement
-
         static::$content_type = $content_type;
     }
 }

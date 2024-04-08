@@ -25,7 +25,6 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class Export
  *
@@ -49,7 +48,6 @@ class Export
         setConnector as __setConnector;
     }
     use TraitDataRestrictions;
-
 
     /**
      * The databases that will be dumped
@@ -136,6 +134,7 @@ class Export
         $this->restrictions = Restrictions::default($restrictions, Restrictions::writable('/', 'Mysql exporter'));
     }
 
+
     /**
      * Returns the databases that will be dumped
      *
@@ -145,6 +144,7 @@ class Export
     {
         return $this->database;
     }
+
 
     /**
      * Sets the databases that will be dumped
@@ -156,8 +156,10 @@ class Export
     public function setDatabase(?string $database): static
     {
         $this->database = $database;
+
         return $this;
     }
+
 
     /**
      * Returns if for each table, surround the INSERT statements with /*!40000 ALTER TABLE tbl_name DISABLE KEYS * /;
@@ -172,6 +174,7 @@ class Export
         return $this->disable_keys;
     }
 
+
     /**
      * Sets if for each table, surround the INSERT statements with /*!40000 ALTER TABLE tbl_name DISABLE KEYS * /; and
      * / *!40000 ALTER TABLE tbl_name ENABLE KEYS * /; statements. This makes loading the dump file faster because the
@@ -185,8 +188,10 @@ class Export
     public function setDisableKeys(bool $disable_keys): static
     {
         $this->disable_keys = $disable_keys;
+
         return $this;
     }
+
 
     /**
      * Returns if  stored routines (procedures and functions) will be included in the dumped databases in the output.
@@ -199,6 +204,7 @@ class Export
         return $this->routines;
     }
 
+
     /**
      * Sets if  stored routines (procedures and functions) will be included in the dumped databases in the output. This
      * option requires the global SELECT privilege.
@@ -210,8 +216,10 @@ class Export
     public function setRoutines(bool $routines): static
     {
         $this->routines = $routines;
+
         return $this;
     }
+
 
     /**
      * Returns if Event Scheduler events are included for the dumped databases in the output. This option requires the
@@ -224,6 +232,7 @@ class Export
         return $this->events;
     }
 
+
     /**
      * Sets if Event Scheduler events are included for the dumped databases in the output. This option requires the
      * EVENT privileges for those databases.
@@ -235,8 +244,10 @@ class Export
     public function setEvents(bool $events): static
     {
         $this->events = $events;
+
         return $this;
     }
+
 
     /**
      * Returns if the output file will contain CREATE DATABASE statements
@@ -248,6 +259,7 @@ class Export
         return $this->create_databases;
     }
 
+
     /**
      * Sets if the output file will contain CREATE DATABASE statements
      *
@@ -258,8 +270,10 @@ class Export
     public function setCreateDatabases(bool $create_databases): static
     {
         $this->create_databases = $create_databases;
+
         return $this;
     }
+
 
     /**
      * Returns if the output file will contain CREATE TABLE statements
@@ -271,6 +285,7 @@ class Export
         return $this->create_tables;
     }
 
+
     /**
      * Sets if the output file will contain CREATE TABLE statements
      *
@@ -281,8 +296,10 @@ class Export
     public function setCreateTables(bool $create_tables): static
     {
         $this->create_tables = $create_tables;
+
         return $this;
     }
+
 
     /**
      * Returns if writing INSERT statements using multiple-row syntax that includes several VALUES lists. This results
@@ -295,6 +312,7 @@ class Export
         return $this->extended_insert;
     }
 
+
     /**
      * Sets if writing INSERT statements using multiple-row syntax that includes several VALUES lists. This results
      * in a smaller dump file and speeds up inserts when the file is reloaded.
@@ -306,8 +324,10 @@ class Export
     public function setExtendedInsert(bool $extended_insert): static
     {
         $this->extended_insert = $extended_insert;
+
         return $this;
     }
+
 
     /**
      * Returns if additional information will be written in the dump file such as program version, server version,
@@ -320,6 +340,7 @@ class Export
         return $this->comments;
     }
 
+
     /**
      * Sets if additional information will be written in the dump file such as program version, server version,
      * and host.
@@ -331,8 +352,10 @@ class Export
     public function setComments(bool $comments): static
     {
         $this->comments = $comments;
+
         return $this;
     }
+
 
     /**
      * Returns if mysqldump produces a comment at the end of the dump, only if the comments option is enabled too
@@ -344,6 +367,7 @@ class Export
         return $this->dump_date;
     }
 
+
     /**
      * Sets if mysqldump produces a comment at the end of the dump, only if the comments option is enabled too
      *
@@ -354,8 +378,10 @@ class Export
     public function setDumpDate(bool $dump_date): static
     {
         $this->dump_date = $dump_date;
+
         return $this;
     }
+
 
     /**
      * Execute the rsync operation and return the PID (background) or -1
@@ -371,25 +397,23 @@ class Export
         switch ($this->driver ?? $this->connector->getDriver()) {
             case null:
                 throw new OutOfBoundsException(tr('No export driver specified'));
-
             case 'mysql':
                 $file = MysqlDump::new($this->restrictions)
                                  ->setConnector($this->connector)
                                  ->setTimeout($this->timeout)
                                  ->setDatabases($this->database)
                                  ->dump($file, $method);
-
                 Log::success(tr('Exported to MySQL dump file ":file" from databases ":database", this may take a while...', [
                     ':file'     => $file,
                     ':database' => Strings::force($this->database, ', '),
                 ]));
 
                 return $file;
-
             default:
                 throw new UnderConstructionException();
         }
     }
+
 
     /**
      * Sets the source
@@ -402,7 +426,6 @@ class Export
     public function setConnector(ConnectorInterface|string|null $connector, bool $ignore_sql_exceptions = false): static
     {
         $this->__setConnector($connector, $ignore_sql_exceptions);
-
         if ($this->getDriver()) {
             // Driver was specified separately, must match driver for this connector
             if ($this->getDriver() !== $this->connector->getDriver()) {
@@ -418,6 +441,7 @@ class Export
 
         return $this;
     }
+
 
     /**
      * Sets the driver
@@ -439,10 +463,11 @@ class Export
                 ]));
             }
         }
-
         $this->driver = get_null($driver);
+
         return $this;
     }
+
 
     /**
      * Returns a new Export object

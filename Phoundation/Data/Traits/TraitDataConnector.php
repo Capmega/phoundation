@@ -10,7 +10,6 @@ use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Config;
 
-
 /**
  * Trait TraitDataConnector
  *
@@ -56,7 +55,6 @@ trait TraitDataConnector
         if (!$connector) {
             $connector = 'system';
         }
-
         try {
             $this->connector = Connector::get($connector);
 
@@ -64,16 +62,14 @@ trait TraitDataConnector
             if (!$ignore_sql_exceptions) {
                 throw $e;
             }
-
             // Sql failed, which might be due to the system database or databases_connectors table not existing?
             // Try getting the connector from configuration
             $entry = Config::getArray('databases.connectors.' . $connector, []);
-
             if (count($entry)) {
                 $entry['name']     = $connector;
                 $entry['seo_name'] = Seo::string($connector);
-
-                $this->connector = Connector::newFromSource($entry, true)->setReadonly(true);
+                $this->connector = Connector::newFromSource($entry, true)
+                                            ->setReadonly(true);
             }
         }
 

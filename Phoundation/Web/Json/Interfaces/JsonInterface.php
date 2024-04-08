@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Json\Interfaces;
 
-
 /**
  * Interface JsonInterface
  *
@@ -21,6 +20,7 @@ interface JsonInterface
      * @return string|null
      */
     public function execute(): ?string;
+
 
     /**
      * Build and send JSON specific HTTP headers

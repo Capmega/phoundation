@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Class TraitDataNetworkConnection
  *
@@ -69,8 +68,8 @@ trait TraitDataNetworkConnection
         if (!$host) {
             $host = 'localhost';
         }
-
         $this->host = $host;
+
         return $this;
     }
 
@@ -96,6 +95,7 @@ trait TraitDataNetworkConnection
     public function setPort(int $port): static
     {
         $this->port = $port;
+
         return $this;
     }
 
@@ -121,6 +121,7 @@ trait TraitDataNetworkConnection
     public function setUser(string $user): static
     {
         $this->user = $user;
+
         return $this;
     }
 
@@ -146,6 +147,7 @@ trait TraitDataNetworkConnection
     public function setPassword(string $password): static
     {
         $this->password = $password;
+
         return $this;
     }
 }

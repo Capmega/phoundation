@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
-
 /**
  * Trait TraitDataDataEntry
  *
@@ -48,6 +47,7 @@ trait TraitDataDataEntry
     public function setDataEntry(DataEntryInterface $data_entry): static
     {
         $this->data_entry = $data_entry;
+
         return $this;
     }
 }

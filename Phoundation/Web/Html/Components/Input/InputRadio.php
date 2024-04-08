@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class InputRadio
  *
@@ -28,7 +27,6 @@ class InputRadio extends Input
     use TraitInputChecked;
     use TraitInputCheckRadioRender;
 
-
     /**
      * InputRadio class constructor
      *
@@ -39,7 +37,6 @@ class InputRadio extends Input
         $this->setElement('input')
              ->setInputType(EnumElementInputType::radio)
              ->setValue(1);
-
         parent::__construct($content);
     }
 
@@ -56,11 +53,9 @@ class InputRadio extends Input
     public function setName(?string $name, bool $id_too = true): static
     {
         static $names = [];
-
         if (!isset($names[$name])) {
             $names[$name] = 0;
         }
-
         if ($id_too) {
             $this->setId($name . '-' . $names[$name]++);
         }

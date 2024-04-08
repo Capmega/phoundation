@@ -30,14 +30,12 @@ trait TraitInputElement
     use TraitDataIcon;
     use TraitMode;
 
-
     /**
      * Input element type
      *
      * @var EnumInputTypeInterface|null $input_type
      */
     protected ?EnumInputTypeInterface $input_type = null;
-
 
     /**
      * Sets if this control should have a clear button
@@ -60,6 +58,7 @@ trait TraitInputElement
      */
     protected ?string $value = null;
 
+
     /**
      * Returns a new input element from the specified data entry field
      *
@@ -71,11 +70,9 @@ trait TraitInputElement
     {
         $element    = new static();
         $attributes = $definition->getSource();
-
         // Set all attributes from the definition file
         foreach ($attributes as $key => $value) {
             $method = 'set' . Strings::capitalize($key);
-
             if (method_exists($element, $method)) {
                 $element->$method($value);
             }
@@ -83,6 +80,7 @@ trait TraitInputElement
 
         return $element;
     }
+
 
     /**
      * Returns if the input element has a clear button or not
@@ -94,6 +92,7 @@ trait TraitInputElement
         return $this->clear_button;
     }
 
+
     /**
      * Sets if the input element has a clear button or not
      *
@@ -104,8 +103,10 @@ trait TraitInputElement
     public function setClearButton(bool $clear_button): static
     {
         $this->clear_button = $clear_button;
+
         return $this;
     }
+
 
     /**
      * Returns the type for the input element
@@ -117,6 +118,7 @@ trait TraitInputElement
         return $this->input_type;
     }
 
+
     /**
      * Sets the type for the input element
      *
@@ -127,8 +129,10 @@ trait TraitInputElement
     public function setInputType(?EnumInputTypeInterface $input_type): static
     {
         $this->input_type = $input_type;
+
         return $this;
     }
+
 
     /**
      * Returns if this input element is hidden or not
@@ -140,6 +144,7 @@ trait TraitInputElement
         return $this->hidden;
     }
 
+
     /**
      * Returns if this input element is hidden or not
      *
@@ -150,8 +155,10 @@ trait TraitInputElement
     public function setHidden(bool $hidden): static
     {
         $this->hidden = $hidden;
+
         return $this;
     }
+
 
     /**
      * Returns the value for the input element
@@ -162,6 +169,7 @@ trait TraitInputElement
     {
         return $this->value;
     }
+
 
     /**
      * Sets the value for the input element
@@ -182,6 +190,7 @@ trait TraitInputElement
         return $this;
     }
 
+
     /**
      * Sets if the element will auto submit
      *
@@ -194,6 +203,7 @@ trait TraitInputElement
         return $this->setAttribute($auto_submit, 'auto_submit');
     }
 
+
     /**
      * Returns if the element will auto submit
      *
@@ -203,6 +213,7 @@ trait TraitInputElement
     {
         return $this->attributes->get('auto_submit', false);
     }
+
 
     /**
      * Sets onchange functionality
@@ -216,6 +227,7 @@ trait TraitInputElement
         return $this->setAttribute($on_change, 'on_change');
     }
 
+
     /**
      * Returns onchange functionality
      *
@@ -226,6 +238,7 @@ trait TraitInputElement
         return $this->attributes->get('on_change', false);
     }
 
+
     /**
      * Add the system arguments to the arguments list
      *
@@ -235,9 +248,10 @@ trait TraitInputElement
      */
     protected function renderInputAttributes(): IteratorInterface
     {
-        return Iterator::new()->setSource([
-                                              'type'  => $this->input_type?->value,
-                                              'value' => $this->value,
-                                          ]);
+        return Iterator::new()
+                       ->setSource([
+                           'type'  => $this->input_type?->value,
+                           'value' => $this->value,
+                       ]);
     }
 }

@@ -9,7 +9,6 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class Mkdir
  *
@@ -35,17 +34,15 @@ class Mkdir extends Command
         try {
             $mode = Config::get('filesystem.mode.default.directory', 0750, $mode);
             $mode = Strings::fromOctal($mode);
-
-            $this
-                ->setCommand('mkdir')
-                ->addArguments([
-                                   $file,
-                                   '-p',
-                                   '-m',
-                                   $mode,
-                               ])
-                ->setTimeout(1)
-                ->executeReturnArray();
+            $this->setCommand('mkdir')
+                 ->addArguments([
+                     $file,
+                     '-p',
+                     '-m',
+                     $mode,
+                 ])
+                 ->setTimeout(1)
+                 ->executeReturnArray();
 
         } catch (ProcessFailedException $e) {
             // The command mkdir failed, most of the time either $file doesn't exist, or we don't have access to change the mode
@@ -59,7 +56,6 @@ class Mkdir extends Command
                             ':directory' => $directory,
                         ]));
                     }
-
                     if (str_contains($first_line, 'permission denied')) {
                         $directory = Strings::from($first_line, 'directory \'');
                         $directory = Strings::until($directory, '\':');

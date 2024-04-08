@@ -17,17 +17,16 @@ use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Enums\Interfaces\EnumTableRowTypeInterface;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * Notifications class
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataList
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundations\Notifications
+ * @package   Phoundations\Notifications
  */
 class Notifications extends DataList implements NotificationsInterface
 {
@@ -40,20 +39,11 @@ class Notifications extends DataList implements NotificationsInterface
                                FROM     `notifications` 
                                WHERE    `users_id` = :users_id 
                                  AND    `status`   = "UNREAD" 
-                               ORDER BY `created_by` ASC', [':users_id' => Session::getUser()->getId()]);
-
+                               ORDER BY `created_by` ASC', [
+            ':users_id' => Session::getUser()
+                                  ->getId(),
+        ]);
         parent::__construct();
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'notifications';
     }
 
 
@@ -79,6 +69,32 @@ class Notifications extends DataList implements NotificationsInterface
     }
 
 
+    /**
+     * Returns the most important notification mode
+     *
+     * @return string
+     */
+    public function getMostImportantMode(): string
+    {
+        $list = [
+            'notice'      => 1,
+            'information' => 2,
+            'success'     => 3,
+            'warning'     => 4,
+            'danger'      => 5,
+        ];
+        $return = 1;
+        foreach ($this->source as $entry) {
+            $priority = isset_get($list[isset_get($entry['mode'])]);
+            if ($priority > $return) {
+                $return = $priority;
+            }
+        }
+
+        return array_search($return, $list);
+    }
+
+
 //    /**
 //     * Returns the query builder for this object
 //     *
@@ -95,31 +111,27 @@ class Notifications extends DataList implements NotificationsInterface
 
 
     /**
-     * Returns the most important notification mode
+     * Returns an HTML <select> for the available object entries
      *
-     * @return string
+     * @param string      $value_column
+     * @param string|null $key_column
+     * @param string|null $order
+     * @param array|null  $joins
+     * @param array|null  $filters
+     *
+     * @return InputSelectInterface
      */
-    public function getMostImportantMode(): string
+    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
-        $list = [
-            'notice'      => 1,
-            'information' => 2,
-            'success'     => 3,
-            'warning'     => 4,
-            'danger'      => 5,
-        ];
-
-        $return = 1;
-
-        foreach ($this->source as $entry) {
-            $priority = isset_get($list[isset_get($entry['mode'])]);
-
-            if ($priority > $return) {
-                $return = $priority;
-            }
-        }
-
-        return array_search($return, $list);
+        return InputSelect::new()
+                          ->setConnector(static::getDefaultConnectorName())
+                          ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
+                                         FROM     `' . static::getTable() . '` 
+                                         WHERE    `status` IS NULL 
+                                         ORDER BY `title` ASC')
+                          ->setName('notifications_id')
+                          ->setNone(tr('Select a notification'))
+                          ->setObjectEmpty(tr('No notifications available'));
     }
 
 
@@ -183,26 +195,13 @@ class Notifications extends DataList implements NotificationsInterface
 
 
     /**
-     * Returns an HTML <select> for the available object entries
+     * Returns the table name used by this object
      *
-     * @param string $value_column
-     * @param string|null $key_column
-     * @param string|null $order
-     * @param array|null $joins
-     * @param array|null $filters
-     * @return InputSelectInterface
+     * @return string
      */
-    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
+    public static function getTable(): string
     {
-        return InputSelect::new()
-            ->setConnector(static::getDefaultConnectorName())
-            ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
-                                         FROM     `' . static::getTable() . '` 
-                                         WHERE    `status` IS NULL 
-                                         ORDER BY `title` ASC')
-            ->setName('notifications_id')
-            ->setNone(tr('Select a notification'))
-            ->setObjectEmpty(tr('No notifications available'));
+        return 'notifications';
     }
 
 
@@ -217,29 +216,23 @@ class Notifications extends DataList implements NotificationsInterface
             if (!array_key_exists('severity', $row)) {
                 return;
             }
-
             switch ($row['severity']) {
                 case 'info':
                     $row['severity'] = '<span class="notification-info">' . tr('Info') . '</span>';
                     break;
-
                 case 'warning':
                     $row['severity'] = '<span class="notification-warning">' . tr('Warning') . '</span>';
                     break;
-
                 case 'success':
                     $row['severity'] = '<span class="notification-success">' . tr('Success') . '</span>';
                     break;
-
                 case 'danger':
                     $row['severity'] = '<span class="notification-danger">' . tr('Danger') . '</span>';
                     break;
-
                 default:
                     $row['severity'] = htmlspecialchars($row['severity']);
                     $row['severity'] = str_replace(PHP_EOL, '<br>', $row['severity']);
             }
-
             $params['skiphtmlentities']['severity'] = true;
         });
     }
@@ -252,11 +245,11 @@ class Notifications extends DataList implements NotificationsInterface
      */
     public function autoUpdate(): static
     {
-        Audio::new(DIRECTORY_CDN . '/audio/ping.mp3')->playRemote('notification');
-
+        Audio::new(DIRECTORY_CDN . '/audio/ping.mp3')
+             ->playRemote('notification');
         Script::new()
-            ->setJavascriptWrapper(EnumJavascriptWrappers::none)
-            ->setContent('   function checkNotifications(ping) {
+              ->setJavascriptWrapper(EnumJavascriptWrappers::none)
+              ->setContent('   function checkNotifications(ping) {
                                         var ping = (typeof ping !== "undefined") ? ping : true;
 
                                         $.get("' . UrlBuilder::getAjax('/system/notifications/dropdown.json') . '")
@@ -271,9 +264,33 @@ class Notifications extends DataList implements NotificationsInterface
                                     }
 
                                     setInterval(function(){ checkNotifications(true); }, ' . (Config::getNatural('notifications.ping.interval', 60) * 1000) . ');')
-            ->render();
+              ->render();
 
         return $this;
+    }
+
+
+    /**
+     * Link the hash from this notifications list to its user and return if a change was detected
+     *
+     * @return bool
+     */
+    public function linkHash(): bool
+    {
+        $hash = $this->getHash();
+        if (
+            $hash !== Session::getUser()
+                             ->getNotificationsHash()
+        ) {
+            Session::getUser()
+                   ->setNotificationsHash($hash);
+
+            // Return true only if there was any hash
+            return (bool) $hash;
+        }
+
+        // No changes
+        return false;
     }
 
 
@@ -287,34 +304,11 @@ class Notifications extends DataList implements NotificationsInterface
         if (empty($this->source)) {
             return null;
         }
-
         $return = '';
-
         foreach ($this->source as $key => $value) {
             $return .= $key;
         }
 
         return sha1($return);
-    }
-
-
-    /**
-     * Link the hash from this notifications list to its user and return if a change was detected
-     *
-     * @return bool
-     */
-    public function linkHash(): bool
-    {
-        $hash = $this->getHash();
-
-        if ($hash !== Session::getUser()->getNotificationsHash()) {
-            Session::getUser()->setNotificationsHash($hash);
-
-            // Return true only if there was any hash
-            return (bool) $hash;
-        }
-
-        // No changes
-        return false;
     }
 }

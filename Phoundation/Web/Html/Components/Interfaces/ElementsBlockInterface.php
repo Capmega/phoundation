@@ -10,7 +10,6 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Span;
 
-
 /**
  * interface ElementsBlockInterface
  *
@@ -32,12 +31,14 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      */
     public function useForm(bool $use_form): static;
 
+
     /**
      * Returns the form of this objects block
      *
      * @return FormInterface|null
      */
     public function getForm(): ?FormInterface;
+
 
     /**
      * Returns the form of this objects block
@@ -48,6 +49,7 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      */
     public function setForm(?FormInterface $form): static;
 
+
     /**
      * If set true, when this element renders it will only return the contents
      *
@@ -57,12 +59,14 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      */
     public function setRenderContentsOnly(bool $enable): static;
 
+
     /**
      * Returns if this element renders it will only return the contents
      *
      * @return bool
      */
     public function getRenderContentsOnly(): bool;
+
 
     /**
      * Returns if this FlashMessages object has rendered HTML or not
@@ -71,12 +75,14 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      */
     public function hasRendered(): bool;
 
+
     /**
      * Returns the definition
      *
      * @return DefinitionInterface|null
      */
     public function getDefinition(): ?DefinitionInterface;
+
 
     /**
      * Sets the definition
@@ -87,12 +93,14 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      */
     public function setDefinition(DefinitionInterface|null $definition): static;
 
+
     /**
      * Returns the (optional) anchor for this element
      *
      * @return AInterface
      */
     public function getAnchor(): AInterface;
+
 
     /**
      * Sets the anchor for this element

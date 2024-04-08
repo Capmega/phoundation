@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataMetaEnabled
  *
@@ -45,6 +44,7 @@ trait TraitDataMetaEnabled
     public function setMetaEnabled(bool $meta_enabled): static
     {
         $this->meta_enabled = $meta_enabled;
+
         return $this;
     }
 }

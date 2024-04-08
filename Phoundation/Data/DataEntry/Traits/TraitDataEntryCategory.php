@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Data\Categories\Category;
 use Phoundation\Data\Categories\Interfaces\CategoryInterface;
 
-
 /**
  * Trait TraitDataEntryCategory
  *
@@ -52,7 +51,6 @@ trait TraitDataEntryCategory
     public function getCategory(): ?CategoryInterface
     {
         $categories_id = $this->getValueTypesafe('int', 'categories_id');
-
         if ($categories_id) {
             return new Category($categories_id);
         }

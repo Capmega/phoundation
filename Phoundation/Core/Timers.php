@@ -9,7 +9,6 @@ use Phoundation\Core\Interfaces\TimerInterface;
 use Phoundation\Core\Interfaces\TimersInterface;
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Class Timers
  *
@@ -43,8 +42,10 @@ class Timers implements TimersInterface
     {
         static::ensureGroup($group);
         static::$timers[$group][] = $timer;
+
         return $timer;
     }
+
 
     /**
      * Ensures that the specified timers group exists
@@ -60,6 +61,7 @@ class Timers implements TimersInterface
         }
     }
 
+
     /**
      * Returns a new timer
      *
@@ -72,8 +74,10 @@ class Timers implements TimersInterface
     public static function new(string $group, string $label = '', bool $start = true): TimerInterface
     {
         static::ensureGroup($group);
+
         return static::$timers[$group][] = Timer::new($label, $start);
     }
+
 
     /**
      * Returns the number of timer groups
@@ -116,12 +120,10 @@ class Timers implements TimersInterface
                 ]));
             }
         }
-
         uasort(static::$timers[$group], function (Timer $a, Timer $b): int {
             if ($a->getTotal() < $b->getTotal()) {
                 return 1;
             }
-
             if ($a->getTotal() > $b->getTotal()) {
                 return -1;
             }
@@ -129,6 +131,7 @@ class Timers implements TimersInterface
             return 0;
         });
     }
+
 
     /**
      * Returns the total for all the timers
@@ -138,7 +141,6 @@ class Timers implements TimersInterface
     public static function getTotal(): float
     {
         $total = 0;
-
         foreach (static::$timers as $group) {
             foreach ($group as $timer) {
                 $total += $timer->getTotal();
@@ -147,6 +149,7 @@ class Timers implements TimersInterface
 
         return $total;
     }
+
 
     /**
      * Returns all the timers for the specified group and removes them all from the Timers object
@@ -159,10 +162,11 @@ class Timers implements TimersInterface
     public static function pop(string $group, bool $exception = true): array
     {
         $timer = static::get($group, $exception);
-
         unset(static::$timers[$group]);
+
         return $timer;
     }
+
 
     /**
      * Returns all the timers under the specified group
@@ -178,7 +182,6 @@ class Timers implements TimersInterface
             // Return the timers array
             return static::$timers[$group];
         }
-
         if ($exception) {
             throw new TimerException(tr('Timers for the group ":group" do not exist', [
                 ':group' => $group,
@@ -187,6 +190,7 @@ class Timers implements TimersInterface
 
         return [];
     }
+
 
     /**
      * Returns the specified timer group
@@ -198,11 +202,12 @@ class Timers implements TimersInterface
     public static function delete(string $group): array
     {
         $timers = static::get($group);
-
         // Remove the timer from the timers list, then return it
         unset(static::$timers[$group]);
+
         return $timers;
     }
+
 
     /**
      * Returns all internal timers
@@ -214,6 +219,7 @@ class Timers implements TimersInterface
         return static::$timers;
     }
 
+
     /**
      * Returns the total for all the timer with the specified group
      *
@@ -224,7 +230,6 @@ class Timers implements TimersInterface
     public static function getGroupTotal(string $group): float
     {
         $total = 0;
-
         if (array_key_exists($group, static::$timers)) {
             foreach (static::$timers[$group] as $timer) {
                 $total += $timer->getTotal();
@@ -232,11 +237,11 @@ class Timers implements TimersInterface
 
             return $total;
         }
-
         throw new TimerException(tr('Cannot return total for timer group ":group", the group does not exist', [
             ':group' => $group,
         ]));
     }
+
 
     /**
      * Stop all timers

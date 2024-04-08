@@ -6,7 +6,6 @@ namespace Phoundation\Date\Exception;
 
 use Phoundation\Exception\Exception;
 
-
 /**
  * Class DateException
  *

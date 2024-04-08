@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataAction
  *
@@ -41,6 +40,7 @@ trait TraitDataAction
     public function setAction(string $action): static
     {
         $this->action = $action;
+
         return $this;
     }
 }

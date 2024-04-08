@@ -16,7 +16,6 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
-
 /**
  * Class Domains
  *
@@ -35,24 +34,28 @@ class Domains
      * @var array $domains_configuration
      */
     protected static array $domains_configuration;
+
     /**
      * Configuration cache for all whitelisted domains
      *
      * @var array $whitelist_domains
      */
     protected static array $whitelist_domains;
+
     /**
      * The configured primary domain
      *
      * @var string|null $primary_domain
      */
     protected static ?string $primary_domain = null;
+
     /**
      * The domain with which this object will work
      *
      * @var string $domain
      */
     protected string $domain;
+
 
     /**
      * Domains class constructor
@@ -69,9 +72,9 @@ class Domains
         } else {
             $domain = UrlBuilder::getDomainFromUrl($domain);
         }
-
         $this->domain = strtolower($domain);
     }
+
 
     /**
      * Returns true if the specified domain is the current domain
@@ -85,6 +88,7 @@ class Domains
         return static::getCurrent() === $domain;
     }
 
+
     /**
      * Returns the current domain
      *
@@ -96,7 +100,6 @@ class Domains
         if (PLATFORM_WEB) {
             return $_SERVER['HTTP_HOST'];
         }
-
         // Ensure $domain doesn't end with . (which IS valid, but would mess up
         $domain = Strings::from(Config::getString('web.domains.primary.web'), '//');
         $domain = Strings::until($domain, '/');
@@ -104,6 +107,7 @@ class Domains
 
         return $domain;
     }
+
 
     /**
      * Returns a Domains object which will work from the specified domain
@@ -116,6 +120,7 @@ class Domains
     {
         return new Domains($domain);
     }
+
 
     /**
      * Returns true if the specified domain is configured either as primary or whitelisted domain
@@ -133,6 +138,7 @@ class Domains
         return static::isWhitelist($domain);
     }
 
+
     /**
      * Returns true if the specified domain is the primary domain
      *
@@ -145,6 +151,7 @@ class Domains
         return static::getPrimary() === $domain;
     }
 
+
     /**
      * Returns the primary domain
      *
@@ -155,13 +162,11 @@ class Domains
         if (!static::$primary_domain) {
             // Build cache
             static::loadConfiguration();
-            static::$primary_domain = (string)UrlBuilder::getDomainFromUrl((string)isset_get(static::$domains_configuration['primary']['web']));
-
+            static::$primary_domain = (string) UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['web']));
             if (!static::$primary_domain) {
                 // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
                 // Assume the current domain is the primary domain instead
                 static::$primary_domain = Domains::getCurrent();
-
                 Log::warning(tr('Failed to get primary domain from configuration, assuming current domain ":domain" is the primary domain', [
                     ':domain' => static::$primary_domain,
                 ]));
@@ -172,6 +177,7 @@ class Domains
         return static::$primary_domain;
     }
 
+
     /**
      * Ensures that the domains configuration is loaded
      *
@@ -181,14 +187,12 @@ class Domains
     {
         if (!isset(static::$domains_configuration)) {
             $configuration = Config::get('web.domains');
-
             if ($configuration === null) {
                 if (!Core::isState('setup')) {
                     // In set up we won't have configuration and that is fine. If we're not in set up, then it is not
                     // so fine
                     throw new ConfigPathDoesNotExistsException(tr('The configuration path "web.domains" does not exist'));
                 }
-
                 // Core has already failed, yet we are here, likely this is the setup page
                 Log::warning(tr('The configuration path "web.domains" does not exist'));
                 static::$domains_configuration = [];
@@ -196,10 +200,10 @@ class Domains
             } else {
                 static::$domains_configuration = &$configuration;
             }
-
             static::$whitelist_domains = [];
         }
     }
+
 
     /**
      * Returns true if the specified domain is whitelisted
@@ -213,6 +217,7 @@ class Domains
         return in_array($domain, static::getWhitelist());
     }
 
+
     /**
      * Returns a list of all whitelist domains
      *
@@ -223,12 +228,10 @@ class Domains
         if (!isset(static::$whitelist_domains)) {
             // Build cache
             static::loadConfiguration();
-
             foreach (static::$domains_configuration as $domain => $configuration) {
                 if ($domain === 'primary') {
                     continue;
                 }
-
                 static::$whitelist_domains[] = $domain;
             }
         }
@@ -236,6 +239,7 @@ class Domains
         // Return cache
         return static::$whitelist_domains;
     }
+
 
     /**
      * Returns the base URL for the specified domain and its type (web or cdn)
@@ -247,7 +251,6 @@ class Domains
      * @return string
      * @throws ConfigPathDoesNotExistsException If the specified domain does not exist
      */
-
     public static function getRootUri(?string $domain = null, #[ExpectedValues('web', 'cdn')] string $type = 'web', ?string $language = null): string
     {
         // Get the root URL for the specified domain and strip the protocol and domain parts
@@ -258,6 +261,7 @@ class Domains
         return $uri;
     }
 
+
     /**
      * Returns the base URL for the specified domain and its type (web or cdn)
      *
@@ -268,7 +272,6 @@ class Domains
      * @return string
      * @throws ConfigPathDoesNotExistsException If the specified domain does not exist
      */
-
     public static function getRootUrl(?string $domain = null, #[ExpectedValues('web', 'cdn')] string $type = 'web', ?string $language = null): string
     {
         try {
@@ -276,10 +279,8 @@ class Domains
                 $empty  = true;
                 $domain = static::getCurrent();
             }
-
             $language = $language ?? Session::getLanguage();
             $url      = static::getConfigurationKey($domain, $type);
-
             if (!$url) {
                 throw new OutOfBoundsException(tr('No configured URL found for ":type" type domain ":domain"', [
                     ':type'   => $type,
@@ -297,16 +298,15 @@ class Domains
                 Log::warning(tr('The current domain ":domain" is not configured. Redirecting', [
                     ':domain' => $domain,
                 ]));
-
                 Response::redirect(UrlBuilder::getRootDomainUrl());
             }
-
             // The specified domain isn't configured
             throw new ConfigPathDoesNotExistsException(tr('Cannot get root URL for domain ":domain", there is no configuration for that domain', [
                 ':domain' => $domain,
             ]));
         }
     }
+
 
     /**
      * Returns the value for the specified domain key
@@ -320,8 +320,10 @@ class Domains
     public static function getConfigurationKey(string $domain, string $key, mixed $default = null): mixed
     {
         $domain_config = static::getConfiguration($domain);
+
         return isset_get($domain_config[$key], $default);
     }
+
 
     /**
      * Returns the configuration for the specified domain
@@ -341,9 +343,7 @@ class Domains
         } else {
             $domain = 'primary';
         }
-
         $domain_config = &static::$domains_configuration[$domain];
-
         // Validate configuration
         try {
             Arrays::requiredKeys($domain_config, 'web,cdn', ConfigPathDoesNotExistsException::class);
@@ -359,6 +359,7 @@ class Domains
         return $domain_config;
     }
 
+
     /**
      * Returns the current object domain
      *
@@ -368,6 +369,7 @@ class Domains
     {
         return $this->domain;
     }
+
 
     /**
      * Returns the parent domain for the object domain
@@ -380,7 +382,6 @@ class Domains
     public function getParent(): string
     {
         $return = Strings::from($this->domain, '.');
-
         if (!filter_var($return, FILTER_VALIDATE_DOMAIN)) {
             // We probably were at the parent domain, return the domain itself.
             return $this->domain;
@@ -388,6 +389,7 @@ class Domains
 
         return $return;
     }
+
 
     /**
      * Returns the root domain for the object domain

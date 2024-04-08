@@ -4,7 +4,6 @@ namespace Phoundation\Databases\Sql\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
-
 /**
  * Class SqlDataEntry
  *
@@ -25,6 +24,7 @@ interface SqlDataEntryInterface
      */
     public function __construct(SqlInterface $sql, DataEntryInterface $data_entry);
 
+
     /**
      * Returns a new SqlDataEntry object
      *
@@ -35,12 +35,14 @@ interface SqlDataEntryInterface
      */
     public static function new(SqlInterface $sql, DataEntryInterface $data_entry): static;
 
+
     /**
      * Returns the id_column
      *
      * @return string|null
      */
     public function getIdColumn(): ?string;
+
 
     /**
      * Sets the id_column
@@ -51,12 +53,14 @@ interface SqlDataEntryInterface
      */
     public function setIdColumn(?string $id_column): static;
 
+
     /**
      * Returns if the meta-system is enabled or disabled for this (type of) DataEntry
      *
      * @return bool
      */
     public function getMetaEnabled(): bool;
+
 
     /**
      * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
@@ -66,12 +70,14 @@ interface SqlDataEntryInterface
      */
     public function setMetaEnabled(bool $meta_enabled): static;
 
+
     /**
      * Returns whether to use random_id
      *
      * @return bool
      */
     public function getRandomId(): bool;
+
 
     /**
      * Sets whether to use random_id
@@ -82,12 +88,14 @@ interface SqlDataEntryInterface
      */
     public function setRandomId(bool $random_id): static;
 
+
     /**
      * Returns the table
      *
      * @return string|null
      */
     public function getTable(): ?string;
+
 
     /**
      * Sets the table
@@ -98,12 +106,14 @@ interface SqlDataEntryInterface
      */
     public function setTable(?string $table): static;
 
+
     /**
      * Returns whether to use INSERT ON DUPLICATE KEY UPDATE queries instead of insert / update
      *
      * @return bool
      */
     public function getInsertUpdate(): bool;
+
 
     /**
      * Sets whether to use INSERT ON DUPLICATE KEY UPDATE queries instead of insert / update
@@ -114,12 +124,14 @@ interface SqlDataEntryInterface
      */
     public function setInsertUpdate(bool $insert_update): static;
 
+
     /**
      * Returns whether to use INSERT ON DUPLICATE KEY UPDATE queries instead of insert / update
      *
      * @return int
      */
     public function getMaxIdRetries(): int;
+
 
     /**
      * Sets whether to use INSERT ON DUPLICATE KEY UPDATE queries instead of insert / update
@@ -129,6 +141,7 @@ interface SqlDataEntryInterface
      * @return static
      */
     public function setMaxIdRetries(int $max_id_retries): static;
+
 
     /**
      * Write the specified data row in the specified table
@@ -148,6 +161,7 @@ interface SqlDataEntryInterface
      */
     public function write(array $insert_row, array $update_row, ?string $comments, ?string $diff): int;
 
+
     /**
      * Insert the specified data row in the specified table
      *
@@ -164,6 +178,7 @@ interface SqlDataEntryInterface
      * @return int|null
      */
     public function insert(array $row, ?string $comments = null, ?string $diff = null): ?int;
+
 
     /**
      * Insert the specified data row in the specified table
@@ -183,6 +198,7 @@ interface SqlDataEntryInterface
      */
     public function insertUpdate(array $insert_row, array $update_row, ?string $comments = null, ?string $diff = null): ?int;
 
+
     /**
      * Update the specified data row in the specified table
      *
@@ -200,6 +216,7 @@ interface SqlDataEntryInterface
      */
     public function update(array $row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): ?int;
 
+
     /**
      * Update the status for the data row in the specified table to "deleted"
      *
@@ -215,6 +232,7 @@ interface SqlDataEntryInterface
      */
     public function delete(array $row, ?string $comments = null): int;
 
+
     /**
      * Update the status for the data row in the specified table to the specified status
      *
@@ -224,6 +242,7 @@ interface SqlDataEntryInterface
      * @return int
      */
     public function setStatus(?string $status, ?string $comments = null): int;
+
 
     /**
      * Simple "Does a row with this value exist in that table" method

@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Core\Log\Log;
 
-
 /**
  * Trait TraitDataMaxStringSize
  *
@@ -38,12 +37,10 @@ trait TraitDataMaxStringSize
     {
         // Ensure we have a valid default value
         $this->max_string_size = ($this->max_string_size ?? 1_073_741_824);
-
         if ($characters === null) {
             // Return the maximum size
             return $this->max_string_size;
         }
-
         if ($characters > $this->max_string_size) {
             Log::warning(tr('The specified number of maximum characters ":specified" surpasses the configured maximum number of ":configured". Forcing configured maximum amount instead', [
                 ':specified'  => $characters,
@@ -68,6 +65,7 @@ trait TraitDataMaxStringSize
     public function setMaxStringSize(?int $max_string_size): static
     {
         $this->max_string_size = ($max_string_size ?? 1_073_741_824);
+
         return $this;
     }
 }

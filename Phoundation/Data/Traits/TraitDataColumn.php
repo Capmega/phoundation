@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataColumn
  *
@@ -46,6 +45,7 @@ trait TraitDataColumn
     public function setColumn(?string $column): static
     {
         $this->column = $column;
+
         return $this;
     }
 }

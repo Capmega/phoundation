@@ -6,7 +6,6 @@ namespace Phoundation\Date\Enums;
 
 use Phoundation\Date\Enums\Interfaces\DateTimeSegmentInterface;
 
-
 /**
  * Enum DateSegment
  *

@@ -6,7 +6,6 @@ namespace Phoundation\Core\Hooks;
 
 use Phoundation\Data\DataEntry\DataList;
 
-
 /**
  * Hooks class
  *

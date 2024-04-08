@@ -10,7 +10,6 @@ use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelInterface;
 use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelsInterface;
 use Stringable;
 
-
 /**
  * Panels class
  *
@@ -31,13 +30,13 @@ class Panels extends Iterator implements PanelsInterface
         if (($value === null) or ($value instanceof PanelInterface)) {
             return parent::add($value, $key, $skip_null, $exception);
         }
-
         throw OutOfBoundsException::new(tr('Cannot add specified value type ":value" with key ":key", the value must be a PanelInterface type object', [
             ':key'   => $key,
             ':value' => get_object_class_or_data_type($value),
-        ]))->setData([
-                         'value' => $value,
-                     ]);
+        ]))
+                                  ->setData([
+                                      'value' => $value,
+                                  ]);
     }
 
 

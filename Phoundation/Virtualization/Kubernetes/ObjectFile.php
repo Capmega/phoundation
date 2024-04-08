@@ -9,16 +9,15 @@ use Phoundation\Data\Traits\TraitDataStringData;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 
-
 /**
  * Class KubernetesFile
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Virtualization
+ * @package   Phoundation\Virtualization
  */
 abstract class ObjectFile
 {
@@ -52,13 +51,11 @@ abstract class ObjectFile
     {
         if (!$this->object->getName()) {
             throw new OutOfBoundsException(tr('Cannot save ":kind" kind kubernetes object, no name specified', [
-                ':kind' => $this->object->getKind()
+                ':kind' => $this->object->getKind(),
             ]));
         }
-
         $data = $this->renderConfiguration();
         $data = yaml_emit($data);
-
         File::new($this->file)
             ->setRestrictions(DIRECTORY_ROOT . 'config/kubernetes/' . strtolower($this->object->getKind()) . '/', true, 'kubernetes')
             ->create($data);
@@ -71,6 +68,7 @@ abstract class ObjectFile
      * Builds the configuration data
      *
      * @param array|null $configuration
+     *
      * @return array
      */
     protected function renderConfiguration(array $configuration = null): array
@@ -79,27 +77,21 @@ abstract class ObjectFile
             'apiVersion' => $this->object->getApiVersion(),
             'kind'       => $this->object->getKind(),
             'metadata'   => [
-                'name' => $this->object->getName()
-            ]
+                'name' => $this->object->getName(),
+            ],
         ], $configuration);
-
         // Add namespace to meta data, if available
         $namespace = $this->object->getNamespace();
-
         if ($namespace) {
             $return['metadata']['namespace'] = $namespace;
         }
-
         // Add annotations to meta data, if available
         $annotations = $this->object->getAnnotations();
-
         if ($annotations) {
             $return['metadata']['annotations'] = $annotations;
         }
-
         // Add labels to meta data, if available
         $labels = $this->object->getLabels();
-
         if ($labels) {
             $return['metadata']['labels'] = $labels;
         }

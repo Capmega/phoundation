@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Databases\Sql\SqlQuery;
 
-
 /**
  * Trait TraitDataEntrySqlQuery
  *
@@ -28,7 +27,6 @@ trait TraitDataEntrySqlQuery
     public function getSqlQuery(): ?SqlQueryInterface
     {
         $sql_query = $this->getSourceValue('string', 'sql_query');
-
         if ($sql_query) {
             return new SqlQuery($sql_query);
         }
@@ -46,6 +44,7 @@ trait TraitDataEntrySqlQuery
      */
     public function setSqlQuery(SqlQueryInterface|string|null $sql_query): static
     {
-        return $this->setSourceValue('sql_query', SqlQuery::new($sql_query)->getQuery());
+        return $this->setSourceValue('sql_query', SqlQuery::new($sql_query)
+                                                          ->getQuery());
     }
 }

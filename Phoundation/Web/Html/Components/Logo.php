@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Html\Components;
 
-
 use Phoundation\Core\Core;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Http\UrlBuilder;
@@ -28,7 +27,8 @@ class Logo extends Img
     {
         parent::__construct(null);
         $this->src = UrlBuilder::getCdn('img/logos/' . Core::getProjectSeoName() . '/large.webp');
-        $this->getAnchor()->setHref(UrlBuilder::getWww('index'));
+        $this->getAnchor()
+             ->setHref(UrlBuilder::getWww('index'));
     }
 
 

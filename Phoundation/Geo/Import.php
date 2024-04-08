@@ -18,7 +18,6 @@ use Phoundation\Utils\Config;
 use Stringable;
 use Throwable;
 
-
 /**
  * Import class
  *
@@ -44,6 +43,7 @@ class Import extends \Phoundation\Developer\Project\Import
         $this->name = 'Geo / GeoNames';
     }
 
+
     /**
      * Download the GeoIP files
      *
@@ -63,20 +63,16 @@ class Import extends \Phoundation\Developer\Project\Import
         // Default restrictions are default path writable
         $directory    = $directory ?? DIRECTORY_DATA . 'sources/geo';
         $restrictions = $restrictions ?? new Restrictions(DIRECTORY_DATA . 'sources/geo', true);
-
         // Ensure target path can be written and is non-existent
         $directory = Directory::new($directory, $restrictions)
                               ->ensureWritable()
                               ->delete();
-
         $wget     = Wget::new();
-        $tmp_path = $wget->setExecutionDirectoryToTemp()->getExecutionDirectory();
-
+        $tmp_path = $wget->setExecutionDirectoryToTemp()
+                         ->getExecutionDirectory();
         Log::action(tr('Downloading Geo files to temporary directory ":directory"', [':directory' => $tmp_path]));
-
         foreach (static::getGeoNamesFiles() as $file => $data) {
             Log::action(tr('Downloading GeoNames URL ":url"', [':url' => $data['url']]));
-
             // Set timeout to two hours for this download as the file is hundreds of megabytes. Depending on internet
             // connection, this can take anywhere from seconds to minutes to an hour
             $wget->setTimeout(7200)
@@ -84,12 +80,12 @@ class Import extends \Phoundation\Developer\Project\Import
                  ->setTarget($file)
                  ->execute();
         }
-
         Log::action(tr('Moving Geo files to target directory ":directory"', [':directory' => $directory]));
         $tmp_path->movePath($directory);
 
         return $directory;
     }
+
 
     /**
      * Returns a list of MaxMind files that will be downloaded
@@ -141,11 +137,13 @@ class Import extends \Phoundation\Developer\Project\Import
         ];
     }
 
+
     public function execute(): int
     {
         // TODO: Implement execute() method.
         return -1;
     }
+
 
     /**
      * Process downloaded Geo files
@@ -161,35 +159,36 @@ class Import extends \Phoundation\Developer\Project\Import
         $restrictions = $restrictions ?? Restrictions::new(DIRECTORY_DATA, true);
         $target_path  = Config::getString('geo.geonames.path', DIRECTORY_DATA . 'sources/geo/geonames/', $target_path);
         $target_path  = Path::getAbsolute($target_path, DIRECTORY_ROOT, false);
-
-        Directory::new($target_path, $restrictions)->ensure();
+        Directory::new($target_path, $restrictions)
+                 ->ensure();
         Log::action(tr('Processing GeoNames Geo files and moving to directory ":directory"', [':directory' => $target_path]));
-
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            File::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/', true))->delete();
-            $previous = Directory::new($target_path, $restrictions)->movePath(DIRECTORY_DATA . 'garbage/');
-
+            File::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/', true))
+                ->delete();
+            $previous = Directory::new($target_path, $restrictions)
+                                 ->movePath(DIRECTORY_DATA . 'garbage/');
             // Prepare and import each file
             foreach (static::getGeoNamesFiles() as $file => $data) {
                 Log::action(tr('Processing GeoNames file ":file"', [':file' => $file]));
-
                 if (str_ends_with($file, '.zip')) {
                     foreach ($data['files'] as $target_file) {
                         // Ensure the target files are gone so that we can unzip over them
-                        File::new($source_path . $target_file, $restrictions)->delete();
+                        File::new($source_path . $target_file, $restrictions)
+                            ->delete();
                     }
-
                     // Unzip the files so that we have usable target files
-                    File::new($source_path . $file, $restrictions)->checkReadable()->unzip();
+                    File::new($source_path . $file, $restrictions)
+                        ->checkReadable()
+                        ->unzip();
                 }
-
                 // Move all target files to the target path
                 foreach ($data['files'] as $target_file) {
-                    File::new($source_path . $target_file, $restrictions)->checkReadable()->movePath($target_path);
+                    File::new($source_path . $target_file, $restrictions)
+                        ->checkReadable()
+                        ->movePath($target_path);
                 }
             }
-
             // Delete the previous data files from garbage
             $previous->delete();
 
@@ -199,13 +198,13 @@ class Import extends \Phoundation\Developer\Project\Import
             if (isset($previous)) {
                 $previous->movePath($target_path);
             }
-
             throw $e;
         }
-
         static::load($target_path);
+
         return $target_path;
     }
+
 
     /**
      * Import the GeoNames data
@@ -222,32 +221,31 @@ class Import extends \Phoundation\Developer\Project\Import
             // Default to geonames database
             $database = 'geonames';
         }
-
         Log::action(tr('Starting data import from directory ":directory"', [
             ':directory' => $directory,
         ]));
-
         // Get the system SQL configuration, so we can use the user and password from there
         $config = sql()->readConfiguration('system');
-
         Sql::addConnector('geonames', [
             'name'           => 'geonames',
             'user'           => $config['user'],
             'pass'           => $config['pass'],
             'pdo_attributes' => [PDO::MYSQL_ATTR_LOCAL_INFILE => true],
         ]);
-
         // Create database
         Log::action(tr('Creating database "geonames"...'));
-
-        sql('geonames', false)->schema(false)->database()->drop();
-        sql('geonames', false)->schema(false)->database()->create();
+        sql('geonames', false)
+            ->schema(false)
+            ->database()
+            ->drop();
+        sql('geonames', false)
+            ->schema(false)
+            ->database()
+            ->create();
         sql('geonames', false)->resetSchema();
         sql('geonames')->use();
-
         // Create table structure
         Log::action(tr('Creating database "geonames" tables...'));
-
         sql('geonames')->query('
             CREATE TABLE geoname (
                 geonameid int PRIMARY KEY,
@@ -357,8 +355,6 @@ class Import extends \Phoundation\Developer\Project\Import
                 name VARCHAR(20),
                 geonameid INT
             ) CHARACTER SET utf8;');
-
-
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'allCountries.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -367,8 +363,6 @@ class Import extends \Phoundation\Developer\Project\Import
             INTO TABLE geoname
             CHARACTER SET "UTF8"
                 (geonameid, name, asciiname, alternatenames, latitude, longitude, fclass, fcode, country, cc2, admin1, admin2, admin3, admin4, population, elevation, gtopo30, timezone, moddate);');
-
-
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'alternateNames.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -377,8 +371,6 @@ class Import extends \Phoundation\Developer\Project\Import
             INTO TABLE alternatename
             CHARACTER SET "UTF8"
                 (alternatenameid, geonameid, isoLanguage, alternateName, isPreferredName, isShortName, isColloquial, isHistoric);');
-
-
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'languagecodes.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -388,8 +380,6 @@ class Import extends \Phoundation\Developer\Project\Import
             CHARACTER SET "UTF8"
             IGNORE 1 LINES
                 (iso_639_3, iso_639_2, iso_639_1, language_name);');
-
-
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'admin1CodesASCII.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -398,8 +388,6 @@ class Import extends \Phoundation\Developer\Project\Import
             INTO TABLE admin1CodesAscii
             CHARACTER SET "UTF8"
                 (code, name, nameAscii, geonameid);');
-
-
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'admin2Codes.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -408,8 +396,6 @@ class Import extends \Phoundation\Developer\Project\Import
             INTO TABLE admin2Codes
             CHARACTER SET "UTF8"
                 (code, name, nameAscii, geonameid);');
-
-
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'hierarchy.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -418,8 +404,6 @@ class Import extends \Phoundation\Developer\Project\Import
             INTO TABLE hierarchy
             CHARACTER SET "UTF8"
                 (parentId, childId, type);');
-
-
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'featureCodes_en.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -428,8 +412,6 @@ class Import extends \Phoundation\Developer\Project\Import
             INTO TABLE featureCodes
             CHARACTER SET "UTF8"
                 (code, name, description);');
-
-
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'timeZones.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -439,8 +421,6 @@ class Import extends \Phoundation\Developer\Project\Import
             CHARACTER SET "UTF8"
             IGNORE 1 LINES
                 (timeZoneId, GMT_offset, DST_offset);');
-
-
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'countryInfo.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -450,8 +430,6 @@ class Import extends \Phoundation\Developer\Project\Import
             CHARACTER SET "UTF8"
             IGNORE 51 LINES
                 (iso_alpha2, iso_alpha3, iso_numeric, fips_code, name, capital, areaInSqKm, population, continent, tld, currency, currencyName, phone, postalCodeFormat, postalCodeRegex, languages, geonameid, neighbours, equivalentFipsCode);');
-
-
         Log::action(tr('Importing geonames data file ":file"', [':file' => 'continentCodes.txt']));
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
@@ -461,7 +439,6 @@ class Import extends \Phoundation\Developer\Project\Import
             CHARACTER SET "UTF8"
             FIELDS TERMINATED BY ","
                 (code, name, geonameId);');
-
         // Disable local_infile for security
         sql('geonames')->query('SET GLOBAL local_infile=false;');
     }
@@ -479,11 +456,9 @@ class Import extends \Phoundation\Developer\Project\Import
         if (!$database) {
             $database = 'geonames';
         }
-
         // Disable meta tracking during import as there is a LOT of data and we don't really care much about who dunnit
         // for this data
         Meta::disable();
-
         // Re-enable meta data
         Meta::enable();
     }

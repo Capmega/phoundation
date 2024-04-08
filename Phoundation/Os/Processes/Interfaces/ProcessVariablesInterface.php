@@ -11,7 +11,6 @@ use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\ProcessVariables;
 use Stringable;
 
-
 /**
  * Trait ProcessVariables
  *
@@ -31,6 +30,7 @@ interface ProcessVariablesInterface
      */
     public function getExecutionStartTime(): ?float;
 
+
     /**
      * Returns the exact time that execution stopped
      *
@@ -38,12 +38,14 @@ interface ProcessVariablesInterface
      */
     public function getExecutionStopTime(): ?float;
 
+
     /**
      * Returns the exact time that execution started
      *
      * @return ProcessCoreInterface|null
      */
     public function getPreExecution(): ?ProcessCoreInterface;
+
 
     /**
      * Sets the process to execute before the main process
@@ -54,12 +56,14 @@ interface ProcessVariablesInterface
      */
     public function setPreExecution(?ProcessCoreInterface $process): static;
 
+
     /**
      * Returns the process to execute after the main process
      *
      * @return ProcessCoreInterface|null
      */
     public function getPostExecution(): ?ProcessCoreInterface;
+
 
     /**
      * Sets the process to execute after the main process
@@ -70,6 +74,7 @@ interface ProcessVariablesInterface
      */
     public function setPostExecution(?ProcessCoreInterface $process): static;
 
+
     /**
      * Returns the exact time that a process took to execute
      *
@@ -79,6 +84,7 @@ interface ProcessVariablesInterface
      */
     public function getExecutionTime(bool $require_stop = true): ?float;
 
+
     /**
      * Increases the number of times quotes should be escaped
      *
@@ -86,12 +92,14 @@ interface ProcessVariablesInterface
      */
     public function increaseQuoteEscapes(): static;
 
+
     /**
      * Returns if  the log files will be cleared after this object is destroyed or not
      *
      * @return bool
      */
     public function getClearLogs(): bool;
+
 
     /**
      * Sets if  the log files will be cleared after this object is destroyed or not
@@ -102,12 +110,14 @@ interface ProcessVariablesInterface
      */
     public function setClearLogs(bool $clear_logs): static;
 
+
     /**
      * Returns if this process will register pid information or not
      *
      * @return bool
      */
     public function getRegisterRunfile(): bool;
+
 
     /**
      * Sets if this process will register pid information or not
@@ -118,12 +128,14 @@ interface ProcessVariablesInterface
      */
     public function setRegisterRunfile(bool $register_run_file): static;
 
+
     /**
      * Returns if the process will first CD to this directory before continuing
      *
      * @return Directory
      */
     public function getExecutionDirectory(): Directory;
+
 
     /**
      * Sets if the process will first CD to this directory before continuing
@@ -135,6 +147,7 @@ interface ProcessVariablesInterface
      */
     public function setExecutionDirectory(Directory|Stringable|string|null $execution_directory, RestrictionsInterface|array|string|null $restrictions = null): static;
 
+
     /**
      * Sets the execution path to private temp dir
      *
@@ -144,12 +157,14 @@ interface ProcessVariablesInterface
      */
     public function setExecutionDirectoryToTemp(bool $public = false): static;
 
+
     /**
      * Sets the log path where the process output will be redirected to
      *
      * @return string
      */
     public function getLogFile(): string;
+
 
     /**
      * Returns the run path where the process run file will be written
@@ -158,12 +173,14 @@ interface ProcessVariablesInterface
      */
     public function getRunFile(): string;
 
+
     /**
      * Sets if a runfile will be used
      *
      * @return bool
      */
     public function getUseRunFile(): bool;
+
 
     /**
      * Sets if a runfile should be used
@@ -175,6 +192,7 @@ interface ProcessVariablesInterface
      */
     public function setUseRunFile(bool $use_run_file): static;
 
+
     /**
      * Return the process identifier
      *
@@ -182,6 +200,7 @@ interface ProcessVariablesInterface
      * @throws ProcessException
      */
     public function getIdentifier(): string;
+
 
     /**
      * Sets the terminal to execute this command
@@ -192,12 +211,14 @@ interface ProcessVariablesInterface
      */
     public function setTerm(string $term = null, bool $only_if_empty = false): static;
 
+
     /**
      * Return the terminal to execute this command
      *
      * @return string|null
      */
     public function getTerm(): ?string;
+
 
     /**
      * Returns if the command should be executed as a different user using sudo.
@@ -208,6 +229,7 @@ interface ProcessVariablesInterface
      * @return string|bool
      */
     public function getSudo(): string|bool;
+
 
     /**
      * Sets if the command should be executed as a different user using sudo.
@@ -221,6 +243,7 @@ interface ProcessVariablesInterface
      */
     public function setSudo(string|bool|null $sudo): static;
 
+
     /**
      * Returns the CLI return values that are accepted as "success" and won't cause an exception
      *
@@ -228,12 +251,14 @@ interface ProcessVariablesInterface
      */
     public function getAcceptedExitCodes(): array;
 
+
     /**
      * Clears the CLI return values that are accepted as "success" and won't cause an exception
      *
      * @return static This process so that multiple methods can be chained
      */
     public function clearAcceptedExitCodes(): static;
+
 
     /**
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
@@ -244,6 +269,7 @@ interface ProcessVariablesInterface
      */
     public function setAcceptedExitCodes(array $exit_codes): static;
 
+
     /**
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
@@ -252,6 +278,7 @@ interface ProcessVariablesInterface
      * @return static This process so that multiple methods can be chained
      */
     public function addAcceptedExitCodes(array $exit_codes): static;
+
 
     /**
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
@@ -262,6 +289,7 @@ interface ProcessVariablesInterface
      */
     public function addAcceptedExitCode(int $exit_code): static;
 
+
     /**
      * Returns the server on which the command should be executed for this process
      *
@@ -269,6 +297,7 @@ interface ProcessVariablesInterface
      * @return RestrictionsInterface
      */
     public function getRestrictions(): RestrictionsInterface;
+
 
     /**
      * Set the server on which the command should be executed for this process
@@ -283,12 +312,14 @@ interface ProcessVariablesInterface
      */
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
 
+
     /**
      * Returns the command to be executed for this process
      *
      * @return string
      */
     public function getCommand(): string;
+
 
     /**
      * Returns the arguments for the command that will be executed
@@ -297,12 +328,14 @@ interface ProcessVariablesInterface
      */
     public function getArguments(): array;
 
+
     /**
      * Clears all cache and arguments
      *
      * @return static This process so that multiple methods can be chained
      */
     public function clearArguments(): static;
+
 
     /**
      * Sets the arguments for the command that will be executed
@@ -316,6 +349,7 @@ interface ProcessVariablesInterface
      */
     public function setArguments(?array $arguments, bool $escape = true): static;
 
+
     /**
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
      *
@@ -325,6 +359,7 @@ interface ProcessVariablesInterface
      * @return static This process so that multiple methods can be chained
      */
     public function addArguments(array|null $arguments, bool $escape_arguments = true): static;
+
 
     /**
      * Adds an argument to the existing list of arguments for the command that will be executed
@@ -338,6 +373,7 @@ interface ProcessVariablesInterface
      */
     public function addArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true): static;
 
+
     /**
      * Sets a single argument for the command that will be executed
      *
@@ -349,12 +385,14 @@ interface ProcessVariablesInterface
      */
     public function setArgument(?string $argument): static;
 
+
     /**
      * Returns the Variables for the command that will be executed
      *
      * @return array
      */
     public function getVariables(): array;
+
 
     /**
      * Sets the variables for the command that will be executed
@@ -367,6 +405,7 @@ interface ProcessVariablesInterface
      */
     public function setVariables(array $variables): static;
 
+
     /**
      * Adds a variable to the existing list of Variables for the command that will be executed
      *
@@ -377,12 +416,14 @@ interface ProcessVariablesInterface
      */
     public function setVariable(string $key, string|float|int $value): static;
 
+
     /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
      * @return ProcessCoreInterface|string|null
      */
     public function getPipe(): ProcessCoreInterface|string|null;
+
 
     /**
      * Sets the process where the output of this command will be piped to, IF specified
@@ -392,6 +433,7 @@ interface ProcessVariablesInterface
      * @return static
      */
     public function setPipe(ProcessCoreInterface|string|null $pipe): static;
+
 
     /**
      * Sets the output redirection for this process
@@ -404,6 +446,7 @@ interface ProcessVariablesInterface
      */
     public function setOutputRedirect(?string $redirect, int $channel = 1, bool $append = false): static;
 
+
     /**
      * Returns the output redirection for the specified channel this process
      *
@@ -411,12 +454,14 @@ interface ProcessVariablesInterface
      */
     public function getOutputRedirect(int $channel): ?string;
 
+
     /**
      * Returns all the output redirections for this process
      *
      * @return array
      */
     public function getOutputRedirects(): array;
+
 
     /**
      * Sets the input redirection for this process
@@ -428,6 +473,7 @@ interface ProcessVariablesInterface
      */
     public function setInputRedirect(Stringable|string|null $redirect, int $channel = 1): static;
 
+
     /**
      * Returns the input redirection for the specified channel this process
      *
@@ -435,12 +481,14 @@ interface ProcessVariablesInterface
      */
     public function getInputRedirect(int $channel): ?string;
 
+
     /**
      * Returns all the input redirections for this process
      *
      * @return array
      */
     public function getInputRedirects(): array;
+
 
     /**
      * Returns the time in milliseconds that a process will wait before executing
@@ -450,6 +498,7 @@ interface ProcessVariablesInterface
      * @return int
      */
     public function getWait(): int;
+
 
     /**
      * Sets the time in milliseconds that a process will wait before executing
@@ -462,12 +511,14 @@ interface ProcessVariablesInterface
      */
     public function setWait(int $wait): static;
 
+
     /**
      * Sets the packages that should be installed automatically if the command for this process cannot be found
      *
      * @return PackagesInterface
      */
     public function getPackages(): PackagesInterface;
+
 
     /**
      * Sets the packages that should be installed automatically if the command for this process cannot be found
@@ -479,6 +530,7 @@ interface ProcessVariablesInterface
      */
     public function setPackages(Stringable|string $operating_system, array|string $packages): static;
 
+
     /**
      * Returns the timeout value for this process.
      *
@@ -488,6 +540,7 @@ interface ProcessVariablesInterface
      * @return int
      */
     public function getTimeout(): int;
+
 
     /**
      * Sets the timeout value for this process.
@@ -501,6 +554,7 @@ interface ProcessVariablesInterface
      */
     public function setTimeout(int $timeout): static;
 
+
     /**
      * Returns the pid value for this process when it is running in the background.
      *
@@ -510,12 +564,14 @@ interface ProcessVariablesInterface
      */
     public function getPid(): ?int;
 
+
     /**
      * Returns if debug is enabled or not
      *
      * @return bool
      */
     public function getDebug(): bool;
+
 
     /**
      * Sets debug mode on or off

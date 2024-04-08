@@ -4,20 +4,18 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer;
 
-
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-
 
 /**
  * Class Dependencies
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Dependencies
+ * @package   Phoundation\Dependencies
  */
 class Dependencies
 {
@@ -28,14 +26,12 @@ class Dependencies
     function ensure_installed($params)
     {
         Arrays::ensure($params);
-
         /*
          * Check if specified library is installed
          */
         if (!isset($params['name'])) {
             throw new OutOfBoundsException(tr('No name specified for library'));
         }
-
         /*
          * Test available files
          */
@@ -47,7 +43,6 @@ class Dependencies
                 }
             }
         }
-
         /*
          * Test available functions
          */
@@ -59,7 +54,6 @@ class Dependencies
                 }
             }
         }
-
         /*
          * Test available functions
          */
@@ -71,12 +65,14 @@ class Dependencies
                 }
             }
         }
-
         /*
          * If a test failed, run the installer for this function
          */
         if (!empty($fail)) {
-            log_file(tr('Installation test ":test" failed, running installer ":installer"', array(':test' => $fail, ':installer' => $params['callback'])), 'ensure-installed', 'yellow');
+            log_file(tr('Installation test ":test" failed, running installer ":installer"', [':test'      => $fail,
+                                                                                             ':installer' => $params['callback'],
+            ]), 'ensure-installed', 'yellow');
+
             return $params['callback']($params);
         }
     }

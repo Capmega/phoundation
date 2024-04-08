@@ -10,7 +10,6 @@ use Phoundation\Databases\Sql\Schema\Schema;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 
-
 /**
  * Class Sql
  *
@@ -30,6 +29,7 @@ interface SqlInterface
      */
     public function getConfiguration(): array;
 
+
     /**
      * Returns an SqlDataEntry object for this SQL class
      *
@@ -39,12 +39,14 @@ interface SqlInterface
      */
     public function getSqlDataEntryObject(DataEntryInterface $data_entry): SqlDataEntryInterface;
 
+
     /**
      * Returns if query printing is enabled for this instance or not
      *
      * @return bool
      */
     public function getDebug(): bool;
+
 
     /**
      * Sets if query printing is enabled for this instance or not
@@ -55,12 +57,14 @@ interface SqlInterface
      */
     public function setDebug(bool $debug): static;
 
+
     /**
      * Returns if query statistics are enabled for this instance or not
      *
      * @return bool
      */
     public function getStatistics(): bool;
+
 
     /**
      * Sets  if query statistics are enabled for this instance or not
@@ -71,6 +75,7 @@ interface SqlInterface
      */
     public function setStatistics(bool $statistics): static;
 
+
     /**
      * Returns the name of the database that currently is in use by this database object
      *
@@ -78,12 +83,14 @@ interface SqlInterface
      */
     public function getDatabase(): ?string;
 
+
     /**
      * Returns the name of this SQL instance
      *
      * @return string|null
      */
     public function getConnector(): ?string;
+
 
     /**
      * Returns an SQL schema object for this instance
@@ -94,6 +101,7 @@ interface SqlInterface
      */
     public function schema(bool $use_database = true): Schema;
 
+
     /**
      * Clears schema cache and returns a new SQL schema object for this instance
      *
@@ -102,6 +110,7 @@ interface SqlInterface
      * @return Schema
      */
     public function resetSchema(bool $use_database = true): Schema;
+
 
     /**
      * Use the specified database
@@ -114,6 +123,7 @@ interface SqlInterface
      */
     public function use(?string $database = null): static;
 
+
     /**
      * Executes specified query and returns a PDOStatement object
      *
@@ -124,6 +134,7 @@ interface SqlInterface
      * @throws SqlException
      */
     public function query(PDOStatement|SqlQueryInterface|string $query, ?array $execute = null): PDOStatement;
+
 
     /**
      * Insert the specified data row in the specified table, with "on dulplicate update" option
@@ -142,6 +153,7 @@ interface SqlInterface
      */
     public function insert(string $table, array $data, array|string|null $update = null): int;
 
+
     /**
      * Update the specified data row in the specified table
      *
@@ -158,6 +170,7 @@ interface SqlInterface
      */
     public function update(string $table, array $set, array|null $where = null): int;
 
+
     /**
      * Delete the specified table entry
      *
@@ -170,6 +183,7 @@ interface SqlInterface
      */
     public function delete(string $table, array $execute): int;
 
+
     /**
      * Truncates the specified table
      *
@@ -178,6 +192,7 @@ interface SqlInterface
      * @return void
      */
     public function truncate(string $table): void;
+
 
     /**
      * Delete the row in the specified table
@@ -195,6 +210,7 @@ interface SqlInterface
      */
     public function erase(string $table, array $where, string $separator = 'AND'): int;
 
+
     /**
      * Prepare specified query
      *
@@ -203,6 +219,7 @@ interface SqlInterface
      * @return PDOStatement
      */
     public function prepare(string $query): PDOStatement;
+
 
     /**
      * Fetch data with default PDO::FETCH_ASSOC instead of PDO::FETCH_BOTH
@@ -213,6 +230,7 @@ interface SqlInterface
      * @return array|null
      */
     public function fetch(PDOStatement $resource, int $fetch_style = PDO::FETCH_ASSOC): ?array;
+
 
     /**
      * Execute query and return only the first row
@@ -225,6 +243,7 @@ interface SqlInterface
      */
     public function get(string|PDOStatement $query, array $execute = null, bool $meta_enabled = true): ?array;
 
+
     /**
      * Get the value of a single column from a single row for the specified query
      *
@@ -235,6 +254,7 @@ interface SqlInterface
      * @return string|float|int|bool|null
      */
     public function getColumn(string|PDOStatement $query, array $execute = null, ?string $column = null): string|float|int|bool|null;
+
 
     /**
      * Returns a numeric variable from the SQL database
@@ -248,6 +268,7 @@ interface SqlInterface
      */
     public function getNumeric(string|PDOStatement $query, array $execute = null, ?string $column = null): float|int|null;
 
+
     /**
      * Returns an integer variable from the SQL database
      *
@@ -258,6 +279,7 @@ interface SqlInterface
      * @return int|null
      */
     public function getInteger(string|PDOStatement $query, array $execute = null, ?string $column = null): int|null;
+
 
     /**
      * Returns a float variable from the SQL database
@@ -270,6 +292,7 @@ interface SqlInterface
      */
     public function getFloat(string|PDOStatement $query, array $execute = null, ?string $column = null): float|null;
 
+
     /**
      * Returns a float variable from the SQL database
      *
@@ -280,6 +303,7 @@ interface SqlInterface
      * @return bool|null
      */
     public function getBoolean(string|PDOStatement $query, array $execute = null, ?string $column = null): bool|null;
+
 
     /**
      * Executes the single column query and returns array with only scalar values.
@@ -293,6 +317,7 @@ interface SqlInterface
      */
     public function listScalar(string|PDOStatement $query, ?array $execute = null): array;
 
+
     /**
      * Executes the query and returns array with each complete row in a subarray
      *
@@ -305,6 +330,7 @@ interface SqlInterface
      */
     public function listArray(string|PDOStatement $query, ?array $execute = null): array;
 
+
     /**
      * Executes the query for two columns and will return the results as a key => static value array
      *
@@ -314,6 +340,7 @@ interface SqlInterface
      * @return array
      */
     public function listKeyValue(string|PDOStatement $query, ?array $execute = null): array;
+
 
     /**
      * Executes the query for two or more columns and will return the results as a key => values-in-array array
@@ -326,6 +353,7 @@ interface SqlInterface
      * @return array
      */
     public function listKeyValues(string|PDOStatement $query, ?array $execute = null, ?string $column = null): array;
+
 
     /**
      * Executes the query for two or more columns and will return the results as a key => values-in-array array,
@@ -340,12 +368,14 @@ interface SqlInterface
      */
     public function list(string|PDOStatement $query, ?array $execute = null): array;
 
+
     /**
      * Close the connection for the specified connector
      *
      * @return void
      */
     public function close(): void;
+
 
     /**
      * Import data from specified file
@@ -357,12 +387,14 @@ interface SqlInterface
      */
     public function import(string $file, RestrictionsInterface|array|string|null $restrictions): void;
 
+
     /**
      * Get the current last insert id for this SQL database connector
      *
      * @return ?int
      */
     public function getInsertId(): ?int;
+
 
     /**
      * Enable / Disable all query logging on mysql server
@@ -372,6 +404,7 @@ interface SqlInterface
      * @return void
      */
     public function enableLog(bool $enable): void;
+
 
     /**
      * Will return a count on the specified table
@@ -390,12 +423,14 @@ interface SqlInterface
      */
     public function count(string $table, string $where = '', ?array $execute = null, string $column = '`id`'): int;
 
+
     /**
      * Returns what database currently is selected
      *
      * @return string|null
      */
     public function getCurrentDatabase(): ?string;
+
 
     /**
      * Returns information about the specified database
@@ -406,6 +441,7 @@ interface SqlInterface
      */
     public function getDatabaseInformation(string $database): array;
 
+
     /**
      * Ensure that the specified limit is below or equal to the maximum configured limit
      *
@@ -414,6 +450,7 @@ interface SqlInterface
      * @return int
      */
     public function getValidLimit(int $limit): int;
+
 
     /**
      * Reads, validates structure and returns the configuration for the specified instance
@@ -424,12 +461,14 @@ interface SqlInterface
      */
     public function readConfiguration(string $connector): array;
 
+
     /**
      * Connects to this database and executes a test query
      *
      * @return static
      */
     public function test(): static;
+
 
     /**
      * Simple "Does a row with this value exist in that table" method

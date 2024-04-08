@@ -9,7 +9,6 @@ use Phoundation\Data\Interfaces\TreeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 
-
 /**
  * Trait DataTree
  *
@@ -32,6 +31,7 @@ class Tree extends Iterator implements TreeInterface
         parent::__construct($source);
     }
 
+
     /**
      * Returns the source of this tree as JSON data
      *
@@ -48,6 +48,7 @@ class Tree extends Iterator implements TreeInterface
         return Json::encode($this->source);
     }
 
+
     /**
      * Returns the source in tree-view format
      *
@@ -57,6 +58,7 @@ class Tree extends Iterator implements TreeInterface
     {
         return $this->formatSourceToTreeView($this->source);
     }
+
 
     /**
      * Returns the specified source as a tree-view source
@@ -68,12 +70,10 @@ class Tree extends Iterator implements TreeInterface
     protected function formatSourceToTreeView(array $source): array
     {
         $return = [];
-
         foreach ($source as $key => $value) {
             if ($value instanceof TreeInterface) {
                 $value = $value->getSource();
             }
-
             if (is_array($value)) {
                 $entry['name']     = $key;
                 $entry['children'] = $this->formatSourceToTreeView($value);
@@ -81,12 +81,12 @@ class Tree extends Iterator implements TreeInterface
             } else {
                 $entry['name'] = $value;
             }
-
             $return[] = $entry;
         }
 
         return $return;
     }
+
 
     /**
      * Sets the source of this tree from the specified JSON data
@@ -97,19 +97,18 @@ class Tree extends Iterator implements TreeInterface
     {
         $json = get_null($json);
         $tree = Json::decode($json);
-
         if (!is_array($tree)) {
             if (!($tree instanceof TreeInterface)) {
                 throw OutOfBoundsException::new(tr('Cannot use specified data as source for tree, it is not tree data'))
                                           ->setData(['tree' => $tree]);
             }
-
             $tree = $tree->getSource();
         }
-
         $this->source = $tree;
+
         return $this;
     }
+
 
     /**
      * @inheritDoc
@@ -117,8 +116,10 @@ class Tree extends Iterator implements TreeInterface
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
         $this->checkSourceDataType($source);
+
         return parent::setSource($source, $execute);
     }
+
 
     /**
      * Checks the source data that its either an array, PDOstatement, string, NULL, or a TreeInterface

@@ -21,28 +21,23 @@
 
 */
 
-include(dirname(__FILE__).'/socialmedia_oauth_connect.php');
-
-$config               = $_CONFIG['sso']['facebook'];
-$oauth                = new socialmedia_oauth_connect();
-
+include(dirname(__FILE__) . '/socialmedia_oauth_connect.php');
+$config = $_CONFIG['sso']['facebook'];
+$oauth  = new socialmedia_oauth_connect();
 $oauth->provider      = "Facebook";
 $oauth->client_id     = $config['appid'];
 $oauth->client_secret = $config['secret'];
 $oauth->scope         = $config['scope'];
 $oauth->redirect_uri  = (empty($config['redirect']) ? 'http://192.168.0.106/base/www/dev/index.php' : $config['redirect']);
-
 $oauth->Initialize();
-
-$code = (!empty($_REQUEST["code"])) ?  ($_REQUEST["code"]) : "";
-
+$code = (!empty($_REQUEST["code"])) ? ($_REQUEST["code"]) : "";
 if (empty($code)) {
-	$oauth->Authorize();
+    $oauth->Authorize();
 
 } else {
-	$oauth->code = $code;
+    $oauth->code = $code;
 #	print $oauth->getAccessToken();
-	$getData = json_decode($oauth->getUserProfile());
-	$oauth->debugJson($getData);
+    $getData = json_decode($oauth->getUserProfile());
+    $oauth->debugJson($getData);
 }
 ?>

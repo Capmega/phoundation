@@ -10,7 +10,6 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenusInterface;
 
-
 /**
  * Menus class
  *
@@ -28,6 +27,7 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
      */
     protected array $menus = [];
 
+
     /**
      * Returns the primary menu
      *
@@ -37,6 +37,7 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
     {
         return $this->getMenu('primary');
     }
+
 
     /**
      * Returns the specified menu
@@ -54,6 +55,7 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
         return $this->menus[$menu];
     }
 
+
     /**
      * Sets the primary menu
      *
@@ -64,6 +66,7 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
     public function setPrimaryMenu(?MenuInterface $menu): static
     {
         $this->menus['primary'] = $menu;
+
         return $this;
     }
 
@@ -89,6 +92,7 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
     public function setSecondaryMenu(?MenuInterface $menu): static
     {
         $this->menus['secondary'] = $menu;
+
         return $this;
     }
 
@@ -105,6 +109,7 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
     public function setMenus(array $menus): static
     {
         $this->menus = [];
+
         return $this->addMenus($menus);
     }
 

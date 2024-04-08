@@ -10,7 +10,6 @@ use Phoundation\Os\Processes\Commands\Interfaces\PhoCommandCoreInterface;
 use Phoundation\Os\Processes\WorkersCore;
 use Phoundation\Utils\Arrays;
 
-
 /**
  * Class PhoCommand
  *
@@ -32,15 +31,14 @@ class PhoCommand extends WorkersCore implements PhoCommandCoreInterface
     public function __construct(array|string|null $commands, bool $which_command = true)
     {
         // Ensure that the run files directory is available
-        Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run'))->ensure();
-
+        Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run'))
+                 ->ensure();
         parent::__construct(Restrictions::new(DIRECTORY_ROOT . 'pho'));
-
         $this->setCommand(DIRECTORY_ROOT . 'pho', $which_command)
              ->addArguments([
-                                '-E',
-                                ENVIRONMENT,
-                            ])
+                 '-E',
+                 ENVIRONMENT,
+             ])
              ->addArguments($commands ? Arrays::force($commands, ' ') : null);
     }
 

@@ -6,7 +6,6 @@ namespace Phoundation\Enums;
 
 use Phoundation\Enums\Interfaces\EnumOrientationInterface;
 
-
 /**
  * Enum EnumOrientation
  *

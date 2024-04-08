@@ -16,12 +16,14 @@ interface ButtonInterface
      */
     public function setFloating(bool $floating): static;
 
+
     /**
      * Returns if the button is floating or not
      *
      * @return bool
      */
     public function getFloating(): bool;
+
 
     /**
      * Set the content for this button
@@ -34,6 +36,7 @@ interface ButtonInterface
      */
     public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
 
+
     /**
      * Set the content for this button
      *
@@ -44,6 +47,7 @@ interface ButtonInterface
      * @todo add documentation for when button is floating as it is unclear what is happening there
      */
     public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static;
+
 
     /**
      * Renders and returns the HTML for this object

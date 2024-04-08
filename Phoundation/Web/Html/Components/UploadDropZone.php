@@ -10,7 +10,6 @@ use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Response;
 
-
 /**
  * Class UploadDropZone
  *
@@ -25,7 +24,6 @@ class UploadDropZone extends ResourceElement
 {
     use TraitDataSelector;
     use TraitDataUrl;
-
 
     /**
      * Start upload button
@@ -85,7 +83,6 @@ class UploadDropZone extends ResourceElement
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-
         $this->selector                   = 'document.body';
         $this->total_progress_selector    = '#total-progress';
         $this->progress_bar_selector      = '.progress-bar';
@@ -94,6 +91,7 @@ class UploadDropZone extends ResourceElement
         $this->start_button_selector      = '.start';
         $this->cancel_button_selector     = '.cancel';
     }
+
 
     /**
      * Returns the start upload button selector
@@ -105,6 +103,7 @@ class UploadDropZone extends ResourceElement
         return $this->start_button_selector;
     }
 
+
     /**
      * Sets the start upload button selector
      *
@@ -115,8 +114,10 @@ class UploadDropZone extends ResourceElement
     public function setStartButtonSelector(?string $selector): static
     {
         $this->start_button_selector = $selector;
+
         return $this;
     }
+
 
     /**
      * Returns the add upload button selector
@@ -128,6 +129,7 @@ class UploadDropZone extends ResourceElement
         return $this->add_button_selector;
     }
 
+
     /**
      * Sets the add upload button selector
      *
@@ -138,8 +140,10 @@ class UploadDropZone extends ResourceElement
     public function setAddButtonSelector(?string $selector): static
     {
         $this->add_button_selector = $selector;
+
         return $this;
     }
+
 
     /**
      * @inheritDoc

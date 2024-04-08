@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Traits;
 
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 
-
 /**
  * Trait TraitChildElement
  *
@@ -48,6 +47,7 @@ trait TraitChildElement
     public function setChildElement(?ElementInterface $child_element): static
     {
         $this->child_element = $child_element;
+
         return $this;
     }
 }

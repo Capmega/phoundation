@@ -12,7 +12,6 @@ use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class Gzip
  *
@@ -37,20 +36,17 @@ class Gzip extends Command
     {
         try {
             $file = File::new($file);
-
             if ($file->isCompressed()) {
                 throw new AlredyCompressedException(tr('Cannot gzip file ":file", it is already compressed', [
                     ':file' => $file->getPath(),
                 ]));
             }
-
             if (file_exists($file . '.gz')) {
                 throw new FileExistsException(tr('Cannot gzip file ":file", the gzipped version ":gzip" already exists', [
                     ':file' => $file->getPath(),
                     ':gzip' => $file->getPath() . '.gz',
                 ]));
             }
-
             $this->setCommand('gzip')
                  ->addArgument($file)
                  ->setTimeout(120)
@@ -61,7 +57,8 @@ class Gzip extends Command
         } catch (ProcessFailedException $e) {
             // The gzip tar failed, most of the time either $file doesn't exist, or we don't have access
             static::handleException('gzip', $e, function () use ($file) {
-                File::new($file)->checkReadable();
+                File::new($file)
+                    ->checkReadable();
             });
         }
     }
@@ -78,22 +75,19 @@ class Gzip extends Command
     {
         try {
             $file   = File::new($file);
-            $target = Strings::until(Strings::until((string)$file, '.tgz'), '.gz');
+            $target = Strings::until(Strings::until((string) $file, '.tgz'), '.gz');
             $target = File::new($target);
-
             if ($file->getMimetype() !== 'application/gzip') {
                 throw new InvalidFileType(tr('Cannot gunzip file ":file", it is not a gzip file', [
                     ':file' => $file->getPath(),
                 ]));
             }
-
             if ($target->exists()) {
                 throw new FileExistsException(tr('Cannot gunzip file ":file", the target version ":gzip" already exists', [
                     ':file' => $file->getPath(),
                     ':gzip' => $target,
                 ]));
             }
-
             $this->setCommand('gunzip')
                  ->addArguments($file)
                  ->setTimeout(120)
@@ -104,7 +98,8 @@ class Gzip extends Command
         } catch (ProcessFailedException $e) {
             // The command gunzip failed, most of the time either $file doesn't exist, or we don't have access
             static::handleException('gunzip', $e, function () use ($file) {
-                File::new($file)->checkReadable();
+                File::new($file)
+                    ->checkReadable();
             });
         }
     }

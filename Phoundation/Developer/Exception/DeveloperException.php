@@ -6,7 +6,6 @@ namespace Phoundation\Developer\Exception;
 
 use Phoundation\Exception\Exception;
 
-
 /**
  * Class DeveloperException
  *

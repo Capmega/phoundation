@@ -7,7 +7,6 @@ namespace Phoundation\Core\Plugins\Interfaces;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
-
 /**
  * Interface PluginsInterface
  *
@@ -26,6 +25,7 @@ interface PluginsInterface extends DataListInterface
      * @return static
      */
     public function purge(): static;
+
 
     /**
      * Returns an HTML <select> for the available object entries

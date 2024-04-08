@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Widgets\Modals;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 
-
 /**
  * Phoundation Modals class
  *
@@ -26,8 +25,6 @@ class Modals extends ElementsBlock
 //     * @var array|null $required
 //     */
 //    protected ?array $required = null;
-
-
     /**
      * Add a new modal
      *
@@ -39,6 +36,7 @@ class Modals extends ElementsBlock
     public function addModal(string $identifier, Modal $modal): static
     {
         $this->source[$identifier] = $modal;
+
         return $this;
     }
 
@@ -59,8 +57,6 @@ class Modals extends ElementsBlock
 //
 //        return $this;
 //    }
-
-
     /**
      * Render the modals and return the HTML
      *
@@ -78,9 +74,7 @@ class Modals extends ElementsBlock
                 }
             }
         }
-
         $this->render = '';
-
         foreach ($this->source as $modal) {
             $this->render .= $modal->render();
         }

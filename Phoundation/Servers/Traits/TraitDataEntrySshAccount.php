@@ -7,7 +7,6 @@ namespace Phoundation\Servers\Traits;
 use Phoundation\Servers\Interfaces\SshAccountInterface;
 use Phoundation\Servers\SshAccount;
 
-
 /**
  * Trait TraitDataEntrySshAccount
  *
@@ -67,6 +66,7 @@ trait TraitDataEntrySshAccount
         return $this->ssh_account;
     }
 
+
     /**
      * Sets the ssh_accounts_name for this user
      *
@@ -77,8 +77,10 @@ trait TraitDataEntrySshAccount
     public function setSshAccount(SshAccountInterface|null $account): static
     {
         $this->ssh_account = $account;
+
         return $this->setValue('ssh_accounts_id', $account?->getId());
     }
+
 
     /**
      * Returns the ssh_accounts_name for this user
@@ -89,6 +91,7 @@ trait TraitDataEntrySshAccount
     {
         return $this->getValueTypesafe('string', 'ssh_accounts_name');
     }
+
 
     /**
      * Sets the ssh_accounts_name for this object
@@ -101,11 +104,12 @@ trait TraitDataEntrySshAccount
     {
         if ($ssh_accounts_name) {
             $this->ssh_account = SshAccount::get($ssh_accounts_name, 'name');
+
             return $this->setValue('ssh_accounts_id', $this->ssh_account->getId());
 
         }
-
         $this->ssh_account = null;
+
         return $this->setValue('ssh_accounts_id', null);
     }
 }

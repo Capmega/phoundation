@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Departments\Department;
 
-
 /**
  * Trait TraitDataEntryDepartment
  *
@@ -51,7 +50,6 @@ trait TraitDataEntryDepartment
     public function getDepartment(): ?Department
     {
         $departments_id = $this->getSourceValue('departments_id');
-
         if ($departments_id) {
             return new Department($departments_id);
         }

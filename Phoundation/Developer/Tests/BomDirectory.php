@@ -6,7 +6,6 @@ namespace Phoundation\Developer\Tests;
 
 use Phoundation\Filesystem\Directory;
 
-
 /**
  * Class BomDirectory
  *
@@ -28,12 +27,15 @@ class BomDirectory extends Directory
     public function checkBom(): int
     {
         $count = 0;
-
-        $this->execute()->onFiles(function ($file) use (&$count) {
-            if (BomFile::new($file)->checkBom()) {
-                $count++;
-            }
-        });
+        $this->execute()
+             ->onFiles(function ($file) use (&$count) {
+                 if (
+                     BomFile::new($file)
+                            ->checkBom()
+                 ) {
+                     $count++;
+                 }
+             });
 
         return $count;
     }
@@ -48,12 +50,15 @@ class BomDirectory extends Directory
     public function clearBom(): int
     {
         $count = 0;
-
-        $this->execute()->onFiles(function ($file) use (&$count) {
-            if (BomFile::new($file)->clearBom()) {
-                $count++;
-            }
-        });
+        $this->execute()
+             ->onFiles(function ($file) use (&$count) {
+                 if (
+                     BomFile::new($file)
+                            ->clearBom()
+                 ) {
+                     $count++;
+                 }
+             });
 
         return $count;
     }

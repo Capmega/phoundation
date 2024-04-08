@@ -7,7 +7,6 @@ namespace Phoundation\Databases\Exception;
 use Phoundation\Databases\Exception\Interfaces\DatabasesExceptionInterface;
 use Phoundation\Exception\Exception;
 
-
 /**
  * Class DatabaseException
  *

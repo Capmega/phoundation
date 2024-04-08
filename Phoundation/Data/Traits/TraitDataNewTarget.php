@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataNewTarget
  *
@@ -46,6 +45,7 @@ trait TraitDataNewTarget
     public function setNewTarget(string|int|null $new_target): static
     {
         $this->new_target = $new_target;
+
         return $this;
     }
 }

@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Cdn;
 
-
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
-
 
 /**
  * Class Cdn
@@ -38,13 +36,10 @@ class Cdn
         if (!Config::get('web.cdn.enabled', true)) {
             return;
         }
-
         Log::action(tr('Adding files ":files" to CDN', [':files' => $files]));
-
         if (!$section) {
             throw new OutOfBoundsException(tr('No section specified'));
         }
-
         if (!$files) {
             throw new OutOfBoundsException(tr('No files specified'));
         }
@@ -83,7 +78,6 @@ class Cdn
 
                 return domain($file, null, $section, $_CONFIG['cdn']['domain'], null, false);
             }
-
             if ($section == 'pub') {
                 /*
                  * Process pub files, "system" files like .css, .js, static website
@@ -100,34 +94,31 @@ class Cdn
                                             WHERE    `status` IS NULL
 
                                             ORDER BY RAND() LIMIT 1', true);
-
                     if (empty($_SESSION['cdn'])) {
                         /*
                          * There are no CDN servers available!
                          * Switch to working without CDN servers
                          */
                         Notification([
-                                         'code'    => 'invalid',
-                                         'groups'  => 'developer',
-                                         'title'   => tr('Invalid configuration'),
-                                         'message' => tr('cdn_domain(): The CDN system is enabled but there are no CDN servers configured'),
-                                     ]);
-
+                            'code'    => 'invalid',
+                            'groups'  => 'developer',
+                            'title'   => tr('Invalid configuration'),
+                            'message' => tr('cdn_domain(): The CDN system is enabled but there are no CDN servers configured'),
+                        ]);
                         $_CONFIG['cdn']['enabled'] = false;
+
                         return cdn_domain($file, $section);
 
                     } else {
                         $_SESSION['cdn'] = Strings::slash($_SESSION['cdn']) . 'pub/' . strtolower(str_replace('_', '-', PROJECT) . '/');
                     }
                 }
-
                 if (!empty($_CONFIG['cdn']['prefix'])) {
                     $file = $_CONFIG['cdn']['prefix'] . $file;
                 }
 
                 return $_SESSION['cdn'] . Strings::startsNotWith($file, '/');
             }
-
             /*
              * Get this URL from the CDN system
              */
@@ -146,17 +137,13 @@ class Cdn
 
                         ORDER BY  RAND()
 
-                        LIMIT     1',
-
-                           [':file' => $file]);
-
+                        LIMIT     1', [':file' => $file]);
             if ($url) {
                 /*
                  * Yay, found the file in the CDN database!
                  */
                 return Strings::slash($url['baseurl']) . strtolower(str_replace('_', '-', PROJECT)) . $url['file'];
             }
-
             /*
              * The specified file is not found in the CDN system, return a default
              * image instead
@@ -166,7 +153,6 @@ class Cdn
             }
 
             return cdn_domain($default, 'pub');
-
 // :TODO: What why where?
             ///*
             // * We have a CDN server in session? If not, get one.
@@ -188,11 +174,9 @@ class Cdn
             //}
             //
             //return $_SESSION['cdn'] . $url;
-
         } catch (Exception $e) {
             throw new OutOfBoundsException('cdn_domain(): Failed', $e);
         }
     }
-
 
 }

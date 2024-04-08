@@ -11,7 +11,6 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Config;
 
-
 /**
  * Class Sessions
  *
@@ -29,6 +28,7 @@ class Sessions
      */
     public function __construct() {}
 
+
     /**
      * Clean up old sessions
      *
@@ -41,17 +41,16 @@ class Sessions
         if (!$age_in_minutes) {
             $age_in_minutes = Config::getInteger('tmp.clean.age', 1440);
         }
-
         Log::action(tr('Cleaning session files older than ":age" minutes', [
             ':age' => $age_in_minutes,
         ]));
-
         Find::new()
             ->setPath(DIRECTORY_DATA . 'tmp/')
             ->setOlderThan($age_in_minutes)
             ->setExecute('rf {} -rf')
             ->executeNoReturn();
     }
+
 
     /**
      * Returns a new sessions object
@@ -62,6 +61,7 @@ class Sessions
     {
         return new Sessions();
     }
+
 
     /**
      * Close the specified session
@@ -75,6 +75,7 @@ class Sessions
         throw new UnderConstructionException();
     }
 
+
     /**
      * Drop all sessions for the specified user, this user will be signed out on every device
      *
@@ -85,8 +86,8 @@ class Sessions
     public function drop(UserInterface|int $user): void
     {
         //throw new UnderConstructionException();
-
     }
+
 
     /**
      * Drop all sessions, everyone will be signed out

@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-
 namespace Plugins\Phoundation\Phoundation\Components;
 
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
-
 
 /**
  * ProfileImageMenu class
@@ -26,16 +24,15 @@ class ProfileImageMenu extends Menu
     public function __construct()
     {
         parent::__construct();
-
         $this->setSource([
-                             tr('Profile')  => [
-                                 'url'  => '/my/profile.html',
-                                 'icon' => '',
-                             ],
-                             tr('Sign out') => [
-                                 'url'  => '/sign-out.html',
-                                 'icon' => '',
-                             ],
-                         ]);
+            tr('Profile')  => [
+                'url'  => '/my/profile.html',
+                'icon' => '',
+            ],
+            tr('Sign out') => [
+                'url'  => '/sign-out.html',
+                'icon' => '',
+            ],
+        ]);
     }
 }

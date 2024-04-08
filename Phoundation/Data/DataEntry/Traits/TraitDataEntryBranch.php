@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Branches\Branch;
 
-
 /**
  * Trait TraitDataEntryBranch
  *
@@ -31,6 +30,7 @@ trait TraitDataEntryBranch
         return $this->setSourceValue('branches_id', $branches_id);
     }
 
+
     /**
      * Returns the branch for this object
      *
@@ -39,13 +39,13 @@ trait TraitDataEntryBranch
     public function getBranch(): ?Branch
     {
         $branches_id = $this->getSourceValue('int', 'branches_id');
-
         if ($branches_id) {
             return new Branch($branches_id);
         }
 
         return null;
     }
+
 
     /**
      * Returns the branches_name for this object
@@ -54,8 +54,10 @@ trait TraitDataEntryBranch
      */
     public function getBranchesName(): ?string
     {
-        return $this->getSourceValue('string', 'branches_name') ?? Branch::new($this->getBranchesId(), 'id')?->getName();
+        return $this->getSourceValue('string', 'branches_name') ?? Branch::new($this->getBranchesId(), 'id')
+                                                                         ?->getName();
     }
+
 
     /**
      * Returns the branches_id for this object
@@ -66,6 +68,7 @@ trait TraitDataEntryBranch
     {
         return $this->getSourceValue('int', 'branches_id');
     }
+
 
     /**
      * Sets the branches_id for this object

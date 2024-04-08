@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
 
-
 /**
  * Trait TraitDataEntryMode
  *
@@ -27,7 +26,7 @@ trait TraitDataEntryMode
      */
     public function getMode(): EnumDisplayModeInterface
     {
-        return EnumDisplayMode::from((string)$this->getValueTypesafe('string', 'mode', 'primary'));
+        return EnumDisplayMode::from((string) $this->getValueTypesafe('string', 'mode', 'primary'));
     }
 
 

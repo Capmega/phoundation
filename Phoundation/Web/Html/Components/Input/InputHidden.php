@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 
-
 /**
  * Class InputHidden
  *

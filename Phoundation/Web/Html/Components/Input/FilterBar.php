@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Requests\Response;
 
@@ -29,13 +28,14 @@ class FilterBar extends InputSelect
     {
         // This input element requires some javascript
         Response::loadJavascript('plugins/select2/js/select2.full');
-
         // This input element also requires some javascript
-        Script::new()->setContent('$("' . $this->getId() . '").select2();')->render();
+        Script::new()
+              ->setContent('$("' . $this->getId() . '").select2();')
+              ->render();
+        $this->attributes = $this->renderInputAttributes()
+                                 ->appendSource($this->attributes);
 
-        $this->attributes = $this->renderInputAttributes()->appendSource($this->attributes);
         return parent::render();
-
 //        <div class="select2-purple">
 //            <select class="select2 select2-hidden-accessible" multiple data-placeholder="Select a State" data-dropdown-css-class="select2-purple" style="width: 100%;" data-select2-id="15" tabindex="-1" aria-hidden="true">
 //            </select>

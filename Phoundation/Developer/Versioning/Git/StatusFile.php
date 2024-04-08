@@ -8,16 +8,15 @@ use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
-
 /**
  * Class StatusFile
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class StatusFile
 {
@@ -47,28 +46,14 @@ class StatusFile
      * ChangedFile class constructor
      *
      * @param StatusInterface|string $status
-     * @param string $file
-     * @param string $target
+     * @param string                 $file
+     * @param string                 $target
      */
     public function __construct(StatusInterface|string $status, string $file, string $target)
     {
         $this->file   = $file;
         $this->target = $target;
         $this->status = (is_string($status) ? new Status($status) : $status);
-    }
-
-
-    /**
-     * Returns a new Change object
-     *
-     * @param StatusInterface|string $status
-     * @param string $file
-     * @param string $target
-     * @return static
-     */
-    public static function new(StatusInterface|string $status, string $file, string $target): static
-    {
-        return new static($status, $file, $target);
     }
 
 
@@ -117,24 +102,10 @@ class StatusFile
 
 
     /**
-     * Generates a diff patch file for this file and returns the file name for the patch file
-     *
-     * @return string|null
-     */
-    public function getPatchFile(): ?string
-    {
-        if ($this->target) {
-            return Git::new(dirname($this->target))->saveDiff(basename($this->target));
-        }
-
-        return Git::new(dirname($this->file))->saveDiff(basename($this->file));
-    }
-
-
-    /**
      * Applies the patch for this file on the specified target file
      *
      * @param string $target_path
+     *
      * @return static
      */
     public function patch(string $target_path): static
@@ -142,28 +113,59 @@ class StatusFile
         try {
             // Create the patch file, apply it, delete it, done
             $patch_file = $this->getPatchFile();
-
             if ($patch_file) {
-                Git::new($target_path)->apply($patch_file);
+                Git::new($target_path)
+                   ->apply($patch_file);
 //            File::new($patch_file, Restrictions::new(DIRECTORY_TMP, true))->delete();
             }
 
             return $this;
 
-        }catch(ProcessFailedException $e){
+        } catch (ProcessFailedException $e) {
             $data = $e->getData();
             $data = array_pop($data);
-
             if (str_contains($data, 'patch does not apply')) {
                 throw GitPatchFailedException::new(tr('Failed to apply patch ":patch" to file ":file"', [
                     ':patch' => isset_get($patch_file),
-                    ':file'  => $this->file
-                ]))->addData([
-                    'file' => $this->file
-                ]);
+                    ':file'  => $this->file,
+                ]))
+                                             ->addData([
+                                                 'file' => $this->file,
+                                             ]);
             }
-
             throw $e;
         }
+    }
+
+
+    /**
+     * Generates a diff patch file for this file and returns the file name for the patch file
+     *
+     * @return string|null
+     */
+    public function getPatchFile(): ?string
+    {
+        if ($this->target) {
+            return Git::new(dirname($this->target))
+                      ->saveDiff(basename($this->target));
+        }
+
+        return Git::new(dirname($this->file))
+                  ->saveDiff(basename($this->file));
+    }
+
+
+    /**
+     * Returns a new Change object
+     *
+     * @param StatusInterface|string $status
+     * @param string                 $file
+     * @param string                 $target
+     *
+     * @return static
+     */
+    public static function new(StatusInterface|string $status, string $file, string $target): static
+    {
+        return new static($status, $file, $target);
     }
 }

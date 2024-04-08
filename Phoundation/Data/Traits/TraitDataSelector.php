@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataSelector
  *
@@ -44,6 +43,7 @@ trait TraitDataSelector
     public function setSelector(string $selector): static
     {
         $this->selector = $selector;
+
         return $this;
     }
 }

@@ -9,7 +9,6 @@ use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
-
 /**
  * Class DateRangePickerRanges
  *
@@ -29,17 +28,17 @@ class DateRangePickerRanges extends Iterator implements DateRangePickerRangesInt
      */
     public function useDefault(): static
     {
-        return $this
-            ->clear()
-            ->add('[moment(), moment()]', tr('Today'))
-            ->add('[moment().subtract(1, "days"), moment().subtract(1, "days")]', tr('Yesterday'))
-            ->add('[moment().subtract(6, "days"), moment()]', tr('Last 7 Days'))
-            ->add('[moment().subtract(29, "days"), moment()]', tr('Last 30 Days'))
-            ->add('[moment().startOf("month"), moment().endOf("month")]', tr('This Month'))
-            ->add('[moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]', tr('Last Month'))
-            ->add('[moment().startOf("year"), moment().endOf("year")]', tr('This Year'))
-            ->add('[moment().subtract(1, "year").startOf("year"), moment().subtract(1, "year").endOf("year")]', tr('Last Year'));
+        return $this->clear()
+                    ->add('[moment(), moment()]', tr('Today'))
+                    ->add('[moment().subtract(1, "days"), moment().subtract(1, "days")]', tr('Yesterday'))
+                    ->add('[moment().subtract(6, "days"), moment()]', tr('Last 7 Days'))
+                    ->add('[moment().subtract(29, "days"), moment()]', tr('Last 30 Days'))
+                    ->add('[moment().startOf("month"), moment().endOf("month")]', tr('This Month'))
+                    ->add('[moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]', tr('Last Month'))
+                    ->add('[moment().startOf("year"), moment().endOf("year")]', tr('This Year'))
+                    ->add('[moment().subtract(1, "year").startOf("year"), moment().subtract(1, "year").endOf("year")]', tr('Last Year'));
     }
+
 
     /**
      * @inheritDoc
@@ -51,7 +50,6 @@ class DateRangePickerRanges extends Iterator implements DateRangePickerRangesInt
                 ':value' => $value,
             ]));
         }
-
         if (!preg_match('/^\[\s*moment\s*\(.*?\)(?:.[a-z0-9-_]+\(.*?\))?\s*,\s+moment\s*\(.*?\)(?:.[a-z0-9-_]+\(.*?\)\s*)?\]$/i', $value)) {
             throw new OutOfBoundsException(tr('Specified value ":value" for key ":key" must be a valid daterangepicker range string like "[moment().subtract(6, "days"), moment()]"', [
                 ':key'   => $key,

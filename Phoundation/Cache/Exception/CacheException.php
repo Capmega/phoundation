@@ -6,7 +6,6 @@ namespace Phoundation\Cache\Exception;
 
 use Phoundation\Exception\Exception;
 
-
 /**
  * Class CacheException
  *

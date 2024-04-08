@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator\Interfaces;
 
-
 use DateTime;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -35,6 +34,7 @@ interface ValidatorInterface
      */
     public function set(mixed $value, string|float|int $key): static;
 
+
     /**
      * Forcibly remove the specified source key
      *
@@ -44,12 +44,14 @@ interface ValidatorInterface
      */
     public function removeSourceKey(string|float|int $key): static;
 
+
     /**
      * Returns the currently selected value
      *
      * @return mixed
      */
     public function getSelectedValue(): mixed;
+
 
     /**
      * Allow the validator to check each element in a list of values.
@@ -64,6 +66,7 @@ interface ValidatorInterface
      */
     public function each(): static;
 
+
     /**
      * Will let the validator treat the value as a single variable
      *
@@ -77,6 +80,7 @@ interface ValidatorInterface
      */
     public function single(): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -85,6 +89,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isBoolean(): static;
+
 
     /**
      * Validates the datatype for the selected field
@@ -95,6 +100,7 @@ interface ValidatorInterface
      */
     public function isInteger(): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -104,6 +110,7 @@ interface ValidatorInterface
      */
     public function isFloat(): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -112,6 +119,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isNumeric(): static;
+
 
     /**
      * Validates the datatype for the selected field
@@ -124,6 +132,7 @@ interface ValidatorInterface
      */
     public function isPositive(bool $allow_zero = false): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -135,6 +144,7 @@ interface ValidatorInterface
      */
     public function isNatural(bool $allow_zero = true): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -144,6 +154,7 @@ interface ValidatorInterface
      */
     public function isLatitude(): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -152,6 +163,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isLongitude(): static;
+
 
     /**
      * Validates the datatype for the selected field
@@ -163,6 +175,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isDbId(bool $allow_zero = false): static;
+
 
     /**
      * Validates the datatype for the selected field
@@ -176,6 +189,7 @@ interface ValidatorInterface
      */
     public function isCode(?string $until = null, int $max_characters = 64): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -187,6 +201,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isMoreThan(int|float $amount, bool $equal = false): static;
+
 
     /**
      * Validates the datatype for the selected field
@@ -200,6 +215,7 @@ interface ValidatorInterface
      */
     public function isLessThan(int|float $amount, bool $equal = false): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -212,6 +228,7 @@ interface ValidatorInterface
      */
     public function isBetween(int|float $minimum, int|float $maximum): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -223,6 +240,7 @@ interface ValidatorInterface
      */
     public function isNegative(bool $allow_zero = false): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -232,6 +250,7 @@ interface ValidatorInterface
      */
     public function isCurrency(): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -240,6 +259,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isScalar(): static;
+
 
     /**
      * Validates the datatype for the selected field
@@ -252,6 +272,7 @@ interface ValidatorInterface
      */
     public function isInArray(IteratorInterface|array $array): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -262,6 +283,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isInEnum(UnitEnum $enum): static;
+
 
     /**
      * Ensures that the value has the specified string
@@ -275,6 +297,7 @@ interface ValidatorInterface
      */
     public function contains(string $string, bool $regex = false): static;
 
+
     /**
      * Ensures that the value has the specified string
      *
@@ -286,6 +309,7 @@ interface ValidatorInterface
      * @return static
      */
     public function containsNot(string $string, bool $regex = false): static;
+
 
     /**
      * Validates the datatype for the selected field
@@ -299,6 +323,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isQueryResult(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static;
+
 
     /**
      * Validates the datatype for the selected field
@@ -315,6 +340,7 @@ interface ValidatorInterface
      */
     public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, bool $fail_on_null = true): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -326,6 +352,7 @@ interface ValidatorInterface
      * @return static
      */
     public function containsQueryColumn(PDOStatement|string $query, ?array $execute = null): static;
+
 
     /**
      * Validates the datatype for the selected field
@@ -339,6 +366,7 @@ interface ValidatorInterface
      */
     public function inQueryResultArray(PDOStatement|string $query, ?array $execute = null): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -347,6 +375,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isString(): static;
+
 
     /**
      * Validates that the selected field is equal or larger than the specified number of characters
@@ -357,6 +386,7 @@ interface ValidatorInterface
      */
     public function hasCharacters(int $characters): static;
 
+
     /**
      * Validates that the selected field is equal or larger than the specified number of characters
      *
@@ -365,6 +395,7 @@ interface ValidatorInterface
      * @return static
      */
     public function hasMinCharacters(int $characters): static;
+
 
     /**
      * Validates that the selected field is equal or shorter than the specified number of characters
@@ -375,6 +406,7 @@ interface ValidatorInterface
      */
     public function hasMaxCharacters(?int $characters = null): static;
 
+
     /**
      * Validates that the selected field matches the specified regex
      *
@@ -383,6 +415,7 @@ interface ValidatorInterface
      * @return static
      */
     public function matchesRegex(string $regex): static;
+
 
     /**
      * Validates that the selected field NOT matches the specified regex
@@ -393,6 +426,7 @@ interface ValidatorInterface
      */
     public function matchesNotRegex(string $regex): static;
 
+
     /**
      * Validates that the selected field starts with the specified string
      *
@@ -401,6 +435,7 @@ interface ValidatorInterface
      * @return static
      */
     public function startsWith(string $string): static;
+
 
     /**
      * Validates that the selected field ends with the specified string
@@ -411,12 +446,14 @@ interface ValidatorInterface
      */
     public function endsWith(string $string): static;
 
+
     /**
      * Validates that the selected field contains only alphabet characters
      *
      * @return static
      */
     public function isAlpha(): static;
+
 
     /**
      * Validates that the selected field contains only alphanumeric characters
@@ -425,12 +462,14 @@ interface ValidatorInterface
      */
     public function isAlphaNumeric(): static;
 
+
     /**
      * Validates that the selected field is not a number
      *
      * @return static
      */
     public function isNotNumeric(): static;
+
 
     /**
      * Validates that the selected field contains only lowercase letters
@@ -439,12 +478,14 @@ interface ValidatorInterface
      */
     public function isLowercase(): static;
 
+
     /**
      * Validates that the selected field contains only uppercase letters
      *
      * @return static
      */
     public function isUppercase(): static;
+
 
     /**
      * Validates that the selected field contains only characters that are printable, but neither letter, digit nor
@@ -454,12 +495,14 @@ interface ValidatorInterface
      */
     public function isPunct(): static;
 
+
     /**
      * Validates that the selected field contains only printable characters (including blanks)
      *
      * @return static
      */
     public function isPrintable(): static;
+
 
     /**
      * Validates that the selected field contains only printable characters (NO blanks)
@@ -468,12 +511,14 @@ interface ValidatorInterface
      */
     public function isGraph(): static;
 
+
     /**
      * Validates that the selected field contains only whitespace characters
      *
      * @return static
      */
     public function isWhitespace(): static;
+
 
     /**
      * Validates that the selected field contains only hexadecimal characters
@@ -482,12 +527,14 @@ interface ValidatorInterface
      */
     public function isHexadecimal(): static;
 
+
     /**
      * Validates that the selected field contains only octal numbers
      *
      * @return static
      */
     public function isOctal(): static;
+
 
     /**
      * Validates that the selected field is the specified value
@@ -502,6 +549,7 @@ interface ValidatorInterface
      */
     public function isValue(mixed $validate_value, bool $strict = false, bool $secret = false, bool $ignore_case = true): static;
 
+
     /**
      * Validates that the selected field is a date
      *
@@ -509,6 +557,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isDate(): static;
+
 
     /**
      * Validates that the selected field is a date
@@ -518,6 +567,7 @@ interface ValidatorInterface
      */
     public function isTime(): static;
 
+
     /**
      * Validates that the selected field is a date time field
      *
@@ -525,6 +575,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isDateTime(): static;
+
 
     /**
      * Validates that the selected field is in the past
@@ -535,6 +586,7 @@ interface ValidatorInterface
      */
     public function isBefore(?DateTime $before = null): static;
 
+
     /**
      * Validates that the selected field is in the past
      *
@@ -543,6 +595,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isAfter(?DateTime $after = null): static;
+
 
     /**
      * Validates that the selected field is a credit card
@@ -557,6 +610,7 @@ interface ValidatorInterface
      */
     public function isCreditCard(): static;
 
+
     /**
      * Validates that the selected field is a valid display mode
      *
@@ -564,12 +618,14 @@ interface ValidatorInterface
      */
     public function isDisplayMode(): static;
 
+
     /**
      * Validates that the selected field is a timezone
      *
      * @return static
      */
     public function isTimezone(): static;
+
 
     /**
      * Validates the datatype for the selected field
@@ -580,6 +636,7 @@ interface ValidatorInterface
      */
     public function isArray(): static;
 
+
     /**
      * Validates that the selected field array has a minimal number of elements
      *
@@ -588,6 +645,7 @@ interface ValidatorInterface
      * @return static
      */
     public function hasElements(int $count): static;
+
 
     /**
      * Validates that the selected field array has a minimal number of elements
@@ -598,6 +656,7 @@ interface ValidatorInterface
      */
     public function hasMinimumElements(int $count): static;
 
+
     /**
      * Validates that the selected field array has a maximum number of elements
      *
@@ -607,6 +666,7 @@ interface ValidatorInterface
      */
     public function hasMaximumElements(int $count): static;
 
+
     /**
      * Validates if the selected field is a valid email address
      *
@@ -614,12 +674,14 @@ interface ValidatorInterface
      */
     public function isHttpMethod(): static;
 
+
     /**
      * Validates if the selected field is a valid phone number
      *
      * @return static
      */
     public function isPhoneNumber(): static;
+
 
     /**
      * Validates if the selected field is a valid multiple phones field
@@ -630,12 +692,14 @@ interface ValidatorInterface
      */
     public function isPhoneNumbers(string $separator = ','): static;
 
+
     /**
      * Validates if the selected field is a valid gender
      *
      * @return static
      */
     public function isGender(): static;
+
 
     /**
      * Validates if the selected field is a valid name
@@ -646,6 +710,7 @@ interface ValidatorInterface
      */
     public function isName(int $characters = 128): static;
 
+
     /**
      * Validates if the selected field is a valid name
      *
@@ -655,6 +720,7 @@ interface ValidatorInterface
      */
     public function isUsername(int $characters = 64): static;
 
+
     /**
      * Validates if the selected field is a valid word
      *
@@ -662,12 +728,14 @@ interface ValidatorInterface
      */
     public function isWord(): static;
 
+
     /**
      * Validates if the selected field is a valid variable
      *
      * @return static
      */
     public function isVariable(): static;
+
 
     /**
      * Validates if the selected field is a valid path
@@ -680,6 +748,7 @@ interface ValidatorInterface
      */
     public function isPath(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
 
+
     /**
      * Validates if the selected field is a valid directory
      *
@@ -690,6 +759,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isDirectory(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
+
 
     /**
      * Validates if the selected field is a valid file
@@ -702,6 +772,7 @@ interface ValidatorInterface
      */
     public function isFile(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
 
+
     /**
      * Validates if the selected field is a valid description
      *
@@ -711,6 +782,7 @@ interface ValidatorInterface
      */
     public function isDescription(int $characters = 16_777_200): static;
 
+
     /**
      * Validates if the selected field is a valid password
      *
@@ -718,12 +790,14 @@ interface ValidatorInterface
      */
     public function isPassword(): static;
 
+
     /**
      * Validates if the selected field is a valid and strong enough password
      *
      * @return static
      */
     public function isStrongPassword(): static;
+
 
     /**
      * Validates if the selected field is a valid email address
@@ -734,6 +808,7 @@ interface ValidatorInterface
      */
     public function isColor(int $characters = 6): static;
 
+
     /**
      * Validates if the selected field is a valid email address
      *
@@ -742,6 +817,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isEmail(int $characters = 2048): static;
+
 
     /**
      * Validates if the selected field is a valid email address
@@ -752,6 +828,7 @@ interface ValidatorInterface
      */
     public function isUrl(int $max_size = 2048): static;
 
+
     /**
      * Validates if the selected field is a valid domain name
      *
@@ -759,12 +836,14 @@ interface ValidatorInterface
      */
     public function isDomain(): static;
 
+
     /**
      * Validates if the selected field is a valid IP address
      *
      * @return static
      */
     public function isIp(): static;
+
 
     /**
      * Validates if the selected field is a valid JSON string
@@ -778,6 +857,7 @@ interface ValidatorInterface
      * @see       static::sanitizeDecodeJson()
      */
     public function isJson(): static;
+
 
     /**
      * Validates if the selected field is a valid CSV string
@@ -794,6 +874,7 @@ interface ValidatorInterface
      */
     public function isCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static;
 
+
     /**
      * Validates if the selected field is a serialized string
      *
@@ -806,6 +887,7 @@ interface ValidatorInterface
      */
     public function isSerialized(): static;
 
+
     /**
      * Validates if the selected field is a base58 string
      *
@@ -816,6 +898,7 @@ interface ValidatorInterface
      * @see static::sanitizeDecodeBase58()
      */
     public function isBase58(): static;
+
 
     /**
      * Validates if the selected field is a base64 string
@@ -828,6 +911,7 @@ interface ValidatorInterface
      */
     public function isBase64(): static;
 
+
     /**
      * Validates if the specified function returns TRUE for this value
      *
@@ -838,6 +922,7 @@ interface ValidatorInterface
      */
     public function isTrue(callable $function, string $failure): static;
 
+
     /**
      * Validates if the specified function returns FALSE for this value
      *
@@ -847,6 +932,7 @@ interface ValidatorInterface
      * @return static
      */
     public function isFalse(callable $function, string $failure): static;
+
 
     /**
      * Validates the value is unique in the table
@@ -860,6 +946,7 @@ interface ValidatorInterface
      */
     public function isUnique(?string $failure = null): static;
 
+
     /**
      * Sanitize the selected value by applying htmlentities()
      *
@@ -868,6 +955,7 @@ interface ValidatorInterface
      */
     public function sanitizeHtmlEntities(): static;
 
+
     /**
      * Sanitize the selected value by applying htmlspecialchars()
      *
@@ -875,6 +963,7 @@ interface ValidatorInterface
      * @see trim()
      */
     public function sanitizeHtmlSpecialChars(): static;
+
 
     /**
      * Sanitize the selected value by trimming whitespace
@@ -885,6 +974,7 @@ interface ValidatorInterface
      * @see trim()
      */
     public function sanitizeTrim(string $characters = " \t\n\r\0\x0B"): static;
+
 
     /**
      * Sanitize the selected value by starting the value from the specified needle
@@ -898,6 +988,7 @@ interface ValidatorInterface
      */
     public function sanitizeFrom(string $needle): static;
 
+
     /**
      * Sanitize the selected value by ending the value at the specified needle
      *
@@ -909,6 +1000,7 @@ interface ValidatorInterface
      * @see Validator::sanitizeUntilReverse()
      */
     public function sanitizeUntil(string $needle): static;
+
 
     /**
      * Sanitize the selected value by starting the value from the specified needle, but starting search from the end of
@@ -923,6 +1015,7 @@ interface ValidatorInterface
      */
     public function sanitizeFromReverse(string $needle): static;
 
+
     /**
      * Sanitize the selected value by ending the value at the specified needle, but starting search from the end of the
      * string
@@ -936,6 +1029,7 @@ interface ValidatorInterface
      */
     public function sanitizeUntilReverse(string $needle): static;
 
+
     /**
      * Sanitize the selected value by making the entire string uppercase
      *
@@ -945,6 +1039,7 @@ interface ValidatorInterface
      */
     public function sanitizeUppercase(): static;
 
+
     /**
      * Sanitize the selected value by making the entire string lowercase
      *
@@ -953,6 +1048,7 @@ interface ValidatorInterface
      * @see static::sanitizeUppercase()
      */
     public function sanitizeLowercase(): static;
+
 
     /**
      * Sanitize the selected value with a search / replace
@@ -965,6 +1061,7 @@ interface ValidatorInterface
      * @see trim()
      */
     public function sanitizeSearchReplace(array $replace, bool $regex = false): static;
+
 
     /**
      * Sanitize the selected value by decoding the JSON
@@ -979,6 +1076,7 @@ interface ValidatorInterface
      */
     public function sanitizeDecodeJson(bool $array = true): static;
 
+
     /**
      * Sanitize the selected value by encoding the data to JSON
      *
@@ -987,6 +1085,7 @@ interface ValidatorInterface
      * @see static::sanitizeDecodeJson()
      */
     public function sanitizeEncodeJson(): static;
+
 
     /**
      * Sanitize the selected value by decoding the specified CSV
@@ -1006,6 +1105,7 @@ interface ValidatorInterface
      */
     public function sanitizeDecodeCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static;
 
+
     /**
      * Sanitize the selected value by decoding the specified serialized string
      *
@@ -1019,6 +1119,7 @@ interface ValidatorInterface
      */
     public function sanitizeDecodeSerialized(): static;
 
+
     /**
      * Sanitize the selected value by encoding the specified data to a serialized string
      *
@@ -1026,6 +1127,7 @@ interface ValidatorInterface
      * @see static::sanitizeDecodeSerialized()
      */
     public function sanitizeEncodeSerialized(): static;
+
 
     /**
      * Sanitize the selected value by converting it to an array
@@ -1037,6 +1139,7 @@ interface ValidatorInterface
      * @see static::sanitizeForceString()
      */
     public function sanitizeForceArray(string $characters = ','): static;
+
 
     /**
      * Sanitize the selected value by decoding the specified CSV
@@ -1051,6 +1154,7 @@ interface ValidatorInterface
      */
     public function sanitizeDecodeBase58(): static;
 
+
     /**
      * Sanitize the selected value by decoding the specified CSV
      *
@@ -1064,6 +1168,7 @@ interface ValidatorInterface
      */
     public function sanitizeDecodeBase64(): static;
 
+
     /**
      * Sanitize the selected value by decoding the specified CSV
      *
@@ -1076,6 +1181,7 @@ interface ValidatorInterface
      * @see static::sanitizeForceString()
      */
     public function sanitizeDecodeUrl(): static;
+
 
     /**
      * Sanitize the selected value by making it a string
@@ -1094,6 +1200,7 @@ interface ValidatorInterface
      */
     public function sanitizeForceString(string $characters = ','): static;
 
+
     /**
      * Sanitize the selected value by decoding the specified CSV
      *
@@ -1104,6 +1211,7 @@ interface ValidatorInterface
      */
     public function sanitizePrePost(?string $pre, ?string $post): static;
 
+
     /**
      * Sanitize the selected value by applying the specified transformation callback
      *
@@ -1113,12 +1221,14 @@ interface ValidatorInterface
      */
     public function sanitizeTransform(callable $callback): static;
 
+
     /**
      * Returns the field prefix value
      *
      * @return string|null
      */
     public function getFieldPrefix(): ?string;
+
 
     /**
      * Sets the field prefix value
@@ -1129,12 +1239,14 @@ interface ValidatorInterface
      */
     public function setColumnPrefix(?string $field_prefix): static;
 
+
     /**
      * Returns the table value
      *
      * @return string|null
      */
     public function getTable(): ?string;
+
 
     /**
      * Sets the table value
@@ -1145,6 +1257,7 @@ interface ValidatorInterface
      */
     public function setTable(?string $table): static;
 
+
     /**
      * Selects the specified key within the array that we are validating
      *
@@ -1153,6 +1266,7 @@ interface ValidatorInterface
      * @return static
      */
     public function standardSelect(string|int $field): static;
+
 
     /**
      * Rename the from_key to to_key if it exists

@@ -9,13 +9,15 @@ interface TagInterface
     /**
      * Creates a new tag
      *
-     * @param string $message
-     * @param string $annotation
+     * @param string      $message
+     * @param string      $annotation
      * @param string|null $commit
-     * @param bool|null $signed
+     * @param bool|null   $signed
+     *
      * @return $this
      */
     public function tag(string $message, string $annotation, ?string $commit = null, ?bool $signed = null): static;
+
 
     /**
      * Returns a list of all available tags
@@ -24,20 +26,24 @@ interface TagInterface
      */
     public function list(): IteratorInterface;
 
+
     /**
      * Pushes all local tags to the specified remote
      *
-     * @param string $repository
+     * @param string      $repository
      * @param string|null $branch
+     *
      * @return static
      */
     public function push(string $repository, ?string $branch = null): static;
 
+
     /**
      * Deletes the specified tag
      *
-     * @param string $tag
+     * @param string      $tag
      * @param string|null $remote
+     *
      * @return static
      */
     public function delete(string $tag, ?string $remote = null): static;

@@ -7,7 +7,6 @@ namespace Phoundation\Data;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 
-
 /**
  * Class Iterator
  *

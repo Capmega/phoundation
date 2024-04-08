@@ -7,7 +7,6 @@ namespace Phoundation\Os\Processes\Traits;
 use Phoundation\Os\Processes\Interfaces\TaskInterface;
 use Phoundation\Os\Processes\Task;
 
-
 /**
  * Trait TraitDataEntryTask
  *
@@ -25,6 +24,7 @@ trait TraitDataEntryTask
      */
     protected ?TaskInterface $task;
 
+
     /**
      * Sets the tasks_id for this object
      *
@@ -35,8 +35,10 @@ trait TraitDataEntryTask
     public function setTasksId(?int $tasks_id): static
     {
         unset($this->task);
+
         return $this->setValue('tasks_id', $tasks_id);
     }
+
 
     /**
      * Returns the tasks hostname for this object
@@ -45,8 +47,10 @@ trait TraitDataEntryTask
      */
     public function getTasksCode(): ?string
     {
-        return $this->getTask()?->getCode();
+        return $this->getTask()
+                    ?->getCode();
     }
+
 
     /**
      * Returns the TaskInterface object for this object
@@ -74,11 +78,13 @@ trait TraitDataEntryTask
     {
         if ($task) {
             $this->task = $task;
+
             return $this->setValue('tasks_id', $task->getId());
         }
 
         return $this->setTasksId(null);
     }
+
 
     /**
      * Returns the tasks_id for this object
@@ -90,6 +96,7 @@ trait TraitDataEntryTask
         return $this->getValueTypesafe('int', 'tasks_id');
 
     }
+
 
     /**
      * Sets the task code for this object

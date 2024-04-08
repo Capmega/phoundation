@@ -18,7 +18,6 @@ use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 use Stringable;
 
-
 /**
  * Class Mount
  *
@@ -44,6 +43,7 @@ class Mount extends Command
         $this->packages->addForOperatingSystem('debian', 'nfs-utils,cifs-utils,psmisc');
     }
 
+
     /**
      * Returns true if the specified path is a mount source, false if it is a target.
      *
@@ -59,6 +59,7 @@ class Mount extends Command
         return null_not(static::isSource($path, $exception));
     }
 
+
     /**
      * Returns true if the specified path is a mount source, false if it is a target.
      *
@@ -71,12 +72,12 @@ class Mount extends Command
      */
     public static function isSource(Stringable|string $path, bool $exception = true): ?bool
     {
-        $path      = Directory::new($path, Restrictions::new('/'))->getPath(true);
+        $path      = Directory::new($path, Restrictions::new('/'))
+                              ->getPath(true);
         $sources   = Mounts::listMountSources();
         $targets   = Mounts::listMountTargets();
         $is_source = $sources->keyExists($path);
         $is_target = $targets->keyExists($path);
-
         if ($is_source) {
             if ($is_target) {
                 // Wut? its target that was used as a source? Could be a bind? Should this be logged?
@@ -90,7 +91,6 @@ class Mount extends Command
             if ($is_target) {
                 return false;
             }
-
             // Not even mounted!
             if ($exception) {
                 throw new NotMountedException(tr('Cannot check path ":path" to see if it is a mount source, is neither a mount source or target', [
@@ -102,6 +102,7 @@ class Mount extends Command
         }
     }
 
+
     /**
      * Returns true if the specified path is a mount source, false if it is a target.
      *
@@ -111,9 +112,13 @@ class Mount extends Command
      */
     public static function isMounted(Stringable|string $path): bool
     {
-        $path = Directory::new($path, Restrictions::new('/'))->getPath(true);
-        return Mounts::listMountTargets()->keyExists($path);
+        $path = Directory::new($path, Restrictions::new('/'))
+                         ->getPath(true);
+
+        return Mounts::listMountTargets()
+                     ->keyExists($path);
     }
+
 
     /**
      * Mount the specified source to the specified target
@@ -128,16 +133,16 @@ class Mount extends Command
      */
     public function mount(Stringable|string $source, Stringable|string $target, ?string $filesystem = null, Stringable|array|string|null $options = null, ?int $timeout = null): void
     {
-        Directory::new($target, $this->restrictions)->ensure();
-
-        Hook::new('phoundation')->execute('file-system/mount', [
-            'source'      => $source,
-            'target'      => $target,
-            'file-system' => $target,
-            'options'     => $target,
-            'timeout'     => $timeout,
-        ]);
-
+        Directory::new($target, $this->restrictions)
+                 ->ensure();
+        Hook::new('phoundation')
+            ->execute('file-system/mount', [
+                'source'      => $source,
+                'target'      => $target,
+                'file-system' => $target,
+                'options'     => $target,
+                'timeout'     => $timeout,
+            ]);
         try {
             // Build the process parameters, then execute
             $this->clearArguments()
@@ -146,9 +151,9 @@ class Mount extends Command
                  ->setSignal(9)
                  ->setSudo(true)
                  ->addArguments([
-                                    (string)$source,
-                                    (string)$target,
-                                ])
+                     (string) $source,
+                     (string) $target,
+                 ])
                  ->addArguments($options ? [
                      '-o',
                      Strings::force($options, ','),
@@ -167,12 +172,13 @@ class Mount extends Command
                     ':source' => $source,
                     ':target' => $target,
                     ':fs'     => $filesystem,
-                ]),                                         $e)->makeWarning();
+                ]), $e)
+                                                      ->makeWarning();
             }
-
             throw $e;
         }
     }
+
 
     /**
      * Returns a list of all current mount points
@@ -187,6 +193,7 @@ class Mount extends Command
                     ->executeReturnIterator();
     }
 
+
     /**
      * Returns a list of all current mount points
      *
@@ -196,8 +203,9 @@ class Mount extends Command
      */
     public function deviceIsMounted(FileInterface|string $device): bool
     {
-        return (bool)$this->deviceMountCount($device);
+        return (bool) $this->deviceMountCount($device);
     }
+
 
     /**
      * Returns the number of times this device is mounted
@@ -208,8 +216,10 @@ class Mount extends Command
      */
     public function deviceMountCount(FileInterface|string $device): int
     {
-        return $this->deviceMountList($device)->getCount();
+        return $this->deviceMountList($device)
+                    ->getCount();
     }
+
 
     /**
      * Returns a list of all directories where the specified device is mounted
@@ -222,7 +232,8 @@ class Mount extends Command
     {
         return $this->clearArguments()
                     ->setCommand('mount')
-                    ->setPipe(Process::new('grep')->addArgument($device))
+                    ->setPipe(Process::new('grep')
+                                     ->addArgument($device))
                     ->executeReturnIterator();
     }
 }

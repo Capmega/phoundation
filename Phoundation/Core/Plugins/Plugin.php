@@ -123,6 +123,30 @@ class Plugin extends DataEntry implements PluginInterface
 
 
     /**
+     * Returns the plugin path for this plugin
+     *
+     * @return string
+     */
+    public function getPath(): string
+    {
+        $path = $this->getValueTypesafe('string', 'path');
+        if (!$path) {
+            // Path hasn't been set yet? That is weird as it should always be set UNLESS its new.
+            if ($this->isNew()) {
+                // New object, detect the path automatically
+                return dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT)) . '/';
+            }
+            throw new PluginsException(tr('Plugin ":plugin" from vendor ":vendor" does not have a class path set', [
+                ':vendor' => get_class($this),
+                ':plugin' => get_class($this),
+            ]));
+        }
+
+        return $path;
+    }
+
+
+    /**
      * Returns if this plugin is disabled or not
      *
      * @return bool
@@ -322,6 +346,27 @@ class Plugin extends DataEntry implements PluginInterface
 
 
     /**
+     * Returns the vendor name for this plugin
+     *
+     * @return string|null
+     */
+    public function getVendor(): ?string
+    {
+        $vendor = $this->getValueTypesafe('string', 'vendor');
+        if ($vendor === null) {
+            $directory = $this->getPath();
+            if ($directory) {
+                return Strings::cut($directory, 'Plugins/', '/');
+            }
+
+            return null;
+        }
+
+        return $vendor;
+    }
+
+
+    /**
      * Sets the priority for this plugin
      *
      * @param int|null $priority
@@ -359,6 +404,35 @@ class Plugin extends DataEntry implements PluginInterface
     public function setClass(?string $class): static
     {
         return $this->setValue('class', $class);
+    }
+
+
+    /**
+     * Sets the main vendor for this plugin
+     *
+     * @param string|null $vendor
+     *
+     * @return static
+     */
+    public function setVendor(?string $vendor): static
+    {
+        return $this->setValue('vendor', $vendor);
+    }
+
+
+    /**
+     * Returns the class path for this plugin
+     *
+     * @return string|null
+     */
+    public function getClass(): ?string
+    {
+        $directory = $this->getPath();
+        if ($directory) {
+            return Library::getClassPath(DIRECTORY_ROOT . $directory . 'Library/Plugin.php');
+        }
+
+        return null;
     }
 
 
@@ -407,82 +481,6 @@ class Plugin extends DataEntry implements PluginInterface
     public function setWebEnabled(int|bool|null $web_enabled): static
     {
         return $this->setValue('web_enabled', (bool) $web_enabled);
-    }
-
-
-    /**
-     * Returns the vendor name for this plugin
-     *
-     * @return string|null
-     */
-    public function getVendor(): ?string
-    {
-        $vendor = $this->getValueTypesafe('string', 'vendor');
-
-        if ($vendor === null) {
-            $directory = $this->getPath();
-
-            if ($directory) {
-                return Strings::cut($directory, 'Plugins/', '/');
-            }
-
-            return null;
-        }
-
-        return $vendor;
-    }
-
-
-    /**
-     * Sets the main vendor for this plugin
-     *
-     * @param string|null $vendor
-     *
-     * @return static
-     */
-    public function setVendor(?string $vendor): static
-    {
-        return $this->setValue('vendor', $vendor);
-    }
-
-
-    /**
-     * Returns the plugin path for this plugin
-     *
-     * @return string
-     */
-    public function getPath(): string
-    {
-        $path = $this->getValueTypesafe('string', 'path');
-        if (!$path) {
-            // Path hasn't been set yet? That is weird as it should always be set UNLESS its new.
-            if ($this->isNew()) {
-                // New object, detect the path automatically
-                return dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT)) . '/';
-            }
-            throw new PluginsException(tr('Plugin ":plugin" from vendor ":vendor" does not have a class path set', [
-                ':vendor' => get_class($this),
-                ':plugin' => get_class($this),
-            ]));
-        }
-
-        return $path;
-    }
-
-
-    /**
-     * Returns the class path for this plugin
-     *
-     * @return string|null
-     */
-    public function getClass(): ?string
-    {
-        $directory = $this->getPath();
-        if ($directory) {
-            return Library::getClassPath(DIRECTORY_ROOT . $directory . 'Library/Plugin.php');
-        }
-
-        return null;
     }
 
 

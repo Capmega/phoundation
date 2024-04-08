@@ -8,7 +8,6 @@ use Phoundation\Core\Locale\Language\Interfaces\LanguagesInterface;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
-
 /**
  * Languages class
  *
@@ -101,9 +100,9 @@ class Languages extends DataList implements LanguagesInterface
                                    FROM     `core_languages`
                                    WHERE    `core_languages`.`status` IS NULL
                                    ORDER BY `name`');
-
         // The keys contain the ids...
         $this->source = array_flip($this->source);
+
         return $this;
     }
 }

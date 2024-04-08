@@ -6,7 +6,6 @@ namespace Phoundation\Developer\Project;
 
 use Exception;
 
-
 /**
  * Import class
  *
@@ -54,7 +53,7 @@ abstract class Import
     public function __construct(?bool $demo = null, ?int $min = null, ?int $max = null)
     {
         $this->demo  = $demo;
-        $this->count = random_int((int)$min, (int)$max);
+        $this->count = random_int((int) $min, (int) $max);
     }
 
 
@@ -80,6 +79,7 @@ abstract class Import
      * @return int
      */
     abstract public function execute(): int;
+
 
     /**
      * Returns the name for this importers object

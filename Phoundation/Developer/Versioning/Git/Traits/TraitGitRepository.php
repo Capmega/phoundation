@@ -8,16 +8,15 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Os\Processes\Process;
 
-
 /**
  * Trait TraitGitRepository
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 trait TraitGitRepository
 {
@@ -44,6 +43,7 @@ trait TraitGitRepository
      * Returns a new GitRepository object
      *
      * @param string $repository
+     *
      * @return static
      */
     public static function new(string $repository): static
@@ -55,33 +55,34 @@ trait TraitGitRepository
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @param string $repository
-     * @return static
+     * @return string
      */
-    public function setRepository(string $repository): static
+    public function getRepository(): string
     {
-        $this->repository = Path::getAbsolute($repository);
-        $this->git  = Process::new('git')->setExecutionDirectory($this->repository);
-
-        if (!$this->repository) {
-            if (!file_exists($repository)) {
-                throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [
-                    ':directory' => $repository
-                ]));
-            }
-        }
-
-        return $this;
+        return $this->repository;
     }
 
 
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @return string
+     * @param string $repository
+     *
+     * @return static
      */
-    public function getRepository(): string
+    public function setRepository(string $repository): static
     {
-        return $this->repository;
+        $this->repository = Path::getAbsolute($repository);
+        $this->git        = Process::new('git')
+                                   ->setExecutionDirectory($this->repository);
+        if (!$this->repository) {
+            if (!file_exists($repository)) {
+                throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [
+                    ':directory' => $repository,
+                ]));
+            }
+        }
+
+        return $this;
     }
 }

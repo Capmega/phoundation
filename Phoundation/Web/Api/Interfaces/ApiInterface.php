@@ -4,7 +4,6 @@ namespace Phoundation\Web\Api\Interfaces;
 
 use Phoundation\Web\Json\Interfaces\JsonInterface;
 
-
 /**
  * Interface ApiInterface
  *
@@ -23,6 +22,7 @@ interface ApiInterface extends JsonInterface
      * @return string|null
      */
     public function execute(): ?string;
+
 
     /**
      * Build and send API specific HTTP headers

@@ -9,7 +9,6 @@ use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
-
 /**
  * Class Zcat
  *
@@ -23,7 +22,6 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 class Zcat extends Command
 {
     use TraitDataFile;
-
 
     /**
      * Zcat class constructor
@@ -51,8 +49,8 @@ class Zcat extends Command
         if ($this->cached_command_line) {
             return $this->cached_command_line;
         }
-
         $this->addArgument($this->file);
+
         return parent::getFullCommandLine($background);
     }
 

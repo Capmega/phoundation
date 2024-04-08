@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Geo\Countries\Country;
 
-
 /**
  * Trait DataEntryCountry
  *
@@ -51,7 +50,6 @@ trait TraitDataEntryCountry
     public function getCountry(): ?Country
     {
         $countries_id = $this->getValueTypesafe('int', 'countries_id');
-
         if ($countries_id) {
             return new Country($countries_id);
         }

@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Providers\Provider;
 
-
 /**
  * Trait TraitDataEntryProvider
  *
@@ -51,7 +50,6 @@ trait TraitDataEntryProvider
     public function getProvider(): ?Provider
     {
         $providers_id = $this->getValueTypesafe('int', 'providers_id');
-
         if ($providers_id) {
             return new Provider($providers_id, 'id');
         }

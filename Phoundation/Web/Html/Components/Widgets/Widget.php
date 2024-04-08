@@ -8,7 +8,6 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Traits\TraitBackground;
 use Phoundation\Web\Html\Traits\TraitMode;
 
-
 /**
  * Widget class
  *
@@ -23,7 +22,6 @@ abstract class Widget extends ElementsBlock
 {
     use TraitMode;
     use TraitBackground;
-
 
     /**
      * Show the type color as gradient or not
@@ -54,6 +52,7 @@ abstract class Widget extends ElementsBlock
     public function setGradient(bool $gradient): static
     {
         $this->gradient = $gradient;
+
         return $this;
     }
 }

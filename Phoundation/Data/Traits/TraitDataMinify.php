@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataMinify
  *
@@ -44,6 +43,7 @@ trait TraitDataMinify
     public function setMinify(bool $minify): static
     {
         $this->minify = $minify;
+
         return $this;
     }
 }

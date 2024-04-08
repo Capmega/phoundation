@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
-
 /**
  * Messages class
  *
@@ -34,6 +33,7 @@ class Messages extends DataList
         parent::__construct();
     }
 
+
     /**
      * Returns the name of this DataEntry class
      *
@@ -44,6 +44,7 @@ class Messages extends DataList
         return Message::class;
     }
 
+
     /**
      * Returns the field that is unique for this object
      *
@@ -53,6 +54,7 @@ class Messages extends DataList
     {
         return null;
     }
+
 
     /**
      * Returns an HTML <select> for the available object entries
@@ -77,6 +79,7 @@ class Messages extends DataList
                           ->setNone(tr('Select a message'))
                           ->setObjectEmpty(tr('No messages available'));
     }
+
 
     /**
      * Returns the table name used by this object

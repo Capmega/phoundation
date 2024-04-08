@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class HtmlTable
  *
@@ -38,7 +37,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 {
     use TraitDataTitle;
     use TraitDataCallbacks;
-
 
     /**
      * The HTML class element attribute cache for the <tr> element
@@ -205,12 +203,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setColumns(ArrayableInterface|array|string|null $columns): static
     {
         $columns = Arrays::force($columns);
-
         if ($columns instanceof ArrayableInterface) {
             $columns = $columns->__toArray();
         }
-
         $this->columns = $columns;
+
         return $this;
     }
 
@@ -236,6 +233,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setHeaderText(?string $header_text): static
     {
         $this->header_text = $header_text;
+
         return $this;
     }
 
@@ -261,6 +259,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setNullStatus(?string $null_status): static
     {
         $this->null_status = $null_status;
+
         return $this;
     }
 
@@ -275,6 +274,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->responsive;
     }
 
+
     /**
      * Sets if the table is responsive or not
      *
@@ -285,8 +285,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setResponsive(bool $responsive): static
     {
         $this->responsive = $responsive;
+
         return $this;
     }
+
 
     /**
      * Sets if the table will process entities in the source data or not
@@ -298,6 +300,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->process_entities;
     }
 
+
     /**
      * Sets if the table will process entities in the source data or not
      *
@@ -308,8 +311,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setProcessEntities(bool $process_entities): static
     {
         $this->process_entities = $process_entities;
+
         return $this;
     }
+
 
     /**
      * Returns if the table is full width or not
@@ -332,6 +337,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setFullWidth(bool $full_width): static
     {
         $this->full_width = $full_width;
+
         return $this;
     }
 
@@ -365,6 +371,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->anchor_data_attributes;
     }
 
+
     /**
      * Returns the table's top buttons
      *
@@ -379,6 +386,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->top_buttons;
     }
 
+
     /**
      * Returns the classes used for <tr> tags
      *
@@ -388,6 +396,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     {
         return $this->row_classes;
     }
+
 
     /**
      * Returns the HTML class element attribute
@@ -399,8 +408,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setRowClasses(?string $classes): static
     {
         $this->row_classes = $classes;
+
         return $this;
     }
+
 
     /**
      * Returns the HTML class element attribute for <td> tags
@@ -412,6 +423,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->column_classes;
     }
 
+
     /**
      * Sets the HTML class element attribute for <td> tags
      *
@@ -422,8 +434,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setColumnClasses(?string $classes): static
     {
         $this->column_classes = $classes;
+
         return $this;
     }
+
 
     /**
      * Returns the HTML class element attribute for <td> tags
@@ -435,6 +449,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->anchor_classes;
     }
 
+
     /**
      * Sets the HTML class element attribute for <td> tags
      *
@@ -445,8 +460,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setAnchorClasses(?string $classes): static
     {
         $this->anchor_classes = $classes;
+
         return $this;
     }
+
 
     /**
      * Returns if the first column automatically is converted to checkboxes
@@ -458,6 +475,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->checkbox_selectors;
     }
 
+
     /**
      * Sets if the first column automatically is converted to checkboxes
      *
@@ -468,8 +486,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setCheckboxSelectors(EnumTableIdColumnInterface $checkbox_selectors): static
     {
         $this->checkbox_selectors = $checkbox_selectors;
+
         return $this;
     }
+
 
     /**
      * Returns the URL that applies to each row
@@ -481,6 +501,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->row_url;
     }
 
+
     /**
      * Sets the URL that applies to each row
      *
@@ -490,9 +511,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     public function setRowUrl(Stringable|string|null $row_url): static
     {
-        $this->row_url = (string)$row_url;
+        $this->row_url = (string) $row_url;
+
         return $this;
     }
+
 
     /**
      * Returns the table headers
@@ -508,6 +531,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->footers;
     }
 
+
     /**
      * Returns the table headers
      *
@@ -518,12 +542,14 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setFooters(IteratorInterface|array|null $footers): static
     {
         if (is_array($footers)) {
-            $footers = Iterator::new()->setSource($footers);
+            $footers = Iterator::new()
+                               ->setSource($footers);
         }
-
         $this->footers = $footers;
+
         return $this;
     }
+
 
     /**
      * Render the table body
@@ -535,13 +561,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $return = null;
         $return .= $this->renderBodyQuery();
         $return .= $this->renderBodyArray();
-
         if (!$return) {
             return $this->renderBodyEmpty();
         }
 
         return $this->renderHeaders() . $return . $this->renderFooters();
     }
+
 
     /**
      * Generates and returns the HTML string for a table body from an array source
@@ -557,15 +583,12 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     protected function renderBodyQuery(): ?string
     {
         $return = '<tbody>';
-
         if (!$this->source_query) {
             return null;
         }
-
         if (!$this->source_query->rowCount()) {
             return '';
         }
-
         // Process SQL resource
         while ($row = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
             $this->executeCallbacks($row, EnumTableRowType::row, $params);
@@ -574,6 +597,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         return $return . '</tbody>';
     }
+
 
     /**
      * Returns a table row
@@ -588,45 +612,36 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     {
         if (!$this->headers) {
             // Auto set headers from the column names
-            $this->getHeaders()->setSource(array_keys($row_values));
-
+            $this->getHeaders()
+                 ->setSource(array_keys($row_values));
             // Update the headers to look pretty for humans
             foreach ($this->headers as $key => $column_header) {
                 $column_header = str_replace([
-                                                 '-',
-                                                 '_',
-                                             ], ' ', (string)$column_header);
+                    '-',
+                    '_',
+                ], ' ', (string) $column_header);
                 $column_header = Strings::capitalize($column_header);
-
                 $this->headers->set($column_header, $key);
             }
         }
-
         // ID is the first value in the row
         $row_id = reset($row_values);
-
         $row_data = '';
         $this->count++;
-
         // Add data-* in this option?
         if (array_key_exists($key, $this->source_data)) {
             $row_data = ' data-' . $key . '="' . $this->source_data[$key] . '"';
         }
-
         $return = '<tr' . $row_data . $this->renderRowClassString() . '>';
         $first  = true;
-
         foreach ($row_values as $column => $value) {
             $made_checkbox = false;
-
             if ($first) {
                 // Convert first column to checkboxes?
                 $value = $this->renderCheckboxColumn($column, $value, $made_checkbox);
                 $first = false;
-
                 $params['htmlentities'] = !$made_checkbox;
                 $params['no_url']       = ($made_checkbox or !$value);
-
                 // If HtmlTable::renderCheckboxColumn() returned NULL, it means that we should not render this cell
                 if ($value !== null) {
                     $return .= $this->renderCell($row_id, $column, $value, $params);
@@ -640,6 +655,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         return $return . '</tr>';
     }
+
 
     /**
      * Returns the table headers
@@ -655,6 +671,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->headers;
     }
 
+
     /**
      * Builds and returns the class string
      *
@@ -668,6 +685,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         return null;
     }
+
 
     /**
      * Changes the first column to a checkbox
@@ -683,13 +701,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         switch ($this->checkbox_selectors) {
             case EnumTableIdColumn::hidden:
                 return null;
-
             case EnumTableIdColumn::visible:
-                return (string)$value;
-
+                return (string) $value;
             case EnumTableIdColumn::checkbox:
                 // no break
-
             default:
                 $made_checkbox = true;
 
@@ -699,6 +714,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                                     ->render();
         }
     }
+
 
     /**
      * Returns a table cell
@@ -716,33 +732,29 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             // Default status label for when status is NULL
             $value = $this->null_status;
         }
-
         // Use row or column URL's?
         // Use column convert?
         $attributes = '';
-        $value      = (string)$value;
-        $url        = $this->getColumnUrls()->get($column, false);
-        $convert    = $this->getConvertColumns()->get($column, false);
-
+        $value      = (string) $value;
+        $url        = $this->getColumnUrls()
+                           ->get($column, false);
+        $convert    = $this->getConvertColumns()
+                           ->get($column, false);
         if (!$url and $this->row_url) {
             $url = $this->row_url;
         }
-
         if (isset_get($params['no_url'])) {
             $url = null;
         }
-
         if ($convert) {
             if (is_callable($convert)) {
                 // Convert this column
                 $converted = $convert($value);
-
                 if (!is_string($converted)) {
                     throw new OutOfBoundsException(tr('Conversion for column ":column" callback does not return a string as required', [
                         ':column' => $column,
                     ]));
                 }
-
                 $value = $converted;
             }
 
@@ -752,11 +764,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 $value = str_replace(PHP_EOL, '<br>', $value);
             }
         }
-
         if (isset($url)) {
             $value = $this->renderUrl($row_id, $column, $value, $url);
         }
-
         // Add data attributes?
         if ($this->column_data_attributes) {
             foreach ($this->column_data_attributes as $data_key => $data_value) {
@@ -767,6 +777,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         // Build row with TD tags with attributes
         return '<td' . $attributes . $this->renderColumnClassString() . '>' . $value . '</td>';
     }
+
 
     /**
      * Returns the URL that applies to each column
@@ -782,6 +793,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->column_urls;
     }
 
+
     /**
      * Returns the table's column conversions
      *
@@ -795,6 +807,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         return $this->convert_columns;
     }
+
 
     /**
      * Builds a URL around the specified column value
@@ -810,13 +823,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     {
         if ($url) {
             // Ensure all :ROW and :COLUMN markings are converted
-            $url = str_replace(':ROW', urlencode((string)$row_id), $url);
-            $url = str_replace('%3AROW', urlencode((string)$row_id), $url);
-            $url = str_replace(':COLUMN', urlencode((string)$column), $url);
-            $url = str_replace('%3ACOLUMN', urlencode((string)$column), $url);
-
+            $url = str_replace(':ROW', urlencode((string) $row_id), $url);
+            $url = str_replace('%3AROW', urlencode((string) $row_id), $url);
+            $url = str_replace(':COLUMN', urlencode((string) $column), $url);
+            $url = str_replace('%3ACOLUMN', urlencode((string) $column), $url);
             $attributes = '';
-
             if ($this->anchor_data_attributes) {
                 foreach ($this->anchor_data_attributes as $data_key => $data_value) {
                     $attributes .= ' data-' . $data_key . '="' . $data_value . '"';
@@ -828,6 +839,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         return $url;
     }
+
 
     /**
      * Builds and returns the class string
@@ -843,6 +855,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return null;
     }
 
+
     /**
      * Builds and returns the class string
      *
@@ -856,6 +869,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         return null;
     }
+
 
     /**
      * Generates and returns the HTML string for a table body from an array source
@@ -873,9 +887,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         if (!$this->source) {
             return null;
         }
-
         $return = '<tbody>';
-
         // Process array resource. Go over each row and in each row over each column
         foreach ($this->source as $key => $row) {
             if (!is_array($row)) {
@@ -884,18 +896,14 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                         ':type' => gettype($row),
                     ]));
                 }
-
                 // Row values is actually an object, get its content
                 $row = $row->__toArray();
             }
-
             if (isset($this->columns)) {
                 $row = Arrays::keepKeys($row, $this->columns);
             }
-
             $this->executeCallbacks($row, EnumTableRowType::row, $params);
             $return .= $this->renderRow($row, $key, $params);
-
 //            $row_data = '';
 //            $this->count++;
 //
@@ -925,6 +933,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $return . '</tbody>';
     }
 
+
     /**
      * Render an <option> for "this select has no data and is empty"
      *
@@ -940,6 +949,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return '';
     }
 
+
     /**
      * Render the table headers
      *
@@ -951,27 +961,21 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             // No headers because no content
             return null;
         }
-
         $return = '<thead><tr>';
         $first  = true;
-
         foreach ($this->headers as $column => $header) {
             if ($first) {
                 $first = false;
-
                 switch ($this->checkbox_selectors) {
                     case EnumTableIdColumn::hidden:
                         break;
-
                     case EnumTableIdColumn::checkbox:
-                        $return .= '<th>' .
-                            InputCheckbox::new()
-                                         ->setName($column . '[]')
-                                         ->setValue(1)
-                                         ->render() . '
+                        $return .= '<th>' . InputCheckbox::new()
+                                                         ->setName($column . '[]')
+                                                         ->setValue(1)
+                                                         ->render() . '
                                     </th>';
                         break;
-
                     case EnumTableIdColumn::visible:
                         $return .= '<th>' . $header . '</th>';
                         break;
@@ -985,6 +989,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $return . '</tr></thead>';
     }
 
+
     /**
      * Render the table footers
      *
@@ -996,12 +1001,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             // No footers because no content
             return null;
         }
-
         $return  = '<tfoot><tr>';
         $footers = $this->footers->__toArray();
-
         $this->executeCallbacks($footers, EnumTableRowType::footer, $params);
-
         foreach ($footers as $column => $footer) {
             $return .= '<th>' . $footer . '</th>';
         }

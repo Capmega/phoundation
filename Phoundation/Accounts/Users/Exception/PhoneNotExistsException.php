@@ -7,7 +7,6 @@ namespace Phoundation\Accounts\Users\Exception;
 use Phoundation\Accounts\Users\Exception\Interfaces\PhoneNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 
-
 /**
  * Class PhoneNotExistsException
  *

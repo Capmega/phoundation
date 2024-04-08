@@ -7,7 +7,6 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
-
 /**
  * Class ProcessCommands
  *
@@ -33,19 +32,16 @@ class Pgrep extends Command
     public function do(string $process): ?int
     {
         try {
-            $output = $this
-                ->setCommand('pgrep')
-                ->addArgument($process)
-                ->setTimeout(1)
-                ->executeReturnArray();
-
+            $output = $this->setCommand('pgrep')
+                           ->addArgument($process)
+                           ->setTimeout(1)
+                           ->executeReturnArray();
             $output = array_pop($output);
-
             if (!$output or !is_numeric($output)) {
                 return null;
             }
 
-            return (integer)$output;
+            return (integer) $output;
 
         } catch (ProcessFailedException $e) {
             static::handleException('pgrep', $e);
@@ -68,16 +64,13 @@ class Pgrep extends Command
             if ($pid < 0) {
                 throw new OutOfBoundsException(tr('The specified process id ":pid" is invalid. Please specify a positive integer', [':pid' => $pid]));
             }
-
-            $output = $this
-                ->setCommand('pgrep')
-                ->addArguments([
-                                   '-P',
-                                   $pid,
-                               ])
-                ->setTimeout(1)
-                ->executeReturnArray();
-
+            $output = $this->setCommand('pgrep')
+                           ->addArguments([
+                               '-P',
+                               $pid,
+                           ])
+                           ->setTimeout(1)
+                           ->executeReturnArray();
             // Remove the pgrep command PID
             unset($output[0]);
 

@@ -9,7 +9,6 @@ use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 
-
 /**
  * Interface RoleInterface
  *
@@ -30,12 +29,14 @@ interface RoleInterface extends DataEntryInterface
      */
     public function getRights(): RightsInterface;
 
+
     /**
      * Returns the users that are linked to this role
      *
      * @return UsersInterface
      */
     public function getUsers(): UsersInterface;
+
 
     /**
      * * Creates and returns an HTML DataEntry form

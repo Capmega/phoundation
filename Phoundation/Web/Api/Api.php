@@ -8,7 +8,6 @@ use Phoundation\Web\Api\Interfaces\ApiInterface;
 use Phoundation\Web\Json\Json;
 use Phoundation\Web\Requests\Response;
 
-
 /**
  * Class Api
  *

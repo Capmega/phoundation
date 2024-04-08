@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Web\Html\Components\Forms\DataEntryFormColumn;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 
-
 /**
  * Class DataEntryFormRows
  *
@@ -28,6 +27,7 @@ interface DataEntryFormRowsInterface
      */
     public function getColumnCount(): int;
 
+
     /**
      * Sets the maximum number of columns per row
      *
@@ -36,6 +36,7 @@ interface DataEntryFormRowsInterface
      * @return $this
      */
     public function setColumnCount(int $count): static;
+
 
     /**
      * Adds the column component and its definition as a DataEntryFormColumn
@@ -47,6 +48,7 @@ interface DataEntryFormRowsInterface
      */
     public function add(?DefinitionInterface $definition = null, RenderInterface|null $component = null): static;
 
+
     /**
      * Adds the specified DataEntryFormColumn to this DataEntryFormRow
      *
@@ -55,6 +57,7 @@ interface DataEntryFormRowsInterface
      * @return $this
      */
     public function addColumn(DataEntryFormColumn $column): static;
+
 
     /**
      * Renders and returns the HTML for this component

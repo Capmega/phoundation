@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Stringable;
 
-
 /**
  * Trait TraitDataFile
  *
@@ -47,7 +46,8 @@ trait TraitDataFile
      */
     public function setFile(Stringable|string|null $file): static
     {
-        $this->file = get_null((string)$file);
+        $this->file = get_null((string) $file);
+
         return $this;
     }
 }

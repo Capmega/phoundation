@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 
-
 /**
  * Class InputImage
  *

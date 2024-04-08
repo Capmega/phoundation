@@ -6,7 +6,6 @@ namespace Phoundation\Cli\Exception;
 
 use Throwable;
 
-
 /**
  * Class ArgumentsException
  *

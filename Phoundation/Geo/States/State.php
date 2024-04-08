@@ -12,7 +12,6 @@ use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 
-
 /**
  * Class State
  *
@@ -27,7 +26,6 @@ use Phoundation\Web\Html\Components\Input\InputSelect;
 class State extends DataEntry
 {
     use TraitDataEntryNameDescription;
-
 
     /**
      * Returns the table name used by this object
@@ -125,7 +123,6 @@ class State extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions;
-
 //        throw new UnderConstructionException();
 //
 //        $data = $validator

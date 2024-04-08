@@ -28,7 +28,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Throwable;
 
-
 /**
  * Class MySql
  *
@@ -46,7 +45,6 @@ class MySql extends Command
     use TraitDataSourceString;
     use TraitDataConnector;
 
-
     /**
      * Drops the specified database
      *
@@ -58,9 +56,10 @@ class MySql extends Command
     {
         if ($database) {
             // Drop the requested database
-            sql($this->connector, false)->schema(false)
-                                        ->database($database)
-                                        ->drop();
+            sql($this->connector, false)
+                ->schema(false)
+                ->database($database)
+                ->drop();
         }
 
         return $this;
@@ -78,9 +77,10 @@ class MySql extends Command
     {
         if ($database) {
             // Drop the requested database
-            sql($this->connector, false)->schema(false)
-                                        ->database($database)
-                                        ->create();
+            sql($this->connector, false)
+                ->schema(false)
+                ->database($database)
+                ->create();
         }
 
         return $this;
@@ -101,54 +101,48 @@ class MySql extends Command
         $file         = Path::getAbsolute($file, DIRECTORY_DATA . 'sources/');
         $restrictions = Restrictions::default($restrictions, Restrictions::new(DIRECTORY_DATA . 'sources/', false, 'Mysql importer'));
         $threshold    = Log::setThreshold(3);
-
         // If we're importing the system database, then switch to init mode!
         if ($this->connector->getDatabase() === sql()->getDatabase()) {
             Core::enableInitState();
         }
-
         // Check file restrictions and start the import
         Log::setThreshold($threshold);
-
-        $file = File::new($file, $restrictions)->checkReadable();
-
+        $file = File::new($file, $restrictions)
+                    ->checkReadable();
         switch ($file->getMimetype()) {
             case 'text/plain':
                 $this->setCommand('mysql')
                      ->setTimeout($this->timeout)
                      ->addArguments([
-                                        '-h',
-                                        $this->connector->getHostname(),
-                                        '-u',
-                                        $this->connector->getUsername(),
-                                        '-p' . $this->connector->getPassword(),
-                                        '-B',
-                                        $this->connector->getDatabase(),
-                                    ])
+                         '-h',
+                         $this->connector->getHostname(),
+                         '-u',
+                         $this->connector->getUsername(),
+                         '-p' . $this->connector->getPassword(),
+                         '-B',
+                         $this->connector->getDatabase(),
+                     ])
                      ->setInputRedirect($file)
                      ->executeNoReturn();
                 break;
-
             case 'application/gzip':
                 $this->setCommand('mysql')
                      ->setTimeout($this->timeout)
                      ->addArguments([
-                                        '-h',
-                                        $this->connector->getHostname(),
-                                        '-u',
-                                        $this->connector->getUsername(),
-                                        '-p' . $this->connector->getPassword(),
-                                        '-B',
-                                        $this->connector->getDatabase(),
-                                    ]);
-
+                         '-h',
+                         $this->connector->getHostname(),
+                         '-u',
+                         $this->connector->getUsername(),
+                         '-p' . $this->connector->getPassword(),
+                         '-B',
+                         $this->connector->getDatabase(),
+                     ]);
                 Zcat::new()
                     ->setTimeout($this->timeout)
                     ->setFile($file)
                     ->setPipe($this)
                     ->execute();
                 break;
-
             default:
                 throw new FileTypeNotSupportedException(tr('The specified file ":file" has the unsupported filetype ":type"', [
                     ':file' => $file->getPath(),
@@ -156,6 +150,7 @@ class MySql extends Command
                 ]));
         }
     }
+
 
     /**
      * Execute the rsync operation and return the PID (background) or -1
@@ -167,7 +162,6 @@ class MySql extends Command
     public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): ?int
     {
         $password_file = static::createPasswordFile();
-
         try {
             // Build the process parameters, then execute
             $this->setCommand('mysql')
@@ -175,27 +169,23 @@ class MySql extends Command
                  ->addArgument($this->port ? '--port' . $this->port : null)
                  ->addArgument('--user' . $this->user)
                  ->addArgument('--defaults-extra-file=' . $password_file);
-
             if ($this->source) {
                 $this->setInputRedirect($this->source);
             }
-
             if ($method === EnumExecuteMethod::background) {
                 $pid = $this->executeBackground();
-
                 Log::success(tr('Executed wget as a background process with PID ":pid"', [
                     ':pid' => $pid,
-                ]),          4);
-
+                ]), 4);
                 // TODO Password file should only be deleted after execution has finished
                 static::deletePasswordFile();
+
                 return $pid;
             }
-
             $results = $this->execute($method);
-
             Log::notice($results, 4);
             static::deletePasswordFile();
+
             return null;
 
         } catch (Throwable $e) {
@@ -203,10 +193,10 @@ class MySql extends Command
             if ($password_file) {
                 static::deletePasswordFile();
             }
-
             throw $e;
         }
     }
+
 
     /**
      * Creates a MySQL password file
@@ -222,6 +212,7 @@ class MySql extends Command
 //            ->, "rm ~/.my.cnf -f; touch ~/.my.cnf; chmod 0600 ~/.my.cnf; echo '[client]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysql]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldump]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldiff]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n' >> ~/.my.cnf");
     }
 
+
     /**
      * @return $this
      */
@@ -233,6 +224,7 @@ class MySql extends Command
 
         return $this;
     }
+
 
     /**
      * Execute a query on a remote SSH server in a bash command
@@ -251,7 +243,6 @@ class MySql extends Command
     {
         try {
             $query = addslashes($query);
-
             // Are we going to execute as root?
             if ($root) {
                 $this->createPasswordFile('root', $restrictions['db_root_password'], $restrictions);
@@ -259,14 +250,12 @@ class MySql extends Command
             } else {
                 $this->createPasswordFile($restrictions['db_username'], $restrictions['db_password'], $restrictions);
             }
-
             if ($simple_quotes) {
                 $results = Servers::exec($restrictions, 'mysql -e \'' . Strings::ends($query, ';') . '\'');
 
             } else {
                 $results = Servers::exec($restrictions, 'mysql -e \"' . Strings::ends($query, ';') . '\"');
             }
-
             $this->deletePasswordFile($restrictions);
 
             return $results;
@@ -275,6 +264,7 @@ class MySql extends Command
             $this->deletePasswordFile($restrictions);
         }
     }
+
 
     /**
      * Import all timezones in MySQL
@@ -293,30 +283,27 @@ class MySql extends Command
                          ->setSudo(true)
                          ->setTimeout(10)
                          ->addArguments([
-                                            '-p' . $password,
-                                            '-u',
-                                            'root',
-                                            'mysql',
-                                            '-e',
-                                            'SELECT 1\G',
-                                        ])
+                             '-p' . $password,
+                             '-u',
+                             'root',
+                             'mysql',
+                             '-e',
+                             'SELECT 1\G',
+                         ])
                          ->executeReturnString();
-
         if (!str_ends_with($result, '1: 1')) {
             throw new ProcessesException(tr('Failed to connect with MySQL server'));
         }
-
         // Import timezones
         $mysql = Process::new('mysql')
                         ->setSudo(true)
                         ->setTimeout(10)
                         ->addArguments([
-                                           '-p' . $password,
-                                           '-u',
-                                           'root',
-                                           'mysql',
-                                       ]);
-
+                            '-p' . $password,
+                            '-u',
+                            'root',
+                            'mysql',
+                        ]);
         Process::new('mysql_tzinfo_to_sql', Restrictions::new('/usr/share/zoneinfo'))
                ->setTimeout(10)
                ->addArgument('/usr/share/zoneinfo')

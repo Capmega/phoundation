@@ -23,23 +23,19 @@
 */
 
 include "socialmedia_oauth_connect.php";
-
-$oauth = new socialmedia_oauth_connect();
-$oauth->provider="SoundCloud";
-$oauth->client_id = "0fdf90d552b0d455686e0621dbeab3ca";
+$oauth                = new socialmedia_oauth_connect();
+$oauth->provider      = "SoundCloud";
+$oauth->client_id     = "0fdf90d552b0d455686e0621dbeab3ca";
 $oauth->client_secret = "xxxxxxxxxxxxxxxxxxxxxxxxx";
-$oauth->redirect_uri  ="http://ngiriraj.com/socialMedia/oauthlogin/soundcloud.php";
-
+$oauth->redirect_uri  = "http://ngiriraj.com/socialMedia/oauthlogin/soundcloud.php";
 $oauth->Initialize();
-
-$code = ($_REQUEST["code"]) ?  ($_REQUEST["code"]) : "";
-
+$code = ($_REQUEST["code"]) ? ($_REQUEST["code"]) : "";
 if (empty($code)) {
-	$oauth->Authorize();
+    $oauth->Authorize();
 } else {
-	$oauth->code = $code;
+    $oauth->code = $code;
 #	$oauth->getAccessToken();
-	$getData = json_decode($oauth->getUserProfile());
-	$oauth->debugJson($getData);
+    $getData = json_decode($oauth->getUserProfile());
+    $oauth->debugJson($getData);
 }
 ?>

@@ -9,7 +9,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Requests\Routing\Interfaces\MapInterface;
 use Phoundation\Web\Requests\Routing\Interfaces\MappingInterface;
 
-
 /**
  * Class Mapping
  *
@@ -51,6 +50,7 @@ class Mapping implements MappingInterface
         return $this->source;
     }
 
+
     /**
      * Sets source for these mappings
      *
@@ -63,10 +63,11 @@ class Mapping implements MappingInterface
         if (!$source) {
             throw new OutOfBoundsException(tr('Empty source specified for which this mapping will be applied'));
         }
-
         $this->source = $source;
+
         return $this;
     }
+
 
     /**
      * Returns the map for the specified regex
@@ -86,6 +87,7 @@ class Mapping implements MappingInterface
         return $this->source[$regex];
     }
 
+
     /**
      * Adds a new map
      *
@@ -101,10 +103,8 @@ class Mapping implements MappingInterface
                 ':regex' => $regex,
             ]));
         }
-
         // Register the maps
         $this->source[$regex] = [];
-
         foreach ($maps as $map) {
             $this->source[$regex][$map->getValue()] = $map;
         }
@@ -126,7 +126,6 @@ class Mapping implements MappingInterface
             // No mappings to be applied
             return $url;
         }
-
         // Apply all registered mappings
         foreach ($this->source as $regex => $maps) {
             // Apply the regex and see the matching value
@@ -134,7 +133,6 @@ class Mapping implements MappingInterface
                 if (empty($matches[1][0])) {
                     throw new OutOfBoundsException(tr('URL mapping regex "" resulted in either no $matches[1][0] or an empty value for $matches[1][0]. Please ensure that the mapping regex contains one capturing group'));
                 }
-
                 // See if the matching value is registered.
                 if (!array_key_exists($matches[1][0], $maps)) {
                     Log::warning(tr('No URL mappings found for regex ":regex" value ":value"', [
@@ -143,7 +141,6 @@ class Mapping implements MappingInterface
                     ]));
                     break;
                 }
-
                 // Apply the matching value
                 $url = $maps[$matches[1][0]]->apply($url);
             }

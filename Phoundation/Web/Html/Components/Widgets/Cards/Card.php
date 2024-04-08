@@ -16,7 +16,6 @@ use Phoundation\Web\Html\Components\Widgets\Tabs\Tabs;
 use Phoundation\Web\Html\Components\Widgets\Widget;
 use Stringable;
 
-
 /**
  * Card class
  *
@@ -31,7 +30,6 @@ class Card extends Widget
 {
     use TraitDataTitle;
     use TraitDataDescription;
-
 
     /**
      * If this card is collapsable or not
@@ -123,10 +121,11 @@ class Card extends Widget
     {
         if (is_object($buttons) and ($buttons instanceof ButtonInterface)) {
             // This is a single button, store it in a buttons group
-            $buttons = Buttons::new()->addButton($buttons);
+            $buttons = Buttons::new()
+                              ->addButton($buttons);
         }
-
         $this->buttons = $buttons;
+
         return $this;
     }
 
@@ -139,19 +138,15 @@ class Card extends Widget
     public function getSwitches(): array
     {
         $return = [];
-
         if ($this->close_switch) {
             $return['close'] = true;
         }
-
         if ($this->maximize_switch) {
             $return['maximize'] = true;
         }
-
         if ($this->collapse_switch) {
             $return['collapse'] = true;
         }
-
         if ($this->reload_switch) {
             $return['reload'] = true;
         }
@@ -173,29 +168,23 @@ class Card extends Widget
         $this->reload_switch   = false;
         $this->maximize_switch = false;
         $this->collapse_switch = false;
-
         foreach (Arrays::force($switches) as $switch) {
             switch ($switch) {
                 case '':
                     // Ignore
                     break;
-
                 case 'close':
                     $this->close_switch = true;
                     break;
-
                 case 'reload':
                     $this->reload_switch = true;
                     break;
-
                 case 'collapse':
                     $this->collapse_switch = true;
                     break;
-
                 case 'maximize':
                     $this->maximize_switch = true;
                     break;
-
                 default:
                     throw new OutOfBoundsException(tr('Unknown switch ":switch" specified', [
                         ':switch' => $switch,
@@ -228,6 +217,7 @@ class Card extends Widget
     public function setHeaderContent(?string $header_content): static
     {
         $this->header_content = $header_content;
+
         return $this;
     }
 
@@ -253,6 +243,7 @@ class Card extends Widget
     public function setCollapseSwitch(bool $collapse_switch): static
     {
         $this->collapse_switch = $collapse_switch;
+
         return $this;
     }
 
@@ -278,7 +269,6 @@ class Card extends Widget
     public function setCollapsed(bool $collapsed): static
     {
         $this->collapsed = $collapsed;
-
         if ($this->collapsed) {
             $this->classes->add(true, 'collapsed-card');
 
@@ -311,6 +301,7 @@ class Card extends Widget
     public function setCloseSwitch(bool $close_switch): static
     {
         $this->close_switch = $close_switch;
+
         return $this;
     }
 
@@ -336,6 +327,7 @@ class Card extends Widget
     public function setReloadSwitch(bool $reload_switch): static
     {
         $this->reload_switch = $reload_switch;
+
         return $this;
     }
 
@@ -361,6 +353,7 @@ class Card extends Widget
     public function setMaximizeSwitch(bool $maximize_switch): static
     {
         $this->maximize_switch = $maximize_switch;
+
         return $this;
     }
 
@@ -386,6 +379,7 @@ class Card extends Widget
     public function setOutline(bool $outline): static
     {
         $this->outline = $outline;
+
         return $this;
     }
 
@@ -415,6 +409,7 @@ class Card extends Widget
         return !empty($this->tabs);
     }
 
+
     /**
      * Returns the Tabs object
      *
@@ -428,11 +423,9 @@ class Card extends Widget
             if (!$create) {
                 return null;
             }
-
             if ($this->content !== null) {
                 throw new OutOfBoundsException(tr('Cannot access card tabs, content has already been specified and card can only display either content or tabs'));
             }
-
             $this->tabs = new Tabs();
         }
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataConfigPath
  *
@@ -50,6 +49,7 @@ trait TraitDataConfigPath
     public function setConfigPath(?string $config_path): static
     {
         $this->config_path = $config_path;
+
         return $this;
     }
 }

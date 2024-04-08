@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
-
 /**
  * Trait TraitDataEntryParent
  *
@@ -62,7 +61,6 @@ trait TraitDataEntryParent
     public function getParent(): ?DataEntryInterface
     {
         $parents_id = $this->getValueTypesafe('int', 'parents_id');
-
         if ($parents_id) {
             return new static($parents_id);
         }

@@ -7,16 +7,15 @@ namespace Phoundation\Developer\Versioning\Git;
 use Phoundation\Developer\Versioning\Git\Exception\GitUnknownStatusException;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
 
-
 /**
  * Class Status
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class Status implements StatusInterface
 {
@@ -96,9 +95,102 @@ class Status implements StatusInterface
 
 
     /**
+     * Parses the specified git status string
+     *
+     * @param string $status
+     *
+     * @return void
+     */
+    protected function parseStatus(string $status): void
+    {
+        $this->status = $status;
+        switch ($status) {
+            case 'D ':
+                $this->flag_deleted = true;
+                $this->readable     = tr('Deleted indexed');
+                break;
+            case ' D':
+                $this->flag_deleted = true;
+                $this->readable     = tr('Deleted');
+                break;
+            case 'AD':
+                $this->flag_deleted = true;
+                $this->flag_indexed = true;
+                $this->readable     = tr('New file indexed but deleted');
+                break;
+            case 'AM':
+                $this->flag_new      = true;
+                $this->flag_modified = true;
+                $this->readable      = tr('New file indexed and modified');
+                break;
+            case 'A ':
+                $this->flag_new      = true;
+                $this->flag_modified = true;
+                $this->readable      = tr('New file indexed');
+                break;
+            case ' M':
+                $this->flag_modified = true;
+                $this->readable      = tr('Modified');
+                break;
+            case 'M ':
+                $this->flag_indexed  = true;
+                $this->flag_modified = true;
+                $this->readable      = tr('Modified and indexed');
+                break;
+            case 'MM':
+                $this->flag_indexed  = true;
+                $this->flag_modified = true;
+                $this->readable      = tr('Modified and indexed and modified');
+                break;
+            case 'R ':
+                $this->flag_renamed  = true;
+                $this->flag_modified = true;
+                $this->readable      = tr('Renamed indexed');
+                break;
+            case 'RM':
+                $this->flag_renamed  = true;
+                $this->flag_modified = true;
+                $this->readable      = tr('Renamed indexed and modified');
+                break;
+            case 'T ':
+                $this->flag_modified = true;
+                $this->readable      = tr('Type changed');
+                break;
+            case '??':
+                $this->flag_tracked = false;
+                $this->readable     = tr('Not tracked');
+                break;
+            case '  ':
+                $this->readable = tr('No changes');
+                break;
+            case 'both modified':
+                $this->readable      = tr('Both modified');
+                $this->is_conflict   = true;
+                $this->flag_modified = true;
+                break;
+            case 'UD':
+                $this->readable      = tr('Deleted by them');
+                $this->is_conflict   = true;
+                $this->flag_modified = true;
+                break;
+            case 'DU':
+                $this->readable      = tr('Deleted by us');
+                $this->is_conflict   = true;
+                $this->flag_modified = true;
+                break;
+            default:
+                throw new GitUnknownStatusException(tr('Unknown git status ":status" specified', [
+                    ':status' => $status,
+                ]));
+        }
+    }
+
+
+    /**
      * Returns a new Status object
      *
      * @param string $status
+     *
      * @return static
      */
     public function new(string $status): static
@@ -215,112 +307,4 @@ class Status implements StatusInterface
     {
         return $this->flag_tracked;
     }
-
-
-    /**
-     * Parses the specified git status string
-     *
-     * @param string $status
-     * @return void
-     */
-    protected function parseStatus(string $status): void
-    {
-        $this->status = $status;
-
-        switch ($status) {
-            case 'D ':
-                $this->flag_deleted = true;
-                $this->readable     = tr('Deleted indexed');
-                break;
-
-            case ' D':
-                $this->flag_deleted = true;
-                $this->readable     = tr('Deleted');
-                break;
-
-            case 'AD':
-                $this->flag_deleted = true;
-                $this->flag_indexed = true;
-                $this->readable     = tr('New file indexed but deleted');
-                break;
-
-            case 'AM':
-                $this->flag_new      = true;
-                $this->flag_modified = true;
-                $this->readable      = tr('New file indexed and modified');
-                break;
-
-            case 'A ':
-                $this->flag_new      = true;
-                $this->flag_modified = true;
-                $this->readable      = tr('New file indexed');
-                break;
-
-            case ' M':
-                $this->flag_modified = true;
-                $this->readable      = tr('Modified');
-                break;
-
-            case 'M ':
-                $this->flag_indexed  = true;
-                $this->flag_modified = true;
-                $this->readable      = tr('Modified and indexed');
-                break;
-
-            case 'MM':
-                $this->flag_indexed  = true;
-                $this->flag_modified = true;
-                $this->readable      = tr('Modified and indexed and modified');
-                break;
-
-            case 'R ':
-                $this->flag_renamed  = true;
-                $this->flag_modified = true;
-                $this->readable      = tr('Renamed indexed');
-                break;
-
-            case 'RM':
-                $this->flag_renamed  = true;
-                $this->flag_modified = true;
-                $this->readable      = tr('Renamed indexed and modified');
-                break;
-
-            case 'T ':
-                $this->flag_modified = true;
-                $this->readable      = tr('Type changed');
-                break;
-
-            case '??':
-                $this->flag_tracked  = false;
-                $this->readable      = tr('Not tracked');
-                break;
-
-            case '  ':
-                $this->readable      = tr('No changes');
-                break;
-
-            case 'both modified':
-                $this->readable      = tr('Both modified');
-                $this->is_conflict   = true;
-                $this->flag_modified = true;
-                break;
-
-            case 'UD':
-                $this->readable      = tr('Deleted by them');
-                $this->is_conflict   = true;
-                $this->flag_modified = true;
-                break;
-
-            case 'DU':
-                $this->readable      = tr('Deleted by us');
-                $this->is_conflict   = true;
-                $this->flag_modified = true;
-                break;
-
-            default:
-                throw new GitUnknownStatusException(tr('Unknown git status ":status" specified', [
-                    ':status' => $status
-                ]));
-        }
-   }
 }

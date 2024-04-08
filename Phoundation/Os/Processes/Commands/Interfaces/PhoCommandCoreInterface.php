@@ -6,7 +6,6 @@ namespace Phoundation\Os\Processes\Commands\Interfaces;
 
 use Phoundation\Os\Processes\Interfaces\WorkersCoreInterface;
 
-
 /**
  * interface PhoCommandInterface
  *

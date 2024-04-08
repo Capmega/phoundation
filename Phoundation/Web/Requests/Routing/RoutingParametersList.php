@@ -10,7 +10,6 @@ use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Requests\Routing\Interfaces\RoutingParametersInterface;
 use Stringable;
 
-
 /**
  * Class RouteParametersList
  *
@@ -59,8 +58,8 @@ class RoutingParametersList
         } else {
             $this->list[$parameters->getPattern()] = $parameters;
         }
-
         $this->ordered = false;
+
         return $this;
     }
 
@@ -109,17 +108,14 @@ class RoutingParametersList
         if (!$this->ordered) {
             $this->order();
         }
-
-        $uri     = (string)$uri;
+        $uri     = (string) $uri;
         $pattern = null;
-
         // Search in the system or normal pages list for the parameters
         foreach (($system ? $this->system_list : $this->list) as $pattern => $parameters) {
             if (!$pattern) {
                 // This is the last, default parameters object. Use this.
                 break;
             }
-
             try {
                 if (!preg_match_all($pattern, $uri, $matches)) {
                     continue;
@@ -129,13 +125,11 @@ class RoutingParametersList
                 throw RouteException::new(tr('Routing regular expression pattern ":regex" failed with error ":e"', [
                     ':e'     => $e->getMessage(),
                     ':regex' => $pattern,
-                ]),                       $e)->addData(['failed_pattern' => $pattern]);
+                ]), $e)
+                                    ->addData(['failed_pattern' => $pattern]);
             }
-
-            $parameters
-                ->setMatches($matches)
-                ->setUri($uri);
-
+            $parameters->setMatches($matches)
+                       ->setUri($uri);
             // Use this template
             Log::success(tr('Selected routing parameters pattern ":pattern" with template ":template" and directory ":directory" for:system page from URI ":uri"', [
                 ':system'    => ($system ? ' system' : ''),
@@ -147,16 +141,13 @@ class RoutingParametersList
 
             return $parameters;
         }
-
         if (!isset($parameters)) {
             throw new RouteException(tr('Cannot find routing parameters for target ":target", no routing parameters available', [
                 ':target' => $uri,
             ]));
         }
-
         // Use default template
         $parameters->setUri($uri);
-
         Log::action(tr('Using default parameters ":pattern" with template ":template" and directory ":directory" for:system page from URI ":uri"', [
             ':system'    => ($system ? ' system' : ''),
             ':uri'       => $uri,
@@ -182,14 +173,12 @@ class RoutingParametersList
             unset($this->list['']);
             $this->list[''] = $pattern;
         }
-
         // Order system page parameters
         if (array_key_exists('', $this->system_list)) {
             $pattern = isset_get($this->system_list['']);
             unset($this->system_list['']);
             $this->system_list[''] = $pattern;
         }
-
         $this->ordered = true;
     }
 }

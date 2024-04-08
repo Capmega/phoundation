@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Button class
  *
@@ -25,7 +24,6 @@ class Button extends Input implements ButtonInterface
 {
     use ButtonProperties;
 
-
     /**
      * Floating buttons
      *
@@ -44,12 +42,12 @@ class Button extends Input implements ButtonInterface
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-
         $this->setName('submit');
         $this->setClasses('btn');
         $this->setElement('button');
         $this->setType(EnumButtonType::submit);
     }
+
 
     /**
      * Returns if the button is floating or not
@@ -61,6 +59,7 @@ class Button extends Input implements ButtonInterface
         return $this->floating;
     }
 
+
     /**
      * Set if the button is floating or not
      *
@@ -71,8 +70,10 @@ class Button extends Input implements ButtonInterface
     public function setFloating(bool $floating): static
     {
         $this->floating = $floating;
+
         return $this;
     }
+
 
     /**
      * Set the content for this button
@@ -88,13 +89,17 @@ class Button extends Input implements ButtonInterface
         if ($this->floating) {
             // What does this do?????????????
             $this->addClass('btn-floating');
-            Icons::new()->setContent($this->content)->render();
+            Icons::new()
+                 ->setContent($this->content)
+                 ->render();
+
             return $this;
         }
-
         parent::setValue($value, $make_safe);
+
         return parent::setContent($value, $make_safe);
     }
+
 
     /**
      * Renders and returns the HTML for this object
@@ -105,7 +110,6 @@ class Button extends Input implements ButtonInterface
     {
         $this->resetButtonClasses();
         $this->attributes->set($this->input_type?->value, 'type');
-
         if ($this->anchor_url) {
             $this->attributes->removeKeys('type');
             $this->attributes->set($this->anchor_url, 'href');
@@ -113,6 +117,7 @@ class Button extends Input implements ButtonInterface
 
         return parent::render();
     }
+
 
     /**
      * Set the classes for this button
@@ -127,7 +132,6 @@ class Button extends Input implements ButtonInterface
                 $this->classes->removeKeys($class);
             }
         }
-
         if ($this->mode->value) {
             $this->addClass('btn-' . ($this->outlined ? 'outline-' : '') . $this->mode->value);
         } else {
@@ -135,32 +139,29 @@ class Button extends Input implements ButtonInterface
                 $this->addClass('btn-outline');
             }
         }
-
         if ($this->flat) {
             $this->addClass('btn-flat');
         }
-
         if ($this->size->value) {
             $this->addClass('btn-' . $this->size->value);
         }
-
         if ($this->block) {
             $this->addClass('btn-block');
         }
-
         if ($this->rounded) {
             $this->addClass('btn-rounded');
         }
-
         if (!$this->wrapping) {
             $this->addClass('text-nowrap');
         }
-
         if ($this->floating) {
             $this->addClass('btn-floating');
-            $this->setContent(Icons::new()->setContent($this->content)->render());
+            $this->setContent(Icons::new()
+                                   ->setContent($this->content)
+                                   ->render());
         }
     }
+
 
     /**
      * Set the content for this button
@@ -176,7 +177,10 @@ class Button extends Input implements ButtonInterface
         if ($this->floating) {
             // What does this do?????????????
             $this->addClass('btn-floating');
-            Icons::new()->setContent($this->content, $make_safe)->render();
+            Icons::new()
+                 ->setContent($this->content, $make_safe)
+                 ->render();
+
             return $this;
         }
 

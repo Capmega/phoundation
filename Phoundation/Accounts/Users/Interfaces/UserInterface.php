@@ -14,7 +14,6 @@ use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Stringable;
 
-
 /**
  * Interface UserInterface
  *
@@ -35,6 +34,7 @@ interface UserInterface extends DataEntryInterface
      */
     public function getLogId(): string;
 
+
     /**
      * Returns true if the specified password matches the users password
      *
@@ -44,6 +44,7 @@ interface UserInterface extends DataEntryInterface
      */
     public function passwordMatch(string $password): bool;
 
+
     /**
      * Returns true if this user object is the guest user
      *
@@ -51,12 +52,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function isGuest(): bool;
 
+
     /**
      * Returns the nickname for this user
      *
      * @return string|null
      */
     public function getNickname(): ?string;
+
 
     /**
      * Sets the nickname for this user
@@ -67,6 +70,7 @@ interface UserInterface extends DataEntryInterface
      */
     public function setNickname(?string $remote_id): static;
 
+
     /**
      * Returns the name for this user
      *
@@ -74,12 +78,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function getName(): ?string;
 
+
     /**
      * Returns the first_names for this user
      *
      * @return string|null
      */
     public function getFirstNames(): ?string;
+
 
     /**
      * Sets the first_names for this user
@@ -90,12 +96,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setFirstNames(?string $first_names): static;
 
+
     /**
      * Returns the last_names for this user
      *
      * @return string|null
      */
     public function getLastNames(): ?string;
+
 
     /**
      * Sets the last_names for this user
@@ -106,12 +114,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setLastNames(?string $lastnames): static;
 
+
     /**
      * Returns the username for this user
      *
      * @return string|null
      */
     public function getUsername(): ?string;
+
 
     /**
      * Sets the username for this user
@@ -122,12 +132,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setUsername(?string $username): static;
 
+
     /**
      * Returns the last_sign_in for this user
      *
      * @return string|null
      */
     public function getLastSignin(): ?string;
+
 
     /**
      * Sets the last_sign_in for this user
@@ -138,12 +150,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setLastSignin(?string $last_sign_in): static;
 
+
     /**
      * Returns the update_password for this user
      *
      * @return DateTime|null
      */
     public function getUpdatePassword(): ?DateTime;
+
 
     /**
      * Sets the update_password for this user
@@ -154,12 +168,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setUpdatePassword(DateTime|bool|null $date_time): static;
 
+
     /**
      * Returns the authentication_failures for this user
      *
      * @return int|null
      */
     public function getAuthenticationFailures(): ?int;
+
 
     /**
      * Sets the authentication_failures for this user
@@ -170,12 +186,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setAuthenticationFailures(?int $authentication_failures): static;
 
+
     /**
      * Returns the locked_until for this user
      *
      * @return string|null
      */
     public function getLockedUntil(): ?string;
+
 
     /**
      * Sets the locked_until for this user
@@ -186,12 +204,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setLockedUntil(?string $locked_until): static;
 
+
     /**
      * Returns the sign_in_count for this user
      *
      * @return int|null
      */
     public function getSigninCount(): ?int;
+
 
     /**
      * Sets the sign_in_count for this user
@@ -202,12 +222,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setSigninCount(?int $sign_in_count): static;
 
+
     /**
      * Returns the fingerprint datetime for this user
      *
      * @return DateTimeInterface|null
      */
     public function getFingerprint(): ?DateTimeInterface;
+
 
     /**
      * Sets the fingerprint datetime for this user
@@ -218,12 +240,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setFingerprint(DateTimeInterface|string|int|null $fingerprint): static;
 
+
     /**
      * Returns the title for this user
      *
      * @return string|null
      */
     public function getTitle(): ?string;
+
 
     /**
      * Sets the title for this user
@@ -234,12 +258,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setTitle(?string $title): static;
 
+
     /**
      * Returns the keywords for this user
      *
      * @return string|null
      */
     public function getKeywords(): ?string;
+
 
     /**
      * Sets the keywords for this user
@@ -250,12 +276,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setKeywords(array|string|null $keywords): static;
 
+
     /**
      * Returns the verification_code for this user
      *
      * @return string|null
      */
     public function getVerificationCode(): ?string;
+
 
     /**
      * Sets the verification_code for this user
@@ -266,12 +294,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setVerificationCode(?string $verification_code): static;
 
+
     /**
      * Returns the verified_on for this user
      *
      * @return string|null
      */
     public function getVerifiedOn(): ?string;
+
 
     /**
      * Sets the verified_on for this user
@@ -282,12 +312,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setVerifiedOn(?string $verified_on): static;
 
+
     /**
      * Returns the priority for this user
      *
      * @return int|null
      */
     public function getPriority(): ?int;
+
 
     /**
      * Sets the priority for this user
@@ -298,12 +330,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setPriority(?int $priority): static;
 
+
     /**
      * Returns the is_leader for this user
      *
      * @return bool
      */
     public function getIsLeader(): bool;
+
 
     /**
      * Sets the is_leader for this user
@@ -314,12 +348,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setIsLeader(int|bool|null $is_leader): static;
 
+
     /**
      * Returns the leader for this user
      *
      * @return int|null
      */
     public function getLeadersId(): ?int;
+
 
     /**
      * Sets the leader for this user
@@ -330,6 +366,7 @@ interface UserInterface extends DataEntryInterface
      */
     public function setLeadersId(?int $leaders_id): static;
 
+
     /**
      * Returns the leader for this user
      *
@@ -337,12 +374,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function getLeader(): ?UserInterface;
 
+
     /**
      * Returns the leader for this user
      *
      * @return string|null
      */
     public function getLeadersName(): ?string;
+
 
     /**
      * Sets the leader for this user
@@ -353,12 +392,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setLeadersName(?string $leaders_name): static;
 
+
     /**
      * Returns the latitude for this user
      *
      * @return float|null
      */
     public function getLatitude(): ?float;
+
 
     /**
      * Sets the latitude for this user
@@ -369,12 +410,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setLatitude(?float $latitude): static;
 
+
     /**
      * Returns the longitude for this user
      *
      * @return float|null
      */
     public function getLongitude(): ?float;
+
 
     /**
      * Sets the longitude for this user
@@ -385,12 +428,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setLongitude(?float $longitude): static;
 
+
     /**
      * Returns the accuracy for this user
      *
      * @return float|null
      */
     public function getAccuracy(): ?float;
+
 
     /**
      * Sets the accuracy for this user
@@ -401,12 +446,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setAccuracy(?float $accuracy): static;
 
+
     /**
      * Returns the offset_latitude for this user
      *
      * @return float|null
      */
     public function getOffsetLatitude(): ?float;
+
 
     /**
      * Sets the offset_latitude for this user
@@ -417,12 +464,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setOffsetLatitude(?float $offset_latitude): static;
 
+
     /**
      * Returns the offset_longitude for this user
      *
      * @return float|null
      */
     public function getOffsetLongitude(): ?float;
+
 
     /**
      * Sets the offset_longitude for this user
@@ -433,12 +482,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setOffsetLongitude(?float $offset_longitude): static;
 
+
     /**
      * Returns the redirect for this user
      *
      * @return string|null
      */
     public function getRedirect(): ?string;
+
 
     /**
      * Sets the redirect for this user
@@ -449,12 +500,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setRedirect(Stringable|string|null $redirect = null): static;
 
+
     /**
      * Returns the gender for this user
      *
      * @return string|null
      */
     public function getGender(): ?string;
+
 
     /**
      * Sets the gender for this user
@@ -465,12 +518,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setGender(?string $gender): static;
 
+
     /**
      * Returns the birthdate for this user
      *
      * @return DateTimeInterface|null
      */
     public function getBirthdate(): ?DateTimeInterface;
+
 
     /**
      * Sets the birthdate for this user
@@ -480,6 +535,7 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function setBirthdate(DateTimeInterface|string|null $birthdate): static;
+
 
     /**
      * Sets the password for this user
@@ -491,6 +547,7 @@ interface UserInterface extends DataEntryInterface
      */
     public function changePassword(string $password, string $validation): static;
 
+
     /**
      * Validates the specified password
      *
@@ -500,6 +557,7 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function validatePassword(string $password, string $validation): static;
+
 
     /**
      * Returns the name for this user that can be displayed
@@ -511,12 +569,14 @@ interface UserInterface extends DataEntryInterface
      */
     function getDisplayName(bool $official = false, bool $clean = false): string;
 
+
     /**
      * Returns the name with an id for a user
      *
      * @return string
      */
     function getDisplayId(): string;
+
 
     /**
      * Returns the extra email addresses for this user
@@ -525,12 +585,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function getEmails(): EmailsInterface;
 
+
     /**
      * Returns the extra phones for this user
      *
      * @return PhonesInterface
      */
     public function getPhones(): PhonesInterface;
+
 
     /**
      * Returns the roles for this user
@@ -539,12 +601,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function getRoles(): RolesInterface;
 
+
     /**
      * Returns the roles for this user
      *
      * @return RightsInterface
      */
     public function getRights(): RightsInterface;
+
 
     /**
      * Returns true if the user has ALL the specified rights
@@ -555,6 +619,7 @@ interface UserInterface extends DataEntryInterface
      */
     public function hasAllRights(array|string $rights): bool;
 
+
     /**
      * Returns an array of what rights this user misses
      *
@@ -563,6 +628,7 @@ interface UserInterface extends DataEntryInterface
      * @return array
      */
     public function getMissingRights(array|string $rights): array;
+
 
     /**
      * Returns true if the user has SOME of the specified rights
@@ -573,6 +639,7 @@ interface UserInterface extends DataEntryInterface
      */
     public function hasSomeRights(array|string $rights): bool;
 
+
     /**
      * Creates and returns an HTML DataEntry form
      *
@@ -581,6 +648,7 @@ interface UserInterface extends DataEntryInterface
      * @return DataEntryFormInterface
      */
     public function getRolesHtmlDataEntryForm(string $name = 'roles_id[]'): DataEntryFormInterface;
+
 
     /**
      * Save the user to database
@@ -592,12 +660,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function save(bool $force = false, ?string $comments = null): static;
 
+
     /**
      * Update this session so that it impersonates this person
      *
      * @return void
      */
     public function impersonate(): void;
+
 
     /**
      * Returns true if the current session user can impersonate this user
@@ -612,6 +682,7 @@ interface UserInterface extends DataEntryInterface
      */
     public function canBeImpersonated(): bool;
 
+
     /**
      * Returns true if the current session user can change the status of this user
      *
@@ -619,12 +690,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function canBeStatusChanged(): bool;
 
+
     /**
      * Returns the notifications_hash for this user
      *
      * @return string|null
      */
     public function getNotificationsHash(): ?string;
+
 
     /**
      * Sets the notifications_hash for this user
@@ -635,12 +708,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function setNotificationsHash(?string $notifications_hash): static;
 
+
     /**
      * Send a notification to only this user.
      *
      * @return NotificationInterface
      */
     public function notify(): NotificationInterface;
+
 
     /**
      * Returns the password string for this user
@@ -649,6 +724,7 @@ interface UserInterface extends DataEntryInterface
      */
     public function getPasswordString(): ?string;
 
+
     /**
      * Returns the session for this user
      *
@@ -656,12 +732,14 @@ interface UserInterface extends DataEntryInterface
      */
     public function getSession(): SessionInterface;
 
+
     /**
      * Returns the remote_id for this user
      *
      * @return int|null
      */
     public function getRemoteId(): ?int;
+
 
     /**
      * Sets the remote_id for this user
@@ -671,6 +749,7 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function setRemoteId(?int $remote_id): static;
+
 
     /**
      * Returns the remote user for this user
@@ -682,6 +761,7 @@ interface UserInterface extends DataEntryInterface
      */
     public function getRemoteUser(string $class, ?string $column = null): ?UserInterface;
 
+
     /**
      * Sets the remote user for this user
      *
@@ -690,6 +770,7 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function setRemoteUser(?UserInterface $remote_user): static;
+
 
     /**
      * Lock this user account
@@ -700,6 +781,7 @@ interface UserInterface extends DataEntryInterface
      */
     public function lock(?string $comments = null): static;
 
+
     /**
      * Unlock this user account
      *
@@ -708,6 +790,7 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function unlock(?string $comments = null): static;
+
 
     /**
      * Returns true if this user account is locked

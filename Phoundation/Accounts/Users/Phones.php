@@ -21,7 +21,6 @@ use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Stringable;
 
-
 /**
  * Class Phones
  *
@@ -39,7 +38,6 @@ class Phones extends DataList implements PhonesInterface
         setParent as __setParent;
     }
 
-
     /**
      * Users class constructor
      */
@@ -50,7 +48,6 @@ class Phones extends DataList implements PhonesInterface
                                WHERE    `accounts_phones`.`users_id` = :users_id
                                  AND    `accounts_phones`.`status` IS NULL
                                ORDER BY `phone`');
-
         parent::__construct();
     }
 
@@ -100,9 +97,9 @@ class Phones extends DataList implements PhonesInterface
         if ($parent instanceof UserInterface) {
             // Clear the source to avoid having a parent with the wrong children
             $this->source = [];
+
             return $this->__setParent($parent);
         }
-
         throw new OutOfBoundsException(tr('Specified parent ":parent" is invalid, it must have a UserInterface interface', [
             ':parent' => $parent,
         ]));
@@ -136,27 +133,32 @@ class Phones extends DataList implements PhonesInterface
     public function getHtmlDataEntryForm(string $name = 'phones[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
-        $phone       = Phone::new()->setColumnPrefix($name)->getHtmlDataEntryFormObject()->setMetaVisible($meta_visible);
+        $phone       = Phone::new()
+                            ->setColumnPrefix($name)
+                            ->getHtmlDataEntryFormObject()
+                            ->setMetaVisible($meta_visible);
         $definitions = $phone->getDefinitions();
-        $definitions->get('phone')->setSize(6);
-        $definitions->get('account_type')->setSize(6);
-        $definitions->get('verified_on')->setRender(false);
-        $definitions->get('delete')->setRender(false);
-
+        $definitions->get('phone')
+                    ->setSize(6);
+        $definitions->get('account_type')
+                    ->setSize(6);
+        $definitions->get('verified_on')
+                    ->setRender(false);
+        $definitions->get('delete')
+                    ->setRender(false);
         $content[] = $phone->render();
-
         foreach ($this->ensureDataEntries() as $phone) {
-            $content[] = $phone
-                ->setColumnPrefix($name)
-                ->getHtmlDataEntryFormObject()
-                ->setMetaVisible($meta_visible)
-                ->render();
+            $content[] = $phone->setColumnPrefix($name)
+                               ->getHtmlDataEntryFormObject()
+                               ->setMetaVisible($meta_visible)
+                               ->render();
         }
 
         return DataEntryForm::new()
                             ->appendContent(implode('<hr>', $content))
                             ->setRenderContentsOnly(true);
     }
+
 
     /**
      * Apply all phone updates
@@ -169,16 +171,15 @@ class Phones extends DataList implements PhonesInterface
     public function apply(bool $clear_source = true): static
     {
         $this->checkReadonly('apply');
-
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot apply phones, no parent user specified'));
         }
-
         $phones = [];
         $post   = Validator::get()
-                           ->select('phones')->isOptional()->sanitizeForceArray()
+                           ->select('phones')
+                           ->isOptional()
+                           ->sanitizeForceArray()
                            ->validate($clear_source);
-
         // Parse and sub validate
         if (isset($post['phones'])) {
             foreach ($post['phones'] as $phone) {
@@ -187,7 +188,6 @@ class Phones extends DataList implements PhonesInterface
                     if (!is_string($phone)) {
                         throw new ValidationFailedException(tr('Specified phone number has an invalid datatype'));
                     }
-
                     $phone = trim($phone);
                     $phone = explode('|', $phone);
                     $phone = [
@@ -196,36 +196,43 @@ class Phones extends DataList implements PhonesInterface
                         'description'  => isset_get($phone[2]),
                     ];
                 }
-
                 // Pre-validate the phone number because we need the phone numbers sanitized for comparison later!
                 $phone = ArrayValidator::new($phone)
-                                       ->select('phone')->isOptional()->sanitizePhoneNumber()
-                                       ->select('delete')->isOptional()->sanitizeToBoolean()
-                                       ->select('account_type')->isOptional('other')->hasMaxCharacters(8)->sanitizeLowercase()->isInArray([
-                                                                                                                                              'personal',
-                                                                                                                                              'business',
-                                                                                                                                              'other',
-                                                                                                                                          ])
-                                       ->select('description')->isOptional()->isDescription()
+                                       ->select('phone')
+                                       ->isOptional()
+                                       ->sanitizePhoneNumber()
+                                       ->select('delete')
+                                       ->isOptional()
+                                       ->sanitizeToBoolean()
+                                       ->select('account_type')
+                                       ->isOptional('other')
+                                       ->hasMaxCharacters(8)
+                                       ->sanitizeLowercase()
+                                       ->isInArray([
+                                           'personal',
+                                           'business',
+                                           'other',
+                                       ])
+                                       ->select('description')
+                                       ->isOptional()
+                                       ->isDescription()
                                        ->validate();
-
                 // Ignore empty entries
                 if (empty($phone['phone'])) {
                     continue;
                 }
-
                 $phones[isset_get($phone['phone'])] = $phone;
             }
-
             // Get a list of what we should add and remove and apply this
             $diff = Arrays::valueDiff($this->getAllRowsSingleColumn('phone'), array_keys($phones), true);
             $diff = Arrays::deleteDiff($diff, $phones);
-
             foreach ($diff['delete'] as $id => $phone) {
-                Phone::get($id, 'id')->setPhone(null)->save()->erase();
+                Phone::get($id, 'id')
+                     ->setPhone(null)
+                     ->save()
+                     ->erase();
                 $this->removeKeys($id);
             }
-
             foreach ($diff['add'] as $phone) {
                 if ($phone) {
                     $this->add(Phone::new()
@@ -234,7 +241,6 @@ class Phones extends DataList implements PhonesInterface
                                     ->save());
                 }
             }
-
             // Update all other phone numbers
             foreach ($diff['keep'] as $id => $phone) {
                 Phone::get($id, 'id')
@@ -243,14 +249,15 @@ class Phones extends DataList implements PhonesInterface
                      ->save();
             }
         }
-
         // Clear source if required
         if ($clear_source) {
-            PostValidator::new()->noArgumentsLeft();
+            PostValidator::new()
+                         ->noArgumentsLeft();
         }
 
         return $this;
     }
+
 
     /**
      * Save all the phones for this user
@@ -263,17 +270,16 @@ class Phones extends DataList implements PhonesInterface
     public function save(bool $force = false, ?string $comments = null): static
     {
         $this->checkReadonly('save');
-
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot apply phones, no parent user specified'));
         }
-
         foreach ($this->ensureDataEntries() as $phone) {
             $phone->save($force, $comments);
         }
 
         return $this;
     }
+
 
     /**
      * Add the specified phone to the iterator array
@@ -293,19 +299,16 @@ class Phones extends DataList implements PhonesInterface
                     ':value' => $value,
                 ]));
             }
-
             $value = Phone::new()
                           ->setPhone($value)
                           ->setAccountType('other');
         }
-
         // Ensure that the phone list has a parent
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot add phone ":phone" to this phones list, the list has no parent specified', [
                 ':phone' => $value->getLogId(),
             ]));
         }
-
         // Ensure that the phone has a users id and that the users id matches the id of the users parent
         if ($value->getUsersId()) {
             if ($value->getUsersId() !== $this->parent->getId()) {
@@ -316,7 +319,8 @@ class Phones extends DataList implements PhonesInterface
             }
 
         } else {
-            $value->setUsersId($this->parent->getId())->save();
+            $value->setUsersId($this->parent->getId())
+                  ->save();
         }
 
         return parent::add($value, $key, $skip_null, $exception);

@@ -24,7 +24,6 @@ class SetupPage extends ElementsBlock
 {
     use TraitDataEmail;
 
-
     /**
      * SignIn class constructor
      *

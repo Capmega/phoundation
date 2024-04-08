@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Traits;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
 
-
 /**
  * Trait TraitMode
  *
@@ -51,9 +50,9 @@ trait TraitMode
         if (is_string($mode)) {
             $mode = EnumDisplayMode::from($mode);
         }
-
         // Ensure we have primary display mode
         $this->mode = $mode->getPrimary($mode);
+
         return $this;
     }
 }

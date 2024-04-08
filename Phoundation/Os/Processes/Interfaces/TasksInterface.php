@@ -7,7 +7,6 @@ namespace Phoundation\Os\Processes\Interfaces;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
-
 /**
  * Class Tasks
  *
@@ -32,6 +31,7 @@ interface TasksInterface extends DataListInterface
      * @return InputSelectInterface
      */
     public function getHtmlSelect(string $value_column = '', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
+
 
     /**
      * Execute the tasks in this list

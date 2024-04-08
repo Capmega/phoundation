@@ -22,7 +22,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 
-
 /**
  * Class Passwords
  *
@@ -47,17 +46,15 @@ class Password extends DataEntry implements PasswordInterface
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot instantiate Password object, a valid user ID is required'));
         }
-
         // TODO Should this constructor not pass all variables to the parent:: call?
-
         if (User::notExists($identifier, 'id')) {
             throw new OutOfBoundsException(tr('Cannot instantiate Password object, the specified user ID ":id" does not exist', [
                 ':id' => $identifier,
             ]));
         }
-
         parent::__construct();
     }
+
 
     /**
      * Returns the table name used by this object
@@ -69,6 +66,7 @@ class Password extends DataEntry implements PasswordInterface
         return 'accounts_users';
     }
 
+
     /**
      * Returns the name of this DataEntry class
      *
@@ -78,6 +76,7 @@ class Password extends DataEntry implements PasswordInterface
     {
         return tr('Password');
     }
+
 
     /**
      * Returns the field that is unique for this object
@@ -103,17 +102,14 @@ class Password extends DataEntry implements PasswordInterface
     {
         try {
             $password = trim($password);
-
             if (static::isWeak($password, $email)) {
                 throw new ValidationFailedException(tr('This password is not secure enough'));
             }
-
             // In setup mode, we won't have database access yet, so these 2 tests may be skipped in that case.
             if (!Core::isState('setup')) {
                 if (static::isCompromised($password)) {
                     throw new ValidationFailedException(tr('This password has been compromised'));
                 }
-
                 if ($email) {
                     if (static::isUsedPreviously($password, $id)) {
                         throw new ValidationFailedException(tr('This password has been used before'));
@@ -143,9 +139,9 @@ class Password extends DataEntry implements PasswordInterface
     {
         $strength = static::getStrength($password, $email);
         $weak     = ($strength < Config::getInteger('security.password.strength', 50));
-
         if ($weak and Validator::disabled()) {
             Log::warning(tr('Ignoring weak password because validation is disabled'));
+
             return false;
         }
 
@@ -167,17 +163,14 @@ class Password extends DataEntry implements PasswordInterface
         // Get the length of the password
         $strength = 10;
         $length   = strlen($password);
-
         if ($length < Config::getInteger('security.password.min-length', 10)) {
             if (!$length) {
                 throw new NoPasswordSpecifiedException(tr('No password specified'));
             }
-
             throw new PasswordTooShortException(tr('Specified password has only ":length" characters, 10 are the required minimum', [
                 ':length' => $length,
             ]));
         }
-
         // Test for email parts
         if ($email) {
             $tests = [
@@ -186,7 +179,6 @@ class Password extends DataEntry implements PasswordInterface
                 'ruser'   => strrev(Strings::from($email, '@')),
                 'rdomain' => strrev(Strings::until($email, '@')),
             ];
-
             foreach ($tests as $test) {
                 if (str_contains($password, $test)) {
                     // The password contains email parts, either straight or in reverse. Both are not allowed
@@ -194,48 +186,36 @@ class Password extends DataEntry implements PasswordInterface
                 }
             }
         }
-
         // Check if password is not all a lower case
         if (strtolower($password) === $password) {
             $strength -= 15;
         }
-
         // Check if password is not all an upper case
         if (strtoupper($password) === $password) {
             $strength -= 15;
         }
-
         // Bonus for long passwords
         $strength += ($length * 2);
-
         // Get the number of upper case letters in the password
         preg_match_all('/[A-Z]/', $password, $matches);
         $a = (count($matches[0]) / strlen($password) * 100);
-
         // Get the number of lower case letters in the password
         preg_match_all('/[a-z]/', $password, $matches);
         $b = (count($matches[0]) / strlen($password) * 100);
-
         // Get the numbers in the password
         preg_match_all('/[0-9]/', $password, $matches);
         $c = (count($matches[0]) / strlen($password) * 100);
-
         // Check for special chars
         preg_match_all('/[<>\[\](){}|!@#$%&*\/=?,;.:\-_+~^\\\]/', $password, $matches);
         $d = (count($matches[0]) / strlen($password) * 100);
-
         $strength += (((100 / abs($a - $b - $c - $d))) * 2.5);
-
         // Get the number of unique chars
         $chars            = str_split($password);
         $num_unique_chars = count(array_unique($chars));
-
         $strength += $num_unique_chars * 4;
-
         // Test for same character repeats
         $repeats = Strings::countCharacters($password);
         $count   = (array_pop($repeats) + array_pop($repeats) + array_pop($repeats));
-
         if ((($count / ($length + 3)) * 10) >= 5) {
             // Too many same characters repeated, this counts against the strength
             $strength = $strength - ($strength * ($count / $length));
@@ -244,16 +224,13 @@ class Password extends DataEntry implements PasswordInterface
             // Few same characters repeated, this counts for the strength
             $strength = $strength + ($strength * ($count / $length) * 2);
         }
-
 // TODO Improve this
 //        // Test for character series
 //        $series     = Strings::countAlphaNumericSeries($password);
 //        $percentage = ($series / strlen($password)) * 100;
 //        $strength  -= ((100 - $percentage) / 2);
-
         // Strength is a number 1 - 100;
-        $strength = (int)floor(($strength > 99) ? 99 : floor(($strength < 0) ? 0 : $strength));
-
+        $strength = (int) floor(($strength > 99) ? 99 : floor(($strength < 0) ? 0 : $strength));
         if (VERBOSE) {
             Log::notice(tr('Password strength is ":strength"', [':strength' => $strength]));
         }
@@ -271,7 +248,7 @@ class Password extends DataEntry implements PasswordInterface
      */
     protected static function isCompromised(string $password): bool
     {
-        return (bool)sql()->get('SELECT `id` FROM `accounts_compromised_passwords` WHERE `password` = :password', [
+        return (bool) sql()->get('SELECT `id` FROM `accounts_compromised_passwords` WHERE `password` = :password', [
             ':password' => $password,
         ]);
     }
@@ -291,7 +268,6 @@ class Password extends DataEntry implements PasswordInterface
         $hash_passwords = sql()->list('SELECT `id` FROM `accounts_old_passwords` WHERE `created_by` = :created_by', [
             ':created_by' => $id,
         ]);
-
         foreach ($hash_passwords as $hash_password) {
             if (static::compare($id, $password, $hash_password)) {
                 return true;
@@ -300,6 +276,7 @@ class Password extends DataEntry implements PasswordInterface
 
         return false;
     }
+
 
     /**
      * Returns true if the specified password and password hash match
@@ -315,6 +292,7 @@ class Password extends DataEntry implements PasswordInterface
         return password_verify(static::seed($id, $password), $hashed_password);
     }
 
+
     /**
      * Returns the password with a seed
      *
@@ -327,6 +305,7 @@ class Password extends DataEntry implements PasswordInterface
     {
         return Config::get('security.seed', 'phoundation') . $id . $password;
     }
+
 
     /**
      * Returns the hashed version of the password
@@ -347,6 +326,7 @@ class Password extends DataEntry implements PasswordInterface
         ]);
     }
 
+
     /**
      * Returns the best encryption cost available on this machine
      *
@@ -366,10 +346,8 @@ class Password extends DataEntry implements PasswordInterface
         $time  = Config::get('security.password.time', 50) / 1000;
         $costs = [];
         $try   = 0;
-
         while (++$try < $tries) {
             $cost = 3;
-
             do {
                 $cost++;
                 $start = microtime(true);
@@ -377,14 +355,13 @@ class Password extends DataEntry implements PasswordInterface
                 $end = microtime(true);
                 Log::dot();
             } while (($end - $start) < $time);
-
             $costs[] = $cost;
         }
-
         Log::cli();
 
-        return (int)Arrays::average($costs);
+        return (int) Arrays::average($costs);
     }
+
 
     /**
      * Returns true if the specified password matches the users password
@@ -399,6 +376,7 @@ class Password extends DataEntry implements PasswordInterface
     {
         return static::compare($id, $password_test, $password_database);
     }
+
 
     /**
      * Sets and returns the field definitions for the data fields in this DataEntry object
@@ -457,36 +435,35 @@ class Password extends DataEntry implements PasswordInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions
-            ->add(Definition::new($this, 'current')
-                            ->setRender(true)
-                            ->setVirtual(true)
-                            ->setInputType(EnumElementInputType::password)
-                            ->setMaxlength(128)
-                            ->setLabel(tr('Current password'))
-                            ->setHelpText(tr('Your current password'))
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isStrongPassword();
-                            }))
-            ->add(Definition::new($this, 'password')
-                            ->setRender(true)
-                            ->setVirtual(true)
-                            ->setInputType(EnumElementInputType::password)
-                            ->setMaxlength(128)
-                            ->setLabel(tr('New password'))
-                            ->setHelpText(tr('The new password for this user'))
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isStrongPassword();
-                            }))
-            ->add(Definition::new($this, 'passwordv')
-                            ->setRender(true)
-                            ->setVirtual(true)
-                            ->setInputType(EnumElementInputType::password)
-                            ->setMaxlength(128)
-                            ->setLabel(tr('Validate password'))
-                            ->setHelpText(tr('Validate the new password for this user'))
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isEqualTo('password');
-                            }));
+        $definitions->add(Definition::new($this, 'current')
+                                    ->setRender(true)
+                                    ->setVirtual(true)
+                                    ->setInputType(EnumElementInputType::password)
+                                    ->setMaxlength(128)
+                                    ->setLabel(tr('Current password'))
+                                    ->setHelpText(tr('Your current password'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isStrongPassword();
+                                    }))
+                    ->add(Definition::new($this, 'password')
+                                    ->setRender(true)
+                                    ->setVirtual(true)
+                                    ->setInputType(EnumElementInputType::password)
+                                    ->setMaxlength(128)
+                                    ->setLabel(tr('New password'))
+                                    ->setHelpText(tr('The new password for this user'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isStrongPassword();
+                                    }))
+                    ->add(Definition::new($this, 'passwordv')
+                                    ->setRender(true)
+                                    ->setVirtual(true)
+                                    ->setInputType(EnumElementInputType::password)
+                                    ->setMaxlength(128)
+                                    ->setLabel(tr('Validate password'))
+                                    ->setHelpText(tr('Validate the new password for this user'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isEqualTo('password');
+                                    }));
     }
 }

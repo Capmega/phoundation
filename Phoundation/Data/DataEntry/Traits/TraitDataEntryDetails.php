@@ -8,7 +8,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 
-
 /**
  * Trait TraitDataEntryDetails
  *
@@ -35,6 +34,7 @@ trait TraitDataEntryDetails
             Log::warning(tr('Failed to decode details because of following exception'));
             Log::warning(tr('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'));
             Log::error($e);
+
             return $this->getValueTypesafe('string', 'details');
         }
     }

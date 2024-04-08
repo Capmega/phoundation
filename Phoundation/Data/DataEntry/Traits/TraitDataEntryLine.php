@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Trait TraitDataEntryLine
  *

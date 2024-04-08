@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Stringable;
 
-
 /**
  * Class Definitions
  *
@@ -28,6 +27,7 @@ interface DefinitionsInterface extends IteratorInterface
      */
     public function getColumnPrefix(): ?string;
 
+
     /**
      * Sets the column prefix
      *
@@ -37,12 +37,14 @@ interface DefinitionsInterface extends IteratorInterface
      */
     public function setColumnPrefix(?string $prefix): static;
 
+
     /**
      * Returns the data entry
      *
      * @return DataEntryInterface
      */
     public function getDataEntry(): DataEntryInterface;
+
 
     /**
      * Sets the data entry
@@ -53,12 +55,14 @@ interface DefinitionsInterface extends IteratorInterface
      */
     public function setDataEntry(DataEntryInterface $data_entry): static;
 
+
     /**
      * Returns the current Definition object
      *
      * @return DefinitionInterface
      */
     public function current(): DefinitionInterface;
+
 
     /**
      * Returns the specified column
@@ -70,6 +74,7 @@ interface DefinitionsInterface extends IteratorInterface
      */
     public function get(Stringable|string|float|int $key, bool $exception = false): DefinitionInterface;
 
+
     /**
      * Returns the first Definition entry
      *
@@ -77,12 +82,14 @@ interface DefinitionsInterface extends IteratorInterface
      */
     public function getFirstValue(): DefinitionInterface;
 
+
     /**
      * Returns the last Definition entry
      *
      * @return DefinitionInterface
      */
     public function getLastValue(): DefinitionInterface;
+
 
     /**
      * Direct method to hide entries
@@ -94,6 +101,7 @@ interface DefinitionsInterface extends IteratorInterface
      */
     public function hide(Stringable|string|float|int $key, bool $exception = true): static;
 
+
     /**
      * Direct method to unhide entries
      *
@@ -103,6 +111,7 @@ interface DefinitionsInterface extends IteratorInterface
      * @return static
      */
     public function show(Stringable|string|float|int $key, bool $exception = true): static;
+
 
     /**
      * Returns if meta-information is visible at all, or not

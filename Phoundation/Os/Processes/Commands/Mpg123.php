@@ -8,7 +8,6 @@ use Phoundation\Data\Traits\TraitDataFile;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
-
 /**
  * Class Mpg123
  *
@@ -22,7 +21,6 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 class Mpg123 extends Command
 {
     use TraitDataFile;
-
 
     /**
      * Play the specified file

@@ -11,7 +11,6 @@ use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 
-
 /**
  * Class FilterForm
  *
@@ -38,14 +37,12 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     public function __construct()
     {
         parent::__construct();
-
         $this->states = [
             '__all'   => tr('All'),
             null      => tr('Active'),
             'locked'  => tr('Locked'),
             'deleted' => tr('Deleted'),
         ];
-
         $this->definitions = Definitions::new()
                                         ->add(Definition::new(null, 'entry_status')
                                                         ->setLabel(tr('Status'))
@@ -61,7 +58,8 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                         ->setOptional(true)
                                                         ->setElement(EnumElement::select)
                                                         ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                                                            return Roles::new()->getHtmlSelect()
+                                                            return Roles::new()
+                                                                        ->getHtmlSelect()
                                                                         ->setAutoSubmit(true)
                                                                         ->setName($field_name)
                                                                         ->setNone(tr('Select'))
@@ -73,7 +71,8 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                         ->setOptional(true)
                                                         ->setElement(EnumElement::select)
                                                         ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                                                            return Rights::new()->getHtmlSelect()
+                                                            return Rights::new()
+                                                                         ->getHtmlSelect()
                                                                          ->setAutoSubmit(true)
                                                                          ->setName($field_name)
                                                                          ->setNone(tr('Select'))

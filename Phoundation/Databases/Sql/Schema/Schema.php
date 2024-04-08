@@ -9,7 +9,6 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Config;
 
-
 /**
  * Schema class
  *
@@ -60,10 +59,10 @@ class Schema
         if (!$instance_name) {
             throw new OutOfBoundsException(tr('No instance name specified'));
         }
-
         $this->instance_name = $instance_name;
         $this->sql           = new Sql($instance_name, $use_database);
     }
+
 
     /**
      * Access a new Table object for the currently selected database
@@ -78,8 +77,10 @@ class Schema
             throw new OutOfBoundsException(tr('No table specified'));
         }
 
-        return $this->database()->table($name);
+        return $this->database()
+                    ->table($name);
     }
+
 
     /**
      * Access a new Database object
@@ -94,16 +95,16 @@ class Schema
             // Default to system database
             $name = Config::get('databases.sql.connectors.system.name', 'phoundation');
         }
-
         // If we don't have this database yet, create it now
         if (!array_key_exists($name, $this->databases)) {
             $this->databases[$name] = new Database($name, $this->sql, $this);
         }
-
         // Set current database and return a database object
         $this->current_database = $name;
+
         return $this->databases[$name];
     }
+
 
     /**
      * Returns the current database

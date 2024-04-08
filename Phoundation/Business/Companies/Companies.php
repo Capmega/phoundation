@@ -9,7 +9,6 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
-
 /**
  * Class Companies
  *
@@ -32,7 +31,6 @@ class Companies extends DataList
                                FROM     `business_companies` 
                                WHERE    `status` IS NULL 
                                ORDER BY `name`');
-
         parent::__construct();
     }
 

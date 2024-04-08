@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Exception\Exception;
 use Throwable;
 
-
 /**
  * Trait TraitDataEntryException
  *
@@ -45,7 +44,6 @@ trait TraitDataEntryException
                 // Make it a base Exception
                 $exception = new Exception($exception);
             }
-
             $exception = $exception->exportString();
         }
 

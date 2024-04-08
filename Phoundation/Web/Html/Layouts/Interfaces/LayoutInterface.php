@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Layouts\Interfaces;
 
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
-
 /**
  * Interface LayoutInterface
  *

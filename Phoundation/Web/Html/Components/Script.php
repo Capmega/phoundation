@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class Script
  *
@@ -27,7 +26,6 @@ use Phoundation\Web\Requests\Response;
 class Script extends Element implements ScriptInterface
 {
     use TraitDataMinify;
-
 
     /**
      * Keeps track on where this script will be attached to
@@ -93,6 +91,7 @@ class Script extends Element implements ScriptInterface
     public function setAsync(bool $async): static
     {
         $this->async = $async;
+
         return $this;
     }
 
@@ -118,6 +117,7 @@ class Script extends Element implements ScriptInterface
     public function setToFile(bool $to_file): static
     {
         $this->to_file = $to_file;
+
         return $this;
     }
 
@@ -143,6 +143,7 @@ class Script extends Element implements ScriptInterface
     public function setSrc(string $src): static
     {
         $this->src = $src;
+
         return $this;
     }
 
@@ -168,6 +169,7 @@ class Script extends Element implements ScriptInterface
     public function setAttach(EnumAttachJavascript $attach): static
     {
         $this->attach = $attach;
+
         return $this;
     }
 
@@ -193,6 +195,7 @@ class Script extends Element implements ScriptInterface
     public function setDefer(bool $defer): static
     {
         $this->defer = $defer;
+
         return $this;
     }
 
@@ -218,6 +221,7 @@ class Script extends Element implements ScriptInterface
     public function setJavascriptWrapper(EnumJavascriptWrappersInterface $javascript_wrapper): static
     {
         $this->javascript_wrapper = $javascript_wrapper;
+
         return $this;
     }
 
@@ -232,7 +236,6 @@ class Script extends Element implements ScriptInterface
     public function render(): ?string
     {
         $render = '';
-
         if ($this->content) {
             // Apply event wrapper
             switch ($this->javascript_wrapper) {
@@ -241,24 +244,20 @@ class Script extends Element implements ScriptInterface
                               ' . $this->content . '
                            });' . PHP_EOL;
                     break;
-
                 case EnumJavascriptWrappers::window:
                     $render = 'window.addEventListener("load", function(e) {
                               ' . $this->content . '
                            });' . PHP_EOL;
                     break;
-
                 case EnumJavascriptWrappers::function:
                     $render = '$(function() {
                               ' . $this->content . '
                            });' . PHP_EOL;
                     break;
-
                 case EnumJavascriptWrappers::none:
                     // No wrapping
                     $render = $this->content . PHP_EOL;
                     break;
-
                 default:
                     // TODO: This should be impossible to reach, remove?
                     throw new OutOfBoundsException(tr('Unknown event wrapper ":value" specified', [
@@ -268,12 +267,10 @@ class Script extends Element implements ScriptInterface
         } else {
             $this->content = '';
         }
-
         // Where should this script be attached?
         switch ($this->attach) {
             case EnumAttachJavascript::here:
                 return '<script type="text/javascript"' . ($this->async ? ' async' : '') . ($this->defer ? ' defer' : '') . ($this->src ? ' src="' . $this->src . '"' : '') . '>' . $render . '</script>' . PHP_EOL;
-
             case EnumAttachJavascript::header:
                 Response::addToHeader('javascript', [
                     'type'    => 'text/javascript',
@@ -281,17 +278,14 @@ class Script extends Element implements ScriptInterface
                 ]);
 
                 return null;
-
             case EnumAttachJavascript::footer:
                 Response::addToFooter([
-                                          'type' => 'text/javascript',
-                                                                                                                                                            'content' => $render,
-                                      ], 'javascript');
+                    'type'    => 'text/javascript',
+                    'content' => $render,
+                ], 'javascript');
 
                 return null;
         }
-
-
 //        // TODO GARBAGE BELOW, CLEAN UP
 //        /*
 //         * @note If $_CONFIG[cdn][js][load_delayed] is true, this function will not return anything, and add the generated HTML to $core->register[script_delayed] instead

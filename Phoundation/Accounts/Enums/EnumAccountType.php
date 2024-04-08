@@ -6,7 +6,6 @@ namespace Phoundation\Accounts\Enums;
 
 use Phoundation\Accounts\Enums\Interfaces\EnumAccountTypeInterface;
 
-
 /**
  * Enum EnumAccountType
  *

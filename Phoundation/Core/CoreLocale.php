@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Core;
 
-
 use Phoundation\Exception\OutOfBoundsException;
 
 /**
@@ -69,8 +68,6 @@ class CoreLocale
 //        throw new OutOfBoundsException(tr('language_lock(): Failed'), $e);
 //    }
 //}
-
-
     /*
      * Set PHP locale data from specified configuration. If no configuration was specified, use $_CONFIG[locale] instead
      *
@@ -113,20 +110,17 @@ class CoreLocale
         return preg_replace('~(.*)(\d{3})[^\d]{0,7}(\d{3})[^\d]{0,7}(\d{4}).*~', ($international ? '$1 ' : '') . '($2) $3-$4', $phone_number);
     }
 
+
     function set($data = null)
     {
         global $_CONFIG;
-
         $return = '';
-
         if (!$data) {
             $data = $_CONFIG['locale'];
         }
-
         if (!is_array($data)) {
             throw new OutOfBoundsException(tr('Specified $data should be an array but is an ":type"', [':type' => gettype($data)]));
         }
-
         /*
          * Determine language and location
          */
@@ -136,26 +130,22 @@ class CoreLocale
         } else {
             $language = $_CONFIG['language']['default'];
         }
-
         if (isset($_SESSION['location']['country']['code'])) {
             $country = strtoupper($_SESSION['location']['country']['code']);
 
         } else {
             $country = $_CONFIG['location']['default_country'];
         }
-
         /*
          * First set LC_ALL as a baseline, then each individual entry
          */
         if (isset($data[LC_ALL])) {
             $data[LC_ALL] = str_replace(':LANGUAGE', $language, $data[LC_ALL]);
             $data[LC_ALL] = str_replace(':COUNTRY', $country, $data[LC_ALL]);
-
             setlocale(LC_ALL, $data[LC_ALL]);
             $return = $data[LC_ALL];
             unset($data[LC_ALL]);
         }
-
         /*
          * Apply all parameters
          */
@@ -166,17 +156,14 @@ class CoreLocale
                  */
                 continue;
             }
-
             if ($value) {
                 /*
                  * Ignore this empty value
                  */
                 continue;
             }
-
             $value = str_replace(':LANGUAGE', $language, $value);
             $value = str_replace(':COUNTRY', $country, $value);
-
             setlocale($key, $value);
         }
 

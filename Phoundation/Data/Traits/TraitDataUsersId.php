@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataUsersId
  *
@@ -44,6 +43,7 @@ trait TraitDataUsersId
     public function setUsersId(?int $users_id): static
     {
         $this->users_id = get_null($users_id);
+
         return $this;
     }
 }

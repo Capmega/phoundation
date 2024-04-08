@@ -6,7 +6,6 @@ namespace Phoundation\Os\Devices\Storage\Exception;
 
 use Phoundation\Exception\Exception;
 
-
 /**
  * Class StorageException
  *

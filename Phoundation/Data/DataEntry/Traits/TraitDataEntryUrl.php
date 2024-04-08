@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Stringable;
 
-
 /**
  * Trait TraitDataEntryUrl
  *
@@ -39,6 +38,6 @@ trait TraitDataEntryUrl
      */
     public function setUrl(Stringable|string|null $url): static
     {
-        return $this->setValue('url', (string)$url);
+        return $this->setValue('url', (string) $url);
     }
 }

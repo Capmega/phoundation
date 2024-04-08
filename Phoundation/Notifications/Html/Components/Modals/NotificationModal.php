@@ -10,16 +10,15 @@ use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Response;
 
-
 /**
  * NotificationModal class
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class NotificationModal extends LargeModal
 {
@@ -32,16 +31,15 @@ class NotificationModal extends LargeModal
     {
         // Set defaults
         $this->setId('notification-modal')
-            ->setTitle(':title')
-            ->setContent(':content');
-
+             ->setTitle(':title')
+             ->setContent(':content');
         // Add the modal HTML to the page footer as it should be attached to the body tag directly
         Response::addToFooter(parent::render());
 
         // Render the sign in modal.
         return Script::new()
-            ->setJavascriptWrapper(EnumJavascriptWrappers::window)
-            ->setContent('
+                     ->setJavascriptWrapper(EnumJavascriptWrappers::window)
+                     ->setContent('
             $("nav.main-header").on("click", ".notification.open-modal", function(e) {
                 e.stopPropagation();
 
@@ -55,6 +53,7 @@ class NotificationModal extends LargeModal
                     });
 
                 return false;
-            })')->render();
+            })')
+                     ->render();
     }
 }

@@ -23,7 +23,6 @@ use Phoundation\Os\Processes\Commands\Cp;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Library class
  *
@@ -83,31 +82,11 @@ class Library implements LibraryInterface
         $this->directory = $directory;
         $this->library   = Strings::fromReverse(Strings::unslash($directory), '/');
         $this->library   = strtolower($this->library);
-
         // Get the Init object
         $this->loadUpdatesObject()
              ->loadPluginObject();
     }
 
-    /**
-     * Loads the Updates object for this library
-     */
-    protected function loadUpdatesObject(): static
-    {
-        static::loadLibraryFile('Updates', function (object $object) {
-            if ($object instanceof UpdatesInterface) {
-                $this->updates = $object;
-
-            } else {
-                Log::Warning(tr('The Updates.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Interfaces\UpdatesInterface. This file has been ignored', [
-                    ':directory' => $this->directory,
-                    ':library'   => $this->library,
-                ]));
-            }
-        });
-
-        return $this;
-    }
 
     /**
      * Loads the Plugin object for this library
@@ -131,6 +110,7 @@ class Library implements LibraryInterface
         return $this;
     }
 
+
     /**
      * Loads the specified library file
      */
@@ -138,35 +118,31 @@ class Library implements LibraryInterface
     {
         // Scan for the Updates.php file
         $file = Strings::slash($this->directory) . 'Library/' . $file . '.php';
-
         if (!file_exists($file)) {
             // There is no init class available
             return;
         }
-
         try {
             // Load the PHP file
             include_once($file);
-
             $class_path = static::getClassPath($file);
             $object     = new $class_path();
             $callback($object);
 
         } catch (Error $e) {
             Log::warning(tr('Failed to load the ":file" file for library ":library", see the following exception for more information', [
-                ':file' => $file,
+                ':file'    => $file,
                 ':library' => $this->getName(),
             ]));
-
             Exception::new($e)
                      ->log()
                      ->registerDeveloperIncident()
                      ->getNotificationObject()
                      ->send();
-
             $this->updates = null;
         }
     }
+
 
     /**
      * Get the class path from the specified .php file
@@ -187,7 +163,6 @@ class Library implements LibraryInterface
         ) {
             throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
         }
-
         // Scan for namespace and class lines
         $namespace = null;
         $class     = null;
@@ -197,28 +172,24 @@ class Library implements LibraryInterface
             DIRECTORY_ROOT . 'Templates',
         ])
                          ->grep([
-                                    'namespace ',
-                                    'class ',
-                                ], 100);
-
+                             'namespace ',
+                             'class ',
+                         ], 100);
         // Get the namespace
         foreach ($results['namespace '] as $line) {
             if (preg_match_all('/^namespace\s+(.+?);$/i', $line, $matches)) {
                 $namespace = $matches[1][0];
             }
         }
-
         if (!$namespace) {
             throw new LibrariesException(tr('Failed to find a namespace for file ":file"', [':file' => $file]));
         }
-
         // Get the class name
         foreach ($results['class '] as $line) {
             if (preg_match_all('/^(?:abstract )?class\s+([a-z0-9_]+)(?:(?:\s+extends\s+.+?)?\s+\{)?/i', $line, $matches)) {
                 $class = $matches[1][0];
             }
         }
-
         if (!$class) {
             throw new LibrariesException(tr('Failed to find a class for file ":file"', [':file' => $file]));
         }
@@ -226,6 +197,7 @@ class Library implements LibraryInterface
         // Now we can return the class path
         return Strings::endsWith($namespace, '\\') . $class;
     }
+
 
     /**
      * Returns the library name
@@ -236,6 +208,28 @@ class Library implements LibraryInterface
     {
         return $this->library;
     }
+
+
+    /**
+     * Loads the Updates object for this library
+     */
+    protected function loadUpdatesObject(): static
+    {
+        static::loadLibraryFile('Updates', function (object $object) {
+            if ($object instanceof UpdatesInterface) {
+                $this->updates = $object;
+
+            } else {
+                Log::Warning(tr('The Updates.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Interfaces\UpdatesInterface. This file has been ignored', [
+                    ':directory' => $this->directory,
+                    ':library'   => $this->library,
+                ]));
+            }
+        });
+
+        return $this;
+    }
+
 
     /**
      * Includes the .php file for the specified class path and returns the specified class path
@@ -251,12 +245,13 @@ class Library implements LibraryInterface
             // PHP check only done on non-production environments (on production we want to save the CPU cycles)
             $check_php = !Core::isProductionEnvironment();
         }
-
         $file = Library::getClassFile($class_path, $check_php);
         Log::action(tr('Including class file ":file"', [':file' => $file]), 2);
         include_once($file);
+
         return $class_path;
     }
+
 
     /**
      * Get the .php file for the specified class path
@@ -271,15 +266,12 @@ class Library implements LibraryInterface
         if (!$class_path) {
             throw new OutOfBoundsException(tr('No class path specified'));
         }
-
         if (is_object($class_path)) {
             $class_path = get_class($class_path);
         }
-
         $file = str_replace('\\', '/', $class_path);
         $file = Strings::startsNotWith($file, '/');
         $file = DIRECTORY_ROOT . $file . '.php';
-
         if ($check_php) {
             if (
                 !File::new($file, [
@@ -295,6 +287,7 @@ class Library implements LibraryInterface
 
         return $file;
     }
+
 
     /**
      * Creates a new library of the specified type
@@ -312,29 +305,27 @@ class Library implements LibraryInterface
                 ':name' => $name,
             ]));
         }
-
         if (file_exists(DIRECTORY_ROOT . $type->value . $name)) {
             throw new LibraryExistsException(tr('Cannot create ":type" type library ":name", it already exists', [
                 ':type' => $type,
                 ':name' => $name,
             ]));
         }
-
         // Copy the library from the TemplateLibrary and run a search / replace
         Cp::new()
           ->archive(DIRECTORY_ROOT . 'Phoundation/.TemplateLibrary', Restrictions::new(DIRECTORY_ROOT . 'Phoundation/'), DIRECTORY_ROOT . $type->value . $name, Restrictions::new(DIRECTORY_ROOT . $type->value, true));
-
         foreach (['Updates.php'] as $file) {
             File::new(DIRECTORY_ROOT . $type->value . $name . '/Library/' . $file, Restrictions::new(DIRECTORY_ROOT . $type->value, true))
                 ->replace([
-                              ':type' => $type,
-                              ':name' => $name,
-                          ]);
+                    ':type' => $type,
+                    ':name' => $name,
+                ]);
         }
 
         // Done, return the library as an object
         return Library::get($name);
     }
+
 
     /**
      * Returns a new Library object for the specified library
@@ -349,7 +340,6 @@ class Library implements LibraryInterface
             // This is TYPE/NAME
             $type = Strings::until($name, '/');
             $name = Strings::from($name, '/');
-
             switch ($type) {
                 case 'system':
                     // no-break
@@ -357,7 +347,6 @@ class Library implements LibraryInterface
                     // no-break
                 case 'template':
                     break;
-
                 default:
                     throw new OutOfBoundsException(tr('Unknown library type "" specified, please specify one of "system", "plugin", or "template"', [
                         ':type' => $type,
@@ -371,6 +360,7 @@ class Library implements LibraryInterface
         return Libraries::findLibrary($name, (($type === 'system') or ($type === null)), (($type === 'plugin') or ($type === null)), (($type === 'template') or ($type === null)));
     }
 
+
     /**
      * Return the object contents in JSON string format
      *
@@ -380,6 +370,7 @@ class Library implements LibraryInterface
     {
         return Json::encode($this);
     }
+
 
     /**
      * Return the object contents in array format
@@ -395,6 +386,7 @@ class Library implements LibraryInterface
         ];
     }
 
+
     /**
      * Returns the version for this library
      *
@@ -405,6 +397,7 @@ class Library implements LibraryInterface
         return $this->updates?->version();
     }
 
+
     /**
      * Returns the description for this library
      *
@@ -414,6 +407,7 @@ class Library implements LibraryInterface
     {
         return $this->plugin?->getDescription();
     }
+
 
     /**
      * Initialize this library
@@ -428,20 +422,22 @@ class Library implements LibraryInterface
             // TODO Check later if we should be able to let init initialize itself
             // Never initialize the Init library itself!
             Log::warning(tr('Not initializing library "library", it has no versioning control available'));
+
             return false;
         }
-
         if ($this->updates === null) {
             // This library has no Init available, skip!
             Log::warning(tr('Not processing library ":library", it has no versioning control defined', [
                 ':library' => $this->library,
-            ]),          3);
+            ]), 3);
+
             return false;
         }
-
         $this->updates->init($comments);
+
         return true;
     }
+
 
     /**
      * Executes POST init files for this library
@@ -456,20 +452,21 @@ class Library implements LibraryInterface
         if ($this->library === 'libraries') {
             // Never initialize the Init library itself!
             Log::warning(tr('Not initializing library "library", it has no versioning control available'));
+
             return false;
         }
-
         if ($this->updates === null) {
             // This library has no Init available, skip!
             Log::warning(tr('Not processing library ":library", it has no versioning control defined', [
                 ':library' => $this->library,
-            ]),          3);
+            ]), 3);
 
             return false;
         }
 
         return $this->updates->initPost($comments);
     }
+
 
     /**
      * Returns true if the library is a system library
@@ -480,6 +477,7 @@ class Library implements LibraryInterface
     {
         return $this->getType() === 'system';
     }
+
 
     /**
      * Returns the type of library; system or plugin
@@ -492,17 +490,16 @@ class Library implements LibraryInterface
         $directory = Strings::untilReverse($directory, '/');
         $directory = Strings::fromReverse($directory, '/');
         $directory = strtolower($directory);
-
         if ($directory === 'phoundation') {
             return 'system';
         }
-
         if ($directory === 'templates') {
             return 'template';
         }
 
         return 'plugin';
     }
+
 
     /**
      * Returns true if the library is a plugin library
@@ -514,6 +511,7 @@ class Library implements LibraryInterface
         return $this->getType() === 'plugins';
     }
 
+
     /**
      * Returns true if the library is a template library
      *
@@ -523,6 +521,7 @@ class Library implements LibraryInterface
     {
         return $this->getType() === 'template';
     }
+
 
     /**
      * Returns the code version for this library
@@ -534,6 +533,7 @@ class Library implements LibraryInterface
         return $this->updates?->getCodeVersion();
     }
 
+
     /**
      * Returns the database version for this library
      *
@@ -543,6 +543,7 @@ class Library implements LibraryInterface
     {
         return $this->updates?->getDatabaseVersion();
     }
+
 
     /**
      * Returns the database version for this library
@@ -554,6 +555,7 @@ class Library implements LibraryInterface
         return $this->updates?->getNextInitVersion();
     }
 
+
     /**
      * Returns the size of all files in this library in bytes
      *
@@ -564,6 +566,7 @@ class Library implements LibraryInterface
         return Directory::new($this->directory, DIRECTORY_ROOT)
                         ->treeFileSize();
     }
+
 
     /**
      * Returns the PhpStatistics object for this library
@@ -581,6 +584,7 @@ class Library implements LibraryInterface
                         ->getPhpStatistics(true);
     }
 
+
     /**
      * Returns the library path
      *
@@ -590,6 +594,7 @@ class Library implements LibraryInterface
     {
         return $this->directory;
     }
+
 
     /**
      * Update the version registration for this version to be the specified version
@@ -605,27 +610,22 @@ class Library implements LibraryInterface
             ':library' => $this->getName(),
             ':version' => $version,
         ]));
-
         $int_version = Version::getInteger($version);
-
         // Delete any version that is higher than the specified version
         sql()->query('DELETE FROM `core_versions` WHERE `library` = :library AND `version` > :version', [
             ':library' => $this->getName(),
             ':version' => $int_version,
         ]);
-
         // Get the highest version. If it's lower than requested, insert the requested version so that we're exactly at
         // the right version
         $int_current = sql()->getColumn('SELECT MAX(`version`) FROM `core_versions` WHERE `library` = :library', [
             ':library' => $this->getName(),
         ]);
-
         if ($int_current < $int_version) {
             if ($comments === null) {
                 // Default comment
                 $comments = tr('Forced library to this version');
             }
-
             sql()->insert('core_versions', [
                 'library'  => $this->library,
                 'version'  => $int_version,
@@ -633,6 +633,7 @@ class Library implements LibraryInterface
             ]);
         }
     }
+
 
     /**
      * This method will verify that the library is in working order, that the commands are symlinked, etc
@@ -643,9 +644,7 @@ class Library implements LibraryInterface
     {
         if ($this->structure_ok === null) {
             // Execute the structural check for this library
-
             // TODO IMPLEMENT MORE
-
             $this->structure_ok = true;
         }
 
@@ -666,20 +665,16 @@ class Library implements LibraryInterface
     {
         Log::action(tr('Rebuilding command cache for library ":library"', [
             ':library' => $this->getName(),
-        ]),         3);
-
+        ]), 3);
         $path         = Strings::slash($this->directory) . 'Library/commands/';
         $restrictions = Restrictions::readonly($path, tr('Commands cache rebuild for ":library"', [
             ':library' => $this->getName(),
         ]));
-
         $path = Directory::new($path, $restrictions);
-
         if (!$path->exists()) {
             // This library does not have a web/ directory, we're fine
             return;
         }
-
         $path->symlinkTreeToTarget($cache, $tmp, rename: true);
     }
 
@@ -697,20 +692,16 @@ class Library implements LibraryInterface
     {
         Log::action(tr('Rebuilding web page cache for library ":library"', [
             ':library' => $this->getName(),
-        ]),         3);
-
+        ]), 3);
         $path         = Strings::slash($this->directory) . 'Library/web/';
         $restrictions = Restrictions::readonly($path, tr('Web page cache rebuild for ":library"', [
             ':library' => $this->getName(),
         ]));
-
         $path = Directory::new($path, $restrictions);
-
         if (!$path->exists()) {
             // This library does not have a web/ directory, we're fine
             return;
         }
-
         $path->symlinkTreeToTarget($cache, $tmp, rename: true);
     }
 
@@ -728,20 +719,16 @@ class Library implements LibraryInterface
     {
         Log::action(tr('Rebuilding web page cache for library ":library"', [
             ':library' => $this->getName(),
-        ]),         3);
-
+        ]), 3);
         $path         = Strings::slash($this->directory) . 'Library/tests/';
         $restrictions = Restrictions::readonly($path, tr('Web page cache rebuild for ":library"', [
             ':library' => $this->getName(),
         ]));
-
         $path = Directory::new($path, $restrictions);
-
         if (!$path->exists()) {
             // This library does not have a web/ directory, we're fine
             return;
         }
-
         $path->symlinkTreeToTarget($cache, $tmp, rename: true);
     }
 }

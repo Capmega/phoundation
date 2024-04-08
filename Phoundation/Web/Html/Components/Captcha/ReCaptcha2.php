@@ -14,7 +14,6 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Script;
 
-
 /**
  * Class ReCaptcha
  *
@@ -65,6 +64,7 @@ class ReCaptcha2 extends Captcha
     public function setSize(#[ExpectedValues('normal', 'compact')] string $size): static
     {
         $this->size = $size;
+
         return $this;
     }
 
@@ -78,6 +78,7 @@ class ReCaptcha2 extends Captcha
     {
         return $this->script;
     }
+
 
     /**
      * Returns true if the token is valid for the specified action
@@ -97,6 +98,7 @@ class ReCaptcha2 extends Captcha
         }
     }
 
+
     /**
      * Returns true if the token is valid for the specified action
      *
@@ -111,9 +113,9 @@ class ReCaptcha2 extends Captcha
         if (!$response) {
             // There is no response, this is failed before we even begin
             Log::warning(tr('No captcha client response received'));
+
             return false;
         }
-
         // Get captcha secret key
         if (!$secret) {
             // Use configured secret key
@@ -123,27 +125,23 @@ class ReCaptcha2 extends Captcha
                 $secret = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
             }
         }
-
         if (!$remote_ip) {
             // Default to the IP address of this client
             // TODO This might cause issues with reverse proxies, look into that later
             $remote_ip = $_SERVER['REMOTE_ADDR'];
         }
-
         // Check with Google if captcha passed or not
         $post = Post::new('https://www.google.com/recaptcha/api/siteverify')
                     ->setPostUrlEncoded(true)
                     ->addPostValues([
-                                        'secret'    => $secret,
-                                        'response'  => $response,
-                                        'remote_ip' => $remote_ip,
-                                    ])
+                        'secret'    => $secret,
+                        'response'  => $response,
+                        'remote_ip' => $remote_ip,
+                    ])
                     ->execute();
-
         $response = $post->getResultData();
         $response = Json::decode($response);
         $response = Strings::toBoolean($response['success']);
-
         if ($response) {
             Log::success(tr('Passed ReCaptcha test'));
         } else {
@@ -152,6 +150,7 @@ class ReCaptcha2 extends Captcha
 
         return $response;
     }
+
 
     /**
      * Renders and returns the HTML for the google ReCAPTCHA

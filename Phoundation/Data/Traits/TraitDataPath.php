@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Filesystem\Interfaces\PathInterface;
 
 /**
@@ -47,7 +46,8 @@ trait TraitDataPath
      */
     public function setPath(PathInterface|string|null $path): static
     {
-        $this->path = get_null((string)$path);
+        $this->path = get_null((string) $path);
+
         return $this;
     }
 }

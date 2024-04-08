@@ -8,7 +8,6 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Servers\Interfaces\ServerInterface;
 
-
 /**
  * Class ProcessCore
  *
@@ -29,6 +28,7 @@ interface ProcessCoreInterface
      */
     public function getServer(): ?ServerInterface;
 
+
     /**
      * Sets the server on which this command should be executed
      *
@@ -38,12 +38,14 @@ interface ProcessCoreInterface
      */
     public function setServer(ServerInterface|string|null $server): static;
 
+
     /**
      * Execute the command using the PHP exec() call and return an array
      *
      * @return array The output from the executed command
      */
     public function executeReturnArray(): array;
+
 
     /**
      * Execute the command using the PHP exec() call and return an IteratorInterface
@@ -52,6 +54,7 @@ interface ProcessCoreInterface
      */
     public function executeReturnIterator(): IteratorInterface;
 
+
     /**
      * Execute the command using the PHP exec() call and return a string
      *
@@ -59,12 +62,14 @@ interface ProcessCoreInterface
      */
     public function executeReturnString(): string;
 
+
     /**
      * Execute the command using the PHP exec() call and return a string
      *
      * @return void
      */
     public function executeNoReturn(): void;
+
 
     /**
      * Execute the command and depending on specified method, return or log output
@@ -75,12 +80,14 @@ interface ProcessCoreInterface
      */
     public function execute(EnumExecuteMethodInterface $method): IteratorInterface|array|string|int|bool|null;
 
+
     /**
      * Execute the command using passthru and send the output directly to the client
      *
      * @return bool
      */
     public function executePassthru(): bool;
+
 
     /**
      * Executes the command for this object as a background process
@@ -89,6 +96,7 @@ interface ProcessCoreInterface
      */
     public function executeBackground(): int;
 
+
     /**
      * Returns if the process has executed or not
      *
@@ -96,12 +104,14 @@ interface ProcessCoreInterface
      */
     public function isFinished(): bool;
 
+
     /**
      * Returns if the process is currently executing
      *
      * @return bool
      */
     public function isExecuting(): bool;
+
 
     /**
      * Kill this (backgroun) process
@@ -111,6 +121,7 @@ interface ProcessCoreInterface
      * @return void
      */
     public function kill(int $signal = 15): void;
+
 
     /**
      * Builds and returns the command line that will be executed

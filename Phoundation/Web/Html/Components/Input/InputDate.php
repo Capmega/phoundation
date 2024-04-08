@@ -8,7 +8,6 @@ use Phoundation\Date\DateTime;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Stringable;
 
-
 /**
  * Class InputDate
  *
@@ -75,7 +74,7 @@ class InputDate extends InputText
             $max = $max->format('Y-m-d');
         }
 
-        return $this->setAttribute(get_null((string)$max), 'max');
+        return $this->setAttribute(get_null((string) $max), 'max');
     }
 
 
@@ -103,6 +102,6 @@ class InputDate extends InputText
             $min = $min->format('Y-m-d');
         }
 
-        return $this->setAttribute(get_null((string)$min), 'min');
+        return $this->setAttribute(get_null((string) $min), 'min');
     }
 }

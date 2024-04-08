@@ -4,7 +4,6 @@ namespace Phoundation\Web\Html\Template\Interfaces;
 
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 
-
 /**
  * Interface TemplateInterface
  *
@@ -28,6 +27,7 @@ interface TemplateInterface
      */
     public function requires(string $name): void;
 
+
     /**
      * Returns a new TemplatePage for this template
      *
@@ -35,12 +35,14 @@ interface TemplateInterface
      */
     public function getPage(): TemplatePageInterface;
 
+
     /**
      * Returns the name for this template
      *
      * @return string
      */
     public function getName(): string;
+
 
     /**
      * Returns a Renderer class for the specified component in the current Template, or NULL if none available
@@ -51,12 +53,14 @@ interface TemplateInterface
      */
     public function getRendererClass(RenderInterface|string $class): ?string;
 
+
     /**
      * Returns the description for this template
      *
      * @return string|null
      */
     public function getDescription(): ?string;
+
 
     /**
      * Returns the root path for this template

@@ -9,7 +9,6 @@ use Phoundation\Core\Exception\NumbersException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Class Numbers
  *
@@ -39,7 +38,6 @@ class Numbers
                 return $max;
             }
         }
-
         if (is_numeric($min)) {
             if ($number < $min) {
                 return $min;
@@ -65,7 +63,6 @@ class Numbers
     {
         // We can only have an integer number of bytes
         $amount = Numbers::fromBytes($amount);
-
         if ($unit === 'auto') {
             // Auto determine what unit to use in 10^N bytes
             if ($amount > 1000000) {
@@ -85,7 +82,6 @@ class Numbers
                 if (!$amount) {
                     return '0b';
                 }
-
                 $unit = 'b';
 
             } else {
@@ -110,84 +106,67 @@ class Numbers
                 if (!$amount) {
                     return '0b';
                 }
-
                 $unit = 'b';
 
             } else {
                 $unit = 'kb';
             }
         }
-
         // Convert to requested unit
         switch (strtolower($unit)) {
             case 'b':
                 // Just bytes
                 break;
-
             case 'kb':
                 // Kilobytes
                 $amount = $amount / 1000;
                 break;
-
             case 'kib':
                 // Kibibytes
                 $amount = $amount / 1024;
                 break;
-
             case 'mb':
                 // Megabytes
                 $amount = $amount / 1000000;
                 break;
-
             case 'mib':
                 // Mibibytes
                 $amount = $amount / 1048576;
                 break;
-
             case 'gb':
                 // Gigabytes
                 $amount = $amount / 1000000 / 1000;
                 break;
-
             case 'gib':
                 // Gibibytes
                 $amount = $amount / 1048576 / 1024;
                 break;
-
             case 'tb':
                 // Terabytes
                 $amount = $amount / 1000000 / 1000000;
                 break;
-
             case 'tib':
                 // Tibibytes
                 $amount = $amount / 1048576 / 1048576;
                 break;
-
             default:
                 throw new OutOfBoundsException(tr('Specified unit ":unit" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc', [
                     ':unit' => $unit,
                 ]));
         }
-
         $amount = number_format(round($amount, $precision), $precision);
-
         if (!$add_suffix) {
             return $amount;
         }
-
         // Return amount with correct suffix.
         switch (strlen($unit)) {
             case 1:
                 return $amount . 'b';
-
             case 2:
                 return $amount . strtoupper($unit);
-
             case 3:
                 return $amount . strtoupper($unit[0]) . strtolower($unit[1]) . strtoupper($unit[2]);
         }
-
         throw new OutOfBoundsException(tr('Unknown selected unit ":unit", ensure that only correct abbreviations like b, B, KB, KiB, GiB, etc are used', [
             ':unit' => $unit,
         ]));
@@ -207,9 +186,7 @@ class Numbers
         if (!$amount) {
             $amount = 0;
         }
-
-        $amount = str_replace(',', '', (string)$amount);
-
+        $amount = str_replace(',', '', (string) $amount);
         if (!is_numeric($amount)) {
             // Calculate back to bytes
             if (!preg_match('/(\d+(?:\.\d+)?)(\w{1,3})/', $amount, $matches)) {
@@ -217,28 +194,27 @@ class Numbers
                     ':amount' => $amount,
                 ]));
             }
-
             $amount = match (strtolower($matches[2])) {
-                'b'        => (float)$matches[1],
-                'kb'       => (float)$matches[1] * 1000,
-                'k', 'kib' => (float)$matches[1] * 1024,
-                'mb'       => (float)$matches[1] * 1000000,
-                'm', 'mib' => (float)$matches[1] * 1048576,
-                'gb'       => (float)$matches[1] * 1000000 * 1000,
-                'g', 'gib' => (float)$matches[1] * 1048576 * 1024,
-                'tb'       => (float)$matches[1] * 1000000 * 1000000,
-                't', 'tib' => (float)$matches[1] * 1048576 * 1048576,
+                'b'        => (float) $matches[1],
+                'kb'       => (float) $matches[1] * 1000,
+                'k', 'kib' => (float) $matches[1] * 1024,
+                'mb'       => (float) $matches[1] * 1000000,
+                'm', 'mib' => (float) $matches[1] * 1048576,
+                'gb'       => (float) $matches[1] * 1000000 * 1000,
+                'g', 'gib' => (float) $matches[1] * 1048576 * 1024,
+                'tb'       => (float) $matches[1] * 1000000 * 1000000,
+                't', 'tib' => (float) $matches[1] * 1048576 * 1048576,
                 default    => throw new OutOfBoundsException(tr('Specified suffix ":suffix" on amount ":amount" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc', [
                     ':suffix' => strtolower($matches[2]),
                     ':amount' => $amount,
                 ])),
             };
         }
-
         // We can only have an integer number of bytes
         // We can only have an integer number of bytes
-        return (int)ceil((float)$amount);
+        return (int) ceil((float) $amount);
     }
+
 
     /**
      * Return the "step" for use in HTML <input type="number"> tags from the specified list of numbers
@@ -267,21 +243,20 @@ class Numbers
         // Remove the $count argument from the list Get default value from the list
         $args   = func_get_args();
         $return = 0;
-
         foreach ($args as $key => $value) {
             // Validate we have numeric values
             if (!is_numeric($value)) {
                 if (!is_scalar($value)) {
-                    throw new NumbersException(tr('Variable ":key" is not a numeric scalar value, it is an ":type"', [':key'  => $key,
-                                                                                                                      ':type' => gettype($value),
+                    throw new NumbersException(tr('Variable ":key" is not a numeric scalar value, it is an ":type"', [
+                        ':key'  => $key,
+                        ':type' => gettype($value),
                     ]));
                 }
-
-                throw new NumbersException(tr('Variable ":key" has value ":value" which is not numeric', [':key'   => $key,
-                                                                                                          ':value' => $value,
+                throw new NumbersException(tr('Variable ":key" has value ":value" which is not numeric', [
+                    ':key'   => $key,
+                    ':value' => $value,
                 ]));
             }
-
             // Cleanup the number
             if ($value) {
                 $value = str_replace(',', '.', $value);
@@ -292,17 +267,14 @@ class Numbers
             } else {
                 $value = '0';
             }
-
             // Get the number of decimals behind the .
             $decimals = substr(strrchr($value, '.'), 1);
             $decimals = strlen($decimals);
-
             // Remember the highest number of decimals
             if ($decimals > $return) {
                 $return = $decimals;
             }
         }
-
         // Return the found step
         if ($return) {
             return '0.' . str_repeat('0', $return - 1) . '1';
@@ -310,6 +282,7 @@ class Numbers
 
         return '1';
     }
+
 
     /**
      * Returns a random float number between 0 and 1
@@ -330,6 +303,7 @@ class Numbers
             return mt_rand(0, PHP_INT_MAX) / PHP_INT_MAX;
         }
     }
+
 
     /**
      * Returns a random float number between $min and $max
@@ -353,6 +327,7 @@ class Numbers
         }
     }
 
+
     /**
      * Returns the highest specified number
      *
@@ -363,7 +338,6 @@ class Numbers
     public static function getHighest(float|int ...$numbers): float|int
     {
         $highest = PHP_FLOAT_MIN;
-
         foreach ($numbers as $number) {
             if ($number > $highest) {
                 $highest = $number;
@@ -372,6 +346,7 @@ class Numbers
 
         return $highest;
     }
+
 
     /**
      * Returns the lowest specified number
@@ -383,7 +358,6 @@ class Numbers
     public static function getLowest(float|int ...$numbers): float|int
     {
         $lowest = PHP_FLOAT_MAX;
-
         foreach ($numbers as $number) {
             if ($number < $lowest) {
                 $lowest = $number;
@@ -392,6 +366,7 @@ class Numbers
 
         return $lowest;
     }
+
 
     /**
      * Make the specified number humand readable
@@ -407,19 +382,15 @@ class Numbers
         if ($number > pow($thousand, 5)) {
             return number_format($number / pow($thousand, 5), $decimals) . 'P';
         }
-
         if ($number > pow($thousand, 4)) {
             return number_format($number / pow($thousand, 4), $decimals) . 'T';
         }
-
         if ($number > pow($thousand, 3)) {
             return number_format($number / pow($thousand, 3), $decimals) . 'G';
         }
-
         if ($number > pow($thousand, 2)) {
             return number_format($number / pow($thousand, 2), $decimals) . 'M';
         }
-
         if ($number > pow($thousand, 1)) {
             return number_format($number / pow($thousand, 1), $decimals) . 'K';
         }

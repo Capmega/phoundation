@@ -10,7 +10,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Stringable;
 
-
 /**
  * Class DateInterval
  *
@@ -127,6 +126,7 @@ class DateInterval extends \DateInterval implements Stringable
         if (is_string($date_interval)) {
             try {
                 parent::__construct($date_interval);
+
                 return;
 
             } catch (Exception $e) {
@@ -137,41 +137,38 @@ class DateInterval extends \DateInterval implements Stringable
             // Diff will always give a tiny amount of micro/milliseconds difference. Since we're on seconds resolution
             // here, we can round that off
             $round_up      = not_null($round_up, true);
-            $date_interval = DateTime::new($date_interval . ' seconds')->diff(DateTime::new());
-
+            $date_interval = DateTime::new($date_interval . ' seconds')
+                                     ->diff(DateTime::new());
             if ($date_interval->f > 500) {
                 // Dude, WTF PHP? go to -1s + 1000ms?
                 $date_interval->s++;
             }
-
             $date_interval->f = 0;
             $date_interval->u = 0;
 
         } elseif (is_float($date_interval)) {
             // DateTime does not accept fractional seconds, create it with seconds and manually set milli/microseconds
-            $seconds       = (int)floor($date_interval);
-            $microseconds  = (int)round(($date_interval - $seconds) * 1_000_000);
-            $milliseconds  = (int)round($microseconds / 1_000);
+            $seconds       = (int) floor($date_interval);
+            $microseconds  = (int) round(($date_interval - $seconds) * 1_000_000);
+            $milliseconds  = (int) round($microseconds / 1_000);
             $microseconds  = $microseconds - ($milliseconds * 1000);
-            $date_interval = DateTime::new($seconds . ' seconds')->diff(DateTime::new());
-
+            $date_interval = DateTime::new($seconds . ' seconds')
+                                     ->diff(DateTime::new());
             $date_interval->f = $milliseconds;
             $date_interval->u = $microseconds;
             $round_up         = not_null($round_up, false);
         }
-
         // Copy all properties
         foreach ($date_interval as $key => $value) {
             $this->$key = $value;
         }
-
         if ($round_up) {
             $this->roundUp();
         }
-
         // WTF is days here? We have y m >>d<< h i s  etc.. What is days doing, PHP? DON'T USE DAYS!
         $this->days = null;
     }
+
 
     /**
      * Returns a new DateTime object
@@ -186,6 +183,7 @@ class DateInterval extends \DateInterval implements Stringable
     {
         return new static($date_interval, $round_up);
     }
+
 
     /**
      * Rounds up the microseconds to whole seconds
@@ -203,27 +201,22 @@ class DateInterval extends \DateInterval implements Stringable
             $this->f = 0;
             $this->u = 0;
             $this->s++;
-
             // Limit seconds to 60
             if ($this->s >= 60) {
                 $this->s = 0;
                 $this->i++;
-
                 // Limit minutes to 60
                 if ($this->i >= 60) {
                     $this->i = 0;
                     $this->h++;
-
                     // Limit hours to 24
                     if ($this->h >= 24) {
                         $this->h = 0;
                         $this->d++;
-
                         // Limit days to 30
                         if ($this->d >= 30) {
                             $this->d = 0;
                             $this->m++;
-
                             // Limit months to 12
                             if ($this->m >= 12) {
                                 $this->m = 0;
@@ -238,6 +231,7 @@ class DateInterval extends \DateInterval implements Stringable
         return $this;
     }
 
+
     /**
      * Returns this DateTime object as a string in ISO 8601 format without switching timezone
      *
@@ -248,6 +242,7 @@ class DateInterval extends \DateInterval implements Stringable
         return $this->getInterval();
     }
 
+
     /**
      * Returns the interval to generate this DateInterval object
      *
@@ -257,38 +252,30 @@ class DateInterval extends \DateInterval implements Stringable
     {
         $date = null;
         $time = null;
-
         // Create the date interval string
         if ($this->y) {
             $date .= $this->y . 'Y';
         }
-
         if ($this->m) {
             $date .= $this->m . 'M';
         }
         if ($this->d) {
             $date .= $this->d . 'D';
         }
-
         // Create the time interval string
         if ($this->h) {
             $time .= $this->h . 'H';
         }
-
         if ($this->i) {
             $time .= $this->i . 'M';
         }
-
         if ($this->s) {
             $time .= $this->s . 'S';
         }
-
         if ($time) {
             $time = 'T' . $time;
         }
-
         $return = 'P' . $date . $time;
-
         if ($return === 'P') {
             // Interval is zero
             return 'PT0S';
@@ -297,6 +284,7 @@ class DateInterval extends \DateInterval implements Stringable
         return $return;
     }
 
+
     /**
      * Returns this DateTime object as a string in ISO 8601 format without switching timezone
      *
@@ -304,8 +292,9 @@ class DateInterval extends \DateInterval implements Stringable
      */
     public function __toArray(): array
     {
-        return (array)$this;
+        return (array) $this;
     }
+
 
     /**
      * Returns the number of years for this date interval
@@ -317,13 +306,13 @@ class DateInterval extends \DateInterval implements Stringable
     public function getTotalYears(bool $round_down = false): int
     {
         $total = $this->y;
-
         if (!$round_down and ($this->getTotalMonths() > 6)) {
             $total++;
         }
 
         return $total;
     }
+
 
     /**
      * Returns the number of months for this date interval
@@ -335,13 +324,13 @@ class DateInterval extends \DateInterval implements Stringable
     public function getTotalMonths(bool $round_down = false): int
     {
         $total = ($this->y * 12) + $this->m;
-
         if (!$round_down and ($this->getTotalDays() > 15)) {
             $total++;
         }
 
         return $total;
     }
+
 
     /**
      * Returns the number of days for this date interval
@@ -353,13 +342,13 @@ class DateInterval extends \DateInterval implements Stringable
     public function getTotalDays(bool $round_down = false): int
     {
         $total = $this->d;
-
         if (!$round_down and ($this->h > 12)) {
             $total++;
         }
 
         return $total;
     }
+
 
     /**
      * Returns the number of weeks for this date interval
@@ -371,11 +360,12 @@ class DateInterval extends \DateInterval implements Stringable
     public function getTotalWeeks(bool $round_down = false): int
     {
         if ($round_down) {
-            return (int)floor($this->d / 7);
+            return (int) floor($this->d / 7);
         }
 
-        return (int)round($this->d / 7);
+        return (int) round($this->d / 7);
     }
+
 
     /**
      * Returns the total number of hours and minute fraction for this date interval
@@ -385,12 +375,13 @@ class DateInterval extends \DateInterval implements Stringable
     public function getTotalHoursWithFraction(): float
     {
         $minutes  = $this->getTotalMinutes();
-        $hours    = (int)floor($minutes / 60);
+        $hours    = (int) floor($minutes / 60);
         $fraction = $minutes - ($hours * 60);
         $fraction = $fraction / 60;
 
         return $hours + $fraction;
     }
+
 
     /**
      * Returns the total number of minutes for this date interval
@@ -402,13 +393,13 @@ class DateInterval extends \DateInterval implements Stringable
     public function getTotalMinutes(bool $round_down = false): int
     {
         $total = ($this->getTotalHours(true) * 60) + $this->i;
-
         if (!$round_down and ($this->s > 30)) {
             $total++;
         }
 
         return $total;
     }
+
 
     /**
      * Returns the total number of hours for this date interval
@@ -420,13 +411,13 @@ class DateInterval extends \DateInterval implements Stringable
     public function getTotalHours(bool $round_down = false): int
     {
         $total = ($this->d * 24) + $this->h;
-
         if (!$round_down and ($this->i > 30)) {
             $total++;
         }
 
         return $total;
     }
+
 
     /**
      * Returns the number of microseconds for this date interval
@@ -435,8 +426,9 @@ class DateInterval extends \DateInterval implements Stringable
      */
     public function getTotalMicroSeconds(): int
     {
-        return ($this->getTotalMilliSeconds(true) * 1000) + (int)$this->u;
+        return ($this->getTotalMilliSeconds(true) * 1000) + (int) $this->u;
     }
+
 
     /**
      * Returns the number of milliseconds for this date interval
@@ -447,14 +439,14 @@ class DateInterval extends \DateInterval implements Stringable
      */
     public function getTotalMilliSeconds(bool $round_down = false): int
     {
-        $total = ($this->getTotalSeconds(true) * 1000) + (int)$this->f;
-
+        $total = ($this->getTotalSeconds(true) * 1000) + (int) $this->f;
         if (!$round_down and ($this->u > 500)) {
             $total++;
         }
 
         return $total;
     }
+
 
     /**
      * Returns the number of seconds for this date interval
@@ -466,13 +458,13 @@ class DateInterval extends \DateInterval implements Stringable
     public function getTotalSeconds(bool $round_down = false): int
     {
         $total = ($this->getTotalMinutes(true) * 60) + $this->s;
-
         if (!$round_down and ($this->f > 500)) {
             $total++;
         }
 
         return $total;
     }
+
 
     /**
      * Returns this DateInterval data in human-readable format
@@ -485,16 +477,17 @@ class DateInterval extends \DateInterval implements Stringable
     public function getHumanReadableShort(?string $round = null, ?string $limit = null): string
     {
         return static::getHumanReadable([
-                                            'y' => 'y',
-                                            'm' => 'm',
-                                            'd' => 'd',
-                                            'h' => 'h',
-                                            'i' => 'm',
-                                            's' => 's',
-                                            'f' => 'ms',
-                                            'u' => 'us',
-                                        ], '', $round, $limit);
+            'y' => 'y',
+            'm' => 'm',
+            'd' => 'd',
+            'h' => 'h',
+            'i' => 'm',
+            's' => 's',
+            'f' => 'ms',
+            'u' => 'us',
+        ], '', $round, $limit);
     }
+
 
     /**
      * Returns this DateInterval data in human-readable format
@@ -512,7 +505,6 @@ class DateInterval extends \DateInterval implements Stringable
         $limit    = static::getLimitFactor($limit);
         $return   = [];
         $interval = clone $this; // Don't work on THIS interval or next operations may work with borked data
-
         if ($interval->y) {
             if ($limit < 7) {
                 $interval->m += ($interval->y * 12);
@@ -520,7 +512,6 @@ class DateInterval extends \DateInterval implements Stringable
                 $return[] = $interval->y . $units['y'];
             }
         }
-
         if ($interval->m and ($round < 7)) {
             if ($limit < 6) {
                 $interval->d += ($interval->m * 30);
@@ -528,7 +519,6 @@ class DateInterval extends \DateInterval implements Stringable
                 $return[] = $interval->m . $units['m'];
             }
         }
-
         if ($interval->d and ($round < 6)) {
             if ($limit < 5) {
                 $interval->h += ($interval->d * 24);
@@ -536,7 +526,6 @@ class DateInterval extends \DateInterval implements Stringable
                 $return[] = $interval->d . $units['d'];
             }
         }
-
         if ($interval->h and ($round < 5)) {
             if ($limit < 4) {
                 $interval->i += ($interval->h * 60);
@@ -544,7 +533,6 @@ class DateInterval extends \DateInterval implements Stringable
                 $return[] = $interval->h . $units['h'];
             }
         }
-
         if ($interval->i and ($round < 4)) {
             if ($limit < 3) {
                 $interval->s += ($interval->i * 60);
@@ -552,7 +540,6 @@ class DateInterval extends \DateInterval implements Stringable
                 $return[] = $interval->i . $units['i'];
             }
         }
-
         if ($interval->s and ($round < 3)) {
             if ($limit < 2) {
                 $interval->f += ($interval->s * 1000);
@@ -560,7 +547,6 @@ class DateInterval extends \DateInterval implements Stringable
                 $return[] = $interval->s . $units['s'];
             }
         }
-
         if ($interval->f and ($round < 2)) {
             if ($limit < 2) {
                 $interval->u += ($interval->f * 1000);
@@ -568,7 +554,6 @@ class DateInterval extends \DateInterval implements Stringable
                 $return[] = $interval->f . $units['f'];
             }
         }
-
         if ($interval->u and ($round < 1)) {
             $return[] = $interval->u . $units['u'];
         }
@@ -586,7 +571,7 @@ class DateInterval extends \DateInterval implements Stringable
      */
     protected static function getRoundFactor(?string $round): int
     {
-        return match (strtolower((string)$round)) {
+        return match (strtolower((string) $round)) {
             'y', 'year', 'years'                   => 7,
             'm', 'month', 'months'                 => 6,
             'd', 'day', 'days'                     => 5,
@@ -611,7 +596,7 @@ class DateInterval extends \DateInterval implements Stringable
      */
     public static function getLimitFactor(?string $limit): int
     {
-        return match (strtolower((string)$limit)) {
+        return match (strtolower((string) $limit)) {
             ''                 => 8,
             'y', 'year'        => 7,
             'm', 'month'       => 6,
@@ -626,6 +611,7 @@ class DateInterval extends \DateInterval implements Stringable
         };
     }
 
+
     /**
      * Returns this DateInterval data in human-readable format
      *
@@ -637,14 +623,14 @@ class DateInterval extends \DateInterval implements Stringable
     public function getHumanReadableLong(?string $round = null, ?string $limit = null): string
     {
         return static::getHumanReadable([
-                                            'y' => ' ' . Strings::plural($this->y, tr('year'), tr('years')),
-                                            'm' => ' ' . Strings::plural($this->m, tr('month'), tr('months')),
-                                            'd' => ' ' . Strings::plural($this->d, tr('day'), tr('days')),
-                                            'h' => ' ' . Strings::plural($this->h, tr('hour'), tr('hours')),
-                                            'i' => ' ' . Strings::plural($this->i, tr('minute'), tr('minutes')),
-                                            's' => ' ' . Strings::plural($this->s, tr('second'), tr('seconds')),
-                                            'f' => ' ' . Strings::plural($this->f, tr('millisecond'), tr('milliseconds')),
-                                            'u' => ' ' . Strings::plural($this->f, tr('microsecond'), tr('microseconds')),
-                                        ], ', ', $round, $limit);
+            'y' => ' ' . Strings::plural($this->y, tr('year'), tr('years')),
+            'm' => ' ' . Strings::plural($this->m, tr('month'), tr('months')),
+            'd' => ' ' . Strings::plural($this->d, tr('day'), tr('days')),
+            'h' => ' ' . Strings::plural($this->h, tr('hour'), tr('hours')),
+            'i' => ' ' . Strings::plural($this->i, tr('minute'), tr('minutes')),
+            's' => ' ' . Strings::plural($this->s, tr('second'), tr('seconds')),
+            'f' => ' ' . Strings::plural($this->f, tr('millisecond'), tr('milliseconds')),
+            'u' => ' ' . Strings::plural($this->f, tr('microsecond'), tr('microseconds')),
+        ], ', ', $round, $limit);
     }
 }

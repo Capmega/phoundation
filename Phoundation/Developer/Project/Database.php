@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Project;
 
-
 /**
  * Database class
  *
@@ -67,6 +66,7 @@ class Database
     public function setHost(string $host): static
     {
         $this->host = $host;
+
         return $this;
     }
 
@@ -92,6 +92,7 @@ class Database
     public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -117,6 +118,7 @@ class Database
     public function setUser(string $user): static
     {
         $this->user = $user;
+
         return $this;
     }
 
@@ -142,6 +144,7 @@ class Database
     public function setPass(string $pass): static
     {
         $this->pass = $pass;
+
         return $this;
     }
 }

@@ -14,7 +14,6 @@ use Phoundation\Web\Requests\Response;
 use Stringable;
 use Throwable;
 
-
 /**
  * Relays web requests
  *
@@ -47,7 +46,8 @@ class Relay
      */
     public function __construct(Stringable|string $url)
     {
-        $this->curl = Post::new($url)->setMethod('GET');
+        $this->curl = Post::new($url)
+                          ->setMethod('GET');
     }
 
 
@@ -96,8 +96,10 @@ class Relay
     public function setPageReplace(array $page_replace): static
     {
         $this->page_replace = $page_replace;
+
         return $this;
     }
+
 
     /**
      * Sets the URL that will be relayed
@@ -109,8 +111,10 @@ class Relay
     public function setUrl(Stringable|string|null $url): static
     {
         $this->curl->setUrl($url);
+
         return $this;
     }
+
 
     /**
      * Relays the current request directly to the given URL
@@ -121,31 +125,24 @@ class Relay
     {
         Log::action(tr('Relaying URL ":url"', [':url' => $this->curl->getUrl()]));
         Response::setBuildBody(false);
-
         try {
-            $page = $this->curl
-                ->addRequestHeaders(Arrays::extractPrefix($_SERVER, 'HTTP_'))
-                ->execute();
+            $page = $this->curl->addRequestHeaders(Arrays::extractPrefix($_SERVER, 'HTTP_'))
+                               ->execute();
 
         } catch (Throwable $e) {
             switch ($this->curl->getHttpCode()) {
                 case null:
                     throw new OutOfBoundsException(tr('Relay request has not yet been executed, somehow?'));
-
                 case 404:
             }
-
             throw $e;
         }
-
         $data    = $page->getResultData();
         $headers = $page->getResultHeaders();
-
         if ($this->page_replace) {
             // Search / replace the URL's
             $data = str_replace(array_keys($this->page_replace), array_values($this->page_replace), $data);
         }
-
         // Relay filtered headers
         foreach ($headers as $header) {
             $test = strtolower($header);
@@ -153,19 +150,15 @@ class Relay
             if (str_contains($test, 'transfer')) {
                 continue;
             }
-
             // Do NOT send somewhere else (in this case, probably something like localhost
             // TODO Maybe later make this optional or filtered for certain domains?
             if (str_starts_with($test, 'location:')) {
                 continue;
             }
-
             header($header);
         }
-
         // Relay the data
         echo $data;
-
 //        // Get extension for headers
 //        $extension = substr((string) $url, -3, 3);
 //        $extension = strtolower($extension);
@@ -174,14 +167,13 @@ class Relay
 //        header('Pragma: no-cache'); //keeps ie happy
 //        header('Content-type: ' . (($extension === '.js') ? 'text/javascript; charset=UTF-8' : 'text/html; charset=UTF-8'));
 //        header('Content-Length: ' . strlen($page));
-
         ob_end_clean();
         ob_end_flush();
         flush();
-
         echo $data;
         exit();
     }
+
 
     /**
      * Returns the URL that will be relayed

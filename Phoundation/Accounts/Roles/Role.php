@@ -27,7 +27,6 @@ use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 
-
 /**
  * Class Role
  *
@@ -43,7 +42,6 @@ class Role extends DataEntry implements RoleInterface
 {
     use TraitDataEntryNameLowercaseDash;
     use TraitDataEntryDescription;
-
 
     /**
      * Role class constructor
@@ -90,6 +88,7 @@ class Role extends DataEntry implements RoleInterface
         return 'seo_name';
     }
 
+
     /**
      * Creates and returns an HTML data entry form
      *
@@ -99,14 +98,15 @@ class Role extends DataEntry implements RoleInterface
      */
     public function getRightsHtmlDataEntryForm(string $name = 'rights_id[]'): DataEntryFormInterface
     {
-        $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
+        $entry  = DataEntryForm::new()
+                               ->setRenderContentsOnly(true);
         $rights = Rights::new();
-        $select = $rights->getHtmlSelect()->setCache(true)->setName($name);
-
+        $select = $rights->getHtmlSelect()
+                         ->setCache(true)
+                         ->setName($name);
         // Add extra entry with nothing selected
         $select->clearSelected();
         $entry->appendContent($select->render() . '<br>');
-
         foreach ($this->getRights() as $right) {
             $select->setSelected($right->getId());
             $entry->appendContent($select->render() . '<br>');
@@ -114,6 +114,7 @@ class Role extends DataEntry implements RoleInterface
 
         return $entry;
     }
+
 
     /**
      * Add the specified rights to this role
@@ -127,13 +128,15 @@ class Role extends DataEntry implements RoleInterface
                 ':role' => $this->getLogId(),
             ]));
         }
-
         if (!$this->list) {
-            $this->list = Rights::new()->setParent($this)->load();
+            $this->list = Rights::new()
+                                ->setParent($this)
+                                ->load();
         }
 
         return $this->list;
     }
+
 
     /**
      * Merge this role with the rights from the specified role
@@ -147,29 +150,28 @@ class Role extends DataEntry implements RoleInterface
     public function mergeFrom(RoleInterface|string|int|null $from_identifier = null, ?string $column = null): static
     {
         $from = Role::get($from_identifier, $column);
-
         if (!$this->getId()) {
             throw new OutOfBoundsException(tr('Cannot merge role ":from" to this role ":this" because this role does not yet exist in the database', [
                 ':from' => $from->getLogId(),
                 ':this' => $this->getLogId(),
             ]));
         }
-
         // This role must get all rights from the $FROM role
         foreach ($from->getRights() as $right) {
-            $this->getRights()->add($right);
+            $this->getRights()
+                 ->add($right);
         }
-
         // All users that have the $FROM role must get this role too
         foreach ($from->getUsers() as $user) {
-            $user->getRoles()->add($this);
+            $user->getRoles()
+                 ->add($this);
         }
-
         // Remove the "from" role
         $from->erase();
 
         return $this;
     }
+
 
     /**
      * Returns a Role object matching the specified identifier
@@ -195,6 +197,7 @@ class Role extends DataEntry implements RoleInterface
         }
     }
 
+
     /**
      * Returns the users that are linked to this role
      *
@@ -208,8 +211,11 @@ class Role extends DataEntry implements RoleInterface
             ]));
         }
 
-        return Users::new()->setParent($this)->load();
+        return Users::new()
+                    ->setParent($this)
+                    ->load();
     }
+
 
     /**
      * Sets the available data keys for this entry
@@ -218,18 +224,17 @@ class Role extends DataEntry implements RoleInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions
-            ->add(DefinitionFactory::getName($this)
-                                   ->setOptional(false)
-                                   ->setInputType(EnumElementInputType::name)
-                                   ->setSize(12)
-                                   ->setMaxlength(64)
-                                   ->setHelpText(tr('The name for this role'))
-                                   ->addValidationFunction(function (ValidatorInterface $validator) {
-                                       $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
-                                   }))
-            ->add(DefinitionFactory::getSeoName($this))
-            ->add(DefinitionFactory::getDescription($this)
-                                   ->setHelpText(tr('The description for this role')));
+        $definitions->add(DefinitionFactory::getName($this)
+                                           ->setOptional(false)
+                                           ->setInputType(EnumElementInputType::name)
+                                           ->setSize(12)
+                                           ->setMaxlength(64)
+                                           ->setHelpText(tr('The name for this role'))
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
+                                           }))
+                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(DefinitionFactory::getDescription($this)
+                                           ->setHelpText(tr('The description for this role')));
     }
 }

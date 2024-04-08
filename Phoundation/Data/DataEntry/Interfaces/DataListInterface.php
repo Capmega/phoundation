@@ -10,7 +10,6 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Stringable;
 
-
 /**
  * Class DataList
  *
@@ -32,12 +31,14 @@ interface DataListInterface
      */
     public function keyExists(DataEntryInterface|Stringable|string|float|int $key): bool;
 
+
     /**
      * Returns if the DataEntry entries are stored with ID or key
      *
      * @return bool
      */
     public function getKeysareUniqueColumn(): bool;
+
 
     /**
      * Sets if the DataEntry entries are stored with ID or key
@@ -48,12 +49,14 @@ interface DataListInterface
      */
     public function setKeysareUniqueColumn(bool $keys_are_unique_column): static;
 
+
     /**
      * Returns the query for this object when generating internal content
      *
      * @return string
      */
     public function getQuery(): string;
+
 
     /**
      * Set the query for this object when generating internal content
@@ -65,12 +68,14 @@ interface DataListInterface
      */
     public function setQuery(string $query, ?array $execute = null): static;
 
+
     /**
      * Returns the execute array for the query for this object when generating internal content
      *
      * @return array|null
      */
     public function getExecute(): ?array;
+
 
     /**
      * Returns the item with the specified identifier
@@ -81,6 +86,7 @@ interface DataListInterface
      * @return DataEntry|null
      */
     public function get(Stringable|string|float|int $key, bool $exception = true): ?DataEntryInterface;
+
 
     /**
      * Sets the value for the specified key
@@ -93,12 +99,14 @@ interface DataListInterface
      */
     public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null = true): static;
 
+
     /**
      * Returns a QueryBuilder object to modify the internal query for this object
      *
      * @return QueryBuilderInterface
      */
     public function getQueryBuilder(): QueryBuilderInterface;
+
 
     /**
      * Creates and returns an HTML table for the data in this list
@@ -109,6 +117,7 @@ interface DataListInterface
      */
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface;
 
+
     /**
      * Creates and returns a fancy HTML data table for the data in this list
      *
@@ -117,6 +126,7 @@ interface DataListInterface
      * @return HtmlDataTableInterface
      */
     public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface;
+
 
     /**
      * Returns an HTML <select> for the available object entries
@@ -131,6 +141,7 @@ interface DataListInterface
      */
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = null, ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
 
+
     /**
      * Creates and returns a CLI table for the data in this list
      *
@@ -142,6 +153,7 @@ interface DataListInterface
      */
     public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static;
 
+
     /**
      * Set the specified status for the specified entries
      *
@@ -152,6 +164,7 @@ interface DataListInterface
      */
     public function setStatus(?string $status, ?string $comments = null): int;
 
+
     /**
      * Delete all the entries in this list
      *
@@ -161,12 +174,14 @@ interface DataListInterface
      */
     public function delete(?string $comments = null): int;
 
+
     /**
      * Erase (as in SQL DELETE) the specified entries from the database, also erasing their meta data
      *
      * @return static
      */
     public function erase(): static;
+
 
     /**
      * Undelete the specified entries
@@ -179,6 +194,7 @@ interface DataListInterface
      */
     public function undelete(?string $comments = null): int;
 
+
     /**
      * Returns an array with all id's for the specified entry identifiers
      *
@@ -187,6 +203,7 @@ interface DataListInterface
      * @return array
      */
     public function listIds(array $identifiers): array;
+
 
     /**
      * Add the specified data entry to the data list
@@ -200,12 +217,14 @@ interface DataListInterface
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
 
+
     /**
      * Returns the current item
      *
      * @return DataEntry|null
      */
     public function current(): ?DataEntryInterface;
+
 
     /**
      * Returns the first element contained in this object without changing the internal pointer
@@ -214,12 +233,14 @@ interface DataListInterface
      */
     public function getFirstValue(): ?DataEntryInterface;
 
+
     /**
      * Returns the last element contained in this object without changing the internal pointer
      *
      * @return DataEntryInterface|null
      */
     public function getLastValue(): ?DataEntryInterface;
+
 
     /**
      * Load the id list from the database
@@ -231,12 +252,14 @@ interface DataListInterface
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static;
 
+
     /**
      * This method will load ALL database entries into this object
      *
      * @return $this
      */
     public function loadAll(): static;
+
 
     /**
      * Adds the specified source to the internal source
@@ -247,6 +270,7 @@ interface DataListInterface
      */
     public function addSources(IteratorInterface|array|string|null $source): static;
 
+
     /**
      * Sets the parent
      *
@@ -255,6 +279,7 @@ interface DataListInterface
      * @return static
      */
     public function setParent(DataEntryInterface $parent): static;
+
 
     /**
      * Returns an array of

@@ -58,6 +58,7 @@ class Status
      */
     protected string $kubeconfig;
 
+
     /**
      * Status class constructor
      *
@@ -74,43 +75,34 @@ class Status
             apiserver: Running
             kubeconfig: Configured
          */
-
-        $status = Arrays::force($status);
+        $status       = Arrays::force($status);
         $this->status = $status;
-
         foreach ($status as $line) {
             if (!str_contains($line, ':')) {
                 $this->service = $line;
                 continue;
             }
-
             $data    = explode(':', $line);
             $data[1] = strtolower(isset_get($data[1]));
-
             switch ($data[0]) {
                 case 'type':
                     $this->type = $data[1];
                     break;
-
                 case 'host':
                     $this->host = $data[1];
                     break;
-
                 case 'kubelet':
                     $this->kubelet = $data[1];
                     break;
-
                 case 'apiserver':
                     $this->apiserver = $data[1];
                     break;
-
                 case 'kubeconfig':
                     $this->kubeconfig = $data[1];
                     break;
-
                 default:
                     throw new OutOfBoundsException(tr('Unknown minikube output line ":line" encountered', [
-                        ':line' => $line
+                        ':line' => $line,
                     ]));
             }
         }

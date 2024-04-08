@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataLabel
  *
@@ -46,6 +45,7 @@ trait TraitDataLabel
     public function setLabel(?string $label): static
     {
         $this->label = $label;
+
         return $this;
     }
 }

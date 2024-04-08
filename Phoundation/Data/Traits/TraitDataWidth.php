@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Trait TraitDataWidth
  *
@@ -54,8 +53,8 @@ trait TraitDataWidth
                 ]));
             }
         }
-
         $this->width = $width;
+
         return $this;
     }
 }

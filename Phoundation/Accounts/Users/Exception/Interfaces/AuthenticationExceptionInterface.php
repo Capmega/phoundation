@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users\Exception\Interfaces;
 
-
 /**
  * Class AuthenticationException
  *
@@ -23,6 +22,7 @@ interface AuthenticationExceptionInterface
      * @return string|int|null
      */
     public function getNewTarget(): string|int|null;
+
 
     /**
      * Sets the new target

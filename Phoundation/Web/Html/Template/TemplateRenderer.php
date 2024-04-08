@@ -8,7 +8,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Interfaces\TemplateRendererInterface;
 
-
 /**
  * Class TemplateRenderer
  *
@@ -66,6 +65,7 @@ class TemplateRenderer implements TemplateRendererInterface
         return new static($component);
     }
 
+
     /**
      * Ensures that the specified class is a Renderer subclass
      *
@@ -85,6 +85,7 @@ class TemplateRenderer implements TemplateRendererInterface
         }
     }
 
+
     /**
      * Sets the parent rendering function
      *
@@ -95,8 +96,10 @@ class TemplateRenderer implements TemplateRendererInterface
     public function setParentRenderFunction(callable $render_function): static
     {
         $this->render_function = $render_function;
+
         return $this;
     }
+
 
     /**
      * Returns the parent rendering function
@@ -108,6 +111,7 @@ class TemplateRenderer implements TemplateRendererInterface
         return $this->render_function;
     }
 
+
     /**
      * Returns the component to be rendered
      *
@@ -117,6 +121,7 @@ class TemplateRenderer implements TemplateRendererInterface
     {
         return $this->component;
     }
+
 
     /**
      * Sets the component to be rendered
@@ -128,8 +133,10 @@ class TemplateRenderer implements TemplateRendererInterface
     public function setComponent(RenderInterface $component): static
     {
         $this->component = $component;
+
         return $this;
     }
+
 
     /**
      * Render and return the HTML for this object
@@ -139,6 +146,7 @@ class TemplateRenderer implements TemplateRendererInterface
     public function render(): ?string
     {
         $function = $this->render_function;
+
         return $function($this->render);
     }
 }

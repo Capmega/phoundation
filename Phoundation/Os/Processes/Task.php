@@ -38,7 +38,6 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 
-
 /**
  * Class Task
  *
@@ -64,13 +63,13 @@ class Task extends DataEntry implements TaskInterface
     use TraitDataEntryValues;
     use TraitDataEntryWorkers;
 
-
     /**
      * Cached parent Task object
      *
      * @var TaskInterface|null $parent
      */
     protected TaskInterface|null $parent;
+
 
     /**
      * Returns the table name used by this object
@@ -82,6 +81,7 @@ class Task extends DataEntry implements TaskInterface
         return 'os_tasks';
     }
 
+
     /**
      * Returns the name of this DataEntry class
      *
@@ -92,6 +92,7 @@ class Task extends DataEntry implements TaskInterface
         return tr('Process task');
     }
 
+
     /**
      * Returns the field that is unique for this object
      *
@@ -101,6 +102,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return 'code';
     }
+
 
     /**
      * Sets the parents_id for this object
@@ -114,6 +116,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('parents_id', $parents_id);
     }
 
+
     /**
      * Sets the datetime after which this task should be executed
      *
@@ -125,6 +128,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->setValue('execute_after', $execute_after ? new DateTime($execute_after, 'system') : null);
     }
+
 
     /**
      * Returns the number of time in seconds spent on this task
@@ -138,13 +142,15 @@ class Task extends DataEntry implements TaskInterface
         if (!$this->getStart()) {
             throw new TasksException(tr('Cannot calculate time spent on task, it has not yet started'));
         }
-
         if (!$this->getStop()) {
             throw new TasksException(tr('Cannot calculate time spent on task, it has not yet finished'));
         }
 
-        return $this->getStop()->diff($this->getStart())->getTotalMilliSeconds() * 1000;
+        return $this->getStop()
+                    ->diff($this->getStart())
+                    ->getTotalMilliSeconds() * 1000;
     }
+
 
     /**
      * Returns the datetime after which this task should be executed
@@ -156,6 +162,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('datetime', 'start');
     }
 
+
     /**
      * Returns the datetime after which this task should be executed
      *
@@ -166,6 +173,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('datetime', 'stop');
     }
 
+
     /**
      * Returns the send_to_id for where this task should be executed
      *
@@ -175,6 +183,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('int', 'send_to_id');
     }
+
 
     /**
      * Sets the send_to_id for where this task should be executed
@@ -188,6 +197,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('send_to_id', get_null($send_to_id));
     }
 
+
     /**
      * Sets the ionice for where this task should be executed
      *
@@ -200,6 +210,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('ionice', get_null($ionice));
     }
 
+
     /**
      * Returns the background for where this task should be executed
      *
@@ -210,6 +221,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('bool', 'background');
     }
 
+
     /**
      * Sets the background for where this task should be executed
      *
@@ -219,8 +231,9 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setBackground(int|bool|null $background): static
     {
-        return $this->setValue('background', (bool)$background);
+        return $this->setValue('background', (bool) $background);
     }
+
 
     /**
      * Returns the clear_logs for where this task should be executed
@@ -232,6 +245,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('bool', 'clear_logs');
     }
 
+
     /**
      * Sets the clear_logs for where this task should be executed
      *
@@ -241,8 +255,9 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setClearLogs(int|bool|null $clear_logs): static
     {
-        return $this->setValue('clear_logs', (bool)$clear_logs);
+        return $this->setValue('clear_logs', (bool) $clear_logs);
     }
+
 
     /**
      * Returns if this task should escape quotes in the arguments
@@ -254,6 +269,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('bool', 'escape_quotes');
     }
 
+
     /**
      * Sets if this task should escape quotes in the arguments
      *
@@ -263,8 +279,9 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setEscapeQuotes(int|bool|null $escape_quotes): static
     {
-        return $this->setValue('escape_quotes', (bool)$escape_quotes);
+        return $this->setValue('escape_quotes', (bool) $escape_quotes);
     }
+
 
     /**
      * Returns the pid_file for this task
@@ -276,6 +293,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('string', 'pid_file');
     }
 
+
     /**
      * Returns where the ouput of this command should be piped to
      *
@@ -285,6 +303,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('string', 'pipe');
     }
+
 
     /**
      * Sets where the ouput of this command should be piped to
@@ -298,6 +317,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('pipe', $pipe);
     }
 
+
     /**
      * Sets access restrictions for this task
      *
@@ -310,6 +330,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('restrictions', $restrictions);
     }
 
+
     /**
      * Returns packages required for this task
      *
@@ -319,6 +340,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('string', 'packages');
     }
+
 
     /**
      * Sets packages required for this task
@@ -332,6 +354,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('packages', $packages);
     }
 
+
     /**
      * Returns pre_exec for this task
      *
@@ -341,6 +364,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('string', 'pre_exec');
     }
+
 
     /**
      * Sets pre_exec for this task
@@ -354,6 +378,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('pre_exec', $pre_exec);
     }
 
+
     /**
      * Returns post_exec for this task
      *
@@ -363,6 +388,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('string', 'post_exec');
     }
+
 
     /**
      * Sets post_exec for this task
@@ -376,6 +402,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('post_exec', $post_exec);
     }
 
+
     /**
      * Sets comments for this task
      *
@@ -388,6 +415,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('comments', $comments);
     }
 
+
     /**
      * Returns results for this task
      *
@@ -397,6 +425,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('string', 'results');
     }
+
 
     /**
      * Sets command for this task
@@ -410,6 +439,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('command', $command);
     }
 
+
     /**
      * Returns executed_command for this task
      *
@@ -419,6 +449,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('string', 'executed_command');
     }
+
 
     /**
      * Executes this task, and stores all relevant results data in the database
@@ -437,13 +468,11 @@ class Task extends DataEntry implements TaskInterface
                     ':datetime' => $this->getStop(),
                 ]));
             }
-
             throw new TaskAlreadyExecutedException(tr('Cannot execute task ":id", it is currently being executed since ":datetime"', [
                 ':id'       => $this->getId(),
                 ':datetime' => $this->getStart(),
             ]));
         }
-
         // The Task should not yet have started
         if ($this->getStatus()) {
             throw new TaskAlreadyExecutedException(tr('Cannot execute task ":id", it must have status NULL to execute but has status ":status" instead', [
@@ -451,7 +480,6 @@ class Task extends DataEntry implements TaskInterface
                 ':status' => $this->getStatus(),
             ]));
         }
-
         // Task should be executed immediately (execute_after will be NULL) or after now()
         if ($this->getExecuteAfter() and ($this->getExecuteAfter() > now())) {
             Log::warning(tr('Not yet executing task ":task" as it should not be executed until after ":date"', [
@@ -461,13 +489,16 @@ class Task extends DataEntry implements TaskInterface
 
             return $this;
         }
-
         // Task should have its parent task finished
         if ($this->getParentsId()) {
-            if (!$this->getParent()->isFinished()) {
+            if (
+                !$this->getParent()
+                      ->isFinished()
+            ) {
                 Log::warning(tr('Not yet executing task ":task" as its parent ":parent" has not finished yet', [
                     ':task'   => $this->getLogId(),
-                    ':parent' => $this->getParent()->getCode(),
+                    ':parent' => $this->getParent()
+                                      ->getCode(),
                 ]));
 
                 return $this;
@@ -476,6 +507,7 @@ class Task extends DataEntry implements TaskInterface
 
         return $this->doExecute();
     }
+
 
     /**
      * Returns the datetime after which this task should be executed
@@ -487,6 +519,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('int', 'execute_after');
     }
 
+
     /**
      * Returns the parents_id for this object
      *
@@ -496,6 +529,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('int', 'parents_id');
     }
+
 
     /**
      * Returns true if this task has a non-NULL stop time, false if it has started, but not yet stopped, and NULL if it
@@ -509,7 +543,6 @@ class Task extends DataEntry implements TaskInterface
             // Task has stopped
             return true;
         }
-
         if ($this->getStart()) {
             // Task has started
             return false;
@@ -517,6 +550,7 @@ class Task extends DataEntry implements TaskInterface
 
         return null;
     }
+
 
     /**
      * Returns a parent task for this task or NULL if none is available
@@ -532,6 +566,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->parent;
     }
 
+
     /**
      * Returns the code for this object
      *
@@ -542,6 +577,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('string', 'code');
     }
 
+
     /**
      * Does the actual execution part of executing the task
      *
@@ -550,8 +586,8 @@ class Task extends DataEntry implements TaskInterface
     protected function doExecute(): static
     {
         // Execute hook
-        Hook::new('tasks')->execute('pre-execute', ['task' => $this]);
-
+        Hook::new('tasks')
+            ->execute('pre-execute', ['task' => $this]);
         // Execute the command
         $worker = ProcessWorker::new($this->getCommand(), $this->getRestrictions())
                                ->setServer($this->getServer())
@@ -572,22 +608,18 @@ class Task extends DataEntry implements TaskInterface
                                ->setOutputRedirect($this->getOutputRedirect())
                                ->setMinimumWorkers($this->getMinimumWorkers())
                                ->setMaximumWorkers($this->getMaximumWorkers());
-
         // Update task in database
         $this->setStart(now())
              ->setStatus('executing')
              ->setExecutedCommand($worker->getFullCommandLine())
              ->save();
-
         // Execute the task
         try {
             $results = $worker->executeReturnString();
-
             Log::success(tr('Task ":task" finished execution in ":time"', [
                 ':task' => $this->getCode(),
                 ':time' => $worker->getExecutionTimeHumanReadable(),
             ]));
-
             // Update task in database
             $this->setStop(now())
                  ->setSpent($worker->getExecutionTime())
@@ -597,7 +629,6 @@ class Task extends DataEntry implements TaskInterface
                  ->setExitCode($worker->getExitCode())
                  ->setResults($results)
                  ->save();
-
             // Notify the specified role?
             if ($this->getRolesId()) {
                 // Notify the specified role!
@@ -608,29 +639,27 @@ class Task extends DataEntry implements TaskInterface
                             ->setTitle(tr('A task has been completed'))
                             ->setMessage(tr('Task ":task" has been completed successfully'))
                             ->setDetails([
-                                             'tasks_id'  => $this->getId(),
-                                             'code'      => $this->getCode(),
-                                             'command'   => $this->getCommand(),
-                                             'arguments' => $this->getArguments(),
-                                         ])
+                                'tasks_id'  => $this->getId(),
+                                'code'      => $this->getCode(),
+                                'command'   => $this->getCommand(),
+                                'arguments' => $this->getArguments(),
+                            ])
                             ->send();
 
             }
-
             // Execute hook
-            Hook::new('tasks')->execute('post-execute', [
-                'task'   => $this,
-                'worker' => $worker,
-            ]);
+            Hook::new('tasks')
+                ->execute('post-execute', [
+                    'task'   => $this,
+                    'worker' => $worker,
+                ]);
 
         } catch (ProcessFailedException $e) {
             Log::warning(tr('Task ":task" failed execution with ":e"', [
                 ':task' => $this->getCode(),
                 ':e'    => $e->getMessage(),
             ]));
-
             Log::warning($e);
-
             // Update task in database
             $this->setStop(now())
                  ->setSpent($worker->getExecutionTime())
@@ -640,7 +669,6 @@ class Task extends DataEntry implements TaskInterface
                  ->setExitCode($worker->getExitCode())
                  ->setResults(Json::encode($e->getDataKey('output')))
                  ->save();
-
             // Notify the specified role?
             if ($this->getRolesId()) {
                 // Notify the specified role!
@@ -651,25 +679,26 @@ class Task extends DataEntry implements TaskInterface
                             ->setTitle(tr('A task has failed'))
                             ->setMessage(tr('Task ":task" failed to complete successfully'))
                             ->setDetails([
-                                             'tasks_id'  => $this->getId(),
-                                             'code'      => $this->getCode(),
-                                             'command'   => $this->getCommand(),
-                                             'arguments' => $this->getArguments(),
-                                             'exception' => $e,
-                                         ])
+                                'tasks_id'  => $this->getId(),
+                                'code'      => $this->getCode(),
+                                'command'   => $this->getCommand(),
+                                'arguments' => $this->getArguments(),
+                                'exception' => $e,
+                            ])
                             ->send();
 
             }
-
             // Execute hook
-            Hook::new('tasks')->execute('execution-failed', [
-                'task'   => $this,
-                'worker' => $worker,
-            ]);
+            Hook::new('tasks')
+                ->execute('execution-failed', [
+                    'task'   => $this,
+                    'worker' => $worker,
+                ]);
         }
 
         return $this;
     }
+
 
     /**
      * Sets where the output should be redirected from
@@ -683,6 +712,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('output_redirect', $output_redirect);
     }
 
+
     /**
      * Sets where the input should be redirected from
      *
@@ -694,6 +724,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->setValue('input_redirect', $input_redirect);
     }
+
 
     /**
      * Sets if this task should use term
@@ -707,6 +738,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('term', $term);
     }
 
+
     /**
      * Sets if this task should use sudo
      *
@@ -718,6 +750,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->setValue('sudo', $sudo);
     }
+
 
     /**
      * Sets the nocache for where this task should be executed
@@ -731,6 +764,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('nocache', get_null($nocache));
     }
 
+
     /**
      * Sets the ionice_level for where this task should be executed
      *
@@ -742,6 +776,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->setValue('ionice_level', get_null($ionice_level));
     }
+
 
     /**
      * Sets the nice for where this task should be executed
@@ -755,6 +790,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('nice', get_null($nice));
     }
 
+
     /**
      * Sets the wait for where this task should be executed
      *
@@ -766,6 +802,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->setValue('wait', get_null($wait));
     }
+
 
     /**
      * Sets the timeout for where this task should be executed
@@ -779,6 +816,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('timeout', get_null($timeout));
     }
 
+
     /**
      * Sets accepted_exit_codes for this task
      *
@@ -790,6 +828,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->setValue('accepted_exit_codes', $accepted_exit_codes);
     }
+
 
     /**
      * Sets environment_variables for this task
@@ -803,6 +842,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('environment_variables', $environment_variables);
     }
 
+
     /**
      * Sets execution_directory for this task
      *
@@ -814,6 +854,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->setValue('execution_directory', $execution_directory);
     }
+
 
     /**
      * Sets variables for this task
@@ -838,6 +879,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('variables', $variables);
     }
 
+
     /**
      * Sets arguments for this task
      *
@@ -850,6 +892,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('arguments', $arguments);
     }
 
+
     /**
      * Returns command for this task
      *
@@ -859,6 +902,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('string', 'command');
     }
+
 
     /**
      * Returns access restrictions for this task
@@ -870,6 +914,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('string', 'restrictions');
     }
 
+
     /**
      * Returns arguments for this task
      *
@@ -879,6 +924,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('array', 'arguments');
     }
+
 
     /**
      * Returns variables for this task
@@ -890,6 +936,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('array', 'variables');
     }
 
+
     /**
      * Returns execution_directory for this task
      *
@@ -899,6 +946,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('string', 'execution_directory');
     }
+
 
     /**
      * Returns environment_variables for this task
@@ -910,6 +958,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('array', 'environment_variables');
     }
 
+
     /**
      * Returns accepted_exit_codes for this task
      *
@@ -919,6 +968,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('array', 'accepted_exit_codes');
     }
+
 
     /**
      * Returns the timeout for where this task should be executed
@@ -930,6 +980,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('int', 'timeout');
     }
 
+
     /**
      * Returns the wait for where this task should be executed
      *
@@ -939,6 +990,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('int', 'wait');
     }
+
 
     /**
      * Returns the nice for where this task should be executed
@@ -950,6 +1002,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('int', 'nice');
     }
 
+
     /**
      * Returns the ionice for where this task should be executed
      *
@@ -959,6 +1012,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('int', 'ionice');
     }
+
 
     /**
      * Returns the ionice_level for where this task should be executed
@@ -970,6 +1024,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('int', 'ionice_level');
     }
 
+
     /**
      * Returns the nocache for where this task should be executed
      *
@@ -979,6 +1034,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('int', 'nocache');
     }
+
 
     /**
      * Returns the sudo string for this task
@@ -990,6 +1046,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('string', 'sudo');
     }
 
+
     /**
      * Returns the term string for this task
      *
@@ -999,6 +1056,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('string', 'term');
     }
+
 
     /**
      * Returns where the input should be redirected from
@@ -1010,6 +1068,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('string', 'input_redirect');
     }
 
+
     /**
      * Returns where the output should be redirected from
      *
@@ -1019,6 +1078,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('string', 'output_redirect');
     }
+
 
     /**
      * Save this task to disk
@@ -1037,14 +1097,14 @@ class Task extends DataEntry implements TaskInterface
             }
 
             // Validate data, generate a new code, and write it to database
-            return $this
-                ->ensureValidation()
-                ->generateCode()
-                ->write($comments);
+            return $this->ensureValidation()
+                        ->generateCode()
+                        ->write($comments);
         }
 
         return $this;
     }
+
 
     /**
      * Generates the UUID code for this object
@@ -1056,6 +1116,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->setCode(Strings::getUuid());
     }
+
 
     /**
      * Sets the UUID code for this object
@@ -1069,6 +1130,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('code', $code);
     }
 
+
     /**
      * Sets executed_command for this task
      *
@@ -1080,6 +1142,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->setValue('executed_command', $executed_command);
     }
+
 
     /**
      * Sets the datetime after which this task should be executed
@@ -1093,6 +1156,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('start', $start ? new DateTime($start, 'system') : null);
     }
 
+
     /**
      * Sets results for this task
      *
@@ -1104,6 +1168,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->setValue('results', $results);
     }
+
 
     /**
      * Sets the exit_code for where this task should be executed
@@ -1117,6 +1182,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('exit_code', get_null($exit_code));
     }
 
+
     /**
      * Sets the log_file for this task
      *
@@ -1128,6 +1194,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->setValue('log_file', $log_file);
     }
+
 
     /**
      * Sets the pid for where this task should be executed
@@ -1141,6 +1208,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('pid', get_null($pid));
     }
 
+
     /**
      * Sets the datetime after which this task should be executed
      *
@@ -1153,6 +1221,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('stop', $stop ? new DateTime($stop, 'system') : null);
     }
 
+
     /**
      * Returns the pid for where this task should be executed
      *
@@ -1162,6 +1231,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('int', 'pid');
     }
+
 
     /**
      * Returns the log_file for this task
@@ -1173,6 +1243,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->getValueTypesafe('string', 'log_file');
     }
 
+
     /**
      * Returns the exit_code for where this task should be executed
      *
@@ -1182,6 +1253,7 @@ class Task extends DataEntry implements TaskInterface
     {
         return $this->getValueTypesafe('int', 'exit_code');
     }
+
 
     /**
      * Sets the pid_file for this task
@@ -1195,6 +1267,7 @@ class Task extends DataEntry implements TaskInterface
         return $this->setValue('pid_file', $pid_file);
     }
 
+
     /**
      * Sets the available data keys for this entry
      *
@@ -1202,342 +1275,344 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions
-            ->add(DefinitionFactory::getCode($this)
-                                   ->setReadonly(true)
-                                   ->setOptional(true)
-                                   ->setLabel(tr('Code'))
-                                   ->setSize(4)
-                                   ->setMaxlength(36)
-                                   ->addValidationFunction(function (ValidatorInterface $validator) {
-                                       $validator->isCode();
-                                   }))
-            ->add(DefinitionFactory::getName($this))
-            ->add(DefinitionFactory::getSeoName($this))
-            ->add(Definition::new($this, 'parents_id')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::select)
-                            ->setLabel('Parent task')
-                            ->setDataSource('SELECT `id` FROM `os_tasks` WHERE (`status` IS NULL OR `status` NOT IN ("deleted"))')
-                            ->setSize(4)
-                            ->setMaxlength(17)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isDbId();
-                            }))
-            ->add(Definition::new($this, 'execute_after')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::datetime_local)
-                            ->setLabel('Execute after')
-                            ->setCliColumn('[--execute-after DATETIME]')
-                            ->setSize(4)
-                            ->setMaxlength(17)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isDateTime();
-                            }))
-            ->add(Definition::new($this, 'start')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setInputType(EnumElementInputType::datetime_local)
-                            ->setLabel('Execution started on')
-                            ->setSize(4)
-                            ->setMaxlength(17)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isDateTime();
-                            }))
-            ->add(Definition::new($this, 'stop')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setInputType(EnumElementInputType::datetime_local)
-                            ->setLabel('Execution finished on')
-                            ->setSize(4)
-                            ->setMaxlength(17)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isDateTime();
-                            }))
-            ->add(Definition::new($this, 'spent')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setInputType(EnumElementInputType::float)
-                            ->setLabel('Time spent on task execution')
-                            ->setSize(4)
-                            ->setMin(0)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isFloat();
-                            }))
-            ->add(Definition::new($this, 'send_to')
-                            ->setOptional(true)
-                            ->setVirtual(true)
-                            ->setMaxlength(128)
-                            ->setLabel('Send to user')
-                            ->setCliColumn('[--send-to EMAIL]')
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isEmail();
-                            }))
-            ->add(Definition::new($this, 'send_to_id')
-                            ->setOptional(true)
-                            ->setRender(false)
-                            ->setInputType(EnumElementInputType::select)
-                            ->setDataSource('SELECT `id`, CONCAT(`email`, " <", `first_names`, " ", `last_names`, ">") FROM `accounts_users` WHERE `status` IS NULL')
-                            ->setSize(4)
-                            ->setMaxlength(17)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isDbId();
-                            }))
-            ->add(Definition::new($this, 'server')
-                            ->setOptional(true)
-                            ->setVirtual(true)
-                            ->setMaxlength(255)
-                            ->setLabel('Execute on server')
-                            ->setCliColumn('[-s,--server HOSTNAME]')
-                            ->setSize(4)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->orColumn('servers_id')->isName()->setColumnFromQuery('servers_id', 'SELECT `id` FROM `servers` WHERE `hostname` = :hostname AND `status` IS NULL', [':hostname' => '$server']);
-                            }))
-            ->add(Definition::new($this, 'servers_id')
-                            ->setOptional(true)
-                            ->setRender(false)
-                            ->setInputType(EnumElementInputType::select)
-                            ->setDataSource('SELECT `id` FROM `servers` WHERE `status` IS NULL')
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->orColumn('server')->isDbId()->isQueryResult('SELECT `id` FROM `servers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$servers_id']);
-                            }))
-            ->add(Definition::new($this, 'roles_id')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::select)
-                            ->setLabel('Notify roles')
-                            ->setCliColumn('[-r,--roles "ROLE,ROLE,..."]')
-                            ->setDataSource('SELECT `id` FROM `accounts_roles` WHERE `status` IS NULL')
-                            ->setSize(4)
-                            ->setMaxlength(17)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isDbId();
-                            }))
-            ->add(Definition::new($this, 'execution_directory')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::text)
-                            ->setLabel('Execution path')
-                            ->setCliColumn('[-d,--execution-directory PATH]')
-                            ->setSize(4)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isDirectory('/', Restrictions::writable('/'));
-                            }))
-            ->add(Definition::new($this, 'command')
-                            ->setInputType(EnumElementInputType::text)
-                            ->setLabel('Command')
-                            ->setCliColumn('[-c,--command COMMAND]')
-                            ->setSize(4))
-            ->add(Definition::new($this, 'executed_command')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setInputType(EnumElementInputType::text)
-                            ->setLabel('Command')
-                            ->setSize(4))
-            ->add(Definition::new($this, 'arguments')
-                            ->setOptional(true)
-                            ->setElement(EnumElement::textarea)
-                            ->setInputType(EnumElementInputType::array_json)
-                            ->setLabel('Arguments')
-                            ->setCliColumn('[-a,--arguments ARGUMENTS]')
-                            ->setSize(4))
-            ->add(Definition::new($this, 'variables')
-                            ->setOptional(true)
-                            ->setElement(EnumElement::textarea)
-                            ->setInputType(EnumElementInputType::array_json)
-                            ->setLabel('Argument variables')
-                            ->setCliColumn('[-v,--variables VARIABLES]')
-                            ->setSize(4))
-            ->add(Definition::new($this, 'environment_variables')
-                            ->setOptional(true)
-                            ->setElement(EnumElement::textarea)
-                            ->setInputType(EnumElementInputType::array_json)
-                            ->setLabel('Environment variables')
-                            ->setCliColumn('[-e,--environment-variables VARIABLES]')
-                            ->setSize(4))
-            ->add(Definition::new($this, 'clear_logs')
-                            ->setOptional(true, false)
-                            ->setInputType(EnumElementInputType::checkbox)
-                            ->setLabel('Clear logs')
-                            ->setSize(4)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isBoolean();
-                            }))
-            ->add(Definition::new($this, 'escape_quotes')
-                            ->setOptional(true, false)
-                            ->setInputType(EnumElementInputType::checkbox)
-                            ->setLabel('Escape quotes')
-                            ->setSize(4)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isBoolean();
-                            }))
-            ->add(Definition::new($this, 'nocache')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::select)
-                            ->setLabel('No cache mode')
-                            ->setDataSource([
-
-                                            ])
-                            ->setSize(4)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {}))
-            ->add(Definition::new($this, 'ionice')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::select)
-                            ->setLabel('IO nice')
-                            ->setCliColumn('[-i,--ionice CLASSNUMBER]')
-                            ->setDataSource([
-                                                0 => 'none',
-                                                1 => 'realtime',
-                                                2 => 'best_effort',
-                                                3 => 'idle',
-                                            ])
-                            ->setSize(4))
-            ->add(Definition::new($this, 'ionice_level')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::number)
-                            ->setLabel('IO nice level')
-                            ->setCliColumn('[-l,--ionice-level LEVEL]')
-                            ->setMin(0)
-                            ->setMax(7)
-                            ->setSize(4))
-            ->add(Definition::new($this, 'nice')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::number)
-                            ->setLabel('Nice level')
-                            ->setCliColumn('[-n,--nice LEVEL]')
-                            ->setOptional(true, 0)
-                            ->setMin(-20)
-                            ->setMax(20)
-                            ->setSize(4))
-            ->add(Definition::new($this, 'timeout')
-                            ->setOptional(true, 30)
-                            ->setInputType(EnumElementInputType::number)
-                            ->setLabel('Time limit')
-                            ->setCliColumn('[-t,--timeout SECONDS]')
-                            ->setOptional(true, 0)
-                            ->setMin(0)
-                            ->setSize(4))
-            ->add(Definition::new($this, 'wait')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::number)
-                            ->setLabel('Start wait')
-                            ->setCliColumn('[-w,--wait SECONDS]')
-                            ->setOptional(true, 0)
-                            ->setMin(0)
-                            ->setSize(4))
-            ->add(Definition::new($this, 'minimum_workers')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::number)
-                            ->setLabel('Minimum workers')
-                            ->setCliColumn('[--minimum-workers AMOUNT]')
-                            ->setOptional(true, 0)
-                            ->setMin(0)
-                            ->setMax(10_000)
-                            ->setSize(4))
-            ->add(Definition::new($this, 'maximum_workers')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::number)
-                            ->setLabel('Maximum workers')
-                            ->setCliColumn('[--maximum-workers AMOUNT]')
-                            ->setOptional(true, 0)
-                            ->setMin(0)
-                            ->setMax(10_000)
-                            ->setSize(4))
-            ->add(Definition::new($this, 'sudo')
-                            ->setOptional(true, false)
-                            ->setLabel('Sudo required / command')
-                            ->setCliColumn('[-s,--sudo "string"]')
-                            ->setSize(6)
-                            ->setMaxlength(32))
-            ->add(Definition::new($this, 'term')
-                            ->setOptional(true)
-                            ->setLabel('Terminal command')
-                            ->setCliColumn('[-t,--term "command"]')
-                            ->setSize(6)
-                            ->setMaxlength(32))
-            ->add(Definition::new($this, 'pipe')
-                            ->setOptional(true)
-                            ->setLabel('Pipe to')
-                            ->setSize(6)
-                            ->setMaxlength(510))
-            ->add(Definition::new($this, 'input_redirect')
-                            ->setOptional(true)
-                            ->setLabel('Input redirect')
-                            ->setSize(6)
-                            ->setMaxlength(64))
-            ->add(Definition::new($this, 'output_redirect')
-                            ->setOptional(true)
-                            ->setLabel('Output redirect')
-                            ->setSize(6)
-                            ->setMaxlength(510))
-            ->add(Definition::new($this, 'restrictions')
-                            ->setOptional(true)
-                            ->setLabel('Restrictions')
-                            ->setSize(6)
-                            ->setMaxlength(510))
-            ->add(Definition::new($this, 'packages')
-                            ->setOptional(true)
-                            ->setLabel('Packages')
-                            ->setSize(6)
-                            ->setMaxlength(510))
-            ->add(Definition::new($this, 'pre_exec')
-                            ->setOptional(true)
-                            ->setLabel('Pre execute')
-                            ->setSize(6)
-                            ->setMaxlength(510))
-            ->add(Definition::new($this, 'post_exec')
-                            ->setOptional(true)
-                            ->setLabel('Post execute')
-                            ->setSize(6)
-                            ->setMaxlength(510))
-            ->add(Definition::new($this, 'accepted_exit_codes')
-                            ->setOptional(true, [0])
-                            ->setLabel('Accepted Exit Codes')
-                            ->setElement(EnumElement::textarea)
-                            ->setInputType(EnumElementInputType::array_json)
-                            ->setSize(6)
-                            ->setMaxlength(64))
-            ->add(Definition::new($this, 'results')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setLabel('Results')
-                            ->setElement(EnumElement::textarea)
-                            ->setSize(12)
-                            ->setMaxlength(16_777_215)
-                            ->setReadonly(true))
-            ->add(Definition::new($this, 'pid')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setInputType(EnumElementInputType::number)
-                            ->setLabel('Process ID')
-                            ->setDisabled(true)
-                            ->setSize(4)
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isDbId();
-                            }))
-            ->add(Definition::new($this, 'exit_code')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setLabel('Exit code')
-                            ->setInputType(EnumElementInputType::number)
-                            ->setSize(2)
-                            ->setMin(0)
-                            ->setMax(255))
-            ->add(Definition::new($this, 'log_file')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setLabel('Log file')
-                            ->setInputType(EnumElementInputType::text)
-                            ->setSize(6)
-                            ->setMaxLength(512))
-            ->add(Definition::new($this, 'pid_file')
-                            ->setOptional(true)
-                            ->setReadonly(true)
-                            ->setLabel('PID file')
-                            ->setInputType(EnumElementInputType::text)
-                            ->setSize(6)
-                            ->setMaxLength(512))
-            ->add(DefinitionFactory::getComments($this)
-                                   ->setHelpText(tr('A description for this task')));
+        $definitions->add(DefinitionFactory::getCode($this)
+                                           ->setReadonly(true)
+                                           ->setOptional(true)
+                                           ->setLabel(tr('Code'))
+                                           ->setSize(4)
+                                           ->setMaxlength(36)
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isCode();
+                                           }))
+                    ->add(DefinitionFactory::getName($this))
+                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(Definition::new($this, 'parents_id')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::select)
+                                    ->setLabel('Parent task')
+                                    ->setDataSource('SELECT `id` FROM `os_tasks` WHERE (`status` IS NULL OR `status` NOT IN ("deleted"))')
+                                    ->setSize(4)
+                                    ->setMaxlength(17)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isDbId();
+                                    }))
+                    ->add(Definition::new($this, 'execute_after')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::datetime_local)
+                                    ->setLabel('Execute after')
+                                    ->setCliColumn('[--execute-after DATETIME]')
+                                    ->setSize(4)
+                                    ->setMaxlength(17)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isDateTime();
+                                    }))
+                    ->add(Definition::new($this, 'start')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setInputType(EnumElementInputType::datetime_local)
+                                    ->setLabel('Execution started on')
+                                    ->setSize(4)
+                                    ->setMaxlength(17)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isDateTime();
+                                    }))
+                    ->add(Definition::new($this, 'stop')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setInputType(EnumElementInputType::datetime_local)
+                                    ->setLabel('Execution finished on')
+                                    ->setSize(4)
+                                    ->setMaxlength(17)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isDateTime();
+                                    }))
+                    ->add(Definition::new($this, 'spent')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setInputType(EnumElementInputType::float)
+                                    ->setLabel('Time spent on task execution')
+                                    ->setSize(4)
+                                    ->setMin(0)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isFloat();
+                                    }))
+                    ->add(Definition::new($this, 'send_to')
+                                    ->setOptional(true)
+                                    ->setVirtual(true)
+                                    ->setMaxlength(128)
+                                    ->setLabel('Send to user')
+                                    ->setCliColumn('[--send-to EMAIL]')
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isEmail();
+                                    }))
+                    ->add(Definition::new($this, 'send_to_id')
+                                    ->setOptional(true)
+                                    ->setRender(false)
+                                    ->setInputType(EnumElementInputType::select)
+                                    ->setDataSource('SELECT `id`, CONCAT(`email`, " <", `first_names`, " ", `last_names`, ">") FROM `accounts_users` WHERE `status` IS NULL')
+                                    ->setSize(4)
+                                    ->setMaxlength(17)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isDbId();
+                                    }))
+                    ->add(Definition::new($this, 'server')
+                                    ->setOptional(true)
+                                    ->setVirtual(true)
+                                    ->setMaxlength(255)
+                                    ->setLabel('Execute on server')
+                                    ->setCliColumn('[-s,--server HOSTNAME]')
+                                    ->setSize(4)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->orColumn('servers_id')
+                                                  ->isName()
+                                                  ->setColumnFromQuery('servers_id', 'SELECT `id` FROM `servers` WHERE `hostname` = :hostname AND `status` IS NULL', [':hostname' => '$server']);
+                                    }))
+                    ->add(Definition::new($this, 'servers_id')
+                                    ->setOptional(true)
+                                    ->setRender(false)
+                                    ->setInputType(EnumElementInputType::select)
+                                    ->setDataSource('SELECT `id` FROM `servers` WHERE `status` IS NULL')
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->orColumn('server')
+                                                  ->isDbId()
+                                                  ->isQueryResult('SELECT `id` FROM `servers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$servers_id']);
+                                    }))
+                    ->add(Definition::new($this, 'roles_id')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::select)
+                                    ->setLabel('Notify roles')
+                                    ->setCliColumn('[-r,--roles "ROLE,ROLE,..."]')
+                                    ->setDataSource('SELECT `id` FROM `accounts_roles` WHERE `status` IS NULL')
+                                    ->setSize(4)
+                                    ->setMaxlength(17)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isDbId();
+                                    }))
+                    ->add(Definition::new($this, 'execution_directory')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::text)
+                                    ->setLabel('Execution path')
+                                    ->setCliColumn('[-d,--execution-directory PATH]')
+                                    ->setSize(4)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isDirectory('/', Restrictions::writable('/'));
+                                    }))
+                    ->add(Definition::new($this, 'command')
+                                    ->setInputType(EnumElementInputType::text)
+                                    ->setLabel('Command')
+                                    ->setCliColumn('[-c,--command COMMAND]')
+                                    ->setSize(4))
+                    ->add(Definition::new($this, 'executed_command')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setInputType(EnumElementInputType::text)
+                                    ->setLabel('Command')
+                                    ->setSize(4))
+                    ->add(Definition::new($this, 'arguments')
+                                    ->setOptional(true)
+                                    ->setElement(EnumElement::textarea)
+                                    ->setInputType(EnumElementInputType::array_json)
+                                    ->setLabel('Arguments')
+                                    ->setCliColumn('[-a,--arguments ARGUMENTS]')
+                                    ->setSize(4))
+                    ->add(Definition::new($this, 'variables')
+                                    ->setOptional(true)
+                                    ->setElement(EnumElement::textarea)
+                                    ->setInputType(EnumElementInputType::array_json)
+                                    ->setLabel('Argument variables')
+                                    ->setCliColumn('[-v,--variables VARIABLES]')
+                                    ->setSize(4))
+                    ->add(Definition::new($this, 'environment_variables')
+                                    ->setOptional(true)
+                                    ->setElement(EnumElement::textarea)
+                                    ->setInputType(EnumElementInputType::array_json)
+                                    ->setLabel('Environment variables')
+                                    ->setCliColumn('[-e,--environment-variables VARIABLES]')
+                                    ->setSize(4))
+                    ->add(Definition::new($this, 'clear_logs')
+                                    ->setOptional(true, false)
+                                    ->setInputType(EnumElementInputType::checkbox)
+                                    ->setLabel('Clear logs')
+                                    ->setSize(4)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isBoolean();
+                                    }))
+                    ->add(Definition::new($this, 'escape_quotes')
+                                    ->setOptional(true, false)
+                                    ->setInputType(EnumElementInputType::checkbox)
+                                    ->setLabel('Escape quotes')
+                                    ->setSize(4)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isBoolean();
+                                    }))
+                    ->add(Definition::new($this, 'nocache')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::select)
+                                    ->setLabel('No cache mode')
+                                    ->setDataSource([])
+                                    ->setSize(4)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {}))
+                    ->add(Definition::new($this, 'ionice')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::select)
+                                    ->setLabel('IO nice')
+                                    ->setCliColumn('[-i,--ionice CLASSNUMBER]')
+                                    ->setDataSource([
+                                        0 => 'none',
+                                        1 => 'realtime',
+                                        2 => 'best_effort',
+                                        3 => 'idle',
+                                    ])
+                                    ->setSize(4))
+                    ->add(Definition::new($this, 'ionice_level')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::number)
+                                    ->setLabel('IO nice level')
+                                    ->setCliColumn('[-l,--ionice-level LEVEL]')
+                                    ->setMin(0)
+                                    ->setMax(7)
+                                    ->setSize(4))
+                    ->add(Definition::new($this, 'nice')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::number)
+                                    ->setLabel('Nice level')
+                                    ->setCliColumn('[-n,--nice LEVEL]')
+                                    ->setOptional(true, 0)
+                                    ->setMin(-20)
+                                    ->setMax(20)
+                                    ->setSize(4))
+                    ->add(Definition::new($this, 'timeout')
+                                    ->setOptional(true, 30)
+                                    ->setInputType(EnumElementInputType::number)
+                                    ->setLabel('Time limit')
+                                    ->setCliColumn('[-t,--timeout SECONDS]')
+                                    ->setOptional(true, 0)
+                                    ->setMin(0)
+                                    ->setSize(4))
+                    ->add(Definition::new($this, 'wait')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::number)
+                                    ->setLabel('Start wait')
+                                    ->setCliColumn('[-w,--wait SECONDS]')
+                                    ->setOptional(true, 0)
+                                    ->setMin(0)
+                                    ->setSize(4))
+                    ->add(Definition::new($this, 'minimum_workers')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::number)
+                                    ->setLabel('Minimum workers')
+                                    ->setCliColumn('[--minimum-workers AMOUNT]')
+                                    ->setOptional(true, 0)
+                                    ->setMin(0)
+                                    ->setMax(10_000)
+                                    ->setSize(4))
+                    ->add(Definition::new($this, 'maximum_workers')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::number)
+                                    ->setLabel('Maximum workers')
+                                    ->setCliColumn('[--maximum-workers AMOUNT]')
+                                    ->setOptional(true, 0)
+                                    ->setMin(0)
+                                    ->setMax(10_000)
+                                    ->setSize(4))
+                    ->add(Definition::new($this, 'sudo')
+                                    ->setOptional(true, false)
+                                    ->setLabel('Sudo required / command')
+                                    ->setCliColumn('[-s,--sudo "string"]')
+                                    ->setSize(6)
+                                    ->setMaxlength(32))
+                    ->add(Definition::new($this, 'term')
+                                    ->setOptional(true)
+                                    ->setLabel('Terminal command')
+                                    ->setCliColumn('[-t,--term "command"]')
+                                    ->setSize(6)
+                                    ->setMaxlength(32))
+                    ->add(Definition::new($this, 'pipe')
+                                    ->setOptional(true)
+                                    ->setLabel('Pipe to')
+                                    ->setSize(6)
+                                    ->setMaxlength(510))
+                    ->add(Definition::new($this, 'input_redirect')
+                                    ->setOptional(true)
+                                    ->setLabel('Input redirect')
+                                    ->setSize(6)
+                                    ->setMaxlength(64))
+                    ->add(Definition::new($this, 'output_redirect')
+                                    ->setOptional(true)
+                                    ->setLabel('Output redirect')
+                                    ->setSize(6)
+                                    ->setMaxlength(510))
+                    ->add(Definition::new($this, 'restrictions')
+                                    ->setOptional(true)
+                                    ->setLabel('Restrictions')
+                                    ->setSize(6)
+                                    ->setMaxlength(510))
+                    ->add(Definition::new($this, 'packages')
+                                    ->setOptional(true)
+                                    ->setLabel('Packages')
+                                    ->setSize(6)
+                                    ->setMaxlength(510))
+                    ->add(Definition::new($this, 'pre_exec')
+                                    ->setOptional(true)
+                                    ->setLabel('Pre execute')
+                                    ->setSize(6)
+                                    ->setMaxlength(510))
+                    ->add(Definition::new($this, 'post_exec')
+                                    ->setOptional(true)
+                                    ->setLabel('Post execute')
+                                    ->setSize(6)
+                                    ->setMaxlength(510))
+                    ->add(Definition::new($this, 'accepted_exit_codes')
+                                    ->setOptional(true, [0])
+                                    ->setLabel('Accepted Exit Codes')
+                                    ->setElement(EnumElement::textarea)
+                                    ->setInputType(EnumElementInputType::array_json)
+                                    ->setSize(6)
+                                    ->setMaxlength(64))
+                    ->add(Definition::new($this, 'results')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setLabel('Results')
+                                    ->setElement(EnumElement::textarea)
+                                    ->setSize(12)
+                                    ->setMaxlength(16_777_215)
+                                    ->setReadonly(true))
+                    ->add(Definition::new($this, 'pid')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setInputType(EnumElementInputType::number)
+                                    ->setLabel('Process ID')
+                                    ->setDisabled(true)
+                                    ->setSize(4)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isDbId();
+                                    }))
+                    ->add(Definition::new($this, 'exit_code')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setLabel('Exit code')
+                                    ->setInputType(EnumElementInputType::number)
+                                    ->setSize(2)
+                                    ->setMin(0)
+                                    ->setMax(255))
+                    ->add(Definition::new($this, 'log_file')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setLabel('Log file')
+                                    ->setInputType(EnumElementInputType::text)
+                                    ->setSize(6)
+                                    ->setMaxLength(512))
+                    ->add(Definition::new($this, 'pid_file')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setLabel('PID file')
+                                    ->setInputType(EnumElementInputType::text)
+                                    ->setSize(6)
+                                    ->setMaxLength(512))
+                    ->add(DefinitionFactory::getComments($this)
+                                           ->setHelpText(tr('A description for this task')));
     }
+
 
     /**
      * Returns comments for this task

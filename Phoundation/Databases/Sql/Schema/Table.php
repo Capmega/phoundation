@@ -10,7 +10,6 @@ use Phoundation\Data\Iterator;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Arrays;
 
-
 /**
  * Table class
  *
@@ -55,12 +54,12 @@ class Table extends SchemaAbstract
     public function __construct(string $name, Sql $sql, SchemaAbstract|Schema $parent)
     {
         parent::__construct($name, $sql, $parent);
-
         if ($name) {
             // Load this table
             $this->load($name);
         }
     }
+
 
     /**
      * Load the table parameters from the database
@@ -73,6 +72,7 @@ class Table extends SchemaAbstract
         // TODO Implement
     }
 
+
     /**
      * Define and create the table
      *
@@ -83,6 +83,7 @@ class Table extends SchemaAbstract
         return new TableDefine($this->name, $this->sql, $this);
     }
 
+
     /**
      * Define and create the table
      *
@@ -92,6 +93,7 @@ class Table extends SchemaAbstract
     {
         return new TableAlter($this->name, $this->sql, $this);
     }
+
 
     /**
      * Renames this table
@@ -105,6 +107,7 @@ class Table extends SchemaAbstract
         sql()->query('RENAME TABLE `' . $this->name . '` TO `' . $table_name . '`');
     }
 
+
     /**
      * Returns if the table exists in the database or not
      *
@@ -113,8 +116,9 @@ class Table extends SchemaAbstract
     public function exists(): bool
     {
         // If this query returns nothing, the table does not exist. If it returns anything, it does exist.
-        return (bool)sql()->get('SHOW TABLES LIKE :name', [':name' => $this->name]);
+        return (bool) sql()->get('SHOW TABLES LIKE :name', [':name' => $this->name]);
     }
+
 
     /**
      * Will drop this table
@@ -127,12 +131,12 @@ class Table extends SchemaAbstract
             ':table'    => $this->name,
             ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase(),
-        ]),          3);
-
+        ]), 3);
         sql()->query('DROP TABLES IF EXISTS `' . $this->name . '`');
 
         return $this;
     }
+
 
     /**
      * Will truncate this table
@@ -145,6 +149,7 @@ class Table extends SchemaAbstract
         sql()->query('TRUNCATE `' . $this->name . '`');
     }
 
+
     /**
      * Returns the number of records in this table
      *
@@ -154,6 +159,7 @@ class Table extends SchemaAbstract
     {
         return sql()->getInteger('SELECT COUNT(*) as `count` FROM `' . $this->name . '`');
     }
+
 
     /**
      * Returns the table name
@@ -178,20 +184,18 @@ class Table extends SchemaAbstract
         if (!$cache) {
             unset($this->columns);
         }
-
         if (empty($this->columns)) {
             $columns = [];
             $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
-
             foreach ($results as $result) {
                 $columns[$result['field']] = Arrays::lowercaseKeys($result);
             }
-
             $this->columns = $columns;
         }
 
         return Iterator::new($this->columns);
     }
+
 
     /**
      * Returns the table foreign_keys

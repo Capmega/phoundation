@@ -14,7 +14,6 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 
-
 /**
  * Category class
  *
@@ -29,7 +28,6 @@ use Phoundation\Web\Html\Enums\EnumElement;
 class Category extends DataEntry implements CategoryInterface
 {
     use TraitDataEntryNameDescription;
-
 
     /**
      * Returns the table name used by this object
@@ -96,7 +94,6 @@ class Category extends DataEntry implements CategoryInterface
     public function getParent(): ?Category
     {
         $parents_id = $this->getValueTypesafe('int', 'parents_id');
-
         if ($parents_id) {
             return new static($parents_id);
         }
@@ -138,40 +135,50 @@ class Category extends DataEntry implements CategoryInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions
-            ->add(Definition::new($this, 'parents_id')
-                            ->setOptional(true)
-                            ->setElement(EnumElement::select)
-                            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                                return Categories::new()->getHtmlSelect()
-                                                 ->setName($field_name)
-                                                 ->setSelected(isset_get($source[$key]));
-                            })
-                            ->setSize(6)
-                            ->setLabel(tr('Parent category'))
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                // Ensure parents_id exists and that its or parent
-                                $validator->orColumn('parent')->isDbId()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
-                            }))
-            ->add(Definition::new($this, 'parent')
-                            ->setOptional(true)
-                            ->setVirtual(true)
-                            ->setCliColumn('--parent PARENT CATEGORY NAME')
-                            ->setCliAutoComplete([
-                                                     'word'   => function ($word) { return Categories::new()->getMatchingKeys($word); },
-                                                     'noword' => function () { return Categories::new()->getSource(); },
-                                                 ])
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                // Ensure parent exists and that its or parents_id
-                                $validator->orColumn('parents_id')->isName(64)->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
-                            }))
-            ->add(DefinitionFactory::getName($this)
-                                   ->addValidationFunction(function (ValidatorInterface $validator) {
-                                       $validator->isFalse(function ($value, $source) {
-                                           Category::exists($value, 'name', isset_get($source['id']));
-                                       }, tr('already exists'));
-                                   }))
-            ->add(DefinitionFactory::getSeoName($this))
-            ->add(DefinitionFactory::getDescription($this));
+        $definitions->add(Definition::new($this, 'parents_id')
+                                    ->setOptional(true)
+                                    ->setElement(EnumElement::select)
+                                    ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                        return Categories::new()
+                                                         ->getHtmlSelect()
+                                                         ->setName($field_name)
+                                                         ->setSelected(isset_get($source[$key]));
+                                    })
+                                    ->setSize(6)
+                                    ->setLabel(tr('Parent category'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        // Ensure parents_id exists and that its or parent
+                                        $validator->orColumn('parent')
+                                                  ->isDbId()
+                                                  ->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
+                                    }))
+                    ->add(Definition::new($this, 'parent')
+                                    ->setOptional(true)
+                                    ->setVirtual(true)
+                                    ->setCliColumn('--parent PARENT CATEGORY NAME')
+                                    ->setCliAutoComplete([
+                                        'word' => function ($word) {
+                                            return Categories::new()
+                                                             ->getMatchingKeys($word);
+                                        },
+                                        'noword' => function () {
+                                            return Categories::new()
+                                                             ->getSource();
+                                        },
+                                    ])
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        // Ensure parent exists and that its or parents_id
+                                        $validator->orColumn('parents_id')
+                                                  ->isName(64)
+                                                  ->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
+                                    }))
+                    ->add(DefinitionFactory::getName($this)
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isFalse(function ($value, $source) {
+                                                   Category::exists($value, 'name', isset_get($source['id']));
+                                               }, tr('already exists'));
+                                           }))
+                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(DefinitionFactory::getDescription($this));
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Plugins\Interfaces;
 
-
 /**
  * Class Plugin
  *
@@ -25,12 +24,14 @@ interface PluginInterface
      */
     public function getDescription(): ?string;
 
+
     /**
      * Returns if this plugin is enabled or not
      *
      * @return bool
      */
     public function getEnabled(): bool;
+
 
     /**
      * Sets if this plugin is enabled or not
@@ -41,12 +42,14 @@ interface PluginInterface
      */
     public function setEnabled(int|bool|null $enabled): static;
 
+
     /**
      * Returns if this plugin is disabled or not
      *
      * @return bool
      */
     public function getDisabled(): bool;
+
 
     /**
      * Sets if this plugin is disabled or not
@@ -57,12 +60,14 @@ interface PluginInterface
      */
     public function setDisabled(int|bool|null $disabled): static;
 
+
     /**
      * Returns the plugin path for this plugin
      *
      * @return string|null
      */
     public function getClass(): ?string;
+
 
     /**
      * Sets the main class for this plugin
@@ -73,6 +78,7 @@ interface PluginInterface
      */
     public function setClass(?string $class): static;
 
+
     /**
      * Sets the priority for this plugin
      *
@@ -82,12 +88,14 @@ interface PluginInterface
      */
     public function setPriority(?int $priority): static;
 
+
     /**
      * Returns the plugin path for this plugin
      *
      * @return string|null
      */
     public function getPath(): ?string;
+
 
     /**
      * Returns the plugin name
@@ -96,12 +104,14 @@ interface PluginInterface
      */
     public function getName(): string;
 
+
     /**
      * Uninstalls this plugin
      *
      * @return void
      */
     public function uninstall(): void;
+
 
     /**
      * Delete the plugin from the plugin registry
@@ -112,6 +122,7 @@ interface PluginInterface
      */
     public function unregister(?string $comments = null): void;
 
+
     /**
      * Enable this plugin
      *
@@ -120,6 +131,7 @@ interface PluginInterface
      * @return void
      */
     public function enable(?string $comments = null): void;
+
 
     /**
      * Disable this plugin

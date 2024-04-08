@@ -7,7 +7,6 @@ namespace Phoundation\Web\Http;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class Url
  *
@@ -36,11 +35,11 @@ class Url
             // This isn't even a complete URL, must be internal, there is no domain name expected here
             return false;
         }
-
         // We have a complete URL, so there is a domain name in there. Check if it's a "local" (ie, on this server)
         // domain name
         return !static::getDomainType($url, $check_sub_domains);
     }
+
 
     /**
      * Returns true if the specified string is a full and VALID URL
@@ -51,8 +50,9 @@ class Url
      */
     public static function isValid(string $url): bool
     {
-        return (bool)filter_var($url, FILTER_VALIDATE_URL);
+        return (bool) filter_var($url, FILTER_VALIDATE_URL);
     }
+
 
     /**
      * Returns true if the specified string is an external URL
@@ -69,23 +69,19 @@ class Url
         // Get all domain names and check if its primary or subdomain of those.
         $url_domain = UrlBuilder::getDomainFromUrl($url);
         $domains    = Config::get('web.domains');
-
         foreach ($domains as $domain) {
             // Get CDN and WWW domains
             $names = ['web' => Strings::cut($domain['web'], '//', '/')];
-
             if (array_key_exists('cdn', $domain)) {
                 // CDN domain is configured, use it
                 $names['cdn'] = Strings::cut($domain['cdn'], '//', '/');
             }
-
             // Check against domain and subdomain of WWW and CDN
             foreach ($names as $type => $name) {
                 if ($name === $url_domain) {
                     // The URL is on the main domain
                     return $type;
                 }
-
                 if ($check_sub_domains and str_ends_with($url_domain, $name)) {
                     // The URL is on a subdomain
                     return $type;

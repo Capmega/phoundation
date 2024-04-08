@@ -11,7 +11,6 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
 
-
 /**
  * PostValidator class
  *
@@ -64,6 +63,7 @@ class PostValidator extends Validator
         $this->construct($parent, static::$post);
     }
 
+
     /**
      * Link $_POST data to internal arrays to ensure developers cannot access them until validation
      * has been completed
@@ -76,13 +76,12 @@ class PostValidator extends Validator
     public static function hideData(): void
     {
         global $_POST;
-
         // Copy POST data and reset both POST and REQUEST
         static::$post = $_POST;
-
         $_POST    = [];
         $_REQUEST = [];
     }
+
 
     /**
      * Returns the submitted array keys
@@ -93,6 +92,7 @@ class PostValidator extends Validator
     {
         return array_keys(static::$post);
     }
+
 
     /**
      * Returns the value for the specified submit button for POST requests
@@ -127,48 +127,42 @@ class PostValidator extends Validator
         if (!Request::isPostRequestMethod()) {
             return null;
         }
-
         // Return button from cache if available
         $button = static::getButton(static::$buttons, $post_key, $prefix, false);
-
         if ($button) {
             // We had it from cache. Get button key and value
-            $key   = (string)key($button);
-            $value = (string)current($button);
+            $key   = (string) key($button);
+            $value = (string) current($button);
 
         } else {
             // Not cached. Get button from post and remove it there, then store it in cache
             $button = static::getButton(static::$post, $post_key, $prefix, true);
-
             if (!$button) {
                 // Button was not in cache nor in POST
                 return null;
             }
-
             // Get button key and value
-            $key   = (string)key($button);
-            $value = (string)current($button);
-
+            $key   = (string) key($button);
+            $value = (string) current($button);
             // Quick validate button value. Don't allow weird shit
             if ($key) {
                 if ((strlen($key) > 255) or !ctype_print($key)) {
-                    throw ValidationFailedException::new(tr('Invalid submit button specified'))->addData([
-                                                                                                             'submit' => tr('The specified submit button is invalid'),
-                                                                                                         ]);
+                    throw ValidationFailedException::new(tr('Invalid submit button specified'))
+                                                   ->addData([
+                                                       'submit' => tr('The specified submit button is invalid'),
+                                                   ]);
                 }
             }
-
             if ($value) {
                 if ((strlen($value) > 255) or !ctype_print($value)) {
-                    throw ValidationFailedException::new(tr('Invalid submit button specified'))->addData([
-                                                                                                             'submit' => tr('The specified submit button is invalid'),
-                                                                                                         ]);
+                    throw ValidationFailedException::new(tr('Invalid submit button specified'))
+                                                   ->addData([
+                                                       'submit' => tr('The specified submit button is invalid'),
+                                                   ]);
                 }
             }
-
             static::$buttons[$key] = $value;
         }
-
         // We have a button, yay!
         if ($return_key) {
             if ($prefix) {
@@ -177,7 +171,6 @@ class PostValidator extends Validator
 
             return $key;
         }
-
         if (!$value) {
             // Button exists, but has no value
             return true;
@@ -185,6 +178,7 @@ class PostValidator extends Validator
 
         return $value;
     }
+
 
     /**
      * Returns the requested button from the specified source
@@ -203,11 +197,10 @@ class PostValidator extends Validator
             foreach ($source as $key => $value) {
                 if (str_starts_with($key, $post_key)) {
                     $post_key = $key;
-                    $button   = trim((string)$value);
+                    $button   = trim((string) $value);
                     break;
                 }
             }
-
             if (!isset($button)) {
                 // No button with specified prefix found
                 return null;
@@ -219,10 +212,8 @@ class PostValidator extends Validator
                 // Button was not pressed
                 return null;
             }
-
-            $button = trim((string)$source[$post_key]);
+            $button = trim((string) $source[$post_key]);
         }
-
         if ($remove) {
             unset($source[$post_key]);
         }
@@ -230,41 +221,6 @@ class PostValidator extends Validator
         return [$post_key => $button];
     }
 
-    /**
-     * Throws an exception if there are still arguments left in the POST source
-     *
-     * @param bool $apply
-     *
-     * @return static
-     * @throws ValidationFailedException
-     */
-    public function noArgumentsLeft(bool $apply = true): static
-    {
-        if (!$apply) {
-            return $this;
-        }
-
-        if (count($this->selected_fields) === count(static::$post)) {
-            return $this;
-        }
-
-        $messages = [];
-        $fields   = [];
-        $post     = array_keys(static::$post);
-
-        foreach ($post as $field) {
-            if (!in_array($field, $this->selected_fields)) {
-                $fields[]   = $field;
-                $messages[] = tr('Unknown field ":field" encountered', [
-                    ':field' => $field,
-                ]);
-            }
-        }
-
-        throw ValidationFailedException::new(tr('Unknown POST fields ":fields" encountered', [
-            ':fields' => Strings::force($fields, ', '),
-        ]))->addData($messages)->makeWarning()->log();
-    }
 
     /**
      * Add the specified value for key to the internal GET array
@@ -279,6 +235,7 @@ class PostValidator extends Validator
         static::$post[$key] = $value;
     }
 
+
     /**
      * Returns a new $_POST data Validator object
      *
@@ -290,6 +247,43 @@ class PostValidator extends Validator
     {
         return new static($parent);
     }
+
+
+    /**
+     * Throws an exception if there are still arguments left in the POST source
+     *
+     * @param bool $apply
+     *
+     * @return static
+     * @throws ValidationFailedException
+     */
+    public function noArgumentsLeft(bool $apply = true): static
+    {
+        if (!$apply) {
+            return $this;
+        }
+        if (count($this->selected_fields) === count(static::$post)) {
+            return $this;
+        }
+        $messages = [];
+        $fields   = [];
+        $post     = array_keys(static::$post);
+        foreach ($post as $field) {
+            if (!in_array($field, $this->selected_fields)) {
+                $fields[]   = $field;
+                $messages[] = tr('Unknown field ":field" encountered', [
+                    ':field' => $field,
+                ]);
+            }
+        }
+        throw ValidationFailedException::new(tr('Unknown POST fields ":fields" encountered', [
+            ':fields' => Strings::force($fields, ', '),
+        ]))
+                                       ->addData($messages)
+                                       ->makeWarning()
+                                       ->log();
+    }
+
 
     /**
      * Force a return of all POST data without check
@@ -303,9 +297,7 @@ class PostValidator extends Validator
         if (!$prefix) {
             return $this->source;
         }
-
         $return = [];
-
         foreach ($this->source as $key => $value) {
             if (str_starts_with($key, $prefix)) {
                 $return[Strings::from($key, $prefix)] = $value;
@@ -315,6 +307,7 @@ class PostValidator extends Validator
         return $return;
     }
 
+
     /**
      * Force a return of a single POST key value
      *
@@ -323,8 +316,10 @@ class PostValidator extends Validator
     public function getSourceKey(string $key): mixed
     {
         Log::warning(tr('Forceably returned $_POST[:key] without data validation!', [':key' => $key]));
+
         return isset_get($this->source[$key]);
     }
+
 
     /**
      * Selects the specified key within the array that we are validating
@@ -337,6 +332,7 @@ class PostValidator extends Validator
     {
         return $this->standardSelect($field);
     }
+
 
     /**
      * Clears the internal POST array

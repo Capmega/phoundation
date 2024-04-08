@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Trait ButtonProperties
  *
@@ -25,7 +24,6 @@ trait ButtonProperties
 {
     use TraitMode;
     use TraitUsesSize;
-
 
     /**
      * Sets if this is an anchor button or not
@@ -81,6 +79,7 @@ trait ButtonProperties
     {
         $this->setElement('button');
         $this->input_type = $type;
+
         return $this;
     }
 
@@ -117,7 +116,7 @@ trait ButtonProperties
     public function setAnchorUrl(Stringable|string|null $anchor_url): static
     {
         $this->setElement('a');
-        $this->anchor_url = (string)UrlBuilder::getWww($anchor_url);
+        $this->anchor_url = (string) UrlBuilder::getWww($anchor_url);
         $this->input_type = null;
 
         return $this;
@@ -145,6 +144,7 @@ trait ButtonProperties
     public function setOutlined(bool $outlined): static
     {
         $this->outlined = $outlined;
+
         return $this;
     }
 
@@ -170,6 +170,7 @@ trait ButtonProperties
     public function setBlock(bool $block): static
     {
         $this->block = $block;
+
         return $this;
     }
 
@@ -195,6 +196,7 @@ trait ButtonProperties
     public function setFlat(bool $flat): static
     {
         $this->flat = $flat;
+
         return $this;
     }
 
@@ -220,6 +222,7 @@ trait ButtonProperties
     public function setRounded(bool $rounded): static
     {
         $this->rounded = $rounded;
+
         return $this;
     }
 
@@ -245,6 +248,7 @@ trait ButtonProperties
     public function setWrapping(bool $wrapping): static
     {
         $this->wrapping = $wrapping;
+
         return $this;
     }
 }

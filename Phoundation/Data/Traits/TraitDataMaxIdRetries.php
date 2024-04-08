@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Trait TraitDataMaxIdRetries
  *
@@ -52,8 +51,8 @@ trait TraitDataMaxIdRetries
                 ':value' => $max_id_retries,
             ]));
         }
-
         $this->max_id_retries = $max_id_retries;
+
         return $this;
     }
 }

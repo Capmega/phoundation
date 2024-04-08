@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Class TraitDataNetworkUrl
  *
@@ -44,6 +43,7 @@ trait TraitDataNetworkUrl
     public function setUrl(string $url): static
     {
         $this->url = $url;
+
         return $this;
     }
 }

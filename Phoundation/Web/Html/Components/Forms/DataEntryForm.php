@@ -41,24 +41,28 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      * @var int $list_count
      */
     protected static int $list_count = 0;
+
     /**
      * The key metadata for the specified data
      *
      * @var DefinitionsInterface|null $definitions
      */
     protected ?DefinitionsInterface $definitions = null;
+
     /**
      * Optional class for input elements
      *
      * @var string $input_class
      */
     protected string $input_class;
+
     /**
      * If set, the screen focus will automatically go to the specified element
      *
      * @var string|null $auto_focus_id
      */
     protected ?string $auto_focus_id = null;
+
     /**
      * The DataEntryForm rows renderer
      *
@@ -85,6 +89,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         $this->rows = new DataEntryFormRows($this);
     }
 
+
     /**
      * Sets if meta-information is visible at all, or not
      *
@@ -95,8 +100,10 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     public function setMetaVisible(bool $meta_visible): static
     {
         $this->definitions->setMetaVisible($meta_visible);
+
         return $this;
     }
+
 
     /**
      * Returns the optional class for input elements
@@ -108,6 +115,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         return $this->input_class;
     }
 
+
     /**
      * Sets the optional class for input elements
      *
@@ -118,8 +126,10 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     public function setInputClass(string $input_class): static
     {
         $this->input_class = $input_class;
+
         return $this;
     }
+
 
     /**
      * Returns the data fields for this DataEntryForm
@@ -131,6 +141,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         return $this->data_entry;
     }
 
+
     /**
      * Set the data fields for this DataEntryForm
      *
@@ -141,8 +152,10 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     public function setDataEntry(DataEntryInterface $data_entry): static
     {
         $this->data_entry = $data_entry;
+
         return $this;
     }
+
 
     /**
      * Renders and returns the DataEntry as an HTML web form
@@ -154,27 +167,22 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         if (!$this->getDefinitions()) {
             throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no column definitions specified'));
         }
-
         $source        = $this->getSource();
         $definitions   = $this->getDefinitions();
         $prefix        = $this->getDefinitions()
                               ->getPrefix();
         $auto_focus_id = $this->getAutofocusId();
-
         if ($prefix) {
-            if (str_ends_with((string)$prefix, '[]')) {
+            if (str_ends_with((string) $prefix, '[]')) {
                 // This is an array prefix with the closing tag attached, remove the closing tag
                 $prefix = substr($prefix, 0, -1);
             }
-
             if (str_contains($prefix, '[]')) {
                 // This prefix contains a [] to indicate a list item. Specify the correct ID's
                 $prefix = str_replace('[]', '[' . static::$list_count . ']', $prefix);
             }
         }
-
-        $is_array = str_ends_with((string)$prefix, '[');
-
+        $is_array = str_ends_with((string) $prefix, '[');
         /*
          * $data column keys: (Or just use Definitions class)
          *
@@ -215,25 +223,19 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
          * null_disabled  boolean            false          If "value" for entry is null, then use this for "disabled"
          * null_readonly  boolean            false          If "value" for entry is null, then use this for "readonly"
          * null_type      boolean            false          If "value" for entry is null, then use this for "type"
-         */
-
-        // If form key definitions are available, reorder the keys as in the form key definitions
-
+         */ // If form key definitions are available, reorder the keys as in the form key definitions
         // Go over each key and add it to the form
         foreach ($definitions as $column => $definition) {
             // Add column name prefix
             $field_name = $prefix . $column;
-
             if ($field_name === $auto_focus_id) {
                 // This column has autofocus
                 $definition->setAutoFocus(true);
             }
-
             if ($is_array) {
                 // The column name prefix is an HTML form array prefix, close that array
                 $field_name .= ']';
             }
-
             if (!is_object($definition) or !($definition instanceof DefinitionInterface)) {
                 throw new OutOfBoundsException(tr('Data key definition for column ":column / :field_name" is invalid. Iit should be an array or Definition type  but contains ":data"', [
                     ':column'     => $column,
@@ -241,7 +243,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     ':data'       => gettype($definition) . ': ' . $definition,
                 ]));
             }
-
             if ($definition->isMeta()) {
                 // This is an immutable meta column, virtual column, or readonly column.
                 // In creation mode we're not even going to show this, in edit mode don't put a column name because
@@ -249,51 +250,40 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 if (empty($source['id'])) {
                     continue;
                 }
-
                 if (!$definitions->getMetaVisible()) {
                     continue;
                 }
-
                 $field_name = '';
             }
-
             if (!$definition->getRender()) {
                 // This element shouldn't be shown, continue
                 continue;
             }
-
             // Either the component or the entire form being readonly or disabled will make the component the same
             $definition->setReadonly($definition->getReadonly() or $this->getReadonly());
             $definition->setDisabled($definition->getDisabled() or $this->getDisabled());
-
             if ($definition->getDisabled() or $definition->getReadonly()) {
                 // This is an unmutable column. Don't add a column names as users aren't supposed to submit this.
                 $field_name = '';
             }
-
             // Hidden objects have size 0
             if ($definition->getHidden()) {
                 $definition->setSize(0);
             }
-
             // Ensure security column values are never sent in the form
             switch ($column) {
                 case 'password':
                     $source[$column] = '';
             }
-
             $execute = $definition->getExecute();
-
             if (is_string($execute)) {
                 // Build the source execute array from the specified column
                 $items   = explode(',', $execute);
                 $execute = [];
-
                 foreach ($items as $item) {
                     $execute[':' . $item] = isset_get($source[$item]);
                 }
             }
-
             // Select default element
             if (!$definition->getElement()) {
                 if ($definition->getDataSource()) {
@@ -305,45 +295,36 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     $definition->setElement(EnumElement::input);
                 }
             }
-
             if ($definition->getDisplayCallback()) {
                 // Execute the specified callback on the data before displaying it
                 $source[$column] = $definition->getDisplayCallback()(isset_get($source[$column]), $source);
             }
-
             // Set default value and override key entry values if value is null
             if (isset_get($source[$column]) === null) {
                 if ($definition->getNullElement()) {
                     $definition->setElement($definition->getNullElement());
                 }
-
                 if ($definition->getNullInputType()) {
                     $definition->setInputType($definition->getNullInputType());
                 }
-
                 if ($definition->getNullDisabled()) {
                     $definition->setDisabled($definition->getNullDisabled());
                 }
-
                 if ($definition->getNullReadonly()) {
                     $definition->setReadonly($definition->getNullReadonly());
                 }
-
                 $source[$column] = $definition->getDefault();
             }
-
             // Set value to value specified in $data
             if ($definition->getValue()) {
                 $source[$column] = $definition->getValue();
-
                 // Apply variables
                 foreach ($source as $source_key => $source_value) {
                     if ($definitions->keyExists($source_key)) {
-                        $source[$column] = str_replace(':' . $source_key, (string)$source_value, $source[$column]);
+                        $source[$column] = str_replace(':' . $source_key, (string) $source_value, $source[$column]);
                     }
                 }
             }
-
             // Build the form elements
             if (!$definition->getContent()) {
                 switch ($definition->getElement()) {
@@ -354,14 +335,13 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 ':column'     => $column,
                             ]));
                         }
-
                         // If we have a source query specified, then get the actual value from the query
                         if ($definition->getDataSource()) {
                             if (!is_array($definition->getDataSource())) {
                                 if (!is_string($definition->getDataSource())) {
                                     if ($definition->getDataSource() instanceof Stringable) {
                                         // This is a Stringable object
-                                        $definition->setDataSource((string)$definition->getDataSource());
+                                        $definition->setDataSource((string) $definition->getDataSource());
                                     } else {
                                         // The Only possibility left is instanceof PDOStatement
                                         $definition->setDataSource(sql()->getColumn($definition->getDataSource(), $execute));
@@ -369,77 +349,72 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 }
                             }
                         }
-
                         // Build the element class path and load the required class file
                         $type = match ($definition->getInputType()) {
                             EnumElementInputType::datetime_local => 'DateTimeLocal',
                             EnumElementInputType::auto_suggest   => 'AutoSuggest',
                             default                              => str_replace(' ', '', Strings::camelCase(str_replace([
-                                                                                                                            ' ',
-                                                                                                                            '-',
-                                                                                                                            '_',
-                                                                                                                        ], ' ', $definition->getInputType()->value))),
+                                ' ',
+                                '-',
+                                '_',
+                            ], ' ', $definition->getInputType()->value))),
                         };
-
                         // Get the class for this element and ensure the library file is loaded
                         // Build the component, depending on the input type
                         $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\Input' . $type);
                         $component     = match ($definition->getInputType()) {
-                            EnumElementInputType::number       => $element_class::new()
-                                                                                ->setDefinition($definition)
-                                                                                ->setHidden($definition->getHidden())
-                                                                                ->setRequired($definition->getRequired())
-                                                                                ->setMin($definition->getMin())
-                                                                                ->setMax($definition->getMax())
-                                                                                ->setStep($definition->getStep())
-                                                                                ->setValue($source[$column]),
-                            EnumElementInputType::date         => $element_class::new()
-                                                                                ->setDefinition($definition)
-                                                                                ->setHidden($definition->getHidden())
-                                                                                ->setRequired($definition->getRequired())
-                                                                                ->setMin($definition->getMin())
-                                                                                ->setMax($definition->getMax())
-                                                                                ->setValue($source[$column]),
-                            EnumElementInputType::auto_suggest => $element_class::new()
-                                                                                ->setDefinition($definition)
-                                                                                ->setHidden($definition->getHidden())
-                                                                                ->setRequired($definition->getRequired())
-                                                                                ->setAutoComplete(false)
-                                                                                ->setMinLength($definition->getMinLength())
-                                                                                ->setMaxLength($definition->getMaxLength())
-                                                                                ->setSourceUrl($definition->getDataSource())
-                                                                                ->setVariables($definition->getVariables())
-                                                                                ->setValue($source[$column]),
-                            EnumElementInputType::button,
-                            EnumElementInputType::submit       => $element_class::new()
-                                                                                ->setDefinition($definition)
-                                                                                ->setHidden($definition->getHidden())
-                                                                                ->setValue($source[$column]),
-                            EnumElementInputType::select       => $element_class::new()
-                                                                                ->setDefinition($definition)
-                                                                                ->setHidden($definition->getHidden())
-                                                                                ->setRequired($definition->getRequired())
-                                                                                ->setValue($source[$column]),
-                            EnumElementInputType::checkbox     => $element_class::new()
-                                                                                ->setDefinition($definition)
-                                                                                ->setHidden($definition->getHidden())
-                                                                                ->setRequired($definition->getRequired())
-                                                                                ->setValue('1')
-                                                                                ->setChecked((bool)$source[$column]),
-                            default                            => $element_class::new()
-                                                                                ->setDefinition($definition)
-                                                                                ->setHidden($definition->getHidden())
-                                                                                ->setRequired($definition->getRequired())
-                                                                                ->setMinLength($definition->getMinLength())
-                                                                                ->setMaxLength($definition->getMaxLength())
-                                                                                ->setAutoComplete($definition->getAutoComplete())
-                                                                                ->setAutoSubmit($definition->getAutoSubmit())
-                                                                                ->setValue($source[$column]),
+                            EnumElementInputType::number                               => $element_class::new()
+                                                                                                        ->setDefinition($definition)
+                                                                                                        ->setHidden($definition->getHidden())
+                                                                                                        ->setRequired($definition->getRequired())
+                                                                                                        ->setMin($definition->getMin())
+                                                                                                        ->setMax($definition->getMax())
+                                                                                                        ->setStep($definition->getStep())
+                                                                                                        ->setValue($source[$column]),
+                            EnumElementInputType::date                                 => $element_class::new()
+                                                                                                        ->setDefinition($definition)
+                                                                                                        ->setHidden($definition->getHidden())
+                                                                                                        ->setRequired($definition->getRequired())
+                                                                                                        ->setMin($definition->getMin())
+                                                                                                        ->setMax($definition->getMax())
+                                                                                                        ->setValue($source[$column]),
+                            EnumElementInputType::auto_suggest                         => $element_class::new()
+                                                                                                        ->setDefinition($definition)
+                                                                                                        ->setHidden($definition->getHidden())
+                                                                                                        ->setRequired($definition->getRequired())
+                                                                                                        ->setAutoComplete(false)
+                                                                                                        ->setMinLength($definition->getMinLength())
+                                                                                                        ->setMaxLength($definition->getMaxLength())
+                                                                                                        ->setSourceUrl($definition->getDataSource())
+                                                                                                        ->setVariables($definition->getVariables())
+                                                                                                        ->setValue($source[$column]),
+                            EnumElementInputType::button, EnumElementInputType::submit => $element_class::new()
+                                                                                                        ->setDefinition($definition)
+                                                                                                        ->setHidden($definition->getHidden())
+                                                                                                        ->setValue($source[$column]),
+                            EnumElementInputType::select                               => $element_class::new()
+                                                                                                        ->setDefinition($definition)
+                                                                                                        ->setHidden($definition->getHidden())
+                                                                                                        ->setRequired($definition->getRequired())
+                                                                                                        ->setValue($source[$column]),
+                            EnumElementInputType::checkbox                             => $element_class::new()
+                                                                                                        ->setDefinition($definition)
+                                                                                                        ->setHidden($definition->getHidden())
+                                                                                                        ->setRequired($definition->getRequired())
+                                                                                                        ->setValue('1')
+                                                                                                        ->setChecked((bool) $source[$column]),
+                            default                                                    => $element_class::new()
+                                                                                                        ->setDefinition($definition)
+                                                                                                        ->setHidden($definition->getHidden())
+                                                                                                        ->setRequired($definition->getRequired())
+                                                                                                        ->setMinLength($definition->getMinLength())
+                                                                                                        ->setMaxLength($definition->getMaxLength())
+                                                                                                        ->setAutoComplete($definition->getAutoComplete())
+                                                                                                        ->setAutoSubmit($definition->getAutoSubmit())
+                                                                                                        ->setValue($source[$column]),
                         };
-
                         $this->rows->add($definition, $component);
                         break;
-
                     case 'text':
                         // no-break
                     case 'textarea':
@@ -447,7 +422,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                         if ($definition->getDataSource()) {
                             $source[$column] = sql()->getColumn($definition->getDataSource(), $execute);
                         }
-
                         // Get the class for this element and ensure the library file is loaded
                         $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputTextArea');
                         $component     = $element_class::new()
@@ -458,29 +432,23 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                        ->setMaxLength($definition->getMaxLength())
                                                        ->setRows($definition->getRows())
                                                        ->setContent(isset_get($source[$column]));
-
                         $this->rows->add($definition, $component);
                         break;
-
                     case 'div':
                         // no break;
                     case 'span':
                         $element_class = Strings::capitalize($definition->getElement());
-
                         // If we have a source query specified, then get the actual value from the query
                         if ($definition->getDataSource()) {
                             $source[$column] = sql()->getColumn($definition->getDataSource(), $execute);
                         }
-
                         // Get the class for this element and ensure the library file is loaded
                         $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\' . $element_class);
                         $component     = $element_class::new()
                                                        ->setDefinition($definition)
                                                        ->setContent(isset_get($source[$column]));
-
                         $this->rows->add($definition, $component);
                         break;
-
                     case 'button':
                         $element_class = Strings::capitalize($definition->getElement());
                         $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\' . $element_class);
@@ -489,7 +457,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                        ->setContent($source[$column]);
                         $this->rows->add($definition, $component);
                         break;
-
                     case 'select':
                         // Get the class for this element and ensure the library file is loaded
                         $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputSelect');
@@ -497,27 +464,23 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                        ->setDefinition($definition)
                                                        ->setSource($definition->getDataSource(), $execute)
                                                        ->setDisabled($definition->getDisabled() or $definition->getReadonly())
-                                                       ->setReadOnly((bool)$definition->getReadonly())
+                                                       ->setReadOnly((bool) $definition->getReadonly())
                                                        ->setHidden($definition->getHidden())
                                                        ->setName($field_name)
                                                        ->setAutoComplete($definition->getAutoComplete())
                                                        ->setAutoSubmit($definition->getAutoSubmit())
                                                        ->setSelected(isset_get($source[$column]))
                                                        ->setAutoFocus($definition->getAutoFocus());
-
                         $this->rows->add($definition, $component);
                         break;
-
                     case 'inputmultibuttontext':
                         // Get the class for this element and ensure the library file is loaded
                         $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputMultiButtonText');
                         $input         = $element_class::new()
                                                        ->setSource($definition->getDataSource());
-
                         $input->getButton()
                               ->setMode(EnumDisplayMode::from($definition->getMode()))
                               ->setContent($definition->getLabel());
-
                         $component = $input->getInput()
                                            ->setDefinition($definition)
                                            ->setHidden($definition->getHidden())
@@ -525,15 +488,12 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                            ->setValue($source[$column])
                                            ->setContent(isset_get($source[$column]))
                                            ->setAutoFocus($definition->getAutoFocus());
-
                         $this->rows->add($definition, $component);
                         break;
-
                     case '':
                         throw new OutOfBoundsException(tr('No element specified for key ":key"', [
                             ':key' => $column,
                         ]));
-
                     default:
                         if (!is_callable($definition->getElement())) {
                             if (!$definition->getElement()) {
@@ -541,13 +501,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                     ':key' => $column,
                                 ]));
                             }
-
                             throw new OutOfBoundsException(tr('Unknown element ":element" specified for key ":key"', [
                                 ':element' => $definition->getElement(),
                                 ':key'     => $column,
                             ]));
                         }
-
                         // Execute this to get the element
                         $this->rows->add($definition, $definition->getElement()($column, $definition, $source));
                 }
@@ -558,7 +516,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                              ->setValue(Strings::force($source[$column], ' - ')));
                 } else {
                     $component = $definition->getContent()($definition, $column, $field_name, $source);
-
                     if (!$component instanceof RenderInterface) {
                         // The content function did NOT return a render object
                         throw new WebRenderException(tr('Failed to render DataEntryForm ":class", the column ":column" setContent method should return a RenderInterface object but returns a ":type" instead', [
@@ -567,7 +524,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             ':type'   => get_object_class_or_data_type($component),
                         ]));
                     }
-
                     $this->rows->add($definition, $definition->getContent()($definition, $column, $field_name, $source));
                 }
             } else {
@@ -575,11 +531,12 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 $this->rows->add($definition, $definition->getContent());
             }
         }
-
         // Add one empty element to (if required) close any rows
         static::$list_count++;
+
         return '<div id="' . $this->data_entry->getObjectName() . '">' . $this->rows->render() . '</div>';
     }
+
 
     /**
      * Returns the data fields for this DataEntryForm
@@ -602,8 +559,10 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     public function setDefinitions(DefinitionsInterface $definitions): static
     {
         $this->definitions = $definitions;
+
         return $this;
     }
+
 
     /**
      * Returns the element that will receive autofocus
@@ -615,6 +574,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         return $this->auto_focus_id;
     }
 
+
     /**
      * Sets the element that will receive autofocus
      *
@@ -625,8 +585,10 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     public function setAutoFocusId(?string $auto_focus_id): static
     {
         $this->auto_focus_id = $auto_focus_id;
+
         return $this;
     }
+
 
     /**
      * Returns if meta-information is visible at all, or not

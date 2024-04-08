@@ -8,7 +8,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Icons\Icon;
 use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
 
-
 /**
  * Trait TraitDataEntryIcon
  *
@@ -56,8 +55,7 @@ trait TraitDataEntryIcon
         if ($icon instanceof IconInterface) {
             $icon = $icon->getContent();
         }
-
-        if (strlen((string)$icon) > 32) {
+        if (strlen((string) $icon) > 32) {
             throw new OutOfBoundsException(tr('Specified icon name ":icon" is invalid, the string should be no longer than 32 characters', [
                 ':icon' => $icon,
             ]));

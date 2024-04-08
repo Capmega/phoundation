@@ -8,7 +8,6 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Security\Incidents\Exception\Interfaces\SeverityInterface;
 use Phoundation\Security\Incidents\Incident;
 
-
 /**
  * interface IncidentInterface
  *
@@ -32,6 +31,7 @@ interface IncidentInterface
      */
     public function getLog(): bool;
 
+
     /**
      * Sets if this incident will be logged in the text log
      *
@@ -40,6 +40,7 @@ interface IncidentInterface
      * @return static
      */
     public function setLog(bool $log): static;
+
 
     /**
      * Sets who will be notified about this incident directly without accessing the roles object
@@ -50,12 +51,14 @@ interface IncidentInterface
      */
     public function notifyRoles(IteratorInterface|array|string|null $roles): static;
 
+
     /**
      * Returns the roles iterator containing who will be notified about this incident
      *
      * @return IteratorInterface
      */
     public function getNotifyRoles(): IteratorInterface;
+
 
     /**
      * Sets the roles iterator containing who will be notified about this incident
@@ -66,12 +69,14 @@ interface IncidentInterface
      */
     public function setNotifyRoles(IteratorInterface|array $notify_roles): static;
 
+
     /**
      * Returns the severity for this object
      *
      * @return string
      */
     public function getSeverity(): string;
+
 
     /**
      * Sets the severity for this object
@@ -82,6 +87,7 @@ interface IncidentInterface
      */
     public function setSeverity(SeverityInterface|string $severity): static;
 
+
     /**
      * Saves the incident to the database
      *
@@ -91,6 +97,7 @@ interface IncidentInterface
      * @return static
      */
     public function save(bool $force = false, ?string $comments = null): static;
+
 
     /**
      * Throw an incidents exception

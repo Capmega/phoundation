@@ -6,7 +6,6 @@ namespace Phoundation\Network\Curl\Exception;
 
 use Phoundation\Network\Exception\NetworkException;
 
-
 /**
  * Class CurlException
  *

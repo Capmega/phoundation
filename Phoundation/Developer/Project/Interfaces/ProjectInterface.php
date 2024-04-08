@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Project\Interfaces;
 
-
 /**
  * Project class
  *
@@ -25,6 +24,7 @@ interface ProjectInterface
      * @return bool
      */
     public function isPhoundationProject(string $directory): bool;
+
 
     /**
      * Updates your Phoundation installation

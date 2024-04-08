@@ -6,7 +6,6 @@ namespace Phoundation\Core\Exception;
 
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 
-
 /**
  * Class CoreReadonlyException
  *

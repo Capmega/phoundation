@@ -197,6 +197,7 @@ class Plugins extends DataList implements PluginsInterface
         return $return;
     }
 
+
     /**
      * Returns true if the specified class path matches the file path
      *
@@ -228,7 +229,6 @@ class Plugins extends DataList implements PluginsInterface
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
                     ]), 5);
-
                     include_once(DIRECTORY_ROOT . $plugin['path'] . 'Library/Plugin.php');
                     $plugin['class']::start();
                 }

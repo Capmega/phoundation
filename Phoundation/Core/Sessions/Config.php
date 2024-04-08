@@ -6,7 +6,6 @@ namespace Phoundation\Core\Sessions;
 
 use Phoundation\Core\Sessions\Interfaces\ConfigInterface;
 
-
 /**
  * Class Config
  *

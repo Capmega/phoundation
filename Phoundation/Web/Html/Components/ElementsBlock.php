@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class ElementsBlock
  *
@@ -31,7 +30,6 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
     use ElementAttributes {
         __construct as ___construct;
     }
-
 
     /**
      * If true, this element block will only render the contents
@@ -74,8 +72,9 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
      */
     public function __toString(): string
     {
-        return (string)$this->render();
+        return (string) $this->render();
     }
+
 
     /**
      * Renders and returns the HTML for this object using the template renderer if available
@@ -94,25 +93,22 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
         if ($this->render_contents_only) {
             return $this->content;
         }
-
-        $renderer_class = Request::getTemplate()->getRendererClass($this);
-
+        $renderer_class = Request::getTemplate()
+                                 ->getRendererClass($this);
         Log::write(tr('Using renderer class ":class" for ":this"', [
             ':class' => $renderer_class,
             ':this'  => get_class($this),
-        ]),        'debug', 2);
-
+        ]), 'debug', 2);
         $render_function = function (?string $render = null) {
             if ($this->form) {
                 $this->form->setContent($render);
+
                 return $this->form->render();
             }
-
             $this->render = null;
 
             return $render;
         };
-
         if ($renderer_class) {
             TemplateRenderer::ensureClass($renderer_class, $this);
 
@@ -120,19 +116,18 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
                                   ->setParentRenderFunction($render_function)
                                   ->render();
         }
-
         if (method_exists($this, 'defaultRender')) {
             // Use the default render for this object
             return $this->defaultRender();
         }
-
         // The template component does not exist, return the basic Phoundation version
         Log::warning(tr('No template render class found for block component ":component", rendering basic HTML', [
             ':component' => get_class($this),
-        ]),          3);
+        ]), 3);
 
         return $render_function($this->render);
     }
+
 
     /**
      * Returns the contents of this object as an array
@@ -143,6 +138,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
     {
         return $this->source;
     }
+
 
     /**
      * Sets the content of the element to display
@@ -164,6 +160,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
         return $this;
     }
 
+
     /**
      * Returns the form of this objects block
      *
@@ -173,6 +170,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
     {
         return $this->form;
     }
+
 
     /**
      * Returns the form of this objects block
@@ -184,8 +182,10 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
     public function setForm(?FormInterface $form): static
     {
         $this->form = $form;
+
         return $this;
     }
+
 
     /**
      * Returns if this element renders it will only return the contents
@@ -197,6 +197,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
         return $this->render_contents_only;
     }
 
+
     /**
      * If set true, when this element renders it will only return the contents
      *
@@ -207,8 +208,10 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
     public function setRenderContentsOnly(bool $enable): static
     {
         $this->render_contents_only = $enable;
+
         return $this;
     }
+
 
     /**
      * Returns if this FlashMessages object has rendered HTML or not

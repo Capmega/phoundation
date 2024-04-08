@@ -6,7 +6,6 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
-
 /**
  * Class Ping
  *
@@ -29,15 +28,14 @@ class Ping extends Command
     public function ping(string $restrictions): ?float
     {
         try {
-            $output = $this
-                ->setCommand('ping')
-                ->addArguments([
-                                   '-c',
-                                   1,
-                                   $restrictions,
-                               ])
-                ->setTimeout(1)
-                ->executeReturnArray();
+            $output = $this->setCommand('ping')
+                           ->addArguments([
+                               '-c',
+                               1,
+                               $restrictions,
+                           ])
+                           ->setTimeout(1)
+                           ->executeReturnArray();
             $output = array_pop($output);
             showdie($output);
 

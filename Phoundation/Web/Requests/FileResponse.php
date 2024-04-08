@@ -18,7 +18,6 @@ use Phoundation\Filesystem\Traits\TraitPathConstructor;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Http\Exception;
 
-
 /**
  * Class FileResponse
  *
@@ -38,7 +37,6 @@ class FileResponse extends File
     use TraitPathConstructor {
         __construct as protected ___construct;
     }
-
 
     /**
      * If true, files will be transferred using compression
@@ -102,9 +100,9 @@ class FileResponse extends File
     public function __construct(mixed $source = null, RestrictionsInterface|array|string|null $restrictions = null, bool $make_absolute = false)
     {
         parent::__construct($source, $restrictions, $make_absolute);
-
         $this->compression = Config::get('web.http.download.compression', 'auto');
     }
+
 
     /**
      *      * Returns if files will be transferred using compression
@@ -115,6 +113,7 @@ class FileResponse extends File
     {
         return $this->compression;
     }
+
 
     /**
      * Sets if files are transferred using compression
@@ -132,10 +131,11 @@ class FileResponse extends File
                 ]));
             }
         }
-
         $this->compression = $compression;
+
         return $this;
     }
+
 
     /**
      * Returns if the process will be terminated once the HTTP file transfer has been completed
@@ -147,6 +147,7 @@ class FileResponse extends File
         return $this->die;
     }
 
+
     /**
      * Sets if the process will be terminated once the HTTP file transfer has been completed
      *
@@ -157,8 +158,10 @@ class FileResponse extends File
     public function setDie(bool $die): FileResponse
     {
         $this->die = $die;
+
         return $this;
     }
+
 
     /**
      * Returns if the file will be transferred as an attachment
@@ -170,6 +173,7 @@ class FileResponse extends File
         return $this->attachment;
     }
 
+
     /**
      * Sets if the file is transferred as an attachment
      *
@@ -180,8 +184,10 @@ class FileResponse extends File
     public function setAttachment(bool $attachment): FileResponse
     {
         $this->attachment = $attachment;
+
         return $this;
     }
+
 
     /**
      * Returns the file (locally on this server)
@@ -192,6 +198,7 @@ class FileResponse extends File
     {
         return $this->file;
     }
+
 
     /**
      * Sets the file (locally on this server)
@@ -205,17 +212,17 @@ class FileResponse extends File
         if ($this->data) {
             throw new OutOfBoundsException(tr('Cannot set the file property, file data has already been specified'));
         }
-
         // Ensure the specified file is valid and readable
-        File::new($file, $this->restrictions)->checkReadable();
+        File::new($file, $this->restrictions)
+            ->checkReadable();
         $this->restrictions->check($file, false);
-
         $this->file     = $file;
         $this->size     = filesize($file);
         $this->filename = basename($file);
 
         return $this;
     }
+
 
     /**
      * Returns the name of the file so that the client knows with what name to save it
@@ -227,6 +234,7 @@ class FileResponse extends File
         return $this->filename;
     }
 
+
     /**
      * Sets the name of the file so that the client knows with what name to save it
      *
@@ -237,8 +245,10 @@ class FileResponse extends File
     public function setFilename(string $filename): static
     {
         $this->filename = $filename;
+
         return $this;
     }
+
 
     /**
      * Returns the raw data for the file to send, in case no file on disk should be sent
@@ -249,6 +259,7 @@ class FileResponse extends File
     {
         return $this->data;
     }
+
 
     /**
      * Sets the raw data for the file to send, in case no file on disk should be sent
@@ -262,11 +273,12 @@ class FileResponse extends File
         if ($this->file) {
             throw new OutOfBoundsException(tr('Cannot set the data property, a file has already been specified'));
         }
-
         $this->data = $data;
         $this->size = strlen($data);
+
         return $this;
     }
+
 
     /**
      * Sets the mimetype for the file to be sent
@@ -278,6 +290,7 @@ class FileResponse extends File
     public function setMimetype(?string $mimetype): static
     {
         $this->mimetype = $mimetype;
+
         return $this;
     }
 
@@ -296,11 +309,9 @@ class FileResponse extends File
             ':filename' => $this->filename,
             ':file'     => $this->file,
         ]));
-
         if ($this->data) {
             // Send data directly from memory
             $this->mimetype = (new finfo)->buffer($this->data);
-
             // Configure compression, send headers and transfer contents
             $this->configureCompression();
             $this->sendHeaders();
@@ -309,7 +320,6 @@ class FileResponse extends File
         } else {
             // Send a file from disk
             $this->mimetype = mime_content_type($this->file);
-
             // What file mode will we use?
             if ($this->isBinary()) {
                 $mode = 'rb';
@@ -317,7 +327,6 @@ class FileResponse extends File
             } else {
                 $mode = 'r';
             }
-
             // Configure compression, send headers
             $this->configureCompression();
             $this->sendHeaders();
@@ -334,17 +343,15 @@ class FileResponse extends File
 //            header('Content-length: ' . $bytes);
 //
 //            include($target);
-
-
             // Open file and transfer contents
             $f = fopen($this->file, $mode);
             ob_end_clean();
             fpassthru($f);
             fclose($f);
         }
-
         exit();
     }
+
 
     /**
      * Checks data and configures compression setting if needed
@@ -359,13 +366,11 @@ class FileResponse extends File
             // stream too because it won't do anything (possibly make it even worse)
             $this->compression = !$this->isCompressed();
         }
-
         if ($this->compression) {
             // Use compression
             if (is_executable('apache_setenv')) {
                 apache_setenv('no-gzip', 0);
             }
-
             ini_set('zlib.output_compression', 'On');
 
         } else {
@@ -373,10 +378,10 @@ class FileResponse extends File
             if (is_executable('apache_setenv')) {
                 apache_setenv('no-gzip', 1);
             }
-
             ini_set('zlib.output_compression', 'Off');
         }
     }
+
 
     /**
      * Sends HTTP headers before transferring the file
@@ -390,13 +395,13 @@ class FileResponse extends File
         //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
         header('Content-Type: ' . $this->mimetype);
         header('Content-length: ' . $this->size);
-
         if ($this->attachment) {
             // Instead of sending the file to the browser to display directly, send it as a file attachement that will
             // be downloaded to their disk
             header('Content-Disposition: attachment; filename="' . $this->filename . '"');
         }
     }
+
 
     /**
      * Download the specified single file to the specified path
@@ -413,22 +418,22 @@ class FileResponse extends File
     public function download(string $url, callable $callback = null): FileInterface|null
     {
         // Set temp file and download data
-        $file = FileResponse::getTemporary()->getPath();
+        $file = FileResponse::getTemporary()
+                            ->getPath();
         $data = file_get_contents($url);
-
         // Write data to the temp file
         file_put_contents($file, $data);
-
         if (!$callback) {
             return File::new($file, $this->restrictions);
         }
-
         // Execute the callbacks before returning the data, delete the temporary file after
         $file = $callback($file);
-        File::new($file, $this->restrictions)->delete();
+        File::new($file, $this->restrictions)
+            ->delete();
 
         return $file;
     }
+
 
     /**
      * If the object file is an HTTP, HTTPS, or FTP URL, then get it locally as a temp file
@@ -446,32 +451,29 @@ class FileResponse extends File
         try {
             $context = $this->createStreamContext($context);
             $url     = trim($url);
-
             if (str_contains($url, 'http:') and str_contains($url, 'https:') and str_contains($url, 'ftp:')) {
                 if (!file_exists($url)) {
                     throw new FileNotExistException(tr('Specified file ":file" does not exist', [':file' => $url]));
                 }
-
                 if (is_uploaded_file($url)) {
                     $tmp         = file_get_uploaded($url);
                     $this->files = $this->temp($url, null, false);
-
                     rename($tmp, $this->files);
+
                     return $this->files;
                 }
 
                 return $url;
             }
-
             // First download the file to a temporary location
             $this->files   = str_replace([
-                                             '://',
-                                             '/',
-                                         ], '-', $url);
+                '://',
+                '/',
+            ], '-', $url);
             $this->files   = $this->temp();
             $is_downloaded = true;
-
-            $this->directory()->ensure(dirname($this->files));
+            $this->directory()
+                 ->ensure(dirname($this->files));
             file_put_contents(file_get_contents($url, false, $context));
 
             return $this->files;
@@ -479,15 +481,12 @@ class FileResponse extends File
         } catch (Exception $e) {
             $message = $e->getMessage();
             $message = strtolower($message);
-
             if (str_contains($message, '404 not found')) {
                 throw new FilesystemException(tr('URL ":file" does not exist', [':file' => $url]));
             }
-
             if (str_contains($message, '400 bad request')) {
                 throw new FilesystemException(tr('URL ":file" is invalid', [':file' => $url]));
             }
-
             throw new FilesystemException(tr('Failed for file ":file"', [':file' => $url]), $e);
         }
     }

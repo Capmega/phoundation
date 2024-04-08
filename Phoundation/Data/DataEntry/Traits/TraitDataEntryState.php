@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Geo\States\State;
 
-
 /**
  * Trait TraitDataEntryState
  *
@@ -51,7 +50,6 @@ trait TraitDataEntryState
     public function getState(): ?State
     {
         $states_id = $this->getValueTypesafe('int', 'states_id');
-
         if ($states_id) {
             return new State($states_id);
         }

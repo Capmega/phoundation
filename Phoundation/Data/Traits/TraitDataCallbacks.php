@@ -7,7 +7,6 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Enums\Interfaces\EnumTableRowTypeInterface;
 
-
 /**
  * Trait TraitDataCallbacks
  *
@@ -55,6 +54,7 @@ trait TraitDataCallbacks
         return $this;
     }
 
+
     /**
      * Adds a callback
      *
@@ -65,8 +65,10 @@ trait TraitDataCallbacks
     public function addCallback(callable $callbacks): static
     {
         $this->callbacks[] = $callbacks;
+
         return $this;
     }
+
 
     /**
      * Clears the callbacks
@@ -76,8 +78,10 @@ trait TraitDataCallbacks
     public function clearCallbacks(): static
     {
         $this->callbacks = [];
+
         return $this;
     }
+
 
     /**
      * Execute the specified callbacks for each row
@@ -97,7 +101,6 @@ trait TraitDataCallbacks
             'htmlentities'     => $this->process_entities,
             'skiphtmlentities' => ['id' => true],
         ];
-
         foreach ($this->callbacks as $callback) {
             $callback($row, $type, $params);
         }

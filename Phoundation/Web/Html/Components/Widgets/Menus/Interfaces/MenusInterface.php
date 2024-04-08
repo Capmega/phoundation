@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Menus class
  *
@@ -26,12 +25,14 @@ interface MenusInterface extends IteratorInterface
      */
     public function getMenu(string $menu): ?MenuInterface;
 
+
     /**
      * Returns the primary menu
      *
      * @return MenuInterface|null
      */
     public function getPrimaryMenu(): ?MenuInterface;
+
 
     /**
      * Sets the primary menu
@@ -42,12 +43,14 @@ interface MenusInterface extends IteratorInterface
      */
     public function setPrimaryMenu(?MenuInterface $menu): static;
 
+
     /**
      * Returns the secondary menu
      *
      * @return MenuInterface|null
      */
     public function getSecondaryMenu(): ?MenuInterface;
+
 
     /**
      * Sets the secondary menu
@@ -57,6 +60,7 @@ interface MenusInterface extends IteratorInterface
      * @return static
      */
     public function setSecondaryMenu(?MenuInterface $menu): static;
+
 
     /**
      * Set multiple menus
@@ -69,6 +73,7 @@ interface MenusInterface extends IteratorInterface
      */
     public function setMenus(array $menus): static;
 
+
     /**
      * Add multiple menus
      *
@@ -77,6 +82,7 @@ interface MenusInterface extends IteratorInterface
      * @return static
      */
     public function addMenus(array $menus): static;
+
 
     /**
      * Add a menu
@@ -87,6 +93,7 @@ interface MenusInterface extends IteratorInterface
      * @return static
      */
     public function addMenu(string $name, MenuInterface|null $menu): static;
+
 
     /**
      * Load the menu contents from the database

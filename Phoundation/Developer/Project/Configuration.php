@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Project;
 
-
 /**
  * Configuration class
  *
@@ -97,6 +96,7 @@ class Configuration
     public function setEmail(string $email): static
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -122,6 +122,7 @@ class Configuration
     public function setPassword(string $password): static
     {
         $this->password = $password;
+
         return $this;
     }
 
@@ -147,6 +148,7 @@ class Configuration
     public function setProject(string $project): static
     {
         $this->project = $project;
+
         return $this;
     }
 
@@ -172,6 +174,7 @@ class Configuration
     public function setDomain(string $domain): static
     {
         $this->domain = $domain;
+
         return $this;
     }
 }

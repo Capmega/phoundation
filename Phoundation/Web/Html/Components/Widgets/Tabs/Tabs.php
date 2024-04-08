@@ -15,7 +15,6 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
 use Stringable;
 
-
 /**
  * Tabs class
  *
@@ -31,7 +30,6 @@ class Tabs extends ElementsBlock implements TabsInterface
     use TraitDataOrientation {
         setOrientation as protected __setOrientation;
     }
-
 
     /**
      * The display size of the contents
@@ -74,6 +72,7 @@ class Tabs extends ElementsBlock implements TabsInterface
     public function setContentDisplaySize(EnumDisplaySizeInterface $content_display_size): static
     {
         $this->content_display_size = $content_display_size;
+
         return $this;
     }
 

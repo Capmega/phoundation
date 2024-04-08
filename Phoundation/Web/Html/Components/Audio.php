@@ -9,7 +9,6 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumAudioPreloadInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
-
 /**
  * Audio class
  *
@@ -33,6 +32,7 @@ class Audio extends Element
         $this->setElement('audio');
     }
 
+
     /**
      * Returns how audio should be preloaded
      *
@@ -42,6 +42,7 @@ class Audio extends Element
     {
         return EnumAudioPreload::from($this->attributes->get('preload', false));
     }
+
 
     /**
      * Sets how audio should be preloaded
@@ -55,6 +56,7 @@ class Audio extends Element
         return $this->setAttribute($value, 'preload');
     }
 
+
     /**
      * Returns how audio should be preloaded
      *
@@ -65,6 +67,7 @@ class Audio extends Element
         return $this->attributes->get('src', false);
     }
 
+
     /**
      * Sets how audio should be preloaded
      *
@@ -74,8 +77,9 @@ class Audio extends Element
      */
     public function setFile(Stringable|string|null $file): static
     {
-        return $this->setAttribute((string)$file, 'src');
+        return $this->setAttribute((string) $file, 'src');
     }
+
 
     /**
      * Renders and returns the HTML for this object

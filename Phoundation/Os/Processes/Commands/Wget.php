@@ -10,7 +10,6 @@ use Phoundation\Data\Traits\TraitDataTarget;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
-
 /**
  * Class Wget
  *
@@ -26,7 +25,6 @@ class Wget extends Command
     use TraitDataSourceString;
     use TraitDataTarget;
     use TraitDataBindAddress;
-
 
     /**
      * Execute the rsync operation and return the PID (background) or -1

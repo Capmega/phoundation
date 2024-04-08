@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 
-
 /**
  * Trait TraitDataEntryUsersId
  *
@@ -52,7 +51,6 @@ trait TraitDataEntryUser
     public function getUser(): ?UserInterface
     {
         $users_id = $this->getValueTypesafe('int', 'users_id');
-
         if ($users_id) {
             return User::get($users_id, 'id');
         }

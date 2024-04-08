@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Trait TraitDataPort
  *
@@ -54,8 +53,8 @@ trait TraitDataPort
                 ]));
             }
         }
-
         $this->port = get_null($port);
+
         return $this;
     }
 }

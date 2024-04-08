@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Class TraitDataBindAddress
  *
@@ -46,6 +45,7 @@ trait TraitDataBindAddress
     public function setBindAddress(?string $bind_address): static
     {
         $this->bind_address = $bind_address;
+
         return $this;
     }
 }

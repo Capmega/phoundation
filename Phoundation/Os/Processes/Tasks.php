@@ -17,7 +17,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
-
 /**
  * Class Tasks
  *
@@ -53,11 +52,10 @@ class Tasks extends DataList implements TasksInterface
         if (!isset(static::$max_task_workers)) {
             static::$max_task_workers = Config::getInteger('tasks.workers.maximum', 25);
         }
-
         $this->keys_are_unique_column = true;
-
         parent::__construct($source);
     }
+
 
     /**
      * Returns the name of this DataEntry class
@@ -69,6 +67,7 @@ class Tasks extends DataList implements TasksInterface
         return Task::class;
     }
 
+
     /**
      * Returns the field that is unique for this object
      *
@@ -78,6 +77,7 @@ class Tasks extends DataList implements TasksInterface
     {
         return 'code';
     }
+
 
     /**
      * Returns the date since when this object is executing tasks, or false instead
@@ -92,6 +92,7 @@ class Tasks extends DataList implements TasksInterface
 
         return false;
     }
+
 
     /**
      * Returns an HTML <select> for the available object entries
@@ -121,6 +122,7 @@ class Tasks extends DataList implements TasksInterface
                           ->setObjectEmpty(tr('No tasks available'));
     }
 
+
     /**
      * Returns the table name used by this object
      *
@@ -130,6 +132,7 @@ class Tasks extends DataList implements TasksInterface
     {
         return 'os_tasks';
     }
+
 
     /**
      * Execute the tasks in this list
@@ -141,27 +144,23 @@ class Tasks extends DataList implements TasksInterface
         if (isset(static::$executing)) {
             throw new OutOfBoundsException(tr('Cannot execute pending tasks, tasks are already being executed'));
         }
-
         static::$executing = now();
-
         $keys = $this->getKeys();
-
         if (!count($keys)) {
-            throw NoTasksPendingExceptions::new(tr('There are no pending tasks'))->makeWarning();
+            throw NoTasksPendingExceptions::new(tr('There are no pending tasks'))
+                                          ->makeWarning();
         }
-
         Log::action(tr('Executing ":count" pending tasks with ":workers" child worker', [
             ':count'   => count($keys),
             ':workers' => static::$max_task_workers,
         ]));
-
         try {
             PhoCommand::new('tasks,execute')
                       ->setLabel(tr('task'))
                       ->addArguments([
-                                         '-t',
-                                         ':TASKSID',
-                                     ])
+                          '-t',
+                          ':TASKSID',
+                      ])
                       ->setKey(':TASKSID')
                       ->setValues($keys)
                       ->setMaximumWorkers(static::$max_task_workers)
@@ -170,10 +169,10 @@ class Tasks extends DataList implements TasksInterface
         } catch (TasksException $e) {
             Log::error(tr('Execution of pending tasks failed'));
             Log::exception($e);
-
             // Restart tasks execution in a separate process
             Log::action(tr('Restarting pending tasks executer in new background process'));
-            PhoCommand::new('tasks,execute')->executeBackground();
+            PhoCommand::new('tasks,execute')
+                      ->executeBackground();
         }
 
         return $this;

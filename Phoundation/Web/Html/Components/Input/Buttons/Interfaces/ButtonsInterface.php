@@ -20,6 +20,7 @@ interface ButtonsInterface
      */
     public function setButtons(ArrayableInterface|array $buttons): static;
 
+
     /**
      * Adds multiple buttons to button list
      *
@@ -28,6 +29,7 @@ interface ButtonsInterface
      * @return static
      */
     public function addButtons(ArrayableInterface|array $buttons): static;
+
 
     /**
      * Adds a single button to button list
@@ -42,12 +44,14 @@ interface ButtonsInterface
      */
     public function addButton(Button|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumInputTypeInterface|Stringable|string $type_or_anchor_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static;
 
+
     /**
      * Returns the buttons list
      *
      * @return array
      */
     public function getButtons(): array;
+
 
     /**
      * Sets the button grouping
@@ -58,12 +62,14 @@ interface ButtonsInterface
      */
     public function setGroup(bool $group): static;
 
+
     /**
      * Returns the button grouping
      *
      * @return bool
      */
     public function getGroup(): bool;
+
 
     /**
      * Returns the current button
@@ -72,12 +78,14 @@ interface ButtonsInterface
      */
     public function current(): Button;
 
+
     /**
      * Progresses the internal pointer to the next button
      *
      * @return void
      */
     public function next(): void;
+
 
     /**
      * Returns the current key for the current button
@@ -86,6 +94,7 @@ interface ButtonsInterface
      */
     public function key(): string;
 
+
     /**
      * Returns if the current pointer is valid or not
      *
@@ -93,6 +102,7 @@ interface ButtonsInterface
      * @return bool
      */
     public function valid(): bool;
+
 
     /**
      * Rewinds the internal pointer

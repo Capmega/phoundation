@@ -6,7 +6,6 @@ namespace Phoundation\Business\Companies\Branches\Interfaces;
 
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
-
 /**
  * Class Branches
  *

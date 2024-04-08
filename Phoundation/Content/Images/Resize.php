@@ -9,7 +9,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Os\Processes\Process;
 
-
 /**
  * Class Resize
  *
@@ -43,6 +42,7 @@ class Resize extends File
      */
     protected string $method = 'resize';
 
+
     /**
      * Returns the method used to perform the resize operations
      *
@@ -52,6 +52,7 @@ class Resize extends File
     {
         return $this->method;
     }
+
 
     /**
      * Returns the method used to perform the resize operations
@@ -69,16 +70,16 @@ class Resize extends File
                 // no-break
             case 'scale':
                 break;
-
             default:
                 throw new OutOfBoundsException(tr('Unknown method ":method" specified, please use one of "resize", "scale", or "sample"', [
                     ':method' => $method,
                 ]));
         }
-
         $this->method = $method;
+
         return $this;
     }
+
 
     /**
      * Returns if the resize command should be executed in the background or not
@@ -101,6 +102,7 @@ class Resize extends File
     public function setBackground(bool $background): Resize
     {
         $this->background = $background;
+
         return $this;
     }
 
@@ -120,15 +122,14 @@ class Resize extends File
                         ->addArgument('-' . $this->method)
                         ->addArgument($width . 'x' . $height)
                         ->addArgument($this->getTarget());
-
         if ($this->background) {
             // Resize in background
             $process->executeBackground(true);
         }
-
         // Resize in foreground and store results
         $this->output = $process->executeReturnArray();
     }
+
 
     /**
      * Returns a "convert" process
@@ -139,6 +140,7 @@ class Resize extends File
     {
         return Process::new('convert', $this->restrictions);
     }
+
 
     /**
      * Resize the image to the specified absolute width and height, ignore aspect ratio
@@ -155,15 +157,14 @@ class Resize extends File
                         ->addArgument('-' . $this->method)
                         ->addArgument($width . 'x' . $height . '\\!')
                         ->addArgument($this->target);
-
         if ($this->background) {
             // Resize in background
             $process->executeBackground(true);
         }
-
         // Resize in foreground and store results
         $this->output = $process->executeReturnArray();
     }
+
 
     /**
      * Resize image to the specified absolute width and height only when larger than the specified width x height
@@ -180,15 +181,14 @@ class Resize extends File
                         ->addArgument('-' . $this->method)
                         ->addArgument($width . 'x' . $height . '\\>')
                         ->addArgument($this->target);
-
         if ($this->background) {
             // Resize in background
             $process->executeBackground(true);
         }
-
         // Resize in foreground and store results
         $this->output = $process->executeReturnArray();
     }
+
 
     /**
      * Resize image to the specified absolute width and height only when smaller than the specified width x height
@@ -205,15 +205,14 @@ class Resize extends File
                         ->addArgument('-' . $this->method)
                         ->addArgument($width . 'x' . $height . '\\>')
                         ->addArgument($this->target);
-
         if ($this->background) {
             // Resize in background
             $process->executeBackground(true);
         }
-
         // Resize in foreground and store results
         $this->output = $process->executeReturnArray();
     }
+
 
     /**
      * Resize image to the specified percentage
@@ -229,15 +228,14 @@ class Resize extends File
                         ->addArgument('-' . $this->method)
                         ->addArgument($percentage . '%')
                         ->addArgument($this->target);
-
         if ($this->background) {
             // Resize in background
             $process->executeBackground(true);
         }
-
         // Resize in foreground and store results
         $this->output = $process->executeReturnArray();
     }
+
 
     /**
      * Resize image to the specified number of pixels, irrespective of the width or height
@@ -253,12 +251,10 @@ class Resize extends File
                         ->addArgument('-' . $this->method)
                         ->addArgument($pixel_count . '@')
                         ->addArgument($this->target);
-
         if ($this->background) {
             // Resize in background
             $process->executeBackground(true);
         }
-
         // Resize in foreground and store results
         $this->output = $process->executeReturnArray();
     }

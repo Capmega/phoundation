@@ -2,7 +2,6 @@
 
 namespace Phoundation\Enums\Interfaces;
 
-
 /**
  * interface EnumOrientationInterface
  *

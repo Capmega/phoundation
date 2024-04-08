@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components;
 use Phoundation\Web\Html\Components\Interfaces\SpanInterface;
 use Phoundation\Web\Html\Traits\TraitChildElement;
 
-
 /**
  * Span class
  *
@@ -21,7 +20,6 @@ use Phoundation\Web\Html\Traits\TraitChildElement;
 class Span extends Element implements SpanInterface
 {
     use TraitChildElement;
-
 
     /**
      * Form class constructor

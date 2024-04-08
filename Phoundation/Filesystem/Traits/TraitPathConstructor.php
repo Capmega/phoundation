@@ -9,26 +9,25 @@ use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Stringable;
 
-
 /**
  * Trait TraitPathConstructor
  *
  * This trait contains the ::__constructor() and ::new() methods for Path, Directory, and File classes
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package Phoundation\Filesystem
+ * @category  Function reference
+ * @package   Phoundation\Filesystem
  */
 trait TraitPathConstructor
 {
     /**
      * Path class constructor
      *
-     * @param mixed $source
+     * @param mixed                                   $source
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @param bool $make_absolute
+     * @param bool                                    $make_absolute
      */
     public function __construct(mixed $source = null, RestrictionsInterface|array|string|null $restrictions = null, bool $make_absolute = false)
     {
@@ -51,7 +50,7 @@ trait TraitPathConstructor
 
         } else {
             throw new OutOfBoundsException(tr('Invalid path ":path" specified. Must be one if PathInterface, Stringable, string, null, or resource', [
-                ':path' => $source
+                ':path' => $source,
             ]));
         }
     }

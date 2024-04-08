@@ -8,7 +8,6 @@ use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class Chmod
  *
@@ -24,9 +23,9 @@ class Chmod extends Command
     /**
      * Returns the realpath for the specified command
      *
-     * @param string $file
+     * @param string     $file
      * @param string|int $mode
-     * @param bool $recurse
+     * @param bool       $recurse
      *
      * @return void
      */
@@ -34,13 +33,12 @@ class Chmod extends Command
     {
         try {
             $mode = Strings::fromOctal($mode);
-
             $this->setCommand('chmod')
                  ->addArguments([
-                                    $mode,
-                                    $file,
-                                    ($recurse ? '-R' : ''),
-                                ])
+                     $mode,
+                     $file,
+                     ($recurse ? '-R' : ''),
+                 ])
                  ->setTimeout(2)
                  ->executeReturnArray();
 
@@ -54,7 +52,6 @@ class Chmod extends Command
                             ':mode' => $mode,
                         ]));
                     }
-
                     if (str_contains($last_line, 'operation not permitted')) {
                         throw new CommandsException(tr('Failed to chmod file ":file" to ":mode", permission denied', [
                             ':file' => $file,

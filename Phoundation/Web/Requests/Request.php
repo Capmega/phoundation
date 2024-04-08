@@ -782,6 +782,19 @@ abstract class Request implements RequestInterface
 
 
     /**
+     * Will return true if the specified $type is equal to the request type
+     *
+     * @param EnumRequestTypes $type The call type you wish to compare to
+     *
+     * @return bool This function will return true if $type matches core::callType, or false if it does not.
+     */
+    public static function isRequestType(EnumRequestTypes $type): bool
+    {
+        return ($type === static::$request_type);
+    }
+
+
+    /**
      * Returns the data sent to this executed file
      *
      * @param mixed                            $value
@@ -879,6 +892,52 @@ abstract class Request implements RequestInterface
     public static function isExecutedDirectly(): bool
     {
         return !static::$stack_level;
+    }
+
+
+    /**
+     * Returns the file executed for this request
+     *
+     * @return FileInterface
+     */
+    public static function getTarget(): FileInterface
+    {
+        return static::$target;
+    }
+
+
+    /**
+     * Sets the target for this request
+     *
+     * @param FileInterface|string $target
+     *
+     * @return void
+     */
+    protected static function setTarget(FileInterface|string $target): void
+    {
+        $target         = static::ensureRequestPathPrefix($target);
+        static::$target = File::new($target, static::getRestrictions())
+                              ->makeAbsolute(DIRECTORY_WEB);
+        static::$target->checkRestrictions(false);
+        static::getTargets()
+              ->add(static::$target);
+        static::addExecutedPath($target); // TODO We should get this from targets
+        // Store request hash used for caching, store real / original target
+        if (empty(static::$main_target)) {
+            if (PLATFORM_WEB) {
+                static::$hash = sha1($_SERVER['REQUEST_URI']);
+
+            } else {
+                static::$hash = sha1(Strings::force($_SERVER['argv']));
+            }
+            static::$main_target = static::$target;
+            if (PLATFORM_WEB) {
+                // Start the main web target buffer
+                ob_start();
+            }
+        }
+        // Determine the target request type
+        static::detectRequestType();
     }
 
 
@@ -992,6 +1051,73 @@ abstract class Request implements RequestInterface
     public static function getRequestMethod(): string
     {
         return strtoupper($_SERVER['REQUEST_METHOD']);
+    }
+
+
+    /**
+     * Returns the page flash messages
+     *
+     * @return FlashMessagesInterface|null
+     */
+    public static function getFlashMessages(): ?FlashMessagesInterface
+    {
+        return static::$flash_messages;
+    }
+
+
+    /**
+     * Returns the file executed for this request
+     *
+     * @return IteratorInterface
+     */
+    public static function getTargets(): IteratorInterface
+    {
+        if (empty(static::$targets)) {
+            static::$targets = new Iterator();
+        }
+
+        return static::$targets;
+    }
+
+
+    /**
+     * Determines what type of web request was made
+     *
+     * @return void
+     */
+    public static function detectRequestType(): void
+    {
+        if (PLATFORM_CLI) {
+            // We're running on the command line
+            $request_type = EnumRequestTypes::cli;
+
+        } else {
+            if (str_contains(static::$target, '/admin/')) {
+                $request_type = EnumRequestTypes::admin;
+
+            } elseif (str_contains(static::$target, '/ajax/')) {
+                $request_type = EnumRequestTypes::ajax;
+
+            } elseif (str_contains(static::$target, '/api/')) {
+                $request_type = EnumRequestTypes::api;
+
+            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
+                $request_type = EnumRequestTypes::file;
+
+            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
+                $request_type = EnumRequestTypes::api;
+
+            } elseif (Config::get('web.html.amp.enabled', false) and !empty($_GET['amp'])) {
+                $request_type = EnumRequestTypes::amp;
+
+            } elseif (is_numeric(substr(static::$target, -3, 3))) {
+                $request_type = EnumRequestTypes::system;
+
+            } else {
+                $request_type = EnumRequestTypes::html;
+            }
+        }
+        static::setRequestType($request_type);
     }
 
 
@@ -1188,19 +1314,6 @@ abstract class Request implements RequestInterface
 
 
     /**
-     * Will return true if the specified $type is equal to the request type
-     *
-     * @param EnumRequestTypes $type The call type you wish to compare to
-     *
-     * @return bool This function will return true if $type matches core::callType, or false if it does not.
-     */
-    public static function isRequestType(EnumRequestTypes $type): bool
-    {
-        return ($type === static::$request_type);
-    }
-
-
-    /**
      * Returns the type of web request type is running. Will be one of html, ajax, api, or file.
      *
      * @return EnumRequestTypes
@@ -1380,6 +1493,33 @@ abstract class Request implements RequestInterface
 
 
     /**
+     * Returns if the request is a system page
+     *
+     * @return bool
+     */
+    public static function getSystem(): bool
+    {
+        return static::$system;
+    }
+
+
+    /**
+     * Sets if the request is a system page
+     *
+     * @param bool $system
+     *
+     * @return void
+     */
+    public static function setSystem(bool $system): void
+    {
+        if (static::$system and ($system !== static::$system)) {
+            throw new OutOfBoundsException(tr('This is now a system web request, this request cannot be changed into a non system web request'));
+        }
+        static::$system = $system;
+    }
+
+
+    /**
      * This method will prepare the static::$page variable
      *
      * @return void
@@ -1436,95 +1576,6 @@ abstract class Request implements RequestInterface
 
 
     /**
-     * Returns the file executed for this request
-     *
-     * @return FileInterface
-     */
-    public static function getTarget(): FileInterface
-    {
-        return static::$target;
-    }
-
-
-    /**
-     * Ensures that this request target path is absolute, or has the correct prefix
-     *
-     * @param FileInterface|string $target
-     *
-     * @return FileInterface|string
-     */
-    protected static function ensureRequestPathPrefix(FileInterface|string $target): FileInterface|string
-    {
-        if (is_string($target)) {
-            if (is_absolute_path($target)) {
-                return $target;
-            }
-
-        } elseif ($target->isRelative()) {
-            return $target;
-
-        } else {
-            $target = $target->getPath();
-        }
-
-        return match (static::getRequestType()) {
-            EnumRequestTypes::api                                                                                                    => 'api/' . $target,
-            EnumRequestTypes::ajax                                                                                                   => 'ajax/' . $target,
-            EnumRequestTypes::admin, EnumRequestTypes::amp, EnumRequestTypes::system, EnumRequestTypes::html, EnumRequestTypes::file => 'pages/' . $target,
-            default                                                                                                                  => throw new OutOfBoundsException(tr('Unsupported request type ":request" for this process', [
-                ':request' => static::getRequestType(),
-            ])),
-        };
-    }
-
-
-    /**
-     * Sets the target for this request
-     *
-     * @param FileInterface|string $target
-     *
-     * @return void
-     */
-    protected static function setTarget(FileInterface|string $target): void
-    {
-        $target         = static::ensureRequestPathPrefix($target);
-        static::$target = File::new($target, static::getRestrictions())
-                              ->makeAbsolute(DIRECTORY_WEB);
-        static::$target->checkRestrictions(false);
-        static::getTargets()
-              ->add(static::$target);
-        static::addExecutedPath($target); // TODO We should get this from targets
-        // Store request hash used for caching, store real / original target
-        if (empty(static::$main_target)) {
-            if (PLATFORM_WEB) {
-                static::$hash = sha1($_SERVER['REQUEST_URI']);
-
-            } else {
-                static::$hash = sha1(Strings::force($_SERVER['argv']));
-            }
-            static::$main_target = static::$target;
-            if (PLATFORM_WEB) {
-                // Start the main web target buffer
-                ob_start();
-            }
-        }
-        // Determine the target request type
-        static::detectRequestType();
-    }
-
-
-    /**
-     * Returns the page flash messages
-     *
-     * @return FlashMessagesInterface|null
-     */
-    public static function getFlashMessages(): ?FlashMessagesInterface
-    {
-        return static::$flash_messages;
-    }
-
-
-    /**
      * Try to send this page from cache, if available
      *
      * @return string|null
@@ -1551,33 +1602,6 @@ abstract class Request implements RequestInterface
         }
 
         return null;
-    }
-
-
-    /**
-     * Returns if the request is a system page
-     *
-     * @return bool
-     */
-    public static function getSystem(): bool
-    {
-        return static::$system;
-    }
-
-
-    /**
-     * Sets if the request is a system page
-     *
-     * @param bool $system
-     *
-     * @return void
-     */
-    public static function setSystem(bool $system): void
-    {
-        if (static::$system and ($system !== static::$system)) {
-            throw new OutOfBoundsException(tr('This is now a system web request, this request cannot be changed into a non system web request'));
-        }
-        static::$system = $system;
     }
 
 
@@ -1633,57 +1657,33 @@ abstract class Request implements RequestInterface
 
 
     /**
-     * Returns the file executed for this request
+     * Ensures that this request target path is absolute, or has the correct prefix
      *
-     * @return IteratorInterface
-     */
-    public static function getTargets(): IteratorInterface
-    {
-        if (empty(static::$targets)) {
-            static::$targets = new Iterator();
-        }
-
-        return static::$targets;
-    }
-
-
-    /**
-     * Determines what type of web request was made
+     * @param FileInterface|string $target
      *
-     * @return void
+     * @return FileInterface|string
      */
-    public static function detectRequestType(): void
+    protected static function ensureRequestPathPrefix(FileInterface|string $target): FileInterface|string
     {
-        if (PLATFORM_CLI) {
-            // We're running on the command line
-            $request_type = EnumRequestTypes::cli;
+        if (is_string($target)) {
+            if (is_absolute_path($target)) {
+                return $target;
+            }
+
+        } elseif ($target->isRelative()) {
+            return $target;
 
         } else {
-            if (str_contains(static::$target, '/admin/')) {
-                $request_type = EnumRequestTypes::admin;
-
-            } elseif (str_contains(static::$target, '/ajax/')) {
-                $request_type = EnumRequestTypes::ajax;
-
-            } elseif (str_contains(static::$target, '/api/')) {
-                $request_type = EnumRequestTypes::api;
-
-            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                $request_type = EnumRequestTypes::file;
-
-            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                $request_type = EnumRequestTypes::api;
-
-            } elseif (Config::get('web.html.amp.enabled', false) and !empty($_GET['amp'])) {
-                $request_type = EnumRequestTypes::amp;
-
-            } elseif (is_numeric(substr(static::$target, -3, 3))) {
-                $request_type = EnumRequestTypes::system;
-
-            } else {
-                $request_type = EnumRequestTypes::html;
-            }
+            $target = $target->getPath();
         }
-        static::setRequestType($request_type);
+
+        return match (static::getRequestType()) {
+            EnumRequestTypes::api                                                                                                    => 'api/' . $target,
+            EnumRequestTypes::ajax                                                                                                   => 'ajax/' . $target,
+            EnumRequestTypes::admin, EnumRequestTypes::amp, EnumRequestTypes::system, EnumRequestTypes::html, EnumRequestTypes::file => 'pages/' . $target,
+            default                                                                                                                  => throw new OutOfBoundsException(tr('Unsupported request type ":request" for this process', [
+                ':request' => static::getRequestType(),
+            ])),
+        };
     }
 }

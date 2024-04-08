@@ -10,7 +10,6 @@ use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 use Phoundation\Web\Requests\Request;
 
-
 /**
  * ProfileImage class
  *
@@ -32,16 +31,19 @@ class ProfileImage extends ImageMenu
     {
         // Set up the default image URL
 //        $this->setUrl('sign-in');
-        $this->setImage(Session::getUser()->getPicture());
-
-        if (Session::getUser()->isGuest()) {
+        $this->setImage(Session::getUser()
+                               ->getPicture());
+        if (
+            Session::getUser()
+                   ->isGuest()
+        ) {
             // This is a guest user, make sure that the profile image shows the sign in modal
             $this->setModalSelector('#signinModal');
 
         } else {
-            $this->setMenu(Request::getMenusObject()->getMenu('profile_image'));
+            $this->setMenu(Request::getMenusObject()
+                                  ->getMenu('profile_image'));
         }
-
         parent::__construct($content);
     }
 
@@ -78,16 +80,20 @@ class ProfileImage extends ImageMenu
      */
     public function setMenu(?MenuInterface $menu): static
     {
-        if (Session::getUser()->isGuest()) {
+        if (
+            Session::getUser()
+                   ->isGuest()
+        ) {
             // Don't show menu
             $menu = null;
         } else {
             // Default image menu
             if (!$menu) {
-                $menu = Menu::new()->setSource([
-                                                   tr('Profile')  => '/my/profile.html',
-                                                   tr('Sign out') => '/sign-out.html',
-                                               ]);
+                $menu = Menu::new()
+                            ->setSource([
+                                tr('Profile') => '/my/profile.html',
+                                tr('Sign out') => '/sign-out.html',
+                            ]);
             }
         }
 

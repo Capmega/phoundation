@@ -22,24 +22,20 @@
 */
 
 include "socialmedia_oauth_connect.php";
-$oauth = new socialmedia_oauth_connect();
-$oauth->provider="Yammer";
-$oauth->client_id = "5XNWwlJTwip9qXx1M1ycEA";
+$oauth                = new socialmedia_oauth_connect();
+$oauth->provider      = "Yammer";
+$oauth->client_id     = "5XNWwlJTwip9qXx1M1ycEA";
 $oauth->client_secret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-$oauth->scope="";
-$oauth->redirect_uri  ="http://ngiriraj.com/socialMedia/oauthlogin/yammer.php";
-
+$oauth->scope         = "";
+$oauth->redirect_uri  = "http://ngiriraj.com/socialMedia/oauthlogin/yammer.php";
 $oauth->Initialize();
-
-$code = ($_REQUEST["code"]) ?  ($_REQUEST["code"]) : "";
-
+$code = ($_REQUEST["code"]) ? ($_REQUEST["code"]) : "";
 if (empty($code)) {
-	$oauth->Authorize();
+    $oauth->Authorize();
 } else {
-	$oauth->code = $code;
-	#print $oauth->getAccessToken();
-	$getData = json_decode($oauth->getUserProfile());
-	$oauth->debugJson($getData);
+    $oauth->code = $code;
+    #print $oauth->getAccessToken();
+    $getData = json_decode($oauth->getUserProfile());
+    $oauth->debugJson($getData);
 }
-
 ?>

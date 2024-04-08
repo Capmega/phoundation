@@ -7,7 +7,6 @@ namespace Phoundation\Web\Non200Urls;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Class Non200Urls
  *
@@ -61,14 +60,11 @@ class Non200Urls extends DataList
                 ':count' => $count,
             ]));
         }
-
         $entries = sql()->query('SELECT *
                                        FROM   `web_non_200_urls`
                                        WHERE  `status` IS NULLL');
-
         while ($entry = $entries->fetch()) {
             $entry->process();
-
             if (--$count < 0) {
                 // We're done!
                 break;

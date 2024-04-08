@@ -11,7 +11,6 @@ use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 
-
 /**
  * Class Country
  *
@@ -26,7 +25,6 @@ use Phoundation\Web\Html\Components\Input\InputSelect;
 class Country extends DataEntry
 {
     use TraitDataEntryNameDescription;
-
 
     /**
      * Returns the table name used by this object
@@ -113,7 +111,6 @@ class Country extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions;
-
 //            $data = $validator
 //                ->select($this->getAlternateValidationField('code'), true)->hasMaxCharacters()->isName()->isQueryResult('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
 //                ->select($this->getAlternateValidationField('continent'), true)->or('continents_id')->isName()->isQueryResult('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
@@ -122,7 +119,6 @@ class Country extends DataEntry
 //                ->select($this->getAlternateValidationField('timezones_id'), true)->or('timezone')->isDbId()->isQueryResult    ('SELECT `id`   FROM `geo_timezone`   WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$timezones_id'])
 //                ->noArgumentsLeft($no_arguments_left)
 //                ->validate();
-
 //            'continents_id' bigint DEFAULT NULL,
 //            'timezones_id' bigint DEFAULT NULL,
 //            'code' varchar(2) DEFAULT NULL,

@@ -736,10 +736,10 @@ class CliCommand
      */
     protected static function findCommand(): string
     {
-        $command  = null;
-        $position = 0;
-        $file     = DIRECTORY_COMMANDS;
-        $commands = ArgvValidator::getCommands();
+        $command          = null;
+        $position         = 0;
+        $file             = DIRECTORY_COMMANDS;
+        $commands         = ArgvValidator::getCommands();
         static::$commands = $commands;
         // Ensure commands cache directory exists
         if (!file_exists($file)) {
@@ -853,6 +853,17 @@ class CliCommand
                                              'commands'          => $commands,
                                              'previous_commands' => $previous,
                                          ]);
+    }
+
+
+    /**
+     * Returns the list of commands that came to the command that executed
+     *
+     * @return array
+     */
+    public static function getCommands(): array
+    {
+        return static::$commands;
     }
 
 
@@ -1074,17 +1085,6 @@ class CliCommand
         }
 
         return static::$stdin_data;
-    }
-
-
-    /**
-     * Returns the list of commands that came to the command that executed
-     *
-     * @return array
-     */
-    public static function getCommands(): array
-    {
-        return static::$commands;
     }
 
 

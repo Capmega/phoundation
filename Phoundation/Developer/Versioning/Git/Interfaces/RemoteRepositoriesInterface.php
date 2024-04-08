@@ -14,11 +14,13 @@ interface RemoteRepositoriesInterface
      */
     public function CliDisplayTable(): void;
 
+
     /**
      * Returns the specified repository
      *
      * @param Stringable|string|float|int
      * @param bool $exception
+     *
      * @return RemoteRepository|null
      */
     public function get(Stringable|string|float|int $key, bool $exception = true): mixed;

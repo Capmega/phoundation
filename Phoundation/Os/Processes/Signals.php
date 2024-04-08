@@ -6,7 +6,6 @@ namespace Phoundation\Os\Processes;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Class Signals
  *
@@ -89,6 +88,7 @@ class Signals
         64 => 'SIGRTMAX',
     ];
 
+
     /**
      * Throws an exception if the specified signal does not exist
      *
@@ -107,6 +107,7 @@ class Signals
         return $signal;
     }
 
+
     /**
      * Returns true if the specified signal exists
      *
@@ -122,6 +123,7 @@ class Signals
 
         return array_key_exists($signal, static::$signals);
     }
+
 
     /**
      * Returns a list of all known process signals

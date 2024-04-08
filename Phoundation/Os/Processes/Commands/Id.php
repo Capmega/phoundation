@@ -8,7 +8,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
-
 /**
  * Class Id
  *
@@ -35,21 +34,18 @@ class Id extends Command
                 ':section' => $section,
             ]));
         }
-
         $this->setCommand('id')
              ->addArgument('-' . $section)
              ->setTimeout(1);
-
         try {
             $output = $this->executeReturnArray();
             $result = reset($output);
-
             if (!is_numeric($result)) {
                 // So which gave us a path that doesn't exist or that we can't access
                 throw new CommandsException(tr('Failed to get id'));
             }
 
-            return (int)$result;
+            return (int) $result;
 
         } catch (ProcessFailedException $e) {
             // The command id failed

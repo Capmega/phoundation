@@ -14,7 +14,6 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessageInterface;
 use Phoundation\Web\Html\Traits\TraitMode;
 
-
 /**
  * Class FlashMessage
  *
@@ -29,7 +28,6 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
 {
     use TraitMode;
     use TraitDataTitle;
-
 
     /**
      * Subtitle of the flash message
@@ -102,6 +100,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     public function setMessage(string $message): static
     {
         $this->content = $message;
+
         return $this;
     }
 
@@ -127,6 +126,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     public function setSubTitle(string $sub_title): static
     {
         $this->sub_title = $sub_title;
+
         return $this;
     }
 
@@ -156,8 +156,8 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
                 throw new OutOfBoundsException(tr('Cannot specify icon for flash message, an image was already set'));
             }
         }
-
         $this->icon = get_null($icon);
+
         return $this;
     }
 
@@ -187,7 +187,6 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
             if ($this->icon) {
                 throw new OutOfBoundsException(tr('Cannot specify image for flash message, an icon was already set'));
             }
-
             if (is_string($image)) {
                 // image was specified as a string, make an image object
                 $image = Image::new()
@@ -195,8 +194,8 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
                               ->setDescription($image);
             }
         }
-
         $this->image = get_null($image);
+
         return $this;
     }
 
@@ -222,6 +221,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     public function setLeft(bool $left): static
     {
         $this->left = $left;
+
         return $this;
     }
 
@@ -247,6 +247,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     public function setTop(bool $top): static
     {
         $this->top = $top;
+
         return $this;
     }
 
@@ -272,6 +273,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     public function setAutoClose(?int $auto_close): static
     {
         $this->auto_close = get_null($auto_close);
+
         return $this;
     }
 
@@ -297,6 +299,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     public function setCanClose(bool $can_close): static
     {
         $this->can_close = $can_close;
+
         return $this;
     }
 
@@ -308,7 +311,10 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     public function render(): ?string
     {
-        $this->render = Script::new()->setContent($this->renderBare())->render();
+        $this->render = Script::new()
+                              ->setContent($this->renderBare())
+                              ->render();
+
         return parent::render();
     }
 
@@ -321,7 +327,6 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     public function renderBare(): ?string
     {
         $image = $this->image?->getHtmlElement();
-
         if ($this->top) {
             if ($this->left) {
                 $position = 'topLeft';

@@ -7,7 +7,6 @@ namespace Phoundation\Databases\Sql\QueryBuilder;
 use Phoundation\Data\Iterator;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
 
-
 /**
  * class QueryDefinitions
  *

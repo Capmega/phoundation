@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataUserPass
  *
@@ -53,6 +52,7 @@ trait TraitDataUserPass
     public function setUser(?string $user): static
     {
         $this->user = $user;
+
         return $this;
     }
 
@@ -78,6 +78,7 @@ trait TraitDataUserPass
     public function setPass(?string $pass): static
     {
         $this->pass = $pass;
+
         return $this;
     }
 }

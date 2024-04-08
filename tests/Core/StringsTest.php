@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Core;
 
-use Phoundation\Utils\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
 use PHPUnit\Framework\TestCase;
-
 
 /**
  * \Phoundation\Utils\Strings test class
@@ -28,7 +27,6 @@ class StringsTest extends TestCase
         $this->assertEquals('o.oostenbrink@gmail.com', Strings::from('so.oostenbrink@gmail.com', 's'));     // From first character
         $this->assertEquals('', Strings::from('', 'sven'));                                                 // From empty string
         $this->assertEquals('', Strings::from('so.oostenbrink@gmail.com', 'so.oostenbrink@gmail.com'));     // From entire source string
-
         // Test failures
         $this->expectException(OutOfBoundsException::class);
         $this->assertEquals(null, Strings::from('so.oostenbrink@gmail.com', ''));                           // Needle is obligatory
@@ -49,7 +47,6 @@ class StringsTest extends TestCase
         $this->assertEquals('', Strings::until('so.oostenbrink@gmail.com', 's'));                           // Until first character
         $this->assertEquals('', Strings::until('', 'sven'));                                                // Until empty string
         $this->assertEquals('', Strings::until('so.oostenbrink@gmail.com', 'so.oostenbrink@gmail.com'));    // Until entire source string
-
         // Test failures
         $this->expectException(OutOfBoundsException::class);
         $this->assertEquals(null, Strings::until('so.oostenbrink@gmail.com', ''));                          // Needle is obligatory

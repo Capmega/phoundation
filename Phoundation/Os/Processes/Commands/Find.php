@@ -18,7 +18,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
 
-
 /**
  * Class Find
  *
@@ -35,7 +34,6 @@ class Find extends Command implements FindInterface
     use TraitDataPath {
         setPath as protected __setPath;
     }
-
 
     /**
      * Result files cache
@@ -193,8 +191,10 @@ class Find extends Command implements FindInterface
     public function setPath(PathInterface|string|null $path): static
     {
         $this->__setPath($path);
+
         return $this->setExecutionDirectory($this->path);
     }
+
 
     /**
      * Returns if find should find empty files
@@ -205,6 +205,7 @@ class Find extends Command implements FindInterface
     {
         return $this->find_path;
     }
+
 
     /**
      * Sets if find should descend into other filesystems
@@ -218,8 +219,10 @@ class Find extends Command implements FindInterface
     public function setFindPath(PathInterface|string|null $find_path): static
     {
         $this->find_path = $find_path;
+
         return $this;
     }
+
 
     /**
      * Returns if find should find empty files
@@ -230,6 +233,7 @@ class Find extends Command implements FindInterface
     {
         return $this->mount;
     }
+
 
     /**
      * Sets if find should descend into other filesystems
@@ -243,8 +247,10 @@ class Find extends Command implements FindInterface
     public function setMount(bool $mount): static
     {
         $this->mount = $mount;
+
         return $this;
     }
+
 
     /**
      * Returns if find should descend into other filesystems
@@ -268,6 +274,7 @@ class Find extends Command implements FindInterface
     public function setFollowSymlinks(bool $follow_symlinks): static
     {
         $this->follow_symlinks = $follow_symlinks;
+
         return $this;
     }
 
@@ -294,6 +301,7 @@ class Find extends Command implements FindInterface
     public function setEmpty(bool $empty): static
     {
         $this->empty = $empty;
+
         return $this;
     }
 
@@ -319,6 +327,7 @@ class Find extends Command implements FindInterface
     public function setIname(?string $iname): static
     {
         $this->iname = $iname;
+
         return $this;
     }
 
@@ -343,15 +352,14 @@ class Find extends Command implements FindInterface
      */
     public function setSize(Stringable|string $size): static
     {
-        $size = (string)$size;
-
+        $size = (string) $size;
         if (!preg_match('/^[-+]?[0-9_]+$/', $size)) {
             throw new OutOfBoundsException(tr('Invalid size ":size" specified, must be either NUMBER (exact), -NUMBER (smaller than), or +NUMBER (larger than)', [
                 ':size' => $size,
             ]));
         }
-
         $this->size = str_replace('_', '', $size);
+
         return $this;
     }
 
@@ -376,15 +384,14 @@ class Find extends Command implements FindInterface
      */
     public function setMtime(Stringable|string $mtime): static
     {
-        $mtime = (string)$mtime;
-
+        $mtime = (string) $mtime;
         if (!preg_match('/^[-+]?[0-9_]+$/', $mtime)) {
             throw new OutOfBoundsException(tr('Invalid mtime ":mtime" specified, must be either NUMBER (exact), -NUMBER (smaller than), or +NUMBER (larger than)', [
                 ':mtime' => $mtime,
             ]));
         }
-
         $this->mtime = str_replace('_', '', $mtime);
+
         return $this;
     }
 
@@ -409,15 +416,14 @@ class Find extends Command implements FindInterface
      */
     public function setAtime(Stringable|string $atime): static
     {
-        $atime = (string)$atime;
-
+        $atime = (string) $atime;
         if (!preg_match('/^[-+]?[0-9_]+$/', $atime)) {
             throw new OutOfBoundsException(tr('Invalid atime ":atime" specified, must be either NUMBER (exact), -NUMBER (smaller than), or +NUMBER (larger than)', [
                 ':atime' => $atime,
             ]));
         }
-
         $this->atime = str_replace('_', '', $atime);
+
         return $this;
     }
 
@@ -442,15 +448,14 @@ class Find extends Command implements FindInterface
      */
     public function setCtime(Stringable|string $ctime): static
     {
-        $ctime = (string)$ctime;
-
+        $ctime = (string) $ctime;
         if (!preg_match('/^[-+]?[0-9_]+$/', $ctime)) {
             throw new OutOfBoundsException(tr('Invalid ctime ":ctime" specified, must be either NUMBER (exact), -NUMBER (smaller than), or +NUMBER (larger than)', [
                 ':ctime' => $ctime,
             ]));
         }
-
         $this->ctime = str_replace('_', '', $ctime);
+
         return $this;
     }
 
@@ -476,7 +481,6 @@ class Find extends Command implements FindInterface
     public function setTypes(Stringable|array|string $types): static
     {
         $types = Arrays::force($types);
-
         foreach ($types as &$type) {
             $type = match ($type) {
                 'directory'        => 'd',
@@ -495,10 +499,9 @@ class Find extends Command implements FindInterface
                 'l'                => 'l',
             };
         }
-
         unset($type);
-
         $this->types = Strings::force($types, ',');
+
         return $this;
     }
 
@@ -524,6 +527,7 @@ class Find extends Command implements FindInterface
     public function setRegex(?string $regex): static
     {
         $this->regex = $regex;
+
         return $this;
     }
 
@@ -549,6 +553,7 @@ class Find extends Command implements FindInterface
     public function setDepth(bool $depth): static
     {
         $this->depth = $depth;
+
         return $this;
     }
 
@@ -574,6 +579,7 @@ class Find extends Command implements FindInterface
     public function setMinDepth(?int $min_depth): static
     {
         $this->min_depth = $min_depth;
+
         return $this;
     }
 
@@ -599,6 +605,7 @@ class Find extends Command implements FindInterface
     public function setMaxDepth(?int $max_depth): static
     {
         $this->max_depth = $max_depth;
+
         return $this;
     }
 
@@ -626,8 +633,8 @@ class Find extends Command implements FindInterface
         if ($this->exec) {
             throw new OutOfBoundsException(tr('Cannot specify callback for find, exec has already been defined'));
         }
-
         $this->callback = $callback;
+
         return $this;
     }
 
@@ -655,8 +662,8 @@ class Find extends Command implements FindInterface
         if ($this->callback) {
             throw new OutOfBoundsException(tr('Cannot specify exec for find, a callback has already been defined'));
         }
-
         $this->exec = $exec;
+
         return $this;
     }
 
@@ -718,14 +725,13 @@ class Find extends Command implements FindInterface
             'l',
             's',
         ];
-
         if (!in_array($type, $types)) {
             throw new OutOfBoundsException(tr('Invalid type ":type" specified, must be one of "b, c, d, p, f, l, s"', [
                 ':type' => $type,
             ]));
         }
-
         $this->type = $type;
+
         return $this;
     }
 
@@ -737,9 +743,12 @@ class Find extends Command implements FindInterface
      */
     public function getFoundFiles(): FilesInterface
     {
-        $files = Files::new()->setSource($this->output);
+        $files = Files::new()
+                      ->setSource($this->output);
+
         return $files;
     }
+
 
     /**
      * Returns a Files-object containing the found files
@@ -755,6 +764,7 @@ class Find extends Command implements FindInterface
         return $this->files;
     }
 
+
     /**
      * Returns an array containing the found files
      *
@@ -765,7 +775,6 @@ class Find extends Command implements FindInterface
         if (!$this->path) {
             throw new OutOfBoundsException(tr('Cannot execute find, no path has been specified'));
         }
-
         try {
             $this->setCommand('find')
                  ->setTimeout($this->timeout)
@@ -831,17 +840,15 @@ class Find extends Command implements FindInterface
                  ] : null);
 
         } catch (ProcessFailedException $e) {
-            Path::new($this->path)->checkReadable('find', $e);
+            Path::new($this->path)
+                ->checkReadable('find', $e);
         }
-
         // Clear files cache and execute the find command
         unset($this->files);
         parent::executeReturnArray();
-
         // Execute callbacks?
         if ($this->callback) {
             $callback = $this->callback;
-
             foreach ($this->output as $file) {
                 $callback($file);
             }

@@ -21,7 +21,6 @@ use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumToolti
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 
-
 /**
  * Class Tooltip
  *
@@ -43,12 +42,14 @@ class Tooltip extends Element implements TooltipInterface
      * @var bool $javascript_sent
      */
     protected static bool $javascript_sent = false;
+
     /**
      * The element to which this tooltip belongs
      *
      * @var ElementInterface|null $source_element
      */
     protected ?ElementInterface $source_element;
+
     /**
      * Tracks if the required javascript has already been sent or not
      *
@@ -88,10 +89,8 @@ class Tooltip extends Element implements TooltipInterface
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-
         $this->data    = new Iterator();
         $this->element = 'tooltip';
-
         // Set default values
         $this->setRenderBefore(Config::getBoolean('web.html.tooltips.icon.before', false))
              ->setPlacement(EnumTooltipPlacement::right)
@@ -99,6 +98,7 @@ class Tooltip extends Element implements TooltipInterface
              ->setUseIcon(Config::getBoolean('web.html.tooltips.icon.use', false))
              ->setHtml(Config::getBoolean('web.html.tooltips.html', false));
     }
+
 
     /**
      * Sets if the tooltip may contain HTML or plain text
@@ -110,8 +110,10 @@ class Tooltip extends Element implements TooltipInterface
     public function setHtml(bool $html): static
     {
         $this->data->set($html, 'html');
+
         return $this;
     }
+
 
     /**
      * Sets the tooltip trigger for this element
@@ -128,15 +130,14 @@ class Tooltip extends Element implements TooltipInterface
                     throw OutOfBoundsException::new(tr('Cannot define combined tooltip triggers with EnumTooltipTrigger::manual'));
                 }
             }
-
             $trigger = $trigger->value;
         }
-
         $this->data->set($triggers, 'trigger');
-
         unset($trigger);
+
         return $this;
     }
+
 
     /**
      * Sets the positioning the tooltip - auto | top | bottom | left | right.
@@ -148,8 +149,10 @@ class Tooltip extends Element implements TooltipInterface
     public function setPlacement(EnumTooltipPlacementInterface $placement): static
     {
         $this->data->set($placement->value, 'placement');
+
         return $this;
     }
+
 
     /**
      * Returns the source element to which this tooltip is bound, if any
@@ -160,6 +163,7 @@ class Tooltip extends Element implements TooltipInterface
     {
         return $this->source_element;
     }
+
 
     /**
      * Sets the source element to which this tooltip is bound, if any
@@ -175,6 +179,7 @@ class Tooltip extends Element implements TooltipInterface
         return $this;
     }
 
+
     /**
      * Returns the tooltip trigger for this element
      *
@@ -183,14 +188,14 @@ class Tooltip extends Element implements TooltipInterface
     public function getTriggers(): array
     {
         $triggers = $this->data->get('trigger', false);
-
         foreach ($triggers as &$trigger) {
             $trigger = EnumTooltipTrigger::from($trigger);
         }
-
         unset($trigger);
+
         return $triggers;
     }
+
 
     /**
      * Returns the tooltip title for this element
@@ -202,6 +207,7 @@ class Tooltip extends Element implements TooltipInterface
         return $this->data->get('title', false);
     }
 
+
     /**
      * Sets the tooltip title for this element
      *
@@ -212,8 +218,10 @@ class Tooltip extends Element implements TooltipInterface
     public function setTitle(?string $title): static
     {
         $this->data->set($title, 'title');
+
         return $this;
     }
+
 
     /**
      * Returns if CSS fade transition will be applied to the tooltip
@@ -222,8 +230,9 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getAnimation(): bool
     {
-        return (bool)$this->data->get('animation', false);
+        return (bool) $this->data->get('animation', false);
     }
+
 
     /**
      * Sets if CSS fade transition will be applied to the tooltip
@@ -235,8 +244,10 @@ class Tooltip extends Element implements TooltipInterface
     public function setAnimation(bool $animation): static
     {
         $this->data->set($animation, 'animation');
+
         return $this;
     }
+
 
     /**
      * Returns if tooltip should be added on a separate icon
@@ -248,6 +259,7 @@ class Tooltip extends Element implements TooltipInterface
         return $this->use_icon;
     }
 
+
     /**
      * Sets if tooltip should be added on a separate icon
      *
@@ -258,8 +270,10 @@ class Tooltip extends Element implements TooltipInterface
     public function setUseIcon(bool $use_icon): static
     {
         $this->use_icon = $use_icon;
+
         return $this;
     }
+
 
     /**
      * Returns if tooltip should be added on a separate icon
@@ -271,6 +285,7 @@ class Tooltip extends Element implements TooltipInterface
         return $this->render_before;
     }
 
+
     /**
      * Sets if tooltip should be added on a separate icon
      *
@@ -281,8 +296,10 @@ class Tooltip extends Element implements TooltipInterface
     public function setRenderBefore(bool $render_before): static
     {
         $this->render_before = $render_before;
+
         return $this;
     }
+
 
     /**
      * Returns if the tooltip should be appended to the specified element
@@ -305,6 +322,7 @@ class Tooltip extends Element implements TooltipInterface
     public function setContainer(?string $container): static
     {
         $this->data->set($container, 'container');
+
         return $this;
     }
 
@@ -333,6 +351,7 @@ class Tooltip extends Element implements TooltipInterface
     public function setDelay(?int $delay): static
     {
         $this->data->set($delay, 'delay');
+
         return $this;
     }
 
@@ -344,8 +363,9 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getHtml(): bool
     {
-        return (bool)$this->data->get('html', false);
+        return (bool) $this->data->get('html', false);
     }
+
 
     /**
      * Returns the positioning the tooltip - auto | top | bottom | left | right.
@@ -357,6 +377,7 @@ class Tooltip extends Element implements TooltipInterface
         return EnumTooltipPlacement::from($this->data->get('placement', false));
     }
 
+
     /**
      * Returns the positioning the tooltip - auto | top | bottom | left | right.
      *
@@ -366,6 +387,7 @@ class Tooltip extends Element implements TooltipInterface
     {
         return EnumTooltipPlacement::from($this->data->get('fallbackPlacements', false));
     }
+
 
     /**
      * Sets the positioning the tooltip - auto | top | bottom | left | right.
@@ -377,8 +399,10 @@ class Tooltip extends Element implements TooltipInterface
     public function setFallbackPlacements(EnumTooltipPlacementInterface $placement): static
     {
         $this->data->set($placement->value, 'fallbackPlacements');
+
         return $this;
     }
+
 
     /**
      * Returns the Base HTML to use when creating the tooltip
@@ -392,6 +416,7 @@ class Tooltip extends Element implements TooltipInterface
         return $this->data->get('template', false) ?? '<div class="tooltip" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>';
     }
 
+
     /**
      * Sets the Base HTML to use when creating the tooltip
      *
@@ -402,8 +427,10 @@ class Tooltip extends Element implements TooltipInterface
     public function setTemplate(string $template): static
     {
         $this->data->set($template, 'template');
+
         return $this;
     }
+
 
     /**
      * Returns the offset of the tooltip relative to its target
@@ -415,6 +442,7 @@ class Tooltip extends Element implements TooltipInterface
         return $this->data->get('offset', false);
     }
 
+
     /**
      * Sets the offset of the tooltip relative to its target
      *
@@ -425,8 +453,10 @@ class Tooltip extends Element implements TooltipInterface
     public function setOffset(?int $delay): static
     {
         $this->data->set($delay, 'offset');
+
         return $this;
     }
+
 
     /**
      * Returns the overflow constraint boundary of the tooltip
@@ -436,13 +466,13 @@ class Tooltip extends Element implements TooltipInterface
     public function getBoundary(): EnumTooltipBoundaryInterface|string
     {
         $boundary = $this->data->get('boundary', false);
-
         if (!$boundary) {
             return EnumTooltipBoundary::scrollParent;
         }
 
         return EnumTooltipBoundary::from($boundary) ?? $boundary;
     }
+
 
     /**
      * Sets the overflow constraint boundary of the tooltip
@@ -456,10 +486,11 @@ class Tooltip extends Element implements TooltipInterface
         if ($boundary instanceof EnumTooltipBoundaryInterface) {
             $boundary = $boundary->value;
         }
-
         $this->data->set($boundary, 'boundary');
+
         return $this;
     }
+
 
     /**
      * "Renders" the tooltip by injecting data-tooltip
@@ -471,19 +502,16 @@ class Tooltip extends Element implements TooltipInterface
     public function render(?string $render = null): ?string
     {
         $this->data->set('tooltip', 'tooltip');
-
         $return = '';
-
         if (!static::$javascript_sent) {
             static::$javascript_sent = true;
-
             $return = Script::new()
                             ->setJavascriptWrapper(EnumJavascriptWrappers::window)
                             ->setContent('$(function () {
                 $(\'[data-tooltip="tooltip"]\').tooltip();
-            })')->render();
+            })')
+                            ->render();
         }
-
         if ($this->use_icon) {
             // Tooltip should use a separate icon
             $return .= $this->renderIcon();
@@ -493,16 +521,16 @@ class Tooltip extends Element implements TooltipInterface
             if (empty($this->source_element)) {
                 throw new OutOfBoundsException(tr('Cannot render tooltip, neither "use icon" nor a source element were specified, where one of either is required'));
             }
-
-            $this->source_element->getData()->merge($this->data);
+            $this->source_element->getData()
+                                 ->merge($this->data);
         }
-
         if ($this->render_before) {
             return $render . $return;
         }
 
         return $return . $render;
     }
+
 
     /**
      * Renders the tooltip icon
@@ -514,6 +542,7 @@ class Tooltip extends Element implements TooltipInterface
         return str_replace(':data', $this->renderData(), $this->getIconHtml());
     }
 
+
     /**
      * Render the tooltip data-* entries
      *
@@ -522,7 +551,6 @@ class Tooltip extends Element implements TooltipInterface
     protected function renderData(): string
     {
         $return = [];
-
         foreach ($this->data as $key => $value) {
             // Build data string
             if (is_array($value)) {
@@ -534,12 +562,12 @@ class Tooltip extends Element implements TooltipInterface
             } else {
                 $value = '"' . htmlentities($value) . '"';
             }
-
             $return[] = 'data-' . $key . '=' . $value;
         }
 
         return implode(' ', $return);
     }
+
 
     /**
      * Returns the HTML for the tooltip icon, if used
@@ -551,6 +579,7 @@ class Tooltip extends Element implements TooltipInterface
         return $this->icon_html ?? '<div class="tooltip-icon circle" :data>?</div>';
     }
 
+
     /**
      * Sets the HTML for the tooltip icon, if used
      *
@@ -561,6 +590,7 @@ class Tooltip extends Element implements TooltipInterface
     public function setIconHtml(?string $icon_html): static
     {
         $this->icon_html = $icon_html;
+
         return $this;
     }
 }

@@ -6,7 +6,6 @@ namespace Phoundation\Databases\Sql;
 
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 
-
 /**
  * SqlQuery class
  *
@@ -32,7 +31,7 @@ class SqlQuery implements SqlQueryInterface
      */
     public function __construct(SqlQueryInterface|string $query)
     {
-        $this->query = (string)$query;
+        $this->query = (string) $query;
     }
 
 
@@ -54,7 +53,7 @@ class SqlQuery implements SqlQueryInterface
      */
     public function __toString(): string
     {
-        return (string)$this->query;
+        return (string) $this->query;
     }
 
 
@@ -79,6 +78,7 @@ class SqlQuery implements SqlQueryInterface
     public function setQuery(string $query): static
     {
         $this->query = $query;
+
         return $this;
     }
 }

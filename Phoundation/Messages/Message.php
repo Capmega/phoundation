@@ -7,7 +7,6 @@ namespace Phoundation\Messages;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 
-
 /**
  * Message class
  *
@@ -62,7 +61,6 @@ class Message extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions;
-
 //        $data = $validator
 //            ->select($this->getAlternateValidationField('code'), true)->hasMaxCharacters()->isName()->isQueryResult('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
 //            ->select($this->getAlternateValidationField('continent'), true)->or('continents_id')->isName()->isQueryResult('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])

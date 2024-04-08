@@ -6,7 +6,6 @@ namespace Phoundation\Emails;
 
 use Phoundation\Data\DataEntry\DataList;
 
-
 /**
  * Class Emails
  *
@@ -28,6 +27,7 @@ class Emails extends DataList
         return 'emails';
     }
 
+
     /**
      * @inheritDoc
      */
@@ -35,6 +35,7 @@ class Emails extends DataList
     {
         return Email::class;
     }
+
 
     /**
      * @inheritDoc

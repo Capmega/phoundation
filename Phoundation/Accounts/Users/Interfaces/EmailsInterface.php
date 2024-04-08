@@ -6,7 +6,6 @@ namespace Phoundation\Accounts\Users\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 
-
 /**
  * interface EmailsInterface
  *

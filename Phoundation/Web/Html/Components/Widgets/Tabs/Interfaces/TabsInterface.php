@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces;
 use Phoundation\Enums\Interfaces\EnumOrientationInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
-
 /**
  * Interface TabsInterface
  *
@@ -26,6 +25,7 @@ interface TabsInterface extends ElementsBlockInterface
      * @return EnumOrientationInterface|null
      */
     public function getOrientation(): ?EnumOrientationInterface;
+
 
     /**
      * Sets the orientation

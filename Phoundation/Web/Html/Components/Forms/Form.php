@@ -13,7 +13,6 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
-
 /**
  * Form class
  *
@@ -92,6 +91,7 @@ class Form extends Element implements FormInterface
         $this->setAcceptCharset(Config::get('languages.encoding.', 'utf-8'));
     }
 
+
     /**
      * Sets the form method
      *
@@ -101,6 +101,7 @@ class Form extends Element implements FormInterface
     {
         return $this->method;
     }
+
 
     /**
      * Sets the form method
@@ -112,8 +113,10 @@ class Form extends Element implements FormInterface
     public function setMethod(string $method): static
     {
         $this->method = $method;
+
         return $this;
     }
+
 
     /**
      * Sets the form no_validate
@@ -125,6 +128,7 @@ class Form extends Element implements FormInterface
         return $this->no_validate;
     }
 
+
     /**
      * Sets the form no_validate
      *
@@ -135,8 +139,10 @@ class Form extends Element implements FormInterface
     public function setNoValidate(bool $no_validate): static
     {
         $this->no_validate = $no_validate;
+
         return $this;
     }
+
 
     /**
      * Sets the form auto_complete
@@ -148,6 +154,7 @@ class Form extends Element implements FormInterface
         return $this->auto_complete;
     }
 
+
     /**
      * Sets the form auto_complete
      *
@@ -158,8 +165,10 @@ class Form extends Element implements FormInterface
     public function setAutoComplete(string $auto_complete): static
     {
         $this->auto_complete = $auto_complete;
+
         return $this;
     }
+
 
     /**
      * Sets the form accept_charset
@@ -171,6 +180,7 @@ class Form extends Element implements FormInterface
         return $this->accept_charset;
     }
 
+
     /**
      * Sets the form accept_charset
      *
@@ -181,8 +191,10 @@ class Form extends Element implements FormInterface
     public function setAcceptCharset(string $accept_charset): static
     {
         $this->accept_charset = $accept_charset;
+
         return $this;
     }
+
 
     /**
      * Sets the form rel
@@ -194,6 +206,7 @@ class Form extends Element implements FormInterface
         return $this->rel;
     }
 
+
     /**
      * Sets the form rel
      *
@@ -204,8 +217,10 @@ class Form extends Element implements FormInterface
     public function setRel(string $rel): static
     {
         $this->rel = $rel;
+
         return $this;
     }
+
 
     /**
      * Sets the form target
@@ -216,6 +231,7 @@ class Form extends Element implements FormInterface
     {
         return $this->target;
     }
+
 
     /**
      * Sets the form target
@@ -237,17 +253,17 @@ class Form extends Element implements FormInterface
                 case '_top':
                     // These are all fine
                     break;
-
                 default:
                     throw new OutOfBoundsException(tr('Unknown form target ":target" specified', [
                         ':target' => $target,
                     ]));
             }
         }
-
         $this->target = $target;
+
         return $this;
     }
+
 
     /**
      * Add the system arguments to the arguments list
@@ -260,26 +276,25 @@ class Form extends Element implements FormInterface
     {
         // These are obligatory
         $return = [
-            'action' => $this->getAction(),
-            'method' => strtolower($this->method) ?? 'post',
+            'action'       => $this->getAction(),
+            'method'       => strtolower($this->method) ?? 'post',
             'autocomplete' => $this->auto_complete ? 'on' : 'off',
         ];
-
         if ($this->no_validate) {
             $return['novalidate'] = null;
         }
-
         if ($this->accept_charset) {
             $return['accept-charset'] = $this->accept_charset;
         }
-
         if ($this->rel) {
             $return['rel'] = $this->rel;
         }
 
         // Merge the system values over the set attributes
-        return parent::renderAttributes()->appendSource($this->attributes, $return);
+        return parent::renderAttributes()
+                     ->appendSource($this->attributes, $return);
     }
+
 
     /**
      * Sets the form action.
@@ -290,8 +305,9 @@ class Form extends Element implements FormInterface
      */
     public function getAction(): ?string
     {
-        return $this->action ?? (string)UrlBuilder::getWww();
+        return $this->action ?? (string) UrlBuilder::getWww();
     }
+
 
     /**
      * Sets the form action
@@ -303,7 +319,7 @@ class Form extends Element implements FormInterface
     public function setAction(Stringable|string|null $action): static
     {
         if ($action) {
-            $this->action = (string)UrlBuilder::getWww($action);
+            $this->action = (string) UrlBuilder::getWww($action);
         } else {
             $this->action = null;
         }

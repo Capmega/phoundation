@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Geo\Cities\City;
 
-
 /**
  * Trait DataEntryCity
  *
@@ -31,6 +30,7 @@ trait TraitDataEntryCity
         return $this->setValue('cities_id', $cities_id);
     }
 
+
     /**
      * Returns the cities_id for this user
      *
@@ -39,13 +39,13 @@ trait TraitDataEntryCity
     public function getCity(): ?City
     {
         $cities_id = $this->getValueTypesafe('int', 'cities_id');
-
         if ($cities_id) {
             return new City($cities_id);
         }
 
         return null;
     }
+
 
     /**
      * Returns the cities_name for this user
@@ -54,8 +54,10 @@ trait TraitDataEntryCity
      */
     public function getCitiesName(): ?string
     {
-        return $this->getValueTypesafe('string', 'cities_name') ?? City::new($this->getCitiesId(), 'id')?->getName();
+        return $this->getValueTypesafe('string', 'cities_name') ?? City::new($this->getCitiesId(), 'id')
+                                                                       ?->getName();
     }
+
 
     /**
      * Returns the cities_id for this user
@@ -66,6 +68,7 @@ trait TraitDataEntryCity
     {
         return $this->getValueTypesafe('int', 'cities_id');
     }
+
 
     /**
      * Sets the cities_name for this user

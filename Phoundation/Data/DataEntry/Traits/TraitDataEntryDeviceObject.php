@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Plugins\Hardware\Devices\Device;
 use Plugins\Hardware\Devices\Interfaces\DeviceInterface;
 
-
 /**
  * Trait TraitDataEntryDeviceObject
  *
@@ -52,7 +51,6 @@ trait TraitDataEntryDeviceObject
     public function getDevice(): ?DeviceInterface
     {
         $devices_id = $this->getValueTypesafe('int', 'devices_id');
-
         if ($devices_id) {
             return Device::get($devices_id, 'id');
         }

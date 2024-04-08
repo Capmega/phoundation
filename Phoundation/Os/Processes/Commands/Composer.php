@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;

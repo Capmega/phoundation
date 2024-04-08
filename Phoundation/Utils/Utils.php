@@ -7,7 +7,6 @@ namespace Phoundation\Utils;
 use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
-
 /**
  * Class Utils
  *
@@ -21,13 +20,18 @@ use Stringable;
 class Utils
 {
     const MATCH_ALL      = 1;
-    const MATCH_ANY      = 2;
-    const MATCH_BEGIN    = 4;
-    const MATCH_END      = 8;
-    const MATCH_ANYWHERE = 16;
-    const MATCH_NO_CASE  = 32;
-    const MATCH_RECURSE  = 64;
 
+    const MATCH_ANY      = 2;
+
+    const MATCH_BEGIN    = 4;
+
+    const MATCH_END      = 8;
+
+    const MATCH_ANYWHERE = 16;
+
+    const MATCH_NO_CASE  = 32;
+
+    const MATCH_RECURSE  = 64;
 
     /**
      * If set, will filter NULL values
@@ -61,14 +65,13 @@ class Utils
     {
         // Decode options
         $return                   = [];
-        $return['match_no_case']  = (bool)($options & self::MATCH_NO_CASE);
-        $return['match_all']      = (bool)($options & self::MATCH_ALL);
-        $return['match_any']      = (bool)($options & self::MATCH_ANY);
-        $return['match_begin']    = (bool)($options & self::MATCH_BEGIN);
-        $return['match_end']      = (bool)($options & self::MATCH_END);
-        $return['match_anywhere'] = (bool)($options & self::MATCH_ANYWHERE);
-        $return['recurse']        = (bool)($options & self::MATCH_RECURSE);
-
+        $return['match_no_case']  = (bool) ($options & self::MATCH_NO_CASE);
+        $return['match_all']      = (bool) ($options & self::MATCH_ALL);
+        $return['match_any']      = (bool) ($options & self::MATCH_ANY);
+        $return['match_begin']    = (bool) ($options & self::MATCH_BEGIN);
+        $return['match_end']      = (bool) ($options & self::MATCH_END);
+        $return['match_anywhere'] = (bool) ($options & self::MATCH_ANYWHERE);
+        $return['recurse']        = (bool) ($options & self::MATCH_RECURSE);
         // Validate options
         if ($return['match_begin']) {
             if ($return['match_end'] or $return['match_anywhere']) {
@@ -79,12 +82,10 @@ class Utils
             if ($return['match_end'] and $return['match_anywhere']) {
                 throw new OutOfBoundsException(tr('Cannot mix location flags MATCH_END with MATCH_ANYWHERE, they are mutually exclusive'));
             }
-
             if (!$return['match_end'] and !$return['match_anywhere']) {
                 throw new OutOfBoundsException(tr('No match location flag specified. One of MATCH_BEGIN, MATCH_END, or MATCH_ANYWHERE must be specified'));
             }
         }
-
         if ($return['match_all']) {
             if ($return['match_any']) {
                 throw new OutOfBoundsException(tr('Cannot mix combination flags MATCH_ALL with MATCH_ANY, they are mutually exclusive'));
@@ -95,7 +96,6 @@ class Utils
                 throw new OutOfBoundsException(tr('No match combination flag specified. Either one of MATCH_ALL or MATCH_ANY must be specified'));
             }
         }
-
         if ($return['recurse'] and !$allow_recurse) {
             throw new OutOfBoundsException(tr('Recursion matching not allowed'));
         }
@@ -117,15 +117,12 @@ class Utils
         if (!$needles) {
             throw new OutOfBoundsException(tr('No needles specified'));
         }
-
         $needles = Arrays::force($needles);
-
         if ($lowercase) {
             // Make all needles lowercase strings
             foreach ($needles as &$needle) {
-                $needle = strtolower((string)$needle);
+                $needle = strtolower((string) $needle);
             }
-
             unset($needle);
         }
 
@@ -146,10 +143,10 @@ class Utils
     protected static function getTestValue(string|float|int|null $haystack, bool $match_no_case): string
     {
         if ($match_no_case) {
-            return strtolower((string)$haystack);
+            return strtolower((string) $haystack);
         }
 
-        return (string)$haystack;
+        return (string) $haystack;
     }
 
 
@@ -165,7 +162,6 @@ class Utils
     protected static function testStringMatchesNeedles(Stringable|string|float|int $haystack, array $needles, array $flags): bool
     {
         $result = true;
-
         // Compare to each needle
         foreach ($needles as $needle) {
             if ($flags['match_begin']) {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataGzip
  *
@@ -46,6 +45,7 @@ trait TraitDataGzip
     public function setGzip(bool $gzip): static
     {
         $this->gzip = $gzip;
+
         return $this;
     }
 }

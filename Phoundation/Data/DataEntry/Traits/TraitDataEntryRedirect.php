@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Stringable;
 
-
 /**
  * Trait TraitDataEntryRedirect
  *
@@ -39,6 +38,6 @@ trait TraitDataEntryRedirect
      */
     public function setRedirect(Stringable|string|null $redirect): static
     {
-        return $this->setValue('redirect', (string)$redirect);
+        return $this->setValue('redirect', (string) $redirect);
     }
 }

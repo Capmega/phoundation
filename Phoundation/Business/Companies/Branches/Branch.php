@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 
-
 /**
  * Class Branch
  *
@@ -23,7 +22,6 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 class Branch extends DataEntry
 {
     use TraitDataEntryNameDescription;
-
 
     /**
      * Returns the table name used by this object

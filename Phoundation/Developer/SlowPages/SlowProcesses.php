@@ -6,7 +6,6 @@ namespace Phoundation\Developer\SlowPages;
 
 use Phoundation\Developer\Incidents\Incidents;
 
-
 /**
  * SlowPages class
  *

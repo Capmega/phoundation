@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 use Phoundation\Geo\Timezones\Timezone;
 
-
 /**
  * Trait TraitDataEntryTimezone
  *
@@ -52,7 +51,6 @@ trait TraitDataEntryTimezone
     public function getTimezone(): ?TimezoneInterface
     {
         $timezones_id = $this->getValueTypesafe('int', 'timezones_id');
-
         if ($timezones_id) {
             return new Timezone($timezones_id);
         }

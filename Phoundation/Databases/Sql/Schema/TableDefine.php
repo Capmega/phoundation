@@ -10,7 +10,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 
-
 /**
  * TableDefine class
  *
@@ -51,6 +50,7 @@ class TableDefine extends SchemaAbstract
      */
     protected array $foreign_keys = [];
 
+
     /**
      * Clears the table columns
      *
@@ -59,8 +59,10 @@ class TableDefine extends SchemaAbstract
     public function clearColumns(): TableDefine
     {
         $this->columns = [];
+
         return $this;
     }
+
 
     /**
      * Sets the table columns
@@ -74,8 +76,10 @@ class TableDefine extends SchemaAbstract
     public function setColumns(string|array $columns): TableDefine
     {
         $this->columns = [];
+
         return $this->addColumns($columns);
     }
+
 
     /**
      * Add the array of columns to the table
@@ -93,12 +97,12 @@ class TableDefine extends SchemaAbstract
                 // Quietly drop empty columns
                 continue;
             }
-
             $this->addColumn($column);
         }
 
         return $this;
     }
+
 
     /**
      * Add a single column to the table
@@ -118,6 +122,7 @@ class TableDefine extends SchemaAbstract
         return $this;
     }
 
+
     /**
      * Clears the table indices
      *
@@ -126,8 +131,10 @@ class TableDefine extends SchemaAbstract
     public function clearIndices(): TableDefine
     {
         $this->indices = [];
+
         return $this;
     }
+
 
     /**
      * Sets the table indices
@@ -141,8 +148,10 @@ class TableDefine extends SchemaAbstract
     public function setIndices(string|array $indices): TableDefine
     {
         $this->indices = [];
+
         return $this->addIndices($indices);
     }
+
 
     /**
      * Add the array of indices to the table
@@ -158,12 +167,12 @@ class TableDefine extends SchemaAbstract
                 // Quietly drop empty indices
                 continue;
             }
-
             $this->addIndex($index);
         }
 
         return $this;
     }
+
 
     /**
      * Add a single index to the table
@@ -175,8 +184,10 @@ class TableDefine extends SchemaAbstract
     public function addIndex(string $index): TableDefine
     {
         $this->indices[] = $index;
+
         return $this;
     }
+
 
     /**
      * Clears the table foreign_keys
@@ -186,8 +197,10 @@ class TableDefine extends SchemaAbstract
     public function clearForeignKeys(): TableDefine
     {
         $this->foreign_keys = [];
+
         return $this;
     }
+
 
     /**
      * Sets the table foreign_keys
@@ -201,8 +214,10 @@ class TableDefine extends SchemaAbstract
     public function setForeignKeys(string|array $foreign_keys): TableDefine
     {
         $this->foreign_keys = [];
+
         return $this->addForeignKeys($foreign_keys);
     }
+
 
     /**
      * Add the array of foreign_keys to the table
@@ -224,6 +239,7 @@ class TableDefine extends SchemaAbstract
         return $this;
     }
 
+
     /**
      * Add a single foreign_key to the table
      *
@@ -234,8 +250,10 @@ class TableDefine extends SchemaAbstract
     public function addForeignKey(string $foreign_key): TableDefine
     {
         $this->foreign_keys[] = $foreign_key;
+
         return $this;
     }
+
 
     /**
      * Create the specified table
@@ -247,28 +265,23 @@ class TableDefine extends SchemaAbstract
         if ($this->parent->exists()) {
             throw new SqlException(tr('Cannot create table ":name", it already exists', [':name' => $this->name]));
         }
-
         // Prepare indices and FKs
         $indices      = implode(",\n", $this->indices) . "\n";
         $foreign_keys = implode(",\n", $this->foreign_keys) . "\n";
-
         // Build and execute query
         $query = 'CREATE TABLE `' . $this->name . '` (';
         $query .= Strings::endsNotWith(trim(implode(",\n", $this->columns)), ',');
-
         if ($this->indices) {
             $query .= ",\n" . Strings::endsNotWith(trim($indices), ',') . "\n";
         }
-
         if ($this->foreign_keys) {
             $query .= ",\n" . Strings::endsNotWith(trim($foreign_keys), ',') . "\n";
         }
-
         $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . Config::get('databases.sql.connectors.system.auto-increment', 1) . ' DEFAULT CHARSET="' . Config::get('databases.sql.connectors.system.charset', 'utf8mb4') . '" COLLATE="' . Config::get('databases.sql.connectors.system.collate', 'utf8mb4_general_ci') . '";';
-
         $this->sql->query($query);
         $this->parent->reload();
     }
+
 
     /**
      * Sets the table name
@@ -280,6 +293,7 @@ class TableDefine extends SchemaAbstract
     protected function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 }

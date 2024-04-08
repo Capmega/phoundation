@@ -6,7 +6,6 @@ namespace Phoundation\Servers\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
-
 /**
  * interface ServerInterface
  *
@@ -27,6 +26,7 @@ interface ServerInterface extends DataEntryInterface
      */
     public function getCost(): ?float;
 
+
     /**
      * Sets the cost for this object
      *
@@ -36,12 +36,14 @@ interface ServerInterface extends DataEntryInterface
      */
     public function setCost(?float $cost): static;
 
+
     /**
      * Returns the bill_due_date for this object
      *
      * @return string|null
      */
     public function getBillDueDate(): ?string;
+
 
     /**
      * Sets the bill_due_date for this object
@@ -52,12 +54,14 @@ interface ServerInterface extends DataEntryInterface
      */
     public function setBillDueDate(?string $bill_due_date): static;
 
+
     /**
      * Returns the interval for this object
      *
      * @return string|null
      */
     public function getInterval(): ?string;
+
 
     /**
      * Sets the interval for this object
@@ -68,12 +72,14 @@ interface ServerInterface extends DataEntryInterface
      */
     public function setInterval(?string $interval): static;
 
+
     /**
      * Returns the os_name for this object
      *
      * @return string|null
      */
     public function getOsName(): ?string;
+
 
     /**
      * Sets the os_name for this object
@@ -84,12 +90,14 @@ interface ServerInterface extends DataEntryInterface
      */
     public function setOsName(?string $os_name): static;
 
+
     /**
      * Returns the os_version for this object
      *
      * @return string|null
      */
     public function getOsVersion(): ?string;
+
 
     /**
      * Sets the os_version for this object
@@ -100,12 +108,14 @@ interface ServerInterface extends DataEntryInterface
      */
     public function setOsVersion(?string $os_version): static;
 
+
     /**
      * Returns the web_services for this object
      *
      * @return bool
      */
     public function getWebServices(): bool;
+
 
     /**
      * Sets the web_services for this object
@@ -116,12 +126,14 @@ interface ServerInterface extends DataEntryInterface
      */
     public function setWebServices(?bool $web_services): static;
 
+
     /**
      * Returns the mail_services for this object
      *
      * @return bool
      */
     public function getMailServices(): bool;
+
 
     /**
      * Sets the mail_services for this object
@@ -132,12 +144,14 @@ interface ServerInterface extends DataEntryInterface
      */
     public function setMailServices(?bool $mail_services): static;
 
+
     /**
      * Returns the database_services for this object
      *
      * @return bool
      */
     public function getDatabaseServices(): bool;
+
 
     /**
      * Sets the database_services for this object
@@ -148,12 +162,14 @@ interface ServerInterface extends DataEntryInterface
      */
     public function setDatabaseServices(?bool $database_services): static;
 
+
     /**
      * Returns the allow_sshd_modifications for this object
      *
      * @return bool
      */
     public function getAllowSshdModifications(): bool;
+
 
     /**
      * Sets the allow_sshd_modifications for this object
@@ -164,12 +180,14 @@ interface ServerInterface extends DataEntryInterface
      */
     public function setAllowSshdModifications(?bool $allow_sshd_modifications): static;
 
+
     /**
      * Returns the username for the SSH account for this server
      *
      * @return string|null
      */
     public function getUsername(): ?string;
+
 
     /**
      * Returns the command line as it should be executed for this server

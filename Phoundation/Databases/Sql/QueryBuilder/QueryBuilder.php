@@ -10,7 +10,6 @@ use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
 
-
 /**
  * QueryBuilder class
  *
@@ -26,13 +25,13 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     use TraitDataMetaEnabled;
     use TraitDataDatabaseConnector;
 
-
     /**
      * The pre-defined query sections
      *
      * @var QueryDefinitionsInterface $definitions
      */
     protected QueryDefinitionsInterface $definitions;
+
 
     /**
      * Returns the bound variables execute array
@@ -43,6 +42,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     {
         return $this->execute;
     }
+
 
     /**
      * Executes the query and returns a PDO statement
@@ -56,6 +56,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
         return sql($this->database_connector)->query($this->getQuery($debug), $this->execute);
     }
 
+
     /**
      * Returns the complete query that can be executed
      *
@@ -66,12 +67,10 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     public function getQuery(bool $debug = false): string
     {
         $query = (($this->debug or $debug) ? ' ' : '');
-
         // Execute all predefines before executing the query
         foreach ($this->predefines as $predefine) {
             $predefine();
         }
-
         if ($this->select) {
             $query .= implode(', ', $this->select) . ' FROM ' . implode(', ', $this->from) . ' ';
 
@@ -81,33 +80,28 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
         } elseif ($this->update) {
             $query .= 'UPDATE ' . implode(', ', $this->from) . ' SET ' . implode(', ', $this->update);
         }
-
         foreach ($this->joins as $join) {
             $query .= $join . ' ';
         }
-
         if ($this->wheres) {
             $query .= ' WHERE ' . implode(' AND ', $this->wheres);
         }
-
         if ($this->group_by) {
             $query .= ' GROUP BY ' . implode(', ', $this->group_by);
         }
-
         if ($this->having) {
             $query .= ' HAVING ' . implode(' AND ', $this->having);
         }
-
         if ($this->order_by) {
             $query .= ' ORDER BY ' . implode(', ', $this->order_by);
         }
-
         if ($this->limit_count) {
             $query .= ' LIMIT ' . $this->limit_offset . ', ' . $this->limit_count;
         }
 
         return $query;
     }
+
 
     /**
      * Executes the query and returns the single result
@@ -120,6 +114,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     {
         return sql($this->database_connector)->get($this->getQuery($debug), $this->execute, $this->meta_enabled);
     }
+
 
     /**
      * Executes the query and returns the single column from the single result

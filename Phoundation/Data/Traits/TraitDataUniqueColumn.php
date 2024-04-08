@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataUniqueColumn
  *
@@ -46,6 +45,7 @@ trait TraitDataUniqueColumn
     public function setUniqueColumn(?string $unique_column): static
     {
         $this->unique_column = $unique_column;
+
         return $this;
     }
 }

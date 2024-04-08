@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Business\Customers;
 
-
 /**
  * Class FilterForm
  *
@@ -23,7 +22,6 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     public function __construct()
     {
         parent::__construct();
-
         $this->definitions = [
             'type[]' => [
                 'element' => 'inputmultibuttontext',

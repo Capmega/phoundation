@@ -10,7 +10,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use ReturnTypeWillChange;
 use Stringable;
 
-
 /**
  * Class FilterForm
  *
@@ -32,8 +31,12 @@ class FilterForm extends DataEntryForm
     {
         parent::__construct($content);
         $this->setId('filters');
-        $this->useForm(true)->getForm()->setMethod('GET')->setAction(UrlBuilder::getWww());
+        $this->useForm(true)
+             ->getForm()
+             ->setMethod('GET')
+             ->setAction(UrlBuilder::getWww());
     }
+
 
     /**
      * Apply the filters from the Validator
@@ -45,7 +48,6 @@ class FilterForm extends DataEntryForm
     public function apply(bool $clear_source = true): static
     {
         $validator = Validator::get();
-
         // Go over each field and let the field definition do the validation since it knows the specs
         foreach ($this->definitions as $definition) {
 //            if ($definition->getReadonly() or $definition->getDisabled()) {
@@ -58,7 +60,6 @@ class FilterForm extends DataEntryForm
 //
             $definition->validate($validator, null);
         }
-
         try {
             // Execute the validate method to get the results of the validation
             $this->source = $validator->validate($clear_source);
@@ -70,6 +71,7 @@ class FilterForm extends DataEntryForm
 
         return $this;
     }
+
 
     /**
      * Returns value for the specified key

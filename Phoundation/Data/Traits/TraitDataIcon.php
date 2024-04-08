@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
 
-
 /**
  * Trait TraitDataIcon
  *
@@ -48,6 +47,7 @@ trait TraitDataIcon
     public function setIcon(?IconInterface $icon): static
     {
         $this->icon = $icon;
+
         return $this;
     }
 }

@@ -7,7 +7,6 @@ namespace Phoundation\Web\Requests\Routing;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 
-
 /**
  * Class StaticRoute
  *

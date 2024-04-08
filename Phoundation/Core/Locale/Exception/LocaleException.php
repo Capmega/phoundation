@@ -6,7 +6,6 @@ namespace Phoundation\Core\Locale\Exception;
 
 use Phoundation\Core\Exception\CoreException;
 
-
 /**
  * Class LocaleException
  *

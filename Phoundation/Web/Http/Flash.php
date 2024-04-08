@@ -6,7 +6,6 @@ namespace Phoundation\Web\Http;
 
 use JetBrains\PhpStorm\ExpectedValues;
 
-
 /**
  * Class Flash
  *
@@ -46,7 +45,7 @@ class Flash
     ])] string                 $type): void
     {
         $this->messages[] = [
-            'type' => $type,
+            'type'    => $type,
             'message' => $message,
         ];
     }

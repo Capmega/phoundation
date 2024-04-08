@@ -19,7 +19,6 @@ use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 
-
 /**
  * Class SqlDataList
  *
@@ -42,14 +41,12 @@ class SqlDataList implements SqlDataListInterface
     use TraitDataRandomId;
     use TraitDataTable;
 
-
     /**
      * The actual SQL connector
      *
      * @var SqlInterface $sql
      */
     protected SqlInterface $sql;
-
 
     /**
      * Sets how many times some failures may be retried until an exception is thrown
@@ -71,6 +68,7 @@ class SqlDataList implements SqlDataListInterface
              ->setDataList($data_list);
     }
 
+
     /**
      * Sets the data list
      *
@@ -86,6 +84,7 @@ class SqlDataList implements SqlDataListInterface
         return $this->__setDataList($data_list);
     }
 
+
     /**
      * Returns a new SqlDataList object
      *
@@ -99,6 +98,7 @@ class SqlDataList implements SqlDataListInterface
         return new static($sql, $data_list);
     }
 
+
     /**
      * Returns the Sql object used by this SqlDataList object
      *
@@ -108,6 +108,7 @@ class SqlDataList implements SqlDataListInterface
     {
         return $this->sql;
     }
+
 
     /**
      * Sets the Sql object used by this SqlDataList object
@@ -119,8 +120,10 @@ class SqlDataList implements SqlDataListInterface
     public function setSql(SqlInterface $sql): static
     {
         $this->sql = $sql;
+
         return $this;
     }
+
 
     /**
      * Update the status for the data row in the specified table to "deleted"
@@ -138,7 +141,6 @@ class SqlDataList implements SqlDataListInterface
     public function delete(array $row, ?string $comments = null): int
     {
         Core::checkReadonly('sql data-list-delete');
-
         // DataList table?
         if (array_key_exists('meta_id', $row)) {
             return $this->setStatus('deleted', $row, $comments);
@@ -161,23 +163,21 @@ class SqlDataList implements SqlDataListInterface
     public function setStatus(?string $status, DataListInterface|array $list, ?string $comments = null): int
     {
         Core::checkReadonly('sql set-status');
-
         if (is_object($list)) {
             $list = [
                 $this->id_column => $list->getId(),
                 'meta_id'        => $list->getMetaId(),
             ];
         }
-
         if (empty($list[$this->id_column])) {
             throw new OutOfBoundsException(tr('Cannot set status, no row id specified'));
         }
-
         // Update the meta data
         if ($this->meta_enabled) {
-            Meta::get($list['meta_id'], false)->action(tr('Changed status'), $comments, Json::encode([
-                                                                                                         'status' => $status,
-                                                                                                     ]));
+            Meta::get($list['meta_id'], false)
+                ->action(tr('Changed status'), $comments, Json::encode([
+                    'status' => $status,
+                ]));
         }
 
         // Update the row status
@@ -186,7 +186,8 @@ class SqlDataList implements SqlDataListInterface
                                    WHERE   `' . $this->id_column . '` = :' . $this->id_column, [
             ':status'              => $status,
             ':' . $this->id_column => $list[$this->id_column],
-        ])->rowCount();
+        ])
+                         ->rowCount();
     }
 
 
@@ -203,12 +204,12 @@ class SqlDataList implements SqlDataListInterface
     public function exists(string $column, string|int|null $value, ?int $id = null): bool
     {
         if ($id) {
-            return (bool)$this->get('SELECT `id` FROM `' . $this->table . '` WHERE `' . $column . '` = :' . $column . ' AND `' . $this->id_column . '` != :' . $this->id_column, [
+            return (bool) $this->get('SELECT `id` FROM `' . $this->table . '` WHERE `' . $column . '` = :' . $column . ' AND `' . $this->id_column . '` != :' . $this->id_column, [
                 ':' . $column          => $value,
                 ':' . $this->id_column => $id,
             ]);
         }
 
-        return (bool)$this->get('SELECT `id` FROM `' . $this->table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
+        return (bool) $this->get('SELECT `id` FROM `' . $this->table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
     }
 }

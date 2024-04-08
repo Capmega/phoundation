@@ -4,7 +4,6 @@ namespace Phoundation\Data\Interfaces;
 
 use PDOStatement;
 
-
 /**
  * Trait DataTree
  *
@@ -24,6 +23,7 @@ interface TreeInterface extends IteratorInterface
      */
     public function getJson(): string;
 
+
     /**
      * Sets the source of this tree from the specified JSON data
      *
@@ -31,10 +31,12 @@ interface TreeInterface extends IteratorInterface
      */
     public function setJson(?string $json): static;
 
+
     /**
      * @inheritDoc
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
+
 
     /**
      * Returns the source in tree-view format

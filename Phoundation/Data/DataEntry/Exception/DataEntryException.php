@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Exception;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryExceptionInterface;
 use Phoundation\Data\Exception\DataException;
 
-
 /**
  * Class DataException
  *

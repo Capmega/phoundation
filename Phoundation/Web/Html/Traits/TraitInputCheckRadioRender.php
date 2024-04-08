@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Trait TraitInputCheckRadioRender
  *
@@ -19,7 +18,6 @@ trait TraitInputCheckRadioRender
 {
     use TraitInputLabel;
 
-
     /**
      * Render the HTML for this checkbox
      *
@@ -29,7 +27,6 @@ trait TraitInputCheckRadioRender
     {
         $this->getAria()
              ->add($this->label, 'label');
-
         if ($this->label_hidden) {
             // Hide the label, put it in aria instead
             $this->label = null;
@@ -38,8 +35,8 @@ trait TraitInputCheckRadioRender
             $element = Label::new()
                             ->setClass($this->label_class)
                             ->setContent($this->label);
-
-            $element->getAttributes()->add($this->id, 'for');
+            $element->getAttributes()
+                    ->add($this->id, 'for');
 
             return parent::render() . $element->render();
         }

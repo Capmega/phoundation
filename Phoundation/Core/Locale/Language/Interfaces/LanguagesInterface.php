@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Locale\Language\Interfaces;
 
-
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 /**
@@ -32,6 +31,7 @@ interface LanguagesInterface
      * @return InputSelectInterface
      */
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
+
 
     /**
      * Load the id list from the database

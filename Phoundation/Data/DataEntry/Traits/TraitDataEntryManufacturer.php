@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Stringable;
 
-
 /**
  * Trait TraitDataEntryManufacturer
  *
@@ -39,6 +38,6 @@ trait TraitDataEntryManufacturer
      */
     public function setManufacturer(Stringable|string|null $manufacturer): static
     {
-        return $this->setValue('manufacturer', (string)$manufacturer);
+        return $this->setValue('manufacturer', (string) $manufacturer);
     }
 }

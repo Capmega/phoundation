@@ -6,16 +6,15 @@ namespace Phoundation\Developer;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Class DebugCounter
  *
  * This class contains a simple counter that can be used for debugging.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class DebugCounter
 {
@@ -38,6 +37,7 @@ class DebugCounter
      * Set which counter to use
      *
      * @param string $counter
+     *
      * @return DebugCounter
      */
     public function select(string $counter): DebugCounter
@@ -45,9 +45,7 @@ class DebugCounter
         if (!$counter) {
             throw new OutOfBoundsException(tr('No counter specified'));
         }
-
         $this->counter = $counter;
-
         if (!array_key_exists($counter, $this->counters)) {
             $this->counters[$counter] = 0;
         }

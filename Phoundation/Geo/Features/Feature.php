@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 
-
 /**
  * Class Feature
  *
@@ -23,7 +22,6 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 class Feature extends DataEntry
 {
     use TraitDataEntryNameDescription;
-
 
     /**
      * Returns the table name used by this object
@@ -68,7 +66,6 @@ class Feature extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions;
-
 //        throw new UnderConstructionException();
 //
 //        $data = $validator

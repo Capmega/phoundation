@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Forms\Interfaces;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
-
 /**
  * Class DataEntryComponentForm
  *
@@ -27,6 +26,7 @@ interface DataEntryFormColumnInterface extends ElementsBlockInterface
      */
     public function getColumnComponent(): RenderInterface|string|null;
 
+
     /**
      * Sets the component
      *
@@ -35,6 +35,7 @@ interface DataEntryFormColumnInterface extends ElementsBlockInterface
      * @return static
      */
     public function setColumnComponent(RenderInterface|string|null $component): static;
+
 
     /**
      * Renders and returns the HTML for this component

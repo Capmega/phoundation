@@ -84,12 +84,14 @@ class CliAutoComplete
      * @var int|null $position
      */
     protected static ?int $position = null;
+
     /**
      * The command for which auto complete is running
      *
      * @var string $command
      */
     protected static string $command;
+
     /**
      * List of available system arguments
      *

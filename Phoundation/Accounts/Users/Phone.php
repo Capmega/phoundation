@@ -26,7 +26,6 @@ use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Stringable;
 
-
 /**
  * Class Phone
  *
@@ -47,7 +46,6 @@ class Phone extends DataEntry implements PhoneInterface
     use TraitDataEntryDescription;
     use TraitDataEntryVerificationCode;
 
-
     /**
      * DataEntry class constructor
      *
@@ -57,7 +55,9 @@ class Phone extends DataEntry implements PhoneInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
-        $identifier = Sanitize::new($identifier)->phoneNumber()->getSource();
+        $identifier = Sanitize::new($identifier)
+                              ->phoneNumber()
+                              ->getSource();
         parent::__construct($identifier, $column, $meta_enabled);
     }
 
@@ -94,6 +94,7 @@ class Phone extends DataEntry implements PhoneInterface
         return 'phone';
     }
 
+
     /**
      * Returns a DataEntry object matching the specified identifier
      *
@@ -118,6 +119,7 @@ class Phone extends DataEntry implements PhoneInterface
         }
     }
 
+
     /**
      * Returns true if an entry with the specified identifier exists
      *
@@ -132,9 +134,13 @@ class Phone extends DataEntry implements PhoneInterface
      */
     public static function exists(Stringable|string|int $identifier, ?string $column = null, ?int $not_id = null, bool $throw_exception = false): bool
     {
-        $identifier = Sanitize::new($identifier)->phoneNumber()->getSource();
+        $identifier = Sanitize::new($identifier)
+                              ->phoneNumber()
+                              ->getSource();
+
         return parent::notExists($identifier, $column, $not_id, $throw_exception);
     }
+
 
     /**
      * Returns true if an entry with the specified identifier does not exist
@@ -151,9 +157,13 @@ class Phone extends DataEntry implements PhoneInterface
      */
     public static function notExists(Stringable|string|int $identifier, ?string $column = null, ?int $id = null, bool $throw_exception = false): bool
     {
-        $identifier = Sanitize::new($identifier)->phoneNumber()->getSource();
+        $identifier = Sanitize::new($identifier)
+                              ->phoneNumber()
+                              ->getSource();
+
         return parent::notExists($identifier, $column, $id, $throw_exception);
     }
+
 
     /**
      * Sets the users_id for this object
@@ -165,7 +175,6 @@ class Phone extends DataEntry implements PhoneInterface
     public function setUsersId(?int $users_id): static
     {
         $current = $this->getUsersId();
-
         if ($current and ($current !== $users_id)) {
             throw new ValidationFailedException(tr('Cannot assign additional phone to ":to" from ":from" , only unassigned phones can be assigned', [
                 ':from' => $current,
@@ -175,6 +184,7 @@ class Phone extends DataEntry implements PhoneInterface
 
         return $this->setValue('users_id', $users_id);
     }
+
 
     /**
      * Sets the users_email for this additional phone
@@ -186,7 +196,6 @@ class Phone extends DataEntry implements PhoneInterface
     public function setUsersEmail(?string $users_email): static
     {
         $current = $this->getUsersEmail();
-
         if ($current and ($current !== $users_email)) {
             throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from" , only unassigned emails can be assigned', [
                 ':from' => $current,
@@ -197,6 +206,7 @@ class Phone extends DataEntry implements PhoneInterface
         return $this->setValue('users_email', $users_email);
     }
 
+
     /**
      * Sets the available data keys for this entry
      *
@@ -204,62 +214,61 @@ class Phone extends DataEntry implements PhoneInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions
-            ->add(Definition::new($this, 'verification_code')
-                            ->setOptional(true)
-                            ->setRender(false)
-                            ->setReadonly(true))
-            ->add(DefinitionFactory::getUsersId($this)
-                                   ->setRender(false))
-            ->add(DefinitionFactory::getPhone($this)
-                                   ->setSize(4)
-                                   ->setOptional(false)
-                                   ->setHelpText(tr('An extra phone for the user')))
-            ->add(Definition::new($this, 'account_type')
-                            ->setOptional(true)
-                            ->setElement(EnumElement::select)
-                            ->setSize(3)
-                            ->setCliColumn('-t,--type')
-                            ->setDataSource([
-                                                'personal' => tr('Personal'),
-                                                'business' => tr('Business'),
-                                                'other'    => tr('Other'),
-                                            ])
-                            ->setCliAutoComplete([
-                                                     'word'   => function (string $word) {
-                                                         return Arrays::removeValues([
-                                                                                         tr('Business'),
-                                                                                         tr('Personal'),
-                                                                                         tr('Other'),
-                                                                                     ], $word);
-                                                     },
-                                                     'noword' => function () {
-                                                         return [
-                                                             tr('Business'),
-                                                             tr('Personal'),
-                                                             tr('Other'),
-                                                         ];
-                                                     },
-                                                 ])
-                            ->setLabel(tr('Type'))
-                            ->setHelpText(tr('The type of phone')))
-            ->add(DefinitionFactory::getDateTime($this, 'verified_on')
-                                   ->setReadonly(true)
-                                   ->setSize(3)
-                                   ->setNullInputType(EnumElementInputType::text)
-                                   ->setNullDb(true, tr('Not verified'))
-                                   ->addClasses('text-center')
-                                   ->setLabel(tr('Verified on'))
-                                   ->setHelpGroup(tr('Account information'))
-                                   ->setHelpText(tr('The date when this user was phone verified. Empty if not yet verified')))
-            ->add(Definition::new($this, 'delete')
-                            ->setVirtual(true)
-                            ->setInputType(EnumElementInputType::submit)
-                            ->setSize(2)
-                            ->setLabel(tr('Delete'))
-                            ->addClasses('btn btn-outline-warning')
-                            ->setValue(tr('Delete')))
-            ->add(DefinitionFactory::getDescription($this)
-                                   ->setHelpText(tr('The description for this phone')));
+        $definitions->add(Definition::new($this, 'verification_code')
+                                    ->setOptional(true)
+                                    ->setRender(false)
+                                    ->setReadonly(true))
+                    ->add(DefinitionFactory::getUsersId($this)
+                                           ->setRender(false))
+                    ->add(DefinitionFactory::getPhone($this)
+                                           ->setSize(4)
+                                           ->setOptional(false)
+                                           ->setHelpText(tr('An extra phone for the user')))
+                    ->add(Definition::new($this, 'account_type')
+                                    ->setOptional(true)
+                                    ->setElement(EnumElement::select)
+                                    ->setSize(3)
+                                    ->setCliColumn('-t,--type')
+                                    ->setDataSource([
+                                        'personal' => tr('Personal'),
+                                        'business' => tr('Business'),
+                                        'other'    => tr('Other'),
+                                    ])
+                                    ->setCliAutoComplete([
+                                        'word'   => function (string $word) {
+                                            return Arrays::removeValues([
+                                                tr('Business'),
+                                                tr('Personal'),
+                                                tr('Other'),
+                                            ], $word);
+                                        },
+                                        'noword' => function () {
+                                            return [
+                                                tr('Business'),
+                                                tr('Personal'),
+                                                tr('Other'),
+                                            ];
+                                        },
+                                    ])
+                                    ->setLabel(tr('Type'))
+                                    ->setHelpText(tr('The type of phone')))
+                    ->add(DefinitionFactory::getDateTime($this, 'verified_on')
+                                           ->setReadonly(true)
+                                           ->setSize(3)
+                                           ->setNullInputType(EnumElementInputType::text)
+                                           ->setNullDb(true, tr('Not verified'))
+                                           ->addClasses('text-center')
+                                           ->setLabel(tr('Verified on'))
+                                           ->setHelpGroup(tr('Account information'))
+                                           ->setHelpText(tr('The date when this user was phone verified. Empty if not yet verified')))
+                    ->add(Definition::new($this, 'delete')
+                                    ->setVirtual(true)
+                                    ->setInputType(EnumElementInputType::submit)
+                                    ->setSize(2)
+                                    ->setLabel(tr('Delete'))
+                                    ->addClasses('btn btn-outline-warning')
+                                    ->setValue(tr('Delete')))
+                    ->add(DefinitionFactory::getDescription($this)
+                                           ->setHelpText(tr('The description for this phone')));
     }
 }

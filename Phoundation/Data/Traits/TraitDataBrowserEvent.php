@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Web\Html\Enums\EnumBrowserEvent;
 
-
 /**
  * Trait TraitDataBrowserEvent
  *
@@ -25,6 +24,7 @@ trait TraitDataBrowserEvent
      * @var EnumBrowserEvent $browser_event
      */
     protected EnumBrowserEvent $browser_event;
+
 
     /**
      * Returns the source
@@ -47,6 +47,7 @@ trait TraitDataBrowserEvent
     public function setBrowserEvent(EnumBrowserEvent $browser_event): static
     {
         $this->browser_event = $browser_event;
+
         return $this;
     }
 }

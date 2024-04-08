@@ -6,7 +6,6 @@ namespace Phoundation\Os\Devices\Exception;
 
 use Phoundation\Exception\Exception;
 
-
 /**
  * Class DevicesException
  *

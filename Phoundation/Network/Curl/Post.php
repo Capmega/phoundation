@@ -10,7 +10,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Network\Curl\Exception\CurlPostException;
 use Stringable;
 
-
 /**
  * Class Curl
  *
@@ -60,7 +59,6 @@ class Post extends Get
     public function __construct(Stringable|string|null $url = null)
     {
         parent::__construct($url);
-
         // Disable 301 302 location header following since this would cause the POST to go to GET
         $this->method          = 'POST';
         $this->follow_location = false;
@@ -88,6 +86,7 @@ class Post extends Get
     public function setContentType(?string $content_type): static
     {
         $this->content_type = $content_type;
+
         return $this;
     }
 
@@ -113,6 +112,7 @@ class Post extends Get
     public function setPostUrlEncoded(bool $post_url_encoded): static
     {
         $this->post_url_encoded = $post_url_encoded;
+
         return $this;
     }
 
@@ -136,6 +136,7 @@ class Post extends Get
     public function clearPostValues(): static
     {
         $this->post_data = [];
+
         return $this;
     }
 
@@ -150,6 +151,7 @@ class Post extends Get
     public function setPostValues(array $values): static
     {
         $this->post_data = [];
+
         return $this->addPostValues($values);
     }
 
@@ -182,6 +184,7 @@ class Post extends Get
     public function addPostValue(string|int $key, mixed $value): static
     {
         $this->post_data[$key] = $value;
+
         return $this;
     }
 
@@ -205,6 +208,7 @@ class Post extends Get
     public function clearPostFileUploads(): static
     {
         $this->upload_files = [];
+
         return $this;
     }
 
@@ -219,6 +223,7 @@ class Post extends Get
     public function setPostFileUploads(array $files): static
     {
         $this->upload_files = [];
+
         return $this->addPostValues($files);
     }
 
@@ -251,6 +256,7 @@ class Post extends Get
     {
         $this->multipart   = true;
         $this->post_data[] = $file;
+
         return $this;
     }
 
@@ -263,19 +269,15 @@ class Post extends Get
     protected function prepare(): void
     {
         parent::prepare();
-
         curl_setopt($this->curl, CURLOPT_POST, true);
-
         // Log cURL request?
         if ($this->log_directory) {
             Log::action(tr('Sending following post data'));
             Log::printr($this->post_data);
         }
-
         if ($this->content_type) {
             curl_setopt($this->curl, CURLINFO_CONTENT_TYPE, $this->content_type);
         }
-
         if ($this->post_url_encoded) {
             curl_setopt($this->curl, CURLOPT_POSTFIELDS, http_build_query($this->post_data));
         } else {

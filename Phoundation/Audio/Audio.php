@@ -16,7 +16,6 @@ use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
-
 /**
  * Class Audio
  *
@@ -83,7 +82,6 @@ class Audio extends File
                                                                                 ->setFile($this->path)
                                                                                 ->render());
                     break;
-
                 default:
                     // Ignore this request
             }

@@ -6,7 +6,6 @@ namespace Phoundation\Databases\Sql\Interfaces;
 
 use Stringable;
 
-
 /**
  * SqlQuery class
  *
@@ -25,6 +24,7 @@ interface SqlQueryInterface extends Stringable
      * @return string
      */
     public function getQuery(): string;
+
 
     /**
      * Sets the SQL query string

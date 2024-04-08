@@ -25,7 +25,6 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 
-
 /**
  * Class Incident
  *
@@ -46,14 +45,12 @@ class Incident extends DataEntry implements IncidentInterface
     use TraitDataEntryTitle;
     use TraitDataEntryDetails;
 
-
     /**
      * Sets if this incident is logged in the text log
      *
      * @var bool
      */
     protected bool $log = true;
-
 
     /**
      * Sets if this incident causes a notification to the specified groups
@@ -117,6 +114,7 @@ class Incident extends DataEntry implements IncidentInterface
     public function setLog(bool $log): static
     {
         $this->log = $log;
+
         return $this;
     }
 
@@ -134,8 +132,9 @@ class Incident extends DataEntry implements IncidentInterface
             // Ensure the source is not a string, at least an array
             $roles = Arrays::force($roles);
         }
+        $this->getNotifyRoles()
+             ->addSources($roles);
 
-        $this->getNotifyRoles()->addSources($roles);
         return $this;
     }
 
@@ -165,8 +164,10 @@ class Incident extends DataEntry implements IncidentInterface
     public function setNotifyRoles(IteratorInterface|array $notify_roles): static
     {
         $this->notify_roles = $notify_roles;
+
         return $this;
     }
+
 
     /**
      * Sets the severity for this object
@@ -184,6 +185,7 @@ class Incident extends DataEntry implements IncidentInterface
         return $this->setValue('severity', $severity->value);
     }
 
+
     /**
      * Saves the incident to a database
      *
@@ -195,16 +197,13 @@ class Incident extends DataEntry implements IncidentInterface
     public function save(bool $force = false, ?string $comments = null): static
     {
         $severity = strtolower($this->getSeverity());
-
         if ($this->log) {
             switch ($severity) {
                 case 'notice':
                     Log::warning(tr('Security notice: :message', [
                         ':message' => $this->getTitle(),
                     ]));
-
                     break;
-
                 case 'high':
                     // no break
                 case 'severe':
@@ -212,9 +211,7 @@ class Incident extends DataEntry implements IncidentInterface
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
                     ]));
-
                     break;
-
                 default:
                     Log::warning(tr('Security incident (:severity): :message', [
                         ':severity' => $severity,
@@ -222,42 +219,36 @@ class Incident extends DataEntry implements IncidentInterface
                     ]));
             }
         }
-
         // Save the incident
         $incident = parent::save($force, $comments);
-
         // Notify anybody?
         if (isset($this->notify_roles)) {
             // Notify the specified roles
             $notification = Notification::new();
-
             switch ($severity) {
                 case 'notice':
                     // no break
                 case 'low':
                     $notification->setMode(EnumDisplayMode::notice);
                     break;
-
                 case 'medium':
                     $notification->setMode(EnumDisplayMode::warning);
                     break;
-
                 default:
                     $notification->setMode(EnumDisplayMode::danger);
                     break;
             }
-
-            $notification
-                ->setUrl('security/incident+' . $this->getId() . '.html')
-                ->setRoles($this->notify_roles)
-                ->setTitle($this->getType())
-                ->setMessage($this->getTitle())
-                ->setDetails($this->getDetails())
-                ->send();
+            $notification->setUrl('security/incident+' . $this->getId() . '.html')
+                         ->setRoles($this->notify_roles)
+                         ->setTitle($this->getType())
+                         ->setMessage($this->getTitle())
+                         ->setDetails($this->getDetails())
+                         ->send();
         }
 
         return $incident;
     }
+
 
     /**
      * Returns the severity for this object
@@ -269,6 +260,7 @@ class Incident extends DataEntry implements IncidentInterface
         return $this->getValueTypesafe('string', 'severity', Severity::unknown->value);
     }
 
+
     /**
      * Throw an incidents exception
      *
@@ -279,10 +271,11 @@ class Incident extends DataEntry implements IncidentInterface
     #[NoReturn] public function throw(?string $exception = null): never
     {
         if ($exception) {
-            throw $exception::new($this->getTitle())->addData(['details' => $this->getDetails()]);
+            throw $exception::new($this->getTitle())
+                            ->addData(['details' => $this->getDetails()]);
         }
-
-        throw IncidentsException::new($this->getTitle())->addData(['details' => $this->getDetails()]);
+        throw IncidentsException::new($this->getTitle())
+                                ->addData(['details' => $this->getDetails()]);
     }
 
 
@@ -293,61 +286,59 @@ class Incident extends DataEntry implements IncidentInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions
-            ->add(Definition::new($this, 'type')
-                            ->setLabel(tr('Incident type'))
-                            ->setDisabled(true)
-                            ->setDefault(tr('Unknown'))
-                            ->setSize(6)
-                            ->setMaxlength(6))
-            ->add(Definition::new($this, 'severity')
-                            ->setElement(EnumElement::select)
-                            ->setLabel(tr('Severity'))
-                            ->setDisabled(true)
-                            ->setSize(6)
-                            ->setMaxlength(6)
-                            ->setDataSource([
-                                                Severity::notice->value => tr('Notice'),
-                                                Severity::low->value    => tr('Low'),
-                                                Severity::medium->value => tr('Medium'),
-                                                Severity::high->value   => tr('High'),
-                                                Severity::severe->value => tr('Severe'),
-                                            ]))
-            ->add(Definition::new($this, 'title')
-                            ->setLabel(tr('Title'))
-                            ->setDisabled(true)
-                            ->setSize(12)
-                            ->setMaxlength(4)
-                            ->setMaxlength(255))
-            ->add(Definition::new($this, 'details')
-                            ->setElement(EnumElement::textarea)
-                            ->setLabel(tr('Details'))
-                            ->setDisabled(true)
-                            ->setSize(12)
-                            ->setMaxlength(65_535)
-                            ->setDisplayCallback(function (mixed $value, array $source) {
-                                // Since the details almost always have an array encoded in JSON, decode it and display it using
-                                // print_r
-                                if (!$value) {
-                                    return null;
-                                }
+        $definitions->add(Definition::new($this, 'type')
+                                    ->setLabel(tr('Incident type'))
+                                    ->setDisabled(true)
+                                    ->setDefault(tr('Unknown'))
+                                    ->setSize(6)
+                                    ->setMaxlength(6))
+                    ->add(Definition::new($this, 'severity')
+                                    ->setElement(EnumElement::select)
+                                    ->setLabel(tr('Severity'))
+                                    ->setDisabled(true)
+                                    ->setSize(6)
+                                    ->setMaxlength(6)
+                                    ->setDataSource([
+                                        Severity::notice->value => tr('Notice'),
+                                        Severity::low->value    => tr('Low'),
+                                        Severity::medium->value => tr('Medium'),
+                                        Severity::high->value   => tr('High'),
+                                        Severity::severe->value => tr('Severe'),
+                                    ]))
+                    ->add(Definition::new($this, 'title')
+                                    ->setLabel(tr('Title'))
+                                    ->setDisabled(true)
+                                    ->setSize(12)
+                                    ->setMaxlength(4)
+                                    ->setMaxlength(255))
+                    ->add(Definition::new($this, 'details')
+                                    ->setElement(EnumElement::textarea)
+                                    ->setLabel(tr('Details'))
+                                    ->setDisabled(true)
+                                    ->setSize(12)
+                                    ->setMaxlength(65_535)
+                                    ->setDisplayCallback(function (mixed $value, array $source) {
+                                        // Since the details almost always have an array encoded in JSON, decode it and display it using
+                                        // print_r
+                                        if (!$value) {
+                                            return null;
+                                        }
+                                        try {
+                                            $return  = '';
+                                            $details = Json::decode($value);
+                                            $largest = Arrays::getLongestKeyLength($details);
+                                            foreach ($details as $key => $value) {
+                                                $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;
+                                            }
 
-                                try {
-                                    $return  = '';
-                                    $details = Json::decode($value);
-                                    $largest = Arrays::getLongestKeyLength($details);
+                                            return $return;
 
-                                    foreach ($details as $key => $value) {
-                                        $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;
-                                    }
+                                        } catch (JsonException $e) {
+                                            // We couldn't decode it! Why? No idea, but lets just move on, its not THAT important.. yet.
+                                            Log::warning($e);
 
-                                    return $return;
-
-                                } catch (JsonException $e) {
-                                    // We couldn't decode it! Why? No idea, but lets just move on, its not THAT important.. yet.
-                                    Log::warning($e);
-                                    return $value;
-                                }
-                            }));
+                                            return $value;
+                                        }
+                                    }));
     }
 }

@@ -8,7 +8,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Requests\Routing\Interfaces\MapInterface;
 
-
 /**
  * Class Map
  *
@@ -27,7 +26,6 @@ class Map implements MapInterface
      * @var string $value
      */
     protected string $value;
-
 
     /**
      * The map source
@@ -89,8 +87,8 @@ class Map implements MapInterface
                 ':value' => $this->value,
             ]));
         }
-
         $this->source = $source;
+
         return $this;
     }
 
@@ -118,8 +116,8 @@ class Map implements MapInterface
         if (empty($value)) {
             throw new OutOfBoundsException(tr('No value on which to apply map specified'));
         }
-
         $this->value = $value;
+
         return $this;
     }
 
@@ -137,10 +135,9 @@ class Map implements MapInterface
             foreach ($this->source as $key => $value) {
                 $url = str_replace($key, $value, $url);
             }
-
             Log::success(tr('Applied URL mapping for value ":value"', [
                 ':value' => $this->value,
-            ]),          4);
+            ]), 4);
         }
 
         return $url;

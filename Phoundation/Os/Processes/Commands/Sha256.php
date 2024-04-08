@@ -8,7 +8,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class FilesystemCommands
  *
@@ -31,18 +30,18 @@ class Sha256 extends Command
     public function sha256(string $file): string
     {
         try {
-            $output = $this
-                ->setCommand('sha256sum')
-                ->addArguments($file)
-                ->setTimeout(120)
-                ->executeReturnString();
+            $output = $this->setCommand('sha256sum')
+                           ->addArguments($file)
+                           ->setTimeout(120)
+                           ->executeReturnString();
 
             return Strings::until($output, ' ');
 
         } catch (ProcessFailedException $e) {
             // The command sha256sum failed, most of the time either $file doesn't exist, or we don't have access
             static::handleException('sha256sum', $e, function () use ($file) {
-                File::new($file)->checkReadable();
+                File::new($file)
+                    ->checkReadable();
             });
         }
     }

@@ -8,7 +8,6 @@ use DateTimeInterface;
 use DateTimeZone;
 use Phoundation\Date\DateTime;
 
-
 /**
  * Trait TraitDataStopDate
  *
@@ -58,7 +57,6 @@ trait TraitDataStopDate
             if (!$stop_date or is_string($stop_date)) {
                 $stop_date = DateTime::new($stop_date, $timezone);
             }
-
             $this->stop_date = DateTime::new($stop_date->format('Y-m-d'), $stop_date->getTimezone());
         }
 

@@ -8,7 +8,6 @@ use Phoundation\Core\Sessions\Config;
 use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Validate class
  *
@@ -22,7 +21,6 @@ use Phoundation\Utils\Strings;
 class Sanitize
 {
     use TraitDataMaxStringSize;
-
 
     /**
      * The source data that will be validated
@@ -72,12 +70,11 @@ class Sanitize
      */
     public function phoneNumber(): static
     {
-        $value  = trim((string)$this->source);
+        $value  = trim((string) $this->source);
         $prefix = (str_starts_with($value, '+') ? '+' : Config::getString('validation.defaults.phones.country-code', '+1'));
         $ext    = Strings::from($value, 'ext', needle_required: true);
         $value  = preg_replace('/[^0-9]+/', '', $value);
         $ext    = preg_replace('/[^0-9]+/', '', $ext);
-
         if ($value) {
             $this->source = $prefix . $value . ($ext ? ' ext. ' . $ext : null);
 

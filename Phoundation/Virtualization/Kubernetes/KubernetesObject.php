@@ -17,16 +17,15 @@ use Phoundation\Virtualization\Kubernetes\Traits\TraitDataLabels;
 use Phoundation\Virtualization\Kubernetes\Traits\TraitDataNamespace;
 use Phoundation\Virtualization\Kubernetes\Traits\TraitUsesKubeCtl;
 
-
 /**
  * Class KubernetesObject
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Virtualization
+ * @package   Phoundation\Virtualization
  */
 class KubernetesObject
 {
@@ -53,6 +52,7 @@ class KubernetesObject
      */
     protected string $object_file_class;
 
+
     /**
      * KubernetesObject class constructor
      *
@@ -63,8 +63,52 @@ class KubernetesObject
         $this->name        = $name;
         $this->kind        = Strings::fromReverse(get_class($this), '\\');
         $this->get_command = strtolower($this->kind);
-
         $this->load();
+    }
+
+
+    /**
+     * Load the deployment description
+     *
+     * @param bool $clear
+     *
+     * @return static
+     */
+    public function load(bool $clear = true, bool $only_if_empty = false): static
+    {
+        if ($this->getName()) {
+            $output = Process::new('kubectl')
+                             ->addArguments([
+                                 'get',
+                                 $this->getCommand(),
+                                 '-o=yaml',
+                                 $this->getName(),
+                             ])
+                             ->executeReturnString();
+            $this->data = yaml_parse($output);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Save the current deployment data
+     *
+     * @return static
+     */
+    public function save(): static
+    {
+        $this->getObjectFile()
+             ->save();
+        Log::success(tr('Saved ":kind" object ":name" in file ":file"', [
+            ':kind' => $this->getKind(),
+            ':name' => $this->getName(),
+            ':file' => $this->getObjectFile()
+                            ->getFile(),
+        ]));
+
+        return $this;
     }
 
 
@@ -78,33 +122,13 @@ class KubernetesObject
         if (!$this->file) {
             if (!isset($this->object_file_class)) {
                 throw new OutOfBoundsException(tr('The ":class" class does not support Kubernetes configuration files', [
-                    ':class' => get_class($this)
+                    ':class' => get_class($this),
                 ]));
             }
-
             $this->file = new $this->object_file_class($this);
         }
 
         return $this->file;
-    }
-
-
-    /**
-     * Save the current deployment data
-     *
-     * @return static
-     */
-    public function save(): static
-    {
-        $this->getObjectFile()->save();
-
-        Log::success(tr('Saved ":kind" object ":name" in file ":file"', [
-            ':kind' => $this->getKind(),
-            ':name' => $this->getName(),
-            ':file' => $this->getObjectFile()->getFile()
-        ]));
-
-        return $this;
     }
 
 
@@ -116,11 +140,14 @@ class KubernetesObject
     public function delete(): static
     {
         Process::new('kubectl')
-            ->addArguments(['delete', 'deployment', $this->name]);
-
+               ->addArguments([
+                   'delete',
+                   'deployment',
+                   $this->name,
+               ]);
         Log::success(tr('Deleted ":kind" kind object ":secret"', [
             ':kind'   => $this->kind,
-            ':secret' => $this->name
+            ':secret' => $this->name,
         ]));
 
         return $this;
@@ -135,7 +162,10 @@ class KubernetesObject
     public function create(): static
     {
         Process::new('kubectl')
-            ->addArguments(['create', 'deployment']);
+               ->addArguments([
+                   'create',
+                   'deployment',
+               ]);
 
         return $this;
     }
@@ -149,9 +179,13 @@ class KubernetesObject
     public function apply(): static
     {
         $this->output = Process::new('kubectl')
-            ->addArguments(['apply', '-f', $this->getObjectFile()->getFile()])
-            ->executeReturnArray();
-
+                               ->addArguments([
+                                   'apply',
+                                   '-f',
+                                   $this->getObjectFile()
+                                        ->getFile(),
+                               ])
+                               ->executeReturnArray();
         Log::success($this->output);
 
         return $this;
@@ -166,25 +200,5 @@ class KubernetesObject
     public function getYaml(): string
     {
         return yaml_emit($this->data);
-    }
-
-
-    /**
-     * Load the deployment description
-     *
-     * @param bool $clear
-     * @return static
-     */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
-    {
-        if ($this->getName()) {
-            $output = Process::new('kubectl')
-                ->addArguments(['get', $this->getCommand(), '-o=yaml', $this->getName()])
-                ->executeReturnString();
-
-            $this->data = yaml_parse($output);
-        }
-
-        return $this;
     }
 }

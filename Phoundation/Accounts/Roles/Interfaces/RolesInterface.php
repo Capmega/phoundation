@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
 
-
 /**
  * Interface RolesInterface
  *
@@ -31,6 +30,7 @@ interface RolesInterface extends DataListInterface
      */
     public function setRoles(?array $list): static;
 
+
     /**
      * Add the specified role to the data list
      *
@@ -43,6 +43,7 @@ interface RolesInterface extends DataListInterface
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
 
+
     /**
      * Remove the specified role from the roles list
      *
@@ -52,12 +53,14 @@ interface RolesInterface extends DataListInterface
      */
     public function deleteKeys(RoleInterface|Stringable|array|string|float|int $keys): static;
 
+
     /**
      * Remove all rights for this right
      *
      * @return static
      */
     public function clear(): static;
+
 
     /**
      * Load the data for this roles list into the object
@@ -68,12 +71,14 @@ interface RolesInterface extends DataListInterface
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static;
 
+
     /**
      * Save the data for this roles list in the database
      *
      * @return static
      */
     public function save(): static;
+
 
     /**
      * Returns an HTML <select> for the available object entries
@@ -86,6 +91,5 @@ interface RolesInterface extends DataListInterface
      *
      * @return InputSelectInterface
      */
-
     public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
 }

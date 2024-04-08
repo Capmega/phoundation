@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataHost
  *
@@ -46,6 +45,7 @@ trait TraitDataHost
     public function setHost(?string $host): static
     {
         $this->host = get_null($host);
+
         return $this;
     }
 }

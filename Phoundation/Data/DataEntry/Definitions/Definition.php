@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class Definition
  *
@@ -70,16 +69,19 @@ class Definition implements DefinitionInterface
         'auto-suggest',
         'array_json',
     ];
+
     /**
      * The data entry where this definition belongs to
      *
      * @var DataEntryInterface|null $data_entry
      */
     protected ?DataEntryInterface $data_entry;
+
     /**
      * Validations to execute to ensure
      */
     protected array $validations = [];
+
     /**
      * Definitions for this Definition
      *
@@ -138,6 +140,7 @@ class Definition implements DefinitionInterface
         $this->setColumn($column);
     }
 
+
     /**
      * Sets the column name for this definition
      *
@@ -149,6 +152,7 @@ class Definition implements DefinitionInterface
     {
         return $this->setKey($column, 'column');
     }
+
 
     /**
      * Add specified value for the specified key for this DataEntry column
@@ -164,10 +168,11 @@ class Definition implements DefinitionInterface
             // Auto trim all string values
             $value = trim($value);
         }
-
         $this->source[$key] = $value;
+
         return $this;
     }
+
 
     /**
      * Returns a new static object
@@ -182,6 +187,7 @@ class Definition implements DefinitionInterface
         return new static($data_entry, $column);
     }
 
+
     /**
      * Returns the query builder from the data entry
      *
@@ -191,6 +197,7 @@ class Definition implements DefinitionInterface
     {
         return $this->data_entry->getQueryBuilderObject();
     }
+
 
     /**
      * Modify the contents of the query builder through a callback function
@@ -202,8 +209,10 @@ class Definition implements DefinitionInterface
     public function modifyQueryBuilder(callable $callback): static
     {
         $callback($this->data_entry->getQueryBuilderObject());
+
         return $this;
     }
+
 
     /**
      * Returns the prefix automatically added to this value, after validation
@@ -214,6 +223,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('string', $this->source['prefix']);
     }
+
 
     /**
      * Sets the prefix automatically added to this value, after validation
@@ -227,6 +237,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($prefix, 'prefix');
     }
 
+
     /**
      * Returns the additional content for this component
      *
@@ -236,6 +247,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface|callable|string|null', $this->source['additional_content']);
     }
+
 
     /**
      * Sets the additional content for this component
@@ -249,6 +261,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($prefix, 'additional_content');
     }
 
+
     /**
      * Returns the postfix automatically added to this value, after validation
      *
@@ -258,6 +271,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('string', $this->source['postfix']);
     }
+
 
     /**
      * Sets the postfix automatically added to this value, after validation
@@ -270,6 +284,7 @@ class Definition implements DefinitionInterface
     {
         return $this->setKey($postfix, 'postfix');
     }
+
 
     /**
      * Returns if this column is rendered as HTML or not
@@ -285,6 +300,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['render'], true);
     }
+
 
     /**
      * Returns if this column is rendered as HTML or not
@@ -309,6 +325,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'render');
     }
 
+
     /**
      * Returns if this column is visible in HTML clients
      *
@@ -322,6 +339,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['visible'], true);
     }
+
 
     /**
      * Sets if this column is visible in HTML clients
@@ -345,6 +363,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'visible');
     }
 
+
     /**
      * Returns if this column is displayed in HTML clients
      *
@@ -358,6 +377,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['display'], true);
     }
+
 
     /**
      * Sets if this column is displayed in HTML clients
@@ -381,6 +401,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'display');
     }
 
+
     /**
      * Adds the specified HTML classes to the DataEntryForm object
      *
@@ -399,6 +420,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'classes');
     }
 
+
     /**
      * Returns the extra HTML classes for this DataEntryForm object
      *
@@ -410,7 +432,6 @@ class Definition implements DefinitionInterface
     public function getClasses(bool $add_prefixless_names = true): array
     {
         $classes = isset_get_typed('array', $this->source['classes'], []);
-
         if ($add_prefixless_names) {
             // Add the column name without prefix as a class name
             $classes[] = strtolower($this->getColumn());
@@ -418,6 +439,7 @@ class Definition implements DefinitionInterface
 
         return $classes;
     }
+
 
     /**
      * Sets the column name for this definition
@@ -428,6 +450,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('string', $this->source['column']);
     }
+
 
     /**
      * Sets specified HTML classes to the DataEntryForm object
@@ -448,6 +471,7 @@ class Definition implements DefinitionInterface
         return $this->setKey(Arrays::force($value, ' '), 'classes');
     }
 
+
     /**
      * Returns the internal definitions for this column
      *
@@ -457,6 +481,7 @@ class Definition implements DefinitionInterface
     {
         return $this->source;
     }
+
 
     /**
      * Sets all the internal definitions for this column in one go
@@ -468,8 +493,10 @@ class Definition implements DefinitionInterface
     public function setSource(array $source): static
     {
         $this->source = $source;
+
         return $this;
     }
+
 
     /**
      * Returns the extra HTML data for this DataEntryForm object
@@ -480,6 +507,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('array', $this->source['data'], []);
     }
+
 
     /**
      * Adds the specified HTML data to the DataEntryForm object
@@ -494,11 +522,11 @@ class Definition implements DefinitionInterface
         if (!isset($this->source['data'])) {
             $this->source['data'] = [];
         }
-
         $this->source['data'][$key] = $value;
 
         return $this;
     }
+
 
     /**
      * Sets specified HTML data to the DataEntryForm object
@@ -516,6 +544,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'data');
     }
 
+
     /**
      * Returns the extra HTML data for this DataEntryForm object
      *
@@ -525,6 +554,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('array', $this->source['scripts'], []);
     }
+
 
     /**
      * @param ScriptInterface $script
@@ -536,11 +566,11 @@ class Definition implements DefinitionInterface
         if (!isset($this->source['scripts'])) {
             $this->source['scripts'] = [];
         }
-
         $this->source['scripts'][] = $script;
 
         return $this;
     }
+
 
     /**
      * Returns the extra HTML aria for this DataEntryForm object
@@ -551,6 +581,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('array', $this->source['aria'], []);
     }
+
 
     /**
      * Adds the specified HTML aria to the DataEntryForm object
@@ -565,11 +596,11 @@ class Definition implements DefinitionInterface
         if (!isset($this->source[$key])) {
             $this->source['aria'] = [];
         }
-
         $this->source['aria'][$key] = $value;
 
         return $this;
     }
+
 
     /**
      * Sets specified HTML aria to the DataEntryForm object
@@ -587,6 +618,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'aria');
     }
 
+
     /**
      * Returns if this column will not set the DataEntry to "modified" state when changed
      *
@@ -597,6 +629,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['ignore_modify'], false);
     }
+
 
     /**
      * Sets if this column will not set the DataEntry to "modified" state when changed
@@ -609,8 +642,9 @@ class Definition implements DefinitionInterface
      */
     public function setIgnoreModify(?bool $value): static
     {
-        return $this->setKey((bool)$value, 'ignore_modify');
+        return $this->setKey((bool) $value, 'ignore_modify');
     }
+
 
     /**
      * Returns if this column is virtual
@@ -628,6 +662,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('bool', $this->source['virtual'], false);
     }
 
+
     /**
      * Sets if this column is virtual
      *
@@ -644,8 +679,9 @@ class Definition implements DefinitionInterface
      */
     public function setVirtual(?bool $value): static
     {
-        return $this->setKey((bool)$value, 'virtual');
+        return $this->setKey((bool) $value, 'virtual');
     }
+
 
     /**
      * Returns if this column is ignored
@@ -663,6 +699,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('bool', $this->source['ignored'], false);
     }
 
+
     /**
      * Sets if this column is ignored
      *
@@ -679,8 +716,9 @@ class Definition implements DefinitionInterface
      */
     public function setIgnored(?bool $value): static
     {
-        return $this->setKey((bool)$value, 'ignored');
+        return $this->setKey((bool) $value, 'ignored');
     }
+
 
     /**
      * Returns if this column updates directly, bypassing DataEntry::setSourceValue()
@@ -694,6 +732,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('bool', $this->source['direct_update'], false);
     }
 
+
     /**
      * Sets if this column updates directly, bypassing DataEntry::setSourceValue()
      *
@@ -706,8 +745,9 @@ class Definition implements DefinitionInterface
      */
     public function setDirectUpdate(?bool $value): static
     {
-        return $this->setKey((bool)$value, 'direct_update');
+        return $this->setKey((bool) $value, 'direct_update');
     }
+
 
     /**
      * Sets static value for this column
@@ -723,13 +763,13 @@ class Definition implements DefinitionInterface
             // Don't set this value, only set it on new entries
             return $this;
         }
-
         if ($value instanceof RenderInterface) {
             $value = $value->render();
         }
 
         return $this->setKey($value, 'value');
     }
+
 
     /**
      * Returns the autofocus for this column
@@ -740,6 +780,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['auto_focus'], false);
     }
+
 
     /**
      * Sets the autofocus for this column
@@ -753,6 +794,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($auto_focus, 'auto_focus');
     }
 
+
     /**
      * Returns the HTML client element to be used for this column
      *
@@ -763,6 +805,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('string', $this->source['element']);
     }
 
+
     /**
      * Returns the HTML client element to be used for this column
      *
@@ -772,6 +815,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed(RenderInterface::class . '|callable|string', $this->source['content']);
     }
+
 
     /**
      * Sets the HTML client element to be used for this column
@@ -790,6 +834,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'content');
     }
 
+
     /**
      * Returns true if the input type is scalar, false if it is not
      *
@@ -800,11 +845,11 @@ class Definition implements DefinitionInterface
         switch ($this->getInputType()?->value) {
             case 'array_json':
                 return false;
-
             default:
                 return true;
         }
     }
+
 
     /**
      * Sets the type of input element.
@@ -814,11 +859,9 @@ class Definition implements DefinitionInterface
     public function getInputType(): EnumInputTypeInterface
     {
         $return = $this->getKey('type');
-
         if ($return === null) {
             return EnumElementInputType::text;
         }
-
         try {
             return EnumElementInputType::from($return);
 
@@ -827,11 +870,11 @@ class Definition implements DefinitionInterface
                 // So the input type is not from InputTypeInterface, it must be from InputTypeExtendedInterface
                 return EnumElementInputType::from($return);
             }
-
             // WTF else could possibly have happened?
             throw $e;
         }
     }
+
 
     /**
      * Add specified value for the specified key for this DataEntry column
@@ -844,6 +887,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get($this->source[$key]);
     }
+
 
     /**
      * Sets the type of input element.
@@ -870,14 +914,12 @@ class Definition implements DefinitionInterface
                 }
             }
         }
-
         if (!$value) {
             // NULL specified
             return $this->clearValidationFunctions()
                         ->setElement(null)
                         ->setKey(null, 'type');
         }
-
         // Apply default definitions for this input type
         switch ($value) {
             case EnumElementInputType::number:
@@ -888,56 +930,44 @@ class Definition implements DefinitionInterface
                          if ($this->getMin()) {
                              $validator->isMoreThan($this->getMin(), true);
                          }
-
                          if ($this->getMax()) {
                              $validator->isLessThan($this->getMax(), true);
                          }
                      });
-
                 break;
-
             case EnumElementInputType::year:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          if ($this->getMin() ?? 0) {
                              $validator->isMoreThan($this->getMin() ?? 0, true);
                          }
-
                          if ($this->getMax() ?? 9999) {
                              $validator->isLessThan($this->getMax() ?? 9999, true);
                          }
                      });
-
                 break;
-
             case EnumElementInputType::month:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          if ($this->getMin() ?? 1) {
                              $validator->isMoreThan($this->getMin() ?? 1, true);
                          }
-
                          if ($this->getMax() ?? 12) {
                              $validator->isLessThan($this->getMax() ?? 12, true);
                          }
                      });
-
                 break;
-
             case EnumElementInputType::week:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          if ($this->getMin() ?? 1) {
                              $validator->isMoreThan($this->getMin() ?? 1, true);
                          }
-
                          if ($this->getMax() ?? 52) {
                              $validator->isLessThan($this->getMax() ?? 52, true);
                          }
                      });
-
                 break;
-
             case EnumElementInputType::day:
                 // Validate days
                 $this->setElement(EnumElement::input)
@@ -945,216 +975,158 @@ class Definition implements DefinitionInterface
                          if ($this->getMin() ?? 1) {
                              $validator->isMoreThan($this->getMin() ?? 1, true);
                          }
-
                          if ($this->getMax() ?? 31) {
                              $validator->isLessThan($this->getMax() ?? 31, true);
                          }
                      });
-
                 break;
-
             case EnumElementInputType::datetime_local:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isDateTime();
                      });
-
                 break;
-
             case EnumElementInputType::date:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isDate();
                      });
-
                 break;
-
             case EnumElementInputType::color:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isColor();
                      });
                 break;
-
             case EnumElementInputType::dbid:
                 $value = EnumElementInputType::number;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isNatural();
                      });
-
                 break;
-
             case EnumElementInputType::natural:
                 $value = EnumElementInputType::number;
-
                 $this->setElement(EnumElement::input)
                      ->setKey($value->value, 'type')
                      ->setMin(0)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isNatural();
                      });
-
                 break;
-
             case EnumElementInputType::integer:
                 $value = EnumElementInputType::number;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isInteger();
                      });
-
                 break;
-
             case EnumElementInputType::positiveInteger:
                 $value = EnumElementInputType::number;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isInteger()
                                    ->isMoreThan(0, true);
                      });
-
                 break;
-
             case EnumElementInputType::negativeInteger:
                 $value = EnumElementInputType::number;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isInteger()
                                    ->isLessThan(0, true);
                      });
-
                 break;
-
             case EnumElementInputType::float:
                 $value = EnumElementInputType::number;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isFloat();
                      });
-
                 break;
-
             case EnumElementInputType::name:
                 $value = EnumElementInputType::text;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isName();
                      });
-
                 break;
-
             case EnumElementInputType::variable:
                 $value = EnumElementInputType::text;
                 break;
-
             case EnumElementInputType::email:
                 $this->setElement(EnumElement::input)
                      ->setMaxlength(128)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isEmail();
                      });
-
                 break;
-
             case EnumElementInputType::time:
                 $value = EnumElementInputType::text;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isTime();
                      });
-
                 break;
-
             case EnumElementInputType::url:
                 $value = EnumElementInputType::text;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isUrl();
                      });
-
                 break;
-
             case EnumElementInputType::phone:
                 // no break
             case EnumElementInputType::tel:
                 $value = EnumElementInputType::tel;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->sanitizePhoneNumber();
                      });
-
                 break;
-
             case EnumElementInputType::phones:
                 $value = EnumElementInputType::text;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isPhoneNumbers();
                      });
-
                 break;
-
             case EnumElementInputType::username:
                 $value = EnumElementInputType::text;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isUsername();
                      });
-
                 break;
-
             case EnumElementInputType::path:
                 $value = EnumElementInputType::text;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isDirectory();
                      });
-
                 break;
-
             case EnumElementInputType::file:
                 $value = EnumElementInputType::text;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isFile();
                      });
-
                 break;
-
             case EnumElementInputType::code:
                 $value = EnumElementInputType::text;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isCode();
                      });
-
                 break;
-
             case EnumElementInputType::description:
                 $this->setElement(EnumElement::textarea)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->sanitizeTrim();
-
                          // Validate textarea strings
                          if ($this->getMinlength()) {
                              $validator->hasMinCharacters($this->getMinlength());
                          }
-
                          if ($this->getMaxlength()) {
                              $validator->hasMaxCharacters($this->getMaxlength());
                          }
@@ -1162,18 +1134,15 @@ class Definition implements DefinitionInterface
 
                 // Don't set the value
                 return $this;
-
             case EnumElementInputType::checkbox:
                 // no break
             case EnumElementInputType::boolean:
                 $value = EnumElementInputType::checkbox;
-
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isBoolean();
                      });
                 break;
-
             case EnumElementInputType::array_json:
                 $this->setElement(EnumElement::textarea)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -1181,7 +1150,6 @@ class Definition implements DefinitionInterface
                                    ->sanitizeEncodeJson();
                      });
                 break;
-
             case EnumElementInputType::array_serialized:
                 $this->setElement(EnumElement::textarea)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -1189,7 +1157,6 @@ class Definition implements DefinitionInterface
                                    ->sanitizeEncodeSerialized();
                      });
                 break;
-
             case EnumElementInputType::button:
                 // no break
             case EnumElementInputType::submit:
@@ -1198,31 +1165,25 @@ class Definition implements DefinitionInterface
                          $validator->hasMaxCharacters(255);
                      });
                 break;
-
             case EnumElementInputType::password:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          // Validate input text strings
                          $validator->sanitizeTrim();
-
                          if ($this->getMinlength() ?? 4) {
                              $validator->hasMinCharacters($this->getMinlength() ?? 4);
                          }
-
                          if ($this->getMaxlength() ?? 8192) {
                              $validator->hasMaxCharacters($this->getMaxlength() ?? 8192);
                          }
                      });
-
                 break;
-
             case EnumElementInputType::select:
                 $this->setElement(EnumElement::select)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->sanitizeTrim();
                      });
                 break;
-
             case EnumElementInputType::search:
                 // no break
             case EnumElementInputType::text:
@@ -1232,60 +1193,46 @@ class Definition implements DefinitionInterface
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          // Validate input text strings
                          $validator->sanitizeTrim();
-
                          if ($this->getMinlength()) {
                              $validator->hasMinCharacters($this->getMinlength());
                          }
-
                          if ($this->getMaxlength()) {
                              $validator->hasMaxCharacters($this->getMaxlength());
                          }
                      });
-
                 break;
-
             case EnumElementInputType::reset:
                 // Reset button should never arrive
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->addFailure(tr('is not supported'));
                      });
-
                 break;
-
             case EnumElementInputType::radio:
                 $this->setElement(EnumElement::input);
                 break;
-
             case EnumElementInputType::range:
                 $this->setElement(EnumElement::input);
                 break;
-
             case EnumElementInputType::hidden:
                 $this->setElement(EnumElement::input);
                 break;
-
             case EnumElementInputType::image:
                 throw new UnderConstructionException('Input type EnumInputType::image is not yet supported');
         }
-
         // If a data source is available then ensure its resolved and that the user data will match source
         $source = $this->getDataSource();
-
         if ($source) {
             if (is_string($source)) {
                 $source = sql()->query($source);
             }
-
             if ($source instanceof SqlQueryInterface) {
                 $source = sql()->query($source);
 
             }
-
             if ($source instanceof PDOStatement) {
                 $source = $source->fetchAll();
             }
-
             if (is_array($source)) {
                 // The submitted user data value must be in the definition source
                 $this->addValidationFunction(function (ValidatorInterface $validator) use ($source) {
@@ -1296,6 +1243,7 @@ class Definition implements DefinitionInterface
 
         return $this->setKey($value->value, 'type');
     }
+
 
     /**
      * Sets the HTML client element to be used for this column
@@ -1309,6 +1257,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value?->value, 'element');
     }
 
+
     /**
      * Clears all currently existing validation functions for this definition
      *
@@ -1317,8 +1266,10 @@ class Definition implements DefinitionInterface
     public function clearValidationFunctions(): static
     {
         $this->validations = [];
+
         return $this;
     }
+
 
     /**
      * Adds the specified validation function to the validation functions list for this definition
@@ -1330,8 +1281,10 @@ class Definition implements DefinitionInterface
     public function addValidationFunction(callable $function): static
     {
         $this->validations[] = $function;
+
         return $this;
     }
+
 
     /**
      * Sets the maxlength for this textarea or text input column
@@ -1345,6 +1298,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'maxlength');
     }
 
+
     /**
      * Returns the minimum value for number input elements
      *
@@ -1354,6 +1308,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('float|int', $this->source['min']);
     }
+
 
     /**
      * Returns the maximum value for number input elements
@@ -1365,6 +1320,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('float|int', $this->source['max']);
     }
 
+
     /**
      * Set the minimum value for number input elements
      *
@@ -1375,8 +1331,10 @@ class Definition implements DefinitionInterface
     public function setMin(float|int|null $value): static
     {
         $this->validateNumberTypeInput('min', $value);
+
         return $this->setKey($value, 'min');
     }
+
 
     /**
      * Ensures that the current column uses a number type input element
@@ -1395,7 +1353,6 @@ class Definition implements DefinitionInterface
             // We can't validate data types for this since it's a callback function
             return;
         }
-
         if (isset_get($this->source['element'], 'input') !== 'input') {
             throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":element" element, :attribute can only be used for "number" type input elements', [
                 ':attribute' => $key,
@@ -1404,7 +1361,6 @@ class Definition implements DefinitionInterface
                 ':value'     => $value,
             ]));
         }
-
         switch (isset_get($this->source['type'], 'text')) {
             case 'number':
                 // no break
@@ -1420,7 +1376,6 @@ class Definition implements DefinitionInterface
                 // no break
             case 'time':
                 break;
-
             default:
                 throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":type" type input element, :attribute can only be used for "number" type input elements', [
                     ':attribute' => $key,
@@ -1430,6 +1385,7 @@ class Definition implements DefinitionInterface
                 ]));
         }
     }
+
 
     /**
      * Returns the minlength for this textarea or text input column
@@ -1441,6 +1397,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('int', $this->source['minlength']);
     }
 
+
     /**
      * Returns the maxlength for this textarea or text ibput column
      *
@@ -1450,6 +1407,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('int', $this->source['maxlength']);
     }
+
 
     /**
      * Returns a data source for the HTML client element contents of this column
@@ -1463,6 +1421,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('array|PDOStatement|Stringable|string|null', $this->source['source']);
     }
 
+
     /**
      * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
      *
@@ -1474,8 +1433,9 @@ class Definition implements DefinitionInterface
      */
     public function setReadonly(?bool $value): static
     {
-        return $this->setKey((bool)$value, 'readonly');
+        return $this->setKey((bool) $value, 'readonly');
     }
+
 
     /**
      * Returns if the entry is hidden (and will be rendered as a hidden element)
@@ -1488,6 +1448,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('bool', $this->source['hidden'], false);
     }
 
+
     /**
      * Sets if the entry is hidden (and will be rendered as a hidden element)
      *
@@ -1499,8 +1460,9 @@ class Definition implements DefinitionInterface
      */
     public function setHidden(?bool $value): static
     {
-        return $this->setKey((bool)$value, 'hidden');
+        return $this->setKey((bool) $value, 'hidden');
     }
+
 
     /**
      * If true, will enable browser auto suggest for this input control
@@ -1513,6 +1475,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('bool', $this->source['autocomplete'], true);
     }
 
+
     /**
      * If true, will enable browser auto suggest for this input control
      *
@@ -1524,8 +1487,9 @@ class Definition implements DefinitionInterface
      */
     public function setAutoComplete(?bool $value): static
     {
-        return $this->setKey((bool)$value, 'autocomplete');
+        return $this->setKey((bool) $value, 'autocomplete');
     }
+
 
     /**
      * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
@@ -1538,8 +1502,9 @@ class Definition implements DefinitionInterface
      */
     public function setDisabled(?bool $value): static
     {
-        return $this->setKey((bool)$value, 'disabled');
+        return $this->setKey((bool) $value, 'disabled');
     }
+
 
     /**
      * The label to be shown on HTML clients
@@ -1550,6 +1515,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('string', $this->source['label']);
     }
+
 
     /**
      * The label to be shown on HTML clients
@@ -1563,6 +1529,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'label');
     }
 
+
     /**
      * Returns the boilerplate col size for this column, must be integer number between 1 and 12
      *
@@ -1572,6 +1539,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('int', $this->source['size'], 12);
     }
+
 
     /**
      * Sets the boilerplate col size for this column, must be integer number between 1 and 12
@@ -1594,6 +1562,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'size');
     }
 
+
     /**
      * Returns if changes to the field result into an auto-submit
      *
@@ -1601,8 +1570,9 @@ class Definition implements DefinitionInterface
      */
     public function getAutoSubmit(): bool
     {
-        return (bool)isset_get_typed('bool', $this->source['auto_submit']);
+        return (bool) isset_get_typed('bool', $this->source['auto_submit']);
     }
+
 
     /**
      * Returns if changes to the field result into an auto-submit
@@ -1613,8 +1583,9 @@ class Definition implements DefinitionInterface
      */
     public function setAutoSubmit(?bool $value): static
     {
-        return $this->setKey((bool)$value, 'auto_submit');
+        return $this->setKey((bool) $value, 'auto_submit');
     }
+
 
     /**
      * Sets a data source for the HTML client element contents of this column
@@ -1629,6 +1600,7 @@ class Definition implements DefinitionInterface
     {
         return $this->setKey($value, 'source');
     }
+
 
     /**
      * Returns variables for the component
@@ -1646,6 +1618,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('array', $this->source['variables']);
     }
+
 
     /**
      * Sets variables for the component
@@ -1666,6 +1639,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'variables');
     }
 
+
     /**
      * Returns a query execute bound variables execute array for the specified query string source
      *
@@ -1676,6 +1650,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('array', $this->source['execute']);
     }
+
 
     /**
      * Sets a query execute bound variables execute array for the specified query string source
@@ -1694,7 +1669,6 @@ class Definition implements DefinitionInterface
                 ':value'  => $value,
             ]));
         }
-
         if (is_array($this->source['source'])) {
             throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for column ":column", the "source" must be a string query but is an array instead', [
                 ':column' => $this->getColumn(),
@@ -1705,6 +1679,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'execute');
     }
 
+
     /**
      * Returns the cli auto-completion queries for this column
      *
@@ -1714,6 +1689,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('array|bool', $this->source['cli_auto_complete']);
     }
+
 
     /**
      * Sets the cli auto-completion queries for this column
@@ -1729,16 +1705,13 @@ class Definition implements DefinitionInterface
                 ':column' => $this->getColumn(),
             ]));
         }
-
         if (is_array($value)) {
             if (count($value) !== 2) {
                 $fail = true;
             }
-
             if (!array_key_exists('word', $value) or !array_key_exists('noword', $value)) {
                 $fail = true;
             }
-
             if (isset($fail)) {
                 throw new OutOfBoundsException(tr('Invalid value ":value" specified for column ":column", it must be "TRUE" or an array with only the keys "word" and "noword"', [
                     ':column' => $this->getColumn(),
@@ -1749,6 +1722,7 @@ class Definition implements DefinitionInterface
 
         return $this->setKey($value, 'cli_auto_complete');
     }
+
 
     /**
      * Sets the alternative CLI column names for this column
@@ -1762,6 +1736,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'cli_column');
     }
 
+
     /**
      * Returns if this column is required or not
      *
@@ -1774,6 +1749,7 @@ class Definition implements DefinitionInterface
         return !$this->getOptional();
     }
 
+
     /**
      * Returns if this column is optional or not
      *
@@ -1784,6 +1760,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['optional'], false);
     }
+
 
     /**
      * Sets if this column is optional or not
@@ -1803,12 +1780,12 @@ class Definition implements DefinitionInterface
                 ':value' => $initial_default,
             ]));
         }
-
         $this->setKey($initial_default, 'default');
-        $this->setKey((bool)$value, 'optional');
+        $this->setKey((bool) $value, 'optional');
 
         return $this;
     }
+
 
     /**
      * Returns the placeholder for this column
@@ -1820,6 +1797,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('string', $this->source['placeholder']);
     }
 
+
     /**
      * Sets the placeholder for this column
      *
@@ -1830,8 +1808,10 @@ class Definition implements DefinitionInterface
     public function setPlaceholder(?string $value): static
     {
         $this->validateTextTypeElement('placeholder', $value);
+
         return $this->setKey($value, 'placeholder');
     }
+
 
     /**
      * Ensures that the current column uses a text type input element or textarea element
@@ -1847,7 +1827,6 @@ class Definition implements DefinitionInterface
             // We can't validate data types for this since it's a callback function
             return;
         }
-
         switch (isset_get($this->source['element'])) {
             case 'textarea':
                 // no break
@@ -1859,7 +1838,6 @@ class Definition implements DefinitionInterface
                 // no break
             case 'tooltip': // This is a pseudo-element
                 break;
-
             case null:
                 // This is the default, so "input"
             case 'input':
@@ -1873,14 +1851,12 @@ class Definition implements DefinitionInterface
                 ) {
                     break;
                 }
-
                 throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":type" type input element, :attribute can only be used for textarea elements or input elements with "text" type', [
                     ':attribute' => $key,
                     ':column'    => $this->getColumn(),
                     ':type'      => $this->source['type'] ?? 'text',
                     ':value'     => $value,
                 ]));
-
             default:
                 throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":element" element, :attribute can only be used for textarea elements or input elements with "text" type', [
                     ':attribute' => $key,
@@ -1891,6 +1867,7 @@ class Definition implements DefinitionInterface
         }
     }
 
+
     /**
      * Returns the display_callback for this column
      *
@@ -1900,6 +1877,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('object|callable', $this->source['display_callback']);
     }
+
 
     /**
      * Sets the display_callback for this column
@@ -1913,6 +1891,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'display_callback');
     }
 
+
     /**
      * Sets the minlength for this textarea or text input column
      *
@@ -1923,8 +1902,10 @@ class Definition implements DefinitionInterface
     public function setMinlength(?int $value): static
     {
         $this->validateTextTypeElement('minlength', $value);
+
         return $this->setKey($value, 'minlength');
     }
+
 
     /**
      * Returns the pattern for this textarea or text input column
@@ -1936,6 +1917,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('string', $this->source['pattern']);
     }
 
+
     /**
      * Sets the pattern for this textarea or text input column
      *
@@ -1946,8 +1928,10 @@ class Definition implements DefinitionInterface
     public function setPattern(?string $value): static
     {
         $this->validateTextTypeElement('pattern', $value);
+
         return $this->setKey($value, 'pattern');
     }
+
 
     /**
      * Returns the tooltip for this column
@@ -1959,6 +1943,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('string', $this->source['tooltip']);
     }
 
+
     /**
      * Set the maximum value for number input elements
      *
@@ -1969,8 +1954,10 @@ class Definition implements DefinitionInterface
     public function setMax(float|int|null $value): static
     {
         $this->validateNumberTypeInput('max', $value);
+
         return $this->setKey($value, 'max');
     }
+
 
     /**
      * Return the step value for number input elements
@@ -1982,6 +1969,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('string|float|int', $this->source['step']);
     }
 
+
     /**
      * Set the step value for number input elements
      *
@@ -1992,8 +1980,10 @@ class Definition implements DefinitionInterface
     public function setStep(string|float|int|null $value): static
     {
         $this->validateNumberTypeInput('step', $value);
+
         return $this->setKey($value, 'step');
     }
+
 
     /**
      * Returns the rows value for textarea elements
@@ -2004,6 +1994,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('int', $this->source['rows']);
     }
+
 
     /**
      * Sets the rows value for textarea elements
@@ -2024,6 +2015,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'rows');
     }
 
+
     /**
      * Sets the default value for this column
      *
@@ -2036,6 +2028,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'default');
     }
 
+
     /**
      * Returns the initial default value for this column
      *
@@ -2045,6 +2038,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get($this->source['initial_default']);
     }
+
 
     /**
      * Sets the initial default value for this column
@@ -2058,6 +2052,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'initial_default');
     }
 
+
     /**
      * Returns if this column should be stored with NULL in the database if empty
      *
@@ -2068,6 +2063,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['null_db'], true);
     }
+
 
     /**
      * Sets if this column should be stored with NULL in the database if empty
@@ -2087,6 +2083,7 @@ class Definition implements DefinitionInterface
         return $this;
     }
 
+
     /**
      * Returns what element should be displayed if the value of this entry is NULL
      *
@@ -2096,6 +2093,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface|null', $this->source['null_element']);
     }
+
 
     /**
      * Sets what element should be displayed if the value of this entry is NULL
@@ -2109,6 +2107,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'null_element');
     }
 
+
     /**
      * Returns if this column should be disabled if the value is NULL
      *
@@ -2119,6 +2118,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['null_disabled'], false);
     }
+
 
     /**
      * Sets if this column should be disabled if the value is NULL
@@ -2131,8 +2131,9 @@ class Definition implements DefinitionInterface
      */
     public function setNullDisabled(?bool $value): static
     {
-        return $this->setKey((bool)$value, 'null_disabled');
+        return $this->setKey((bool) $value, 'null_disabled');
     }
+
 
     /**
      * Returns if this column should be readonly if the value is NULL
@@ -2145,6 +2146,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('bool', $this->source['null_readonly'], false);
     }
 
+
     /**
      * Sets if this column should be readonly if the value is NULL
      *
@@ -2156,8 +2158,9 @@ class Definition implements DefinitionInterface
      */
     public function setNullReadonly(?bool $value): static
     {
-        return $this->setKey((bool)$value, 'null_readonly');
+        return $this->setKey((bool) $value, 'null_readonly');
     }
+
 
     /**
      * Returns the type for this element if the value is NULL
@@ -2168,6 +2171,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('string', $this->source['null_type']);
     }
+
 
     /**
      * Sets the type for this element if the value is NULL
@@ -2185,6 +2189,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value->value, 'type');
     }
 
+
     /**
      * Returns the type for this element if the value is NULL
      *
@@ -2194,6 +2199,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('array', $this->source['validation_functions']);
     }
+
 
     /**
      * Returns the help text for this column
@@ -2205,6 +2211,7 @@ class Definition implements DefinitionInterface
         return isset_get_typed('string', $this->source['help_text']);
     }
 
+
     /**
      * Sets the help text for this column
      *
@@ -2215,7 +2222,6 @@ class Definition implements DefinitionInterface
     public function setHelpText(?string $value): static
     {
         $this->setKey(trim($value), 'help_text');
-
         if (!$this->getKey('tooltip')) {
             // Default tooltip to help text
             return $this->setTooltip($value);
@@ -2223,6 +2229,7 @@ class Definition implements DefinitionInterface
 
         return $this;
     }
+
 
     /**
      * Sets  the tooltip for this column
@@ -2236,6 +2243,7 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'tooltip');
     }
 
+
     /**
      * Returns the help text group for this column
      *
@@ -2245,6 +2253,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('string', $this->source['help_group']);
     }
+
 
     /**
      * Sets the help text group for this column
@@ -2257,6 +2266,7 @@ class Definition implements DefinitionInterface
     {
         return $this->setKey($value, 'help_group');
     }
+
 
     /**
      * Validate this column according to the column definitions
@@ -2272,50 +2282,39 @@ class Definition implements DefinitionInterface
             // This column is metadata and should not be modified or validated, plain ignore it.
             return false;
         }
-
         if ($this->getReadonly() or $this->getDisabled()) {
             // This column cannot be modified and should not be validated, unless its new or has a static value
             if (!$this->data_entry->isNew() and !$this->getValue()) {
                 return false;
             }
         }
-
         // Checkbox inputs always are boolean and does this column have a prefix?
         $bool   = ($this->getInputType()?->value === 'checkbox');
         $column = $this->getCliColumn();
-
         if (!$column) {
             // This column name is empty. Coming from static::getCliColumn() this means that this column should NOT be
             // validated
             return false;
         }
-
         // Column name prefix is an HTML form array prefix? Then close the array
-        if (str_ends_with((string)$prefix, '[')) {
+        if (str_ends_with((string) $prefix, '[')) {
             $column .= ']';
         }
-
         if ($this->getValue()) {
             // This column has a static value, force the value
             $value = $this->getValue();
-
             if (is_callable($this->getValue())) {
                 $value = $this->getValue()($validator->getSource(), $prefix);
             }
-
             $validator->set($value, $prefix . $column);
         }
-
         // Set the column prefix and select the column
-        $validator
-            ->setColumnPrefix($prefix)
-            ->select($column, !$bool);
-
+        $validator->setColumnPrefix($prefix)
+                  ->select($column, !$bool);
         // Apply default validations
         if ($this->getOptional()) {
             $validator->isOptional($this->getDefault());
         }
-
         // Apply all other validations
         foreach ($this->validations as $validation) {
             $validation($validator);
@@ -2323,6 +2322,7 @@ class Definition implements DefinitionInterface
 
         return true;
     }
+
 
     /**
      * Return if this column is a meta column
@@ -2337,6 +2337,7 @@ class Definition implements DefinitionInterface
     {
         return in_array($this->getColumn(), static::getMetaColumns());
     }
+
 
     /**
      * Returns the default meta data for DataEntry object
@@ -2354,6 +2355,7 @@ class Definition implements DefinitionInterface
         return [];
     }
 
+
     /**
      * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
      *
@@ -2364,6 +2366,7 @@ class Definition implements DefinitionInterface
     {
         return in_array($this->getColumn(), static::getMetaColumns()) or isset_get_typed('bool', $this->source['readonly'], false);
     }
+
 
     /**
      * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
@@ -2376,6 +2379,7 @@ class Definition implements DefinitionInterface
         return in_array($this->getColumn(), static::getMetaColumns()) or isset_get_typed('bool', $this->source['disabled'], false);
     }
 
+
     /**
      * Returns the static value for this column
      *
@@ -2385,6 +2389,7 @@ class Definition implements DefinitionInterface
     {
         return isset_get($this->source['value']);
     }
+
 
     /**
      * Returns the alternative CLI column names for this column
@@ -2397,15 +2402,12 @@ class Definition implements DefinitionInterface
             // We're either on web, or on CLI while data is not being applied but set manually. Return the HTTP column
             return $this->getColumn();
         }
-
         // We're on the command line and data is being applied. We're working with data from the $argv command line
         if (empty($this->source['cli_column'])) {
             // This column cannot be modified on the command line, no definition available
             return null;
         }
-
         $return = isset_get_typed('string', $this->source['cli_column']);
-
         if (str_starts_with($return, '[') and str_ends_with($return, ']')) {
             // Strip the []
             $return = substr($return, 1, -1);
@@ -2413,6 +2415,7 @@ class Definition implements DefinitionInterface
 
         return $return;
     }
+
 
     /**
      * Returns the default value for this column

@@ -9,7 +9,6 @@ use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class Interfaces
  *
@@ -32,7 +31,6 @@ class Interfaces
     public static function getRandomInterfaceIp(bool $allow_localhosts = false): string
     {
         $ips = static::listIps();
-
         // Filter local IP's?
         // Todo find a better way to handle this, as 172.* is typically used by virtual machines, so don't have internet
         // Todo ideally we would need to know if the interface has internet access before we return its ip
@@ -41,7 +39,6 @@ class Interfaces
                 if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE)) {
                     unset($ips[$id]);
                 }
-
                 if (str_starts_with($ip, '172.')) {
                     unset($ips[$id]);
                 }
@@ -50,6 +47,7 @@ class Interfaces
 
         return Arrays::getRandomValue($ips);
     }
+
 
     /**
      * Returns a random IP from the pool of all IP addresses available on this computer
@@ -68,52 +66,41 @@ class Interfaces
                                            ->addArgument('-i')
                                            ->addArgument('addr|inet'))
                           ->executeReturnString();
-
         if (!preg_match_all('/(?:addr|inet)6?(?:\:| )(.+?) /', $results, $matches)) {
             throw new NetworkException(tr('ifconfig returned no IPs'));
         }
-
         if (!$matches or empty($matches[1])) {
             throw new NetworkException(tr('No IP interface information found'));
         }
-
         $flags   = FILTER_VALIDATE_IP;
         $options = null;
         $ips     = [];
-
         if (!$ipv4) {
             if (!$ipv6) {
                 throw new NetworkException(tr('Both IPv4 and IPv6 IP\'s are specified to be disallowed'));
             }
-
             $options = $options | FILTER_FLAG_IPV6;
 
         } elseif (!$ipv6) {
             $options = $options | FILTER_FLAG_IPV4;
         }
-
         foreach ($matches[1] as $ip) {
             if (!$ip) {
                 continue;
             }
-
             $ip = str_replace(':', '', $ip);
             $ip = trim(Strings::from($ip, 'addr'));
-
             if ($ip == '127.0.0.1') {
                 if (!$localhost) {
                     continue;
                 }
             }
-
             if (filter_var($ip, $flags, $options)) {
                 $ips[] = $ip;
             }
         }
-
         // Ensure we have unique IP addresses
         $ips = array_unique($ips);
-
         if (!$ips) {
             throw new NetworkException(tr('Failed to find any IP addresses'));
         }

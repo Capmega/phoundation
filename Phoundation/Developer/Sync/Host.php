@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Sync;
 
-
 /**
  * Host class
  *
@@ -64,6 +63,7 @@ class Host
     public function setInit(bool $init): Remote
     {
         $this->init = $init;
+
         return $this;
     }
 
@@ -89,8 +89,10 @@ class Host
     public function setLock(bool $lock): Remote
     {
         $this->lock = $lock;
+
         return $this;
     }
+
 
     /**
      * Lock all databases in readonly for this projects so that we can dump them
@@ -99,12 +101,14 @@ class Host
      */
     protected function unlockSystem(): void {}
 
+
     /**
      * Lock all databases in readonly for this projects so that we can dump them
      *
      * @return void
      */
     protected function lockRemoteSqlDatabase(string $database): void {}
+
 
     /**
      * Lock specified SQL database in readonly for this projects so that we can dump them
@@ -114,6 +118,7 @@ class Host
      * @return void
      */
     protected function unlockRemoteSqlDatabase(string $database): void {}
+
 
     /**
      * Dumps all the databases for this project
@@ -127,12 +132,14 @@ class Host
         $this->dumpAllRedis();
     }
 
+
     /**
      * Dumps the SQL databases for this project
      *
      * @return void
      */
     protected function dumpAllSql(): void {}
+
 
     /**
      * Dumps the Mongo databases for this project
@@ -141,12 +148,14 @@ class Host
      */
     protected function dumpAllMongo(): void {}
 
+
     /**
      * Dumps the Redis databases for this project
      *
      * @return void
      */
     protected function dumpAllRedis(): void {}
+
 
     /**
      * Dumps the SQL databases for this project
@@ -155,12 +164,14 @@ class Host
      */
     protected function dumpSql(): void {}
 
+
     /**
      * Dumps the Mongo databases for this project
      *
      * @return void
      */
     protected function dumpMongo(): void {}
+
 
     /**
      * Dumps the Redis databases for this project
@@ -169,12 +180,14 @@ class Host
      */
     protected function dumpRedis(): void {}
 
+
     /**
      * Copy all databases
      *
      * @return void
      */
     protected function copyDatabases(): void {}
+
 
     /**
      * Imports all the databases for this project
@@ -190,12 +203,14 @@ class Host
         $this->lockSystem();
     }
 
+
     /**
      * Lock all databases in readonly for this projects so that we can dump them
      *
      * @return void
      */
     protected function lockSystem(): void {}
+
 
     /**
      * Imports the SQL databases for this project

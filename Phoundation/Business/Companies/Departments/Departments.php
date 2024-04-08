@@ -8,7 +8,6 @@ use Phoundation\Business\Companies\Departments\Interfaces\DepartmentsInterface;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
-
 /**
  *  Class Departments
  *

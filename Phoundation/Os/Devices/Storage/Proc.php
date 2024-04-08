@@ -8,7 +8,6 @@ use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\File;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class Proc
  *
@@ -28,14 +27,15 @@ class Proc
      */
     public static function getSupportedFiletypes(): Iterator
     {
-        $types = File::new('/proc/filesystems', '/proc/filesystems')->getContentsAsArray();
-
+        $types = File::new('/proc/filesystems', '/proc/filesystems')
+                     ->getContentsAsArray();
         foreach ($types as &$type) {
             $type = Strings::from($type, 'nodev');
             $type = trim($type);
         }
-
         unset($trim);
-        return Iterator::new()->setSource($types);
+
+        return Iterator::new()
+                       ->setSource($types);
     }
 }

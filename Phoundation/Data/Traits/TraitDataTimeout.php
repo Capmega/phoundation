@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Trait TraitDataTimeout
  *
@@ -52,8 +51,8 @@ trait TraitDataTimeout
                 ':timeout' => $timeout,
             ]));
         }
-
         $this->timeout = get_null($timeout);
+
         return $this;
     }
 }

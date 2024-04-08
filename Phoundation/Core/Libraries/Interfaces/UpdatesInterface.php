@@ -6,7 +6,6 @@ namespace Phoundation\Core\Libraries\Interfaces;
 
 use Phoundation\Core\Libraries\Updates;
 
-
 /**
  * Updates class
  *
@@ -26,6 +25,7 @@ interface UpdatesInterface
      */
     public function getFile(): string;
 
+
     /**
      * Returns the current code version for this library
      *
@@ -33,12 +33,14 @@ interface UpdatesInterface
      */
     public function getCodeVersion(): string;
 
+
     /**
      * Returns the current database version for this library
      *
      * @return string|null
      */
     public function getDatabaseVersion(): ?string;
+
 
     /**
      * Returns if the specified database version exists for this library, or not
@@ -49,6 +51,7 @@ interface UpdatesInterface
      */
     public function databaseVersionExists(string|int $version): bool;
 
+
     /**
      * Returns the next version available for execution, if any
      *
@@ -57,6 +60,7 @@ interface UpdatesInterface
      * @return string|null The next version available for init execution, or NULL if none.
      */
     public function getNextInitVersion(?string $version = null): ?string;
+
 
     /**
      * Registers the specified version and the function containing all tasks that should be executed to get to that
@@ -69,6 +73,7 @@ interface UpdatesInterface
      */
     public function addUpdate(string $version, callable $function): Updates;
 
+
     /**
      * Update to the specified version
      *
@@ -77,6 +82,7 @@ interface UpdatesInterface
      * @return string|null The next version available for this init, or NULL if none are available
      */
     public function init(?string $comments = null): ?string;
+
 
     /**
      * Execute the post init files
@@ -87,12 +93,14 @@ interface UpdatesInterface
      */
     public function initPost(?string $comments = null): bool;
 
+
     /**
      * Returns the library version
      *
      * @return string
      */
     public function version(): string;
+
 
     /**
      * Adds the list of updates

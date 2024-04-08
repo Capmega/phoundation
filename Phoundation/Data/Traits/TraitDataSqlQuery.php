@@ -7,7 +7,6 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Databases\Sql\SqlQuery;
 
-
 /**
  * Trait TraitDataSqlQuery
  *
@@ -49,6 +48,7 @@ trait TraitDataSqlQuery
     public function setQuery(SqlQueryInterface|string|null $query): static
     {
         $this->query = $query ? new SqlQuery($query) : null;
+
         return $this;
     }
 }

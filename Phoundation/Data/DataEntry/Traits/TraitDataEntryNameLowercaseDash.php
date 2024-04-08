@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Seo\Seo;
 
-
 /**
  * Trait TraitDataEntryNameLowercaseDash
  *
@@ -30,6 +29,7 @@ trait TraitDataEntryNameLowercaseDash
         return $this->getValueTypesafe('string', 'seo_name');
     }
 
+
     /**
      * Returns the name for this object
      *
@@ -39,6 +39,7 @@ trait TraitDataEntryNameLowercaseDash
     {
         return $this->getValueTypesafe('string', 'name');
     }
+
 
     /**
      * Sets the name for this object
@@ -56,13 +57,14 @@ trait TraitDataEntryNameLowercaseDash
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
             // the entry if it does!
             $name     = static::convertToLowerCaseDash($name);
-            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_name');
-
+            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')
+                                                                       ->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_name');
             $this->setValue('seo_name', $seo_name, true);
         }
 
         return $this->setValue('name', $name);
     }
+
 
     /**
      * Converts the given string to lowercase, dash separated string by replacing spaces and underscores to dashes
@@ -77,25 +79,23 @@ trait TraitDataEntryNameLowercaseDash
             // NULL or "", return it
             return $source;
         }
-
         if (is_numeric($source)) {
             // This is a database id, return it
             return $source;
         }
-
         if ($source instanceof DataEntryInterface) {
             // This is a DataEntry object, return it
             return $source;
         }
-
         $source = strtolower($source);
         $source = str_replace([
-                                  ' ',
-                                  '_',
-                              ], '-', $source);
+            ' ',
+            '_',
+        ], '-', $source);
 
         return $source;
     }
+
 
     /**
      * Sets the seo_name for this object

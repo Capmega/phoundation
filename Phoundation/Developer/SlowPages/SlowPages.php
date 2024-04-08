@@ -1,5 +1,4 @@
 <?php
-
 /**
  * SlowPages class
  *
@@ -26,7 +25,6 @@ class SlowPages extends Incidents
     {
         $this->entry_class = SlowResponse::class;
         $this->table_name  = 'developer_slow_pages';
-
         $this->setHtmlQuery('SELECT   `id`, `created_on`, `status`, `title` 
                              FROM     `accounts_users` 
                              WHERE    `type` = "slow_page" AND `status` IS NULL 

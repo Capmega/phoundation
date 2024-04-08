@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes\Traits;
 
-
 /**
  * Trait TraitDataAnnotations
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openannotations.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://openannotations.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataAnnotations
 {
@@ -23,6 +22,7 @@ trait TraitDataAnnotations
      * @var array $annotations
      */
     protected array $annotations = [];
+
 
     /**
      * Returns the annotations
@@ -36,6 +36,21 @@ trait TraitDataAnnotations
 
 
     /**
+     * Sets the annotations
+     *
+     * @param array|null $annotations
+     *
+     * @return static
+     */
+    public function setAnnotations(?array $annotations): static
+    {
+        $this->annotations = $annotations;
+
+        return $this;
+    }
+
+
+    /**
      * Clears the annotations
      *
      * @return static
@@ -43,19 +58,7 @@ trait TraitDataAnnotations
     public function clearAnnotations(): static
     {
         $this->annotations = [];
-        return $this;
-    }
 
-
-    /**
-     * Sets the annotations
-     *
-     * @param array|null $annotations
-     * @return static
-     */
-    public function setAnnotations(?array $annotations): static
-    {
-        $this->annotations = $annotations;
         return $this;
     }
 
@@ -64,6 +67,7 @@ trait TraitDataAnnotations
      * Adds the specified annotations
      *
      * @param array|null $annotations
+     *
      * @return static
      */
     public function addAnnotations(?array $annotations): static
@@ -79,13 +83,15 @@ trait TraitDataAnnotations
     /**
      * Adds the specified annotation
      *
-     * @param string $key
+     * @param string     $key
      * @param string|int $value
+     *
      * @return static
      */
     public function addAnnotation(string $key, string|int $value): static
     {
         $this->annotations[$key] = $value;
+
         return $this;
     }
 }

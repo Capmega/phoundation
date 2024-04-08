@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Company;
 
-
 /**
  * Trait TraitDataEntryCompany
  *
@@ -51,7 +50,6 @@ trait TraitDataEntryCompany
     public function getCompany(): ?Company
     {
         $companies_id = $this->getValueTypesafe('int', 'companies_id');
-
         if ($companies_id) {
             return new Company($companies_id);
         }

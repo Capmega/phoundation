@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\QueryBuilder\Interfaces;
 
-
 /**
  * interface QueryObjectInterface
  *
@@ -27,6 +26,7 @@ interface QueryObjectInterface
      */
     public function addSelect(string $select, ?array $execute = null): static;
 
+
     /**
      * Make this a DELETE query by adding the select clause here
      *
@@ -36,6 +36,7 @@ interface QueryObjectInterface
      * @return static
      */
     public function addDelete(string $delete, ?array $execute = null): static;
+
 
     /**
      * Make this a UPDATE query by adding the select clause here
@@ -47,6 +48,7 @@ interface QueryObjectInterface
      */
     public function addUpdate(string $update, ?array $execute = null): static;
 
+
     /**
      * Add the FROM part of the query
      *
@@ -56,6 +58,7 @@ interface QueryObjectInterface
      * @return static
      */
     public function addFrom(string $from, ?array $execute = null): static;
+
 
     /**
      * Add a JOIN part of the query
@@ -67,6 +70,7 @@ interface QueryObjectInterface
      */
     public function addJoin(string $join, ?array $execute = null): static;
 
+
     /**
      * Add a WHERE part of the query
      *
@@ -76,6 +80,7 @@ interface QueryObjectInterface
      * @return static
      */
     public function addWhere(string $where, ?array $execute = null): static;
+
 
     /**
      * Add a GROUP BY part of the query
@@ -87,6 +92,7 @@ interface QueryObjectInterface
      */
     public function addGroupBy(string $group_by, ?array $execute = null): static;
 
+
     /**
      * Add a HAVING part of the query
      *
@@ -96,6 +102,7 @@ interface QueryObjectInterface
      * @return static
      */
     public function addHaving(string $having, ?array $execute = null): static;
+
 
     /**
      * Add a ORDER BY part of the query
@@ -107,6 +114,7 @@ interface QueryObjectInterface
      */
     public function addOrderBy(string $order_by, ?array $execute = null): static;
 
+
     /**
      * Add a JOIN part of the query
      *
@@ -116,6 +124,7 @@ interface QueryObjectInterface
      * @return static
      */
     public function addExecute(string $column, string|float|int|null $value): static;
+
 
     /**
      * Add a ORDER BY part of the query
@@ -127,6 +136,7 @@ interface QueryObjectInterface
      */
     public function setLimit(int $count, int $offset = 0): static;
 
+
     /**
      * Returns a column comparison and adds the bound variable to the execute list
      *
@@ -137,6 +147,7 @@ interface QueryObjectInterface
      */
     public function compareQuery(string $column, array|string|int|null $value): string;
 
+
     /**
      * Add the specified execute array to the internal execute array
      *
@@ -145,6 +156,7 @@ interface QueryObjectInterface
      * @return static
      */
     public function addExecuteArray(?array $execute): static;
+
 
     /**
      * Add the specified predefined column

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms\Interfaces;
 
-
 use Stringable;
 
 /**
@@ -28,6 +27,7 @@ interface FormInterface
      */
     public function getAction(): ?string;
 
+
     /**
      * Sets the form action
      *
@@ -37,12 +37,14 @@ interface FormInterface
      */
     public function setAction(Stringable|string|null $action): static;
 
+
     /**
      * Sets the form method
      *
      * @return string|null
      */
     public function getMethod(): ?string;
+
 
     /**
      * Sets the form method
@@ -53,12 +55,14 @@ interface FormInterface
      */
     public function setMethod(string $method): static;
 
+
     /**
      * Sets the form no_validate
      *
      * @return bool
      */
     public function getNoValidate(): bool;
+
 
     /**
      * Sets the form no_validate
@@ -69,12 +73,14 @@ interface FormInterface
      */
     public function setNoValidate(bool $no_validate): static;
 
+
     /**
      * Sets the form auto_complete
      *
      * @return string|null
      */
     public function getAutoComplete(): ?string;
+
 
     /**
      * Sets the form auto_complete
@@ -85,12 +91,14 @@ interface FormInterface
      */
     public function setAutoComplete(string $auto_complete): static;
 
+
     /**
      * Sets the form accept_charset
      *
      * @return string|null
      */
     public function getAcceptCharset(): ?string;
+
 
     /**
      * Sets the form accept_charset
@@ -101,12 +109,14 @@ interface FormInterface
      */
     public function setAcceptCharset(string $accept_charset): static;
 
+
     /**
      * Sets the form rel
      *
      * @return string|null
      */
     public function getRel(): ?string;
+
 
     /**
      * Sets the form rel
@@ -117,12 +127,14 @@ interface FormInterface
      */
     public function setRel(string $rel): static;
 
+
     /**
      * Sets the form target
      *
      * @return string|null
      */
     public function getTarget(): ?string;
+
 
     /**
      * Sets the form target

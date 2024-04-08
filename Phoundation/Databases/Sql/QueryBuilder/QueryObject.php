@@ -11,7 +11,6 @@ use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryObjectInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 
-
 /**
  * QueryObject class
  *
@@ -25,7 +24,6 @@ use Phoundation\Utils\Strings;
 class QueryObject implements QueryObjectInterface
 {
     use TraitDataDebug;
-
 
     /**
      * @var int $limit_offset
@@ -130,12 +128,12 @@ class QueryObject implements QueryObjectInterface
     public function __construct(DataEntryInterface|DataListInterface|null $parent = null)
     {
         $this->parent = $parent;
-
         if ($this->parent) {
             // The first from will be the table from the parent class
             $this->addFrom($parent->getTable());
         }
     }
+
 
     /**
      * Add the FROM part of the query
@@ -151,6 +149,7 @@ class QueryObject implements QueryObjectInterface
 
         return $this->addExecuteArray($execute);
     }
+
 
     /**
      * Add the specified execute array to the internal execute array
@@ -170,6 +169,7 @@ class QueryObject implements QueryObjectInterface
         return $this;
     }
 
+
     /**
      * Add a JOIN part of the query
      *
@@ -183,10 +183,11 @@ class QueryObject implements QueryObjectInterface
         if (!$this->execute) {
             $this->execute = [];
         }
-
         $this->execute[Strings::startsWith($column, ':')] = $value;
+
         return $this;
     }
+
 
     /**
      * QueryObject class constructor
@@ -199,6 +200,7 @@ class QueryObject implements QueryObjectInterface
     {
         return new static($parent);
     }
+
 
     /**
      * Make this a SELECT query by adding the select clause here
@@ -213,18 +215,17 @@ class QueryObject implements QueryObjectInterface
         if ($this->delete) {
             throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add SELECT'));
         }
-
         if ($this->update) {
             throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add SELECT'));
         }
-
         if (!$this->select) {
             $select = 'SELECT ' . $select;
         }
-
         $this->select[] = $select;
+
         return $this->addExecuteArray($execute);
     }
+
 
     /**
      * Make this a DELETE query by adding the select clause here
@@ -239,18 +240,17 @@ class QueryObject implements QueryObjectInterface
         if ($this->select) {
             throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add DELETE'));
         }
-
         if ($this->update) {
             throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add DELETE'));
         }
-
         if (!$this->delete) {
             $delete = 'DELETE ' . $delete;
         }
-
         $this->delete[] = $delete;
+
         return $this->addExecuteArray($execute);
     }
+
 
     /**
      * Make this a UPDATE query by adding the select clause here
@@ -265,14 +265,14 @@ class QueryObject implements QueryObjectInterface
         if ($this->select) {
             throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add UPDATE'));
         }
-
         if ($this->delete) {
             throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add UPDATE'));
         }
-
         $this->update[] = $update;
+
         return $this->addExecuteArray($execute);
     }
+
 
     /**
      * Add a JOIN part of the query
@@ -291,6 +291,7 @@ class QueryObject implements QueryObjectInterface
         return $this->addExecuteArray($execute);
     }
 
+
     /**
      * Add a WHERE part of the query
      *
@@ -307,6 +308,7 @@ class QueryObject implements QueryObjectInterface
 
         return $this->addExecuteArray($execute);
     }
+
 
     /**
      * Add a GROUP BY part of the query
@@ -325,6 +327,7 @@ class QueryObject implements QueryObjectInterface
         return $this->addExecuteArray($execute);
     }
 
+
     /**
      * Add a HAVING part of the query
      *
@@ -341,6 +344,7 @@ class QueryObject implements QueryObjectInterface
 
         return $this->addExecuteArray($execute);
     }
+
 
     /**
      * Add a ORDER BY part of the query
@@ -359,6 +363,7 @@ class QueryObject implements QueryObjectInterface
         return $this->addExecuteArray($execute);
     }
 
+
     /**
      * Add a ORDER BY part of the query
      *
@@ -375,6 +380,7 @@ class QueryObject implements QueryObjectInterface
         return $this;
     }
 
+
     /**
      * Returns a column comparison and adds the bound variable to the execute list
      *
@@ -388,25 +394,21 @@ class QueryObject implements QueryObjectInterface
         switch (gettype($value)) {
             case 'NULL':
                 return ' IS NULL ';
-
             case 'string':
                 $this->execute[Strings::startsWith($column, ':')] = $value;
-                return ' = :' . $column . ' ';
 
+                return ' = :' . $column . ' ';
             case 'array':
                 switch (count($value) == 1) {
                     case 0:
                         // Nothing here!
                         return '';
-
                     case 1:
                         // This is just a scalar, try again!
                         return $this->compareQuery($column, current($value));
                 }
-
                 $count   = 0;
                 $columns = [];
-
                 foreach ($value as $scalar) {
                     $this->execute[$column . $count++] = $scalar;
                     $columns[]                         = $column . ($count++);
@@ -414,11 +416,11 @@ class QueryObject implements QueryObjectInterface
 
                 return ' = IN (' . implode(', ', $columns) . ') ';
         }
-
         throw new OutOfBoundsException(tr('Unknown / unsupported datatype specified for value ":value"', [
             ':value' => $value,
         ]));
     }
+
 
     /**
      * Returns all predefines for this query builder
@@ -442,6 +444,7 @@ class QueryObject implements QueryObjectInterface
     public function addPredefine(string $name, callable $callback): static
     {
         $this->predefines[$name] = $callback;
+
         return $this;
     }
 }

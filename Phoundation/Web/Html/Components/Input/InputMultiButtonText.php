@@ -8,7 +8,6 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
-
 /**
  * Class InputMultiButtonText
  *
@@ -36,6 +35,7 @@ class InputMultiButtonText extends ElementsBlock
      */
     protected Input $input;
 
+
     /**
      * InputMultiButtonText class constructor
      *
@@ -46,6 +46,7 @@ class InputMultiButtonText extends ElementsBlock
         $this->setButton(Button::new()
                                ->setMode(EnumDisplayMode::info)
                                ->setContent(tr('Action')));
+
         return parent::__construct($content);
     }
 
@@ -71,13 +72,15 @@ class InputMultiButtonText extends ElementsBlock
     public function setButton(Button $button): static
     {
         $button->addClasses([
-                                'btn',
-                                'dropdown-toggle',
-                            ]);
-        $button->getData()->add('toggle', 'dropdown');
-        $button->getAria()->add('false', 'expanded');
-
+            'btn',
+            'dropdown-toggle',
+        ]);
+        $button->getData()
+               ->add('toggle', 'dropdown');
+        $button->getAria()
+               ->add('false', 'expanded');
         $this->button = $button;
+
         return $this;
     }
 
@@ -111,8 +114,8 @@ class InputMultiButtonText extends ElementsBlock
             // Apply the object name to the input
             $input->setName($this->name);
         }
-
         $this->input = $input;
+
         return $this;
     }
 
@@ -125,6 +128,7 @@ class InputMultiButtonText extends ElementsBlock
     public function clearOptions(): static
     {
         $this->options = [];
+
         return $this;
     }
 }

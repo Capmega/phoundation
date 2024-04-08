@@ -7,7 +7,6 @@ namespace Phoundation\Servers\Traits;
 use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Servers\Server;
 
-
 /**
  * Trait TraitDataEntryServer
  *
@@ -25,6 +24,7 @@ trait TraitDataEntryServer
      */
     protected ?ServerInterface $server;
 
+
     /**
      * Sets the servers_id for this object
      *
@@ -35,8 +35,10 @@ trait TraitDataEntryServer
     public function setServersId(?int $servers_id): static
     {
         unset($this->server);
+
         return $this->setValue('servers_id', $servers_id);
     }
+
 
     /**
      * Returns the servers hostname for this object
@@ -45,8 +47,10 @@ trait TraitDataEntryServer
      */
     public function getServersHostname(): ?string
     {
-        return $this->getServer()?->getHostname();
+        return $this->getServer()
+                    ?->getHostname();
     }
+
 
     /**
      * Returns the ServerInterface object for this object
@@ -74,11 +78,13 @@ trait TraitDataEntryServer
     {
         if ($server) {
             $this->server = $server;
+
             return $this->setValue('servers_id', $server->getId());
         }
 
         return $this->setServersId(null);
     }
+
 
     /**
      * Returns the servers_id for this object
@@ -90,6 +96,7 @@ trait TraitDataEntryServer
         return $this->getValueTypesafe('int', 'servers_id');
 
     }
+
 
     /**
      * Sets the server hostname for this object

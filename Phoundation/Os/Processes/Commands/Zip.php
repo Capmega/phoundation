@@ -7,7 +7,6 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Filesystem\File;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
-
 /**
  * Class zip
  *
@@ -34,7 +33,6 @@ class Zip extends Command
             if (!$target_path) {
                 $target_path = dirname($file);
             }
-
             $this->setExecutionDirectory($target_path)
                  ->setCommand('unzip')
                  ->addArguments($file)
@@ -44,7 +42,8 @@ class Zip extends Command
         } catch (ProcessFailedException $e) {
             // The command gunzip failed, most of the time either $file doesn't exist, or we don't have access
             static::handleException('unzip', $e, function () use ($file) {
-                File::new($file)->checkReadable();
+                File::new($file)
+                    ->checkReadable();
             });
         }
     }

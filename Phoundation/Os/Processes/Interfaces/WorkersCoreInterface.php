@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Interfaces;
 
-
 /**
  * Class Workers
  *
@@ -25,6 +24,7 @@ interface WorkersCoreInterface extends ProcessCoreInterface
      */
     public function getWaitWorkerFinish(): bool;
 
+
     /**
      * Sets if this process will wait for the workers to finish before returning
      *
@@ -34,12 +34,14 @@ interface WorkersCoreInterface extends ProcessCoreInterface
      */
     public function setWaitWorkerFinish(bool $wait_worker_finish): static;
 
+
     /**
      * Returns the minimum number of workers required
      *
      * @return int
      */
     public function getMinimumWorkers(): int;
+
 
     /**
      * Sets the minimum number of workers required
@@ -50,12 +52,14 @@ interface WorkersCoreInterface extends ProcessCoreInterface
      */
     public function setMinimumWorkers(?int $minimum): static;
 
+
     /**
      * Returns the maximum number of workers required
      *
      * @return int
      */
     public function getMaximumWorkers(): int;
+
 
     /**
      * Sets the maximum number of workers required
@@ -66,12 +70,14 @@ interface WorkersCoreInterface extends ProcessCoreInterface
      */
     public function setMaximumWorkers(?int $maximum): static;
 
+
     /**
      * Returns number of time in milliseconds that the process cycle should sleep before retrying to start workers
      *
      * @return int
      */
     public function getWaitSleep(): int;
+
 
     /**
      * Sets Amount of time in milliseconds that the process cycle should sleep before retrying to start workers
@@ -82,6 +88,7 @@ interface WorkersCoreInterface extends ProcessCoreInterface
      */
     public function setWaitSleep(int $wait_sleep): static;
 
+
     /**
      * Returns number of time in milliseconds that the process cycle should sleep each cycle while checking alive
      * workers
@@ -89,6 +96,7 @@ interface WorkersCoreInterface extends ProcessCoreInterface
      * @return int
      */
     public function getCycleSleep(): int;
+
 
     /**
      * Sets number of time in milliseconds that the process cycle should sleep each cycle while checking alive workers
@@ -99,12 +107,14 @@ interface WorkersCoreInterface extends ProcessCoreInterface
      */
     public function setCycleSleep(int $cycle_sleep): static;
 
+
     /**
      * Returns the variable values list that this master worker will process
      *
      * @return string|null
      */
     public function getKey(): ?string;
+
 
     /**
      * Sets the variable values list that this master worker will process
@@ -115,12 +125,14 @@ interface WorkersCoreInterface extends ProcessCoreInterface
      */
     public function setKey(string $key): static;
 
+
     /**
      * Returns the variable values list that this master worker will process
      *
      * @return array|null
      */
     public function getValues(): ?array;
+
 
     /**
      * Sets the variable values list that this master worker will process
@@ -131,6 +143,7 @@ interface WorkersCoreInterface extends ProcessCoreInterface
      */
     public function setValues(array $values): static;
 
+
     /**
      * Returns the current number of workers running
      *
@@ -138,12 +151,14 @@ interface WorkersCoreInterface extends ProcessCoreInterface
      */
     public function getCurrent(): int;
 
+
     /**
      * Start running the workers as background processes
      *
      * @return void
      */
     public function start(): void;
+
 
     /**
      * Stop all background-running workers

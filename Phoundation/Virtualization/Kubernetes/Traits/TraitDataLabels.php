@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes\Traits;
 
-
 /**
  * Trait TraitDataLabels
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openlabels.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://openlabels.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataLabels
 {
@@ -23,6 +22,7 @@ trait TraitDataLabels
      * @var array $labels
      */
     protected array $labels = [];
+
 
     /**
      * Returns the labels
@@ -36,6 +36,21 @@ trait TraitDataLabels
 
 
     /**
+     * Sets the labels
+     *
+     * @param array|null $labels
+     *
+     * @return static
+     */
+    public function setLabels(?array $labels): static
+    {
+        $this->labels = $labels;
+
+        return $this;
+    }
+
+
+    /**
      * Clears the labels
      *
      * @return static
@@ -43,19 +58,7 @@ trait TraitDataLabels
     public function clearLabels(): static
     {
         $this->labels = [];
-        return $this;
-    }
 
-
-    /**
-     * Sets the labels
-     *
-     * @param array|null $labels
-     * @return static
-     */
-    public function setLabels(?array $labels): static
-    {
-        $this->labels = $labels;
         return $this;
     }
 
@@ -64,6 +67,7 @@ trait TraitDataLabels
      * Adds the specified labels
      *
      * @param array|null $labels
+     *
      * @return static
      */
     public function addLabels(?array $labels): static
@@ -79,13 +83,15 @@ trait TraitDataLabels
     /**
      * Adds the specified label
      *
-     * @param string $key
+     * @param string     $key
      * @param string|int $value
+     *
      * @return static
      */
     public function addLabel(string $key, string|int $value): static
     {
         $this->labels[$key] = $value;
+
         return $this;
     }
 }

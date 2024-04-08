@@ -7,7 +7,6 @@ namespace Phoundation\Web\Requests\Traits;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Requests\Routing\Interfaces\RoutingParametersInterface;
 
-
 /**
  * Trait TraitDataStaticParameters
  *
@@ -39,7 +38,6 @@ trait TraitDataStaticRouteParameters
         if (static::$parameters) {
             return static::$parameters;
         }
-
         throw new OutOfBoundsException(tr('Cannot return routing parameters, parameters have not yet been set'));
     }
 

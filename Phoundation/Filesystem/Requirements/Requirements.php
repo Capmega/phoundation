@@ -8,16 +8,15 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
 use Stringable;
 
-
 /**
  * Class Requirements
  *
  *
- * @note On Ubuntu requires packages nfs-utils cifs-utils psmisc
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @note      On Ubuntu requires packages nfs-utils cifs-utils psmisc
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Filesystem
+ * @package   Phoundation\Filesystem
  */
 class Requirements extends DataList implements RequirementsInterface
 {
@@ -52,12 +51,12 @@ class Requirements extends DataList implements RequirementsInterface
      * Checks if there are requirements defined for the specified path, and if the path obeys those requirements
      *
      * @param Stringable|string $path
+     *
      * @return void
      */
     public function check(Stringable|string $path): void
     {
         $this->load(only_if_empty: true);
-
         foreach ($this->source as $restriction) {
             $restriction->check($path);
         }

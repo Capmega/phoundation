@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitUsesNewField
  *
@@ -19,7 +18,6 @@ namespace Phoundation\Data\Traits;
 trait TraitUsesNewColumn
 {
     use TraitDataColumn;
-
 
     /**
      * TraitUsesNewField class constructor

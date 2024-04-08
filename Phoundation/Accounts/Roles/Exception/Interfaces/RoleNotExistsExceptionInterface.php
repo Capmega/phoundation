@@ -6,7 +6,6 @@ namespace Phoundation\Accounts\Roles\Exception\Interfaces;
 
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 
-
 /**
  * interface RoleNotExistsExceptionInterface
  *

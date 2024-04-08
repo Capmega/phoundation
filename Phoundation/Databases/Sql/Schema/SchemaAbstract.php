@@ -6,7 +6,6 @@ namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Databases\Sql\Sql;
 
-
 /**
  * SchemaAbstract class
  *

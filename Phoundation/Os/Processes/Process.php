@@ -13,7 +13,6 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Utils\Arrays;
 
-
 /**
  * Class Process
  *
@@ -38,15 +37,14 @@ class Process extends ProcessCore implements ProcessInterface
     public function __construct(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
     {
         parent::__construct($restrictions);
-
         if ($operating_system or $packages) {
             $this->setPackages($operating_system, $packages);
         }
-
         if ($command) {
             $this->setCommand($command);
         }
     }
+
 
     /**
      * Command exception handler
@@ -65,29 +63,26 @@ class Process extends ProcessCore implements ProcessInterface
             $first_line = strtolower($first_line);
             $last_line  = Arrays::lastValue($data);
             $last_line  = strtolower($last_line);
-
             // Process specified handlers
             if ($function) {
                 $function($first_line, $last_line, $e);
             }
-
             // Handlers were unable to make a clear exception out of this, show the standard command exception
             throw new CommandsException(tr('The command :command failed with ":output"', [
                 ':command' => $command,
                 ':output'  => $data,
             ]));
         }
-
         // The process generated no output. Process specified handlers
         if ($function) {
             $function(null, null, $e);
         }
-
         // Something else went wrong, no CLI output available
         throw new CommandsException(tr('The command :command failed for unknown reasons', [
             ':command' => $command,
         ]));
     }
+
 
     /**
      * Returns true if the process can execute the specified command with sudo privileges
@@ -126,6 +121,7 @@ class Process extends ProcessCore implements ProcessInterface
 
         return false;
     }
+
 
     /**
      * Create a new process factory

@@ -12,7 +12,6 @@ use Phoundation\Web\Html\Traits\TraitUsesSize;
 use Phoundation\Web\Html\Traits\TraitUsesTier;
 use Stringable;
 
-
 /**
  * GridColumn class
  *
@@ -27,7 +26,6 @@ class GridColumn extends Layout
 {
     use TraitUsesSize;
     use TraitUsesTier;
-
 
     /**
      * GridColumn class constructor
@@ -72,7 +70,6 @@ class GridColumn extends Layout
         if ($size !== null) {
             $this->setSize($size);
         }
-
         $this->useForm($use_form);
 
         return parent::appendContent($content, $make_safe);

@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 
-
 /**
  * Trait TraitDataDefinition
  *
@@ -48,6 +47,7 @@ trait TraitDataDefinition
     public function setDefinition(DefinitionInterface|null $definition): static
     {
         $this->definition = $definition;
+
         return $this;
     }
 }

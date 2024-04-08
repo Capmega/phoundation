@@ -6,7 +6,6 @@ namespace Phoundation\Web\Requests\Exception;
 
 use Phoundation\Web\Exception\WebException;
 
-
 /**
  * Class RequestException
  *

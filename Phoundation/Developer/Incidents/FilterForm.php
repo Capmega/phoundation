@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Incidents;
 
-
 /**
  * Class FilterForm
  *
@@ -23,7 +22,6 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     public function __construct()
     {
         parent::__construct();
-
         $this->definitions = [
             'type[]'   => [
                 'label'   => tr('Type'),
@@ -35,7 +33,6 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
             ],
             'filter[]' => [
                 'label' => tr('Filter'),
-
             ],
         ];
     }

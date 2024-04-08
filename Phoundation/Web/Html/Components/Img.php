@@ -15,7 +15,6 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Stringable;
 
-
 /**
  * Class Img
  *
@@ -80,10 +79,10 @@ class Img extends Span implements ImgInterface
     {
         parent::__construct($content);
         parent::setElement('img');
-
         $this->setLazyLoad(Config::get('web.images.lazy-load', true));
         $this->requires_closing_tag = false;
     }
+
 
     /**
      * Returns the HTML alt element attribute
@@ -94,6 +93,7 @@ class Img extends Span implements ImgInterface
     {
         return $this->lazy_load;
     }
+
 
     /**
      * Sets the HTML alt element attribute
@@ -107,15 +107,15 @@ class Img extends Span implements ImgInterface
         if ($lazy_load === null) {
             $lazy_load = Config::get('web.images.lazy-load', true);
         }
-
         if ($lazy_load) {
             $this->addClass('lazy');
             Response::loadJavascript('js/jquery/lazyload/jquery.lazyload');
         }
-
         $this->lazy_load = $lazy_load;
+
         return $this;
     }
+
 
     /**
      * Returns the HTML alt element attribute
@@ -127,6 +127,7 @@ class Img extends Span implements ImgInterface
         return $this->alt;
     }
 
+
     /**
      * Sets the HTML alt element attribute
      *
@@ -137,8 +138,10 @@ class Img extends Span implements ImgInterface
     public function setAlt(?string $alt): static
     {
         $this->alt = $alt;
+
         return $this;
     }
+
 
     /**
      * Returns if this image is hosted on an external domain (that is, a domain NOT in the "web.domains" configuration
@@ -150,6 +153,7 @@ class Img extends Span implements ImgInterface
         return $this->external;
     }
 
+
     /**
      * Returns the HTML src element attribute
      *
@@ -159,6 +163,7 @@ class Img extends Span implements ImgInterface
     {
         return $this->src;
     }
+
 
     /**
      * Sets the HTML src element attribute
@@ -216,10 +221,11 @@ class Img extends Span implements ImgInterface
 //            $file_src = '/pub'.Strings::startsWith($src, '/');
 //            $src      = UrlBuilder::getImg($src);
 //        }
-
         $this->src = UrlBuilder::getImg($src);
+
         return $this;
     }
+
 
     /**
      * Generates and returns the HTML string for a <select> control
@@ -231,14 +237,11 @@ class Img extends Span implements ImgInterface
         if (!$this->src) {
             throw new HtmlException(tr('No src attribute specified'));
         }
-
         if (!$this->alt) {
             throw new HtmlException(tr('No alt attribute specified'));
         }
 
         return parent::render();
-
-
 //// :LEGACY: The following code block exists to support legacy apps that still use 5 arguments for html_img() instead of a params array
 //        if (!is_array($params)) {
 //            /*
@@ -771,6 +774,7 @@ class Img extends Span implements ImgInterface
 //        return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
     }
 
+
     /**
      * Add the system arguments to the arguments list
      *
@@ -778,11 +782,13 @@ class Img extends Span implements ImgInterface
      */
     protected function renderAttributes(): IteratorInterface
     {
-        return parent::renderAttributes()->appendSource([
-                                                            'src' => $this->src,
-                                                            'alt' => $this->alt,
-                                                        ]);
+        return parent::renderAttributes()
+                     ->appendSource([
+                         'src' => $this->src,
+                         'alt' => $this->alt,
+                     ]);
     }
+
 
     /**
      * Returns the lowercase extension of the file
@@ -794,8 +800,10 @@ class Img extends Span implements ImgInterface
     protected function getExtension(string $url): ?string
     {
         $extension = Strings::fromReverse($url, '.');
+
         return strtolower($extension);
     }
+
 
     /**
      * Returns the extension of the file
@@ -812,6 +820,7 @@ class Img extends Span implements ImgInterface
         };
 
     }
+
 
     /**
      * Returns if this image type is accepted or not

@@ -7,7 +7,6 @@ namespace Phoundation\Developer\Deploy\Exception;
 use Phoundation\Developer\Exception\DeveloperException;
 use Throwable;
 
-
 /**
  * Class DeployException
  *

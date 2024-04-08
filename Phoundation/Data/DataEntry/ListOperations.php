@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
 use Phoundation\Utils\Arrays;
 
-
 /**
  * Class ListOperations
  *
@@ -36,6 +35,7 @@ class ListOperations implements ListOperationsInterface
         $this->parent = $parent_class;
     }
 
+
     /**
      * Delete the specified entries
      *
@@ -48,6 +48,7 @@ class ListOperations implements ListOperationsInterface
     {
         return $this->setStatusKeys($ids, 'deleted', $comments);
     }
+
 
     /**
      * Set the specified status for the specified entries
@@ -62,7 +63,6 @@ class ListOperations implements ListOperationsInterface
     public function setStatusKeys(array|string $ids, ?string $status, ?string $comments = null): int
     {
         $count = 0;
-
         foreach (Arrays::force($ids) as $id) {
             $count++;
             $entry = $this->parent::getEntryClass()::new($id, 'id');
@@ -71,6 +71,7 @@ class ListOperations implements ListOperationsInterface
 
         return $count;
     }
+
 
     /**
      * Returns a new ListOperations object
@@ -84,6 +85,7 @@ class ListOperations implements ListOperationsInterface
         return new static($parent_class);
     }
 
+
     /**
      * Erase (as in SQL DELETE) the specified entries from the database, also erasing their meta data
      *
@@ -94,7 +96,6 @@ class ListOperations implements ListOperationsInterface
     public function eraseKeys(array|string $ids): int
     {
         $meta = [];
-
         // Delete the meta data entries
         foreach (Arrays::force($ids) as $id) {
             $count++;

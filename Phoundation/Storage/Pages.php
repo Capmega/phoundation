@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Storage\Interfaces\PagesInterface;
 use Phoundation\Web\Requests\Request;
 
-
 /**
  * Class Pages
  *

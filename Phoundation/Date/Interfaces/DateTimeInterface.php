@@ -7,7 +7,6 @@ namespace Phoundation\Date\Interfaces;
 use Phoundation\Date\DateInterval;
 use Phoundation\Date\DateTimeZone;
 
-
 /**
  * interface DateTimeInterface
  *
@@ -33,12 +32,14 @@ interface DateTimeInterface extends \DateTimeInterface
      */
     public function diff(\DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): DateInterval;
 
+
     /**
      * Returns a new DateTime object with the specified timezone
      *
      * @return \DateTimeInterface
      */
     public function setTimezone(\DateTimeZone|DateTimeZone|string|null $timezone = null): static;
+
 
     /**
      * Wrapper around the PHP Datetime but with support for named formats, like "mysql"

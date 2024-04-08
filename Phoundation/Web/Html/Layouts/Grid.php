@@ -8,7 +8,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
 
-
 /**
  * Grid class
  *
@@ -33,6 +32,7 @@ class Grid extends Container
     public function setRows(array $rows, ?EnumDisplaySizeInterface $column_size = null, bool $use_form = false): static
     {
         $this->source = [];
+
         return $this->addRows($rows, $column_size, $use_form);
     }
 
@@ -55,7 +55,6 @@ class Grid extends Container
                     ':datatype' => (is_object($row) ? get_class($row) : gettype($row)),
                 ]));
             }
-
             $this->addRow($row, $column_size, $use_form);
         }
 
@@ -78,23 +77,24 @@ class Grid extends Container
             // Just add an empty row
             $row = new GridRow();
         }
-
         if (!($row instanceof GridRow)) {
             // This is not a row!
             if (!($row instanceof GridColumn)) {
                 // This is not even a column, it's content. Put it in a column first
-                $row = GridColumn::new()->setContent($row)->useForm($use_form);
+                $row = GridColumn::new()
+                                 ->setContent($row)
+                                 ->useForm($use_form);
             }
-
             // This is a column, put the column in a row
-            $row = GridRow::new()->addColumn($row, $column_size);
+            $row = GridRow::new()
+                          ->addColumn($row, $column_size);
         }
-
         // We have a row
         $this->source[] = $row;
 
         return $this;
     }
+
 
     /**
      * Add the specified column to the current row in this grid
@@ -115,28 +115,27 @@ class Grid extends Container
             $row = GridRow::new();
             $this->addRow($row);
         }
-
         if (is_object($column) and !($column instanceof GridColumn)) {
             // This is not a GridColumn object, try to render the object to HTML string
             static::canRenderHtml($column);
-
             if ($size === null) {
                 throw new OutOfBoundsException(tr('No column size specified'));
             }
-
             // Render the HTML string
             $column = $column->render();
         }
-
         if (is_string($column)) {
             // This is not a column, it is content (should be an HTML string). Place the content in a column and add
             // that column instead
-            $column = GridColumn::new()->setContent($column)->useForm($use_form);
+            $column = GridColumn::new()
+                                ->setContent($column)
+                                ->useForm($use_form);
         }
-
         $row->addColumn($column, $size);
+
         return $this;
     }
+
 
     /**
      * Set the columns for the current row in this grid
@@ -149,9 +148,12 @@ class Grid extends Container
      */
     public function setColumns(array $columns, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
     {
-        $this->getCurrentRow()->clear();
+        $this->getCurrentRow()
+             ->clear();
+
         return $this->addColumns($columns, $size, $use_form);
     }
+
 
     /**
      * Returns the current row for this grid
@@ -169,6 +171,7 @@ class Grid extends Container
 
         return $row;
     }
+
 
     /**
      * Add the specified column to the current row in this grid

@@ -6,7 +6,6 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
 
-
 /**
  * Class AptGet
  *
@@ -29,13 +28,12 @@ class AptGet extends Command
     public function install(array|string $packages): void
     {
         Log::action(tr('Installing packages ":packages"', [':packages' => $packages]));
-
         $this->setCommand('apt-get')
              ->setSudo(true)
              ->addArguments([
-                                '-y',
-                                'install',
-                            ])
+                 '-y',
+                 'install',
+             ])
              ->addArguments($packages)
              ->setTimeout(120)
              ->executePassthru();

@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class InputTextArea
  *
@@ -43,7 +42,6 @@ class InputTextArea extends Input
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-
         $this->requires_closing_tag = true;
         $this->element              = 'textarea';
         $this->input_type           = null;
@@ -71,6 +69,7 @@ class InputTextArea extends Input
     public function setCols(?int $cols): static
     {
         $this->cols = $cols;
+
         return $this;
     }
 
@@ -96,6 +95,7 @@ class InputTextArea extends Input
     public function setRows(?int $rows): static
     {
         $this->rows = $rows;
+
         return $this;
     }
 
@@ -188,6 +188,7 @@ class InputTextArea extends Input
         ];
 
         // Merge the system values over the set attributes
-        return parent::renderAttributes()->appendSource($this->attributes, $return);
+        return parent::renderAttributes()
+                     ->appendSource($this->attributes, $return);
     }
 }

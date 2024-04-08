@@ -8,7 +8,6 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Puks\Exception\PuksException;
 use Phoundation\Utils\Json;
 
-
 /**
  * Puks class
  *
@@ -28,6 +27,7 @@ class Puks
      */
     protected string $user_key;
 
+
     /**
      * Puks class constructor
      *
@@ -35,16 +35,18 @@ class Puks
      */
     public function __construct(string $user_key)
     {
-        if (!Session::getUser()->getId()) {
+        if (
+            !Session::getUser()
+                    ->getId()
+        ) {
             throw new PuksException(tr('Puks security is only available for registered users'));
         }
-
         $this->user_key = $this->encryptKey($user_key);
-
         // Get rid of the original user key
         $user_key = random_bytes(2048);
         unset($user_key);
     }
+
 
     /**
      * @param string      $key
@@ -57,6 +59,7 @@ class Puks
         return $key;
     }
 
+
     /**
      * Returns a new Puks type object
      *
@@ -68,6 +71,7 @@ class Puks
     {
         return new static($user_key);
     }
+
 
     /**
      * Encrypts and returns the specified data string
@@ -84,6 +88,7 @@ class Puks
         return $data;
     }
 
+
     /**
      * Returns the database stored key
      *
@@ -92,15 +97,16 @@ class Puks
     protected function getKey(): ?string
     {
         $key = sql()->getColumn('SELECT `key` FROM `security_puks_keys` WHERE `created_by` = :created_by', [
-            ':created_by' => Session::getUser()->getId(),
+            ':created_by' => Session::getUser()
+                                    ->getId(),
         ]);
-
         if ($key) {
             return $this->decryptKey($key, $this->user_key);
         }
 
         return null;
     }
+
 
     /**
      * @param string      $data
@@ -112,6 +118,7 @@ class Puks
     {
         return $key;
     }
+
 
     /**
      * Encrypts and returns the specified data string

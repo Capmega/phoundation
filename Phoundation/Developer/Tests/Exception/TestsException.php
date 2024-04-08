@@ -6,7 +6,6 @@ namespace Phoundation\Developer\Tests\Exception;
 
 use Phoundation\Developer\Exception\DeveloperException;
 
-
 /**
  * Class TestsException
  *

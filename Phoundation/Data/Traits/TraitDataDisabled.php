@@ -7,7 +7,6 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Data\DataEntry\Exception\DataEntryDisabledException;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Trait TraitDataDisabled
  *
@@ -70,6 +69,7 @@ trait TraitDataDisabled
     public function setDisabled(bool $disabled): static
     {
         $this->disabled = $disabled;
+
         return $this;
     }
 }

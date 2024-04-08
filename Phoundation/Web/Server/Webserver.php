@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 /**
  * Class Webserver
  *
@@ -24,10 +23,8 @@ class Webserver
             case 'fpm-fcgi':
                 fastcgi_finish_request();
                 break;
-
             case '':
                 throw new OutOfBoundsException(tr('No SAPI detected'));
-
             default:
                 throw new OutOfBoundsException(tr('Unknown SAPI ":sapi" detected', [':sapi' => php_sapi_name()]));
         }

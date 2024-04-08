@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Interfaces;
 
-
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
@@ -27,6 +26,7 @@ interface RsyncInterface
      */
     public function getDelete(): bool;
 
+
     /**
      * Sets if destination files should be deleted if not existing on source
      *
@@ -36,12 +36,14 @@ interface RsyncInterface
      */
     public function setDelete(bool $delete): static;
 
+
     /**
      * Returns if file progress should be displayed or not
      *
      * @return bool
      */
     public function getProgress(): bool;
+
 
     /**
      * Sets if file progress should be displayed or not
@@ -52,6 +54,7 @@ interface RsyncInterface
      */
     public function setProgress(bool $progress): static;
 
+
     /**
      * Returns the paths that will be ignored
      *
@@ -59,12 +62,14 @@ interface RsyncInterface
      */
     public function getExclude(): array;
 
+
     /**
      * Clears the "exclude path" list
      *
      * @return static
      */
     public function clearExclude(): static;
+
 
     /**
      * Adds the specified paths to the list that will be excluded
@@ -75,6 +80,7 @@ interface RsyncInterface
      */
     public function addExclude(array|string $paths): static;
 
+
     /**
      * Sets the specified paths to the list that will be excluded
      *
@@ -84,12 +90,14 @@ interface RsyncInterface
      */
     public function setExclude(array|string $paths): static;
 
+
     /**
      * Returns if archive mode should be used
      *
      * @return bool
      */
     public function getArchive(): bool;
+
 
     /**
      * Sets if archive mode should be used
@@ -100,12 +108,14 @@ interface RsyncInterface
      */
     public function setArchive(bool $archive): static;
 
+
     /**
      * Returns if output should be more verbose
      *
      * @return bool
      */
     public function getVerbose(): bool;
+
 
     /**
      * Sets if output should be more verbose
@@ -116,12 +126,14 @@ interface RsyncInterface
      */
     public function setVerbose(bool $verbose): static;
 
+
     /**
      * Returns if non-error messages should be  suppressed
      *
      * @return bool
      */
     public function getQuiet(): bool;
+
 
     /**
      * Sets if non-error messages should be  suppressed
@@ -132,12 +144,14 @@ interface RsyncInterface
      */
     public function setQuiet(bool $quiet): static;
 
+
     /**
      * Returns if rsync should be executed using sudo on the remote host
      *
      * @return bool
      */
     public function getRemoteSudo(): bool;
+
 
     /**
      * Returns if rsync should be executed using sudo on the remote host
@@ -148,12 +162,14 @@ interface RsyncInterface
      */
     public function setRemoteSudo(string|bool|null $sudo): static;
 
+
     /**
      * Returns the remote rsync command
      *
      * @return string|null
      */
     public function getRsyncPath(): ?string;
+
 
     /**
      * Sets the remote rsync command
@@ -164,12 +180,14 @@ interface RsyncInterface
      */
     public function setRsyncPath(?string $rsync_path): static;
 
+
     /**
      * Returns if rsync will ignore symlinks that point outside the tree
      *
      * @return bool
      */
     public function getSafeLink(): bool;
+
 
     /**
      * Sets if rsync will ignore symlinks that point outside the tree
@@ -180,12 +198,14 @@ interface RsyncInterface
      */
     public function setSafeLink(bool $safe_links): static;
 
+
     /**
      * Returns if compression should be used during the transfer
      *
      * @return bool
      */
     public function getCompress(): bool;
+
 
     /**
      * Sets if compression should be used during the transfer
@@ -196,6 +216,7 @@ interface RsyncInterface
      */
     public function setCompress(bool $compress): static;
 
+
     /**
      * Returns the full command line
      *
@@ -204,6 +225,7 @@ interface RsyncInterface
      * @return string
      */
     public function getFullCommandLine(bool $background = false): string;
+
 
     /**
      * Execute the rsync operation and return the PID (background) or -1

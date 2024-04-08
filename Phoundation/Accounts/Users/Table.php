@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 
 /**
@@ -26,7 +25,6 @@ class Table extends HtmlTable
     {
         $this->setConnector($this->connector)
              ->setSourceQuery('SELECT * FROM `accounts_users`');
-
         parent::__construct();
     }
 }

@@ -10,7 +10,6 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
 
-
 /**
  * Tab class
  *
@@ -24,7 +23,6 @@ use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
 class Tab extends ElementsBlock implements TabInterface
 {
     use TraitDataLabel;
-
 
     /**
      * @return string|null

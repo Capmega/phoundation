@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 
-
 /**
  * Class InputText
  *

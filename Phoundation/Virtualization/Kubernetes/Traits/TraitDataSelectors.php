@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes\Traits;
 
-
 /**
  * Trait TraitDataSelector
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openselector.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://openselector.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataSelectors
 {
@@ -23,6 +22,7 @@ trait TraitDataSelectors
      * @var array $selectors
      */
     protected array $selectors = [];
+
 
     /**
      * Returns the selectors
@@ -36,26 +36,16 @@ trait TraitDataSelectors
 
 
     /**
-     * Clears the selectors
-     *
-     * @return static
-     */
-    public function clearSelector(): static
-    {
-        $this->selectors = [];
-        return $this;
-    }
-
-
-    /**
      * Sets the selectors
      *
      * @param array|null $selectors
+     *
      * @return static
      */
     public function setSelectors(?array $selectors): static
     {
         $this->selectors = [];
+
         return $this->addSelectors($selectors);
     }
 
@@ -64,6 +54,7 @@ trait TraitDataSelectors
      * Adds the specified selectors
      *
      * @param array|null $selectors
+     *
      * @return static
      */
     public function addSelectors(?array $selectors): static
@@ -85,13 +76,28 @@ trait TraitDataSelectors
     /**
      * Adds the specified selector
      *
-     * @param string $key
+     * @param string     $key
      * @param string|int $value
+     *
      * @return static
      */
     public function addSelector(string $key, string|int $value): static
     {
         $this->selectors[$key] = $value;
+
+        return $this;
+    }
+
+
+    /**
+     * Clears the selectors
+     *
+     * @return static
+     */
+    public function clearSelector(): static
+    {
+        $this->selectors = [];
+
         return $this;
     }
 }

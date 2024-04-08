@@ -12,16 +12,15 @@ use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Virtualization\Traits\TraitDataImage;
 
-
 /**
  * Class DockerFile
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Virtualization
+ * @package   Phoundation\Virtualization
  */
 class DockerFile
 {
@@ -37,6 +36,7 @@ class DockerFile
      */
     protected ?string $from = null;
 
+
     /**
      * DockerFile class constructor
      *
@@ -48,35 +48,8 @@ class DockerFile
         if (!$image) {
             throw new OutOfBoundsException(tr('No docker image specified'));
         }
-
         $this->setImage($image);
         $this->setDirectory($directory);
-    }
-
-
-    /**
-     * Returns a new object
-     *
-     * @param string $image
-     * @param string $directory
-     * @return static
-     */
-    public static function new(string $image, string $directory = DIRECTORY_ROOT): static
-    {
-        return new static($image, $directory);
-    }
-
-
-    /**
-     * Sets the docker file FROM
-     *
-     * @param string $from
-     * @return $this
-     */
-    public function setFrom(string $from): static
-    {
-        $this->from = $from;
-        return $this;
     }
 
 
@@ -92,6 +65,21 @@ class DockerFile
 
 
     /**
+     * Sets the docker file FROM
+     *
+     * @param string $from
+     *
+     * @return $this
+     */
+    public function setFrom(string $from): static
+    {
+        $this->from = $from;
+
+        return $this;
+    }
+
+
+    /**
      * Create configuration files for docker
      *
      * @return $this
@@ -99,16 +87,18 @@ class DockerFile
     public function writeConfig(): static
     {
         // Delete old docker configuration files
-        File::new($this->directory . '.docker')->setRestrictions($this->restrictions->getChild('.docker'))->delete();
-        File::new($this->directory . 'docker-compose.yml')->setRestrictions($this->restrictions->getChild('docker-compose.yml'))->delete();
-
+        File::new($this->directory . '.docker')
+            ->setRestrictions($this->restrictions->getChild('.docker'))
+            ->delete();
+        File::new($this->directory . 'docker-compose.yml')
+            ->setRestrictions($this->restrictions->getChild('docker-compose.yml'))
+            ->delete();
         File::new($this->directory . '.docker/Dockerfile')
             ->setRestrictions($this->restrictions->getChild('.docker/Dockerfile'))
             ->create('FROM php:8.2-apache
 COPY . /app
 COPY .docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN chown -R www-data:www-data /app && a2enmod rewrite');
-
         File::new($this->directory . '.docker/vhost.conf')
             ->setRestrictions($this->restrictions->getChild('.docker/vhost.conf'))
             ->create('<VirtualHost *:80>
@@ -120,7 +110,6 @@ RUN chown -R www-data:www-data /app && a2enmod rewrite');
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>');
-
         File::new($this->directory . 'docker-compose.yml')
             ->setRestrictions($this->restrictions->getChild('docker-compose.yml'))
             ->create('version: ‘3’
@@ -139,23 +128,45 @@ services:
 
 
     /**
+     * Returns a new object
+     *
+     * @param string $image
+     * @param string $directory
+     *
+     * @return static
+     */
+    public static function new(string $image, string $directory = DIRECTORY_ROOT): static
+    {
+        return new static($image, $directory);
+    }
+
+
+    /**
      * Builds an image from the Dockerfile
      *
      * @param bool $passthru
+     *
      * @return array|null
      */
     public function render(bool $passthru = true): ?array
     {
         // Execute the docker build process
         $process = Process::new('docker')
-            ->setSudo(true)
-            ->setTimeout(300)
-            ->setRestrictions($this->directory)
-            ->setExecutionDirectory($this->directory)
-            ->addArguments(['build', '-f', $this->directory . '.docker/Dockerfile', '-t', $this->image, '.']);
-
+                          ->setSudo(true)
+                          ->setTimeout(300)
+                          ->setRestrictions($this->directory)
+                          ->setExecutionDirectory($this->directory)
+                          ->addArguments([
+                              'build',
+                              '-f',
+                              $this->directory . '.docker/Dockerfile',
+                              '-t',
+                              $this->image,
+                              '.',
+                          ]);
         if ($passthru) {
             $process->executePassthru();
+
             return null;
         }
 

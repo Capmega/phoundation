@@ -6,7 +6,6 @@ namespace Phoundation\Os\Devices\Storage\Interfaces;
 
 use Phoundation\Filesystem\Interfaces\FileInterface;
 
-
 /**
  * interface DeviceInterface
  *

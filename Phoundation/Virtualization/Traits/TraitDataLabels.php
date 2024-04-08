@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Traits;
 
-
 /**
  * Trait TraitDataLabels
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Virtualization
+ * @package   Phoundation\Virtualization
  */
 trait TraitDataLabels
 {
@@ -23,6 +22,7 @@ trait TraitDataLabels
      * @var array $labels
      */
     protected array $labels = [];
+
 
     /**
      * Returns the labels
@@ -36,6 +36,21 @@ trait TraitDataLabels
 
 
     /**
+     * Sets the labels
+     *
+     * @param array $labels
+     *
+     * @return $this
+     */
+    public function setLabels(array $labels): static
+    {
+        $this->labels = $labels;
+
+        return $this;
+    }
+
+
+    /**
      * Clears the labels
      *
      * @return $this
@@ -43,19 +58,7 @@ trait TraitDataLabels
     public function clearLabels(): static
     {
         $this->labels = [];
-        return $this;
-    }
 
-
-    /**
-     * Sets the labels
-     *
-     * @param array $labels
-     * @return $this
-     */
-    public function setLabels(array $labels): static
-    {
-        $this->labels = $labels;
         return $this;
     }
 
@@ -64,6 +67,7 @@ trait TraitDataLabels
      * Adds the specified labels
      *
      * @param array|string $labels
+     *
      * @return $this
      */
     public function addLabels(array|string $labels): static

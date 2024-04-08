@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Trait TraitInputChecked
  *
@@ -22,7 +21,7 @@ trait TraitInputChecked
      */
     public function getChecked(): bool
     {
-        return (bool)$this->attributes->get('checked', false);
+        return (bool) $this->attributes->get('checked', false);
     }
 
 
@@ -38,8 +37,9 @@ trait TraitInputChecked
         if ($checked) {
             return $this->setAttribute('true', 'checked', false);
         }
+        $this->getAttributes()
+             ->removeKeys('checked');
 
-        $this->getAttributes()->removeKeys('checked');
         return $this;
     }
 }

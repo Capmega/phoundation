@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataEnvironment
  *
@@ -46,6 +45,7 @@ trait TraitDataEnvironment
     public function setEnvironment(?string $environment): static
     {
         $this->environment = $environment;
+
         return $this;
     }
 }

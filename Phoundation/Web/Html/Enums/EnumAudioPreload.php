@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Enums;
 
 use Phoundation\Web\Html\Enums\Interfaces\EnumAudioPreloadInterface;
 
-
 /**
  * Enum EnumAudioPreload
  *

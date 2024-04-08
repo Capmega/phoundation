@@ -6,7 +6,6 @@ namespace Phoundation\Core\Meta\Exception;
 
 use Phoundation\Core\Exception\CoreException;
 
-
 /**
  * Class MetaException
  *

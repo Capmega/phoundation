@@ -7,7 +7,6 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use ReturnTypeWillChange;
 
-
 /**
  * Trait TraitDataParent
  *
@@ -47,6 +46,7 @@ trait TraitDataParent
     public function setParent(DataEntryInterface $parent): static
     {
         $this->parent = $parent;
+
         return $this;
     }
 }

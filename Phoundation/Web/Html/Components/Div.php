@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Div class
  *
@@ -21,7 +20,6 @@ use Phoundation\Web\Html\Traits\TraitChildElement;
 class Div extends Element implements DivInterface
 {
     use TraitChildElement;
-
 
     /**
      * Form class constructor

@@ -33,7 +33,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Throwable;
 
-
 /**
  * Project class
  *
@@ -50,7 +49,6 @@ class Project implements ProjectInterface
     use TraitGit {
         __construct as protected construct;
     }
-
 
     /**
      * The project name
@@ -82,8 +80,6 @@ class Project implements ProjectInterface
 //        'Phoundation/',
 //        'pho'
 //    ];
-
-
     /**
      * Project constructor
      *
@@ -95,9 +91,9 @@ class Project implements ProjectInterface
             // Default to this project
             $directory = DIRECTORY_ROOT;
         }
-
         $this->construct($directory);
     }
+
 
     /**
      * Returns a new project with the specified name
@@ -113,13 +109,13 @@ class Project implements ProjectInterface
             if (!$force) {
                 throw new OutOfBoundsException(tr('Project file "config/project" already exist'));
             }
-
-            File::new(DIRECTORY_ROOT . 'config/project')->delete();
+            File::new(DIRECTORY_ROOT . 'config/project')
+                ->delete();
         }
-
         static::$name = $project;
         static::save();
     }
+
 
     /**
      * Returns if the project file exists
@@ -130,6 +126,7 @@ class Project implements ProjectInterface
     {
         return file_exists(DIRECTORY_ROOT . 'config/project');
     }
+
 
     /**
      * Returns a new Phoundation object
@@ -143,6 +140,7 @@ class Project implements ProjectInterface
         return new static($directory);
     }
 
+
     /**
      * Saves the project name
      *
@@ -152,6 +150,7 @@ class Project implements ProjectInterface
     {
         file_put_contents(DIRECTORY_ROOT . 'config/project', static::$name);
     }
+
 
     /**
      * Setup this project
@@ -165,40 +164,34 @@ class Project implements ProjectInterface
             if (!isset(static::$environment)) {
                 throw new OutOfBoundsException(tr('No environment specified'));
             }
-
             $configuration = static::$environment->getConfiguration();
-
             Log::information(tr('Initializing project ":project", this can take a little while...', [
                 ':project' => static::$name,
             ]));
-
-            static::getEnvironment()->setup();
-
+            static::getEnvironment()
+                  ->setup();
             // Create admin user
             Log::action(tr('Creating administrative user ":email", almost done...', [
                 ':email' => $configuration->getEmail(),
             ]));
-
             $user = User::new()
                         ->setEmail($configuration->getEmail())
                         ->save();
-
             $user->changePassword($configuration->getPassword(), $configuration->getPassword());
-            $user->getRoles()->add('god');
-
+            $user->getRoles()
+                 ->add('god');
             Log::success(tr('Finished project setup'));
 
         } catch (Throwable $e) {
             Log::warning('Setup failed with the following exception. Cancelling setup process and removing files.');
             Log::warning($e);
-
             // Remove the project and continue throwing the exception
             Project::remove();
-
             Log::warning(tr('Setup process was cancelled'));
             throw $e;
         }
     }
+
 
     /**
      * Returns the selected environment for this project
@@ -210,6 +203,7 @@ class Project implements ProjectInterface
         return static::$environment;
     }
 
+
     /**
      * Returns the configuration for this project
      *
@@ -220,50 +214,62 @@ class Project implements ProjectInterface
     public static function setEnvironment(string $environment): Environment
     {
         $environment = Environment::sanitize($environment);
-
         if (Environment::exists($environment)) {
             if (!FORCE) {
                 throw EnvironmentExists::new(tr('Specified environment ":environment" has already been setup', [
                     ':environment' => $environment,
-                ]))->makeWarning();
+                ]))
+                                       ->makeWarning();
             }
-
             static::removeEnvironment($environment);
         }
-
         static::$environment = Environment::new(static::$name, $environment);
+
         return static::$environment;
     }
 
+
     /**
-     * Returns if the specified project name is valid or not
+     * Remove this project
      *
-     * @param string $project
+     * This will remove all databases and configuration files for this project
      *
-     * @return string
+     * @return void
      */
-    protected static function sanitize(string $project): string
+    public static function remove(): void
     {
-        if (!$project) {
-            throw OutOfBoundsException::new(tr('No project name specified in the project file ":file"', [':file' => 'config/project']))->makeWarning();
+        Log::action(tr('Removing project'));
+        foreach (static::getEnvironments() as $environment) {
+            // Delete this environment
+            static::removeEnvironment($environment);
         }
-
-        if (strlen($project) > 32) {
-            throw OutOfBoundsException::new(tr('Specified project name is ":size" characters long, please specify a project name equal or less than 32 characters', [
-                ':size' => strlen($project),
-            ]))->makeWarning();
-        }
-
-        $project = strtoupper($project);
-
-        if (!preg_match('/[A-Z0-9_]+/', $project)) {
-            throw OutOfBoundsException::new(tr('Specified project ":project" contains invalid characters, please ensure it has only A-Z, 0-9 or _', [
-                ':project' => $project,
-            ]))->makeWarning();
-        }
-
-        return $project;
+        // Remove the project file
+        Log::warning(tr('Removing project file "config/project"'));
+        File::new(DIRECTORY_ROOT . 'config/project', Restrictions::new(DIRECTORY_ROOT . 'config/project', true))
+            ->delete();
     }
+
+
+    /**
+     * Returns all available environments
+     *
+     * @return IteratorInterface
+     */
+    public static function getEnvironments(): IteratorInterface
+    {
+        $return = [];
+        $files  = glob(DIRECTORY_ROOT . 'config/*.yaml');
+        foreach ($files as $file) {
+            if ($file[0] === '.') {
+                // No hidden files no . no ..
+                continue;
+            }
+            $return[] = Strings::untilReverse(basename($file), '.');
+        }
+
+        return new Iterator($return);
+    }
+
 
     /**
      * Remove the specified environment
@@ -277,19 +283,19 @@ class Project implements ProjectInterface
         if (!Environment::exists($environment)) {
             return false;
         }
-
         Log::warning(tr('Removing environment ":environment"', [
             ':environment' => $environment,
         ]));
-
         // If we're removing the environment that is currently used then remove it from memory too
         if (static::$environment->getName() === $environment) {
             static::$environment = null;
         }
 
         // Get the environment and remove all environment specific data
-        return Environment::get(static::$name, $environment)->remove();
+        return Environment::get(static::$name, $environment)
+                          ->remove();
     }
+
 
     /**
      * Returns the project name
@@ -301,48 +307,37 @@ class Project implements ProjectInterface
         return static::$name;
     }
 
-    /**
-     * Remove this project
-     *
-     * This will remove all databases and configuration files for this project
-     *
-     * @return void
-     */
-    public static function remove(): void
-    {
-        Log::action(tr('Removing project'));
-
-        foreach (static::getEnvironments() as $environment) {
-            // Delete this environment
-            static::removeEnvironment($environment);
-        }
-
-        // Remove the project file
-        Log::warning(tr('Removing project file "config/project"'));
-        File::new(DIRECTORY_ROOT . 'config/project', Restrictions::new(DIRECTORY_ROOT . 'config/project', true))->delete();
-    }
 
     /**
-     * Returns all available environments
+     * Returns if the specified project name is valid or not
      *
-     * @return IteratorInterface
+     * @param string $project
+     *
+     * @return string
      */
-    public static function getEnvironments(): IteratorInterface
+    protected static function sanitize(string $project): string
     {
-        $return = [];
-        $files  = glob(DIRECTORY_ROOT . 'config/*.yaml');
-
-        foreach ($files as $file) {
-            if ($file[0] === '.') {
-                // No hidden files no . no ..
-                continue;
-            }
-
-            $return[] = Strings::untilReverse(basename($file), '.');
+        if (!$project) {
+            throw OutOfBoundsException::new(tr('No project name specified in the project file ":file"', [':file' => 'config/project']))
+                                      ->makeWarning();
+        }
+        if (strlen($project) > 32) {
+            throw OutOfBoundsException::new(tr('Specified project name is ":size" characters long, please specify a project name equal or less than 32 characters', [
+                ':size' => strlen($project),
+            ]))
+                                      ->makeWarning();
+        }
+        $project = strtoupper($project);
+        if (!preg_match('/[A-Z0-9_]+/', $project)) {
+            throw OutOfBoundsException::new(tr('Specified project ":project" contains invalid characters, please ensure it has only A-Z, 0-9 or _', [
+                ':project' => $project,
+            ]))
+                                      ->makeWarning();
         }
 
-        return new Iterator($return);
+        return $project;
     }
+
 
     /**
      * Validate the specified project information
@@ -353,20 +348,34 @@ class Project implements ProjectInterface
      */
     public static function validate(ValidatorInterface $validator): array
     {
-        return $validator
-            ->select('admin_email')->isEmail()
-            ->select('admin_pass1')->isPassword()
-            ->select('admin_pass2')->isPassword()->isEqualTo('admin_pass1')
-            ->select('domain')->isDomain()
-            ->select('database_host')->isDomain()
-            ->select('database_name')->isVariable()
-            ->select('database_user')->isVariable()
-            ->select('database_pass1')->isPassword()
-            ->select('database_pass2')->isPassword()->isEqualTo('database_pass1')
-            ->select('project')->isVariable()
-            ->select('environment')->isVariable()
-            ->select('import')->isOptional()->isBoolean()
-            ->validate();
+        return $validator->select('admin_email')
+                         ->isEmail()
+                         ->select('admin_pass1')
+                         ->isPassword()
+                         ->select('admin_pass2')
+                         ->isPassword()
+                         ->isEqualTo('admin_pass1')
+                         ->select('domain')
+                         ->isDomain()
+                         ->select('database_host')
+                         ->isDomain()
+                         ->select('database_name')
+                         ->isVariable()
+                         ->select('database_user')
+                         ->isVariable()
+                         ->select('database_pass1')
+                         ->isPassword()
+                         ->select('database_pass2')
+                         ->isPassword()
+                         ->isEqualTo('database_pass1')
+                         ->select('project')
+                         ->isVariable()
+                         ->select('environment')
+                         ->isVariable()
+                         ->select('import')
+                         ->isOptional()
+                         ->isBoolean()
+                         ->validate();
     }
 
 
@@ -379,7 +388,6 @@ class Project implements ProjectInterface
     {
         $project = file_get_contents(DIRECTORY_ROOT . 'config/project');
         $project = static::sanitize($project);
-
         static::$name = $project;
 
         return $project;
@@ -399,13 +407,11 @@ class Project implements ProjectInterface
     public static function import(bool $demo, int $min, int $max, array|string|null $libraries = null): void
     {
         Log::information(tr('Starting import for all libraries that support it'));
-
         $libraries = Arrays::force(strtolower(Strings::force($libraries)));
         $sections  = [
             'Phoundation/' => tr('Phoundation'),
             'Plugins/'     => tr('Plugin'),
         ];
-
         foreach ($sections as $directory => $section) {
             // Find all import object and execute them
             $files = Process::new('find')
@@ -413,50 +419,42 @@ class Project implements ProjectInterface
                             ->addArgument('-name')
                             ->addArgument('Import.php')
                             ->executeReturnArray();
-
             Log::notice(tr('Found ":count" import classes for section ":section"', [
                 ':count'   => count($files),
                 ':section' => $section,
-            ]),         5);
-
+            ]), 5);
             // Execute all Import objects if they are valid
             foreach ($files as $file) {
                 $library = null;
-
                 try {
                     include_once($file);
                     $class   = Library::getClassPath($file);
                     $library = Strings::until(Strings::from($file, $directory), '/');
-
                     if ($libraries and !in_array(strtolower($library), $libraries)) {
                         Log::warning(tr('Not executing import for library ":library" as it is filtered', [
                             ':library' => $library,
                         ]));
-
                         continue;
                     }
-
                     if (is_subclass_of($class, Import::class)) {
                         Log::action(tr('Importing data for ":section" library ":library" from file ":file"', [
                             ':section' => $section,
                             ':library' => $library,
                             ':file'    => Strings::from($file, DIRECTORY_ROOT . $directory),
-                        ]),         5);
-
-                        $count = $class::new($demo, $min, $max)->execute();
-
+                        ]), 5);
+                        $count = $class::new($demo, $min, $max)
+                                       ->execute();
                         Log::success(tr('Imported ":count" records for ":section" library ":library"', [
                             ':section' => $section,
                             ':library' => $library,
                             ':count'   => $count,
-                        ]),          6);
+                        ]), 6);
                     }
                 } catch (Throwable $e) {
                     Log::action(tr('Failed to import data for ":section" library ":library" with the following exception', [
                         ':section' => $section,
                         ':library' => $library,
-                    ]),         3);
-
+                    ]), 3);
                     Log::error($e);
                 }
             }
@@ -474,84 +472,78 @@ class Project implements ProjectInterface
         // Don't check for root user, check if we have sudo access to these commands individually, perhaps the user has
         // it?
         Command::sudoAvailable('chown,chmod,mkdir,touch,rm', Restrictions::new('/bin,/usr/bin'), true);
-
         // Fix file modes, first make everything readonly
         Process::new('chmod')
                ->setExecutionDirectory(DIRECTORY_ROOT)
                ->setSudo(true)
                ->addArguments([
-                                  '-x,ug+r,g-w,o-rwx',
-                                  '.',
-                                  '-R',
-                              ])
+                   '-x,ug+r,g-w,o-rwx',
+                   '.',
+                   '-R',
+               ])
                ->executePassthru();
-
         // All directories must have the "execute" bit for users and groups
         Process::new('find')
                ->setExecutionDirectory(DIRECTORY_ROOT)
                ->setSudo(true)
                ->addArguments([
-                                  '.',
-                                  '-type',
-                                  'd',
-                                  '-exec',
-                                  'chmod',
-                                  'ug+x',
-                                  '{}',
-                                  '\\;',
-                              ])
+                   '.',
+                   '-type',
+                   'd',
+                   '-exec',
+                   'chmod',
+                   'ug+x',
+                   '{}',
+                   '\\;',
+               ])
                ->executePassthru();
-
         // No file should be executable
         Process::new('find')
                ->setExecutionDirectory(DIRECTORY_ROOT)
                ->setSudo(true)
                ->addArguments([
-                                  '.',
-                                  '-type',
-                                  'f',
-                                  '-exec',
-                                  'chmod',
-                                  'ug-x',
-                                  '{}',
-                                  '\\;',
-                              ])
+                   '.',
+                   '-type',
+                   'f',
+                   '-exec',
+                   'chmod',
+                   'ug-x',
+                   '{}',
+                   '\\;',
+               ])
                ->executePassthru();
-
         // ./cli is the only file that can be executed
         Process::new('chmod')
                ->setExecutionDirectory(DIRECTORY_ROOT)
                ->setSudo(true)
                ->addArguments([
-                                  'ug+w',
-                                  './pho',
-                              ])
+                   'ug+w',
+                   './pho',
+               ])
                ->executePassthru();
-
         // Writable directories: data/tmp, data/log, data/run, data/cookies, data/content,
         Process::new('chmod')
                ->setExecutionDirectory(DIRECTORY_ROOT)
                ->setSudo(true)
                ->addArguments([
-                                  '-x,ug+r,g-w,o-rwx',
-                                  DIRECTORY_DATA . 'tmp',
-                                  DIRECTORY_DATA . 'log',
-                                  DIRECTORY_DATA . 'run',
-                                  DIRECTORY_DATA . 'cookies',
-                                  DIRECTORY_DATA . 'cookies',
-                                  '-R',
-                              ])
+                   '-x,ug+r,g-w,o-rwx',
+                   DIRECTORY_DATA . 'tmp',
+                   DIRECTORY_DATA . 'log',
+                   DIRECTORY_DATA . 'run',
+                   DIRECTORY_DATA . 'cookies',
+                   DIRECTORY_DATA . 'cookies',
+                   '-R',
+               ])
                ->executePassthru();
-
         // Fix file ownership
         Process::new('chown')
                ->setExecutionDirectory(DIRECTORY_ROOT)
                ->setSudo(true)
                ->addArguments([
-                                  'www-data:www-data',
-                                  '.',
-                                  '-R',
-                              ])
+                   'www-data:www-data',
+                   '.',
+                   '-R',
+               ])
                ->executePassthru();
     }
 
@@ -564,6 +556,7 @@ class Project implements ProjectInterface
         throw new UnderConstructionException();
     }
 
+
     /**
      * Updates your Phoundation installation from Phoundation
      */
@@ -571,6 +564,7 @@ class Project implements ProjectInterface
     {
         throw new UnderConstructionException();
     }
+
 
     /**
      * Returns the git object for this project
@@ -581,6 +575,7 @@ class Project implements ProjectInterface
     {
         return $this->git;
     }
+
 
     /**
      * Returns the deploy object for this project
@@ -594,6 +589,7 @@ class Project implements ProjectInterface
         return new Deploy($this, $target_environments);
     }
 
+
     /**
      * Returns true if the specified filesystem location contains a valid Phoundation project installation
      *
@@ -604,8 +600,9 @@ class Project implements ProjectInterface
     public function isPhoundationProject(string $directory): bool
     {
         // Is the path readable?
-        $directory = Directory::new($directory, $this->restrictions)->checkReadable()->getPath();
-
+        $directory = Directory::new($directory, $this->restrictions)
+                              ->checkReadable()
+                              ->getPath();
         // All these files and directories must be available.
         $files = [
             'config',
@@ -615,7 +612,6 @@ class Project implements ProjectInterface
             'tests',
             'pho',
         ];
-
         foreach ($files as $file) {
             if (!file_exists($directory . $file)) {
                 return false;
@@ -625,6 +621,7 @@ class Project implements ProjectInterface
         return true;
     }
 
+
     /**
      * Resets the git pointer to HEAD for this project
      *
@@ -633,8 +630,10 @@ class Project implements ProjectInterface
     public function resetHead(): static
     {
         $this->git->reset('HEAD');
+
         return $this;
     }
+
 
     /**
      * Updates your Phoundation installation
@@ -651,48 +650,47 @@ class Project implements ProjectInterface
     public function updateLocalProject(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null, bool $skip_caching = false, bool $commit = true): static
     {
         $branch = $this->getBranch($branch);
-
         Log::notice(tr('Trying to pull updates from Phoundation using current project branch ":branch"', [
             ':branch' => $branch,
         ]));
-
         Log::information('Updating your project from a local Phoundation repository');
-
         // Ensure that the local Phoundation has no changes
-        Phoundation::new($phoundation_path)->ensureNoChanges();
-
+        Phoundation::new($phoundation_path)
+                   ->ensureNoChanges();
         try {
             // Add all files to index to ensure everything will be stashed
-            if ($this->git->getStatus()->getCount()) {
+            if (
+                $this->git->getStatus()
+                          ->getCount()
+            ) {
                 $this->git->add(DIRECTORY_ROOT);
-                $this->git->getStashObject()->stash();
+                $this->git->getStashObject()
+                          ->stash();
                 $stash = true;
             }
-
             // Cache ALL Phoundation files to avoid code incompatibility after update, then copy Phoundation core files
             $this->cacheLibraries($skip_caching)
                  ->copyPhoundationFilesLocal($phoundation_path, $branch);
-
             // If there are changes, then add and commit
-            if ($this->git->getStatus()->getCount()) {
+            if (
+                $this->git->getStatus()
+                          ->getCount()
+            ) {
                 if (!$message) {
                     $message = tr('Phoundation update');
                 }
-
                 $this->git->add([DIRECTORY_ROOT]);
-
                 if ($commit) {
                     $this->git->commit($message, $signed);
                 }
-
                 Log::warning(tr('Committed local Phoundation update to git'));
             } else {
                 Log::warning(tr('No updates found in local Phoundation update'));
             }
-
             // Stash pop the previous changes and reset HEAD to ensure the index is empty
             if (isset($stash)) {
-                $this->git->getStashObject()->pop();
+                $this->git->getStashObject()
+                          ->pop();
                 $this->git->reset('HEAD');
             }
 
@@ -701,13 +699,14 @@ class Project implements ProjectInterface
         } catch (Throwable $e) {
             if (isset($stash)) {
                 Log::warning(tr('Moving stashed files back'));
-                $this->git->getStashObject()->pop();
+                $this->git->getStashObject()
+                          ->pop();
                 $this->git->reset('HEAD');
             }
-
             throw $e;
         }
     }
+
 
     /**
      * Returns either the specified branch or the current project branch as default
@@ -721,7 +720,6 @@ class Project implements ProjectInterface
         if (!$branch) {
             // Select the current branch
             $branch = $this->git->getBranch();
-
             Log::notice(tr('Using project branch ":branch"', [
                 ':branch' => $branch,
             ]));
@@ -729,6 +727,7 @@ class Project implements ProjectInterface
 
         return $branch;
     }
+
 
     /**
      * Copy all files from the local phoundation installation.
@@ -747,73 +746,68 @@ class Project implements ProjectInterface
         if (!$branch) {
             throw new OutOfBoundsException(tr('Cannot copy local Phoundation files, no Phoundation branch specified'));
         }
-
         try {
-            $phoundation = Phoundation::new($directory)->switchBranch($branch);
+            $phoundation = Phoundation::new($directory)
+                                      ->switchBranch($branch);
 
         } catch (ProcessFailedException $e) {
             // TODO Check if it actually does not exist or if there is another problem!
             throw new PhoundationBranchNotExistException(tr('Cannot switch to Phoundation branch ":branch", it does not exist', [
                 ':branch' => $branch,
-            ]),                                          $e);
+            ]), $e);
         }
-
         // ATTENTION! Next up, we're going to delete the Phoundation main libraries! To avoid any next commands not
         // finding files they require, include them here so that we have them available in memory
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Commands/Rsync.php');
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Enum/EnumExecuteMethod.php');
-
         // Move /Phoundation and /scripts out of the way
-        Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->delete();
-
+        Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))
+                 ->delete();
         // Copy new core library versions
         Log::action('Updating Phoundation core libraries');
         Rsync::new()
              ->setSource($phoundation->getDirectory() . 'Phoundation/')
              ->setTarget(DIRECTORY_ROOT . 'Phoundation')
              ->setExclude([
-                              '.idea',
-                              '.git',
-                              '.gitignore',
-                              '/Templates',
-                              '/Plugins',
-                          ])
+                 '.idea',
+                 '.git',
+                 '.gitignore',
+                 '/Templates',
+                 '/Plugins',
+             ])
              ->setDelete(true)
              ->execute();
-
         // Copy Phoundation plugin
         Log::action('Updating Phoundation Plugin');
         Rsync::new()
              ->setSource($phoundation->getDirectory() . 'Plugins/Phoundation/Phoundation/')
              ->setTarget(DIRECTORY_ROOT . 'Plugins/Phoundation/Phoundation')
              ->setExclude([
-                              '.idea',
-                              '.git',
-                              '.gitignore',
-                          ])
+                 '.idea',
+                 '.git',
+                 '.gitignore',
+             ])
              ->setDelete(true)
              ->execute();
-
         // Copy Phoundation PHO command
         Log::action('Updating "pho" command');
         Rsync::new()
              ->setSource($phoundation->getDirectory() . 'pho')
              ->setTarget(DIRECTORY_ROOT . 'pho')
              ->setExclude([
-                              '.idea',
-                              '.git',
-                              '.gitignore',
-                          ])
+                 '.idea',
+                 '.git',
+                 '.gitignore',
+             ])
              ->setDelete(true)
              ->execute();
-
 //            // All is well? Get rid of the garbage
 //            $files['phoundation']->delete();
 //            $files['templates']->delete();
-
         // Switch phoundation back to its previous branch
         $phoundation->switchBranch();
     }
+
 
     /**
      * Pre-reads ALL Phoundation library files into memory
@@ -831,7 +825,6 @@ class Project implements ProjectInterface
         $skip = false;
         if ($skip) {
             Log::action(tr('Caching all Phoundation libraries'));
-
             Find::new()
                 ->setPath(DIRECTORY_ROOT . 'Phoundation/')
                 ->setFilenameFilter('*.php')
@@ -840,7 +833,6 @@ class Project implements ProjectInterface
                     @include($file);
                 })
                 ->execute();
-
             Log::dot(true);
         } else {
             Log::warning(tr('Not caching Phoundation libraries'));
@@ -848,6 +840,7 @@ class Project implements ProjectInterface
 
         return $this;
     }
+
 
     /**
      * Updates your Phoundation Plugins
@@ -865,49 +858,48 @@ class Project implements ProjectInterface
     {
         if (!$branch) {
             $branch = $this->git->getBranch();
-
             Log::notice(tr('Trying to pull plugin updates from Phoundation using current project branch ":branch"', [
                 ':branch' => $branch,
             ]));
         }
-
         Log::information('Updating your project plugins from a local Phoundation repository');
-
         // Ensure that the local Phoundation has no changes
-        Plugins::new()->ensureNoChanges();
-
+        Plugins::new()
+               ->ensureNoChanges();
         try {
             // Add all files to index to ensure everything will be stashed
-            if ($this->git->getStatus()->getCount()) {
+            if (
+                $this->git->getStatus()
+                          ->getCount()
+            ) {
                 $this->git->add(DIRECTORY_ROOT);
-                $this->git->getStashObject()->stash();
+                $this->git->getStashObject()
+                          ->stash();
                 $stash = true;
             }
-
             // Cache ALL Phoundation files to avoid code incompatibility after update, then copy Phoundation core files
             $this->cacheLibraries($skip_caching)
                  ->copyPluginsFilesLocal($phoundation_path, $branch);
-
             // If there are changes, then add and commit
-            if ($this->git->getStatus()->getCount()) {
+            if (
+                $this->git->getStatus()
+                          ->getCount()
+            ) {
                 if (!$message) {
                     $message = tr('Phoundation plugins update');
                 }
-
                 $this->git->add([DIRECTORY_ROOT]);
-
                 if ($commit) {
                     $this->git->commit($message, $signed);
                 }
-
                 Log::warning(tr('Committed local Phoundation update to git'));
             } else {
                 Log::warning(tr('No updates found in local Phoundation plugins update'));
             }
-
             // Stash pop the previous changes and reset HEAD to ensure the index is empty
             if (isset($stash)) {
-                $this->git->getStashObject()->pop();
+                $this->git->getStashObject()
+                          ->pop();
                 $this->git->reset('HEAD');
             }
 
@@ -916,13 +908,14 @@ class Project implements ProjectInterface
         } catch (Throwable $e) {
             if (isset($stash)) {
                 Log::warning(tr('Moving stashed files back'));
-                $this->git->getStashObject()->pop();
+                $this->git->getStashObject()
+                          ->pop();
                 $this->git->reset('HEAD');
             }
-
             throw $e;
         }
     }
+
 
     /**
      * Copy all files from the local phoundation installation.
@@ -941,40 +934,37 @@ class Project implements ProjectInterface
         if (!$branch) {
             throw new OutOfBoundsException(tr('Cannot copy local plugin files, no Phoundation branch specified'));
         }
-
         try {
-            $plugins = Plugins::new($directory)->switchBranch($branch);
+            $plugins = Plugins::new($directory)
+                              ->switchBranch($branch);
 
         } catch (ProcessFailedException $e) {
             // TODO Check if it actually does not exist or if there is another problem!
             throw new PhoundationBranchNotExistException(tr('Cannot switch to Phoundation plugins branch ":branch", it does not exist', [
                 ':branch' => $branch,
-            ]),                                          $e);
+            ]), $e);
         }
-
         // ATTENTION! Next up, we're going to delete the Phoundation main libraries! To avoid any next commands not
         // finding files they require, include them here so that we have them available in memory
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Commands/Rsync.php');
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Enum/EnumExecuteMethod.php');
-
         // Move /Phoundation and /scripts out of the way
         try {
-            Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->delete();
-
+            Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))
+                     ->delete();
             // Copy new plugin libraries
             Log::action('Updating Phoundation plugins');
             Rsync::new()
                  ->setSource($plugins->getDirectory())
                  ->setTarget(DIRECTORY_ROOT)
                  ->setExclude([
-                                  '.idea',
-                                  '.git',
-                                  '.gitignore',
-                                  '/Phoundation',
-                                  '/Plugins/Phoundation/Phoundation',
-                              ])
+                     '.idea',
+                     '.git',
+                     '.gitignore',
+                     '/Phoundation',
+                     '/Plugins/Phoundation/Phoundation',
+                 ])
                  ->execute();
-
             // Switch phoundation back to its previous branch
             $plugins->switchBranch();
 

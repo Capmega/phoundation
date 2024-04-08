@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 
@@ -59,6 +58,7 @@ trait TraitDataDatabaseConnector
     public function setDatabaseConnectorName(string $database_connector): static
     {
         $this->database_connector = $database_connector;
+
         return $this;
     }
 }

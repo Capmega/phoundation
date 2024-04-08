@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Trait TraitDataHeight
  *
@@ -54,8 +53,8 @@ trait TraitDataHeight
                 ]));
             }
         }
-
         $this->height = $height;
+
         return $this;
     }
 }

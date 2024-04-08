@@ -16,7 +16,6 @@ use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
-
 /**
  * NotificationsDropDown class
  *
@@ -32,7 +31,6 @@ class NotificationsDropDown extends ElementsBlock
     use TraitDataStatus {
         setStatus as setStatusTrait;
     }
-
 
     /**
      * The list of notifications
@@ -74,6 +72,7 @@ class NotificationsDropDown extends ElementsBlock
         return $this->setStatusTrait($status);
     }
 
+
     /**
      * Returns the notifications page URL
      *
@@ -83,6 +82,7 @@ class NotificationsDropDown extends ElementsBlock
     {
         return $this->notifications_url;
     }
+
 
     /**
      * Sets the notifications page URL
@@ -94,8 +94,10 @@ class NotificationsDropDown extends ElementsBlock
     public function setNotificationsUrl(Stringable|string|null $notifications_url): static
     {
         $this->notifications_url = UrlBuilder::getWww($notifications_url);
+
         return $this;
     }
+
 
     /**
      * Returns the notifications page URL
@@ -107,6 +109,7 @@ class NotificationsDropDown extends ElementsBlock
         return $this->notifications_all_url;
     }
 
+
     /**
      * Sets the notifications page URL
      *
@@ -117,8 +120,10 @@ class NotificationsDropDown extends ElementsBlock
     public function setAllNotificationsUrl(Stringable|string|null $notifications_url): static
     {
         $this->notifications_all_url = UrlBuilder::getWww($notifications_url);
+
         return $this;
     }
+
 
     /**
      * Renders and returns the HTML for this object
@@ -128,8 +133,8 @@ class NotificationsDropDown extends ElementsBlock
     public function render(): ?string
     {
         // Link the users notifications hash and see if we need to ping
-        $ping = $this->getNotifications()->linkHash();
-
+        $ping = $this->getNotifications()
+                     ->linkHash();
         if ($ping) {
             Script::new()
                   ->setJavascriptWrapper(EnumJavascriptWrappers::window)
@@ -140,6 +145,7 @@ class NotificationsDropDown extends ElementsBlock
         return parent::render();
     }
 
+
     /**
      * Returns the notifications object
      *
@@ -149,20 +155,23 @@ class NotificationsDropDown extends ElementsBlock
     {
         if (!$this->notifications) {
             $this->notifications = new Notifications();
-            $this->notifications->getQueryBuilder()->addSelect('`id` AS `_id`, `notifications`.*')->addOrderBy('`created_on` DESC');
-
+            $this->notifications->getQueryBuilder()
+                                ->addSelect('`id` AS `_id`, `notifications`.*')
+                                ->addOrderBy('`created_on` DESC');
             if ($this->status) {
-                $this->notifications->getQueryBuilder()->addWhere('`users_id` = :users_id AND ' . SqlQueries::is('`status`', $this->status, 'status'), [
-                    ':users_id' => Session::getUser()->getId(),
-                    ':status'   => $this->status,
-                ]);
+                $this->notifications->getQueryBuilder()
+                                    ->addWhere('`users_id` = :users_id AND ' . SqlQueries::is('`status`', $this->status, 'status'), [
+                                        ':users_id' => Session::getUser()
+                                                              ->getId(),
+                                        ':status'   => $this->status,
+                                    ]);
             }
-
             $this->notifications->load();
         }
 
         return $this->notifications;
     }
+
 
     /**
      * Sets the notifications object
@@ -174,6 +183,7 @@ class NotificationsDropDown extends ElementsBlock
     public function setNotifications(?Notifications $notifications): static
     {
         $this->notifications = $notifications;
+
         return $this;
     }
 }

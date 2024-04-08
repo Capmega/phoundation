@@ -6,7 +6,6 @@ namespace Phoundation\Utils\Enums;
 
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 
-
 /**
  * Enum EnumMatchMode
  *

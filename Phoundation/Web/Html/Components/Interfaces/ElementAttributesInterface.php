@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Interfaces;
 
-
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\ElementAttributes;
 use Stringable;
-
 
 /**
  * Interface ElementAttributes
@@ -27,12 +25,14 @@ interface ElementAttributesInterface
      */
     function __construct();
 
+
     /**
      * Return new Templated HTML Element object using the current Page template
      *
      * return static
      */
     public static function new(): static;
+
 
     /**
      * Ensures that the specified object has ElementAttributes
@@ -47,6 +47,7 @@ interface ElementAttributesInterface
      */
     static function canRenderHtml(object|string $class): void;
 
+
     /**
      * Sets the HTML id element attribute
      *
@@ -56,12 +57,14 @@ interface ElementAttributesInterface
      */
     function setId(?string $id): static;
 
+
     /**
      * Returns the HTML id element attribute
      *
      * @return string|null
      */
     function getId(): ?string;
+
 
     /**
      * Sets the HTML name element attribute
@@ -72,12 +75,14 @@ interface ElementAttributesInterface
      */
     function setName(?string $name): static;
 
+
     /**
      * Returns the HTML name element attribute
      *
      * @return string|null
      */
     function getName(): ?string;
+
 
     /**
      * Returns all HTML element attributes
@@ -86,12 +91,14 @@ interface ElementAttributesInterface
      */
     function getAttributes(): IteratorInterface;
 
+
     /**
      * Returns the HTML element data attribute store
      *
      * @return IteratorInterface
      */
     function getData(): IteratorInterface;
+
 
     /**
      * Returns the HTML element aria attribute store
@@ -100,6 +107,7 @@ interface ElementAttributesInterface
      */
     function getAria(): IteratorInterface;
 
+
     /**
      * Returns the HTML element class attribute store
      *
@@ -107,12 +115,14 @@ interface ElementAttributesInterface
      */
     function getClasses(): IteratorInterface;
 
+
     /**
      * Returns the HTML class element attribute
      *
      * @return string|null
      */
     function getClass(): ?string;
+
 
     /**
      * Set the HTML tabindex element attribute
@@ -123,12 +133,14 @@ interface ElementAttributesInterface
      */
     function setTabIndex(?int $tabindex): static;
 
+
     /**
      * Returns the HTML tabindex element attribute
      *
      * @return int|null
      */
     function getTabIndex(): ?int;
+
 
     /**
      * Sets the HTML class element attribute
@@ -139,12 +151,14 @@ interface ElementAttributesInterface
      */
     public function setAutofocus(bool $auto_focus): static;
 
+
     /**
      * Returns the HTML class element attribute
      *
      * @return bool
      */
     function getAutofocus(): bool;
+
 
     /**
      * Set the HTML disabled element attribute
@@ -155,12 +169,14 @@ interface ElementAttributesInterface
      */
     function setDisabled(bool $disabled): static;
 
+
     /**
      * Returns the HTML disabled element attribute
      *
      * @return bool
      */
     function getDisabled(): bool;
+
 
     /**
      * Set the HTML readonly element attribute
@@ -171,12 +187,14 @@ interface ElementAttributesInterface
      */
     function setReadonly(bool $readonly): static;
 
+
     /**
      * Returns the HTML readonly element attribute
      *
      * @return bool
      */
     function getReadonly(): bool;
+
 
     /**
      * Sets the content of the element
@@ -188,6 +206,7 @@ interface ElementAttributesInterface
      */
     function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
 
+
     /**
      * Adds the specified content to the content of the element
      *
@@ -197,12 +216,14 @@ interface ElementAttributesInterface
      */
     function addContent(Stringable|string|float|int|null $content): static;
 
+
     /**
      * Returns the content of the element to display
      *
      * @return string|null
      */
     function getContent(): ?string;
+
 
     /**
      * Sets the height of the element to display
@@ -213,12 +234,14 @@ interface ElementAttributesInterface
      */
     function setHeight(?int $height): static;
 
+
     /**
      * Returns the height of the element to display
      *
      * @return int|null
      */
     function getHeight(): ?int;
+
 
     /**
      * Sets the width of the element to display
@@ -229,12 +252,14 @@ interface ElementAttributesInterface
      */
     function setWidth(?int $width): static;
 
+
     /**
      * Returns the width of the element to display
      *
      * @return int|null
      */
     function getWidth(): ?int;
+
 
     /**
      * Set if the button is right aligned or not
@@ -244,6 +269,7 @@ interface ElementAttributesInterface
      * @return static
      */
     function setRight(bool $right): static;
+
 
     /**
      * Returns if the button is right aligned or not

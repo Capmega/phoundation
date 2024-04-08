@@ -8,7 +8,6 @@ use DateTimeZone;
 use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 
-
 /**
  * Trait TraitDataDate
  *
@@ -57,7 +56,7 @@ trait TraitDataDate
                 $this->date = null;
 
             } else {
-                $this->date = new DateTime((string)$date, $timezone);
+                $this->date = new DateTime((string) $date, $timezone);
             }
         }
 

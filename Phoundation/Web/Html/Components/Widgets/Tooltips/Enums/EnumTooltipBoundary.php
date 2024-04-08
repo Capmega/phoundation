@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Components\Widgets\Tooltips\Enums;
 
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipBoundaryInterface;
 
-
 /**
  * Enum EnumTooltipBoundary
  *

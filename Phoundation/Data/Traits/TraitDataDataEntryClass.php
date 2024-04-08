@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataDataEntryClass
  *
@@ -46,6 +45,7 @@ trait TraitDataDataEntryClass
     public function setDataEntryClass(?string $data_entry_class): static
     {
         $this->data_entry_class = $data_entry_class;
+
         return $this;
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Interfaces;
 
-
 /**
  * Class ListOperations
  *
@@ -24,6 +23,7 @@ interface ListOperationsInterface
      */
     public static function new(string $parent_class): static;
 
+
     /**
      * Set the specified status for the specified entries
      *
@@ -35,6 +35,7 @@ interface ListOperationsInterface
      */
     public function setStatusKeys(array|string $ids, ?string $status, ?string $comments = null): int;
 
+
     /**
      * Delete the specified entries
      *
@@ -45,6 +46,7 @@ interface ListOperationsInterface
      */
     public function deleteKeys(array|string $ids, ?string $comments = null): int;
 
+
     /**
      * Erase (as in SQL DELETE) the specified entries from the database, also erasing their meta data
      *
@@ -53,6 +55,7 @@ interface ListOperationsInterface
      * @return int
      */
     public function eraseKeys(array|string $ids): int;
+
 
     /**
      * Undelete the specified entries

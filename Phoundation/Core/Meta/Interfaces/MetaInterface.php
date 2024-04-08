@@ -6,7 +6,6 @@ namespace Phoundation\Core\Meta\Interfaces;
 
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 
-
 /**
  * interface MetaInterface
  *
@@ -26,6 +25,7 @@ interface MetaInterface
      */
     public function getId(): int;
 
+
     /**
      * Creates a new meta entry and returns the database id for it
      *
@@ -36,6 +36,7 @@ interface MetaInterface
      * @return static
      */
     public function action(string $action, ?string $comments = null, ?string $data = null): static;
+
 
     /**
      * Creates and returns an HTML table for the data in this list

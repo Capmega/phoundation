@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Plugins\Hardware\Devices\Interfaces\ProfileInterface;
 use Plugins\Hardware\Devices\Profile;
 
-
 /**
  * Trait TraitDataEntryProfileObject
  *
@@ -52,7 +51,6 @@ trait TraitDataEntryProfileObject
     public function getProfile(): ?ProfileInterface
     {
         $profiles_id = $this->getValueTypesafe('int', 'profiles_id');
-
         if ($profiles_id) {
             return Profile::get($profiles_id, 'id');
         }

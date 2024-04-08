@@ -28,7 +28,6 @@ use Phoundation\Web\Html\Enums\EnumBootstrapColor;
 use Phoundation\Web\Html\Traits\TraitBootstrapColor;
 use Phoundation\Web\Html\Traits\TraitMode;
 
-
 /**
  * Phoundation Panel class
  *
@@ -43,7 +42,6 @@ abstract class Panel extends ElementsBlock implements PanelInterface
 {
     use TraitMode;
     use TraitBootstrapColor;
-
 
     /**
      * Tracks the elements in this panel
@@ -129,6 +127,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     protected Modals $modals;
 
+
     /**
      * Panel class constructor
      *
@@ -140,6 +139,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
         $this->background_color = EnumBootstrapColor::primary;
     }
 
+
     /**
      * Returns the logos iterator
      *
@@ -148,11 +148,13 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function getLogos(): IteratorInterface
     {
         if (empty($this->logos)) {
-            $this->logos = Iterator::new()->setDataTypes('object:' . Logo::class);
+            $this->logos = Iterator::new()
+                                   ->setDataTypes('object:' . Logo::class);
         }
 
         return $this->logos;
     }
+
 
     /**
      * Returns the menus iterator
@@ -162,11 +164,13 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function getMenusObject(): IteratorInterface
     {
         if (empty($this->menus)) {
-            $this->menus = Iterator::new()->setDataTypes('object:' . Menu::class);
+            $this->menus = Iterator::new()
+                                   ->setDataTypes('object:' . Menu::class);
         }
 
         return $this->menus;
     }
+
 
     /**
      * Returns the buttons iterator
@@ -176,11 +180,13 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function getButtons(): IteratorInterface
     {
         if (empty($this->buttons)) {
-            $this->buttons = Iterator::new()->setDataTypes('object:' . Button::class);
+            $this->buttons = Iterator::new()
+                                     ->setDataTypes('object:' . Button::class);
         }
 
         return $this->buttons;
     }
+
 
     /**
      * Returns the breadcrumbs iterator
@@ -190,11 +196,13 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function getBreadcrumbs(): IteratorInterface
     {
         if (empty($this->breadcrumbs)) {
-            $this->breadcrumbs = Iterator::new()->setDataTypes('object:' . BreadCrumbs::class);
+            $this->breadcrumbs = Iterator::new()
+                                         ->setDataTypes('object:' . BreadCrumbs::class);
         }
 
         return $this->breadcrumbs;
     }
+
 
     /**
      * Returns the texts iterator
@@ -204,11 +212,13 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function getTexts(): IteratorInterface
     {
         if (empty($this->texts)) {
-            $this->texts = Iterator::new()->setDataTypes('string');
+            $this->texts = Iterator::new()
+                                   ->setDataTypes('string');
         }
 
         return $this->texts;
     }
+
 
     /**
      * Returns the avatars iterator
@@ -218,11 +228,13 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function getAvatars(): IteratorInterface
     {
         if (empty($this->avatars)) {
-            $this->avatars = Iterator::new()->setDataTypes('object:' . Avatar::class);
+            $this->avatars = Iterator::new()
+                                     ->setDataTypes('object:' . Avatar::class);
         }
 
         return $this->avatars;
     }
+
 
     /**
      * Returns the icons iterator
@@ -232,11 +244,13 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function getIcons(): IteratorInterface
     {
         if (empty($this->icons)) {
-            $this->icons = Iterator::new()->setDataTypes('object:' . Icon::class);
+            $this->icons = Iterator::new()
+                                   ->setDataTypes('object:' . Icon::class);
         }
 
         return $this->icons;
     }
+
 
     /**
      * Sets the panel menu
@@ -248,6 +262,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function setMenu(?MenuInterface $menu): static
     {
         $this->source['menu'] = $menu;
+
         return $this;
     }
 
@@ -284,6 +299,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function setProfileImage(ImageMenu $profile_image): static
     {
         $this->source['profile_image'] = $profile_image;
+
         return $this;
     }
 
@@ -311,8 +327,8 @@ abstract class Panel extends ElementsBlock implements PanelInterface
         if (is_string($logo)) {
             $logo = Image::new($logo);
         }
-
         $this->source['logo'] = $logo;
+
         return $this;
     }
 
@@ -353,6 +369,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function setElementsObject(IteratorInterface|array $elements): static
     {
         $this->elements = new Iterator($elements);
+
         return $this;
     }
 
@@ -382,6 +399,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function setNotificationsDropDown(NotificationsDropDown $notifications): static
     {
         $this->notifications = $notifications;
+
         return $this;
     }
 
@@ -396,6 +414,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
         if (!isset($this->messages)) {
             $this->messages = MessagesDropDown::new();
         }
+
         return $this->messages;
     }
 
@@ -410,6 +429,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function setMessagesDropDown(MessagesDropDown $messages): static
     {
         $this->messages = $messages;
+
         return $this;
     }
 
@@ -424,6 +444,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
         if (!isset($this->languages)) {
             $this->languages = LanguagesDropDown::new();
         }
+
         return $this->languages;
     }
 
@@ -438,6 +459,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function setLanguagesDropDown(LanguagesDropDown $languages): static
     {
         $this->languages = $languages;
+
         return $this;
     }
 }

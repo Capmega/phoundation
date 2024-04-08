@@ -8,7 +8,6 @@ use Phoundation\Content\Images\Convert;
 use Phoundation\Content\Interfaces\ContentInterface;
 use Phoundation\Web\Html\Components\Img;
 
-
 /**
  * Class Image
  *
@@ -28,6 +27,7 @@ interface ImageInterface extends ContentInterface
      */
     public function convert(): Convert;
 
+
     /**
      * Sets the image description
      *
@@ -37,6 +37,7 @@ interface ImageInterface extends ContentInterface
      */
     public function setDescription(?string $description): ImageInterface;
 
+
     /**
      * Returns the image description
      *
@@ -44,12 +45,14 @@ interface ImageInterface extends ContentInterface
      */
     public function getDescription(): ?string;
 
+
     /**
      * Return basic information about this image
      *
      * @return array
      */
     public function getInformation(): array;
+
 
     /**
      * Returns an HTML Img element for this image

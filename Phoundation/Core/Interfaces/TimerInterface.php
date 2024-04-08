@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Interfaces;
 
-
 /**
  * Class Timer
  *
@@ -27,12 +26,14 @@ interface TimerInterface
      */
     public function getLabel(): string;
 
+
     /**
      * Returns the start time for this timer
      *
      * @return float|null
      */
     public function getStart(): ?float;
+
 
     /**
      * Returns the stop time for this timer
@@ -41,12 +42,14 @@ interface TimerInterface
      */
     public function getStop(): ?float;
 
+
     /**
      * Returns the passed time for this timer
      *
      * @return float
      */
     public function getPassed(): float;
+
 
     /**
      * Returns the passed time for this timer
@@ -55,12 +58,14 @@ interface TimerInterface
      */
     public function getTotal(): float;
 
+
     /**
      * Returns all the passed laps for this timer
      *
      * @return array
      */
     public function getLaps(): array;
+
 
     /**
      * Starts the timer
@@ -69,12 +74,14 @@ interface TimerInterface
      */
     public function start(): static;
 
+
     /**
      * Records a passed lap and returns the time for that lap
      *
      * @return static
      */
     public function lap(): static;
+
 
     /**
      * Stop the specified stopwatch and returns the passed time

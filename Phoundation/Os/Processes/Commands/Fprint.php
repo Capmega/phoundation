@@ -8,7 +8,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
-
 /**
  * Class Fprint
  *
@@ -34,20 +33,17 @@ class Fprint extends Command
         $this->setCommand('fprint-enroll')
              ->clearArguments()
              ->addArgument($id);
-
         if ($method === EnumExecuteMethod::background) {
             $pid = $this->executeBackground();
-
             Log::success(tr('Executed fprint-enroll as a background process with PID ":pid"', [
                 ':pid' => $pid,
-            ]),          4);
+            ]), 4);
 
             return $pid;
         }
-
         $results = $this->execute($method);
-
         Log::notice($results, 4);
+
         return null;
     }
 }

@@ -9,7 +9,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Devices\Storage\Device;
 use Phoundation\Os\Processes\Process;
 
-
 /**
  * Class Cryptsetup
  *
@@ -33,31 +32,28 @@ class Cryptsetup extends Command
      */
     public function luksFormat(Device|string $device, string $key = null, string $key_file = null): void
     {
-        $device = Device::new($device)->getPath();
-
+        $device = Device::new($device)
+                        ->getPath();
         if ($key) {
             if ($key_file) {
                 throw new OutOfBoundsException(tr('Cannot luks format device ":device", both key and file key specified', [
                     ':device' => $device,
                 ]));
             }
-
             Log::action(tr('Formatting device ":device" with LUKS encryption, this may take a few seconds', [
                 ':device' => $device,
             ]));
-
             Process::new('echo')
                    ->addArgument($key)
-                   ->setPipe($this
-                                 ->setCommand('cryptsetup')
-                                 ->setSudo(true)
-                                 ->addArguments([
-                                                    '-q',
-                                                    '-v',
-                                                    'luksFormat',
-                                                    $device,
-                                                ])
-                                 ->setTimeout(30))
+                   ->setPipe($this->setCommand('cryptsetup')
+                                  ->setSudo(true)
+                                  ->addArguments([
+                                      '-q',
+                                      '-v',
+                                      'luksFormat',
+                                      $device,
+                                  ])
+                                  ->setTimeout(30))
                    ->executePassthru();
         } else {
             if (!$key_file) {
@@ -65,20 +61,18 @@ class Cryptsetup extends Command
                     ':device' => $device,
                 ]));
             }
-
-            $this
-                ->setCommand('cryptsetup')
-                ->setSudo(true)
-                ->addArguments([
-                                   '-q',
-                                   '-v',
-                                   'luksFormat',
-                                   $device,
-                                   '--key-file',
-                                   $key_file,
-                               ])
-                ->setTimeout(10)
-                ->executePassthru();
+            $this->setCommand('cryptsetup')
+                 ->setSudo(true)
+                 ->addArguments([
+                     '-q',
+                     '-v',
+                     'luksFormat',
+                     $device,
+                     '--key-file',
+                     $key_file,
+                 ])
+                 ->setTimeout(10)
+                 ->executePassthru();
         }
     }
 }

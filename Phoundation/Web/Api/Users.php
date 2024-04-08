@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Api;
 
-
 use Phoundation\Accounts\Users\User;
-
 
 /**
  * Class Users
@@ -34,7 +32,6 @@ class Users extends \Phoundation\Accounts\Users\Users
                                              WHERE  `api_keys`.`key` = :key', [
             ':key' => $key,
         ]);
-
         if ($users_id) {
             return User::get($users_id, 'id');
         }

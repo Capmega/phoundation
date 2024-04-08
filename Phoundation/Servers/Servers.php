@@ -13,7 +13,6 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
-
 /**
  * Servers class
  *
@@ -119,9 +118,9 @@ class Servers extends DataList
                                    FROM     `servers` 
                                    WHERE    `servers`.`status` IS NULL
                                    ORDER BY `servers`.`hostname`' . sql()->getLimit());
-
         // The keys contain the ids...
         $this->source = array_flip($this->source);
+
         return $this;
     }
 
@@ -140,26 +139,21 @@ class Servers extends DataList
         if (!$columns) {
             $columns = 'id,hostname,port,created_on';
         }
-
         // Default ordering
         if (!$order_by) {
             $order_by = ['hostname' => false];
         }
-
         // Get column information
         $columns = Arrays::force($columns);
         $columns = Strings::force($columns);
-
         // Build query
         $builder = new QueryBuilder();
         $builder->addSelect($columns);
         $builder->addFrom('`servers`');
-
         // Add ordering
         foreach ($order_by as $column => $direction) {
             $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
-
         // Build filters
         foreach ($filters as $key => $value) {
             switch ($key) {
@@ -167,7 +161,6 @@ class Servers extends DataList
                     $no_delete = true;
             }
         }
-
         if (isset($no_delete)) {
             $builder->addWhere('`status` IS NULL');
         }

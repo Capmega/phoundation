@@ -10,7 +10,6 @@ use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Enums\Interfaces\EnumTableIdColumnInterface;
 use Stringable;
 
-
 /**
  * Class HtmlTable
  *
@@ -30,6 +29,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function getHeaderText(): ?string;
 
+
     /**
      * Sets if the table is header_text or not
      *
@@ -39,12 +39,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function setHeaderText(?string $header_text): static;
 
+
     /**
      * Returns if the table is responsive or not
      *
      * @return bool
      */
     public function getResponsive(): bool;
+
 
     /**
      * Sets if the table will process entities in the source data or not
@@ -55,12 +57,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function setProcessEntities(bool $process_entities): static;
 
+
     /**
      * Sets if the table will process entities in the source data or not
      *
      * @return bool
      */
     public function getProcessEntities(): bool;
+
 
     /**
      * Sets if the table is responsive or not
@@ -71,12 +75,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function setResponsive(bool $responsive): static;
 
+
     /**
      * Returns if the table is full width or not
      *
      * @return bool
      */
     public function getFullWidth(): bool;
+
 
     /**
      * Sets if the table is full width or not
@@ -87,12 +93,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function setFullWidth(bool $full_width): static;
 
+
     /**
      * Returns the column's data attributes
      *
      * @return IteratorInterface
      */
     public function getColumnDataAttributes(): IteratorInterface;
+
 
     /**
      * Returns the column's data attributes
@@ -101,12 +109,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function getAnchorDataAttributes(): IteratorInterface;
 
+
     /**
      * Returns the table's column conversions
      *
      * @return IteratorInterface
      */
     public function getConvertColumns(): IteratorInterface;
+
 
     /**
      * Returns the table's top buttons
@@ -115,12 +125,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function getTopButtons(): IteratorInterface;
 
+
     /**
      * Returns the classes used for <tr> tags
      *
      * @return string|null
      */
     public function getRowClasses(): ?string;
+
 
     /**
      * Returns the HTML class element attribute
@@ -131,12 +143,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function setRowClasses(?string $classes): static;
 
+
     /**
      * Returns the HTML class element attribute for <td> tags
      *
      * @return string|null
      */
     public function getColumnClasses(): ?string;
+
 
     /**
      * Sets the HTML class element attribute for <td> tags
@@ -147,12 +161,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function setColumnClasses(?string $classes): static;
 
+
     /**
      * Returns the HTML class element attribute for <td> tags
      *
      * @return string|null
      */
     public function getAnchorClasses(): ?string;
+
 
     /**
      * Sets the HTML class element attribute for <td> tags
@@ -163,12 +179,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function setAnchorClasses(?string $classes): static;
 
+
     /**
      * Returns if the first column will automatically be converted to checkboxes
      *
      * @return EnumTableIdColumnInterface
      */
     public function getCheckboxSelectors(): EnumTableIdColumnInterface;
+
 
     /**
      * Sets if the first column will automatically be converted to checkboxes
@@ -179,12 +197,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function setCheckboxSelectors(EnumTableIdColumnInterface $checkbox_selectors): static;
 
+
     /**
      * Returns the URL that applies to each row
      *
      * @return string|null
      */
     public function getRowUrl(): ?string;
+
 
     /**
      * Sets the URL that applies to each row
@@ -195,12 +215,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function setRowUrl(Stringable|string|null $row_url): static;
 
+
     /**
      * Returns the URL that applies to each column
      *
      * @return IteratorInterface
      */
     public function getColumnUrls(): IteratorInterface;
+
 
     /**
      * Returns the table headers
@@ -209,12 +231,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function getHeaders(): IteratorInterface;
 
+
     /**
      * Returns the table headers
      *
      * @return IteratorInterface
      */
     public function getFooters(): IteratorInterface;
+
 
     /**
      * Returns the table headers
@@ -225,6 +249,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function setFooters(IteratorInterface|array|null $footers): static;
 
+
     /**
      * Render the table body
      *
@@ -232,12 +257,14 @@ interface HtmlTableInterface extends ResourceElementInterface
      */
     public function renderBody(): string;
 
+
     /**
      * Returns the columns specified for this table
      *
      * @return array|null
      */
     public function getColumns(): ?array;
+
 
     /**
      * Sets if the table is header_text or not

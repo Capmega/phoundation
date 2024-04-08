@@ -13,7 +13,6 @@ use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Html\Traits\TraitInputElement;
 
-
 /**
  * Class RenderElement
  *
@@ -28,7 +27,6 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
 {
     use TraitInputElement;
     use TraitDataConnector;
-
 
     /**
      * The text displayed for "none selected"
@@ -104,6 +102,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         parent::__construct($content);
     }
 
+
     /**
      * Returns the HTML none element attribute
      *
@@ -113,6 +112,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     {
         return $this->none;
     }
+
 
     /**
      * Set the HTML none element attribute
@@ -124,8 +124,10 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     public function setNone(?string $none): static
     {
         $this->none = $none;
+
         return $this;
     }
+
 
     /**
      * Returns the HTML empty element attribute
@@ -148,6 +150,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     public function setObjectEmpty(?string $empty): static
     {
         $this->empty = $empty;
+
         return $this;
     }
 
@@ -173,8 +176,10 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     public function setCache(bool $cache): static
     {
         $this->cache = $cache;
+
         return $this;
     }
+
 
     /**
      * Returns if this element will be hidden (Element::render() will return an empty string) if the resource is empty
@@ -186,6 +191,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         return $this->hide_empty;
     }
 
+
     /**
      * Sets if this element will be hidden (Element::render() will return an empty string) if the resource is empty
      *
@@ -196,8 +202,10 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     public function setHideEmpty(bool $hide_empty): static
     {
         $this->hide_empty = $hide_empty;
+
         return $this;
     }
+
 
     /**
      * Returns the array source
@@ -223,8 +231,9 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         if ($this->source_query) {
             throw new HtmlException(tr('Cannot specify source, a source query was already specified'));
         }
+        $this->source = Iterator::new()
+                                ->setSource($source);
 
-        $this->source = Iterator::new()->setSource($source);
         return $this;
     }
 
@@ -253,16 +262,16 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         if ($this->source) {
             throw new HtmlException(tr('Cannot specify source query, a source was already specified'));
         }
-
         if (is_string($source_query)) {
             // Get a PDOStatement instead by executing the query
             $source_query = sql($this->connector)->query($source_query, $execute);
         }
-
         $this->source_query = $source_query;
         $this->use_columns  = $use_columns;
+
         return $this;
     }
+
 
     /**
      * Returns the source for "data-*" attributes where the data key matches the source key
@@ -275,6 +284,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     {
         return $this->source_data;
     }
+
 
     /**
      * Sets the source for "data-*" attributes where the data key matches the source key
@@ -289,8 +299,10 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     public function setSourceData(array $source_data): static
     {
         $this->source_data = $source_data;
+
         return $this;
     }
+
 
     /**
      * Generates and returns the HTML string for this resource element
@@ -301,7 +313,6 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     {
         // Render the body
         $this->content = $this->renderBody();
-
         if (!$this->content and $this->hide_empty) {
             return '';
         }
@@ -310,12 +321,14 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         return parent::render();
     }
 
+
     /**
      * Generates and returns the HTML body
      *
      * @return string|null
      */
     abstract public function renderBody(): ?string;
+
 
     /**
      * Add the system arguments to the arguments list

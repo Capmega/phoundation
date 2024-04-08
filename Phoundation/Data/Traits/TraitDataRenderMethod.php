@@ -7,7 +7,6 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Web\Html\Enums\EnumWebRenderMethods;
 use Phoundation\Web\Html\Enums\Interfaces\EnumWebRenderMethodsInterface;
 
-
 /**
  * Trait TraitDataRenderMethod
  *
@@ -49,6 +48,7 @@ trait TraitDataRenderMethod
     public function setRenderMethod(EnumWebRenderMethodsInterface $render_method): static
     {
         $this->render_method = $render_method;
+
         return $this;
     }
 }

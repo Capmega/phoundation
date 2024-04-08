@@ -8,7 +8,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataServiceName;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 
-
 /**
  * Class Service
  *
@@ -23,7 +22,6 @@ class Service extends Command
 {
     use TraitDataServiceName;
 
-
     /**
      * Execute the service status command operation and return the specified service status
      *
@@ -37,6 +35,7 @@ class Service extends Command
         return $this->executeService('status');
     }
 
+
     /**
      * Ensures all is fine before we execute the service command
      *
@@ -49,6 +48,7 @@ class Service extends Command
         }
     }
 
+
     /**
      * Execute the service command
      *
@@ -59,14 +59,14 @@ class Service extends Command
     protected function executeService(string $action): array
     {
         // Restart the service
-        return $this
-            ->clearArguments()
-            ->setSudo(true)
-            ->setCommand('service')
-            ->addArgument($this->service_name)
-            ->addArgument($action)
-            ->executeReturnArray();
+        return $this->clearArguments()
+                    ->setSudo(true)
+                    ->setCommand('service')
+                    ->addArgument($this->service_name)
+                    ->addArgument($action)
+                    ->executeReturnArray();
     }
+
 
     /**
      * Execute the service restart command operation and return the specified service status
@@ -76,15 +76,15 @@ class Service extends Command
     public function restart(): static
     {
         $this->validateService();
-
         Log::action(tr('Restarting service ":service"', [
             ':service' => $this->service_name,
         ]));
-
         // Restart the service
         $this->executeService('restart');
+
         return $this;
     }
+
 
     /**
      * Execute the service restart command operation and return the specified service status
@@ -94,15 +94,15 @@ class Service extends Command
     public function start(): static
     {
         $this->validateService();
-
         Log::action(tr('Starting service ":service"', [
             ':service' => $this->service_name,
         ]));
-
         // Start the service
         $this->executeService('start');
+
         return $this;
     }
+
 
     /**
      * Execute the service restart command operation and return the specified service status
@@ -112,12 +112,11 @@ class Service extends Command
     public function stop(): static
     {
         $this->validateService();
-
         Log::action(tr('Stopping service ":service"', [
             ':service' => $this->service_name,
         ]));
-
         $this->executeService('stop');
+
         return $this;
     }
 }

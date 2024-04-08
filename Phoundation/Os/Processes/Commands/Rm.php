@@ -8,7 +8,6 @@ use Phoundation\Filesystem\Directory;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
-
 /**
  * Class Rm
  *
@@ -37,25 +36,22 @@ class Rm extends Command
     public function delete(string $file, bool $recurse_down = true, bool $recurse_up = false, int $timeout = 10): void
     {
         try {
-            $this
-                ->setCommand('rm')
-                ->addArguments([
-                                   $file,
-                                   '-f',
-                                   ($recurse_down ? '-r' : ''),
-                               ])
-                ->setTimeout($timeout)
-                ->setRegisterRunfile(false)
-                ->executeReturnArray();
-
+            $this->setCommand('rm')
+                 ->addArguments([
+                     $file,
+                     '-f',
+                     ($recurse_down ? '-r' : ''),
+                 ])
+                 ->setTimeout($timeout)
+                 ->setRegisterRunfile(false)
+                 ->executeReturnArray();
             if ($recurse_up) {
                 // Delete upwards as well as long as the parent directories are empty!
                 $empty = true;
-
                 while ($empty) {
                     $file  = dirname($file);
-                    $empty = Directory::new($file, $this->restrictions)->isEmpty();
-
+                    $empty = Directory::new($file, $this->restrictions)
+                                      ->isEmpty();
                     if ($empty) {
                         static::delete($file, $recurse_down, false, 1);
                     }
@@ -70,7 +66,6 @@ class Rm extends Command
                         // The specified file does not exist, that is okay, we wanted it gone anyway
                         return;
                     }
-
                     if (str_contains($last_line, 'is a directory')) {
                         throw new CommandsException(tr('Failed to delete file ":file" to ":mode", it is a directory and $recurse_down was not specified', [':file' => $file]));
                     }

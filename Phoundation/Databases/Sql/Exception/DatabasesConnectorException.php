@@ -6,7 +6,6 @@ namespace Phoundation\Databases\Sql\Exception;
 
 use Phoundation\Databases\Exception\DatabasesException;
 
-
 /**
  * Class DatabasesConnectorException
  *

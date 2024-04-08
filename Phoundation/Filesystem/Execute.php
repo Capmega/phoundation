@@ -12,22 +12,20 @@ use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Utils\Arrays;
 use Throwable;
 
-
 /**
  * class Execute
  *
  * This library contains various filesystem file related functions
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package Phoundation\Filesystem
+ * @category  Function reference
+ * @package   Phoundation\Filesystem
  */
 class Execute extends Directory implements ExecuteInterface
 {
     use TraitDataRestrictions;
-
 
     /**
      * Sets if the object will recurse or not
@@ -101,11 +99,13 @@ class Execute extends Directory implements ExecuteInterface
      * Sets the extensions that are blacklisted
      *
      * @param string|array|null $blacklist_extensions
+     *
      * @return static
      */
     public function setBlacklistExtensions(array|string|null $blacklist_extensions): static
     {
         $this->blacklist_extensions = Arrays::force($blacklist_extensions);
+
         return $this;
     }
 
@@ -125,11 +125,13 @@ class Execute extends Directory implements ExecuteInterface
      * Sets the extensions that are whitelisted
      *
      * @param string|array|null $whitelist_extensions
+     *
      * @return static
      */
     public function setWhitelistExtensions(array|string|null $whitelist_extensions): static
     {
         $this->whitelist_extensions = Arrays::force($whitelist_extensions);
+
         return $this;
     }
 
@@ -149,12 +151,14 @@ class Execute extends Directory implements ExecuteInterface
      * Sets the directory mode that will be set for each directory
      *
      * @param string|int|null $mode
+     *
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
     public function setMode(string|int|null $mode): static
     {
         $this->mode = get_null($mode);
+
         return $this;
     }
 
@@ -174,12 +178,14 @@ class Execute extends Directory implements ExecuteInterface
      * Sets if exceptions will be ignored during the processing of multiple files
      *
      * @param bool $ignore_exceptions
+     *
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
     public function setIgnoreExceptions(bool $ignore_exceptions): static
     {
         $this->ignore_exceptions = $ignore_exceptions;
+
         return $this;
     }
 
@@ -199,12 +205,14 @@ class Execute extends Directory implements ExecuteInterface
      * Sets if symlinks should be processed
      *
      * @param bool $follow_symlinks
+     *
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
     public function setFollowSymlinks(bool $follow_symlinks): static
     {
         $this->follow_symlinks = $follow_symlinks;
+
         return $this;
     }
 
@@ -224,12 +232,14 @@ class Execute extends Directory implements ExecuteInterface
      * Sets if hidden file should be processed
      *
      * @param bool $follow_hidden
+     *
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
     public function setFollowHidden(bool $follow_hidden): static
     {
         $this->follow_hidden = $follow_hidden;
+
         return $this;
     }
 
@@ -253,6 +263,7 @@ class Execute extends Directory implements ExecuteInterface
     public function clearSkipDirectories(): static
     {
         $this->skip = [];
+
         return $this;
     }
 
@@ -261,12 +272,14 @@ class Execute extends Directory implements ExecuteInterface
      * Sets the directories that will be skipped
      *
      * @param string|array $directories
+     *
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
     public function setSkipDirectories(string|array $directories): static
     {
         $this->skip = [];
+
         return $this->addSkipDirectories(Arrays::force($directories, ''));
     }
 
@@ -275,6 +288,7 @@ class Execute extends Directory implements ExecuteInterface
      * Adds the directories that will be skipped
      *
      * @param string|array $directories
+     *
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
@@ -292,6 +306,7 @@ class Execute extends Directory implements ExecuteInterface
      * Sets the directory that will be skipped
      *
      * @param string $directory
+     *
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
@@ -320,172 +335,46 @@ class Execute extends Directory implements ExecuteInterface
      * Returns if the object will recurse or not
      *
      * @param bool $recurse
+     *
      * @return static
      */
     public function setRecurse(bool $recurse): static
     {
         $this->recurse = $recurse;
+
         return $this;
     }
-
 
 
     /**
      * Execute the callback function on each file in the specified directory
      *
      * @param callable $callback
+     *
      * @return void
      */
     public function onDirectoryOnly(callable $callback): void
     {
         $this->restrictions->check($this->path, true);
-
         foreach (Arrays::force($this->path, '') as $this->path) {
             // Get al files in this directory
             $this->path = Path::getAbsolute($this->path);
-
             // Skip this directory
             if ($this->skip($this->path)) {
                 continue;
             }
-
             if ($this->mode) {
                 $mode = $this->switchMode($this->mode);
             }
-
             Log::action(tr('Executing callback function on directory ":directory"', [
-                ':directory' => $this->path
+                ':directory' => $this->path,
             ]), 2);
-
             $callback($this->path);
-
             // Return original file mode
             if (isset($mode)) {
                 $this->chmod($mode);
             }
         }
-    }
-
-
-    /**
-     * Execute the callback function on each file in the specified directory
-     *
-     * @param callable $callback
-     * @return int
-     */
-    public function onFiles(callable $callback): int
-    {
-        $count = 0;
-        $files = [];
-
-        // Get al files in this directory
-        $this->path = Path::getAbsolute($this->path);
-
-        // Skip this directory?
-        if ($this->skip($this->path)) {
-            return 0;
-        }
-
-        if ($this->mode) {
-            // Temporarily change mode for this callback
-            $mode = $this->switchMode($this->mode);
-        }
-
-        try {
-            $files = scandir($this->path);
-        } catch (Exception $e) {
-            Directory::new($this->path, $this->restrictions)->checkReadable(previous_e: $e);
-        }
-
-        foreach ($files as $file) {
-            if (($file === '.') or ($file === '..')) {
-                // skip these
-                continue;
-            }
-
-            if ($file[0] === '.') {
-                if (!$this->follow_hidden) {
-                    Log::warning(tr('Not following directory ":directory", hidden files are ignored', [
-                        ':directory' => $this->path . $file
-                    ]), 2);
-                }
-            }
-
-            if (is_link($file)) {
-                if (!$this->follow_symlinks) {
-                    Log::warning(tr('Not following directory ":directory", symlinks are ignored', [
-                        ':directory' => $this->path . $file
-                    ]), 2);
-                }
-            }
-
-            if (is_dir($this->path . $file)) {
-                // Directory! Recurse?
-                if (!$this->recurse) {
-                    continue;
-                }
-
-                $recurse = clone $this;
-
-                $count += $recurse
-                    ->setPath($this->path . $file)
-                    ->onFiles($callback);
-
-            } elseif (file_exists($this->path . $file)) {
-                // Execute the callback
-                $count++;
-                $extension = Path::new($file)->getExtension();
-
-                if ($this->whitelist_extensions) {
-                    // Extension MUST be on this list
-                    if (!array_key_exists($extension, $this->whitelist_extensions)) {
-                        Log::warning(tr('Not executing callback function on file ":file", the extension is not whitelisted', [
-                            ':file' => $this->path . $file
-                        ]), 2);
-                    }
-                }
-
-                if ($this->blacklist_extensions) {
-                    // Extension MUST NOT be on this list
-                    if (array_key_exists($extension, $this->whitelist_extensions)) {
-                        Log::warning(tr('Not executing callback function on file ":file", the extension is blacklisted', [
-                            ':file' => $this->path . $file
-                        ]), 2);
-                    }
-                }
-
-                Log::action(tr('Executing callback function on file ":file"', [
-                    ':file' => $this->path . $file
-                ]), 2);
-
-                try {
-                    $callback($this->path . $file);
-
-                } catch (Throwable $e) {
-                    if (!$this->ignore_exceptions) {
-                        // Exceptions will pass!
-                        throw $e;
-                    }
-
-                    // Exceptions will be ignored
-                    Log::warning(tr('File ":file" encountered exception ":e" which will be ignored', [
-                        ':file' => $file,
-                        ':e'    => $e->getMessage()
-                    ]));
-                }
-            } else {
-                Log::warning(tr('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
-                    ':file' => $this->path . $file
-                ]));
-            }
-
-            // Return original file mode
-            if (isset($mode)) {
-                $this->chmod($mode);
-            }
-        }
-
-        return $count;
     }
 
 
@@ -495,6 +384,7 @@ class Execute extends Directory implements ExecuteInterface
      * If part of this directory is on the skip list as well, true will also be returned
      *
      * @param string $directory
+     *
      * @return bool
      */
     protected function skip(string $directory): bool
@@ -507,5 +397,113 @@ class Execute extends Directory implements ExecuteInterface
         }
 
         return false;
+    }
+
+
+    /**
+     * Execute the callback function on each file in the specified directory
+     *
+     * @param callable $callback
+     *
+     * @return int
+     */
+    public function onFiles(callable $callback): int
+    {
+        $count = 0;
+        $files = [];
+        // Get al files in this directory
+        $this->path = Path::getAbsolute($this->path);
+        // Skip this directory?
+        if ($this->skip($this->path)) {
+            return 0;
+        }
+        if ($this->mode) {
+            // Temporarily change mode for this callback
+            $mode = $this->switchMode($this->mode);
+        }
+        try {
+            $files = scandir($this->path);
+        } catch (Exception $e) {
+            Directory::new($this->path, $this->restrictions)
+                     ->checkReadable(previous_e: $e);
+        }
+        foreach ($files as $file) {
+            if (($file === '.') or ($file === '..')) {
+                // skip these
+                continue;
+            }
+            if ($file[0] === '.') {
+                if (!$this->follow_hidden) {
+                    Log::warning(tr('Not following directory ":directory", hidden files are ignored', [
+                        ':directory' => $this->path . $file,
+                    ]), 2);
+                }
+            }
+            if (is_link($file)) {
+                if (!$this->follow_symlinks) {
+                    Log::warning(tr('Not following directory ":directory", symlinks are ignored', [
+                        ':directory' => $this->path . $file,
+                    ]), 2);
+                }
+            }
+            if (is_dir($this->path . $file)) {
+                // Directory! Recurse?
+                if (!$this->recurse) {
+                    continue;
+                }
+                $recurse = clone $this;
+                $count += $recurse->setPath($this->path . $file)
+                                  ->onFiles($callback);
+
+            } elseif (file_exists($this->path . $file)) {
+                // Execute the callback
+                $count++;
+                $extension = Path::new($file)
+                                 ->getExtension();
+                if ($this->whitelist_extensions) {
+                    // Extension MUST be on this list
+                    if (!array_key_exists($extension, $this->whitelist_extensions)) {
+                        Log::warning(tr('Not executing callback function on file ":file", the extension is not whitelisted', [
+                            ':file' => $this->path . $file,
+                        ]), 2);
+                    }
+                }
+                if ($this->blacklist_extensions) {
+                    // Extension MUST NOT be on this list
+                    if (array_key_exists($extension, $this->whitelist_extensions)) {
+                        Log::warning(tr('Not executing callback function on file ":file", the extension is blacklisted', [
+                            ':file' => $this->path . $file,
+                        ]), 2);
+                    }
+                }
+                Log::action(tr('Executing callback function on file ":file"', [
+                    ':file' => $this->path . $file,
+                ]), 2);
+                try {
+                    $callback($this->path . $file);
+
+                } catch (Throwable $e) {
+                    if (!$this->ignore_exceptions) {
+                        // Exceptions will pass!
+                        throw $e;
+                    }
+                    // Exceptions will be ignored
+                    Log::warning(tr('File ":file" encountered exception ":e" which will be ignored', [
+                        ':file' => $file,
+                        ':e'    => $e->getMessage(),
+                    ]));
+                }
+            } else {
+                Log::warning(tr('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
+                    ':file' => $this->path . $file,
+                ]));
+            }
+            // Return original file mode
+            if (isset($mode)) {
+                $this->chmod($mode);
+            }
+        }
+
+        return $count;
     }
 }

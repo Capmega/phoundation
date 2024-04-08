@@ -12,22 +12,20 @@ use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Utils\Arrays;
 use Stringable;
 
-
 /**
  * Files class
  *
  * This class manages a list of files that are not necessarily confined to the same directory
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package Phoundation\Filesystem
+ * @category  Function reference
+ * @package   Phoundation\Filesystem
  */
 class Files extends Iterator implements FilesInterface
 {
     use TraitDataRestrictions;
-
 
     /**
      * The parent directory containing these files
@@ -40,28 +38,14 @@ class Files extends Iterator implements FilesInterface
     /**
      * Files class constructor
      *
-     * @param mixed $source
+     * @param mixed                                   $source
      * @param RestrictionsInterface|array|string|null $restrictions
      */
     public function __construct(mixed $source = null, RestrictionsInterface|array|string|null $restrictions = null)
     {
         $this->data_types   = [Path::class];
         $this->restrictions = $restrictions;
-
         parent::__construct(Arrays::force($source, null));
-    }
-
-
-    /**
-     * Returns a new Files object
-     *
-     * @param mixed|null $source
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @return static
-     */
-    public static function new(mixed $source = null, RestrictionsInterface|array|string|null $restrictions = null): static
-    {
-        return new static($source, $restrictions);
     }
 
 
@@ -80,11 +64,13 @@ class Files extends Iterator implements FilesInterface
      * Returns the parent Path (if available) that contains these files
      *
      * @param PathInterface|null $parent
+     *
      * @return Files
      */
     public function setParent(?PathInterface $parent): static
     {
         $this->parent = $parent;
+
         return $this;
     }
 
@@ -94,21 +80,37 @@ class Files extends Iterator implements FilesInterface
      *
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
+     *
      * @param Stringable|string $target
      * @param Restrictions|null $restrictions
+     *
      * @return $this
      */
     public function move(Stringable|string $target, ?RestrictionsInterface $restrictions = null): static
     {
         $restrictions = $this->ensureRestrictions($restrictions);
-
-        Directory::new($target, $restrictions)->ensure();
-
+        Directory::new($target, $restrictions)
+                 ->ensure();
         foreach ($this->source as $file) {
-            File::new($file)->movePath($target, $restrictions);
+            File::new($file)
+                ->movePath($target, $restrictions);
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns a new Files object
+     *
+     * @param mixed|null                              $source
+     * @param RestrictionsInterface|array|string|null $restrictions
+     *
+     * @return static
+     */
+    public static function new(mixed $source = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    {
+        return new static($source, $restrictions);
     }
 
 
@@ -117,19 +119,21 @@ class Files extends Iterator implements FilesInterface
      *
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
-     * @param Stringable|string $target
+     *
+     * @param Stringable|string          $target
      * @param RestrictionsInterface|null $restrictions
-     * @param callable|null $callback
+     * @param callable|null              $callback
+     *
      * @return $this
      */
     public function copy(Stringable|string $target, ?RestrictionsInterface $restrictions = null, ?callable $callback = null): static
     {
         $restrictions = $this->ensureRestrictions($restrictions);
-
-        Directory::new($target, $restrictions)->ensure();
-
+        Directory::new($target, $restrictions)
+                 ->ensure();
         foreach ($this->source as $file) {
-            File::new($file)->copy($target, $callback, $restrictions);
+            File::new($file)
+                ->copy($target, $callback, $restrictions);
         }
 
         return $this;
@@ -144,7 +148,6 @@ class Files extends Iterator implements FilesInterface
     #[ReturnTypeWillChange] public function current(): PathInterface
     {
         $current = current($this->source);
-
         while (true) {
             switch ($current) {
                 case '.':
@@ -154,18 +157,14 @@ class Files extends Iterator implements FilesInterface
                     $this->next();
                     $current = current($this->source);
                     break;
-
                 default:
                     break 2;
             }
         }
-
         $current = $this->parent?->getPath() . $current;
-
         if (is_dir($current)) {
             return Directory::new($current, $this->restrictions);
         }
-
         if (file_exists($current)) {
             return File::new($current, $this->restrictions);
         }
@@ -185,15 +184,12 @@ class Files extends Iterator implements FilesInterface
     public function valid(): bool
     {
         $valid = parent::valid();
-
         if ($valid) {
             $current = current($this->source);
-
             while (true) {
                 switch ($current) {
                     case '':
                         return false;
-
                     case '.':
                         // No break
                     case '..':
@@ -201,7 +197,6 @@ class Files extends Iterator implements FilesInterface
                         parent::next();
                         $current = current($this->source);
                         break;
-
                     default:
                         break 2;
                 }

@@ -6,7 +6,6 @@ namespace Phoundation\Databases\Connectors\Exception;
 
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 
-
 /**
  * Class ConnectorNotExistsException
  *

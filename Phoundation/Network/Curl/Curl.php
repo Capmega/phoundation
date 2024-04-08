@@ -15,7 +15,6 @@ use Phoundation\Network\Curl\Interfaces\CurlInterface;
 use Phoundation\Web\Exception\WebException;
 use Stringable;
 
-
 /**
  * Class Curl
  *
@@ -277,17 +276,13 @@ abstract class Curl implements CurlInterface
         if (!extension_loaded('curl')) {
             throw new WebException(tr('The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'));
         }
-
         // Verbose is always on when running in debug mode
         if (Debug::getEnabled()) {
             $this->verbose = true;
         }
-
-        $this->url   = (string)$url;
+        $this->url   = (string) $url;
         $this->retry = 0;
-
         $this->setLogDirectory(DIRECTORY_DATA . 'log/curl/');
-
         // Setup new cURL request
         $this->curl = curl_init();
     }
@@ -344,6 +339,7 @@ abstract class Curl implements CurlInterface
     ])] int $http_version): static
     {
         $this->http_version = $http_version;
+
         return $this;
     }
 
@@ -390,7 +386,6 @@ abstract class Curl implements CurlInterface
     ])] string $method): static
     {
         $this->method = $method;
-
         if ($method === 'POST') {
             // Disable cache on POST requests, disable follow location too as it would convert POST into GET requests
             $this->cache_timeout   = 0;
@@ -412,6 +407,7 @@ abstract class Curl implements CurlInterface
     public function setOpt(int $option, mixed $value): static
     {
         curl_setopt($this->curl, $option, $value);
+
         return $this;
     }
 
@@ -437,6 +433,7 @@ abstract class Curl implements CurlInterface
     public function setVerbose(bool $verbose): static
     {
         $this->verbose = $verbose;
+
         return $this;
     }
 
@@ -464,8 +461,8 @@ abstract class Curl implements CurlInterface
         if ($follow_location and ($this->method === 'POST')) {
             throw new OutOfBoundsException(tr('Cannot follow location for POST method requests'));
         }
-
         $this->follow_location = $follow_location;
+
         return $this;
     }
 
@@ -496,6 +493,7 @@ abstract class Curl implements CurlInterface
     public function setUserAgent(?string $user_agent): static
     {
         $this->user_agent = $user_agent;
+
         return $this;
     }
 
@@ -534,10 +532,11 @@ abstract class Curl implements CurlInterface
     {
         if ($log_directory) {
             $this->log_restrictions = Restrictions::new($restrictions, true);
-            Directory::new($log_directory, $this->log_restrictions)->ensure();
+            Directory::new($log_directory, $this->log_restrictions)
+                     ->ensure();
         }
-
         $this->log_directory = $log_directory;
+
         return $this;
     }
 
@@ -574,6 +573,7 @@ abstract class Curl implements CurlInterface
     public function setRetries(int $retries): static
     {
         $this->retries = $retries;
+
         return $this;
     }
 
@@ -599,6 +599,7 @@ abstract class Curl implements CurlInterface
     public function setSleep(int $sleep): static
     {
         $this->sleep = $sleep;
+
         return $this;
     }
 
@@ -624,6 +625,7 @@ abstract class Curl implements CurlInterface
     public function setTimeout(int $timeout): static
     {
         $this->timeout = $timeout;
+
         return $this;
     }
 
@@ -649,6 +651,7 @@ abstract class Curl implements CurlInterface
     public function setConnectTimeout(int $connect_timeout): static
     {
         $this->connect_timeout = $connect_timeout;
+
         return $this;
     }
 
@@ -685,6 +688,7 @@ abstract class Curl implements CurlInterface
     public function setMultipart(bool $multipart): static
     {
         $this->multipart = $multipart;
+
         return $this;
     }
 
@@ -710,6 +714,7 @@ abstract class Curl implements CurlInterface
     public function setClose(bool $close): static
     {
         $this->close = $close;
+
         return $this;
     }
 
@@ -735,6 +740,7 @@ abstract class Curl implements CurlInterface
     public function setDnsCache(bool $dns_cache): static
     {
         $this->dns_cache = $dns_cache;
+
         return $this;
     }
 
@@ -760,6 +766,7 @@ abstract class Curl implements CurlInterface
     public function setVerifySsl(bool $verify_ssl): static
     {
         $this->verify_ssl = $verify_ssl;
+
         return $this;
     }
 
@@ -785,6 +792,7 @@ abstract class Curl implements CurlInterface
     public function setGetCookies(bool $get_cookies): static
     {
         $this->get_cookies = $get_cookies;
+
         return $this;
     }
 
@@ -810,6 +818,7 @@ abstract class Curl implements CurlInterface
     public function setCookieFile(string $cookie_file): static
     {
         $this->cookie_file = $cookie_file;
+
         return $this;
     }
 
@@ -835,6 +844,7 @@ abstract class Curl implements CurlInterface
         return $this->cookies;
     }
 
+
     /**
      * Sets the cookies that will be sent for this request
      *
@@ -845,8 +855,10 @@ abstract class Curl implements CurlInterface
     public function setCookies(array $cookies): static
     {
         $this->cookies = [];
+
         return $this->addCookies($cookies);
     }
+
 
     /**
      * Adds the specified cookies that will be sent for this request
@@ -864,6 +876,7 @@ abstract class Curl implements CurlInterface
         return $this;
     }
 
+
     /**
      * Adds the specified cookie that will be sent for this request
      *
@@ -874,8 +887,10 @@ abstract class Curl implements CurlInterface
     public function addCookie(string $cookie): static
     {
         $this->cookies[] = $cookie;
+
         return $this;
     }
+
 
     /**
      * Clears the cookies that will be sent for this request
@@ -885,8 +900,10 @@ abstract class Curl implements CurlInterface
     public function clearCookies(): static
     {
         $this->cookies = [];
+
         return $this;
     }
+
 
     /**
      * Sets if object will use local cache for this request
@@ -909,6 +926,7 @@ abstract class Curl implements CurlInterface
     public function setCacheTimeout(int $cache_timeout): static
     {
         $this->cache_timeout = $cache_timeout;
+
         return $this;
     }
 
@@ -934,6 +952,7 @@ abstract class Curl implements CurlInterface
     public function setReferer(string $user_password): static
     {
         $this->user_password = $user_password;
+
         return $this;
     }
 
@@ -959,6 +978,7 @@ abstract class Curl implements CurlInterface
     public function setSaveToFile(string $save_to_file): static
     {
         $this->save_to_file = $save_to_file;
+
         return $this;
     }
 
@@ -973,6 +993,7 @@ abstract class Curl implements CurlInterface
         return $this->options;
     }
 
+
     /**
      * Sets other extra cURL options
      *
@@ -983,8 +1004,10 @@ abstract class Curl implements CurlInterface
     public function setOptions(array $options): static
     {
         $this->options = [];
+
         return $this->addOptions($options);
     }
+
 
     /**
      * Adds other extra cURL options
@@ -1002,6 +1025,7 @@ abstract class Curl implements CurlInterface
         return $this;
     }
 
+
     /**
      * Adds another extra cURL option
      *
@@ -1013,8 +1037,10 @@ abstract class Curl implements CurlInterface
     public function addOption(int $key, mixed $value): static
     {
         $this->options[$key] = $value;
+
         return $this;
     }
+
 
     /**
      * Clears other extra cURL options
@@ -1024,8 +1050,10 @@ abstract class Curl implements CurlInterface
     public function clearsOptions(): static
     {
         $this->options = [];
+
         return $this;
     }
+
 
     /**
      * Returns the result headers
@@ -1047,7 +1075,8 @@ abstract class Curl implements CurlInterface
      */
     public function setRequestHeaders(array $headers): static
     {
-        return $this->clearRequestHeaders()->addRequestHeaders($headers);
+        return $this->clearRequestHeaders()
+                    ->addRequestHeaders($headers);
     }
 
 
@@ -1083,6 +1112,7 @@ abstract class Curl implements CurlInterface
     public function addRequestHeader(string $key, string|float|int|null $value): static
     {
         $this->request_headers[$key] = $value;
+
         return $this;
     }
 
@@ -1095,6 +1125,7 @@ abstract class Curl implements CurlInterface
     public function clearRequestHeaders(): static
     {
         $this->request_headers = [];
+
         return $this;
     }
 
@@ -1140,7 +1171,7 @@ abstract class Curl implements CurlInterface
      */
     public function getHttpCode(): ?int
     {
-        return get_null((int)$this->result_status['http_code']);
+        return get_null((int) $this->result_status['http_code']);
     }
 
 
@@ -1150,6 +1181,7 @@ abstract class Curl implements CurlInterface
      * @return static
      */
     abstract public function execute(): static;
+
 
     /**
      * Prepare the request

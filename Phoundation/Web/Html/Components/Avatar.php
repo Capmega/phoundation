@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Html\Components;
 
-
 /**
  * Class Avatar
  *

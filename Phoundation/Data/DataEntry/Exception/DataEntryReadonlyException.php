@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Exception;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
 use Phoundation\Utils\Arrays;
 
-
 /**
  * Class DataEntryReadonlyException
  *
@@ -25,6 +24,7 @@ class DataEntryReadonlyException extends DataEntryException implements DataEntry
      */
     protected array $allow = ['get'];
 
+
     /**
      * Returns the list of actions that are allowed
      *
@@ -34,6 +34,7 @@ class DataEntryReadonlyException extends DataEntryException implements DataEntry
     {
         return $this->allow;
     }
+
 
     /**
      * Add a single action or a list of actions that are allowed

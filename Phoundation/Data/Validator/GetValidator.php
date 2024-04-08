@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-
 use Phoundation\Data\Validator\Exception\GetValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Strings;
-
 
 /**
  * GetValidator class
@@ -47,6 +45,7 @@ class GetValidator extends Validator
         $this->construct($parent, static::$get);
     }
 
+
     /**
      * Link $_GET and $_GET and $argv data to internal arrays to ensure developers cannot access them until validation
      * has been completed
@@ -59,13 +58,12 @@ class GetValidator extends Validator
     public static function hideData(): void
     {
         global $_GET;
-
         // Copy GET data and reset both GET and REQUEST
         static::$get = $_GET;
-
         $_GET     = [];
         $_REQUEST = [];
     }
+
 
     /**
      * Throws an exception if there are still arguments left in the GET source
@@ -82,10 +80,8 @@ class GetValidator extends Validator
         if (count($this->selected_fields) === count(static::$get)) {
             return $this;
         }
-
         $messages = [];
         $get      = array_keys(static::$get);
-
         foreach ($get as $field) {
             if (!in_array($field, $this->selected_fields)) {
                 $messages[] = tr('Unknown field ":field" encountered', [
@@ -93,11 +89,14 @@ class GetValidator extends Validator
                 ]);
             }
         }
-
         throw ValidatorException::new(tr('Unknown GET fields ":fields" encountered', [
             ':fields' => Strings::force($get, ', '),
-        ]))->addData($messages)->makeWarning()->log();
+        ]))
+                                ->addData($messages)
+                                ->makeWarning()
+                                ->log();
     }
+
 
     /**
      * Add the specified value for key to the internal GET array
@@ -112,6 +111,7 @@ class GetValidator extends Validator
         static::$get[$key] = $value;
     }
 
+
     /**
      * Returns a new $_GET data Validator object
      *
@@ -123,6 +123,7 @@ class GetValidator extends Validator
     {
         return new static($parent);
     }
+
 
     /**
      * Selects the specified key within the array that we are validating

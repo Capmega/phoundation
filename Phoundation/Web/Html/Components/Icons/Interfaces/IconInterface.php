@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Html\Components\Icons\Interfaces;
 
-
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
 
@@ -25,6 +24,7 @@ interface IconInterface extends ElementInterface
      */
     public function getIcon(): ?string;
 
+
     /**
      * Sets the icon for this object
      *
@@ -35,10 +35,12 @@ interface IconInterface extends ElementInterface
      */
     public function setIcon(?string $icon, string $subclass = ''): static;
 
+
     /**
      * @return string|null
      */
     public function render(): ?string;
+
 
     /**
      * Returns the type of mode for the element or element block
@@ -46,6 +48,7 @@ interface IconInterface extends ElementInterface
      * @return EnumDisplayModeInterface
      */
     public function getMode(): EnumDisplayModeInterface;
+
 
     /**
      * Sets the type of mode for the element or element block

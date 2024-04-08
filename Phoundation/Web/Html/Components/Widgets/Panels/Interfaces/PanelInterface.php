@@ -15,7 +15,6 @@ use Phoundation\Web\Html\Components\Widgets\NotificationsDropDown;
 use Phoundation\Web\Html\Components\Widgets\Panels\TopPanel;
 use Phoundation\Web\Html\Components\Widgets\ProfileImage;
 
-
 /**
  * Panel class
  *
@@ -38,6 +37,7 @@ interface PanelInterface extends ElementsBlockInterface
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
+
     /**
      * Sets the panel menu
      *
@@ -47,6 +47,7 @@ interface PanelInterface extends ElementsBlockInterface
      */
     public function setMenu(?MenuInterface $menu): static;
 
+
     /**
      * Returns the panel menu
      *
@@ -54,12 +55,14 @@ interface PanelInterface extends ElementsBlockInterface
      */
     public function getMenu(): ?MenuInterface;
 
+
     /**
      * Returns the panel profile image
      *
      * @return ProfileImage|null
      */
     public function getProfileImage(): ?ProfileImage;
+
 
     /**
      * Sets the panel profile image
@@ -70,12 +73,14 @@ interface PanelInterface extends ElementsBlockInterface
      */
     public function setProfileImage(ImageMenu $profile_image): static;
 
+
     /**
      * Returns the panel logo
      *
      * @return string|null
      */
     public function getLogo(): ?string;
+
 
     /**
      * Sets the panel profile image
@@ -86,6 +91,7 @@ interface PanelInterface extends ElementsBlockInterface
      */
     public function setLogo(ImageInterface|string $logo): static;
 
+
     /**
      * Returns the panel modals
      *
@@ -93,12 +99,14 @@ interface PanelInterface extends ElementsBlockInterface
      */
     public function getModals(): Modals;
 
+
     /**
      * Access to the elements object
      *
      * @return IteratorInterface
      */
     public function getElementsObject(): IteratorInterface;
+
 
     /**
      * Access to the elements object
@@ -109,12 +117,14 @@ interface PanelInterface extends ElementsBlockInterface
      */
     public function setElementsObject(IteratorInterface|array $elements): static;
 
+
     /**
      * Returns the notifications drop-down object
      *
      * @return NotificationsDropDown
      */
     public function getNotificationsDropDown(): NotificationsDropDown;
+
 
     /**
      * Sets the notifications drop-down object
@@ -125,12 +135,14 @@ interface PanelInterface extends ElementsBlockInterface
      */
     public function setNotificationsDropDown(NotificationsDropDown $notifications): static;
 
+
     /**
      * Returns the notifications drop-down object
      *
      * @return MessagesDropDown
      */
     public function getMessagesDropDown(): MessagesDropDown;
+
 
     /**
      * Sets the notifications drop-down object
@@ -141,12 +153,14 @@ interface PanelInterface extends ElementsBlockInterface
      */
     public function setMessagesDropDown(MessagesDropDown $messages): static;
 
+
     /**
      * Returns the notifications drop-down object
      *
      * @return LanguagesDropDown
      */
     public function getLanguagesDropDown(): LanguagesDropDown;
+
 
     /**
      * Sets the notifications drop-down object

@@ -9,7 +9,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 
-
 /**
  * ImageMenu class
  *
@@ -23,7 +22,6 @@ use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 abstract class ImageMenu extends ElementsBlock
 {
     use UsesImage;
-
 
     /**
      * The menu items [label => url]
@@ -57,7 +55,6 @@ abstract class ImageMenu extends ElementsBlock
         if ($this->height === null) {
             $this->height = 25;
         }
-
         parent::__construct($content);
     }
 
@@ -85,8 +82,8 @@ abstract class ImageMenu extends ElementsBlock
         if ($menu and $this->url) {
             throw new OutOfBoundsException(tr('Cannot set menu for image menu, the image URL has already been configured'));
         }
-
         $this->menu = $menu;
+
         return $this;
     }
 
@@ -114,8 +111,8 @@ abstract class ImageMenu extends ElementsBlock
         if ($url and $this->menu) {
             throw new OutOfBoundsException(tr('Cannot set URL for image menu, the menu has already been configured'));
         }
-
         $this->url = $url;
+
         return $this;
     }
 
@@ -143,8 +140,8 @@ abstract class ImageMenu extends ElementsBlock
         if ($modal_selector and $this->menu) {
             throw new OutOfBoundsException(tr('Cannot set modal for image menu, the menu has already been configured'));
         }
-
         $this->modal_selector = $modal_selector;
+
         return $this;
     }
 }

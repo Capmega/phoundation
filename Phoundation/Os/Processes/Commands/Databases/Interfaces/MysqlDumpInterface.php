@@ -7,7 +7,6 @@ namespace Phoundation\Os\Processes\Commands\Databases\Interfaces;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
-
 /**
  * Class MysqlDump
  *
@@ -27,6 +26,7 @@ interface MysqlDumpInterface
      */
     public function getDatabases(): array;
 
+
     /**
      * Sets the databases that will be dumped
      *
@@ -35,6 +35,7 @@ interface MysqlDumpInterface
      * @return static
      */
     public function setDatabases(array|string $databases): static;
+
 
     /**
      * Returns if for each table, surround the INSERT statements with /*!40000 ALTER TABLE tbl_name DISABLE KEYS * /;
@@ -45,6 +46,7 @@ interface MysqlDumpInterface
      * @return bool
      */
     public function getDisableKeys(): bool;
+
 
     /**
      * Sets if for each table, surround the INSERT statements with /*!40000 ALTER TABLE tbl_name DISABLE KEYS * /; and
@@ -58,6 +60,7 @@ interface MysqlDumpInterface
      */
     public function setDisableKeys(bool $disable_keys): static;
 
+
     /**
      * Returns if  stored routines (procedures and functions) will be included in the dumped databases in the output.
      * This option requires the global SELECT privilege.
@@ -65,6 +68,7 @@ interface MysqlDumpInterface
      * @return bool
      */
     public function getRoutines(): bool;
+
 
     /**
      * Sets if  stored routines (procedures and functions) will be included in the dumped databases in the output. This
@@ -76,6 +80,7 @@ interface MysqlDumpInterface
      */
     public function setRoutines(bool $routines): static;
 
+
     /**
      * Returns if Event Scheduler events are included for the dumped databases in the output. This option requires the
      * EVENT privileges for those databases.
@@ -83,6 +88,7 @@ interface MysqlDumpInterface
      * @return bool
      */
     public function getEvents(): bool;
+
 
     /**
      * Sets if Event Scheduler events are included for the dumped databases in the output. This option requires the
@@ -94,12 +100,14 @@ interface MysqlDumpInterface
      */
     public function setEvents(bool $events): static;
 
+
     /**
      * Returns if the output file will contain CREATE DATABASE statements
      *
      * @return bool
      */
     public function getCreateDatabases(): bool;
+
 
     /**
      * Sets if the output file will contain CREATE DATABASE statements
@@ -110,12 +118,14 @@ interface MysqlDumpInterface
      */
     public function setCreateDatabases(bool $create_databases): static;
 
+
     /**
      * Returns if the output file will contain CREATE TABLE statements
      *
      * @return bool
      */
     public function getCreateTables(): bool;
+
 
     /**
      * Sets if the output file will contain CREATE TABLE statements
@@ -126,6 +136,7 @@ interface MysqlDumpInterface
      */
     public function setCreateTables(bool $create_tables): static;
 
+
     /**
      * Returns if writing INSERT statements using multiple-row syntax that includes several VALUES lists. This results
      * in a smaller dump file and speeds up inserts when the file is reloaded.
@@ -133,6 +144,7 @@ interface MysqlDumpInterface
      * @return bool
      */
     public function getExtendedInsert(): bool;
+
 
     /**
      * Sets if writing INSERT statements using multiple-row syntax that includes several VALUES lists. This results
@@ -144,6 +156,7 @@ interface MysqlDumpInterface
      */
     public function setExtendedInsert(bool $extended_insert): static;
 
+
     /**
      * Returns if additional information will be written in the dump file such as program version, server version,
      * and host.
@@ -151,6 +164,7 @@ interface MysqlDumpInterface
      * @return bool
      */
     public function getComments(): bool;
+
 
     /**
      * Sets if additional information will be written in the dump file such as program version, server version,
@@ -162,12 +176,14 @@ interface MysqlDumpInterface
      */
     public function setComments(bool $comments): static;
 
+
     /**
      * Returns if mysqldump produces a comment at the end of the dump, only if the comments option is enabled too
      *
      * @return bool
      */
     public function getDumpDate(): bool;
+
 
     /**
      * Sets if mysqldump produces a comment at the end of the dump, only if the comments option is enabled too
@@ -178,12 +194,14 @@ interface MysqlDumpInterface
      */
     public function setDumpDate(bool $dump_date): static;
 
+
     /**
      * Returns if dump file will be gzipped
      *
      * @return bool
      */
     public function getGzip(): bool;
+
 
     /**
      * Sets if dump file will be gzipped
@@ -193,6 +211,7 @@ interface MysqlDumpInterface
      * @return static
      */
     public function setGzip(bool $gzip): static;
+
 
     /**
      * Execute the rsync operation and return the PID (background) or -1

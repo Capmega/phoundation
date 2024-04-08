@@ -30,7 +30,6 @@ use Stringable;
 use Throwable;
 use UnitEnum;
 
-
 /**
  * Validator class
  *
@@ -44,7 +43,6 @@ use UnitEnum;
 abstract class Validator implements ValidatorInterface
 {
     use ValidatorBasics;
-
 
     /**
      * Returns if all validations are disabled or not
@@ -78,6 +76,7 @@ abstract class Validator implements ValidatorInterface
         static::$disabled = false;
     }
 
+
     /**
      * Disable password validations
      *
@@ -88,6 +87,7 @@ abstract class Validator implements ValidatorInterface
         static::$password_disabled = true;
     }
 
+
     /**
      * Enable password validations
      *
@@ -97,6 +97,7 @@ abstract class Validator implements ValidatorInterface
     {
         static::$password_disabled = false;
     }
+
 
     /**
      * Rename the from_key to to_key if it exists
@@ -119,11 +120,9 @@ abstract class Validator implements ValidatorInterface
                     ':original' => $from_key,
                 ]));
             }
-
             // from_key doesn't exist, initialize the from_key as a null value
             $this->source[$from_key] = null;
         }
-
         if (array_key_exists($to_key, $this->source)) {
             // Target already exists, should we overwrite?
             if (!$overwrite) {
@@ -131,13 +130,13 @@ abstract class Validator implements ValidatorInterface
                 return $this;
             }
         }
-
         // Move the from_key to the to_key
         $this->source[$to_key] = $this->source[$from_key];
-
         unset($this->source[$from_key]);
+
         return $this;
     }
+
 
     /**
      * Forcibly set the specified key of this validator source to the specified value
@@ -150,8 +149,10 @@ abstract class Validator implements ValidatorInterface
     public function set(mixed $value, string|float|int $key): static
     {
         $this->source[$key] = $value;
+
         return $this;
     }
+
 
     /**
      * Forcibly remove the specified source key
@@ -163,8 +164,10 @@ abstract class Validator implements ValidatorInterface
     public function removeSourceKey(string|float|int $key): static
     {
         unset($this->source[$key]);
+
         return $this;
     }
+
 
     /**
      * Returns the currently selected value
@@ -175,6 +178,7 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->selected_value;
     }
+
 
     /**
      * Allow the validator to check each element in a list of values.
@@ -191,7 +195,6 @@ abstract class Validator implements ValidatorInterface
     {
         // This very obviously only works on arrays
         $this->isArray();
-
         if (!$this->process_value_failed) {
             // Unset process_values first to ensure the byref link is broken
             unset($this->process_values);
@@ -200,6 +203,7 @@ abstract class Validator implements ValidatorInterface
 
         return $this;
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -216,12 +220,12 @@ abstract class Validator implements ValidatorInterface
                     if ($value !== null) {
                         $this->addFailure(tr('must have an array value'));
                     }
-
                     $value = [];
                 }
             }
         });
     }
+
 
     /**
      * Apply the specified anonymous function on a single or all of the process_values for the selected field
@@ -237,14 +241,12 @@ abstract class Validator implements ValidatorInterface
             $function($this->process_value);
         } else {
             $this->ensureSelected();
-
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
                     return $this;
                 }
             }
-
             foreach ($this->process_values as $key => &$value) {
                 // Process all process_values
                 $this->process_key   = $key;
@@ -252,10 +254,8 @@ abstract class Validator implements ValidatorInterface
 // TODO TEST THIS! IF next line is enabled then multiple tests after each other will continue, even if the previous failed!!
 //                $this->process_value_failed = false;
                 $this->selected_is_default = false;
-
                 $function($this->process_value);
             }
-
             // Clear up work data
             unset($value);
             unset($this->process_value);
@@ -264,6 +264,7 @@ abstract class Validator implements ValidatorInterface
 
         return $this;
     }
+
 
     /**
      * Will let the validator treat the value as a single variable
@@ -283,6 +284,7 @@ abstract class Validator implements ValidatorInterface
         return $this;
     }
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -301,21 +303,19 @@ abstract class Validator implements ValidatorInterface
                             ':selected' => $this->selected_field,
                         ]));
                     }
-
                     $this->selected_optional = false;
                 }
-
                 $value = $this->selected_optional;
 
             } else {
                 $value = Strings::toBoolean($value, false);
-
                 if ($value === null) {
                     $this->addFailure(tr('must have a boolean value'));
                 }
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -329,7 +329,6 @@ abstract class Validator implements ValidatorInterface
     public function isNatural(bool $allow_zero = true): static
     {
         $this->isInteger();
-
         if ($this->process_value_failed) {
             // Validation already failed, don't test anything more
             return $this;
@@ -337,6 +336,7 @@ abstract class Validator implements ValidatorInterface
 
         return $this->isPositive($allow_zero);
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -350,21 +350,21 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             if (!$this->checkIsOptional($value)) {
                 if (!is_integer($value)) {
-                    if (is_string($value) and (((int)$value) == $value)) {
+                    if (is_string($value) and (((int) $value) == $value)) {
                         // This integer value was specified as a numeric string
-                        $value = (int)$value;
+                        $value = (int) $value;
 
                     } else {
                         if ($value !== null) {
                             $this->addFailure(tr('must have an integer value'));
                         }
-
                         $value = 0;
                     }
                 }
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -379,17 +379,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($allow_zero) {
             $this->isNumeric();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if ($value < ($allow_zero ? 0 : 1)) {
                 $this->addFailure(tr('must have a positive value'));
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -406,24 +405,22 @@ abstract class Validator implements ValidatorInterface
                     if ($value !== null) {
                         $this->addFailure(tr('must have a numeric value'));
                     }
-
                     $value = 0;
 
                 } else {
                     // Yay, the value is numeric, but is it a float or an integer? Detect and convert here.
                     $original = $value;
-                    $value    = (int)$value;
-
+                    $value    = (int) $value;
                     if ($original == $value) {
                         // Looks like value was an int, keep it
                         return;
                     }
-
-                    $value = (float)$original;
+                    $value = (float) $original;
                 }
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -435,7 +432,6 @@ abstract class Validator implements ValidatorInterface
     public function isLatitude(): static
     {
         $this->isFloat();
-
         if ($this->process_value_failed) {
             // Validation already failed, don't test anything more
             return $this;
@@ -443,6 +439,7 @@ abstract class Validator implements ValidatorInterface
 
         return $this->isBetween(-90, 90);
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -456,21 +453,21 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             if (!$this->checkIsOptional($value)) {
                 if (!is_float($value)) {
-                    if (is_string($value) and ((float)$value == $value)) {
+                    if (is_string($value) and ((float) $value == $value)) {
                         // This float value was specified as a numeric string
 // TODO Test this! There may be slight inaccuracies here due to how floats work, so maybe we should check within a range?
-                        $value = (float)$value;
+                        $value = (float) $value;
                     } else {
                         if ($value !== null) {
                             $this->addFailure(tr('must have a float value'));
                         }
-
                         $value = 0.0;
                     }
                 }
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -486,12 +483,10 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($minimum, $maximum, $equal) {
             $this->isNumeric();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if ($equal) {
                 if (($value < $minimum) or ($value > $maximum)) {
                     $this->addFailure(tr('must be between ":minimum" and ":maximum"', [
@@ -511,6 +506,7 @@ abstract class Validator implements ValidatorInterface
         });
     }
 
+
     /**
      * Validates the datatype for the selected field
      *
@@ -521,7 +517,6 @@ abstract class Validator implements ValidatorInterface
     public function isLongitude(): static
     {
         $this->isFloat();
-
         if ($this->process_value_failed) {
             // Validation already failed, don't test anything more
             return $this;
@@ -529,6 +524,7 @@ abstract class Validator implements ValidatorInterface
 
         return $this->isBetween(0, 180);
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -542,12 +538,10 @@ abstract class Validator implements ValidatorInterface
     public function isDbId(bool $allow_zero = false, bool $allow_negative = false): static
     {
         $this->isInteger();
-
         if ($this->process_value_failed) {
             // Validation already failed, don't test anything more
             return $this;
         }
-
         if ($allow_negative) {
             if ($allow_zero) {
                 return $this;
@@ -558,6 +552,7 @@ abstract class Validator implements ValidatorInterface
 
         return $this->isPositive($allow_zero);
     }
+
 
     /**
      * Validates that the selected field is the specified value
@@ -586,19 +581,16 @@ abstract class Validator implements ValidatorInterface
 
             } else {
                 $this->isScalar();
-
                 if ($this->process_value_failed) {
                     // Validation already failed, don't test anything more
                     return;
                 }
-
                 if ($ignore_case) {
-                    $compare_value  = strtolower((string)$value);
-                    $validate_value = strtolower((string)$validate_value);
+                    $compare_value  = strtolower((string) $value);
+                    $validate_value = strtolower((string) $validate_value);
                 } else {
                     $compare_value = $value;
                 }
-
                 if ($compare_value == $validate_value) {
                     if ($secret) {
                         $this->addFailure(tr('must not be value ":value"', [':value' => $value]));
@@ -609,6 +601,7 @@ abstract class Validator implements ValidatorInterface
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -625,12 +618,12 @@ abstract class Validator implements ValidatorInterface
                     if ($value !== null) {
                         $this->addFailure(tr('must have a scalar value'));
                     }
-
                     $value = '';
                 }
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -650,17 +643,17 @@ abstract class Validator implements ValidatorInterface
                 $value = Strings::until($value, $until);
                 $value = trim($value);
             }
-
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(2)
+                 ->hasMaxCharacters($max_characters);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $this->isPrintable();
         });
     }
+
 
     /**
      * Validates that the selected field is equal or shorter than the specified number of characters
@@ -673,30 +666,26 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($characters) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             // Validate the maximum number of characters
             $characters = $this->getMaxStringSize($characters);
-
             if ($characters <= 0) {
                 if (!$characters) {
                     throw new ValidatorException(tr('Cannot check max characters, the amount of maximum characters specified is 0'));
                 }
-
                 throw new ValidatorException(tr('Cannot check max characters, the specified amount of maximum characters ":characters" is negative', [
                     ':characters' => $characters,
                 ]));
             }
-
             if (strlen($value) > $characters) {
                 $this->addFailure(tr('must have ":count" characters or less', [':count' => $characters]));
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -714,17 +703,17 @@ abstract class Validator implements ValidatorInterface
                         if ($value !== null) {
                             $this->addFailure(tr('must have a string value'));
                         }
-
                         $value = '';
 
                     } else {
                         // A number is allowed to be interpreted as a string
-                        $value = (string)$value;
+                        $value = (string) $value;
                     }
                 }
             }
         });
     }
+
 
     /**
      * Validates that the selected field is equal or larger than the specified number of characters
@@ -737,17 +726,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($characters) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (strlen($value) < $characters) {
                 $this->addFailure(tr('must have ":count" characters or more', [':count' => $characters]));
             }
         });
     }
+
 
     /**
      * Sanitize the selected value by trimming whitespace
@@ -761,19 +749,18 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($characters) {
             $this->hasMaxCharacters();
-
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             if (is_string($value)) {
                 $value = trim($value, $characters);
             }
         });
     }
+
 
     /**
      * Validates that the selected field contains only printable characters (including blanks)
@@ -784,17 +771,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!preg_match('/^[\p{L}\p{N}\p{P}\p{M}\p{S}\p{Z}\t\r\n]+$/u', $value)) {
                 $this->addFailure(tr('must contain only printable characters'));
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -810,12 +796,10 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($amount, $equal) {
             $this->isNumeric();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if ($equal) {
                 if ($value < $amount) {
                     $this->addFailure(tr('must be more or equal than ":amount"', [':amount' => $amount]));
@@ -828,6 +812,7 @@ abstract class Validator implements ValidatorInterface
 
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -843,12 +828,10 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($amount, $equal) {
             $this->isNumeric();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if ($equal) {
                 if ($value > $amount) {
                     $this->addFailure(tr('must be less or equal than ":amount"', [':amount' => $amount]));
@@ -860,6 +843,7 @@ abstract class Validator implements ValidatorInterface
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -874,17 +858,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($allow_zero) {
             $this->isNumeric();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if ($value > ($allow_zero ? 0 : 1)) {
                 $this->addFailure(tr('must have a negative value'));
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -897,12 +880,10 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isFloat();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!preg_match('^[\$£¤€₠₱]?(((\d{1,3})(,?\d{1,3})*)|(\d+))(\.\d{2})?$', $value)) {
                 if (!preg_match('^[\$£¤€₠₱]?(((\d{1,3})(\.?\d{1,3})*)|(\d+))(,\d{2})?$', $value)) {
                     $this->addFailure(tr('must have a currency value'));
@@ -910,6 +891,7 @@ abstract class Validator implements ValidatorInterface
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -925,17 +907,16 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($enum) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!in_enum($value, $enum)) {
                 $this->addFailure(tr('must be one of ":list"', [':list' => $enum]));
             }
         });
     }
+
 
     /**
      *
@@ -954,24 +935,18 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($column, $callback, $ignore_case, $fail_on_null) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $result = $callback($value, $this->source, $this);
-
             if (!$result and $fail_on_null) {
-                $this->addFailure(Strings::plural(count($value),
-                                                  tr('value ":values" does not exist', [':values' => implode(', ', $value)]),
-                                                  tr('values ":values" do not exist', [':values' => implode(', ', $value)]))
-                );
+                $this->addFailure(Strings::plural(count($value), tr('value ":values" does not exist', [':values' => implode(', ', $value)]), tr('values ":values" do not exist', [':values' => implode(', ', $value)])));
             }
-
             $this->source[$this->field_prefix . $column] = $result;
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -991,25 +966,19 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($column, $query, $execute, $ignore_case, $fail_on_null) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $execute = $this->applyExecuteVariables($execute);
             $result  = sql()->getColumn($query, $execute);
-
             if (!$result and $fail_on_null) {
-                $this->addFailure(Strings::plural(count($execute),
-                                                  tr('value ":values" does not exist', [':values' => implode(', ', $execute)]),
-                                                  tr('values ":values" do not exist', [':values' => implode(', ', $execute)])
-                ));
+                $this->addFailure(Strings::plural(count($execute), tr('value ":values" does not exist', [':values' => implode(', ', $execute)]), tr('values ":values" do not exist', [':values' => implode(', ', $execute)])));
             }
-
             $this->source[$this->field_prefix . $column] = $result;
         });
     }
+
 
     /**
      * Go over the specified SQL execute array and apply any variable
@@ -1025,22 +994,21 @@ abstract class Validator implements ValidatorInterface
                 if (str_starts_with($value, '$')) {
                     // Fix field names with field prefix
                     $value = $this->field_prefix . substr($value, 1);
-
                     if (!array_key_exists($value, $this->source)) {
                         throw new OutOfBoundsException(tr('Specified execution variable ":value" does not exist in the specified source', [
                             ':value' => $value,
                         ]));
                     }
-
                     // Replace this value with key from the array
                     $value = $this->source[$value];
                 }
             }
         }
-
         unset($value);
+
         return $execute;
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -1057,18 +1025,16 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($query, $execute) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $execute = $this->applyExecuteVariables($execute);
             $column  = sql()->getColumn($query, $execute);
-
             $this->contains($column);
         });
     }
+
 
     /**
      * Ensures that the value has the specified string
@@ -1085,23 +1051,22 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($string, $regex) {
             // This value must be scalar
             $this->isScalar();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if ($regex) {
-                if (!preg_match($string, (string)$value)) {
+                if (!preg_match($string, (string) $value)) {
                     $this->addFailure(tr('must match regex ":value"', [':value' => $string]));
                 }
             } else {
-                if (!str_contains((string)$value, $string)) {
+                if (!str_contains((string) $value, $string)) {
                     $this->addFailure(tr('must contain ":value"', [':value' => $string]));
                 }
             }
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -1118,18 +1083,16 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($query, $execute) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $execute = $this->applyExecuteVariables($execute);
             $results = sql()->list($query, $execute);
-
             $this->isInArray($results);
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -1145,38 +1108,34 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($array) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if ($array instanceof IteratorInterface) {
-                $this->sanitizeTrim()->hasMaxCharacters($array->getLongestValueLength());
-
+                $this->sanitizeTrim()
+                     ->hasMaxCharacters($array->getLongestValueLength());
                 if ($this->process_value_failed) {
                     // Validation already failed, don't test anything more
                     return;
                 }
-
                 $failed = !$array->valueExists($value);
 
             } else {
-                $this->sanitizeTrim()->hasMaxCharacters(Arrays::getLongestValueLength($array));
-
+                $this->sanitizeTrim()
+                     ->hasMaxCharacters(Arrays::getLongestValueLength($array));
                 if ($this->process_value_failed) {
                     // Validation already failed, don't test anything more
                     return;
                 }
-
                 $failed = !in_array($value, $array);
             }
-
             if ($failed) {
                 $this->addFailure(tr('must be one of ":list"', [':list' => $array]));
             }
         });
     }
+
 
     /**
      * Validates that the selected field is equal or larger than the specified number of characters
@@ -1189,17 +1148,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($characters) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (strlen($value) != $characters) {
                 $this->addFailure(tr('must have exactly ":count" characters', [':count' => $characters]));
             }
         });
     }
+
 
     /**
      * Validates that the selected field NOT matches the specified regex
@@ -1212,6 +1170,7 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->containsNot($regex, true);
     }
+
 
     /**
      * Ensures that the value has the specified string
@@ -1228,12 +1187,10 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($string, $regex) {
             // This value must be scalar
             $this->isScalar();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if ($regex) {
                 if (preg_match($string, $value)) {
                     $this->addFailure(tr('must not contain ":value"', [':value' => $string]));
@@ -1245,6 +1202,7 @@ abstract class Validator implements ValidatorInterface
             }
         });
     }
+
 
     /**
      * Validates that the selected field starts with the specified string
@@ -1258,17 +1216,16 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($string) {
             // This value must be scalar
             $this->isScalar();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
-            if (!str_starts_with((string)$value, $string)) {
+            if (!str_starts_with((string) $value, $string)) {
                 $this->addFailure(tr('must start with ":value"', [':value' => $string]));
             }
         });
     }
+
 
     /**
      * Validates that the selected field ends with the specified string
@@ -1282,17 +1239,16 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($string) {
             // This value must be scalar
             $this->isScalar();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
-            if (!str_ends_with((string)$value, $string)) {
+            if (!str_ends_with((string) $value, $string)) {
                 $this->addFailure(tr('must end with ":value"', [':value' => $string]));
             }
         });
     }
+
 
     /**
      * Validates that the selected field contains only alphabet characters
@@ -1303,17 +1259,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!ctype_alpha($value)) {
                 $this->addFailure(tr('must contain only letters'));
             }
         });
     }
+
 
     /**
      * Validates that the selected field contains only lowercase letters
@@ -1324,12 +1279,10 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!ctype_lower($value)) {
                 $this->addFailure(tr('must contain only lowercase letters'));
             }
@@ -1346,12 +1299,10 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!ctype_upper($value)) {
                 $this->addFailure(tr('must contain only uppercase letters'));
             }
@@ -1369,17 +1320,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!ctype_punct($value)) {
                 $this->addFailure(tr('must contain only uppercase letters'));
             }
         });
     }
+
 
     /**
      * Validates that the selected field contains only printable characters (NO blanks)
@@ -1390,17 +1340,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!ctype_graph($value)) {
                 $this->addFailure(tr('must contain only visible characters'));
             }
         });
     }
+
 
     /**
      * Validates that the selected field contains only whitespace characters
@@ -1411,17 +1360,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!ctype_space($value)) {
                 $this->addFailure(tr('must contain only whitespace characters'));
             }
         });
     }
+
 
     /**
      * Validates that the selected field contains only octal numbers
@@ -1432,17 +1380,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!preg_match('/^0-7*$/', $value)) {
                 $this->addFailure(tr('must contain only octal numbers'));
             }
         });
     }
+
 
     /**
      * Validates that the selected field is the specified value
@@ -1470,19 +1417,16 @@ abstract class Validator implements ValidatorInterface
 
             } else {
                 $this->isScalar();
-
                 if ($this->process_value_failed) {
                     // Validation already failed, don't test anything more
                     return;
                 }
-
                 if ($ignore_case) {
-                    $compare_value  = strtolower((string)$value);
-                    $validate_value = strtolower((string)$validate_value);
+                    $compare_value  = strtolower((string) $value);
+                    $validate_value = strtolower((string) $validate_value);
                 } else {
                     $compare_value = $value;
                 }
-
                 if ($compare_value != $validate_value) {
                     if ($secret) {
                         $this->addFailure(tr('must be value ":value"', [':value' => $value]));
@@ -1493,6 +1437,7 @@ abstract class Validator implements ValidatorInterface
             }
         });
     }
+
 
     /**
      * Validates that the selected field is a date
@@ -1509,13 +1454,13 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($formats) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
-            $this->sanitizeTrim()->hasMinCharacters(4)->hasMaxCharacters(32);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(4)
+                 ->hasMaxCharacters(32);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             // Ensure we have formats to work with
             if (!$formats) {
                 // Default to a number of acceptable formats
@@ -1524,10 +1469,7 @@ abstract class Validator implements ValidatorInterface
                     'd-m-Y',
                 ]);
             }
-
             $formats = Arrays::force($formats, null);
-
-
             // We must be able to create a date object using the given formats without failure, and the resulting date
             // must be the same as the specified date
             if (!static::dateMatchesFormats($value, $formats)) {
@@ -1535,6 +1477,7 @@ abstract class Validator implements ValidatorInterface
             }
         });
     }
+
 
     /**
      * Returns the given date sanitized if the specified date matches any of the specified formats, NULL otherwise
@@ -1549,17 +1492,14 @@ abstract class Validator implements ValidatorInterface
         // We must be able to create a date object using the given formats without failure, and the resulting date
         // must be the same as the specified date
         $given = static::normalizeDate($date);
-
         foreach ($formats as $format) {
             try {
                 // Create DateTime object
                 $format = static::normalizeDate($format);
                 $value  = DateTime::createFromFormat($format, $given);
-
                 if ($value) {
                     // DateTime object created successfully! Now get a dateformat, and normalize it
                     $test = static::normalizeDate($value->format($format));
-
                     // Test the normalized test DateTime against the specified normalized date time string
                     if ($test === $given) {
                         return $given;
@@ -1567,7 +1507,6 @@ abstract class Validator implements ValidatorInterface
                 }
 
                 // Yeah, this is not a valid date, try again
-
             } catch (Throwable) {
                 // Yeah, this is not a valid date, try again
             }
@@ -1576,6 +1515,7 @@ abstract class Validator implements ValidatorInterface
         // Nothing matched
         return null;
     }
+
 
     /**
      * Ensures that the date only uses - as element separators, will replace " ", "-", "_", "/", "\"
@@ -1587,13 +1527,14 @@ abstract class Validator implements ValidatorInterface
     protected static function normalizeDate(string $date): string
     {
         return str_replace([
-                               ' ',
-                               '-',
-                               '_',
-                               '/',
-                               '\\',
-                           ], '-', $date);
+            ' ',
+            '-',
+            '_',
+            '/',
+            '\\',
+        ], '-', $date);
     }
+
 
     /**
      * Validates that the selected field is a date
@@ -1607,13 +1548,13 @@ abstract class Validator implements ValidatorInterface
     public function isTime(array|string|null $formats = null): static
     {
         return $this->validateValues(function (&$value) use ($formats) {
-            $this->sanitizeTrim()->hasMinCharacters(5)->hasMaxCharacters(15); // 00:00:00.000000
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(5)
+                 ->hasMaxCharacters(15); // 00:00:00.000000
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             // Ensure we have formats to work with
             if (!$formats) {
                 // Default to a number of acceptable formats
@@ -1624,10 +1565,7 @@ abstract class Validator implements ValidatorInterface
                     'H:i:s',
                 ]);
             }
-
             $formats = Arrays::force($formats, null);
-
-
             // Validate the user time against all allowed formats
             foreach ($formats as $format) {
                 if (is_object(DateTime::createFromFormat($format, $value))) {
@@ -1635,10 +1573,10 @@ abstract class Validator implements ValidatorInterface
                     return;
                 }
             }
-
             $this->addFailure(tr('must be a valid time'));
         });
     }
+
 
     /**
      * Validates that the selected field is a date time field
@@ -1655,13 +1593,12 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($formats) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
-            $this->sanitizeTrim()->hasMaxCharacters(32);
-
+            $this->sanitizeTrim()
+                 ->hasMaxCharacters(32);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             // Ensure we have formats to work with
             if (!$formats) {
                 // Default to a number of acceptable formats
@@ -1670,10 +1607,7 @@ abstract class Validator implements ValidatorInterface
                     'd-m-Y H:i:s',
                 ]);
             }
-
             $formats = Arrays::force($formats, null);
-
-
             // We must be able to create a date object using the given formats without failure, and the resulting date
             // must be the same as the specified date
             if (!static::dateMatchesFormats($value, $formats)) {
@@ -1681,6 +1615,7 @@ abstract class Validator implements ValidatorInterface
             }
         });
     }
+
 
     /**
      * Validates that the selected field is in the past
@@ -1693,19 +1628,17 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
-            $this->sanitizeTrim()->hasMaxCharacters(32);
-
+            $this->sanitizeTrim()
+                 ->hasMaxCharacters(32);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             throw new UnderConstructionException();
-
-
             $this->addFailure(tr('must be a valid date'));
         });
     }
+
 
     /**
      * Validates that the selected field is in the past
@@ -1718,19 +1651,17 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
-            $this->sanitizeTrim()->hasMaxCharacters(32);
-
+            $this->sanitizeTrim()
+                 ->hasMaxCharacters(32);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             throw new UnderConstructionException();
-
-
             $this->addFailure(tr('must be a valid date'));
         });
     }
+
 
     /**
      * Validates that the selected field is a credit card
@@ -1747,13 +1678,12 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
-            $this->sanitizeTrim()->hasMaxCharacters(32);
-
+            $this->sanitizeTrim()
+                 ->hasMaxCharacters(32);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $cards = [
                 'Amex Card'          => '^3[47][0-9]{13}$',
                 'BCGlobal'           => '^(6541|6556)[0-9]{12}$',
@@ -1772,16 +1702,15 @@ abstract class Validator implements ValidatorInterface
                 'Visa Card'          => '^4[0-9]{12}(?:[0-9]{3})?$',
                 'Visa Master Card'   => '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14})$',
             ];
-
             foreach ($cards as $regex) {
                 if (preg_match($regex, $value)) {
                     return;
                 }
             }
-
             $this->addFailure(tr('must be a valid credit card'));
         });
     }
+
 
     /**
      * Validates that the selected field is a valid display mode
@@ -1795,12 +1724,10 @@ abstract class Validator implements ValidatorInterface
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!($value instanceof EnumDisplayModeInterface)) {
                 if (is_string($value)) {
                     // Maybe a string representation of a backed enum?
                     $test = EnumDisplayMode::tryFrom($value);
-
                     if ($test) {
                         $value = $test;
 
@@ -1812,6 +1739,7 @@ abstract class Validator implements ValidatorInterface
         });
     }
 
+
     /**
      * Validates that the selected field is a timezone
      *
@@ -1821,16 +1749,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
-            $this->sanitizeTrim()->hasMaxCharacters(64);
-
+            $this->sanitizeTrim()
+                 ->hasMaxCharacters(64);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $this->isQueryResult('SELECT `id` FROM `geo_timezones` WHERE `name` = :name', [':name' => $value]);
         });
     }
+
 
     /**
      * Validates the datatype for the selected field
@@ -1848,27 +1776,24 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($query, $execute, $ignore_case) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $execute        = $this->applyExecuteVariables($execute);
             $validate_value = sql()->getColumn($query, $execute);
-
             if ($ignore_case) {
-                $compare_value  = strtolower((string)$value);
-                $validate_value = strtolower((string)$validate_value);
+                $compare_value  = strtolower((string) $value);
+                $validate_value = strtolower((string) $validate_value);
             } else {
                 $compare_value = $value;
             }
-
             if ($compare_value != $validate_value) {
                 $this->addFailure(tr(' has a non existing identifier value'));
             }
         });
     }
+
 
     /**
      * Validates that the selected field array has a minimal number of elements
@@ -1881,17 +1806,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($count) {
             $this->isArray();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (count($value) != $count) {
                 $this->addFailure(tr('must have exactly ":count" elements', [':count' => $count]));
             }
         });
     }
+
 
     /**
      * Validates that the selected field array has a minimal number of elements
@@ -1904,17 +1828,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($count) {
             $this->isArray();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (count($value) < $count) {
                 $this->addFailure(tr('must have ":count" elements or more', [':count' => $count]));
             }
         });
     }
+
 
     /**
      * Validates that the selected field array has a maximum number of elements
@@ -1927,17 +1850,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($count) {
             $this->isArray();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (count($value) > $count) {
                 $this->addFailure(tr('must have ":count" elements or less', [':count' => $count]));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid email address
@@ -1947,15 +1869,14 @@ abstract class Validator implements ValidatorInterface
     public function isHttpMethod(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters(128);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $value = mb_strtoupper($value);
-
             // Check against the HTTP methods that are considered valid
             switch ($value) {
                 case 'GET':
@@ -1976,12 +1897,12 @@ abstract class Validator implements ValidatorInterface
                     // no break
                 case 'PATCH':
                     break;
-
                 default:
                     $this->addFailure(tr('must contain a valid HTTP method'));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid multiple phones field
@@ -1993,17 +1914,18 @@ abstract class Validator implements ValidatorInterface
     public function isPhoneNumbers(string $separator = ','): static
     {
         return $this->validateValues(function (&$value) use ($separator) {
-            $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(64);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(10)
+                 ->hasMaxCharacters(64);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $separator = Strings::escapeForRegex($separator);
             $this->matchesRegex('/[0-9- ' . $separator . '].+?/');
         });
     }
+
 
     /**
      * Validates that the selected field matches the specified regex
@@ -2017,6 +1939,7 @@ abstract class Validator implements ValidatorInterface
         return $this->contains($regex, true);
     }
 
+
     /**
      * Validates if the selected field is a valid gender
      *
@@ -2025,16 +1948,17 @@ abstract class Validator implements ValidatorInterface
     public function isGender(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(16);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(2)
+                 ->hasMaxCharacters(16);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $this->isPrintable();
         });
     }
+
 
     /**
      * Validates if the selected field is a valid name
@@ -2046,16 +1970,18 @@ abstract class Validator implements ValidatorInterface
     public function isName(int $characters = 128): static
     {
         return $this->validateValues(function (&$value) use ($characters) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters($characters);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(1)
+                 ->hasMaxCharacters($characters);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
-            $this->isPrintable()->isNotNumeric();
+            $this->isPrintable()
+                 ->isNotNumeric();
         });
     }
+
 
     /**
      * Validates that the selected field is not a number
@@ -2066,17 +1992,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (is_numeric($value)) {
                 $this->addFailure(tr('cannot be a number'));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid name
@@ -2088,16 +2013,18 @@ abstract class Validator implements ValidatorInterface
     public function isUsername(int $characters = 64): static
     {
         return $this->validateValues(function (&$value) use ($characters) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($characters);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(2)
+                 ->hasMaxCharacters($characters);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
-            $this->isAlphaNumeric()->isNotNumeric();
+            $this->isAlphaNumeric()
+                 ->isNotNumeric();
         });
     }
+
 
     /**
      * Validates that the selected field contains only alphanumeric characters
@@ -2108,17 +2035,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!ctype_alnum($value)) {
                 $this->addFailure(tr('must contain only letters and numbers'));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid word
@@ -2128,16 +2054,17 @@ abstract class Validator implements ValidatorInterface
     public function isWord(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(32);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(2)
+                 ->hasMaxCharacters(32);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $this->matchesRegex('/^[a-z-]+$/i');
         });
     }
+
 
     /**
      * Validates if the selected field is a valid variable
@@ -2147,16 +2074,17 @@ abstract class Validator implements ValidatorInterface
     public function isVariable(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(32);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(2)
+                 ->hasMaxCharacters(32);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $this->matchesRegex('/^[a-z][a-z0-9_.]*$/i');
         });
     }
+
 
     /**
      * Validates if the selected field is a valid variable name or label
@@ -2168,16 +2096,17 @@ abstract class Validator implements ValidatorInterface
     public function isVariableName(int $length = 128): static
     {
         return $this->validateValues(function (&$value) use ($length) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($length);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(2)
+                 ->hasMaxCharacters($length);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $this->matchesRegex('/^[a-z0-9][a-z0-9-_.]*$/i');
         });
     }
+
 
     /**
      * Validates if the selected field is a valid file path
@@ -2190,20 +2119,22 @@ abstract class Validator implements ValidatorInterface
      */
     public function isPath(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static
     {
-        $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
+        $restrictions = Restrictions::ensure($restrictions)
+                                    ->setLabel(tr('Validator'));
 
         return $this->validateValues(function (&$value) use ($exists_in_directories, $restrictions, $exists) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(1)
+                 ->hasMaxCharacters(2048);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             // Check the directory
             $value = $this->checkFile($value, $exists_in_directories, $restrictions, null, $exists);
         });
     }
+
 
     /**
      * Checks if the specified path exists or not, and if its of the correct type
@@ -2221,7 +2152,6 @@ abstract class Validator implements ValidatorInterface
         if (!$exists_in_directories) {
             return $value;
         }
-
         if ($directory) {
             $type = 'directory';
 
@@ -2231,39 +2161,33 @@ abstract class Validator implements ValidatorInterface
         } else {
             $type = '';
         }
-
         if (!$value) {
             // Some value must be specified
             $this->addFailure(tr('must contain a path'));
+
             return $value;
         }
-
         $file         = basename($value);
         $restrictions = Restrictions::ensure($restrictions);
-
         foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
             $test = Path::getAbsolute($value, $exists_in_directory, false);
-            $test = Path::new($test, $restrictions)->checkRestrictions(false);
-
+            $test = Path::new($test, $restrictions)
+                        ->checkRestrictions(false);
             if (empty($does_exist)) {
                 // We found the file itself, we're done
                 $does_exist = $test->exists();
-
                 if ($does_exist) {
                     break;
                 }
             }
-
             // Check if the parent exists, use the first specified parent
             if (empty($parent_exists)) {
                 $parent = $test->getParentDirectory();
-
                 if ($parent->exists()) {
                     $parent_exists = $parent;
                 }
             }
         }
-
         if (empty($does_exist)) {
             // The file, whatever it is, does NOT exist
             if ($exist) {
@@ -2276,7 +2200,8 @@ abstract class Validator implements ValidatorInterface
             } else {
                 // File should not exist, and does not exist, but ensure the parent path will exist!
                 if (empty($parent_exists)) {
-                    $test->getParentDirectory()->ensure();
+                    $test->getParentDirectory()
+                         ->ensure();
                     $value = $test->getPath();
 
                 } else {
@@ -2290,7 +2215,6 @@ abstract class Validator implements ValidatorInterface
                 // The file exists, but should NOT exist
                 $this->addFailure(tr('must not exist'));
             }
-
             if ($directory) {
                 // The file should be a directory
                 if (!is_dir($value)) {
@@ -2307,6 +2231,7 @@ abstract class Validator implements ValidatorInterface
         return $value;
     }
 
+
     /**
      * Validates if the selected field is a valid directory
      *
@@ -2318,16 +2243,17 @@ abstract class Validator implements ValidatorInterface
      */
     public function isDirectory(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static
     {
-        $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
+        $restrictions = Restrictions::ensure($restrictions)
+                                    ->setLabel(tr('Validator'));
 
         return $this->validateValues(function (&$value) use ($exists_in_directories, $restrictions, $exists) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(1)
+                 ->hasMaxCharacters(2048);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             // Check the directory
             $value = $this->checkFile($value, $exists_in_directories, $restrictions, true, $exists);
         });
@@ -2345,20 +2271,22 @@ abstract class Validator implements ValidatorInterface
      */
     public function isFile(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, ?bool $exists = true): static
     {
-        $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
+        $restrictions = Restrictions::ensure($restrictions)
+                                    ->setLabel(tr('Validator'));
 
         return $this->validateValues(function (&$value) use ($exists_in_directories, $restrictions, $exists) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(1)
+                 ->hasMaxCharacters(2048);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             // Check the file
             $value = $this->checkFile($value, $exists_in_directories, $restrictions, false, $exists);
         });
     }
+
 
     /**
      * Validates if the selected field is a valid description
@@ -2370,16 +2298,16 @@ abstract class Validator implements ValidatorInterface
     public function isDescription(int $characters = 16_777_200): static
     {
         return $this->validateValues(function (&$value) use ($characters) {
-            $this->sanitizeTrim()->hasMaxCharacters($characters);
-
+            $this->sanitizeTrim()
+                 ->hasMaxCharacters($characters);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $this->isPrintable();
         });
     }
+
 
     /**
      * Validates if the selected field is a valid password
@@ -2393,20 +2321,19 @@ abstract class Validator implements ValidatorInterface
                 // Don't test passwords
                 return;
             }
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             try {
-                $value = Password::testSecurity((string)$value);
+                $value = Password::testSecurity((string) $value);
 
             } catch (ValidationFailedException $e) {
                 $this->addFailure(tr('failed because ":e"', [':e' => $e->getMessage()]));
             }
         });
     }
+
 
     /**
      * Returns if all validations are disabled or not
@@ -2418,6 +2345,7 @@ abstract class Validator implements ValidatorInterface
         return static::$password_disabled;
     }
 
+
     /**
      * Validates if the selected field is a valid and strong enough password
      *
@@ -2426,8 +2354,9 @@ abstract class Validator implements ValidatorInterface
     public function isStrongPassword(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(128);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(10)
+                 ->hasMaxCharacters(128);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
@@ -2448,17 +2377,18 @@ abstract class Validator implements ValidatorInterface
     public function isColor(int $characters = 6): static
     {
         return $this->validateValues(function (&$value) use ($characters) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($characters);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters($characters);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             // Color (for the moment) is only accepted in hexadecimal format
             $this->isHexadecimal();
         });
     }
+
 
     /**
      * Validates that the selected field contains only hexadecimal characters
@@ -2469,17 +2399,16 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!ctype_xdigit($value)) {
                 $this->addFailure(tr('must contain only hexadecimal characters'));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid email address
@@ -2491,18 +2420,19 @@ abstract class Validator implements ValidatorInterface
     public function isEmail(int $characters = 2048): static
     {
         return $this->validateValues(function (&$value) use ($characters) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($characters);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters($characters);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
                 $this->addFailure(tr('must contain a valid email'));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid email address
@@ -2514,18 +2444,19 @@ abstract class Validator implements ValidatorInterface
     public function isUrl(int $max_size = 2048): static
     {
         return $this->validateValues(function (&$value) use ($max_size) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_size);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters($max_size);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!Url::isValid($value)) {
                 $this->addFailure(tr('must contain a valid URL'));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid domain name
@@ -2535,18 +2466,19 @@ abstract class Validator implements ValidatorInterface
     public function isDomain(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters(128);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!filter_var($value, FILTER_VALIDATE_DOMAIN)) {
                 $this->addFailure(tr('must contain a valid domain'));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid IP address
@@ -2556,18 +2488,19 @@ abstract class Validator implements ValidatorInterface
     public function isIp(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(48);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters(48);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!filter_var($value, FILTER_VALIDATE_IP)) {
                 $this->addFailure(tr('must contain a valid IP address'));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid domain name or IP address
@@ -2577,13 +2510,13 @@ abstract class Validator implements ValidatorInterface
     public function isDomainOrIp(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters(128);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!filter_var($value, FILTER_VALIDATE_DOMAIN)) {
                 if (!filter_var($value, FILTER_VALIDATE_IP)) {
                     $this->addFailure(tr('must contain a valid domain or IP address'));
@@ -2591,6 +2524,7 @@ abstract class Validator implements ValidatorInterface
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid formatted UUID
@@ -2600,18 +2534,19 @@ abstract class Validator implements ValidatorInterface
     public function isUuid(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(48);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters(48);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $value)) {
                 $this->addFailure(tr('must contain a valid UUID string'));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid JSON string
@@ -2627,21 +2562,21 @@ abstract class Validator implements ValidatorInterface
     public function isJson(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             // Try by regex. If that fails. try JSON decode
             @json_decode($value);
-
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $this->addFailure(tr('must contain a valid JSON string'));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid CSV string
@@ -2659,13 +2594,13 @@ abstract class Validator implements ValidatorInterface
     public function isCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static
     {
         return $this->validateValues(function (&$value) use ($separator, $enclosure, $escape) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             try {
                 str_getcsv($value, $separator, $enclosure, $escape);
             } catch (Throwable) {
@@ -2675,6 +2610,7 @@ abstract class Validator implements ValidatorInterface
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a serialized string
@@ -2689,13 +2625,13 @@ abstract class Validator implements ValidatorInterface
     public function isSerialized(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             try {
                 unserialize($value);
             } catch (Throwable) {
@@ -2703,6 +2639,7 @@ abstract class Validator implements ValidatorInterface
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a base58 string
@@ -2716,18 +2653,19 @@ abstract class Validator implements ValidatorInterface
     public function isBase58(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!Strings::isBase58($value)) {
                 $this->addFailure(tr('must contain a valid Base58 encoded string'));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a base64 string
@@ -2741,18 +2679,19 @@ abstract class Validator implements ValidatorInterface
     public function isBase64(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!Strings::isBase64($value)) {
                 $this->addFailure(tr('must contain a valid Base64 encoded string'));
             }
         });
     }
+
 
     /**
      * Validates if the selected field is a valid version number
@@ -2764,18 +2703,19 @@ abstract class Validator implements ValidatorInterface
     public function isVersion(int $characters = 11): static
     {
         return $this->validateValues(function (&$value) use ($characters) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}/', $value)) {
                 $this->addFailure(tr('must contain a valid version number'));
             }
         });
     }
+
 
     /**
      * Validates if the specified function returns TRUE for this value
@@ -2792,12 +2732,12 @@ abstract class Validator implements ValidatorInterface
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (!$function($value, $this->source)) {
                 $this->addFailure($failure);
             }
         });
     }
+
 
     /**
      * Validates if the specified function returns FALSE for this value
@@ -2814,12 +2754,12 @@ abstract class Validator implements ValidatorInterface
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if ($function($value, $this->source)) {
                 $this->addFailure($failure);
             }
         });
     }
+
 
     /**
      * Validates the value is unique in the table
@@ -2838,12 +2778,12 @@ abstract class Validator implements ValidatorInterface
                 // Validation already failed, don't test anything more
                 return;
             }
-
             if (sql()->exists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
                 $this->addFailure($failure ?? tr('with value ":value" already exists', [':value' => $value]));
             }
         });
     }
+
 
     /**
      * Sanitize the selected value by applying htmlspecialchars()
@@ -2854,20 +2794,20 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeHtmlSpecialChars(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             if (is_string($value)) {
                 $value = htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8', true);
             }
         });
     }
+
 
     /**
      * Makes the current field a boolean value
@@ -2880,10 +2820,11 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             if (!$this->checkIsOptional($value)) {
-                $value = (bool)$value;
+                $value = (bool) $value;
             }
         });
     }
+
 
     /**
      * Sanitize the selected value by applying htmlentities()
@@ -2894,20 +2835,20 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeHtmlEntities(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             if (is_string($value)) {
                 $value = htmlentities($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8', true);
             }
         });
     }
+
 
     /**
      * Sanitize the selected value by starting the value from the specified needle
@@ -2923,14 +2864,12 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($needle) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             $value = Strings::from($value, $needle);
         });
     }
@@ -2950,14 +2889,12 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($needle) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             $value = Strings::until($value, $needle);
         });
     }
@@ -2978,14 +2915,12 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($needle) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             $value = Strings::fromReverse($value, $needle);
         });
     }
@@ -3006,14 +2941,12 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) use ($needle) {
             $this->isString();
-
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             $value = Strings::untilReverse($value, $needle);
         });
     }
@@ -3029,15 +2962,15 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeUppercase(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             try {
                 if (!$this->selected_is_default or ($value !== null)) {
                     $value = mb_strtoupper($value);
@@ -3059,15 +2992,15 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeLowercase(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             try {
                 if (!$this->selected_is_default or ($value !== null)) {
                     $value = mb_strtolower($value);
@@ -3093,15 +3026,15 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeSearchReplace(array $replace, bool $regex = false): static
     {
         return $this->validateValues(function (&$value) use ($replace, $regex) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             if ($regex) {
                 // Regex search / replace, each key will be treated as a regex instead of a normal string
                 $value = preg_replace(array_keys($replace), array_values($replace), $value);
@@ -3128,15 +3061,15 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeDecodeJson(bool $array = true): static
     {
         return $this->validateValues(function (&$value) use ($array) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(3)
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             try {
                 $value = Json::decode($value);
             } catch (JsonException) {
@@ -3162,7 +3095,6 @@ abstract class Validator implements ValidatorInterface
                     return;
                 }
             }
-
             try {
                 $value = Json::encode($value);
 
@@ -3198,7 +3130,6 @@ abstract class Validator implements ValidatorInterface
                     return;
                 }
             }
-
             try {
                 $value = str_getcsv($value, $separator, $enclosure, $escape);
             } catch (Throwable) {
@@ -3230,7 +3161,6 @@ abstract class Validator implements ValidatorInterface
                     return;
                 }
             }
-
             try {
                 $value = unserialize($value);
             } catch (Throwable $e) {
@@ -3255,7 +3185,6 @@ abstract class Validator implements ValidatorInterface
                     return;
                 }
             }
-
             try {
                 $value = serialize($value);
 
@@ -3284,7 +3213,6 @@ abstract class Validator implements ValidatorInterface
                     return;
                 }
             }
-
             try {
                 $value = Arrays::force($value, $characters);
 
@@ -3315,7 +3243,6 @@ abstract class Validator implements ValidatorInterface
                     return;
                 }
             }
-
             try {
                 $value = base58_decode($value);
             } catch (Throwable) {
@@ -3345,7 +3272,6 @@ abstract class Validator implements ValidatorInterface
                     return;
                 }
             }
-
             try {
                 $value = base64_decode($value);
             } catch (Throwable) {
@@ -3375,7 +3301,6 @@ abstract class Validator implements ValidatorInterface
                     return;
                 }
             }
-
             try {
                 $value = urldecode($value);
             } catch (Throwable) {
@@ -3409,7 +3334,6 @@ abstract class Validator implements ValidatorInterface
                     return;
                 }
             }
-
             try {
                 $value = Strings::force($value, $characters);
 
@@ -3440,13 +3364,11 @@ abstract class Validator implements ValidatorInterface
 
                     // This field contains the default
                 }
-
                 if (!is_scalar($this->selected_value)) {
                     throw new ValidatorException(tr('Cannot sanitize pre / post string data for field ":field", the field contains a non scalar value', [
                         ':field' => $this->selected_field,
                     ]));
                 }
-
                 $value = $pre . $value . $post;
             }
 
@@ -3473,8 +3395,8 @@ abstract class Validator implements ValidatorInterface
 
                 // This field contains the default
             }
-
             $value = $callback($value, $this->source, $this);
+
             return $this;
         });
     }
@@ -3493,15 +3415,14 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeCallback(callable $callback): static
     {
         return $this->validateValues(function (&$value) use ($callback) {
-            $this->sanitizeTrim()->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             $value = $callback($value, $this->source);
         });
     }
@@ -3520,17 +3441,15 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeCallbackNoNull(callable $callback): static
     {
         return $this->validateValues(function (&$value) use ($callback) {
-            $this->sanitizeTrim()->hasMaxCharacters();
-
+            $this->sanitizeTrim()
+                 ->hasMaxCharacters();
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
             $results = $callback($value, $this->source);
-
             if ($results === null) {
                 $this->addFailure(tr('is not valid'));
 
@@ -3551,17 +3470,18 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function (&$value) {
             $this->isPhoneNumber();
-
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
                     // Validation already failed, don't test anything more
                     return;
                 }
             }
-
-            $value = Sanitize::new($value)->phoneNumber()->getSource();
+            $value = Sanitize::new($value)
+                             ->phoneNumber()
+                             ->getSource();
         });
     }
+
 
     /**
      * Validates if the selected field is a valid phone number
@@ -3571,16 +3491,17 @@ abstract class Validator implements ValidatorInterface
     public function isPhoneNumber(): static
     {
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(30);
-
+            $this->sanitizeTrim()
+                 ->hasMinCharacters(10)
+                 ->hasMaxCharacters(30);
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
-
             $this->matchesRegex('/^\+?[0-9-#\*\(\) ].+?$/');
         });
     }
+
 
     /**
      * Returns the field prefix value
@@ -3603,6 +3524,7 @@ abstract class Validator implements ValidatorInterface
     public function setColumnPrefix(?string $field_prefix): static
     {
         $this->field_prefix = $field_prefix;
+
         return $this;
     }
 
@@ -3628,6 +3550,7 @@ abstract class Validator implements ValidatorInterface
     public function setTable(?string $table): static
     {
         $this->table = $table;
+
         return $this;
     }
 
@@ -3645,35 +3568,28 @@ abstract class Validator implements ValidatorInterface
         unset($this->process_value);
         unset($this->process_values);
         unset($this->selected_value);
-
         $this->process_value_failed = false;
         $this->selected_is_default  = false;
         $this->selected_is_optional = false;
-
         if (!$field) {
             throw new OutOfBoundsException(tr('No field specified'));
         }
-
         // Add the field prefix to the field name
         $field = $this->field_prefix . $field;
-
         if (in_array($field, $this->selected_fields)) {
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
                 ':key' => $field,
             ]));
         }
-
         if ($this->source === null) {
             throw new OutOfBoundsException(tr('Cannot select field ":field", no source array specified', [
                 ':field' => $field,
             ]));
         }
-
         // Does the field exist in the source? If not, initialize it with NULL to be able to process it
         if (!array_key_exists($field, $this->source)) {
             $this->source[$field] = null;
         }
-
         // Select the field.
         $this->selected_field    = $field;
         $this->selected_fields[] = $field;
@@ -3683,6 +3599,7 @@ abstract class Validator implements ValidatorInterface
 
         return $this;
     }
+
 
     /**
      * Constructor for all validator types
@@ -3698,10 +3615,8 @@ abstract class Validator implements ValidatorInterface
         if ($source === null) {
             $source = [];
         }
-
         $this->source = &$source;
         $this->parent = $parent;
-
         $this->reflection_selected_optional = new ReflectionProperty($this, 'selected_optional');
         $this->reflection_process_value     = new ReflectionProperty($this, 'process_value');
     }

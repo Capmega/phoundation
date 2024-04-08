@@ -8,7 +8,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
-
 /**
  * TableAlter class
  *
@@ -34,8 +33,8 @@ class TableAlter extends SchemaAbstract
             ':from' => $this->name,
             ':tp'   => $name,
         ]);
-
         $this->name = $name;
+
         return $this;
     }
 
@@ -57,7 +56,6 @@ class TableAlter extends SchemaAbstract
                 // Quietly drop empty columns
                 continue;
             }
-
             $this->addColumn($column, $after);
         }
 
@@ -80,11 +78,9 @@ class TableAlter extends SchemaAbstract
         if (!$column) {
             throw new OutOfBoundsException(tr('No column specified'));
         }
-
         if (!$after) {
             throw new OutOfBoundsException(tr('No after column specified'));
         }
-
         $this->sql->query('ALTER TABLE `' . $this->name . '` ADD COLUMN ' . Strings::endsNotWith($column, ',') . ' ' . $after);
 
         return $this;
@@ -103,10 +99,8 @@ class TableAlter extends SchemaAbstract
         if (!$column) {
             throw new OutOfBoundsException(tr('No column specified'));
         }
-
         $column = Strings::startsNotWith($column, '`');
         $column = Strings::EndsNotWith($column, '`');
-
         $this->sql->query('ALTER TABLE ' . $this->name . ' DROP COLUMN `' . $column . '`');
 
         return $this;
@@ -126,14 +120,11 @@ class TableAlter extends SchemaAbstract
         if (!$column) {
             throw new OutOfBoundsException(tr('No column specified'));
         }
-
         if (!$to_definition) {
             throw new OutOfBoundsException(tr('No new column definition specified'));
         }
-
         $column = Strings::startsNotWith($column, '`');
         $column = Strings::EndsNotWith($column, '`');
-
         $this->sql->query('ALTER TABLE `' . $this->name . '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
 
         return $this;
@@ -153,14 +144,11 @@ class TableAlter extends SchemaAbstract
         if (!$column) {
             throw new OutOfBoundsException(tr('No column specified'));
         }
-
         if (!$to_definition) {
             throw new OutOfBoundsException(tr('No new column definition specified'));
         }
-
         $column = Strings::startsNotWith($column, '`');
         $column = Strings::EndsNotWith($column, '`');
-
         $this->sql->query('ALTER TABLE `' . $this->name . '` CHANGE COLUMN `' . $column . '` ' . $to_definition);
 
         return $this;
@@ -180,17 +168,13 @@ class TableAlter extends SchemaAbstract
         if (!$from_column) {
             throw new OutOfBoundsException(tr('No column specified'));
         }
-
         if (!$to_column) {
             throw new OutOfBoundsException(tr('No new column definition specified'));
         }
-
         $from_column = Strings::startsNotWith($from_column, '`');
         $from_column = Strings::EndsNotWith($from_column, '`');
-
         $to_column = Strings::startsNotWith($to_column, '`');
         $to_column = Strings::EndsNotWith($to_column, '`');
-
         $this->sql->query('ALTER TABLE `' . $this->name . '` RENAME COLUMN `' . $from_column . '` TO `' . $to_column . '`');
 
         return $this;
@@ -211,7 +195,6 @@ class TableAlter extends SchemaAbstract
                 // Quietly drop empty indices
                 continue;
             }
-
             $this->addIndex($index);
         }
 
@@ -267,7 +250,6 @@ class TableAlter extends SchemaAbstract
                 // Quietly drop empty foreign keys
                 continue;
             }
-
             $this->addForeignKey($foreign_key);
         }
 

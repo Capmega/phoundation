@@ -14,7 +14,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class SqlQueries
  *
@@ -42,9 +41,7 @@ class SqlQueries
             // The source has already been prepared, return it
             return $source;
         }
-
         $return = [];
-
         foreach ($source as $key => $value) {
             switch ($key) {
                 case $id_column:
@@ -52,7 +49,6 @@ class SqlQueries
                 case 'meta_id':
                     // NEVER update these!
                     break;
-
                 default:
                     $return[] = '`' . $key . '` = :' . $prefix . $key;
             }
@@ -60,6 +56,7 @@ class SqlQueries
 
         return implode(', ', $return);
     }
+
 
     /**
      * Return a list of the specified $columns from the specified source
@@ -75,20 +72,16 @@ class SqlQueries
         if (!$where) {
             return '';
         }
-
         if (is_string($where)) {
             // The Source has already been prepared, return it
             return $where;
         }
-
         $return = [];
-
         foreach ($where as $key => $value) {
             switch ($key) {
                 case 'meta_id':
                     // NEVER update these!
                     break;
-
                 default:
                     $return[] = '`' . $prefix . $key . '` = :' . $key;
             }
@@ -96,6 +89,7 @@ class SqlQueries
 
         return ' WHERE ' . implode($separator, $return);
     }
+
 
     /**
      * Return a list of the specified $columns from the specified source
@@ -108,15 +102,12 @@ class SqlQueries
     public static function filterColumns(array $source, string $separator = ' AND '): string
     {
         $return = [];
-
         foreach ($source as $key => $value) {
             if (is_array($value)) {
                 $list = [];
-
                 foreach ($value as $subkey => $subvalue) {
                     $list[] = ':' . $key . $subkey;
                 }
-
                 $return[] = '`' . $key . '` IN (' . implode(',', $list) . ') ';
 
             } else {
@@ -126,6 +117,7 @@ class SqlQueries
 
         return implode($separator, $return);
     }
+
 
     /**
      * Return a list of columns with prefixes from the keys of the specified source array
@@ -138,13 +130,13 @@ class SqlQueries
     public static function getPrefixedColumns(array $source, ?string $prefix = null): string
     {
         $return = [];
-
         foreach ($source as $key => $value) {
             $return[] = '`' . $prefix . $key . '`';
         }
 
         return implode(', ', $return);
     }
+
 
     /**
      * Converts the specified row data into a PDO bound variables compatible key > values array
@@ -157,16 +149,15 @@ class SqlQueries
     public static function getBoundKeys(array|string $source, ?string $prefix = null): string
     {
         $return = [];
-
         foreach ($source as $key => $value) {
             $return[':' . $prefix . $key] = $value;
         }
-
         $return = array_keys($return);
         $return = implode(', ', $return);
 
         return $return;
     }
+
 
     /**
      * Converts the specified row data into a PDO bound variables compatible key > values array
@@ -181,18 +172,15 @@ class SqlQueries
     public static function getBoundValues(array $source, ?string $prefix = null, bool $insert = false, ?array $skip = null): array
     {
         $return = [];
-
         foreach ($source as $key => $value) {
             if (($key === 'meta_id') and !$insert) {
                 // Only process meta_id on insert operations
                 continue;
             }
-
             if ($skip and in_array($key, $skip)) {
                 // Don't make a bound variable for this one
                 continue;
             }
-
             if (is_array($value)) {
                 foreach ($value as $subkey => $subvalue) {
                     $return[':' . $prefix . $key . $subkey] = $subvalue;
@@ -205,6 +193,7 @@ class SqlQueries
 
         return $return;
     }
+
 
     /**
      * Use correct SQL in case NULL is used in queries
@@ -220,28 +209,22 @@ class SqlQueries
     public static function is(string $column, array|string|int|float|null $values, string $label, ?array &$execute = null, string $glue = 'AND'): string
     {
         Arrays::ensure($execute);
-
         $label  = Strings::startsWith($label, ':');
         $return = [];
-
         if (is_array($values)) {
             $in    = [];
             $notin = [];
-
             foreach ($values as $value) {
                 $not = false;
-
-                if (str_starts_with((string)$value, '!')) {
+                if (str_starts_with((string) $value, '!')) {
                     // Make comparison NOT by prefixing ! to $value
                     $value = substr($value, 1);
                     $not   = true;
                 }
-
-                if (($value === null) or (strtoupper(substr((string)$value, -4, 4)) === 'NULL')) {
+                if (($value === null) or (strtoupper(substr((string) $value, -4, 4)) === 'NULL')) {
                     $null = ($not ? '!NULL' : 'NULL');
                     continue;
                 }
-
                 if ($not) {
                     $notin[] = $value;
 
@@ -249,17 +232,14 @@ class SqlQueries
                     $in[] = $value;
                 }
             }
-
             if ($in) {
                 $in       = static::in($in);
-                $execute  = array_merge((array)$execute, $in);
+                $execute  = array_merge((array) $execute, $in);
                 $return[] = ' ' . $column . ' IN (' . implode(', ', array_keys($in)) . ')';
             }
-
             if ($notin) {
                 $notin   = static::in($notin, start: count($execute));
-                $execute = array_merge((array)$execute, $notin);
-
+                $execute = array_merge((array) $execute, $notin);
                 if (!isset($null)) {
                     // (My)Sql curiosity: When comparing != string, NULL values are NOT evaluated
                     $return[] = ' (' . $column . ' NOT IN (' . implode(', ', array_keys($notin)) . ') OR ' . $column . ' IS NULL)';
@@ -267,7 +247,6 @@ class SqlQueries
                     $return[] = ' ' . $column . ' NOT IN (' . implode(', ', array_keys($notin)) . ')';
                 }
             }
-
             if (isset($null)) {
                 $return[] = static::isSingle($column, $null, $label, $execute);
             }
@@ -277,6 +256,7 @@ class SqlQueries
 
         return static::isSingle($column, $values, $label, $execute);
     }
+
 
     /**
      * Return a sequential array that can be used in $this->in
@@ -294,12 +274,12 @@ class SqlQueries
         if (empty($source)) {
             throw new OutOfBoundsException(tr('Specified source is empty'));
         }
-
         $column = Strings::startsWith($column, ':');
         $source = Arrays::force($source);
 
         return Arrays::sequentialKeys($source, $column, $filter_null, $null_string, $start);
     }
+
 
     /**
      * Use correct SQL in case NULL is used in queries
@@ -314,29 +294,23 @@ class SqlQueries
     public static function isSingle(string $column, string|int|float|null $value, string $label, ?array &$execute = null): string
     {
         $not = false;
-
-        if (str_starts_with((string)$value, '!')) {
+        if (str_starts_with((string) $value, '!')) {
             // Make comparison opposite of $not by prepending the value with a ! sign
             $value = substr($value, 1);
             $not   = true;
         }
-
-        if (strtoupper(substr((string)$value, -4, 4)) === 'NULL') {
+        if (strtoupper(substr((string) $value, -4, 4)) === 'NULL') {
             $value = null;
         }
-
         if ($value === null) {
             $null = $not;
         }
-
         if (isset($null)) {
             // We have to do a NULL comparison
             return ' ' . $column . ' IS ' . ($null ? 'NOT ' : '') . 'NULL ';
         }
-
         // Add the label
         $execute[$label] = $value;
-
         if ($not) {
             // (My)Sql curiosity: When comparing != string, NULL values are NOT evaluated
             return ' (' . $column . ' != ' . Strings::startsWith($label, ':') . ' OR ' . $column . ' IS NULL)';
@@ -357,7 +331,6 @@ class SqlQueries
     public static function getQueryStringLimit(?int $limit = null, ?int $page = null): string
     {
         $limit = Paging::getLimit($limit);
-
         if (!$limit) {
             // No limits, so show all
             return '';
@@ -380,16 +353,13 @@ class SqlQueries
     public static function show(string|PDOStatement $query, ?array $execute = null, bool $return_only = false): mixed
     {
         $query = static::renderQueryString($query, $execute, true);
-
         if ($return_only) {
             return $query;
         }
-
         if (!Core::readRegister('debug', 'clean')) {
             $query = str_replace("\n", ' ', $query);
             $query = Strings::nodouble($query, ' ', '\s');
         }
-
         // Debug::enabled() already logs the query, don't log it again
         if (!Debug::getEnabled()) {
             Log::debug(static::getLogPrefix() . Strings::endsWith($query, ';'));
@@ -397,6 +367,7 @@ class SqlQueries
 
         return Debug::show(Strings::endsWith($query, ';'), 6);
     }
+
 
     /**
      * Builds and returns a query string from the specified query and execute parameters
@@ -413,17 +384,13 @@ class SqlQueries
             if (!($query instanceof PDOStatement)) {
                 throw new SqlException(tr('Object of unknown class ":class" specified where PDOStatement was expected', [':class' => get_class($query)]));
             }
-
             // Query to be logged is a PDO statement, extract the query
             $query = $query->queryString;
         }
-
         $query = trim($query);
-
         if ($clean) {
             $query = Strings::cleanWhiteSpace($query);
         }
-
         // Apply execution variables
         if (is_array($execute)) {
             /*
@@ -438,7 +405,6 @@ class SqlQueries
              * Would cause the query to look like `category` = "test", `category_id` = "test"_id
              */
             krsort($execute);
-
             foreach ($execute as $key => $value) {
                 if (is_string($value)) {
                     $value = addslashes($value);
@@ -458,14 +424,14 @@ class SqlQueries
                             ':query' => $query,
                         ]));
                     }
-
-                    $query = str_replace((string)$key, (string)$value, $query);
+                    $query = str_replace((string) $key, (string) $value, $query);
                 }
             }
         }
 
         return $query;
     }
+
 
     /**
      * Ensure that the specified query is either a select query or a show query
@@ -480,15 +446,14 @@ class SqlQueries
         if (is_object($query)) {
             $query = $query->queryString;
         }
-
         $query = strtolower(substr(trim($query), 0, 10));
-
         if (!str_starts_with($query, 'select') and !str_starts_with($query, 'show')) {
             throw new SqlException(tr('Query ":query" is not a SELECT or SHOW query and as such cannot return results', [
                 ':query' => Strings::log(static::getLogPrefix() . Log::sql($query, $execute), 4096),
             ]));
         }
     }
+
 
     /**
      * Helper for building $this->in key value pairs
@@ -530,7 +495,6 @@ class SqlQueries
         $query = trim($query);
         $query = substr(trim($query), 0, 10);
         $query = strtolower($query);
-
         if (str_starts_with($query, 'insert') or str_starts_with($query, 'update')) {
             // This is a write query, check if we're not in readonly mode
             Core::checkReadonly('write query');

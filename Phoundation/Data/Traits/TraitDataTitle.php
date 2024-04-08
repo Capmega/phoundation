@@ -6,7 +6,6 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Web\Html\Html;
 
-
 /**
  * Trait TraitDataTitle
  *
@@ -51,8 +50,8 @@ trait TraitDataTitle
         if ($make_safe) {
             $title = Html::safe($title);
         }
-
         $this->title = $title;
+
         return $this;
     }
 }

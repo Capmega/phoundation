@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataHostnamePort
  *
@@ -53,6 +52,7 @@ trait TraitDataHostnamePort
     public function setHostname(?string $hostname): static
     {
         $this->hostname = $hostname;
+
         return $this;
     }
 
@@ -78,6 +78,7 @@ trait TraitDataHostnamePort
     public function setPort(?string $port): static
     {
         $this->port = $port;
+
         return $this;
     }
 }

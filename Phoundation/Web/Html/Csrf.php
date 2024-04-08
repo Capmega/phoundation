@@ -14,7 +14,6 @@ use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Throwable;
 
-
 /**
  * Class Csrf
  *
@@ -40,11 +39,9 @@ class Csrf
             // CSRF check system has been disabled
             return null;
         }
-
         if (Core::readRegister('csrf')) {
             return Core::readRegister('csrf');
         }
-
         /*
          * Avoid people messing around
          */
@@ -58,17 +55,14 @@ class Csrf
                 array_shift($_SESSION['csrf']);
             }
         }
-
         $csrf = $prefix . Strings::unique('sha256');
-
         if (empty($_SESSION['csrf'])) {
             $_SESSION['csrf'] = [];
         }
-
         $_SESSION['csrf'][$csrf] = new DateTime();
         $_SESSION['csrf'][$csrf] = $_SESSION['csrf'][$csrf]->getTimestamp();
-
         Core::readRegister('csrf', $csrf);
+
         return $csrf;
     }
 
@@ -85,54 +79,48 @@ class Csrf
                 // CSRF check system has been disabled
                 return false;
             }
-
             if (!Request::isRequestType(EnumRequestTypes::html) and !Request::isRequestType(EnumRequestTypes::admin)) {
                 // CSRF only works for HTTP or ADMIN requests
                 return false;
             }
-
             if (!empty($core->register['csrf_ok'])) {
                 // CSRF check has already been executed for this post, all okay!
                 return true;
             }
-
             if (empty($_POST)) {
                 // There is no POST data
                 return false;
             }
-
             if (empty($_POST['csrf'])) {
-                throw OutOfBoundsException::new(tr('No CSRF field specified'))->makeWarning();
+                throw OutOfBoundsException::new(tr('No CSRF field specified'))
+                                          ->makeWarning();
             }
-
             if (Request::isRequestType(EnumRequestTypes::ajax)) {
                 if (substr($_POST['csrf'], 0, 5) != 'ajax_') {
                     // Invalid CSRF code is sppokie, don't make this a warning
-                    throw OutOfBoundsException::new(tr('Specified CSRF ":code" is invalid'))->makeWarning();
+                    throw OutOfBoundsException::new(tr('Specified CSRF ":code" is invalid'))
+                                              ->makeWarning();
                 }
             }
-
             if (empty($_SESSION['csrf'][$_POST['csrf']])) {
                 throw OutOfBoundsException::new(tr('Specified CSRF ":code" does not exist', [
                     ':code' => $_POST['csrf'],
-                ]))->makeWarning();
+                ]))
+                                          ->makeWarning();
             }
-
             // Get the code from $_SESSION and delete it so it won't be used twice
             $timestamp = $_SESSION['csrf'][$_POST['csrf']];
             $now       = new DateTime();
-
             unset($_SESSION['csrf'][$_POST['csrf']]);
-
             // Code timed out?
             if (Config::get('security.csrf.timeout', 3600)) {
                 if (($timestamp + Config::get('security.csrf.timeout')) < $now->getTimestamp()) {
                     throw OutOfBoundsException::new(tr('Specified CSRF ":code" timed out', [
                         ':code' => $_POST['csrf'],
-                    ]))->makeWarning();
+                    ]))
+                                              ->makeWarning();
                 }
             }
-
             if (Request::isRequestType(EnumRequestTypes::ajax)) {
                 // Send new CSRF code with the AJAX return payload
                 $core->register['ajax_csrf'] = set_csrf('ajax_');
@@ -147,11 +135,11 @@ class Csrf
                     unset($_POST[$key]);
                 }
             }
-
             Log::warning('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
             Log::warning(Request::isRequestType(EnumRequestTypes::html));
             Log::warning($e);
-            Request::getFlashMessages()->add(tr('The form data was too old, please try again'), 'warning');
+            Request::getFlashMessages()
+                   ->add(tr('The form data was too old, please try again'), 'warning');
         }
     }
 }

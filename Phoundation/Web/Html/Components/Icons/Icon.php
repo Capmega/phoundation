@@ -9,7 +9,6 @@ use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
 use Phoundation\Web\Html\Traits\TraitMode;
 
-
 /**
  * Icon class
  *
@@ -24,7 +23,6 @@ class Icon extends Element implements IconInterface
 {
     use TraitMode;
 
-
     /**
      * Icon class constructor
      *
@@ -34,7 +32,6 @@ class Icon extends Element implements IconInterface
     {
         if ($content) {
             $content = trim($content);
-
             if (!preg_match('/[a-z0-9-_ ]+/i', $content)) {
                 // Icon names should only have letters, numbers and dashes and underscores. Multiple names may be
                 // needed, so also allow spaces
@@ -43,7 +40,6 @@ class Icon extends Element implements IconInterface
                 ]));
             }
         }
-
         parent::__construct(get_null($content));
         $this->setElement('i');
     }
@@ -71,6 +67,7 @@ class Icon extends Element implements IconInterface
     public function setIcon(?string $icon, string $subclass = ''): static
     {
         $this->content = $icon;
+
         return $this;
     }
 
@@ -82,6 +79,7 @@ class Icon extends Element implements IconInterface
     {
         $this->addClass($this->getContent());
         $this->setContent(null);
+
         return parent::render();
     }
 }

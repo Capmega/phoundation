@@ -24,24 +24,21 @@
 */
 
 include "socialmedia_oauth_connect.php";
-$oauth = new socialmedia_oauth_connect();
-$oauth->provider="MeetUp";
-$oauth->client_id = "b2ca2eea0o8ja6ium9tehktl48";
+$oauth                = new socialmedia_oauth_connect();
+$oauth->provider      = "MeetUp";
+$oauth->client_id     = "b2ca2eea0o8ja6ium9tehktl48";
 $oauth->client_secret = "xxxxxxxxxxxxxxxxxxxxxxxxxxx";
-$oauth->redirect_uri  ="http://ngiriraj.com/socialMedia/oauthlogin/meetup.php";
-
+$oauth->redirect_uri  = "http://ngiriraj.com/socialMedia/oauthlogin/meetup.php";
 $oauth->Initialize();
-
-$code = ($_REQUEST["code"]) ?  ($_REQUEST["code"]) : "";
-
+$code = ($_REQUEST["code"]) ? ($_REQUEST["code"]) : "";
 if (empty($code)) {
-	$oauth->Authorize();
+    $oauth->Authorize();
 } else {
-	$oauth->code = $code;
+    $oauth->code = $code;
 #	$oauth->getAccessToken();
-	$getData = json_decode($oauth->getUserProfile());
-	$oauth->debugJson($getData);
-	print "Name :".$getData->data->full_name;
+    $getData = json_decode($oauth->getUserProfile());
+    $oauth->debugJson($getData);
+    print "Name :" . $getData->data->full_name;
 
 }
 ?>

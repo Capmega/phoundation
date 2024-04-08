@@ -8,7 +8,6 @@ use Phoundation\Content\Images\Image;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Trait TraitDataEntryPicture
  *

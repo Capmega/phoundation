@@ -6,7 +6,6 @@ namespace Phoundation\Web\Http;
 
 use Iterator;
 
-
 /**
  * Class Uploads
  *
@@ -34,7 +33,6 @@ class Uploads implements Iterator
     public function __construct()
     {
         global $_FILES;
-
         // Move $_FILES data internally
         $this->files = $_FILES;
         $_FILES      = [];
@@ -49,20 +47,24 @@ class Uploads implements Iterator
         // TODO: Implement current() method.
     }
 
+
     public function next(): void
     {
         // TODO: Implement next() method.
     }
+
 
     public function key(): Upload
     {
         // TODO: Implement key() method.
     }
 
+
     public function valid(): bool
     {
         // TODO: Implement valid() method.
     }
+
 
     public function rewind(): void
     {

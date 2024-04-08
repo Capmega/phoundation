@@ -9,7 +9,6 @@ use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumToolti
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipPlacementInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipTriggerInterface;
 
-
 /**
  * Class Tooltip
  *
@@ -30,6 +29,7 @@ interface TooltipInterface extends ElementInterface
      */
     public function getTriggers(): array;
 
+
     /**
      * Sets the tooltip trigger for this element
      *
@@ -39,12 +39,14 @@ interface TooltipInterface extends ElementInterface
      */
     public function setTriggers(EnumTooltipTriggerInterface ...$triggers): static;
 
+
     /**
      * Returns the tooltip title for this element
      *
      * @return string|null
      */
     public function getTitle(): ?string;
+
 
     /**
      * Sets the tooltip title for this element
@@ -55,12 +57,14 @@ interface TooltipInterface extends ElementInterface
      */
     public function setTitle(?string $title): static;
 
+
     /**
      * Returns if CSS fade transition will be applied to the tooltip
      *
      * @return bool
      */
     public function getAnimation(): bool;
+
 
     /**
      * Sets if CSS fade transition will be applied to the tooltip
@@ -71,12 +75,14 @@ interface TooltipInterface extends ElementInterface
      */
     public function setAnimation(bool $animation): static;
 
+
     /**
      * Returns if tooltip should be added on a separate icon
      *
      * @return bool
      */
     public function getUseIcon(): bool;
+
 
     /**
      * Sets if tooltip should be added on a separate icon
@@ -87,12 +93,14 @@ interface TooltipInterface extends ElementInterface
      */
     public function setUseIcon(bool $use_icon): static;
 
+
     /**
      * Returns if tooltip should be added on a separate icon
      *
      * @return bool
      */
     public function getRenderBefore(): bool;
+
 
     /**
      * Sets if tooltip should be added on a separate icon
@@ -103,12 +111,14 @@ interface TooltipInterface extends ElementInterface
      */
     public function setRenderBefore(bool $render_before): static;
 
+
     /**
      * Returns the HTML for the tooltip icon, if used
      *
      * @return string|null
      */
     public function getIconHtml(): ?string;
+
 
     /**
      * Sets the HTML for the tooltip icon, if used
@@ -119,12 +129,14 @@ interface TooltipInterface extends ElementInterface
      */
     public function setIconHtml(?string $icon_html): static;
 
+
     /**
      * Returns if the tooltip should be appended to the specified element
      *
      * @return string|null
      */
     public function getContainer(): ?string;
+
 
     /**
      * Sets if the tooltip should be appended to the specified element
@@ -135,6 +147,7 @@ interface TooltipInterface extends ElementInterface
      */
     public function setContainer(?string $container): static;
 
+
     /**
      * Returns the delay showing and hiding the tooltip (ms)
      *
@@ -142,6 +155,7 @@ interface TooltipInterface extends ElementInterface
      * @return int|null
      */
     public function getDelay(): ?int;
+
 
     /**
      * Sets the delay showing and hiding the tooltip (ms)
@@ -154,12 +168,14 @@ interface TooltipInterface extends ElementInterface
      */
     public function setDelay(?int $delay): static;
 
+
     /**
      * Returns if the tooltip may contain HTML or plain text
      *
      * @return bool
      */
     public function getHtml(): bool;
+
 
     /**
      * Sets if the tooltip may contain HTML or plain text
@@ -170,6 +186,7 @@ interface TooltipInterface extends ElementInterface
      */
     public function setHtml(bool $html): static;
 
+
     /**
      * Returns the positioning the tooltip - auto | top | bottom | left | right.
      *
@@ -177,6 +194,7 @@ interface TooltipInterface extends ElementInterface
      * @return EnumTooltipPlacementInterface
      */
     public function getPlacement(): EnumTooltipPlacementInterface;
+
 
     /**
      * Sets the positioning the tooltip - auto | top | bottom | left | right.
@@ -189,6 +207,7 @@ interface TooltipInterface extends ElementInterface
      */
     public function setPlacement(EnumTooltipPlacementInterface $placement): static;
 
+
     /**
      * Returns the Base HTML to use when creating the tooltip
      *
@@ -197,6 +216,7 @@ interface TooltipInterface extends ElementInterface
      * @return string
      */
     public function getTemplate(): string;
+
 
     /**
      * Sets the Base HTML to use when creating the tooltip
@@ -207,12 +227,14 @@ interface TooltipInterface extends ElementInterface
      */
     public function setTemplate(string $template): static;
 
+
     /**
      * Returns the offset of the tooltip relative to its target
      *
      * @return int|null
      */
     public function getOffset(): ?int;
+
 
     /**
      * Sets the offset of the tooltip relative to its target
@@ -223,6 +245,7 @@ interface TooltipInterface extends ElementInterface
      */
     public function setOffset(?int $delay): static;
 
+
     /**
      * Returns the overflow constraint boundary of the tooltip
      *
@@ -230,6 +253,7 @@ interface TooltipInterface extends ElementInterface
      * @return EnumTooltipBoundaryInterface|string
      */
     public function getBoundary(): EnumTooltipBoundaryInterface|string;
+
 
     /**
      * Sets the overflow constraint boundary of the tooltip
@@ -242,6 +266,7 @@ interface TooltipInterface extends ElementInterface
      */
     public function setBoundary(EnumTooltipBoundaryInterface|string $boundary): static;
 
+
     /**
      * "Renders" the tooltip by injecting data-tooltip
      *
@@ -250,6 +275,7 @@ interface TooltipInterface extends ElementInterface
      * @return string|null
      */
     public function render(?string $render = null): ?string;
+
 
     /**
      * Sets the source element to which this tooltip is bound, if any

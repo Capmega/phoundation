@@ -13,7 +13,6 @@ use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\Timezones\Timezone;
 
-
 /**
  * Class City
  *
@@ -28,7 +27,6 @@ use Phoundation\Geo\Timezones\Timezone;
 class City extends DataEntry
 {
     use TraitDataEntryNameDescription;
-
 
     /**
      * Returns the table name used by this object
@@ -126,7 +124,6 @@ class City extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions;
-
 //        throw new UnderConstructionException();
 //
 //        $data = $validator
@@ -144,6 +141,5 @@ class City extends DataEntry
 //        }
 //
 //        return $data;
-
     }
 }

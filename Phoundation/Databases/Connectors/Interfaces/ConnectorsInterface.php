@@ -6,7 +6,6 @@ namespace Phoundation\Databases\Connectors\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 
-
 /**
  * Interface SqlConnectorsInterface
  *

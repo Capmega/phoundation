@@ -8,7 +8,6 @@ use Phoundation\Data\Traits\TraitDataDataEntryClass;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Throwable;
 
-
 /**
  * Class ValidationFailedException
  *
@@ -24,7 +23,6 @@ class ValidationFailedException extends ValidatorException implements Validation
     use TraitDataDataEntryClass {
         setDataEntryClass as setDataEntryClassDirect;
     }
-
 
     /**
      * Class ValidationFailedException constructor
@@ -54,6 +52,7 @@ class ValidationFailedException extends ValidatorException implements Validation
         return $this;
     }
 
+
     /**
      * Applies labels to keys to improve validation exception labels
      *
@@ -68,16 +67,16 @@ class ValidationFailedException extends ValidatorException implements Validation
             $definitions      = $data_entry_class->getDefinitions();
             $data             = $this->data;
             $this->data       = [];
-
             // Create a new exception data array with labels instead of keys
             foreach ($data as $key => $value) {
-                $label = $definitions->get($key)->getLabel() ?? $key;
+                $label = $definitions->get($key)
+                                     ->getLabel() ?? $key;
                 $value = str_replace($key, $label, $value);
-
                 $this->data[$label] = $value;
             }
         }
     }
+
 
     /**
      * @inheritDoc

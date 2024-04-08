@@ -9,7 +9,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
-
 /**
  * Class Js
  *
@@ -61,15 +60,12 @@ class Js
                 ':files' => $files,
             ]));
         }
-
         $config = &$_CONFIG['cdn']['js'];
-
         foreach (Arrays::force($files) as $file) {
             if (str_contains($file, '://')) {
                 // Compatibility code: ALL LOCAL JS FILES SHOULD ALWAYS BE SPECIFIED WITHOUT .js OR .min.js!!
                 if (str_ends_with($file, '.js')) {
                     $file = substr($file, 0, -3);
-
                     Notification::new()
                                 ->setUrl('developer/incidents.html')
                                 ->setMode(EnumDisplayMode::exception)
@@ -81,7 +77,6 @@ class Js
 
                 } elseif (str_ends_with($file, '.min.js')) {
                     $file = substr($file, 0, -7);
-
                     Notification::new()
                                 ->setMode(EnumDisplayMode::exception)
                                 ->setUrl('developer/incidents.html')
@@ -92,29 +87,24 @@ class Js
                                 ->send();
                 }
             }
-
             // Determine if this file should be delayed loaded or not
             switch (substr($file, 0, 1)) {
                 case '<':
                     $file    = substr($file, 1);
                     $delayed = false;
                     break;
-
                 case '>':
                     $file    = substr($file, 1);
                     $delayed = true;
                     break;
-
                 default:
                     $delayed = $config['load_delayed'];
             }
-
             // Determine if this file should be async or not
             $async = match (substr($file, -1, 1)) {
                 '&'     => true,
                 default => false,
             };
-
             // Register the file to be loaded
             if ($delayed) {
                 $core->register['js_footer' . ($list ? '_' . $list : '')][$file] = $async;
@@ -123,7 +113,6 @@ class Js
                 $core->register['js_header' . ($list ? '_' . $list : '')][$file] = $async;
             }
         }
-
         unset($config);
     }
 

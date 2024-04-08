@@ -8,7 +8,6 @@ use DateTimeInterface;
 use DateTimeZone;
 use Phoundation\Date\DateTime;
 
-
 /**
  * Trait TraitDataStartDateTime
  *

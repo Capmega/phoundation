@@ -18,7 +18,6 @@ use Phoundation\Web\Html\Enums\EnumWebRenderMethods;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Requests\Response;
 
-
 /**
  * TreeViewer class
  *
@@ -34,7 +33,6 @@ class TreeViewer extends Widget
     use TraitDataUrl;
     use TraitDataRenderMethod;
 
-
     /**
      * ProfileImage class constructor
      *
@@ -43,7 +41,6 @@ class TreeViewer extends Widget
     public function __construct(?string $content = null)
     {
         parent::__construct();
-
         if ($content) {
             $this->setSource($content);
         }
@@ -61,13 +58,11 @@ class TreeViewer extends Widget
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
         $source = get_null($source);
-
         if ($source) {
             if (is_string($source)) {
                 // This must be a JSON source, try to decode it.
                 $source = Json::decode($source);
             }
-
             if (!is_array($source) and !($source instanceof TreeInterface)) {
                 // This is not a valid source
                 throw OutOfBoundsException::new(tr('Cannot use specified source for TreeViewer object, source must be an array or a TreeInterface object'))
@@ -87,9 +82,7 @@ class TreeViewer extends Widget
         if (!$this->getId()) {
             throw new OutOfBoundsException(tr('Cannot render tree viewer, no HTML id specified'));
         }
-
         Response::loadJavascript('mdb/plugins/js/treeview.min');
-
         if ($this->render_method === EnumWebRenderMethods::html) {
             // Render the tree-view using pure HTML
             return Div::new()
@@ -97,19 +90,23 @@ class TreeViewer extends Widget
                       ->setContent($this->renderHtml($this->source))
                       ->addClass('treeview')
                       ->addData(null, 'mdb-treeview-init')
-                      ->render() .
-                Script::new('$("#' . $this->getId() . '").treeview()')->render();
+                      ->render() . Script::new('$("#' . $this->getId() . '").treeview()')
+                                         ->render();
         }
 
         // Render the tree-view using javascript data
-        return Div::new()->setId($this->getId())->addClass('treeview')->render() .
-            Script::new('
+        return Div::new()
+                  ->setId($this->getId())
+                  ->addClass('treeview')
+                  ->render() . Script::new('
              const jsTreeview = document.getElementById("' . $this->getId() . '");
              const jsInstance = new Treeview(jsTreeview, {
-               structure: ' . Tree::new($this->source)->getJson(true) . ',
+               structure: ' . Tree::new($this->source)
+                                  ->getJson(true) . ',
              });
              // Fix issue where sub trees are missing the "collapse" class at first load
-             $("div.tree-view li[role=\'tree-item\'] ul:not(.collapse)").addClass("collapse")')->render();
+             $("div.tree-view li[role=\'tree-item\'] ul:not(.collapse)").addClass("collapse")')
+                                     ->render();
     }
 
 
@@ -124,14 +121,13 @@ class TreeViewer extends Widget
     protected function renderHtml(array $source, bool $child = false): string
     {
         $return = '<ul' . ($child ? ' class="collapse"' : '') . '>';
-
         foreach ($source as $key => $value) {
             if (is_array($value)) {
                 $return .= '<li><a class="not-a-link">' . $key . '</a>' . $this->renderHtml($value, true) . '</li>';
 
             } else {
                 if ($this->url) {
-                    $url    = str_replace(':ID', (string)$key, $this->url);
+                    $url    = str_replace(':ID', (string) $key, $this->url);
                     $return .= '<li><a href="' . $url . '">' . Html::safe($value) . '</a></li>';
                 } else {
                     $return .= '<li>' . $value . '</li>';

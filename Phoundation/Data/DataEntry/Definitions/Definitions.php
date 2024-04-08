@@ -13,7 +13,6 @@ use Phoundation\Data\Traits\TraitDataTable;
 use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
-
 /**
  * Class Definitions
  *
@@ -32,7 +31,6 @@ class Definitions extends Iterator implements DefinitionsInterface
         getPrefix as getColumnPrefix;
         setPrefix as setColumnPrefix;
     }
-
 
     /**
      * Tracks if meta-information can be visible or not
@@ -59,7 +57,6 @@ class Definitions extends Iterator implements DefinitionsInterface
                 ':value' => $value,
             ]));
         }
-
         if ($this->prefix) {
             $value->setColumn($this->prefix . $value->getColumn());
         }
@@ -78,6 +75,7 @@ class Definitions extends Iterator implements DefinitionsInterface
         return current($this->source);
     }
 
+
     /**
      * Returns the specified column
      *
@@ -90,8 +88,10 @@ class Definitions extends Iterator implements DefinitionsInterface
     public function renameKey(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): DefinitionInterface
     {
         // Rename Definition in Iterator and Definition object itself
-        return parent::renameKey($key, $target, $exception)->setColumn($target);
+        return parent::renameKey($key, $target, $exception)
+                     ->setColumn($target);
     }
+
 
     /**
      * Direct method to hide entries
@@ -103,9 +103,12 @@ class Definitions extends Iterator implements DefinitionsInterface
      */
     public function hide(Stringable|string|float|int $key, bool $exception = true): static
     {
-        $this->get($key, $exception)->setHidden(true);
+        $this->get($key, $exception)
+             ->setHidden(true);
+
         return $this;
     }
+
 
     /**
      * Returns the specified column
@@ -120,6 +123,7 @@ class Definitions extends Iterator implements DefinitionsInterface
         return parent::get($key, $exception);
     }
 
+
     /**
      * Direct method to show entries
      *
@@ -130,7 +134,9 @@ class Definitions extends Iterator implements DefinitionsInterface
      */
     public function show(Stringable|string|float|int $key, bool $exception = true): static
     {
-        $this->get($key, $exception)->setHidden(false);
+        $this->get($key, $exception)
+             ->setHidden(false);
+
         return $this;
     }
 
@@ -156,6 +162,7 @@ class Definitions extends Iterator implements DefinitionsInterface
     public function setMetaVisible(bool $meta_visible): static
     {
         $this->meta_visible = $meta_visible;
+
         return $this;
     }
 

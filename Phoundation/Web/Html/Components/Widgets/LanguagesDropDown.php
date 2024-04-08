@@ -9,7 +9,6 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
-
 /**
  * LanguagesDropDown class
  *
@@ -36,6 +35,7 @@ class LanguagesDropDown extends ElementsBlock
      */
     protected Stringable|string|null $settings_url = null;
 
+
     /**
      * Returns the languages page URL
      *
@@ -45,6 +45,7 @@ class LanguagesDropDown extends ElementsBlock
     {
         return $this->settings_url;
     }
+
 
     /**
      * Sets the settings page URL
@@ -56,8 +57,10 @@ class LanguagesDropDown extends ElementsBlock
     public function setSettingsUrl(Stringable|string|null $settings_url): static
     {
         $this->settings_url = UrlBuilder::getWww($settings_url);
+
         return $this;
     }
+
 
     /**
      * @inheritDoc
@@ -66,12 +69,16 @@ class LanguagesDropDown extends ElementsBlock
      */
     public function render(): ?string
     {
-        if ($this->getLanguages()?->getCount()) {
+        if (
+            $this->getLanguages()
+                 ?->getCount()
+        ) {
             return parent::render();
         }
 
         return null;
     }
+
 
     /**
      * Returns the languages object
@@ -83,6 +90,7 @@ class LanguagesDropDown extends ElementsBlock
         return $this->languages;
     }
 
+
     /**
      * Sets the languages object
      *
@@ -93,6 +101,7 @@ class LanguagesDropDown extends ElementsBlock
     public function setLanguages(?Languages $languages): static
     {
         $this->languages = $languages;
+
         return $this;
     }
 }

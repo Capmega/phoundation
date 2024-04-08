@@ -10,7 +10,6 @@ use Phoundation\Filesystem\Path;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
 
-
 /**
  * Trait TraitGitProcess
  *
@@ -25,13 +24,20 @@ trait TraitGitProcess
 {
     use TraitNewSource;
 
-
     /**
      * The directory that will be checked
      *
      * @var string $directory
      */
     protected string $directory;
+
+    /**
+     * The git process
+     *
+     * @var ProcessInterface $git_process
+     */
+    protected ProcessInterface $git_process;
+
 
     /**
      * Returns the directory for this ChangedFiles object
@@ -45,14 +51,6 @@ trait TraitGitProcess
 
 
     /**
-     * The git process
-     *
-     * @var ProcessInterface $git_process
-     */
-    protected ProcessInterface $git_process;
-
-
-    /**
      * Returns the directory for this ChangedFiles object
      *
      * @param string $directory
@@ -62,8 +60,8 @@ trait TraitGitProcess
     public function setDirectory(string $directory): static
     {
         $this->directory   = Path::getAbsolute($directory);
-        $this->git_process = Process::new('git')->setExecutionDirectory($this->directory);
-
+        $this->git_process = Process::new('git')
+                                    ->setExecutionDirectory($this->directory);
         if (!$this->directory) {
             if (!file_exists($directory)) {
                 throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [

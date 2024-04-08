@@ -11,7 +11,6 @@ use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Config;
 
-
 /**
  * Connectors class
  *
@@ -42,6 +41,7 @@ class Connectors extends DataList implements ConnectorsInterface
         return 'databases_connectors';
     }
 
+
     /**
      * @inheritDoc
      */
@@ -49,6 +49,7 @@ class Connectors extends DataList implements ConnectorsInterface
     {
         return Connector::class;
     }
+
 
     /**
      * @inheritDoc
@@ -82,11 +83,10 @@ class Connectors extends DataList implements ConnectorsInterface
                 throw $e;
             }
         }
-
         // Get connectors from the configuration
-        $connectors = Config::getArray(Connector::new()->getConfigPath());
+        $connectors = Config::getArray(Connector::new()
+                                                ->getConfigPath());
         $count      = 0;
-
         // Load all connectors by type
         foreach ($connectors as $name => &$connector) {
             if (!is_array($connector)) {
@@ -94,17 +94,14 @@ class Connectors extends DataList implements ConnectorsInterface
                     ':connector' => $name,
                 ]));
             }
-
             if (empty($connector['driver'])) {
                 throw new DatabasesConnectorException(tr('Invalid configuration encountered for connector ":connector", it has no type specified', [
                     ':connector' => $name,
                 ]));
             }
-
             $connector['id']       = --$count;
             $connector['name']     = $name;
             $connector['seo_name'] = Seo::string($name);
-
             $this->source[$count] = Connector::newFromSource($connector, true);
         }
 

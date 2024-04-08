@@ -2,7 +2,6 @@
 
 namespace Phoundation\Web\Html\Components\Interfaces;
 
-
 /**
  * interface SpanInterface
  *
@@ -21,6 +20,7 @@ interface SpanInterface extends ElementInterface
      * @return ElementInterface|null
      */
     public function getChildElement(): ?ElementInterface;
+
 
     /**
      * Sets the parent for this anchor

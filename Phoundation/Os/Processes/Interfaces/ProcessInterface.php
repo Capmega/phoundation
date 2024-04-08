@@ -6,7 +6,6 @@ namespace Phoundation\Os\Processes\Interfaces;
 
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 
-
 /**
  * Interface ProcessCore
  *
@@ -31,6 +30,7 @@ interface ProcessInterface extends ProcessCoreInterface
      * @return static
      */
     public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static;
+
 
     /**
      * Set the command to be executed for this process

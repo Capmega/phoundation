@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class InputSelectSubmit
  *
@@ -52,7 +51,6 @@ class InputSelectSubmit extends InputSelect
         array_default($params, 'autosubmit', true);
         array_default($params, 'none', tr('Select action'));
         array_default($params, 'buttons', []);
-
         /*
          * Build the html_select resource from the buttons
          */
@@ -68,17 +66,14 @@ class InputSelectSubmit extends InputSelect
                 if (is_numeric($key)) {
                     $key = $value;
                 }
-
                 $params['resource'][$key] = $value;
             }
 
         } else {
             $type = gettype($params['buttons']);
-
             if ($type === 'object') {
                 $type .= tr(' of class :class', [':class' => get_class($params['buttons'])]);
             }
-
             throw new HtmlException(tr('Invalid data type specified for params "buttons", it should be an array or PDO statement object, but it is an ":type"', [
                 ':type' => $type,
             ]));

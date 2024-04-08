@@ -13,7 +13,6 @@ use Phoundation\Utils\Strings;
 use Plugins\Hardware\Devices\Interfaces\ProfileInterface;
 use Plugins\Scanners\Exception\ScannersException;
 
-
 /**
  * Class ScanImage
  *
@@ -27,7 +26,6 @@ use Plugins\Scanners\Exception\ScannersException;
 class ScanImage extends Command
 {
     use TraitDataBatch;
-
 
     /**
      * The command line options used to scan
@@ -51,21 +49,17 @@ class ScanImage extends Command
      */
     public function listDevices(): array
     {
-        $output = $this
-            ->setCommand('scanimage')
-            ->addArguments([
-                               '--formatted-device-list',
-                               '%d^^^%v^^^%m^^^%t^^^%i%n',
-                           ])
-            ->setTimeout(120)
-            ->executeReturnArray();
-
+        $output = $this->setCommand('scanimage')
+                       ->addArguments([
+                           '--formatted-device-list',
+                           '%d^^^%v^^^%m^^^%t^^^%i%n',
+                       ])
+                       ->setTimeout(120)
+                       ->executeReturnArray();
         // Parse the output
         $return = [];
-
         foreach ($output as $line) {
             $line = explode('^^^', $line);
-
             $return[$line[0]] = [
                 'device' => $line[0],
                 'vendor' => $line[1],
@@ -77,6 +71,7 @@ class ScanImage extends Command
 
         return $return;
     }
+
 
     /**
      * Returns a list of all available hardware devices
@@ -94,7 +89,6 @@ class ScanImage extends Command
             'category'    => null,
             'description' => '',
         ];
-
         // Parse scanimage options output
         foreach ($output as $line) {
             if (preg_match_all('/^([a-z]+):$/i', $line, $matches)) {
@@ -106,42 +100,33 @@ class ScanImage extends Command
                 if (isset($entry['key']) and $entry['description']) {
                     // Add the option entry, make a new entry
                     $entry['description'] = trim($entry['description']);
-
                     $return[] = $entry;
-
                     $entry = [
                         'category'    => $entry['category'],
                         'description' => '',
                     ];
                 }
-
                 $section = $matches[1][0];
-
                 // Parse the options line, first get the key
                 preg_match_all('/^(--?[a-z0-9-]+)/', $section, $matches);
                 $entry['key'] = $matches[1][0];
-
                 // Remove the key from the section we're working on
                 $section = Strings::from($section, $entry['key']);
                 $section = trim($section);
-
                 if (preg_match_all('/^([0-9-.]+\.\.[0-9-.]+)([a-z%]+)?\s+/', $section, $matches)) {
                     // This contains a range
                     $entry['range'] = str_replace('..', '...', $matches[1][0]);
                     $entry['units'] = $matches[2][0];
-
                     $section = Strings::from($section, $matches[0][0]);
 
                 } elseif (preg_match_all('/^\[=\((.+?)\)]/', $section, $matches)) {
                     // This option contains a list of possible values
                     $entry['values'] = str_replace('|', ',', trim($matches[1][0]));
-
                     $section = Strings::from($section, $matches[0][0]);
 
                 } elseif (preg_match_all('/^([0-9a-z ]+\|?)+/i', $section, $matches)) {
                     // This option contains for list of values
                     $entry['values'] = explode('|', trim($matches[0][0]));
-
                     foreach ($entry['values'] as &$value) {
                         // Values must be EITHER numeric OR alphanumeric, not both
                         if (!preg_match('/^[0-9.]+$/', $value) and !preg_match('/^[a-z ]+$/i', $value)) {
@@ -153,16 +138,13 @@ class ScanImage extends Command
                             } else {
                                 // Wut?
                                 $value = null;
-
                                 Log::warning(tr('Failed to parse options section found in line ":line", ignoring', [
                                     ':line' => $line,
                                 ]));
                             }
                         }
                     }
-
                     unset($value);
-
                     $entry['values'] = implode(',', $entry['values']);
                     $section         = Strings::from($section, $matches[0][0]);
 
@@ -171,16 +153,13 @@ class ScanImage extends Command
                         ':line' => $line,
                     ]));
                 }
-
                 // Remove "advanced" indicator, we don't care
                 $section = str_replace('[advanced]', '', $section);
                 $section = trim($section);
-
                 // Get comments
                 if (preg_match_all('/\(([a-z0-9-_ .,]+)\)/', $section, $matches)) {
                     $entry['comments'] = $matches[1][0];
                 }
-
                 // Get default
                 preg_match_all('/\[(.+?)]/', $section, $matches);
                 $entry['default'] = $matches[1][0];
@@ -190,7 +169,6 @@ class ScanImage extends Command
                 $entry['description'] .= $line . ' ';
             }
         }
-
         // We may have a last entry left, add it too
         if (isset($entry['key']) and $entry['description']) {
             // Add the option entry, make a new entry
@@ -200,6 +178,7 @@ class ScanImage extends Command
 
         return $return;
     }
+
 
     /**
      * Loads the options through the scanimage command
@@ -215,66 +194,56 @@ class ScanImage extends Command
         while (--$tries > 0) {
             $skip   = true;
             $return = [];
-
             if (TEST) {
                 // Get test options
                 $output = $this->getTestOptions();
 
             } else {
                 // Get real options
-                $output = $this
-                    ->setCommand('scanimage')
-                    ->addArguments([
-                                       '--help',
-                                       '--device-name',
-                                       $device,
-                                   ])
-                    ->setTimeout(120)
-                    ->executeReturnArray();
+                $output = $this->setCommand('scanimage')
+                               ->addArguments([
+                                   '--help',
+                                   '--device-name',
+                                   $device,
+                               ])
+                               ->setTimeout(120)
+                               ->executeReturnArray();
             }
-
             // Pre-parse output
             foreach ($output as $line) {
                 $line = trim($line);
-
                 if (!$line) {
                     continue;
                 }
-
                 if (str_contains($line, 'failed: Invalid argument')) {
                     Log::warning(tr('Failed to find device ":device", retrying as "scanimage" sometimes fails to find the device', [
                         ':device' => $device,
-                    ]),          4);
+                    ]), 4);
                     break;
                 }
-
                 if (str_contains($line, 'Options specific to device')) {
                     // Here we start with device options
                     $skip = false;
                     continue;
                 }
-
                 if (str_contains($line, 'to get list of all options for DEVICE.')) {
                     // Done!
                     break;
                 }
-
                 if ($skip) {
                     continue;
                 }
-
                 $return[] = $line;
             }
-
             if (!$skip) {
                 return $return;
             }
         }
-
         throw new ScannersException(tr('Failed to load device options for scanner device ":device", it may not exist', [
             ':device' => $device,
         ]));
     }
+
 
     /**
      * Returns test device options
@@ -408,6 +377,7 @@ class ScanImage extends Command
         return Arrays::force($output, PHP_EOL);
     }
 
+
     /**
      * Returns the profile used to scan images
      *
@@ -420,6 +390,7 @@ class ScanImage extends Command
         return $this->profile;
     }
 
+
     /**
      * Applies the specified scanner profile to this ScanImage object so that the scan() call knows what to do
      *
@@ -430,8 +401,10 @@ class ScanImage extends Command
     public function setProfile(ProfileInterface $profile): static
     {
         $this->profile = $profile;
+
         return $this;
     }
+
 
     /**
      * Returns the command line options
@@ -442,6 +415,7 @@ class ScanImage extends Command
     {
         return $this->options;
     }
+
 
     /**
      * Sets  the command line options directly instead of through a profile
@@ -454,8 +428,10 @@ class ScanImage extends Command
     public function setCommandLineOptions(?array $options): static
     {
         $this->options = $options;
+
         return $this;
     }
+
 
     /**
      * Applies the specified profile
@@ -467,20 +443,19 @@ class ScanImage extends Command
     public function applyProfile(ProfileInterface $profile): static
     {
         $this->options = [];
-
         foreach ($profile->getOptions() as $option) {
             if (!$option->getValue()) {
                 // Only apply options that have a value
                 continue;
             }
-
             $this->options[] = $option->getKey();
             $this->options[] = $option->getValue() . $option->getUnits();
         }
-
         $this->profile = $profile;
+
         return $this;
     }
+
 
     /**
      * Execute the configured scan
@@ -495,12 +470,12 @@ class ScanImage extends Command
         if (empty($this->profile)) {
             throw new ScannersException(tr('Cannot execute document scan, no profile specified'));
         }
-
         $this->setCommand('scanimage')
              ->addArguments([
-                                '-d',
-                                $this->profile->getDevice()->getUrl(),
-                            ])
+                 '-d',
+                 $this->profile->getDevice()
+                               ->getUrl(),
+             ])
              ->addArguments($this->options)
              ->addArguments($this->batch ? ['--batch=' . $path] : [
                  '-o',

@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-
 /**
  * Trait TraitDataEntryGender
  *
@@ -29,6 +28,7 @@ trait TraitDataEntryGender
         'o'      => 'other',
         'x'      => 'other',
     ];
+
 
     /**
      * Returns the gender for this object

@@ -13,7 +13,6 @@ use Phoundation\Filesystem\Mounts\Mounts;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Stringable;
 
-
 /**
  * Class Mount
  *
@@ -28,13 +27,13 @@ class UnMount extends Command
 {
     use TraitDataForce;
 
-
     /**
      * Sets if lazy should be used
      *
      * @var bool $lazy
      */
     protected bool $lazy = false;
+
 
     /**
      * Mount class constructor
@@ -49,6 +48,7 @@ class UnMount extends Command
         $this->packages->addForOperatingSystem('debian', 'nfs-utils,cifs-utils,psmisc');
     }
 
+
     /**
      * Returns if lazy should be used
      *
@@ -58,6 +58,7 @@ class UnMount extends Command
     {
         return $this->lazy;
     }
+
 
     /**
      * Sets if lazy should be used
@@ -69,8 +70,10 @@ class UnMount extends Command
     public function setLazy(bool $lazy): static
     {
         $this->lazy = $lazy;
+
         return $this;
     }
+
 
     /**
      * Unmount the specified target
@@ -85,7 +88,6 @@ class UnMount extends Command
         if (Mount::isSource($target, false)) {
             // This is a mount source. Unmount all its targets
             $targets = Mounts::listMountTargets($target);
-
             foreach ($targets as $target) {
                 static::unmount($target);
             }
@@ -96,15 +98,14 @@ class UnMount extends Command
                     ':target' => $target,
                 ]));
             }
-
-            Hook::new('phoundation')->execute('file-system/unmount', [
-                'source'      => $source,
-                'target'      => $target,
-                'file-system' => $target,
-                'options'     => $target,
-                'timeout'     => $timeout,
-            ]);
-
+            Hook::new('phoundation')
+                ->execute('file-system/unmount', [
+                    'source'      => $source,
+                    'target'      => $target,
+                    'file-system' => $target,
+                    'options'     => $target,
+                    'timeout'     => $timeout,
+                ]);
             // Build the process parameters, then execute
             try {
                 $this->clearArguments()
@@ -120,13 +121,13 @@ class UnMount extends Command
                 if (!$e->dataContains('device is busy', key: 'output')) {
                     throw $e;
                 }
-
-                $processes = Lsof::new()->getForFile($target);
-
+                $processes = Lsof::new()
+                                 ->getForFile($target);
                 // The device is busy. Check by who and add it to the exception
                 throw UnmountBusyException::new(tr('Cannot unmount target ":target", it is busy', [
                     ':target' => $target,
-                ]))->addData(['processes' => $processes]);
+                ]))
+                                          ->addData(['processes' => $processes]);
             }
         }
     }

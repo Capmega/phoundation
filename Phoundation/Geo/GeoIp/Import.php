@@ -8,7 +8,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Config;
 
-
 /**
  * Importer class
  *
@@ -44,8 +43,8 @@ class Import extends \Phoundation\Developer\Project\Import
     {
         $provider  = static::getProvider();
         $directory = $provider->download();
-
         $provider->process($directory);
+
         return 0;
     }
 
@@ -60,14 +59,11 @@ class Import extends \Phoundation\Developer\Project\Import
     public static function getProvider(?string $provider = null): static
     {
         $provider = Config::get('geo.ip.provider', null, $provider);
-
         switch ($provider) {
             case 'maxmind':
                 return new MaxMindImport();
-
             case 'ip2location':
                 throw new UnderConstructionException();
-
             default:
                 throw new OutOfBoundsException(tr('Unknown GeoIP provider ":provider" specified', [
                     ':provider' => $provider,

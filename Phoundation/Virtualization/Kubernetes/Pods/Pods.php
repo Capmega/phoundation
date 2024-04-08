@@ -8,16 +8,15 @@ use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
 
-
 /**
  * Class Pods
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Virtualization
+ * @package   Phoundation\Virtualization
  */
 class Pods extends KubernetesObjects
 {
@@ -28,7 +27,6 @@ class Pods extends KubernetesObjects
     {
         $this->kind        = 'Pod';
         $this->get_command = 'pods';
-
         parent::__construct($source);
     }
 }

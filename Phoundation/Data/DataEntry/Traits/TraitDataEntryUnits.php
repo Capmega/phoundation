@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Stringable;
 
-
 /**
  * Trait TraitDataEntryUnits
  *
@@ -39,6 +38,6 @@ trait TraitDataEntryUnits
      */
     public function setUnits(Stringable|string|null $units): static
     {
-        return $this->setValue('units', (string)$units);
+        return $this->setValue('units', (string) $units);
     }
 }

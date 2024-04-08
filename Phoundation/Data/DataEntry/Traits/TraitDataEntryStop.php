@@ -7,7 +7,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 
-
 /**
  * Trait TraitDataEntryStop
  *

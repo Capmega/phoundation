@@ -8,7 +8,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Exception\UnderConstructionException;
 
-
 /**
  * class Database
  *
@@ -42,6 +41,7 @@ class Database extends SchemaAbstract
      */
     protected array $tables = [];
 
+
     /**
      * Returns the database name
      *
@@ -51,6 +51,7 @@ class Database extends SchemaAbstract
     {
         return $this->sql->getDatabase();
     }
+
 
     /**
      * Sets the database name
@@ -66,6 +67,7 @@ class Database extends SchemaAbstract
         throw new UnderConstructionException();
     }
 
+
     /**
      * Create this database
      *
@@ -80,21 +82,19 @@ class Database extends SchemaAbstract
                 ':name' => $this->sql->getDatabase(),
             ]));
         }
-
         Log::action(tr('Creating database ":database"', [':database' => $this->sql->getDatabase()]));
-
         // This query can only partially use bound variables!
         $this->sql->query('CREATE DATABASE `' . $this->sql->getDatabase() . '` DEFAULT CHARSET=:charset COLLATE=:collate', [
             ':charset' => $this->configuration['charset'],
             ':collate' => $this->configuration['collate'],
         ]);
-
         if ($use) {
             $this->sql->use($this->sql->getDatabase());
         }
 
         return $this;
     }
+
 
     /**
      * Returns if the database exists in the database or not
@@ -104,8 +104,9 @@ class Database extends SchemaAbstract
     public function exists(): bool
     {
         // If this query returns nothing, the database does not exist. If it returns anything, it does exist.
-        return (bool)sql()->get('SHOW DATABASES LIKE :name', [':name' => $this->sql->getDatabase()]);
+        return (bool) sql()->get('SHOW DATABASES LIKE :name', [':name' => $this->sql->getDatabase()]);
     }
+
 
     /**
      * Use the specified database name
@@ -117,8 +118,10 @@ class Database extends SchemaAbstract
     protected function use(string $name): static
     {
         $this->sql->use($name);
+
         return $this;
     }
+
 
     /**
      * Drop this database
@@ -131,11 +134,12 @@ class Database extends SchemaAbstract
         Log::warning(tr('Dropping database ":database" for SQL instance ":instance"', [
             ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase(),
-        ]),          5);
-
+        ]), 5);
         $this->sql->query('DROP DATABASE IF EXISTS `' . $this->sql->getDatabase() . '`');
+
         return $this;
     }
+
 
     /**
      * Access a new Table object for the currently selected database
@@ -179,6 +183,7 @@ class Database extends SchemaAbstract
     public function rename(): static
     {
         $tables = $this->tables();
+
         //$ mysql -u dbUsername -p"dbPassword" oldDatabase -sNe 'show tables' | while read table; do mysql -u dbUsername -p"dbPassword" -sNe "RENAME TABLE oldDatabase.$table TO newDatabase.$table"; done
         return $this;
     }

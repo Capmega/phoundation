@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataForce
  *
@@ -46,6 +45,7 @@ trait TraitDataForce
     public function setForce(bool $force): static
     {
         $this->force = $force;
+
         return $this;
     }
 }

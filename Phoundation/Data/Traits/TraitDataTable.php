@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 /**
  * Trait TraitDataTable
  *
@@ -46,6 +45,7 @@ trait TraitDataTable
     public function setTable(?string $table): static
     {
         $this->table = $table;
+
         return $this;
     }
 }

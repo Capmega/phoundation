@@ -6,7 +6,6 @@ namespace Phoundation\Content\Interfaces;
 
 use Phoundation\Filesystem\Interfaces\FileInterface;
 
-
 /**
  * Class View
  *

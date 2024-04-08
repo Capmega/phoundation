@@ -4,7 +4,6 @@ namespace Phoundation\Web\Requests;
 
 use Phoundation\Web\Requests\Interfaces\SystemResponseInterface;
 
-
 /**
  * Class SystemResponse
  *

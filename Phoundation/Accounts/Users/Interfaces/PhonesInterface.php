@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 
-
 /**
  * interface PhonesInterface
  *
@@ -30,6 +29,7 @@ interface PhonesInterface extends DataListInterface
      * @return static
      */
     public function setParent(DataEntryInterface $parent): static;
+
 
     /**
      * Returns Phones list object with phones for the specified user.

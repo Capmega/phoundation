@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class InputCheckbox
  *
@@ -28,7 +27,6 @@ class InputCheckbox extends Input
     use TraitInputChecked;
     use TraitInputCheckRadioRender;
 
-
     /**
      * CheckBox class constructor
      *
@@ -39,7 +37,6 @@ class InputCheckbox extends Input
         $this->setElement('input')
              ->setInputType(EnumElementInputType::checkbox)
              ->setValue(1);
-
         parent::__construct($content);
     }
 }

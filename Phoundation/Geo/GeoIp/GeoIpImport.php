@@ -7,7 +7,6 @@ namespace Phoundation\Geo\GeoIp;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Stringable;
 
-
 /**
  * GeoIpImport class
  *
@@ -32,6 +31,7 @@ abstract class GeoIpImport extends Import
      * @return Stringable|string
      */
     abstract public static function download(): Stringable|string;
+
 
     /**
      * Process downloaded GeoIP files

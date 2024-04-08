@@ -21,7 +21,6 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryPicture;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 
-
 /**
  * Provider class
  *
@@ -46,7 +45,6 @@ class Provider extends DataEntry
     use TraitDataEntryCategory;
     use TraitDataEntryLanguage;
     use TraitDataEntryNameDescription;
-
 
     /**
      * Returns the table name used by this object
@@ -138,65 +136,64 @@ class Provider extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions
-            ->add(DefinitionFactory::getCategoriesId($this))
-            ->add(DefinitionFactory::getCategory($this))
-            ->add(DefinitionFactory::getCompaniesId($this))
-            ->add(DefinitionFactory::getCompany($this))
-            ->add(DefinitionFactory::getName($this)
-                                   ->addValidationFunction(function (ValidatorInterface $validator) {
-                                       $validator->isFalse(function ($value, $source) {
-                                           Provider::exists($value, 'name', isset_get($source['id']));
-                                       }, tr('already exists'));
-                                   }))
-            ->add(DefinitionFactory::getSeoName($this))
-            ->add(DefinitionFactory::getCode($this))
-            ->add(DefinitionFactory::getEmail($this))
-            ->add(DefinitionFactory::getLanguagesId($this))
-            ->add(DefinitionFactory::getLanguage($this))
-            ->add(Definition::new($this, 'address1')
-                            ->setOptional(true)
-                            ->setCliAutoComplete(true)
-                            ->setCliColumn('--address1 ADDRESS')
-                            ->setMaxlength(64)
-                            ->setSize(12)
-                            ->setLabel(tr('Address 1'))
-                            ->setHelpText(tr('Address information for this provider')))
-            ->add(Definition::new($this, 'address2')
-                            ->setOptional(true)
-                            ->setCliAutoComplete(true)
-                            ->setCliColumn('--address2 ADDRESS')
-                            ->setMaxlength(64)
-                            ->setSize(12)
-                            ->setLabel(tr('Address 2'))
-                            ->setHelpText(tr('Additional address information for this provider')))
-            ->add(Definition::new($this, 'address3')
-                            ->setOptional(true)
-                            ->setCliAutoComplete(true)
-                            ->setCliColumn('--address3 ADDRESS')
-                            ->setMaxlength(64)
-                            ->setSize(12)
-                            ->setLabel(tr('Address 3'))
-                            ->setHelpText(tr('Additional address information for this provider')))
-            ->add(Definition::new($this, 'zipcode')
-                            ->setOptional(true)
-                            ->setCliAutoComplete(true)
-                            ->setCliColumn('--zip-code ZIPCODE (POSTAL CODE)')
-                            ->setMaxlength(8)
-                            ->setSize(6)
-                            ->setLabel(tr('Postal code / Zipcode'))
-                            ->setHelpText(tr('Postal code (zipcode) information for this provider')))
-            ->add(DefinitionFactory::getCountriesId($this))
-            ->add(DefinitionFactory::getCountry($this))
-            ->add(DefinitionFactory::getStatesId($this))
-            ->add(DefinitionFactory::getState($this))
-            ->add(DefinitionFactory::getCitiesId($this))
-            ->add(DefinitionFactory::getCity($this))
-            ->add(DefinitionFactory::getPhones($this))
-            ->add(DefinitionFactory::getUrl($this))
-            ->add(DefinitionFactory::getDescription($this))
-            ->add(Definition::new($this, 'picture')
-                            ->setVirtual(true)
-                            ->setRender(false));
+        $definitions->add(DefinitionFactory::getCategoriesId($this))
+                    ->add(DefinitionFactory::getCategory($this))
+                    ->add(DefinitionFactory::getCompaniesId($this))
+                    ->add(DefinitionFactory::getCompany($this))
+                    ->add(DefinitionFactory::getName($this)
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isFalse(function ($value, $source) {
+                                                   Provider::exists($value, 'name', isset_get($source['id']));
+                                               }, tr('already exists'));
+                                           }))
+                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(DefinitionFactory::getCode($this))
+                    ->add(DefinitionFactory::getEmail($this))
+                    ->add(DefinitionFactory::getLanguagesId($this))
+                    ->add(DefinitionFactory::getLanguage($this))
+                    ->add(Definition::new($this, 'address1')
+                                    ->setOptional(true)
+                                    ->setCliAutoComplete(true)
+                                    ->setCliColumn('--address1 ADDRESS')
+                                    ->setMaxlength(64)
+                                    ->setSize(12)
+                                    ->setLabel(tr('Address 1'))
+                                    ->setHelpText(tr('Address information for this provider')))
+                    ->add(Definition::new($this, 'address2')
+                                    ->setOptional(true)
+                                    ->setCliAutoComplete(true)
+                                    ->setCliColumn('--address2 ADDRESS')
+                                    ->setMaxlength(64)
+                                    ->setSize(12)
+                                    ->setLabel(tr('Address 2'))
+                                    ->setHelpText(tr('Additional address information for this provider')))
+                    ->add(Definition::new($this, 'address3')
+                                    ->setOptional(true)
+                                    ->setCliAutoComplete(true)
+                                    ->setCliColumn('--address3 ADDRESS')
+                                    ->setMaxlength(64)
+                                    ->setSize(12)
+                                    ->setLabel(tr('Address 3'))
+                                    ->setHelpText(tr('Additional address information for this provider')))
+                    ->add(Definition::new($this, 'zipcode')
+                                    ->setOptional(true)
+                                    ->setCliAutoComplete(true)
+                                    ->setCliColumn('--zip-code ZIPCODE (POSTAL CODE)')
+                                    ->setMaxlength(8)
+                                    ->setSize(6)
+                                    ->setLabel(tr('Postal code / Zipcode'))
+                                    ->setHelpText(tr('Postal code (zipcode) information for this provider')))
+                    ->add(DefinitionFactory::getCountriesId($this))
+                    ->add(DefinitionFactory::getCountry($this))
+                    ->add(DefinitionFactory::getStatesId($this))
+                    ->add(DefinitionFactory::getState($this))
+                    ->add(DefinitionFactory::getCitiesId($this))
+                    ->add(DefinitionFactory::getCity($this))
+                    ->add(DefinitionFactory::getPhones($this))
+                    ->add(DefinitionFactory::getUrl($this))
+                    ->add(DefinitionFactory::getDescription($this))
+                    ->add(Definition::new($this, 'picture')
+                                    ->setVirtual(true)
+                                    ->setRender(false));
     }
 }

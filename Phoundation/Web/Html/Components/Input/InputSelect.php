@@ -14,7 +14,6 @@ use Phoundation\Web\Html\Components\ResourceElement;
 use Stringable;
 use Throwable;
 
-
 /**
  * class InputSelect
  *
@@ -103,6 +102,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     public function setKeyColumn(?string $key_column): static
     {
         $this->key_column = $key_column;
+
         return $this;
     }
 
@@ -128,6 +128,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     public function setValueColumn(?string $value_column): static
     {
         $this->value_column = $value_column;
+
         return $this;
     }
 
@@ -160,11 +161,9 @@ class InputSelect extends ResourceElement implements InputSelectInterface
             if (!$this->readonly) {
                 $this->classes->add(true, 'readonly');
             }
-
             if (!$this->disabled) {
                 $this->classes->add(true, 'disabled');
             }
-
             $this->readonly = true;
             $this->disabled = true;
 
@@ -213,6 +212,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         return $this;
     }
 
+
     /**
      * Sets if the select element allows multiple options to be selected
      *
@@ -225,6 +225,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         return $this->setAttribute($multiple, 'multiple');
     }
 
+
     /**
      * Returns if the select element has a search
      *
@@ -232,8 +233,9 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      */
     public function getSearch(): bool
     {
-        return (bool)$this->attributes->get('search', false);
+        return (bool) $this->attributes->get('search', false);
     }
+
 
     /**
      * Sets if the select element has a search
@@ -247,6 +249,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         return $this->setAttribute($search, 'search');
     }
 
+
     /**
      * Returns if the select element has a clear_button
      *
@@ -254,8 +257,9 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      */
     public function getClearButton(): bool
     {
-        return (bool)$this->attributes->get('clear_button', false);
+        return (bool) $this->attributes->get('clear_button', false);
     }
+
 
     /**
      * Sets if the select element has a clear_button
@@ -269,6 +273,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         return $this->setAttribute($clear_button, 'clear_button');
     }
 
+
     /**
      * Returns if the select element has custom_content
      *
@@ -278,6 +283,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     {
         return $this->attributes->get('custom_content', false);
     }
+
 
     /**
      * Sets if the select element has custom_content
@@ -291,6 +297,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         return $this->setAttribute($custom_content, 'custom_content');
     }
 
+
     /**
      * Returns the auto complete setting
      *
@@ -300,6 +307,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     {
         return Strings::toBoolean($this->attributes->get('autocomplete', false));
     }
+
 
     /**
      * Sets the auto complete setting
@@ -313,6 +321,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         return $this->setAttribute($auto_complete ? 'on' : 'off', 'autocomplete');
     }
 
+
     /**
      * Returns if there is only one option, it should automatically be selected
      *
@@ -322,6 +331,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     {
         return $this->auto_select;
     }
+
 
     /**
      * Sets if there is only one option, it should automatically be selected
@@ -333,8 +343,10 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     public function setAutoSelect(bool $auto_select): static
     {
         $this->auto_select = $auto_select;
+
         return $this;
     }
+
 
     /**
      * Enables auto select
@@ -345,8 +357,10 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     public function enableAutoSelect(): static
     {
         $this->auto_select = true;
+
         return $this;
     }
+
 
     /**
      * Disables auto select
@@ -357,8 +371,10 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     public function disableAutoSelect(): static
     {
         $this->auto_select = false;
+
         return $this;
     }
+
 
     /**
      * Clear multiple selected options
@@ -368,8 +384,10 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     public function clearSelected(): static
     {
         $this->selected = [];
+
         return $this;
     }
+
 
     /**
      * Returns the selected option(s)
@@ -380,6 +398,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     {
         return $this->selected;
     }
+
 
     /**
      * Sets multiple selected options
@@ -392,6 +411,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     public function setSelected(array|string|int|null $selected = null, bool $value = false): static
     {
         $this->selected = [];
+
         return $this->addSelected($selected, $value);
     }
 
@@ -411,7 +431,6 @@ class InputSelect extends ResourceElement implements InputSelectInterface
             if (!$this->getMultiple()) {
                 throw new OutOfBoundsException(tr('Cannot add multiple selected values to this select, it is configured to not allow multiples'));
             }
-
             // Add each selected to the list
             foreach (Arrays::force($selected) as $selected) {
                 $this->addSelected($selected, $value);
@@ -424,6 +443,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         return $this;
     }
 
+
     /**
      * Sets if the select element allows multiple options to be selected
      *
@@ -431,8 +451,9 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      */
     public function getMultiple(): bool
     {
-        return (bool)$this->attributes->get('multiple', false);
+        return (bool) $this->attributes->get('multiple', false);
     }
+
 
     /**
      * Clear all multiple class element attributes for option elements
@@ -442,8 +463,10 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     public function clearOptionClasses(): static
     {
         $this->option_classes = [];
+
         return $this;
     }
+
 
     /**
      * Returns the HTML class element attribute for option elements
@@ -455,6 +478,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         return $this->option_classes;
     }
 
+
     /**
      * Adds all multiple class element attributes for option elements
      *
@@ -465,8 +489,10 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     public function setOptionClasses(array|string|null $option_classes): static
     {
         $this->option_classes = [];
+
         return $this->addOptionClasses($option_classes);
     }
+
 
     /**
      * Adds multiple class element attributes for option elements
@@ -484,6 +510,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         return $this;
     }
 
+
     /**
      * Adds an class element attribute for option elements
      *
@@ -494,8 +521,10 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     public function addOptionClass(string $option_class): static
     {
         $this->option_classes[] = $option_class;
+
         return $this;
     }
+
 
     /**
      * Generates and returns the HTML string for only the select body
@@ -515,17 +544,16 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         $return = null;
         $return .= $this->renderBodyQuery();
         $return .= $this->renderBodyArray();
-
         if (!$return) {
             return $this->renderBodyEmpty();
         }
-
         if ($this->none) {
             return '<option' . $this->renderOptionClassString() . $this->renderSelectedString(null, null) . ' value="">' . $this->none . '</option>' . $return;
         }
 
         return $return;
     }
+
 
     /**
      * Generates and returns the HTML string for only the select body for query sources
@@ -545,30 +573,25 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         if (empty($this->source_query)) {
             return null;
         }
-
         if (empty($this->source)) {
             $this->source = new Iterator();
         }
-
         while ($row = $this->source_query->fetch()) {
             if ($this->key_column) {
                 $key = $row[$this->key_column];
             } else {
                 $key = $row[array_key_first($row)];
             }
-
             if ($this->value_column) {
                 $value = $row[$this->value_column];
             } else {
                 $value = $row[array_key_last($row)];
             }
-
             $this->source->add($value, $key);
         }
-
         $this->source_query = null;
-        return null;
 
+        return null;
 //        $return = '';
 //
 //        if (!$this->source_query) {
@@ -628,6 +651,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
 //        return $return;
     }
 
+
     /**
      * Generates and returns the HTML string for only the select body for array sources
      *
@@ -646,65 +670,58 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         if (!$this->source) {
             return null;
         }
-
         $return = '';
-
         if ($this->auto_select and ((count($this->source) == 1) and !$this->none)) {
             // Auto select the only available element
             // TODO implement
         }
-
         // Process array resource
         foreach ($this->source as $key => $value) {
             $this->count++;
             $option_data = '';
-
             // Add data- in this option?
             if (array_key_exists($key, $this->source_data)) {
                 foreach ($this->source_data as $data_key => $data_value) {
                     $option_data = ' data-' . $data_key . '="' . $data_value . '"';
                 }
             }
-
             if (!is_scalar($value)) {
                 if (!($value instanceof Stringable)) {
                     if (!is_array($value)) {
                         throw OutOfBoundsException::new(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'))
                                                   ->addData([
-                                                                ':first_row_key'   => $key,
-                                                                ':first_row_value' => $value,
-                                                                ':value_column'    => $this->value_column,
-                                                                ':source'          => $this->source,
-                                                            ]);
+                                                      ':first_row_key'   => $key,
+                                                      ':first_row_value' => $value,
+                                                      ':value_column'    => $this->value_column,
+                                                      ':source'          => $this->source,
+                                                  ]);
                     }
-
                     if (!$this->value_column) {
                         throw OutOfBoundsException::new(tr('The specified select source array contains array values, but no value column was specified'))
                                                   ->addData($this->source);
                     }
-
                     try {
                         $value = $value[$this->value_column];
 
                     } catch (Throwable $e) {
                         throw OutOfBoundsException::new(tr('Failed to build select body because the data row does not contain the specified value column ":column"', [
                             ':column' => $this->value_column,
-                        ]))->setData([
-                                         'value'        => $value,
-                                         'value_column' => $this->value_column,
-                                     ]);
+                        ]))
+                                                  ->setData([
+                                                      'value'        => $value,
+                                                      'value_column' => $this->value_column,
+                                                  ]);
                     }
                 }
-
                 // So value is a stringable object. Force value to be a string
-                $value = (string)$value;
+                $value = (string) $value;
             }
-
-            $return .= '<option' . $this->renderOptionClassString() . $this->renderSelectedString($key, $value) . ' value="' . htmlspecialchars((string)$key) . '"' . $option_data . '>' . htmlentities((string)$value) . '</option>';
+            $return .= '<option' . $this->renderOptionClassString() . $this->renderSelectedString($key, $value) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
         }
 
         return $return;
     }
+
 
     /**
      * Builds and returns the class string
@@ -714,13 +731,13 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     protected function renderOptionClassString(): ?string
     {
         $option_class = $this->getOptionClass();
-
         if ($option_class) {
             return ' class="' . $option_class . '"';
         }
 
         return null;
     }
+
 
     /**
      * Returns the HTML class element attribute
@@ -735,6 +752,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
 
         return $this->option_class;
     }
+
 
     /**
      * Returns the " selected" string that can be injected into <options> elements if the element value is selected
@@ -751,7 +769,6 @@ class InputSelect extends ResourceElement implements InputSelectInterface
             // If $this->selected[$value] is false, it means it's a key
             return ($this->selected[$key] ? null : ' selected');
         }
-
         // Does the value match?
         if (array_key_exists($value, $this->selected)) {
             // If $this->selected[$value] is true, it means it's a value
@@ -760,6 +777,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
 
         return null;
     }
+
 
     /**
      * Render an <option> for "this select has no data and is empty"

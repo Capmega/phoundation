@@ -9,7 +9,6 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Geo\Timezones\Timezone;
 
-
 /**
  * Class Continent
  *
@@ -24,7 +23,6 @@ use Phoundation\Geo\Timezones\Timezone;
 class Continent extends DataEntry
 {
     use TraitDataEntryNameDescription;
-
 
     /**
      * Returns the table name used by this object
@@ -78,7 +76,6 @@ class Continent extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions;
-
 //        throw new UnderConstructionException();
 //
 //        $data = $validator

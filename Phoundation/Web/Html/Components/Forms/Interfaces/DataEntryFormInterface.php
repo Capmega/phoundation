@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
-
 /**
  * Class DataEntryForm
  *
@@ -28,6 +27,7 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      */
     public function getAutoFocusId(): ?string;
 
+
     /**
      * Sets the element that will receive autofocus
      *
@@ -37,12 +37,14 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      */
     public function setAutoFocusId(?string $auto_focus_id): static;
 
+
     /**
      * Returns the optional class for input elements
      *
      * @return string
      */
     public function getInputClass(): string;
+
 
     /**
      * Sets the optional class for input elements
@@ -53,12 +55,14 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      */
     public function setInputClass(string $input_class): static;
 
+
     /**
      * Returns the data fields for this DataEntryForm
      *
      * @return DefinitionsInterface|null
      */
     public function getDefinitions(): ?DefinitionsInterface;
+
 
     /**
      * Set the data source for this DataEntryForm

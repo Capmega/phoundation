@@ -6,7 +6,6 @@ namespace Phoundation\Databases\Sql;
 
 use Phoundation\Utils\Config;
 
-
 /**
  * Class Limit
  *

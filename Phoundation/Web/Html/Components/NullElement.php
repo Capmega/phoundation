@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Web\Html\Components\Interfaces\NullElementInterface;
 
-
 /**
  * NullElement class
  *

@@ -9,7 +9,6 @@ use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
-
 /**
  * SignIn form class
  *
@@ -50,7 +49,6 @@ class SignInForm extends Form
     public function __construct()
     {
         parent::__construct();
-
         $this->setRegisterUrl(Config::get('web.defaults.urls.register', 'register'));
         $this->setForgotPasswordUrl(Config::get('web.defaults.urls.forgot-password', 'forgot-password'));
         $this->setAction(Config::get('web.defaults.urls.signin', 'signin'));
@@ -79,6 +77,7 @@ class SignInForm extends Form
     public function setSignInUrl(Stringable|string $sign_in_url): static
     {
         $this->sign_in_url = UrlBuilder::getWww($sign_in_url);
+
         return $this;
     }
 
@@ -104,6 +103,7 @@ class SignInForm extends Form
     public function setRegisterUrl(Stringable|string $register_url): static
     {
         $this->register_url = UrlBuilder::getWww($register_url);
+
         return $this;
     }
 
@@ -129,6 +129,7 @@ class SignInForm extends Form
     public function setForgotPasswordUrl(Stringable|string $forgot_password_url): static
     {
         $this->forgot_password_url = UrlBuilder::getWww($forgot_password_url);
+
         return $this;
     }
 }

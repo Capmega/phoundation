@@ -9,7 +9,6 @@ use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Utils\Traits\TraitVersion;
 
-
 /**
  * Class Version
  *
@@ -26,7 +25,6 @@ class Version
     use TraitVersion {
         __construct as protected ___construct;
     }
-
 
     /**
      * The file containing the version
@@ -53,7 +51,6 @@ class Version
     {
         $this->file    = new File($file, $restrictions);
         $this->version = $this->file->getContentsAsString();
-
         $this->___construct($this->version);
     }
 
@@ -66,6 +63,7 @@ class Version
     public function save(): static
     {
         $this->file->putContents($this->getVersion());
+
         return $this;
     }
 }
