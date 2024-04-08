@@ -40,7 +40,7 @@ interface ImageInterface extends ContentInterface
     /**
      * Returns the image description
      *
-     * @return string
+     * @return string|null
      */
     public function getDescription(): ?string;
 

@@ -30,18 +30,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
 
     /**
-     * Returns the library description
-     *
-     * @return string
-     */
-    public function getDescription(): ?string
-    {
-        // TODO Write a description for this library
-        return tr('');
-    }
-
-
-    /**
      * The list of version updates available for this library
      *
      * @return void

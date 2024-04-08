@@ -54,7 +54,7 @@ interface TemplateInterface
     /**
      * Returns the description for this template
      *
-     * @return string
+     * @return string|null
      */
     public function getDescription(): ?string;
 

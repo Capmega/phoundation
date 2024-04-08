@@ -55,7 +55,7 @@ class Image extends Content implements ImageInterface
     /**
      * Returns the image description
      *
-     * @return string
+     * @return string|null
      */
     public function getDescription(): ?string
     {
