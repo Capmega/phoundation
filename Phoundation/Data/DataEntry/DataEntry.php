@@ -2855,4 +2855,26 @@ abstract class DataEntry implements DataEntryInterface
 
         return get_null($alt) ?? $column;
     }
+
+
+    /**
+     * Returns a human-readable and pretty version of the specified status
+     *
+     * @param string|null $status
+     *1
+     * @return string
+     */
+    public static function getHumanReadableStatus(?string $status): string
+    {
+        if ($status === null) {
+            return tr('Ok');
+        }
+
+        $status = str_replace([
+            '_',
+            '-',
+        ], ' ', $status);
+
+        return Strings::capitalize($status);
+    }
 }
