@@ -182,7 +182,7 @@ class Cli
 
                 // Display all row cells
                 foreach ($headers as $column => $label) {
-                    $value = $row[$column];
+                    $value = isset_get($row[$column]);
 
                     if (is_numeric($column) or array_key_exists($column, $headers)) {
                         Log::cli(Strings::size((string)$value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false, false);
