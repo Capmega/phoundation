@@ -25,6 +25,7 @@ use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Requests\FileResponse;
 use Stringable;
 use Throwable;
 
@@ -728,7 +729,7 @@ class FileCore extends PathCore implements FileInterface
 
         // Ensure we have a local copy of the file to work with
         if ($this->path) {
-            $this->path = \Phoundation\Web\Requests\FileResponse::new($this->restrictions)->download($is_downloaded, $context);
+            $this->path = FileResponse::new($this->restrictions)->download($is_downloaded, $context);
         }
 
         if (!$extension) {

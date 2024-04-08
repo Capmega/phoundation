@@ -39,7 +39,6 @@ use Phoundation\Utils\Utils;
 use Phoundation\Web\Requests\Request;
 use Throwable;
 
-
 /**
  * Class Scripts
  *
@@ -61,7 +60,6 @@ use Throwable;
 class CliCommand
 {
     use TraitDataStaticExecuted;
-
 
     /**
      * Management object for the runfile for this command
@@ -175,6 +173,7 @@ class CliCommand
         Libraries::clearCommandsCache();
     }
 
+
     /**
      * Returns true if the libraries command cache has been cleared
      *
@@ -184,6 +183,7 @@ class CliCommand
     {
         return Libraries::cacheHasBeenCleared();
     }
+
 
     /**
      * Returns the command line executed on the CLI
@@ -196,6 +196,7 @@ class CliCommand
         //        return $_SERVER[''];
     }
 
+
     /**
      * Execute a command by the "pho" command
      *
@@ -207,18 +208,14 @@ class CliCommand
         // Get parameters, get the command to execute
         $parameters = static::startup();
         $command    = static::findCommandOrExecuteDocumentation();
-
         // See if the command execution should be stopped for some reason. If not, setup a run file
         static::$command  = static::limitCommand($command, isset_get($parameters['limit']), isset_get($parameters['reason']));
         static::$run_file = new CliRunFile($command);
-
         // TODO Move this to the Request object
         static::addExecutedPath(static::$command);
-
         // Should we execute usage or help documentation instead?
         static::checkUsage();
         static::checkHelp();
-
         // Execute the command and finish execution
         try {
             Request::setRestrictions(Restrictions::readonly(DIRECTORY_COMMANDS, 'CLI command execution'));
@@ -227,20 +224,18 @@ class CliCommand
         } catch (SqlNoTimezonesException $e) {
             static::fixMysqlTimezoneException($e);
         }
-
         // Make sure that the CLI auto-completion is configured for this shell.
         CliAutoComplete::ensureAvailable();
-
         if (!stream_isatty(STDIN) and !static::$stdin_has_been_read) {
             // STDIN might happen with commands executed. Test the input stream if there was any data at all in it
             if (static::getStdInStream()) {
                 Log::warning(tr('Warning: STDIN stream was specified but not used'));
             }
         }
-
         // We're done, start the shut down procedures
         exit();
     }
+
 
     /**
      * Startup the CLI command processor object
@@ -250,12 +245,10 @@ class CliCommand
     protected static function startup(): array
     {
         static::detectProcessUidMatchesPhoundationOwner();
-
         $return = [
             'limit'  => null,
             'reason' => null,
         ];
-
         // Startup the system core
         try {
             Core::startup();
@@ -268,11 +261,8 @@ class CliCommand
             $return['limit']  = 'system/project/setup';
             $return['reason'] = tr('Project file not found, please execute "./cli system project setup"');
         }
-
         static::ensureProcessUidMatchesPhoundationOwner();
-
         $maintenance = Core::getMaintenanceMode();
-
         if ($maintenance) {
             // We're running in maintenance mode, limit command execution to system/
             $return['limit']  = [
@@ -283,19 +273,18 @@ class CliCommand
                 ':user' => $maintenance,
             ]);
         }
-
         // Define the readline completion function
         readline_completion_function([
             '\Phoundation\Cli\CliCommand',
             'completeReadline',
         ]);
-
         // Only allow this to be run by the command line interface
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
         static::onlyCommandLine();
 
         return $return;
     }
+
 
     /**
      * Detects if the process owner and file owner are the same. If not, will disable file logging and set
@@ -306,31 +295,26 @@ class CliCommand
     protected static function detectProcessUidMatchesPhoundationOwner(): void
     {
         $owner = @fileowner(__DIR__ . '/../../pho');
-
         if ($owner === false) {
             // Wut? What happened? Does the pho command exist? If it does, how did we got here? ./pho renamed, perhaps?
             echo 'Failed to get file owner information of "PROJECT_ROOT/pho" command file' . PHP_EOL;
             exit();
         }
-
         static::$pho_uid = $owner;
-
         Core::getInstance();
-
         if (Core::getProcessUid() === static::$pho_uid) {
             // Correct user, yay!
             return;
         }
-
         if (!Config::getBoolean('cli.require-same-uid', true)) {
             // According to configuration, we don't need to have the same UID.
             return;
         }
-
         // UID mismatch, stop logging to file as that likely won't be possible at all
         Log::disableFile();
         static::$pho_uid_match = false;
     }
+
 
     /**
      * Ensures that the process owner and file owner are the same.
@@ -346,27 +330,22 @@ class CliCommand
             // Correct user, yay!
             return;
         }
-
         if (CliAutoComplete::isActive()) {
             // Auto complete does not require same UID
             return;
         }
-
         if (!Core::getProcessUid() and $permit_root) {
             // This command is run as root and the user root is authorized!
             return;
         }
-
         if (!$auto_switch) {
             throw new CliException(tr('The user ":puser" is not allowed to execute these commands, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', [
                 ':puser' => CliCommand::getProcessUser(),
                 ':fuser' => get_current_user(),
             ]));
         }
-
         // From here we will restart the process using SUDO with the correct user
         global $argv;
-
         // Start building the arguments list
         foreach ($argv as &$argument) {
             if (
@@ -385,20 +364,16 @@ class CliCommand
             ) {
                 $verbose = true;
             }
-
             if ($argument === '--auto-complete') {
                 // Auto complete active, be quiet!
                 $quiet   = true;
                 $verbose = false;
             }
-
-            $argument = escapeshellarg((string)$argument);
+            $argument = escapeshellarg((string) $argument);
         }
-
         // As what user should we execute this? Build the sudo command to be executed
         $user    = posix_getpwuid(static::$pho_uid);
         $command = 'sudo -Eu ' . escapeshellarg($user['name']) . ' ' . implode(' ', $argv);
-
         if (empty($quiet)) {
             if (isset($verbose)) {
                 echo 'Re-executing ./pho command as user "' . $user['name'] . '" with command "' . $command . '"' . PHP_EOL;
@@ -407,13 +382,12 @@ class CliCommand
                 echo 'Re-executing ./pho command as user "' . $user['name'] . '"' . PHP_EOL;
             }
         }
-
         // Re-execute this PHO command with sudo as the correct user
         passthru($command, $result_code);
-
         // We likely won't be able to log here (nor should we), so disable logging
         Core::exit($result_code, direct_exit: true);
     }
+
 
     /**
      * Returns the UID for the current process
@@ -428,6 +402,7 @@ class CliCommand
 
         return null;
     }
+
 
     /**
      * Kill this command process
@@ -445,27 +420,22 @@ class CliCommand
         if ($sig_kill) {
             exit($exit_message);
         }
-
         if (is_object($exit_code)) {
             // Specified exit code is an exception, we're in trouble...
             $e         = $exit_code;
             $exit_code = $exit_code->getCode();
         }
-
         if ($exit_code) {
             static::setExitCode($exit_code, true);
         }
-
         // Terminate the run file
         if (isset(static::$run_file)) {
             static::$run_file->delete();
         }
-
         // Did we encounter an exception?
         if (isset($e)) {
             if (($e instanceof Exception) and $e->isWarning()) {
                 $exit_code = $exit_code ?? 1;
-
                 Log::warning($e->getMessage());
                 Log::warning(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                     ':command'  => static::getCommandsString(),
@@ -475,7 +445,6 @@ class CliCommand
                 ]), 10);
             } else {
                 $exit_code = $exit_code ?? 255;
-
                 Log::error($e->getMessage());
                 Log::error(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                     ':command'  => static::getCommandsString(),
@@ -520,11 +489,9 @@ class CliCommand
                 Audio::new('success.mp3')
                      ->playLocal(true);
             }
-
             if ($exit_message) {
                 Log::success($exit_message, 8);
             }
-
             // Script ended successfully
             Log::success(tr('Finished command ":command" with PID ":pid" in ":time" with ":usage" peak memory usage', [
                 ':command' => static::getCommandsString(),
@@ -533,13 +500,13 @@ class CliCommand
                 ':usage'   => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
             ]), 8);
         }
-
         if (!CliAutoComplete::isActive()) {
             echo CliColor::getColorReset();
             system('stty echo');
         }
         exit($exit_code);
     }
+
 
     /**
      * Returns the list of commands that came to the command that executed in space separated string format
@@ -555,6 +522,7 @@ class CliCommand
         return 'N/A';
     }
 
+
     /**
      * Only allow execution on shell commands
      *
@@ -567,11 +535,11 @@ class CliCommand
         if (!PLATFORM_CLI) {
             throw new ScriptException(tr('This can only be done from command line'));
         }
-
         if ($exclusive) {
             static::runOnceLocal();
         }
     }
+
 
     /**
      * Ensure that the current command file cannot be run twice
@@ -604,30 +572,25 @@ class CliCommand
     public static function runOnceLocal(bool $close = false)
     {
         static $executed = false;
-
         throw new UnderConstructionException();
-
         try {
             $run_dir = DIRECTORY_ROOT . 'data/run/';
             $command = $core->register['command'];
-
             Directory::ensure(dirname($run_dir . $command));
-
             if ($close) {
                 if (!$executed) {
                     // Hey, this command is being closed but was never opened?
                     Log::warning(tr('The cli_run_once_local() function has been called with close option, but it was already closed or never opened.'));
                 }
-
                 file_delete([
                     'patterns'     => $run_dir . $command,
                     'restrictions' => DIRECTORY_ROOT . 'data/run/',
                     'clean_path'   => false,
                 ]);
                 $executed = false;
+
                 return;
             }
-
             if ($executed) {
                 // Hey, command has already been run before, and its run again without the close option, this should
                 // never happen!
@@ -635,15 +598,12 @@ class CliCommand
                     ':command' => $command,
                 ]));
             }
-
             $executed = true;
-
             if (file_exists($run_dir . $command)) {
                 // Run file exists, so either a process is running, or a process was running but crashed before it could
                 // delete the run file. Check if the registered PID exists, and if the process name matches this one
                 $pid = file_get_contents($run_dir . $command);
                 $pid = trim($pid);
-
                 if (!is_numeric($pid) or !is_natural($pid) or ($pid > 65536)) {
                     Log::warning(tr('The run file ":file" contains invalid information, ignoring', [':file' => $run_dir . $command]));
 
@@ -664,10 +624,8 @@ class CliCommand
                         ],
                     ]);
                     $name = array_pop($name);
-
                     if ($name) {
                         preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+(' . str_replace('/', '\/', $command) . ')/', $name, $matches);
-
                         if (!empty($matches[1][0])) {
                             throw new CliException(tr('The command ":command" for this project is already running', [
                                 ':command' => $command,
@@ -675,7 +633,6 @@ class CliCommand
                         }
                     }
                 }
-
                 // File exists, or contains invalid data, but PID either doesn't exist, or is used by a different
                 // process. Remove the PID file
                 Log::warning(tr('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir . $command]));
@@ -685,7 +642,6 @@ class CliCommand
                     'clean_path'   => false,
                 ]);
             }
-
             // No run file exists yet, create one now
             file_put_contents($run_dir . $command, getmypid());
             Core::readRegister('shutdown_cli_run_once_local', [true]);
@@ -697,10 +653,10 @@ class CliCommand
                 */
                 throw($e);
             }
-
             throw new CliException('cli_run_once_local(): Failed', $e);
         }
     }
+
 
     /**
      * Either finds the command to execute, or executes documentation
@@ -719,9 +675,7 @@ class CliCommand
 
             } catch (CliNoCommandSpecifiedException) {
                 global $argv;
-
                 $argv['help'] = true;
-
                 static::documentation();
                 CliAutoComplete::ensureAvailable();
                 exit();
@@ -730,6 +684,7 @@ class CliCommand
 
         return $command;
     }
+
 
     /**
      * Process auto complete requests
@@ -741,7 +696,6 @@ class CliCommand
         try {
             // Get the command file to execute and execute auto complete for within this command, if available
             $command = static::findCommand();
-
             // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last command.
             // If this is the case we actually have to expand the command, NOT yet the command parameters!
             if ((CliAutoComplete::getPosition() - count(static::$found_commands)) === 0) {
@@ -754,7 +708,6 @@ class CliCommand
                                                       'commands' => [basename($command)],
                                                   ]);
             }
-
             // Check if this command has support for auto complete. If not
             if (!CliAutoComplete::hasSupport($command)) {
                 // This command has no auto complete support, so if we execute the command it won't go for auto
@@ -775,6 +728,7 @@ class CliCommand
         }
     }
 
+
     /**
      * Find the command to execute from the given arguments
      *
@@ -786,25 +740,20 @@ class CliCommand
         $position = 0;
         $file     = DIRECTORY_COMMANDS;
         $commands = ArgvValidator::getCommands();
-
         static::$commands = $commands;
-
         // Ensure commands cache directory exists
         if (!file_exists($file)) {
             Log::warning(tr('Commands cache directory ":path" does not yet exists, rebuilding commands cache', [
                 ':path' => $file,
             ]), 3);
-
             // Rebuild the command cache
             Libraries::rebuildCommandCache();
         }
-
         // Is any command specified at all?
         if (!ArgvValidator::getCommandCount()) {
             $commands = scandir(DIRECTORY_COMMANDS);
             $commands = Arrays::each($commands, function ($key, $value) { return strip_extension($value); });
             $commands = Arrays::removeValues($commands, '/^\./', match_mode: EnumMatchMode::regex);
-
             throw CliNoCommandSpecifiedException::new('No command specified!')
                                                 ->makeWarning()
                                                 ->addData([
@@ -812,18 +761,14 @@ class CliCommand
                                                     'commands' => $commands,
                                                 ]);
         }
-
         // Process commands
         foreach ($commands as $position => $command) {
             if (!static::validateCommand($command)) {
                 continue;
             }
-
             // Start processing arguments as commands here
             $file .= $command;
-
             ArgvValidator::removeCommand($command);
-
             if (!file_exists($file) and !file_exists($file . '.php')) {
                 // The specified directory doesn't exist. Does a part exist, perhaps? Get the parent and find out
                 try {
@@ -834,7 +779,6 @@ class CliCommand
                 } catch (Throwable) {
                     $files = [];
                 }
-
                 if (!$files) {
                     // No files were found at all. Try a cache rebuild, because maybe the file exists as a new command
                     // in a library somewhere?
@@ -842,14 +786,13 @@ class CliCommand
                         // Command was not found, try rebuilding the cache and try at least once more.
                         static::rebuildCache();
                         ArgvValidator::recoverBackupSource();
+
                         return static::findCommand();
                     }
                 }
-
                 $previous = scandir(dirname($file));
                 $previous = Arrays::each($previous, function ($key, $value) { return strip_extension($value); });
                 $previous = Arrays::removeValues($previous, '/^\./', match_mode: EnumMatchMode::regex);
-
                 throw CliCommandNotExistsException::new(tr('The specified command file ":file" does not exist', [
                     ':file' => $file,
                 ]))
@@ -860,18 +803,14 @@ class CliCommand
                                                       'previous_commands' => $previous,
                                                   ]);
             }
-
             if (file_exists($file . '.php')) {
                 // This is a file, should be PHP, found it! Update the arguments to remove all commands from them.
                 return $file;
             }
-
             // This is a directory.
             $file .= '/';
-
             // Does a file with the directory name exist inside? Only check if the NEXT command does not exist as a file
             $next = isset_get($commands[$position + 1]);
-
             if (!$next or (!file_exists($file . $next) and !file_exists($file . $next . '.php'))) {
                 if (file_exists($file . $command)) {
                     if (!is_dir($file . $command)) {
@@ -885,11 +824,9 @@ class CliCommand
                     }
                 }
             }
-
             // Continue scanning
             static::$found_commands[] = $command;
         }
-
         // Here we're still in a directory. If a file exists in that directory with the same name as the directory
         //  itself, then that is the one that will be executed. For example, ./pho system init will execute
         // DIRECTORY_COMMANDS/system/init/init
@@ -899,15 +836,12 @@ class CliCommand
                 return $file . $command;
             }
         }
-
         $previous = scandir(dirname($file));
         $previous = Arrays::each($previous, function ($key, $value) { return strip_extension($value); });
         $previous = Arrays::removeValues($previous, '/^\./', match_mode: EnumMatchMode::regex);
-
         $commands = scandir($file);
         $commands = Arrays::each($commands, function ($key, $value) { return strip_extension($value); });
         $commands = Arrays::removeValues($commands, '/^\./', match_mode: EnumMatchMode::regex);
-
         // We're stuck in a directory still, no command to execute.
         // Add the available files to display to help the user
         throw CliCommandNotFoundException::new(tr('The specified command file ":file" was not found', [
@@ -920,6 +854,7 @@ class CliCommand
                                              'previous_commands' => $previous,
                                          ]);
     }
+
 
     /**
      * Validates the specified command and returns true if the command is valid
@@ -939,13 +874,12 @@ class CliCommand
                 ':command' => $command,
             ]));
         }
-
         if (str_ends_with($command, '/pho')) {
             // This is the cli command, ignore it
             ArgvValidator::removeCommand($command);
+
             return false;
         }
-
         if (!preg_match('/[a-z0-9-]/i', $command)) {
             // Commands can only have alphanumeric characters
             throw OutOfBoundsException::new(tr('The specified command ":command" contains invalid characters. only a-z, 0-9 and - are allowed', [
@@ -953,7 +887,6 @@ class CliCommand
             ]))
                                       ->makeWarning();
         }
-
         if (str_starts_with($command, '-')) {
             // Commands can only have alphanumeric characters
             throw OutOfBoundsException::new(tr('The specified command ":command" starts with a - character which is not allowed', [
@@ -965,6 +898,7 @@ class CliCommand
         return true;
     }
 
+
     /**
      * Returns true if the libraries command cache has been rebuilt
      *
@@ -975,6 +909,7 @@ class CliCommand
         return Libraries::cacheHasBeenRebuilt();
     }
 
+
     /**
      * Instructs the Libraries class to have each library rebuild its command cache
      *
@@ -984,6 +919,7 @@ class CliCommand
     {
         Libraries::rebuildCommandCache();
     }
+
 
     /**
      * Display documentation
@@ -1001,11 +937,11 @@ class CliCommand
 ./pho system update -H
 ./pho system maintenance disable
 ./pho system <TAB>', false);
-
             CliDocumentation::setHelp(tr('This is the Phoundation CLI interface command "pho". For more basic information please execute ./pho intro which will print an introduction text to Phoundation
 '), false);
         }
     }
+
 
     /**
      * Limit execution of commands to the specified limit
@@ -1020,13 +956,11 @@ class CliCommand
     {
         if ($limits) {
             $test = Strings::from($command, 'commands/');
-
             foreach (Arrays::force($limits) as $limit) {
                 if (str_starts_with($test, $limit)) {
                     return $command;
                 }
             }
-
             throw ScriptException::new(tr('Cannot execute command ":command" because :reason', [
                 ':command' => $test,
                 ':reason'  => $reason,
@@ -1037,6 +971,7 @@ class CliCommand
         return $command;
     }
 
+
     /**
      * Returns true if the specified command has usage support available
      *
@@ -1045,10 +980,9 @@ class CliCommand
     protected static function checkUsage(): void
     {
         global $argv;
-
         if ($argv['usage']) {
             if (
-                empty(File::new(static::$command, DIRECTORY_COMMANDS)
+                empty(File::new(static::$command . '.php', DIRECTORY_COMMANDS)
                           ->grep(['CliDocumentation::setUsage('], 100))
             ) {
                 throw CliCommandException::new(tr('The command ":command" has no usage information available', [
@@ -1059,6 +993,7 @@ class CliCommand
         }
     }
 
+
     /**
      * Returns true if the specified command has help support available
      *
@@ -1067,10 +1002,9 @@ class CliCommand
     protected static function checkHelp(): void
     {
         global $argv;
-
         if ($argv['help']) {
             if (
-                empty(File::new(static::$command, DIRECTORY_COMMANDS)
+                empty(File::new(static::$command . '.php', DIRECTORY_COMMANDS)
                           ->grep(['CliDocumentation::setHelp('], 100))
             ) {
                 throw CliCommandException::new(tr('The command ":command" has no help information available', [
@@ -1080,6 +1014,7 @@ class CliCommand
             }
         }
     }
+
 
     /**
      * Will attempt to fix the MySQL timezones missing exception
@@ -1091,26 +1026,22 @@ class CliCommand
     protected static function fixMysqlTimezoneException(Throwable $e): void
     {
         $e = Exception::new($e);
-
         Log::warning(tr('MySQL does not yet have the required timezones loaded on connector ":connector". Attempting to load them now. If this is not what you want, please configure the configuration path ":config" to false', [
             ':connector' => $e->getDataKey('connector'),
             ':config'    => 'databases.connectors.' . $e->getDataKey('connector') . '.timezones-name',
         ]));
-
         Log::information(tr('Importing timezone data files in MySQL, this may take a couple of seconds'));
         Log::warning(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'));
         Log::warning(tr('Please fill in MySQL root password in the following "Enter password:" request'));
-
         $password = Cli::readPassword('Please specify the MySQL root password');
-
         if (!$password) {
             throw OutOfBoundsException::new(tr('No MySQL root password specified'))
                                       ->makeWarning();
         }
-
         Mysql::new()
              ->importTimezones($password);
     }
+
 
     /**
      * Reads and returns the contents of the STDIN
@@ -1125,30 +1056,26 @@ class CliCommand
             if (stream_isatty(STDIN)) {
                 throw new CliStdInException(tr('Cannot read STDIN stream, the file descriptor is a TTY'));
             }
-
             $return = null;
             $stdin  = File::new(STDIN);
-
             while (!$stdin->isEof()) {
                 if ($binary_safe) {
                     $data = $stdin->read();
                 } else {
                     $data = $stdin->readLine();
                 }
-
                 if ($data === false) {
                     break;
                 }
-
                 $return .= $data;
             }
-
             static::$stdin_has_been_read = true;
             static::$stdin_data          = $return;
         }
 
         return static::$stdin_data;
     }
+
 
     /**
      * Returns the list of commands that came to the command that executed
@@ -1160,6 +1087,7 @@ class CliCommand
         return static::$commands;
     }
 
+
     /**
      * Returns the process exit code
      *
@@ -1169,6 +1097,7 @@ class CliCommand
     {
         return static::$exit_code;
     }
+
 
     /**
      * Sets the process exit code
@@ -1185,11 +1114,11 @@ class CliCommand
                 ':code' => $code,
             ]));
         }
-
         if (!$only_if_null or !static::$exit_code) {
             static::$exit_code = $code;
         }
     }
+
 
     /**
      * Echos the specified string to the command line
@@ -1203,6 +1132,7 @@ class CliCommand
         echo $string . PHP_EOL;
     }
 
+
     /**
      * This process can only run once at the time
      *
@@ -1214,6 +1144,7 @@ class CliCommand
     {
         static::limitCount(1, $global);
     }
+
 
     /**
      * Limit the number of processes to the specified amount
@@ -1228,6 +1159,7 @@ class CliCommand
         static::$run_file->getCount();
     }
 
+
     /**
      * Returns true if there is a piped or redirected STDIN data stream available
      *
@@ -1238,6 +1170,7 @@ class CliCommand
         return !stream_isatty(STDIN);
     }
 
+
     /**
      * Returns true if the STDIN stream has been read
      *
@@ -1247,6 +1180,7 @@ class CliCommand
     {
         return static::$stdin_has_been_read;
     }
+
 
     /**
      * Requires the user to type YES to confirm, unless -F,--force was specified on command line
@@ -1260,7 +1194,6 @@ class CliCommand
     {
         if (!FORCE) {
             $result = Cli::readInput($message);
-
             if ($result !== $reply) {
                 throw new ValidationFailedException(tr('No ":reply" specified on prompt', [
                     ':reply' => $reply,
@@ -1268,6 +1201,7 @@ class CliCommand
             }
         }
     }
+
 
     /**
      * Returns true if the UID of the process and pho match
@@ -1279,6 +1213,7 @@ class CliCommand
         return static::$pho_uid_match;
     }
 
+
     /**
      * Returns the UID for the ./pho file
      *
@@ -1288,6 +1223,7 @@ class CliCommand
     {
         return static::$pho_uid;
     }
+
 
     /**
      * Returns all options for readline <TAB> autocomplete

@@ -68,7 +68,7 @@ if ($argv['priority'] !== null) {
 
 // Save plugin
 $plugin->save();
-show($plugin->getName());
+
 
 // Done!
 if ($plugin->isSaved()) {

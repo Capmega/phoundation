@@ -24,7 +24,7 @@ class SlowPages extends Incidents
      */
     public function __construct()
     {
-        $this->entry_class = SlowPage::class;
+        $this->entry_class = SlowResponse::class;
         $this->table_name  = 'developer_slow_pages';
 
         $this->setHtmlQuery('SELECT   `id`, `created_on`, `status`, `title` 
