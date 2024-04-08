@@ -574,7 +574,7 @@ class Server extends DataEntry implements ServerInterface
                             ->addValidationFunction(function (ValidatorInterface $validator) {
                                 $validator->isAlphaNumeric();
                             }))
-            ->add(Definition::new($this, 'code')
+            ->add(Definition::new($this, 'cost')
                             ->setOptional(true)
                             ->setInputType(EnumElementInputType::float)
                             ->setMin(0)
@@ -746,7 +746,7 @@ class Server extends DataEntry implements ServerInterface
                             ->setLabel(tr('Database services'))
                             ->setCliColumn('-e,--database-services')
                             ->setHelpText(tr('Sets if this server manages database services')))
-            ->add(Definition::new($this, 'mail_services')
+            ->add(Definition::new($this, 'allow_sshd_modification')
                             ->setOptional(true)
                             ->setInputType(EnumElementInputType::checkbox)
                             ->setSize(3)
