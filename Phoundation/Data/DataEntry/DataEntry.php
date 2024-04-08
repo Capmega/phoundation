@@ -2299,7 +2299,7 @@ abstract class DataEntry implements DataEntryInterface
         $this->checkReadonly('set-status "' . $status . '"');
 
         if ($this->getId()) {
-            sql($this->database_connector)->setDebug(true)
+            sql($this->database_connector)
                 ->getSqlDataEntryObject($this)
                 ->setStatus($status, $comments);
         }
