@@ -44,16 +44,16 @@ interface SqlInterface
      *
      * @return bool
      */
-    public function getQueryLogging(): bool;
+    public function getDebug(): bool;
 
     /**
      * Sets if query printing is enabled for this instance or not
      *
-     * @param bool $log
+     * @param bool $debug
      *
      * @return static
      */
-    public function setQueryLogging(bool $log): static;
+    public function setDebug(bool $debug): static;
 
     /**
      * Returns if query statistics are enabled for this instance or not
