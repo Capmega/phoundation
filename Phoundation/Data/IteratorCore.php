@@ -1117,6 +1117,22 @@ class IteratorCore implements IteratorInterface
         return $this;
     }
 
+
+    /**
+     * Creates and returns a CLI key-value table for the data in this list
+     *
+     * @param string|null $key_header
+     * @param string|null $value_header
+     * @param int         $offset
+     *
+     * @return static
+     */
+    public function displayCliKeyValueTable(?string $key_header = null, string $value_header = null, int $offset = 0): static
+    {
+        Cli::displayForm($this->source, $key_header, $value_header, $offset);
+        return $this;
+    }
+
     /**
      * Sorts the Iterator source in ascending order
      *
