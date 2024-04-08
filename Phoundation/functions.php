@@ -1205,6 +1205,19 @@ function strip_extension(?string $filename, bool $all_extensions = false): ?stri
 
 
 /**
+ * Returns true if the given path start with a /
+ *
+ * @param string $path
+ *
+ * @return bool
+ */
+function is_absolute_path(string $path): bool
+{
+    return starts_with($path, '/');
+}
+
+
+/**
  * Wrappers for PHP yaml_emit(), yaml_parse() if the PHP YAML extension is not installed
  */
 if (!function_exists('yaml_emit')) {
