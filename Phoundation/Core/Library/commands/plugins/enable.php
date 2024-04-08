@@ -8,7 +8,7 @@ use Phoundation\Core\Plugins\Plugin;
 use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
-use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 
 /**
  * Script system/plugins/enable script
@@ -69,6 +69,6 @@ if (ALL) {
 
     // Done!
     Log::success(tr('Plugins ":plugins" have been enabled', [
-        ':plugins' => Arrays::force($argv['plugins'], ', '),
+        ':plugins' => Strings::force($argv['plugins'], ', '),
     ]));
 }
