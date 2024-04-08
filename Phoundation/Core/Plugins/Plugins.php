@@ -45,8 +45,10 @@ class Plugins extends DataList implements PluginsInterface
         $this->setQuery('SELECT   `id`, 
                                         `vendor`, 
                                         `name`, 
-                                        IFNULL(`status`, "' . tr('Ok') . '") AS `status`, 
-                                        IF(`enabled`, "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
+                                        CASE 
+                                           WHEN `status` IS NULL THEN "' . tr('Ok') . '"
+                                           ELSE CONCAT(UPPER(SUBSTRING(`status`, 1, 1)), LOWER(SUBSTRING(`status`, 2)))
+                                        END AS `status`, 
                                         `priority`, 
                                         `description` 
                                FROM     `core_plugins` 
@@ -198,34 +200,6 @@ class Plugins extends DataList implements PluginsInterface
         return $return;
     }
 
-
-    //    /**
-    //     * Starts CLI all enabled plugins
-    //     *
-    //     * @return void
-    //     */
-    //    public static function startCli(): void
-    //    {
-    //        foreach (static::getEnabled() as $name => $plugin) {
-    //            Log::action(tr('Starting CLI on plugin ":plugin"', [':plugin' => $name]), 3);
-    //            $plugin['class']::startCli();
-    //        }
-    //    }
-    //
-    //
-    //
-    //    /**
-    //     * Starts HTTP for all enabled plugins
-    //     *
-    //     * @return void
-    //     */
-    //    public static function startHttp(): void
-    //    {
-    //        foreach (static::getEnabled() as $name => $plugin) {
-    //            Log::action(tr('Starting HTTP on plugin ":plugin"', [':plugin' => $name]));
-    //            $plugin['class']::startHttp();
-    //        }
-    //    }
     /**
      * Returns true if the specified class path matches the file path
      *
@@ -252,11 +226,12 @@ class Plugins extends DataList implements PluginsInterface
     {
         foreach (static::getEnabled() as $id => $plugin) {
             try {
-                if ($plugin['enabled']) {
+                if ($plugin['status'] === null) {
                     Log::action(tr('Starting plugin ":vendor/:plugin"', [
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
                     ]), 9);
+
                     include_once(DIRECTORY_ROOT . $plugin['path'] . 'Library/Plugin.php');
                     $plugin['class']::start();
                 }
