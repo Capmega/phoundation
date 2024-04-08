@@ -12,7 +12,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Cli\Cli class
  *
@@ -70,9 +69,8 @@ class Cli
     public static function getColumns(): int
     {
         $cols = exec('tput cols');
-
         if (is_numeric($cols)) {
-            return (int)$cols;
+            return (int) $cols;
         }
 
         return -1;
@@ -88,9 +86,8 @@ class Cli
     public static function getLines(): int
     {
         $cols = exec('tput lines');
-
         if (is_numeric($cols)) {
-            return (int)$cols;
+            return (int) $cols;
         }
 
         return -1;
@@ -116,42 +113,35 @@ class Cli
             // This is an Iterator object, get the array source
             $source = $source->getSource();
         }
-
         if (!is_natural($column_spacing)) {
             throw new OutOfBoundsException(tr('Invalid column spacing ":spacing" specified, please ensure it is a natural number, 1 or higher', [
                 ':spacing' => $column_spacing,
             ]));
         }
-
         if ($source) {
             // Determine the size of the keys to display them
             $column_sizes = Arrays::getLongestStringPerColumn($source, 2, $id_column);
-
             // Get headers from id_column and row columns and reformat them for displaying
             if ($headers === null) {
                 $value   = str_replace([
-                                           '_',
-                                           '-',
-                                       ], ' ', (string)$id_column);
+                    '_',
+                    '-',
+                ], ' ', (string) $id_column);
                 $value   = Strings::capitalize($value) . ':';
                 $headers = ($id_column ? [$id_column => $value] : []);
                 $row     = current($source);
                 $exists  = false;
-
                 foreach (Arrays::force($row, null) as $header => $value) {
                     $value = str_replace([
-                                             '_',
-                                             '-',
-                                         ], ' ', (string)$header);
+                        '_',
+                        '-',
+                    ], ' ', (string) $header);
                     $value = Strings::capitalize($value) . ':';
-
                     $headers[$header] = $value;
-
                     if ($header === $id_column) {
                         $exists = true;
                     }
                 }
-
                 if (!$exists) {
                     // The specified ID column doesn't exist in the rows, remove it
                     unset($headers[$id_column]);
@@ -161,34 +151,27 @@ class Cli
                 // Validate and clean headers
                 $headers = static::cleanHeaders($headers);
             }
-
             // Display header?
             if (!VERY_QUIET) {
                 foreach (Arrays::force($headers) as $column => $header) {
                     $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                    Log::cli(CliColor::apply(Strings::size((string)$header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false, false);
+                    Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false, false);
                 }
-
                 Log::cli(' ');
             }
-
             // Display source
             foreach ($source as $id => $row) {
                 $row = Arrays::force($row, null);
-
                 if ($id_column) {
                     array_unshift($row, $id);
                 }
-
                 // Display all row cells
                 foreach ($headers as $column => $label) {
                     $value = isset_get($row[$column]);
-
                     if (is_numeric($column) or array_key_exists($column, $headers)) {
-                        Log::cli(Strings::size((string)$value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false, false);
+                        Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false, false);
                     }
                 }
-
                 Log::cli(' ');
             }
         } else {
@@ -209,18 +192,16 @@ class Cli
     {
         $headers = Arrays::force($headers);
         $return  = [];
-
         foreach (Arrays::force($headers) as $column => $header) {
             if (is_numeric($column)) {
                 // Headers were assigned only a label, which will be the column name
                 $column = $header;
                 $header = str_replace([
-                                          '_',
-                                          '-',
-                                      ], ' ', (string)$header);
+                    '_',
+                    '-',
+                ], ' ', (string) $header);
                 $header = Strings::capitalize($header) . ':';
             }
-
             $return[$column] = $header;
         }
 
@@ -246,47 +227,38 @@ class Cli
                 ':offset' => $offset,
             ]));
         }
-
         if ($key_header === null) {
             $key_header = tr('Keys:');
         }
-
         if ($value_header === null) {
             $value_header = tr('Values:');
         }
-
         // Determine the size of the keys to display them
         $key_size = Arrays::getLongestKeyLength($source) + 4;
-
         // Display header
         if ($key_header and $value_header) {
             Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key_header, $key_size), 'white') . ' ' . $value_header);
         }
-
         // Display source
         foreach ($source as $key => $value) {
             $key = str_replace([
-                                   '_',
-                                   '-',
-                               ], ' ', $key);
+                '_',
+                '-',
+            ], ' ', $key);
             $key = Strings::capitalize($key) . ':';
-
             if (!is_scalar($value)) {
                 if (is_object($value)) {
                     // Yeah, how to display this? Try to cast to array, hope for the best.
-                    $value = (array)$value;
+                    $value = (array) $value;
                 }
-
                 if (is_array($value)) {
                     Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white'));
                     static::displayForm($value, '', '', $key_size + 1);
                     continue;
                 }
-
                 // This is likely a resource or something
                 $value = gettype($value);
             }
-
             Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white') . ' ' . $value);
         }
     }
@@ -302,22 +274,19 @@ class Cli
     public static function readPassword(string $prompt): ?string
     {
         static::checkTty(STDIN, 'stdin');
-
         if (static::$show_passwords) {
             // We show passwords!
             return static::readInput($prompt);
         }
-
         echo trim($prompt) . ' ';
-
         system('stty -echo');
         $return = trim(fgets(STDIN));
-
         system('stty echo');
         echo PHP_EOL;
 
         return $return;
     }
+
 
     /**
      * Checks if we have a TTY and throws exception if we don't
@@ -335,13 +304,13 @@ class Cli
                 ':tty'      => $tty_name,
             ]));
         }
-
         if (!stream_isatty($file_descriptor)) {
             throw new CliNoTtyException(tr('Cannot access stream ":tty", the file descriptor is not a TTY', [
                 ':tty' => $tty_name,
             ]));
         }
     }
+
 
     /**
      * Read an input from the command line prompt
@@ -354,46 +323,54 @@ class Cli
     public static function readInput(string $prompt, ?string $default = null): ?string
     {
         static::checkTty(STDIN, 'stdin');
-
         $prompt = Strings::endsWith($prompt, ' ');
-
         if ($default) {
             $prompt .= '[' . $default . '] ';
         }
-
         $return = readline($prompt);
-
         if (!$return) {
             $return = $default;
         }
 
         return $return;
     }
+
+
+    /**
+     * Validates if the given argument is a valid CLI argument
+     *
+     *  Will return "-LETTER" where the specified source is a single leter, like "A" > "-A"
+     *  Will return "--WORD" where the specified source is a single word, like "all" > "--all"
+     *
+     * @param string $argument
+     * @param bool   $require_dashes
+     * @param int    $max_words_size
+     *
+     * @return string
+     */
+    public static function validateAndSanitizeArgument(string $argument, bool $require_dashes = true, int $max_words_size = 32): string
+    {
+        if ($require_dashes) {
+            $test = $argument;
+        } else {
+            switch (strlen($argument)) {
+                case 0:
+                    throw new OutOfBoundsException(tr('Empty argument specified'));
+                case 1:
+                    $test = Strings::startsWith($argument, '-');
+                    break;
+                default:
+                    $test = Strings::startsWith($argument, '--');
+            }
+        }
+        if (preg_match('/^-[a-z0-9]$/i', $test)) {
+            return $test;
+        }
+        if (preg_match('/^--[a-z][a-z0-9-]{0,' . --$max_words_size . '}$/i', $test)) {
+            return $test;
+        }
+        throw new OutOfBoundsException(tr('The specified argument ":argument" is not a valid command line argument', [
+            ':argument' => $argument,
+        ]));
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
