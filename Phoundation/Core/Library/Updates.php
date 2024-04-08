@@ -398,9 +398,16 @@ class Updates extends Libraries\Updates
         })->addUpdate('0.2.9', function () {
             if (!sql()->schema()->table('core_plugins')->getColumns()->keyExists('web_enabled')) {
                 sql()->schema()->table('core_plugins')->alter()
-                     ->renameColumn('enabled', 'web_enabled')
-                    ->dropIndex('web_enabled')
-                    ->addIndex('KEY `web_enabled` (`web_enabled`)');
+                     ->renameColumn('enabled', 'web_enabled');
+
+                $column = sql()->schema()->table('core_plugins')->getColumns()->get('web_enabled');
+
+                if ($column['key'] === 'UNI') {
+                    // this key should NOT be unique
+                    sql()->schema()->table('core_plugins')->alter()
+                         ->dropIndex('web_enabled')
+                         ->addIndex('KEY `web_enabled` (`web_enabled`)');
+                }
             }
         });
     }
