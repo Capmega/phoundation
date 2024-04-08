@@ -52,8 +52,18 @@ if ($argv['clear']) {
 }
 
 
+// What columns are we going to display?
+$columns = [
+    'vendor'   => tr('Vendor'),
+    'name'     => tr('Name'),
+    'status'   => tr('Status'),
+    'priority' => tr('Priority'),
+    'path'     => tr('Path'),
+];
+
+
 // Display the results of the plugin scan
 Plugins::new()
        ->scan()
        ->getAvailable()
-       ->displayCliTable();
+           ->displayCliTable($columns);
