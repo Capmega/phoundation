@@ -35,7 +35,7 @@ class Table extends SchemaAbstract
      *
      * @var array $columns
      */
-    protected array $columns = [];
+    protected array $columns;
 
     /**
      * The foreign keys for this table
@@ -165,13 +165,20 @@ class Table extends SchemaAbstract
         return $this->name;
     }
 
+
     /**
      * Returns the table columns
      *
+     * @param bool $cache
+     *
      * @return IteratorInterface
      */
-    public function getColumns(): IteratorInterface
+    public function getColumns(bool $cache = true): IteratorInterface
     {
+        if (!$cache) {
+            unset($this->columns);
+        }
+
         if (empty($this->columns)) {
             $columns = [];
             $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
