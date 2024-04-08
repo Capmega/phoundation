@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataDataEntryClass;
 use Phoundation\Data\Traits\TraitDataIntId;
@@ -550,6 +551,44 @@ trait ValidatorBasics
         }
 
         return $this;
+    }
+
+    /**
+     * Will validate that the specified argument was not specified
+     *
+     * @param string $argument
+     * @param mixed $value The value of said argument.      *
+     * @param mixed $required_equivalence The value of said argument.      *
+     *
+     * @return static
+     * @see Validator::isOptional()
+     */
+    public function exclusiveOrArgument(string $argument, mixed $value, mixed $required_equivalence = null, bool $strict = false): static
+    {
+        return $this->validateValues(function ($selected_value) use ($argument, $value, $required_equivalence, $strict) {
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return '';
+            }
+
+            if ($selected_value) {
+                if ($strict) {
+                    if ($value !== $required_equivalence) {
+                        $failed = true;
+                    }
+                } else {
+                    if ($value != $required_equivalence) {
+                        $failed = true;
+                    }
+                }
+            }
+
+            if (isset($failed)) {
+                $this->addFailure(tr('cannot be used with argument ":argument"', [':argument' => Cli::validateAndSanitizeArgument($argument, false)]));
+            }
+
+            return $selected_value;
+        });
     }
 
     /**
