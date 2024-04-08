@@ -12,6 +12,8 @@ use Phoundation\Core\Meta\Exception\MetaException;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\SqlQueries;
@@ -19,6 +21,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Numbers;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Http\UrlBuilder;
@@ -414,5 +417,38 @@ class Meta implements MetaInterface
     {
         // Create and return the table
         return HtmlTable::new()->setSourceQuery('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [':meta_id' => $this->id]);
+    }
+
+
+    /**
+     * Returns an Iterator object with Meta system statistics
+     *
+     * @return \Phoundation\Data\Interfaces\IteratorInterface
+     */
+    public static function getStatistics(): IteratorInterface
+    {
+        $object_size = sql()->getColumn('SELECT `data_length` + `index_length` AS `size`
+                                               FROM   `information_schema`.`TABLES`
+                                               WHERE  `table_schema` = :database
+                                                 AND  `table_name`   = :table', [
+                                                     ':database' => sql()->getDatabase(),
+                                                     ':table'    => 'meta'
+        ]);
+
+        $history_size = sql()->getColumn('SELECT `data_length` + `index_length` AS `size`
+                                                FROM   `information_schema`.`TABLES`
+                                                WHERE  `table_schema` = :database
+                                                  AND  `table_name`   = :table', [
+            ':database' => sql()->getDatabase(),
+            ':table'    => 'meta_history'
+        ]);
+
+        $return = [
+            'tracked_objects' => sql()->getColumn('SELECT COUNT(*) FROM `meta`'),
+            'history_entries' => sql()->getColumn('SELECT COUNT(*) FROM `meta_history`'),
+            'meta_data_size'  => Numbers::getHumanReadableBytes($object_size + $history_size),
+        ];
+
+        return Iterator::new($return);
     }
 }
