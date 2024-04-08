@@ -45,10 +45,7 @@ class Plugins extends DataList implements PluginsInterface
         $this->setQuery('SELECT   `id`, 
                                         `vendor`, 
                                         `name`, 
-                                        CASE 
-                                           WHEN `status` IS NULL THEN "' . tr('Ok') . '"
-                                           ELSE CONCAT(UPPER(SUBSTRING(`status`, 1, 1)), LOWER(SUBSTRING(`status`, 2)))
-                                        END AS `status`, 
+                                        `status`, 
                                         `priority`, 
                                         `description` 
                                FROM     `core_plugins` 
@@ -230,7 +227,7 @@ class Plugins extends DataList implements PluginsInterface
                     Log::action(tr('Starting plugin ":vendor/:plugin"', [
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
-                    ]), 9);
+                    ]), 5);
 
                     include_once(DIRECTORY_ROOT . $plugin['path'] . 'Library/Plugin.php');
                     $plugin['class']::start();
@@ -263,10 +260,7 @@ class Plugins extends DataList implements PluginsInterface
     {
         $return = sql()->list('SELECT   `id`, 
                                               `name`,
-                                              CASE 
-                                                 WHEN `status` IS NULL THEN "' . tr('Ok') . '"
-                                                 ELSE CONCAT(UPPER(SUBSTRING(`status`, 1, 1)), LOWER(SUBSTRING(`status`, 2)))
-                                              END AS `status`, 
+                                              `status`, 
                                               `priority`, 
                                               `vendor`, 
                                               `class`, 
@@ -296,7 +290,7 @@ class Plugins extends DataList implements PluginsInterface
         return [
             'vendor'   => 'Phoundation',
             'name'     => 'Phoundation',
-            'status'   => tr('Ok'),
+            'status'   => null,
             'priority' => 0,
             'class'    => 'Plugins\Phoundation\Phoundation\Library\Plugin',
             'path'     => 'Plugins/Phoundation/',
@@ -313,10 +307,7 @@ class Plugins extends DataList implements PluginsInterface
     {
         $return = sql()->list('SELECT   `id`, 
                                               `name`, 
-                                              CASE 
-                                                 WHEN `status` IS NULL THEN "' . tr('Ok') . '"
-                                                 ELSE CONCAT(UPPER(SUBSTRING(`status`, 1, 1)), LOWER(SUBSTRING(`status`, 2)))
-                                              END AS `status`, 
+                                              `status`, 
                                               `priority`, 
                                               `vendor`, 
                                               `class`, 
