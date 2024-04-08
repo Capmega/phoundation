@@ -144,7 +144,7 @@ class Plugin extends DataEntry implements PluginInterface
             return true;
         }
 
-        return $this->getValueTypesafe('bool', 'enabled', false);
+        return $this->getValueTypesafe('string', 'status') === null;
     }
 
 
@@ -187,7 +187,7 @@ class Plugin extends DataEntry implements PluginInterface
             }
         }
 
-        return $this->setValue('enabled', (bool) $enabled);
+        return $this->setValue('status', $enabled ? null : 'disabled');
     }
 
 
