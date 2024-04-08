@@ -2287,29 +2287,6 @@ abstract class DataEntry implements DataEntryInterface
     }
 
     /**
-     * Returns true if this user account is locked
-     *
-     * @return bool
-     */
-    public function isLocked(): bool
-    {
-        return $this->isStatus('locked');
-    }
-
-    /**
-     * Lock this user account
-     *
-     * @param string|null $comments
-     *
-     * @return static
-     */
-    public function lock(?string $comments = null): static
-    {
-        Sessions::new()->drop($this);
-        return $this->setStatus('locked', $comments);
-    }
-
-    /**
      * Set the status for this database entry
      *
      * @param string|null $status
@@ -2322,26 +2299,13 @@ abstract class DataEntry implements DataEntryInterface
         $this->checkReadonly('set-status "' . $status . '"');
 
         if ($this->getId()) {
-            sql($this->database_connector)
+            sql($this->database_connector)->setDebug(true)
                 ->getSqlDataEntryObject($this)
                 ->setStatus($status, $comments);
         }
 
         $this->source['status'] = $status;
         return $this;
-    }
-
-    /**
-     * Unlock this user account
-     *
-     * @param string|null $comments
-     *
-     * @return static
-     */
-    public function unlock(?string $comments = null): static
-    {
-        Sessions::new()->drop($this);
-        return $this->setStatus(null, $comments);
     }
 
     /**
@@ -2632,8 +2596,8 @@ abstract class DataEntry implements DataEntryInterface
         if ($this->debug) {
             Log::debug('SAVING "' . get_class($this) . '" DATA ENTRY WITH ID "' . $this->getId() . '"', 10, echo_header: false);
 
-            $debug = sql($this->database_connector)->getQueryLogging();
-            sql($this->database_connector)->setQueryLogging(true);
+            $debug = sql($this->database_connector)->getDebug();
+            sql($this->database_connector)->setDebug(true);
         }
 
         // Write the entry
@@ -2668,7 +2632,7 @@ abstract class DataEntry implements DataEntryInterface
 
         // Return debug mode if required
         if (isset($debug)) {
-            sql($this->database_connector)->setQueryLogging($debug);
+            sql($this->database_connector)->setDebug($debug);
         }
 
         // Write the list, if exists

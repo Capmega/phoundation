@@ -690,4 +690,29 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function setRemoteUser(?UserInterface $remote_user): static;
+
+    /**
+     * Lock this user account
+     *
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function lock(?string $comments = null): static;
+
+    /**
+     * Unlock this user account
+     *
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function unlock(?string $comments = null): static;
+
+    /**
+     * Returns true if this user account is locked
+     *
+     * @return bool
+     */
+    public function isLocked(): bool;
 }

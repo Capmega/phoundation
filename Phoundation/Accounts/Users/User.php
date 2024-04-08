@@ -25,6 +25,7 @@ use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Core\Sessions\Sessions;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
@@ -175,6 +176,7 @@ class User extends DataEntry implements UserInterface
         parent::__construct($identifier, $column, $meta_enabled);
 
         if ($this->isGuest() or $this->isSystem()) {
+// TODO In theory, system and guest users should be readonly. Why has the following line been commented?
 //            $this->setReadonly(true);
         }
     }
@@ -1644,6 +1646,52 @@ class User extends DataEntry implements UserInterface
     }
 
     /**
+     * Lock this user account
+     *
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function lock(?string $comments = null): static
+    {
+        Sessions::new()->drop($this);
+        return $this->setStatus('locked', $comments);
+    }
+
+    /**
+     * Unlock this user account
+     *
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function unlock(?string $comments = null): static
+    {
+        Sessions::new()->drop($this);
+        return $this->setStatus(null, $comments);
+    }
+
+    /**
+     * Returns true if this user account is locked
+     *
+     * @return bool
+     */
+    public function isLocked(): bool
+    {
+        return $this->isStatus('locked');
+    }
+
+    /**
+     * Returns the name for this user
+     *
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        return trim($this->getValueTypesafe('string', 'first_names') . ' ' . $this->getValueTypesafe('string', 'last_names'));
+    }
+
+    /**
      * Send a notification to only this user.
      *
      * @return NotificationInterface
@@ -2092,15 +2140,5 @@ class User extends DataEntry implements UserInterface
                             ->setOptional(true)
                             ->setRender(false))
             ->add(DefinitionFactory::getData($this, 'data'));
-    }
-
-    /**
-     * Returns the name for this user
-     *
-     * @return string|null
-     */
-    public function getName(): ?string
-    {
-        return trim($this->getValueTypesafe('string', 'first_names') . ' ' . $this->getValueTypesafe('string', 'last_names'));
     }
 }

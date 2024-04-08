@@ -456,31 +456,6 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     function getDisplayName(): string;
 
     /**
-     * Lock this user account
-     *
-     * @param string|null $comments
-     *
-     * @return static
-     */
-    public function lock(?string $comments = null): static;
-
-    /**
-     * Unlock this user account
-     *
-     * @param string|null $comments
-     *
-     * @return static
-     */
-    public function unlock(?string $comments = null): static;
-
-    /**
-     * Returns true if this user account is locked
-     *
-     * @return bool
-     */
-    public function isLocked(): bool;
-
-    /**
      * Loads the specified data into this DataEntry object
      *
      * @param Iterator|array $source
