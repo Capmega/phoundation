@@ -67,22 +67,6 @@ if (Request::isPostRequestMethod()) {
 
                 Response::redirect();
 
-            case tr('Lock'):
-                $mount->lock();
-                Request::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been locked', [
-                    ':mount' => $mount->getDisplayName()
-                ]));
-
-                Response::redirect();
-
-            case tr('Unlock'):
-                $mount->unlock();
-                Request::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been unlocked', [
-                    ':mount' => $mount->getDisplayName()
-                ]));
-
-                Response::redirect();
-
             case tr('Undelete'):
                 $mount->undelete();
                 Request::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been undeleted', [
@@ -126,21 +110,6 @@ if (!$mount->isNew()) {
             ->setValue(tr('Delete'))
             ->setContent(tr('Delete'));
 
-        if ($mount->isLocked()) {
-            $lock = Button::new()
-                ->setFloatRight(true)
-                ->setMode(EnumDisplayMode::warning)
-                ->setValue(tr('Unlock'))
-                ->setContent(tr('Unlock'));
-
-        } else {
-            $lock = Button::new()
-                ->setFloatRight(true)
-                ->setMode(EnumDisplayMode::warning)
-                ->setValue(tr('Lock'))
-                ->setContent(tr('Lock'));
-        }
-
         // Audit button.
         $audit = Button::new()
             ->setFloatRight(true)
@@ -164,7 +133,6 @@ $mount_card = Card::new()
         ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/file-system/mounts.html'), true)
         ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
-        ->addButton(isset_get($lock))
         ->addButton(isset_get($impersonate)));
 
 
