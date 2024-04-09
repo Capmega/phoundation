@@ -498,9 +498,9 @@ class FileCore extends PathCore implements FileInterface
                     ':prefix' => $prefix,
                 ]));
             }
-            $location = Strings::endsWith($prefix, '/');
+            $location = Strings::ensureEndsWith($prefix, '/');
         }
-        $this->path = Strings::endsNotWith(Strings::startsNotWith($this->path, '/'), '/');
+        $this->path = Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($this->path, '/'), '/');
         // Check filesystem restrictions
         $this->restrictions->check($this->path, false);
         foreach (explode('/', $this->path) as $section) {

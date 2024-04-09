@@ -347,12 +347,12 @@ class Session implements SessionInterface
                                 ->setRoles('developer')
                                 ->setTitle(tr('Invalid cookie domain'))
                                 ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
-                                    ':domain'         => Strings::startsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'),
+                                    ':domain'         => Strings::ensureStartsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'),
                                     ':cookie_domain'  => Config::getBoolString('web.sessions.cookies.domain'),
                                     ':current_domain' => static::$domain,
                                 ]))
                                 ->send();
-                    Response::redirect(PROTOCOL . Strings::startsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'));
+                    Response::redirect(PROTOCOL . Strings::ensureStartsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'));
                 }
                 ini_set('session.cookie_domain', Config::getBoolString('web.sessions.cookies.domain'));
                 unset($test);

@@ -31,7 +31,7 @@ use Stringable;
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Http
+ * @package   Phoundation\Web
  */
 class UrlBuilder implements UrlBuilderInterface
 {
@@ -61,7 +61,7 @@ class UrlBuilder implements UrlBuilderInterface
         // This is either part of a URL or a complete URL
         if (!Url::isValid($url)) {
             // This is a section
-            $this->url = Strings::startsNotWith($url, '/');
+            $this->url = Strings::ensureStartsNotWith($url, '/');
         } else {
             // This is a valid URL, continue.
             $this->url = $url;
@@ -278,8 +278,8 @@ class UrlBuilder implements UrlBuilderInterface
             $base = Domains::getRootUrl();
         }
         // Build the URL
-        $base = Strings::endsWith($base, '/');
-        $url  = Strings::startsNotWith($url, '/');
+        $base = Strings::ensureEndsWith($base, '/');
+        $url  = Strings::ensureStartsNotWith($url, '/');
         $url  = $prefix . $url;
         $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
 
@@ -473,8 +473,8 @@ class UrlBuilder implements UrlBuilderInterface
         }
         $url  = Strings::from($url, 'data/content/cdn/');
         $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/');
-        $base = Strings::endsWith($base, '/');
-        $url  = Strings::startsNotWith($url, '/');
+        $base = Strings::ensureEndsWith($base, '/');
+        $url  = Strings::ensureStartsNotWith($url, '/');
         $url  .= static::addExtension($extension);
         $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
 
@@ -918,13 +918,13 @@ class UrlBuilder implements UrlBuilderInterface
                 // Remove this query instead of adding it
                 $this->url = preg_replace('/' . substr($query, 1) . '/', '', $this->url);
                 $this->url = str_replace('&&', '', $this->url);
-                $this->url = Strings::endsNotWith($this->url, [
+                $this->url = Strings::ensureEndsNotWith($this->url, [
                     '?',
                     '&',
                 ]);
                 continue;
             }
-            $this->url = Strings::endsNotWith($this->url, '?');
+            $this->url = Strings::ensureEndsNotWith($this->url, '?');
             if (!preg_match('/.+?=.*?/', $query)) {
                 throw new OutOfBoundsException(tr('Invalid query ":query" specified. Please ensure it has the "key=value" format', [
                     ':query' => $query,
@@ -942,7 +942,7 @@ class UrlBuilder implements UrlBuilderInterface
 
             } else {
                 // Append the query to the URL
-                $this->url = $this->url . Strings::endsWith($this->url, '&');
+                $this->url = $this->url . Strings::ensureEndsWith($this->url, '&');
             }
         }
 
@@ -987,7 +987,7 @@ class UrlBuilder implements UrlBuilderInterface
                 // Add the original query string
                 $query = $_SERVER['QUERY_STRING'];
             }
-            $this->url = Strings::endsNotWith($this->url, '?');
+            $this->url = Strings::ensureEndsNotWith($this->url, '?');
             if (!preg_match('/^[a-z0-9-_]+?=.*?$/i', $query)) {
                 throw new OutOfBoundsException(tr('Invalid query ":query" specified. Please ensure it has the "key=value" format', [
                     ':query' => $query,

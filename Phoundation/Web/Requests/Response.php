@@ -29,6 +29,7 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
+use Phoundation\Web\Html\Components\Widgets\Interfaces\BreadCrumbsInterface;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
@@ -167,9 +168,9 @@ class Response implements ResponseInterface
     /**
      * Bread crumbs for this page
      *
-     * @var BreadCrumbs|null
+     * @var BreadCrumbs
      */
-    protected static ?BreadCrumbs $bread_crumbs = null;
+    protected static BreadCrumbs $bread_crumbs;
 
     /**
      * If true, the template will build the <body> tag. If false, the page will have to build it itself
@@ -332,10 +333,14 @@ class Response implements ResponseInterface
     /**
      * Returns the bread crumbs for this page
      *
-     * @return BreadCrumbs|null
+     * @return BreadCrumbsInterface
      */
-    public static function getBreadCrumbs(): ?BreadCrumbs
+    public static function getBreadCrumbs(): BreadCrumbsInterface
     {
+        if (empty(static::$bread_crumbs)) {
+            static::$bread_crumbs = new BreadCrumbs();
+        }
+
         return static::$bread_crumbs;
     }
 
@@ -343,13 +348,17 @@ class Response implements ResponseInterface
     /**
      * Sets the bread crumbs for this page
      *
-     * @param BreadCrumbs|null $bread_crumbs
+     * @param BreadCrumbsInterface|null $bread_crumbs
      *
      * @return void
      */
-    public static function setBreadCrumbs(?BreadCrumbs $bread_crumbs = null): void
+    public static function setBreadCrumbs(?BreadCrumbsInterface $bread_crumbs = null): void
     {
-        static::$bread_crumbs = $bread_crumbs;
+        if (!$bread_crumbs) {
+            static::$bread_crumbs = new BreadCrumbs();
+        } else {
+            static::$bread_crumbs = $bread_crumbs;
+        }
     }
 
 

@@ -1332,7 +1332,7 @@ class Log
     public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         $query = SqlQueries::renderQueryString($query, $execute);
-        $query = Strings::endsWith($query, ';');
+        $query = Strings::ensureEndsWith($query, ';');
 
         return static::write('SQL QUERY: ' . $query, 'debug', $threshold, $clean, $newline, $use_prefix, $echo_screen);
     }

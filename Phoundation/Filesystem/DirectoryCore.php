@@ -407,7 +407,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
                 return '/';
             }
 
-            return Strings::endsNotWith($path, '/');
+            return Strings::ensureEndsNotWith($path, '/');
         }
 
         return $path;
@@ -445,7 +445,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
         if (!file_exists(Strings::unslash($this->path))) {
             // The complete requested directory doesn't exist. Try to create it, but directory by directory so that we can
             // correct issues as we run in to them
-            $dirs       = explode('/', Strings::startsNotWith($this->path, '/'));
+            $dirs       = explode('/', Strings::ensureStartsNotWith($this->path, '/'));
             $this->path = '';
             foreach ($dirs as $id => $dir) {
                 $this->path .= '/' . $dir;
@@ -493,7 +493,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
         } elseif (!is_dir($this->path)) {
             // Some other file is in the way. Delete the file, and retry.
             // Ensure that the "file" is not accidentally specified as a directory ending in a /
-            File::new(Strings::endsNotWith($this->path, '/'), $this->restrictions)
+            File::new(Strings::ensureEndsNotWith($this->path, '/'), $this->restrictions)
                 ->delete(false, $sudo);
 
             return $this->ensure($mode, $clear, $sudo);
@@ -1060,7 +1060,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
             foreach ($file_patterns as $file_pattern) {
                 $file_pattern = $base_pattern . $file_pattern;
                 $file = Strings::from($file, $this->getRealPath());
-                $test = Strings::fromReverse(Strings::endsNotWith($file, '/'), '/');
+                $test = Strings::fromReverse(Strings::ensureEndsNotWith($file, '/'), '/');
                 if ($file_pattern) {
                     if (is_dir($this->path . $file)) {
                         $directory_pattern = Strings::until($file_pattern, '.');
@@ -1119,7 +1119,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
         // Check file patterns
         foreach ($glob as $file) {
             $file = Strings::from($file, $this->path);
-            $test = Strings::fromReverse(Strings::endsNotWith($file, '/'), '/');
+            $test = Strings::fromReverse(Strings::ensureEndsNotWith($file, '/'), '/');
             if ($file_pattern) {
                 if (!preg_match($file_pattern, $test)) {
                     // This file doesn't match the test pattern
@@ -1224,7 +1224,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
         $this->restrictions->check($this->path, false);
         $this->exists();
 
-        return file_exists($this->path . Strings::startsNotWith($filename, '/'));
+        return file_exists($this->path . Strings::ensureStartsNotWith($filename, '/'));
     }
 
 
@@ -1362,7 +1362,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
      */
     public function addDirectory(PathInterface|string $directory): DirectoryInterface
     {
-        $directory = $this->getPath() . Strings::startsNotWith((string) $directory, '/');
+        $directory = $this->getPath() . Strings::ensureStartsNotWith((string) $directory, '/');
 
         return Directory::new($directory, $this->restrictions);
     }
@@ -1377,7 +1377,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
      */
     public function addFile(PathInterface|string $file): FileInterface
     {
-        $file = $this->getPath() . Strings::startsNotWith((string) $file, '/');
+        $file = $this->getPath() . Strings::ensureStartsNotWith((string) $file, '/');
 
         return File::new($file, $this->restrictions);
     }

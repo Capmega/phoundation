@@ -130,7 +130,7 @@ class Phones extends DataList implements PhonesInterface
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlDataEntryForm(string $name = 'phones[][]', bool $meta_visible = false): DataEntryFormInterface
+    public function getHtmlDataEntryFormObject(string $name = 'phones[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
         $phone       = Phone::new()
@@ -155,6 +155,7 @@ class Phones extends DataList implements PhonesInterface
         }
 
         return DataEntryForm::new()
+                            ->setDataEntry($this->parent)
                             ->appendContent(implode('<hr>', $content))
                             ->setRenderContentsOnly(true);
     }

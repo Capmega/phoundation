@@ -1262,8 +1262,8 @@ class Strings extends Utils
      * @param Stringable|string|int|null $source
      * @param Stringable|string|int      $needle
      * @param int                        $instance
-     * @param int                        $more
-     * @param int                        $offset
+     * @param int|null                   $more
+     * @param int|null                   $offset
      * @param bool                       $needle_required
      *
      * @return string
@@ -1304,7 +1304,7 @@ class Strings extends Utils
      *
      * @return string
      */
-    public static function startsWith(Stringable|string|null $source, Stringable|string $string): string
+    public static function ensureStartsWith(Stringable|string|null $source, Stringable|string $string): string
     {
         $source = (string) $source;
         $string = (string) $string;
@@ -1327,7 +1327,7 @@ class Strings extends Utils
      *
      * @return string
      */
-    public static function startsNotWith(Stringable|string|null $source, Stringable|string $string): string
+    public static function ensureStartsNotWith(Stringable|string|null $source, Stringable|string $string): string
     {
         $source = (string) $source;
         $string = (string) $string;
@@ -1351,7 +1351,7 @@ class Strings extends Utils
      */
     public static function slash(Stringable|string|null $string): string
     {
-        return static::endsWith((string) $string, '/');
+        return static::ensureEndsWith((string) $string, '/');
     }
 
 
@@ -1363,7 +1363,7 @@ class Strings extends Utils
      *
      * @return string
      */
-    public static function endsWith(Stringable|string|null $source, Stringable|string $string): string
+    public static function ensureEndsWith(Stringable|string|null $source, Stringable|string $string): string
     {
         $source = (string) $source;
         $string = (string) $string;
@@ -1389,7 +1389,7 @@ class Strings extends Utils
      */
     public static function unslash(Stringable|string|null $string, bool $loop = true): string
     {
-        return static::endsNotWith((string) $string, '/', $loop);
+        return static::ensureEndsNotWith((string) $string, '/', $loop);
     }
 
 
@@ -1402,7 +1402,7 @@ class Strings extends Utils
      *
      * @return string
      */
-    public static function endsNotWith(Stringable|string|null $source, Stringable|array|string $strings, bool $loop = true): string
+    public static function ensureEndsNotWith(Stringable|string|null $source, Stringable|array|string $strings, bool $loop = true): string
     {
         $source = (string) $source;
         if (is_array($strings)) {
@@ -1412,7 +1412,7 @@ class Strings extends Utils
                 $redo = false;
                 foreach ($strings as $string) {
                     $strings = (string) $strings;
-                    $new     = Strings::endsNotWith($source, $string, true);
+                    $new     = Strings::ensureEndsNotWith($source, $string, true);
                     if (!$string) {
                         throw new OutOfBoundsException(tr('Cannot ensure source not ends with string, empty string specified'));
                     }
@@ -1437,6 +1437,35 @@ class Strings extends Utils
         }
 
         return $source;
+    }
+
+
+    /**
+     * Ensure that specified string is surrounded with specified character
+     *
+     * @param Stringable|string|null $source
+     * @param Stringable|string      $string
+     *
+     * @return string
+     */
+    public static function ensureSurroundedWith(Stringable|string|null $source, Stringable|string $string): string
+    {
+        return static::ensureEndsWith(static::ensureStartsWith($source, $string), $string);
+    }
+
+
+    /**
+     * Ensure that specified string is NOT surrounded with specified character
+     *
+     * @param Stringable|string|null $source
+     * @param Stringable|string      $string
+     * @param bool                   $loop
+     *
+     * @return string
+     */
+    public static function ensureNotSurroundedWith(Stringable|string|null $source, Stringable|string $string, bool $loop = true): string
+    {
+        return static::ensureEndsNotWith(static::ensureStartsNotWith($source, $string), $string, $loop);
     }
 
 

@@ -183,7 +183,7 @@ class QueryObject implements QueryObjectInterface
         if (!$this->execute) {
             $this->execute = [];
         }
-        $this->execute[Strings::startsWith($column, ':')] = $value;
+        $this->execute[Strings::ensureStartsWith($column, ':')] = $value;
 
         return $this;
     }
@@ -395,7 +395,7 @@ class QueryObject implements QueryObjectInterface
             case 'NULL':
                 return ' IS NULL ';
             case 'string':
-                $this->execute[Strings::startsWith($column, ':')] = $value;
+                $this->execute[Strings::ensureStartsWith($column, ':')] = $value;
 
                 return ' = :' . $column . ' ';
             case 'array':

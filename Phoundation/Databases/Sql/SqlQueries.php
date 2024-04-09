@@ -209,7 +209,7 @@ class SqlQueries
     public static function is(string $column, array|string|int|float|null $values, string $label, ?array &$execute = null, string $glue = 'AND'): string
     {
         Arrays::ensure($execute);
-        $label  = Strings::startsWith($label, ':');
+        $label  = Strings::ensureStartsWith($label, ':');
         $return = [];
         if (is_array($values)) {
             $in    = [];
@@ -274,7 +274,7 @@ class SqlQueries
         if (empty($source)) {
             throw new OutOfBoundsException(tr('Specified source is empty'));
         }
-        $column = Strings::startsWith($column, ':');
+        $column = Strings::ensureStartsWith($column, ':');
         $source = Arrays::force($source);
 
         return Arrays::sequentialKeys($source, $column, $filter_null, $null_string, $start);
@@ -313,10 +313,10 @@ class SqlQueries
         $execute[$label] = $value;
         if ($not) {
             // (My)Sql curiosity: When comparing != string, NULL values are NOT evaluated
-            return ' (' . $column . ' != ' . Strings::startsWith($label, ':') . ' OR ' . $column . ' IS NULL)';
+            return ' (' . $column . ' != ' . Strings::ensureStartsWith($label, ':') . ' OR ' . $column . ' IS NULL)';
         }
 
-        return ' ' . $column . ' = ' . Strings::startsWith($label, ':');
+        return ' ' . $column . ' = ' . Strings::ensureStartsWith($label, ':');
     }
 
 
@@ -362,10 +362,10 @@ class SqlQueries
         }
         // Debug::enabled() already logs the query, don't log it again
         if (!Debug::getEnabled()) {
-            Log::debug(static::getLogPrefix() . Strings::endsWith($query, ';'));
+            Log::debug(static::getLogPrefix() . Strings::ensureEndsWith($query, ';'));
         }
 
-        return Debug::show(Strings::endsWith($query, ';'), 6);
+        return Debug::show(Strings::ensureEndsWith($query, ';'), 6);
     }
 
 
@@ -473,7 +473,7 @@ class SqlQueries
         if ($column_starts_with) {
             // Only return those columns that start with this string
             foreach ($in as $key => $column) {
-                if (!Strings::startsWith($key, $column_starts_with)) {
+                if (!Strings::ensureStartsWith($key, $column_starts_with)) {
                     unset($in[$key]);
                 }
             }

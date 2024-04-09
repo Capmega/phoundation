@@ -455,7 +455,7 @@ class Users extends DataList implements UsersInterface
                           ->setConnector(static::getDefaultConnectorName())
                           ->setSourceQuery('SELECT `' . $key_column . '`, ' . $value_column . ' 
                                          FROM  `accounts_users`
-                                         WHERE `status` IS NULL ORDER BY `' . Strings::fromReverse($value_column, ' ') . '`')
+                                         WHERE `status` IS NULL ORDER BY ' . Strings::ensureSurroundedWith(Strings::fromReverse($value_column, ' '), '`'))
                           ->setName('users_id')
                           ->setNone(tr('Select a user'))
                           ->setObjectEmpty(tr('No users available'));

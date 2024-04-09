@@ -103,7 +103,7 @@ class Domains
         // Ensure $domain doesn't end with . (which IS valid, but would mess up
         $domain = Strings::from(Config::getString('web.domains.primary.web'), '//');
         $domain = Strings::until($domain, '/');
-        $domain = Strings::endsNotWith($domain, '.');
+        $domain = Strings::ensureEndsNotWith($domain, '.');
 
         return $domain;
     }

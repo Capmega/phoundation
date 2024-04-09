@@ -849,7 +849,7 @@ class Debug
         if ($counter++ >= $count) {
             // Ensure that the shutdown function doesn't try to show the 404 page
             Core::removeShutdownCallback('route[postprocess]');
-            exit(Strings::endsWith(str_replace('%count%', $count, $message), PHP_EOL));
+            exit(Strings::ensureEndsWith(str_replace('%count%', $count, $message), PHP_EOL));
         }
     }
 
@@ -957,10 +957,10 @@ class Debug
         }
         // Debug::enabled() already logs the query, don't log it again
         if (!Debug::getEnabled()) {
-            Log::printr(Strings::endsWith($query, ';'));
+            Log::printr(Strings::ensureEndsWith($query, ';'));
         }
 
-        return show(Strings::endsWith($query, ';'), true, 6);
+        return show(Strings::ensureEndsWith($query, ';'), true, 6);
     }
 
 

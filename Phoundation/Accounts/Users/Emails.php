@@ -129,7 +129,7 @@ class Emails extends DataList implements EmailsInterface
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlDataEntryForm(string $name = 'emails[][]', bool $meta_visible = false): DataEntryFormInterface
+    public function getHtmlDataEntryFormObject(string $name = 'emails[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
         $email       = Email::new()
@@ -154,6 +154,7 @@ class Emails extends DataList implements EmailsInterface
         }
 
         return DataEntryForm::new()
+                            ->setDataEntry($this->parent)
                             ->appendContent(implode('<hr>', $content))
                             ->setRenderContentsOnly(true);
     }

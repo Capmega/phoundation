@@ -1,6 +1,6 @@
 <?php
 /**
- * Enum TableIdColumn
+ * Enum EnumTableIdColumn
  *
  *
  *

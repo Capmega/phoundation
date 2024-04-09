@@ -208,7 +208,7 @@ class RoutingParameters implements RoutingParametersInterface
             // Then explode to array
             $directory = Strings::from($target, DIRECTORY_WEB);
             $directory = Strings::from($directory, $dirname);
-            $directory = Strings::startsNotWith($directory, '/');
+            $directory = Strings::ensureStartsNotWith($directory, '/');
             $directory = dirname($directory);
             if ($directory === '.') {
                 // Current directory, there is no directory

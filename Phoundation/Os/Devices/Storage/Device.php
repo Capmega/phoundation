@@ -51,7 +51,7 @@ class Device extends File implements DeviceInterface
      */
     protected function checkDeviceFile(): void
     {
-        $this->path = Strings::startsWith($this->path, '/dev/');
+        $this->path = Strings::ensureStartsWith($this->path, '/dev/');
         if (
             !Lsblk::new()
                   ->isStorageDevice($this->path)

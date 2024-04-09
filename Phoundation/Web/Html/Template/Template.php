@@ -149,7 +149,7 @@ abstract class Template implements TemplateInterface
             if (is_object($class)) {
                 $class = get_class($class);
             }
-            $class      = Strings::startsNotWith($class, '\\');
+            $class      = Strings::ensureStartsNotWith($class, '\\');
             $class_path = Strings::from($class, 'Html\\', needle_required: true);
             if (str_starts_with($class, 'Plugins\\')) {
                 // First search for a template driver in the library itself

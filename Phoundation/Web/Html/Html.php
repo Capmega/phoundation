@@ -1514,7 +1514,7 @@ class Html
         Arrays::default($params, 'use_list', true);
         if (!$params['disabled']) {
             if ($params['class']) {
-                $params['class'] = Strings::endsWith($params['class'], ' ');
+                $params['class'] = Strings::ensureEndsWith($params['class'], ' ');
             }
             $params['class'] . 'hover';
         }
@@ -1604,7 +1604,7 @@ class Html
                 /*
                  * The src contains the CDN domain
                  */
-                $file_part = Strings::startsWith(Strings::from($src, cdn_domain('', '')), '/');
+                $file_part = Strings::ensureStartsWith(Strings::from($src, cdn_domain('', '')), '/');
                 $external  = false;
                 if (substr($file_part, 0, 5) === '/pub/') {
                     $file_src = DIRECTORY_ROOT . 'www/' . LANGUAGE . $file_part;
@@ -1617,7 +1617,7 @@ class Html
                 /*
                  * Here, mistakenly, the main domain was used for CDN data
                  */
-                $file_part = Strings::startsWith(Strings::from($src, domain('')), '/');
+                $file_part = Strings::ensureStartsWith(Strings::from($src, domain('')), '/');
                 $file_src  = DIRECTORY_ROOT . 'data/content' . $file_part;
                 $external  = false;
                 Notification(new HtmlException(tr('html_img(): The main domain ":domain" was specified for CDN data, please correct this issue', [':domain' => domain('')]), 'warning/invalid'));
@@ -1631,7 +1631,7 @@ class Html
             /*
              * Assume all images are PUB images
              */
-            $file_part = '/pub' . Strings::startsWith($src, '/');
+            $file_part = '/pub' . Strings::ensureStartsWith($src, '/');
             $file_src  = DIRECTORY_ROOT . 'www/' . LANGUAGE . $file_part;
             $src       = cdn_domain($src, $section);
         }
@@ -2261,7 +2261,7 @@ class Html
             /*
              * This is a local video
              */
-            $params['src']  = DIRECTORY_ROOT . 'www/en' . Strings::startsWith($params['src'], '/');
+            $params['src']  = DIRECTORY_ROOT . 'www/en' . Strings::ensureStartsWith($params['src'], '/');
             $params['type'] = mime_content_type($params['src']);
 
         } else {
@@ -2269,7 +2269,7 @@ class Html
                 /*
                  * This is a local video with domain specification
                  */
-                $params['src']  = DIRECTORY_ROOT . 'www/en' . Strings::startsWith(Strings::from($params['src'], domain()), '/');
+                $params['src']  = DIRECTORY_ROOT . 'www/en' . Strings::ensureStartsWith(Strings::from($params['src'], domain()), '/');
                 $params['type'] = mime_content_type($params['src']);
 
             } elseif (!Core::isProductionEnvironment()) {

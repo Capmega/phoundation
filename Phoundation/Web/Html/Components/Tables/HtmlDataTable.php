@@ -987,6 +987,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      * asc / up, or desc / down
      *
      * @param array|null $order
+     * @todo Add support for named columns that translate to numerical columns
      *
      * @return $this
      */
@@ -1082,6 +1083,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      * Sets the columns that can be ordered
      *
      * @param array|null $columns
+     * @todo Add support for named columns that translate to numerical columns
      *
      * @return $this
      */

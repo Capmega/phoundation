@@ -506,7 +506,7 @@ abstract class DataList extends Iterator implements DataListInterface
 
         } else {
             $query = 'SELECT ' . $key_column . ', ' . $value_column . ' 
-                      FROM   `' . static::getTable() . '` 
+                      FROM   ' . static::getTable() . ' 
                       ' . Strings::force($joins, ' ');
             if ($filters) {
                 $where = [];

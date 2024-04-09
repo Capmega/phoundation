@@ -137,7 +137,7 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
             $matches = array_flip($matches[0]);
             foreach ($replace as $key => $value) {
                 if (!array_key_exists($key, $matches)) {
-                    throw new \OutOfBoundsException(tr('The tr() replace key ":key" does not exist in the specified text ":text"', [
+                    throw new OutOfBoundsException(tr('The tr() replace key ":key" does not exist in the specified text ":text"', [
                         ':key'  => $key,
                         ':text' => $text,
                     ]));

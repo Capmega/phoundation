@@ -356,7 +356,7 @@ class Libraries
     protected static function listLibraryDirectories(string $directory, bool $has_vendors = false): array
     {
         $return    = [];
-        $directory = Strings::endsWith($directory, '/');
+        $directory = Strings::ensureEndsWith($directory, '/');
         if (!file_exists($directory)) {
             throw new NotExistsException(tr('The specified library base directory ":directory" does not exist', [
                 ':directory' => $directory,

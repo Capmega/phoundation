@@ -134,7 +134,7 @@ class Route
         static::$method = ($_POST ? 'POST' : 'GET');
         static::$ip     = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
         static::$query  = Strings::from($_SERVER['REQUEST_URI'], '?');
-        static::$uri    = Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
+        static::$uri    = Strings::ensureStartsNotWith($_SERVER['REQUEST_URI'], '/');
         static::$uri    = Strings::until(static::$uri, '?');
         if (str_ends_with($_SERVER['REQUEST_URI'], 'favicon.ico')) {
             // By default, increase logger threshold on all favicon.ico requests to avoid log clutter

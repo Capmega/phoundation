@@ -1,8 +1,8 @@
 <?php
 /**
- * Class HtmlException
+ * Class ComponentsException
  *
- * This is the standard exception for all Phoundation Html classes
+ *
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -12,10 +12,10 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Exception;
+namespace Phoundation\Web\Html\Components\Exception;
 
-use Phoundation\Web\Exception\WebException;
+use Phoundation\Web\Html\Exception\HtmlException;
 
-class HtmlException extends WebException
+class ComponentsException extends HtmlException
 {
 }

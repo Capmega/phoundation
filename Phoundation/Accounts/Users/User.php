@@ -1618,25 +1618,25 @@ class User extends DataEntry implements UserInterface
      *
      * @return DataEntryFormInterface
      */
-    public function getRolesHtmlDataEntryForm(string $name = 'roles_id[]'): DataEntryFormInterface
+    public function getRolesHtmlDataEntryFormObject(string $name = 'roles_id[]'): DataEntryFormInterface
     {
-        $entry   = DataEntryForm::new();
-        $roles   = Roles::new();
-        $select  = $roles->getHtmlSelect()
-                         ->setCache(true)
-                         ->setName($name);
-        $content = [];
+        $form   = DataEntryForm::new()
+                               ->setDataEntry($this);
+        $roles  = Roles::new();
+        $select = $roles->getHtmlSelect()
+                        ->setCache(true)
+                        ->setName($name);
         // Add extra entry with nothing selected
         $select->clearSelected();
-        $content[] = $select->render();
+        $content = [$select->render()];
         // Add all current roles
         foreach ($this->getRoles() as $role) {
             $select->setSelected($role->getId());
             $content[] = $select->render();
         }
 
-        return $entry->appendContent(implode('<br>', $content))
-                     ->setRenderContentsOnly(true);
+        return $form->appendContent(implode('<br>', $content))
+                    ->setRenderContentsOnly(true);
     }
 
 

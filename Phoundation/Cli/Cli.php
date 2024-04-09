@@ -330,7 +330,7 @@ class Cli
     public static function readInput(string $prompt, ?string $default = null): ?string
     {
         static::checkTty(STDIN, 'stdin');
-        $prompt = Strings::endsWith($prompt, ' ');
+        $prompt = Strings::ensureEndsWith($prompt, ' ');
         if ($default) {
             $prompt .= '[' . $default . '] ';
         }
@@ -364,10 +364,10 @@ class Cli
                 case 0:
                     throw new OutOfBoundsException(tr('Empty argument specified'));
                 case 1:
-                    $test = Strings::startsWith($argument, '-');
+                    $test = Strings::ensureStartsWith($argument, '-');
                     break;
                 default:
-                    $test = Strings::startsWith($argument, '--');
+                    $test = Strings::ensureStartsWith($argument, '--');
             }
         }
         if (preg_match('/^-[a-z0-9]$/i', $test)) {

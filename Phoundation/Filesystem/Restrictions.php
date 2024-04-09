@@ -271,7 +271,7 @@ class Restrictions implements RestrictionsInterface
         $child_directories = Arrays::force($child_directories);
         foreach ($this->source as $directory => $original_write) {
             foreach ($child_directories as $child) {
-                $restrictions->addDirectory(Strings::slash($directory) . Strings::startsNotWith($child, '/'), $write ?? $original_write);
+                $restrictions->addDirectory(Strings::slash($directory) . Strings::ensureStartsNotWith($child, '/'), $write ?? $original_write);
             }
         }
 
@@ -410,7 +410,7 @@ class Restrictions implements RestrictionsInterface
             foreach ($this->source as $path => $restrict_write) {
                 $path    = Path::getAbsolute($path, null, false);
                 $pattern = Path::getAbsolute($pattern, null, false);
-                if (str_starts_with($pattern, Strings::endsNotWith($path, '/'))) {
+                if (str_starts_with($pattern, Strings::ensureEndsNotWith($path, '/'))) {
                     if ($write and !$restrict_write) {
                         throw RestrictionsException::new(tr('Write access to directory patterns ":patterns" denied by ":label" restrictions', [
                             ':patterns' => $pattern,

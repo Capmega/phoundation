@@ -50,7 +50,7 @@ class Hook implements HookInterface
      */
     public function __construct(?string $class = null)
     {
-        $this->class = Strings::endsNotWith(trim($class), '/') . '/';
+        $this->class = Strings::ensureEndsNotWith(trim($class), '/') . '/';
         if ($this->class) {
             $this->directory .= $this->class;
         }

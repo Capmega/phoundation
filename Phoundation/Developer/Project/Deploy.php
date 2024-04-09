@@ -236,7 +236,7 @@ class Deploy implements DeployInterface
                     ':target' => $environment,
                 ]));
             }
-            $rsync_target = Strings::endsWith($env_config['server']['host'], ':');
+            $rsync_target = Strings::ensureEndsWith($env_config['server']['host'], ':');
             $rsync_target .= $env_config['server']['path'];
             if ($env_config['server']['user']) {
                 $rsync_target = $env_config['server']['user'] . '@' . $rsync_target;
@@ -244,10 +244,10 @@ class Deploy implements DeployInterface
 // TODO Add support for languages!
 //            foreach (Translations::getLanguages() as $language)
             // Add the project directory to the rsync_target
-            $project = Strings::fromReverse(Strings::endsNotWith(DIRECTORY_ROOT, '/'), '/');
+            $project = Strings::fromReverse(Strings::ensureEndsNotWith(DIRECTORY_ROOT, '/'), '/');
             // Execute rsync
             Log::action(tr('Executing rsync to target ":target"', [
-                ':target' => Strings::endsWith($rsync_target, '/') . $project,
+                ':target' => Strings::ensureEndsWith($rsync_target, '/') . $project,
             ]));
             // First ensure the target base directory exists!
             Process::new('mkdir')
@@ -268,7 +268,7 @@ class Deploy implements DeployInterface
                  ->setRemoteSudo($env_config['server']['sudo'])
                  ->setPort($env_config['server']['port'])
                  ->setSource(DIRECTORY_ROOT)
-                 ->setTarget(Strings::endsWith($rsync_target, '/') . $project)
+                 ->setTarget(Strings::ensureEndsWith($rsync_target, '/') . $project)
                  ->addExclude('.git')
                  ->addExclude('.gitignore')
                  ->addExclude('nohup.out')

@@ -270,12 +270,12 @@ class TableDefine extends SchemaAbstract
         $foreign_keys = implode(",\n", $this->foreign_keys) . "\n";
         // Build and execute query
         $query = 'CREATE TABLE `' . $this->name . '` (';
-        $query .= Strings::endsNotWith(trim(implode(",\n", $this->columns)), ',');
+        $query .= Strings::ensureEndsNotWith(trim(implode(",\n", $this->columns)), ',');
         if ($this->indices) {
-            $query .= ",\n" . Strings::endsNotWith(trim($indices), ',') . "\n";
+            $query .= ",\n" . Strings::ensureEndsNotWith(trim($indices), ',') . "\n";
         }
         if ($this->foreign_keys) {
-            $query .= ",\n" . Strings::endsNotWith(trim($foreign_keys), ',') . "\n";
+            $query .= ",\n" . Strings::ensureEndsNotWith(trim($foreign_keys), ',') . "\n";
         }
         $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . Config::get('databases.sql.connectors.system.auto-increment', 1) . ' DEFAULT CHARSET="' . Config::get('databases.sql.connectors.system.charset', 'utf8mb4') . '" COLLATE="' . Config::get('databases.sql.connectors.system.collate', 'utf8mb4_general_ci') . '";';
         $this->sql->query($query);

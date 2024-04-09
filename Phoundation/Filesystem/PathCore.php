@@ -185,7 +185,7 @@ class PathCore implements Stringable, PathInterface
     {
         $prefix    = '';
         $version   = 97;
-        $extension = Strings::startsWith($extension, '.');
+        $extension = Strings::ensureStartsWith($extension, '.');
         $path = Path::new($path)
                     ->appendPath($extension);
         $path->getParentDirectory()
@@ -218,7 +218,7 @@ class PathCore implements Stringable, PathInterface
      */
     public function appendPath(PathInterface|string $path, bool $make_absolute = false): PathInterface
     {
-        $path = $this->getPath() . Strings::startsNotWith((string) $path, '/');
+        $path = $this->getPath() . Strings::ensureStartsNotWith((string) $path, '/');
 
         return Path::new($path, $this->restrictions, $make_absolute);
     }
@@ -358,7 +358,7 @@ class PathCore implements Stringable, PathInterface
                 if (empty($_SERVER['HOME'])) {
                     throw new OutOfBoundsException(tr('Cannot use "~" paths, cannot determine this users home directory'));
                 }
-                $return = Strings::slash($_SERVER['HOME'], '/') . Strings::startsNotWith(substr($path, 1), '/');
+                $return = Strings::slash($_SERVER['HOME'], '/') . Strings::ensureStartsNotWith(substr($path, 1), '/');
                 break;
             case '.':
                 if (str_starts_with($path, './')) {
@@ -471,7 +471,7 @@ class PathCore implements Stringable, PathInterface
      */
     public function hasExtension(string $extension): bool
     {
-        return str_ends_with($this->path, '.' . Strings::startsNotWith($extension, '.'));
+        return str_ends_with($this->path, '.' . Strings::ensureStartsNotWith($extension, '.'));
     }
 
 
@@ -506,7 +506,7 @@ class PathCore implements Stringable, PathInterface
      */
     public function isPath(string $path): bool
     {
-        return Strings::endsNotWith($this->path, '/') === Strings::endsNotWith($path, '/');
+        return Strings::ensureEndsNotWith($this->path, '/') === Strings::ensureEndsNotWith($path, '/');
     }
 
 
@@ -608,7 +608,7 @@ class PathCore implements Stringable, PathInterface
      */
     public function isLink(): bool
     {
-        return is_link(Strings::endsNotWith($this->path, '/'));
+        return is_link(Strings::ensureEndsNotWith($this->path, '/'));
     }
 
 
@@ -1554,15 +1554,15 @@ class PathCore implements Stringable, PathInterface
             // The target itself exists and is a link. Whether that link target exists or not does not matter here, just
             // that its target matches our target
             if (
-                Strings::endsNotWith($target->readLink(true)
-                                            ->getPath(), '/') === Strings::endsNotWith($this->getPath(), '/')
+                Strings::ensureEndsNotWith($target->readLink(true)
+                                                  ->getPath(), '/') === Strings::ensureEndsNotWith($this->getPath(), '/')
             ) {
                 // Symlink already exists and points to the same file. This is what we wanted to begin with, so all fine
                 return $target;
             }
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists and points to ":current" instead', [
                 ':target'  => $target->getNormalizedPath(),
-                ':link'    => Strings::endsNotWith($calculated_target->getPath(), '/'),
+                ':link'    => Strings::ensureEndsNotWith($calculated_target->getPath(), '/'),
                 ':current' => $target->readLink(true)
                                      ->getNormalizedPath(),
             ]));
@@ -1571,7 +1571,7 @@ class PathCore implements Stringable, PathInterface
         if ($target->exists()) {
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists as a ":type"', [
                 ':target' => $target->getPath(),
-                ':link'   => Strings::endsNotWith($calculated_target->getPath(), '/'),
+                ':link'   => Strings::ensureEndsNotWith($calculated_target->getPath(), '/'),
                 ':type'   => $target->getTypeName(),
             ]));
         }
@@ -1581,7 +1581,7 @@ class PathCore implements Stringable, PathInterface
                ->ensure();
         // Symlink!
         try {
-            symlink(Strings::endsNotWith($calculated_target->getPath(), '/'), $target->getPath());
+            symlink(Strings::ensureEndsNotWith($calculated_target->getPath(), '/'), $target->getPath());
 
         } catch (PhpException $e) {
             // Crap, what happened?
@@ -1623,8 +1623,8 @@ class PathCore implements Stringable, PathInterface
     public function getRelativePathTo(PathInterface|string $target, PathInterface|string|bool $make_absolute = null): PathInterface
     {
         $target      = static::new($target, $this->restrictions);
-        $target_path = Strings::endsNotWith($target->getNormalizedPath($make_absolute), '/');
-        $source_path = Strings::endsNotWith($this->getNormalizedPath($make_absolute), '/');
+        $target_path = Strings::ensureEndsNotWith($target->getNormalizedPath($make_absolute), '/');
+        $source_path = Strings::ensureEndsNotWith($this->getNormalizedPath($make_absolute), '/');
         $source_path = explode('/', $source_path);
         $target_path = explode('/', $target_path);
         $return      = [];
@@ -1722,7 +1722,7 @@ class PathCore implements Stringable, PathInterface
         }
 
         // Put all the processed path parts back together again, normalized never ends with a / though!
-        return Strings::endsNotWith($root . $return, '/');
+        return Strings::ensureEndsNotWith($root . $return, '/');
     }
 
 
@@ -1740,7 +1740,7 @@ class PathCore implements Stringable, PathInterface
                 ':path' => $this->path,
             ]));
         }
-        $path = readlink(Strings::endsNotWith($this->path, '/'));
+        $path = readlink(Strings::ensureEndsNotWith($this->path, '/'));
         if ($make_absolute and !str_starts_with($path, '/')) {
             // Links are relative, make them absolute
             if (is_bool($make_absolute)) {
@@ -2765,7 +2765,7 @@ class PathCore implements Stringable, PathInterface
      */
     public function prependPath(PathInterface|string $path, bool $make_absolute = false): PathInterface
     {
-        $path = Strings::EndsWith((string) $path, '/') . $this->getPath();
+        $path = Strings::ensureEndsWith((string) $path, '/') . $this->getPath();
 
         return Path::new($path, $this->restrictions, $make_absolute);
     }
@@ -2806,7 +2806,7 @@ class PathCore implements Stringable, PathInterface
             // If the file is a directory then create it in the target, if it is a normal file, then create a symlink
             foreach ($this->getFilesObject() as $path) {
                 // Get the section that we'll be working with
-                $section = Strings::startsNotWith(Strings::from($path->getPath(), $this->path), '/');
+                $section = Strings::ensureStartsNotWith(Strings::from($path->getPath(), $this->path), '/');
                 if ($path->isDir()) {
                     $path->symlinkTreeToTarget($dir_target->addDirectory($section), $dir_alternate_path->addDirectory($section), rename: $rename);
 
@@ -2903,8 +2903,8 @@ class PathCore implements Stringable, PathInterface
             // The target itself exists and is a link. Whether that link target exists or not does not matter here, just
             // that its target matches our target
             if (
-                Strings::endsNotWith($this->readLink(true)
-                                          ->getPath(), '/') === Strings::endsNotWith($target->getPath(), '/')
+                Strings::ensureEndsNotWith($this->readLink(true)
+                                                ->getPath(), '/') === Strings::ensureEndsNotWith($target->getPath(), '/')
             ) {
                 // Symlink already exists and points to the same file. This is what we wanted to begin with, so all fine
                 return $target;
@@ -2930,7 +2930,7 @@ class PathCore implements Stringable, PathInterface
              ->ensure();
         // Symlink!
         try {
-            symlink(Strings::endsNotWith($calculated_target->getPath(), '/'), $this->getPath());
+            symlink(Strings::ensureEndsNotWith($calculated_target->getPath(), '/'), $this->getPath());
 
         } catch (PhpException $e) {
             // Crap, what happened?

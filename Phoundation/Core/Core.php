@@ -1399,7 +1399,7 @@ class Core implements CoreInterface
             if ($supported) {
                 // Language is defined by the www/LANGUAGE dir that is used.
                 $url      = $_SERVER['REQUEST_URI'];
-                $url      = Strings::startsNotWith($url, '/');
+                $url      = Strings::ensureStartsNotWith($url, '/');
                 $language = Strings::until($url, '/');
                 if (!in_array($language, $supported)) {
                     $language = Config::get('languages.default', 'en');

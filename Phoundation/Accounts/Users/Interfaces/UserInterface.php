@@ -647,7 +647,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @return DataEntryFormInterface
      */
-    public function getRolesHtmlDataEntryForm(string $name = 'roles_id[]'): DataEntryFormInterface;
+    public function getRolesHtmlDataEntryFormObject(string $name = 'roles_id[]'): DataEntryFormInterface;
 
 
     /**

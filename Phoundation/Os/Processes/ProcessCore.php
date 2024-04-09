@@ -446,7 +446,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         $output_file = File::getTemporary(false)
                            ->getPath();
         $commands    = $this->getFullCommandLine();
-        $commands    = Strings::endsNotWith($commands, ';');
+        $commands    = Strings::ensureEndsNotWith($commands, ';');
         if ($this->debug) {
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
 

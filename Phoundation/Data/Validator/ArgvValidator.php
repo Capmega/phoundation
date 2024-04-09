@@ -327,13 +327,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             $clean_field = Strings::until($field, ' ');
             if (str_starts_with($clean_field, '--')) {
                 // This is the long form argument
-                $clean_field = Strings::startsNotWith($clean_field, '-');
+                $clean_field = Strings::ensureStartsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 break;
             }
             if (str_starts_with($clean_field, '-')) {
                 // This is the short form argument, won't be a variable name unless there is no alternative
-                $clean_field = Strings::startsNotWith($clean_field, '-');
+                $clean_field = Strings::ensureStartsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 continue;
             }
@@ -440,13 +440,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             $clean_field = Strings::until($field, ' ');
             if (str_starts_with($clean_field, '--')) {
                 // This is the long form argument
-                $clean_field = Strings::startsNotWith($clean_field, '-');
+                $clean_field = Strings::ensureStartsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 break;
             }
             if (str_starts_with($clean_field, '-')) {
                 // This is the short form argument, won't be a variable name unless there is no alternative
-                $clean_field = Strings::startsNotWith($clean_field, '-');
+                $clean_field = Strings::ensureStartsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 continue;
             }

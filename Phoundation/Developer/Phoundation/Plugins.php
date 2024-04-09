@@ -495,7 +495,7 @@ class Plugins extends Project
             'disabled',
         ];
         foreach ($plugins as &$plugin) {
-            $plugin = Strings::endsNotWith($plugin, '/');
+            $plugin = Strings::ensureEndsNotWith($plugin, '/');
         }
         unset($plugin);
         // All the plugins must contain files, or git stash will fail

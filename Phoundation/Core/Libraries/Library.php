@@ -195,7 +195,7 @@ class Library implements LibraryInterface
         }
 
         // Now we can return the class path
-        return Strings::endsWith($namespace, '\\') . $class;
+        return Strings::ensureEndsWith($namespace, '\\') . $class;
     }
 
 
@@ -270,7 +270,7 @@ class Library implements LibraryInterface
             $class_path = get_class($class_path);
         }
         $file = str_replace('\\', '/', $class_path);
-        $file = Strings::startsNotWith($file, '/');
+        $file = Strings::ensureStartsNotWith($file, '/');
         $file = DIRECTORY_ROOT . $file . '.php';
         if ($check_php) {
             if (

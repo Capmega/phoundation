@@ -704,7 +704,7 @@ abstract class DataEntry implements DataEntryInterface
                     ]));
                 }
                 // See if there is a configuration entry in the specified path
-                $entry = Config::getArray(Strings::endsWith($path, '.') . Config::escape($identifier), []);
+                $entry = Config::getArray(Strings::ensureEndsWith($path, '.') . Config::escape($identifier), []);
                 if (count($entry)) {
                     // Return a new DataEntry object from the configuration source
                     $entry['id']   = -1;

@@ -205,7 +205,7 @@ if ($user->getId()) {
                       ->setCollapseSwitch(true)
                       ->setCollapsed(true)
                       ->setTitle(tr('Edit roles for this user [:count]', [':count' => $user->getRoles()->getCount()]))
-                      ->setContent($user->getRolesHtmlDataEntryForm()->render())
+                      ->setContent($user->getRolesHtmlDataEntryFormObject()->render())
                       ->setButtons(Buttons::new()
                                           ->addButton(tr('Save'))
                                           ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
