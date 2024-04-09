@@ -97,13 +97,13 @@ if (Request::isPostRequestMethod()) {
             // not
         }
 
-        Request::getFlashMessages()->addSuccessMessage(tr('We sent a lost password email to the specified address if it exists'));
+        Response::getFlashMessages()->addSuccessMessage(tr('We sent a lost password email to the specified address if it exists'));
 
     } catch (ValidationFailedException) {
-        Request::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
+        Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
 
     } catch (AuthenticationException) {
-        Request::getFlashMessages()->addWarningMessage(tr('The specified email or password was incorrect'));
+        Response::getFlashMessages()->addWarningMessage(tr('The specified email or password was incorrect'));
     }
 }
 
@@ -112,7 +112,7 @@ if (Request::isPostRequestMethod()) {
 Response::setBuildBody(false);
 
 ?>
-<?= Request::getFlashMessages()->render() ?>
+<?= Response::getFlashMessages()->render() ?>
     <body class="hold-transition login-page"
           style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/lost-password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">

@@ -35,6 +35,7 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
+use Throwable;
 
 /**
  * Class IteratorCore
@@ -1024,7 +1025,7 @@ class IteratorCore implements IteratorInterface
                         ]));
                     }
                     // This entry is not an array but DataEntry object. Compare using DataEntry::getSourceValue()
-                    if ($data->getValue($key) === $value) {
+                    if ($data->get($key) === $value) {
                         unset($this->source[$key]);
                     }
                 }
@@ -1388,7 +1389,11 @@ class IteratorCore implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
-        if (!array_key_exists($key, $this->source)) {
+        try {
+            return $this->source[$key];
+
+        } catch (Throwable $e) {
+            // The key does not exist
             if ($exception) {
                 throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
                     ':key'   => $key,
@@ -1396,10 +1401,9 @@ class IteratorCore implements IteratorInterface
                 ]));
             }
 
+            // Don't throw an exception, so return null instead
             return null;
         }
-
-        return $this->source[$key];
     }
 
 

@@ -1,4 +1,14 @@
 <?php
+/**
+ * Class FilterForm
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
 
 declare(strict_types=1);
 
@@ -10,16 +20,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use ReturnTypeWillChange;
 use Stringable;
 
-/**
- * Class FilterForm
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 class FilterForm extends DataEntryForm
 {
     /**
@@ -52,7 +52,7 @@ class FilterForm extends DataEntryForm
         foreach ($this->definitions as $definition) {
 //            if ($definition->getReadonly() or $definition->getDisabled()) {
 //                // This field cannot be modified and should not be validated, unless its new or has a static value
-//                if (!$this->isNew() and !$definition->getValue()) {
+//                if (!$this->isNew() and !$definition->get()) {
 //                    $validator->removeSourceKey($definition->getField());
 //                    continue;
 //                }

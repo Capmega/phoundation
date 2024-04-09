@@ -951,7 +951,7 @@ class Session implements SessionInterface
             // If this page has flash messages that have not yet been displayed then store them in the session variable
             // so that they can be displayed on the next page load
             static::getFlashMessages()
-                  ->pullMessagesFrom(Request::getFlashMessages());
+                  ->pullMessagesFrom(Response::getFlashMessages());
             if (static::$flash_messages->getCount()) {
                 // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
                 $_SESSION['flash_messages'] = static::$flash_messages->export();
@@ -1326,7 +1326,7 @@ class Session implements SessionInterface
                             ])
                             ->save();
                     Session::signOut();
-                    Request::getFlashMessages()
+                    Response::getFlashMessages()
                            ->addWarningMessage(tr('Something went wrong with your session, please sign in again'));
                     Response::redirect('sign-in');
                 }
@@ -1378,7 +1378,7 @@ class Session implements SessionInterface
                     $users_id = $_SESSION['user']['impersonate_id'];
                     unset($_SESSION['user']['impersonate_id']);
                     unset($_SESSION['user']['impersonate_url']);
-                    Request::getFlashMessages()
+                    Response::getFlashMessages()
                            ->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
                                ':user' => User::get($users_id, 'id')
                                               ->getLogId(),

@@ -24,7 +24,7 @@ if (Request::isPostRequestMethod()) {
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Request::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $user->forceApply();
     }
 }

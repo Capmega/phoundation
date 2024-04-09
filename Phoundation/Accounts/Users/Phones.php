@@ -137,7 +137,7 @@ class Phones extends DataList implements PhonesInterface
                             ->setColumnPrefix($name)
                             ->getHtmlDataEntryFormObject()
                             ->setMetaVisible($meta_visible);
-        $definitions = $phone->getDefinitions();
+        $definitions = $phone->getDefinitionsObject();
         $definitions->get('phone')
                     ->setSize(6);
         $definitions->get('account_type')

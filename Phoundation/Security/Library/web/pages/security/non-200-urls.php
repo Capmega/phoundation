@@ -58,8 +58,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn($filters->render() . $users->render(), DisplaySize::nine)
-            ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
+            ->addColumn($filters->render() . $users->render(), EnumDisplaySize::nine)
+            ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

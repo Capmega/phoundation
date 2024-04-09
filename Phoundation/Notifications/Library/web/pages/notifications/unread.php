@@ -41,7 +41,7 @@ if (Request::isPostRequestMethod()) {
                                 ':users_id' => Session::getUser()->getId()
         ]);
 
-        Request::getFlashMessages()->addSuccessMessage(tr('All your notifications have been marked as read'));
+        Response::getFlashMessages()->addSuccessMessage(tr('All your notifications have been marked as read'));
         Response::redirect();
     }
 }

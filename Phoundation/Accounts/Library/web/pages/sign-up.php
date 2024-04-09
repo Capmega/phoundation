@@ -42,9 +42,9 @@ if (Request::isPostRequestMethod()) {
         Response::redirect('prev');
 
     } catch (ValidationFailedException) {
-        Request::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
+        Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
     } catch (AuthenticationException) {
-        Request::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
+        Response::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
     }
 }
 

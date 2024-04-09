@@ -23,7 +23,7 @@ trait TraitDataEntryColor
      */
     public function getColor(): ?int
     {
-        return $this->getSourceValue('string', 'color');
+        return $this->get('string', 'color');
     }
 
 

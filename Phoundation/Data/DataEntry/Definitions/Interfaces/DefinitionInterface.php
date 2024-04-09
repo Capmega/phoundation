@@ -57,11 +57,11 @@ interface DefinitionInterface
     /**
      * Sets all the internal definitions for this column in one go
      *
-     * @param array $rules
+     * @param array $source
      *
      * @return static
      */
-    public function setSource(array $rules): static;
+    public function setSource(array $source): static;
 
 
     /**

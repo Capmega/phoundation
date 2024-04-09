@@ -136,7 +136,7 @@ class Emails extends DataList implements EmailsInterface
                             ->setColumnPrefix($name)
                             ->getHtmlDataEntryFormObject()
                             ->setMetaVisible($meta_visible);
-        $definitions = $email->getDefinitions();
+        $definitions = $email->getDefinitionsObject();
         $definitions->get('email')
                     ->setSize(6);
         $definitions->get('account_type')

@@ -23,7 +23,7 @@ trait TraitDataEntryBody
      */
     public function getBody(): ?string
     {
-        return $this->getSourceValue('string', 'body');
+        return $this->get('string', 'body');
     }
 
 

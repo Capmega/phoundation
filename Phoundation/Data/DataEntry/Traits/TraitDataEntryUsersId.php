@@ -23,7 +23,7 @@ trait TraitDataEntryUsersId
      */
     public function getUsersId(): ?int
     {
-        return $this->getSourceValue('int', 'users_id');
+        return $this->get('int', 'users_id');
     }
 
 

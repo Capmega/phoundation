@@ -433,8 +433,10 @@ class Definition implements DefinitionInterface
     {
         $classes = isset_get_typed('array', $this->source['classes'], []);
         if ($add_prefixless_names) {
-            // Add the column name without prefix as a class name
-            $classes[] = strtolower($this->getColumn());
+            if ($this->getColumn()) {
+                // Add the column name without prefix as a class name
+                $classes[] = strtolower($this->getColumn());
+            }
         }
 
         return $classes;

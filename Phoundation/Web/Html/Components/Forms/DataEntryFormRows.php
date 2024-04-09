@@ -210,7 +210,7 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
                 $column_count -= $definition->getSize();
                 if ($column_count < 0) {
                     throw OutOfBoundsException::new(tr('Cannot add column ":label" for table / class ":class" form with size ":size", the row would surpass size 12 by ":count"', [
-                        ':class' => $this->render_object?->getDefinitions()
+                        ':class' => $this->render_object?->getDefinitionsObject()
                                                         ->getTable(),
                         ':label' => $definition->getLabel() . ' [' . $definition->getColumn() . ']',
                         ':size'  => abs($definition->getSize()),

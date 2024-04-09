@@ -38,7 +38,7 @@ trait TraitDataEntryBranch
      */
     public function getBranch(): ?Branch
     {
-        $branches_id = $this->getSourceValue('int', 'branches_id');
+        $branches_id = $this->get('int', 'branches_id');
         if ($branches_id) {
             return new Branch($branches_id);
         }
@@ -54,7 +54,7 @@ trait TraitDataEntryBranch
      */
     public function getBranchesName(): ?string
     {
-        return $this->getSourceValue('string', 'branches_name') ?? Branch::new($this->getBranchesId(), 'id')
+        return $this->get('string', 'branches_name') ?? Branch::new($this->getBranchesId(), 'id')
                                                                          ?->getName();
     }
 
@@ -66,7 +66,7 @@ trait TraitDataEntryBranch
      */
     public function getBranchesId(): ?int
     {
-        return $this->getSourceValue('int', 'branches_id');
+        return $this->get('int', 'branches_id');
     }
 
 

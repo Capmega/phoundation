@@ -23,7 +23,7 @@ trait TraitDataEntryUserEmail
      */
     public function getUserEmail(): ?string
     {
-        return $this->getSourceValue('string', 'email');
+        return $this->get('string', 'email');
     }
 
 

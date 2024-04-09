@@ -52,7 +52,7 @@ if (Request::isPostRequestMethod()) {
                 // Update mount, roles, emails, and phones
                 $mount->apply(false)->save();
 
-                Request::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been saved', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been saved', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
@@ -61,7 +61,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Delete'):
                 $mount->delete();
-                Request::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been deleted', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been deleted', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
@@ -69,7 +69,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Undelete'):
                 $mount->undelete();
-                Request::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been undeleted', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been undeleted', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
@@ -78,7 +78,7 @@ if (Request::isPostRequestMethod()) {
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Request::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $mount->forceApply();
     }
 }

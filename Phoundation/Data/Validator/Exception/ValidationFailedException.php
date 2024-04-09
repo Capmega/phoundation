@@ -64,7 +64,7 @@ class ValidationFailedException extends ValidatorException implements Validation
         if ($this->data_entry_class and $this->data) {
             // Create a temporary data entry object to get its definitions.
             $data_entry_class = new $this->data_entry_class();
-            $definitions      = $data_entry_class->getDefinitions();
+            $definitions      = $data_entry_class->getDefinitionsObject();
             $data             = $this->data;
             $this->data       = [];
             // Create a new exception data array with labels instead of keys

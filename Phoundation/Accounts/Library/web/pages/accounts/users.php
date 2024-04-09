@@ -54,20 +54,20 @@ if (Request::isPostRequestMethod()) {
                 // Delete selected users
                 $count = Users::directOperations()->deleteKeys($post['id']);
 
-                Request::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" users', [':count' => $count]));
+                Response::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" users', [':count' => $count]));
                 Response::redirect('this');
 
             case tr('Undelete'):
                 // Undelete selected users
                 $count = Users::directOperations()->undeleteKeys($post['id']);
 
-                Request::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" users', [':count' => $count]));
+                Response::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" users', [':count' => $count]));
                 Response::redirect('this');
         }
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Request::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
     }
 }
 

@@ -23,7 +23,7 @@ trait TraitDataEntrySubject
      */
     public function getSubject(): ?string
     {
-        return $this->getSourceValue('string', 'subject');
+        return $this->get('string', 'subject');
     }
 
 

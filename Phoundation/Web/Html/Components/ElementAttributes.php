@@ -450,6 +450,17 @@ trait ElementAttributes
 
 
     /**
+     * Returns the HTML attributes as a string
+     *
+     * @return string|null
+     */
+    public function getAttributesString(): ?string
+    {
+        return Arrays::implodeWithKeys($this->attributes->getSource(), ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
+    }
+
+
+    /**
      * Returns the HTML class element attribute store
      *
      * @return IteratorInterface
@@ -486,20 +497,9 @@ trait ElementAttributes
      */
     public function addAttribute(string|float|int|null $value, string $key): static
     {
-        $this->attributes->add($value, $key);
+        $this->attributes->add($value, $key, exception: false);
 
         return $this;
-    }
-
-
-    /**
-     * Returns the HTML attributes as a string
-     *
-     * @return string|null
-     */
-    public function getAttributesString(): ?string
-    {
-        return Arrays::implodeWithKeys($this->attributes->getSource(), ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
     }
 
 
@@ -514,7 +514,7 @@ trait ElementAttributes
      */
     public function setAttribute(mixed $value, string|float|int|null $key = null, bool $skip_null = true): static
     {
-        $this->attributes->add($value, $key, $skip_null);
+        $this->attributes->add($value, $key, $skip_null, exception: false);
 
         return $this;
     }
@@ -531,7 +531,7 @@ trait ElementAttributes
     public function addAria(string|float|int|null $value, string $key): static
     {
         $this->getAria()
-             ->add($value, $key, skip_null: false);
+             ->add($value, $key, false, false);
 
         return $this;
     }
@@ -868,7 +868,7 @@ trait ElementAttributes
     public function setFloatRight(bool $right): static
     {
         if ($right) {
-            $this->classes->add(true, 'float-right');
+            $this->classes->add(true, 'float-right', exception: false);
         } else {
             $this->classes->removeKeys('float-right');
         }

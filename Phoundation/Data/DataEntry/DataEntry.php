@@ -1464,7 +1464,7 @@ abstract class DataEntry implements DataEntryInterface
             }
             if ($definition->getReadonly() or $definition->getDisabled()) {
                 // This column cannot be modified and should not be validated, unless its new or has a static value
-                if (!$this->isNew() and !$definition->getValue()) {
+                if (!$this->isNew() and !$definition->get()) {
                     $validator->removeSourceKey($definition->getColumn());
                     continue;
                 }
@@ -2803,7 +2803,7 @@ abstract class DataEntry implements DataEntryInterface
                             ->setSource($this->source)
                             ->setReadonly($this->readonly)
                             ->setDisabled($this->disabled)
-                            ->setDefinitions($this->definitions);
+                            ->setDefinitionsObject($this->definitions);
     }
 
 

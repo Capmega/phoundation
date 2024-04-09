@@ -606,7 +606,7 @@ class UrlBuilder implements UrlBuilderInterface
         } catch (ValidationFailedException) {
             Log::warning(tr('Validation for redirect url ":url" failed, ignoring', [
                 ':url' => GetValidator::new()
-                                      ->getSourceValue('redirect'),
+                                      ->get('redirect'),
             ]));
         }
         if (isset_get($get['redirect'])) {

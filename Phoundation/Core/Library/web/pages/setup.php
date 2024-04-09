@@ -44,7 +44,7 @@ if (Request::isPostRequestMethod()) {
 
         Response::setBuildBody(false);
         ?>
-        <?= Request::getFlashMessages()->render() ?>
+        <?= Response::getFlashMessages()->render() ?>
         <body class="hold-transition register-page" style="height: auto;">
         <div class="register-box">
             <div class="register-logo">
@@ -73,14 +73,14 @@ if (Request::isPostRequestMethod()) {
         return;
 
     } catch (EnvironmentExists|ValidationFailedException|SqlAccessDeniedException $e) {
-        Request::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
     }
 }
 
 // This page will build its own body
 Response::setBuildBody(false);
 ?>
-<?= Request::getFlashMessages()->render() ?>
+<?= Response::getFlashMessages()->render() ?>
     <body class="hold-transition register-page" style="height: auto;">
     <div class="register-box">
         <div class="register-logo">

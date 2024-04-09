@@ -1,4 +1,14 @@
 <?php
+/**
+ * Class DataEntryForm
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
 
 declare(strict_types=1);
 
@@ -23,16 +33,6 @@ use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Stringable;
 
-/**
- * Class DataEntryForm
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 {
     /**
@@ -164,12 +164,12 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      */
     public function render(): ?string
     {
-        if (!$this->getDefinitions()) {
+        if (!$this->getDefinitionsObject()) {
             throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no column definitions specified'));
         }
         $source        = $this->getSource();
-        $definitions   = $this->getDefinitions();
-        $prefix        = $this->getDefinitions()
+        $definitions   = $this->getDefinitionsObject();
+        $prefix        = $this->getDefinitionsObject()
                               ->getPrefix();
         $auto_focus_id = $this->getAutofocusId();
         if ($prefix) {
@@ -263,7 +263,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
             $definition->setReadonly($definition->getReadonly() or $this->getReadonly());
             $definition->setDisabled($definition->getDisabled() or $this->getDisabled());
             if ($definition->getDisabled() or $definition->getReadonly()) {
-                // This is an unmutable column. Don't add a column names as users aren't supposed to submit this.
+                // This is an immutable column. Don't add a column names as users aren't supposed to submit this.
                 $field_name = '';
             }
             // Hidden objects have size 0
@@ -534,6 +534,10 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         // Add one empty element to (if required) close any rows
         static::$list_count++;
 
+        if (empty($this->data_entry)) {
+            return '<div>' . $this->rows->render() . '</div>';
+        }
+
         return '<div id="' . $this->data_entry->getObjectName() . '">' . $this->rows->render() . '</div>';
     }
 
@@ -543,7 +547,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      *
      * @return DefinitionsInterface|null
      */
-    public function getDefinitions(): ?DefinitionsInterface
+    public function getDefinitionsObject(): ?DefinitionsInterface
     {
         return $this->definitions;
     }
@@ -556,7 +560,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      *
      * @return static
      */
-    public function setDefinitions(DefinitionsInterface $definitions): static
+    public function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $this->definitions = $definitions;
 

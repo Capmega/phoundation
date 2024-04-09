@@ -36,12 +36,12 @@ if (Request::isPostRequestMethod()) {
 //        $provider->apply()->save();
 //
 //        // Go back to where we came from
-//        Request::getFlashMessages()->addFlashMessage(tr('Success'), tr('Provider ":provider" has been updated', [':provider' => $provider->getName()]));
+//        Response::getFlashMessages()->addFlashMessage(tr('Success'), tr('Provider ":provider" has been updated', [':provider' => $provider->getName()]));
 //        Response::redirect('referer');
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Request::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $provider->forceApply();
     }
 }

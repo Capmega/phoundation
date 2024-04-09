@@ -1,6 +1,16 @@
 <?php
 
-use Composer\DependencyResolver\Request;
+/**
+ * Page sign-in
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
 use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
@@ -12,19 +22,8 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-
-
-/**
- * Page sign-in
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 
 
 // Only show sign-in page if we're a guest user
@@ -59,18 +58,18 @@ if (Request::isPostRequestMethod()) {
             Response::redirect(UrlBuilder::getRedirect($redirect, $user->getDefaultPage()));
 
         } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-            Request::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+            Response::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
                 ':count' => Config::getInteger('security.passwords.size.minimum', 10),
             ]));
 
             break;
 
         } catch (ValidationFailedException $e) {
-            Request::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
+            Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
             break;
 
         } catch (AuthenticationException $e) {
-            Request::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
+            Response::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
         }
     }
 
@@ -84,7 +83,7 @@ if (Request::isPostRequestMethod()) {
 Response::setBuildBody(false);
 
 ?>
-<?= Request::getFlashMessages()->render() ?>
+<?= Response::getFlashMessages()->render() ?>
     <body class="hold-transition login-page"
           style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/signin.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">

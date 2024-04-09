@@ -444,12 +444,12 @@ class ScanImage extends Command
     {
         $this->options = [];
         foreach ($profile->getOptions() as $option) {
-            if (!$option->getValue()) {
+            if (!$option->get()) {
                 // Only apply options that have a value
                 continue;
             }
             $this->options[] = $option->getKey();
-            $this->options[] = $option->getValue() . $option->getUnits();
+            $this->options[] = $option->get() . $option->getUnits();
         }
         $this->profile = $profile;
 

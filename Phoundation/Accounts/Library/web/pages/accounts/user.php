@@ -61,7 +61,7 @@ if (Request::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Request::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been saved', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been saved', [
                     ':user' => $user->getDisplayName(),
                 ]));
 
@@ -70,7 +70,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Impersonate'):
                 $user->impersonate();
-                Request::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
+                Response::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
                     ':user' => $user->getDisplayName(),
                 ]));
 
@@ -78,7 +78,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Delete'):
                 $user->delete();
-                Request::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been deleted', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been deleted', [
                     ':user' => $user->getDisplayName(),
                 ]));
 
@@ -86,7 +86,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Lock'):
                 $user->lock();
-                Request::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
                     ':user' => $user->getDisplayName(),
                 ]));
 
@@ -94,7 +94,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Unlock'):
                 $user->unlock();
-                Request::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
                     ':user' => $user->getDisplayName(),
                 ]));
 
@@ -102,7 +102,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Undelete'):
                 $user->undelete();
-                Request::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been undeleted', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been undeleted', [
                     ':user' => $user->getDisplayName(),
                 ]));
 
@@ -111,7 +111,7 @@ if (Request::isPostRequestMethod()) {
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Request::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $user->forceApply();
     }
 }
@@ -234,7 +234,7 @@ if ($user->getId()) {
                        ->setCollapseSwitch(true)
                        ->setCollapsed(true)
                        ->setTitle(tr('Additional email addresses for this user [:count]', [':count' => $user->getEmails()->getCount()]))
-                       ->setContent($user->getEmails()->getHtmlDataEntryForm()->render())
+                       ->setContent($user->getEmails()->getHtmlDataEntryFormObject()->render())
                        ->setButtons(Buttons::new()
                                            ->addButton(tr('Save'))
                                            ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
@@ -243,7 +243,7 @@ if ($user->getId()) {
                        ->setCollapseSwitch(true)
                        ->setCollapsed(true)
                        ->setTitle(tr('Additional phone numbers for this user [:count]', [':count' => $user->getPhones()->getCount()]))
-                       ->setContent($user->getPhones()->getHtmlDataEntryForm()->render())
+                       ->setContent($user->getPhones()->getHtmlDataEntryFormObject()->render())
                        ->setButtons(Buttons::new()
                                            ->addButton(tr('Save'))
                                            ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));

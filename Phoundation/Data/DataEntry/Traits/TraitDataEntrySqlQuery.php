@@ -26,7 +26,7 @@ trait TraitDataEntrySqlQuery
      */
     public function getSqlQuery(): ?SqlQueryInterface
     {
-        $sql_query = $this->getSourceValue('string', 'sql_query');
+        $sql_query = $this->get('string', 'sql_query');
         if ($sql_query) {
             return new SqlQuery($sql_query);
         }

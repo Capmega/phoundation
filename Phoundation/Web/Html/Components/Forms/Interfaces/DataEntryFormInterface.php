@@ -61,7 +61,7 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      *
      * @return DefinitionsInterface|null
      */
-    public function getDefinitions(): ?DefinitionsInterface;
+    public function getDefinitionsObject(): ?DefinitionsInterface;
 
 
     /**
@@ -71,5 +71,5 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      *
      * @return static
      */
-    public function setDefinitions(Definitions $definitions): static;
+    public function setDefinitionsObject(Definitions $definitions): static;
 }

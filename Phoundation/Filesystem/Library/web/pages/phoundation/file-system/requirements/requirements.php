@@ -54,7 +54,7 @@ if (Request::isPostRequestMethod()) {
                 // Delete selected requirements
                 $count = Requirements::directOperations()->deleteKeys($post['id']);
 
-                Request::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" requirements', [
+                Response::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" requirements', [
                     ':count' => $count
                 ]));
                 Response::redirect('this');
@@ -63,7 +63,7 @@ if (Request::isPostRequestMethod()) {
                 // Undelete selected requirements
                 $count = Requirements::directOperations()->undeleteKeys($post['id']);
 
-                Request::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" requirements', [
+                Response::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" requirements', [
                     ':count' => $count
                 ]));
                 Response::redirect('this');
@@ -71,7 +71,7 @@ if (Request::isPostRequestMethod()) {
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Request::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
     }
 }
 

@@ -62,23 +62,23 @@ if (Request::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Request::getFlashMessages()->addSuccessMessage(tr('Role ":role" has been saved', [':role' => $role->getName()]));
+                Response::getFlashMessages()->addSuccessMessage(tr('Role ":role" has been saved', [':role' => $role->getName()]));
                 Response::redirect('referer');
 
             case tr('Delete'):
                 $role->delete();
-                Request::getFlashMessages()->addSuccessMessage(tr('The role ":role" has been deleted', [':role' => $role->getName()]));
+                Response::getFlashMessages()->addSuccessMessage(tr('The role ":role" has been deleted', [':role' => $role->getName()]));
                 Response::redirect();
 
             case tr('Undelete'):
                 $role->undelete();
-                Request::getFlashMessages()->addSuccessMessage(tr('The role ":role" has been undeleted', [':role' => $role->getName()]));
+                Response::getFlashMessages()->addSuccessMessage(tr('The role ":role" has been undeleted', [':role' => $role->getName()]));
                 Response::redirect();
         }
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Request::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $role->forceApply();
     }
 }

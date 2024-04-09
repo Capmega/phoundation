@@ -47,20 +47,20 @@ if (Request::isPostRequestMethod()) {
             // Update user password
             $user->changePassword($post['password'], $post['passwordv']);
 
-            Request::getFlashMessages()->addSuccessMessage(tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]));
+            Response::getFlashMessages()->addSuccessMessage(tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]));
             Response::redirect(UrlBuilder::getPrevious('accounts/user+' . $user->getId() . '.html'));
 
         } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-            Request::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+            Response::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
                 ':count' => Config::getInteger('security.passwords.size.minimum', 10),
             ]));
 
         } catch (ValidationFailedException $e) {
             // Oops! Show validation errors and remain on this page
-            Request::getFlashMessages()->addMessage($e);
+            Response::getFlashMessages()->addMessage($e);
 
         } catch (PasswordNotChangedException $e) {
-            Request::getFlashMessages()->addWarningMessage(tr('Specified password is the same as the current password for this user. Please update the password for this account to have a new and secure password'));
+            Response::getFlashMessages()->addWarningMessage(tr('Specified password is the same as the current password for this user. Please update the password for this account to have a new and secure password'));
         }
     }
 }

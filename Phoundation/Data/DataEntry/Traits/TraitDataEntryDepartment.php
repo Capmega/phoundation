@@ -25,7 +25,7 @@ trait TraitDataEntryDepartment
      */
     public function getDepartmentsId(): ?int
     {
-        return $this->getSourceValue('int', 'departments_id');
+        return $this->get('int', 'departments_id');
     }
 
 
@@ -49,7 +49,7 @@ trait TraitDataEntryDepartment
      */
     public function getDepartment(): ?Department
     {
-        $departments_id = $this->getSourceValue('departments_id');
+        $departments_id = $this->get('departments_id');
         if ($departments_id) {
             return new Department($departments_id);
         }
@@ -65,7 +65,7 @@ trait TraitDataEntryDepartment
      */
     public function getDepartmentsName(): ?string
     {
-        return $this->getSourceValue('string', 'departments_name');
+        return $this->get('string', 'departments_name');
     }
 
 

@@ -23,7 +23,7 @@ trait TraitDataEntryNumber
      */
     public function getNumber(): ?int
     {
-        return $this->getSourceValue('int', 'number');
+        return $this->get('int', 'number');
     }
 
 

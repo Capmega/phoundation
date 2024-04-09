@@ -26,7 +26,7 @@ trait TraitDataEntryTemplate
      */
     public function getTemplatesId(): ?int
     {
-        return $this->getSourceValue('int', 'templates_id');
+        return $this->get('int', 'templates_id');
     }
 
 
@@ -50,7 +50,7 @@ trait TraitDataEntryTemplate
      */
     public function getTemplate(): ?TemplateInterface
     {
-        $templates_id = $this->getSourceValue('int', 'templates_id');
+        $templates_id = $this->get('int', 'templates_id');
         if ($templates_id) {
             return new Template($templates_id);
         }
@@ -66,7 +66,7 @@ trait TraitDataEntryTemplate
      */
     public function getTemplatesName(): ?string
     {
-        return $this->getSourceValue('string', 'templates_name');
+        return $this->get('string', 'templates_name');
     }
 
 

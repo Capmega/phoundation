@@ -25,7 +25,7 @@ trait TraitDataEntryEmployee
      */
     public function getEmployeesId(): ?int
     {
-        return $this->getSourceValue('int', 'employees_id');
+        return $this->get('int', 'employees_id');
     }
 
 
@@ -49,7 +49,7 @@ trait TraitDataEntryEmployee
      */
     public function getEmployee(): ?Employee
     {
-        $employees_id = $this->getSourceValue('int', 'employees_id');
+        $employees_id = $this->get('int', 'employees_id');
         if ($employees_id) {
             return new Employee($employees_id);
         }
@@ -65,7 +65,7 @@ trait TraitDataEntryEmployee
      */
     public function getEmployeesName(): ?string
     {
-        return $this->getSourceValue('string', 'employees_name');
+        return $this->get('string', 'employees_name');
     }
 
 

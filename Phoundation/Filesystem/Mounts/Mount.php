@@ -252,7 +252,7 @@ class Mount extends DataEntry implements MountInterface
         }
         // This path is inside a mount
         if ($this->isMounted()) {
-            if ($this->getCurrentSource() !== $this->getValue('source_path')) {
+            if ($this->getCurrentSource() !== $this->get('source_path')) {
                 throw new MountsException(tr('The target path ":target" should be mounted on ":source" but is currently mounted on ":current"', [
                     ':target'  => $this->getTargetPath(),
                     ':source'  => $this->getSourcePath(),
