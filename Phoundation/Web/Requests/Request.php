@@ -183,13 +183,6 @@ abstract class Request implements RequestInterface
     protected static TemplateInterface $template;
 
     /**
-     * Flash messages control
-     *
-     * @var FlashMessagesInterface|null
-     */
-    protected static ?FlashMessagesInterface $flash_messages = null;
-
-    /**
      * The menus for this page
      *
      * @var MenusInterface $menus
@@ -1055,17 +1048,6 @@ abstract class Request implements RequestInterface
 
 
     /**
-     * Returns the page flash messages
-     *
-     * @return FlashMessagesInterface|null
-     */
-    public static function getFlashMessages(): ?FlashMessagesInterface
-    {
-        return static::$flash_messages;
-    }
-
-
-    /**
      * Returns the file executed for this request
      *
      * @return IteratorInterface
@@ -1562,14 +1544,8 @@ abstract class Request implements RequestInterface
                     if (!static::isRequestType(EnumRequestTypes::api)) {
                         Session::startup();
                     }
-                    if (static::$flash_messages) {
-                        // Merge the flash messages from sessions into page flash messages.
-                        static::$flash_messages->pullMessagesFrom(Session::getFlashMessages());
-
-                    } else {
-                        // Initialize the flash messages
-                        static::$flash_messages = Session::getFlashMessages();
-                    }
+                    // Initialize the flash messages
+                    Response::addFlashMessages(Session::getFlashMessages());
                 }
         }
     }

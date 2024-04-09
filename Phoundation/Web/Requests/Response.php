@@ -28,6 +28,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
@@ -208,6 +209,13 @@ class Response implements ResponseInterface
      */
     protected static int $bytes_sent = 0;
 
+    /**
+     * Flash messages control
+     *
+     * @var FlashMessagesInterface|null
+     */
+    protected static ?FlashMessagesInterface $flash_messages = null;
+
 
     /**
      * Response class constructor
@@ -342,6 +350,38 @@ class Response implements ResponseInterface
     public static function setBreadCrumbs(?BreadCrumbs $bread_crumbs = null): void
     {
         static::$bread_crumbs = $bread_crumbs;
+    }
+
+
+    /**
+     * Returns the page flash messages
+     *
+     * @return FlashMessagesInterface|null
+     */
+    public static function getFlashMessages(): ?FlashMessagesInterface
+    {
+        return static::$flash_messages;
+    }
+
+
+    /**
+     * Add the specified flash messages to this Response's flash messages
+     *
+     * @param FlashMessagesInterface|null $flash_messages
+     *
+     * @return void
+     */
+    public static function addFlashMessages(?FlashMessagesInterface $flash_messages): void
+    {
+        if ($flash_messages) {
+            if (static::$flash_messages) {
+                // Merge the flash messages from sessions into page flash messages.
+                static::$flash_messages->pullMessagesFrom($flash_messages);
+
+            } else {
+                static::$flash_messages = $flash_messages;
+            }
+        }
     }
 
 
