@@ -43,7 +43,7 @@ class Map implements MapInterface
      */
     public function __construct(string $value, ?array $map)
     {
-        $this->setValue($value);
+        $this->set($value);
         $this->setSource($map);
     }
 
@@ -98,7 +98,7 @@ class Map implements MapInterface
      *
      * @return string
      */
-    public function getValue(): string
+    public function get(): string
     {
         return $this->value;
     }
@@ -111,7 +111,7 @@ class Map implements MapInterface
      *
      * @return static
      */
-    public function setValue(string $value): static
+    public function set(string $value): static
     {
         if (empty($value)) {
             throw new OutOfBoundsException(tr('No value on which to apply map specified'));

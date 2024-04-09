@@ -106,7 +106,7 @@ class Mapping implements MappingInterface
         // Register the maps
         $this->source[$regex] = [];
         foreach ($maps as $map) {
-            $this->source[$regex][$map->getValue()] = $map;
+            $this->source[$regex][$map->get()] = $map;
         }
 
         return $this;
