@@ -78,7 +78,7 @@ class SystemRequest
         try {
             // Execute the system page request
             Request::setSystem(true);
-            Request::execute($request_path . 'system/' . $variables['code'] . '.php');
+            Request::executeAndFlush($request_path . 'system/' . $variables['code'] . '.php', true);
             exit();
 
         } catch (Throwable $e) {
