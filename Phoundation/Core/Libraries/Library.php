@@ -246,7 +246,7 @@ class Library implements LibraryInterface
             $check_php = !Core::isProductionEnvironment();
         }
         $file = Library::getClassFile($class_path, $check_php);
-        Log::action(tr('Including class file ":file"', [':file' => $file]), 2);
+        Log::action(tr('Manually including class file ":file"', [':file' => $file]), 2);
         include_once($file);
 
         return $class_path;

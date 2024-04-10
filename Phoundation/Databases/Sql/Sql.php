@@ -753,7 +753,6 @@ class Sql implements SqlInterface
                             throw SqlServerNotAvailableException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the connection was refused. The database server may be down, or the configuration may be incorrect', [
                                     ':connector' => $this->connector,
                                     ':string'    => isset_get($connect_string),
-                                    ':database'  => $this->configuration['database'],
                                     ':user'      => $this->configuration['username'],
                                 ]))
                                                                 ->makeWarning();
