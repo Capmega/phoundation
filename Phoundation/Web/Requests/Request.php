@@ -1395,6 +1395,35 @@ abstract class Request implements RequestInterface
      */
     public static function execute(FileInterface|string $target): ?string
     {
+        return static::doExecute($target, false, false);
+    }
+
+
+    /**
+     * Execute the specified target for this request and returns the output
+     *
+     * @param FileInterface|string $target
+     * @param bool                 $die
+     *
+     * @return string|null
+     */
+    public static function executeAndFlush(FileInterface|string $target, bool $die = false): ?string
+    {
+        return static::doExecute($target, true, $die);
+    }
+
+
+    /**
+     * Execute the specified target for this request and returns the output
+     *
+     * @param FileInterface|string $target
+     * @param bool                 $flush
+     * @param bool                 $die
+     *
+     * @return string|null
+     */
+    public static function doExecute(FileInterface|string $target, bool $flush, bool $die): ?string
+    {
         // Set target and check if we have this target in the cache
         try {
             static::setTarget($target);
@@ -1417,7 +1446,7 @@ abstract class Request implements RequestInterface
 
         } else {
             ob_start();
-            static::preparePage();
+            static::preparePageVariable();
             $return = static::tryCache();
             if (!$return) {
                 // Check user access rights from routing parameters
@@ -1426,15 +1455,15 @@ abstract class Request implements RequestInterface
                     static::hasRightsOrRedirects(static::$parameters->getRequiredRights(static::$target));
                     Response::checkForceRedirect();
                 }
-                $return = static::executeWebTarget();
+                $return = static::executeWebTarget($flush);
             }
         }
         static::$stack_level--;
-        if (static::$stack_level < 0) {
+        if ($flush or (static::$stack_level < 0)) {
             // The stack is empty, there is nothing executing above this. Assume HTTP headers have been set by this
             // point, and send the output to the client
             Response::addOutput($return);
-            Response::send();
+            Response::send($die);
         }
 
         // Return the output to the page that executed this page
@@ -1506,12 +1535,12 @@ abstract class Request implements RequestInterface
      *
      * @return void
      */
-    protected static function preparePage(): void
+    protected static function preparePageVariable(): void
     {
         switch (static::getRequestType()) {
             case EnumRequestTypes::api:
                 Log::information(tr('Executing page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
-                    ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
+                    ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':template' => static::$template->getName(),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
@@ -1520,7 +1549,7 @@ abstract class Request implements RequestInterface
                 break;
             case EnumRequestTypes::ajax:
                 Log::information(tr('Executing page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
-                    ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
+                    ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
                 ]));
@@ -1528,7 +1557,7 @@ abstract class Request implements RequestInterface
                 break;
             default:
                 Log::information(tr('Executing page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
-                    ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
+                    ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':template' => static::$template->getName(),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
@@ -1584,17 +1613,18 @@ abstract class Request implements RequestInterface
     /**
      * Executes the specified target, processes default exceptions, and returns the results
      *
+     * @param bool $flush
+     *
      * @return string|null
      */
-    protected static function executeWebTarget(): ?string
+    protected static function executeWebTarget(bool $flush): ?string
     {
         // Execute the specified target file
         try {
             // Prepare page, increase the stack counter, and execute the target
-            if (static::$stack_level) {
+            if (!$flush and static::$stack_level) {
                 // Execute only the file and return the output
                 return execute();
-
             }
 
             // Execute the entire page and return the output
