@@ -506,11 +506,16 @@ abstract class DataList extends Iterator implements DataListInterface
 
         } else {
             $query = 'SELECT ' . $key_column . ', ' . $value_column . ' 
-                      FROM   ' . static::getTable() . ' 
+                      FROM  `' . static::getTable() . '` 
                       ' . Strings::force($joins, ' ');
             if ($filters) {
                 $where = [];
                 foreach ($filters as $key => $value) {
+                    if (str_contains($key, '.')) {
+                        $key = Strings::ensureSurroundedWith($key, '`');
+                    } else {
+                        $key = '`' . static::getTable() . '`.' . Strings::ensureSurroundedWith($key, '`');
+                    }
                     $where[] = SqlQueries::is($key, $value, 'value', $execute);
                 }
                 $query .= ' WHERE ' . implode(' AND ', $where);
