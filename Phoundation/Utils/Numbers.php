@@ -82,7 +82,8 @@ class Numbers
                 if (!$amount) {
                     return '0b';
                 }
-                $unit = 'b';
+                $precision = 0;
+                $unit      = 'b';
 
             } else {
                 $unit = 'kib';
@@ -106,7 +107,8 @@ class Numbers
                 if (!$amount) {
                     return '0b';
                 }
-                $unit = 'b';
+                $precision = 0;
+                $unit      = 'b';
 
             } else {
                 $unit = 'kb';
@@ -116,6 +118,7 @@ class Numbers
         switch (strtolower($unit)) {
             case 'b':
                 // Just bytes
+                $precision = 0;
                 break;
             case 'kb':
                 // Kilobytes
