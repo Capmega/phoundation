@@ -126,11 +126,16 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         $message = reset($messages);
         $message = Strings::force($message);
         $message = trim($message);
-        Log::warning('Exception: ' . $message, 2, echo_screen: !CliAutoComplete::isActive());
         // Remove the first message from $messages as this is stored in static::getMessage()
         array_shift($messages);
         $this->addMessages($messages);
         parent::__construct($message, 0, $previous);
+        Log::warning('Exception: ' . $message, 2, echo_screen: !CliAutoComplete::isActive());
+        if (Debug::getEnabled()) {
+            if (Config::getBoolean('debug.exceptions.auto.full', true)) {
+                Log::error($this, 2);
+            }
+        }
 // print_r($this); die();
     }
 
