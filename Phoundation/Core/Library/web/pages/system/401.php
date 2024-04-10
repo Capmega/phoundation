@@ -18,7 +18,7 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 Response::setHttpCode(401);
-Request::execute('pages/system/401');
+Request::executeSystem('401');
 
 //// Get the exception
 //$e = Core::readRegister('e');

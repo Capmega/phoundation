@@ -20,7 +20,7 @@ use Phoundation\Web\Requests\Response;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
-Request::execute('system/404');
+Request::executeSystem('404');
 
 // Only show sign-up page if we're a guest user
 if (!Session::getUser()->isGuest()) {
