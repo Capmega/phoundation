@@ -1389,21 +1389,20 @@ class IteratorCore implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
-        try {
-            return $this->source[$key];
+        if ($exception) {
+            try {
+                return $this->source[$key];
 
-        } catch (Throwable $e) {
-            // The key does not exist
-            if ($exception) {
+            } catch (Throwable $e) {
+                // The key does not exist
                 throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
                     ':key'   => $key,
                     ':class' => get_class($this),
                 ]));
             }
-
-            // Don't throw an exception, so return null instead
-            return null;
         }
+
+        return isset_get($this->source[$key]);
     }
 
 
