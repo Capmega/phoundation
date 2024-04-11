@@ -153,6 +153,7 @@ class Session implements SessionInterface
         if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
+        Log::action(tr('Starting session object'), 1);
         static::checkDomains();
         static::configureCookies();
         static::checkCookie();
@@ -471,10 +472,7 @@ class Session implements SessionInterface
                 // API's don't do cookies at all
                 return false;
             case EnumRequestTypes::ajax:
-                // AJAX requests only do readonly cookies, they won't emit cookies
-                if (array_key_exists(Config::getString('web.sessions.cookies.name', 'phoundation'), $_COOKIE)) {
-
-                }
+                // TODO Implement
         }
         if (isset_get(Core::readRegister('session', 'client')['type']) === 'crawler') {
             // Do not send cookies to crawlers!
@@ -621,7 +619,7 @@ class Session implements SessionInterface
      */
     protected static function create(): bool
     {
-        Log::action(tr('Created new session for user ":user"', [
+        Log::success(tr('Created new session for user ":user"', [
             ':user' => static::getUser()
                              ->getLogId(),
         ]));
