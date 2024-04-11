@@ -1554,6 +1554,12 @@ abstract class Request implements RequestInterface
                     ':language' => LANGUAGE,
                 ]));
                 static::$page = new Ajax();
+
+                if (!static::$stack_level) {
+                    // Start session only for AJAX and HTML requests
+                    Session::startup();
+                }
+
                 break;
             default:
                 Log::information(tr('Executing page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
@@ -1570,10 +1576,8 @@ abstract class Request implements RequestInterface
                 }
                 if (!static::$stack_level) {
                     // Start session only for AJAX and HTML requests
-                    if (!static::isRequestType(EnumRequestTypes::api)) {
-                        Session::startup();
-                    }
                     // Initialize the flash messages
+                    Session::startup();
                     Response::addFlashMessages(Session::getFlashMessages());
                 }
         }
