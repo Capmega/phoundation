@@ -869,7 +869,7 @@ class Definition implements DefinitionInterface
 
         } catch (Throwable $e) {
             if (str_contains($e->getMessage(), 'is not a valid backing value for enum')) {
-                // So the input type is not from InputTypeInterface, it must be from InputTypeExtendedInterface
+                // So the input type is not from InputTypeInterface, it must be from EnumInputType
                 return EnumElementInputType::from($return);
             }
             // WTF else could possibly have happened?
@@ -901,7 +901,7 @@ class Definition implements DefinitionInterface
     public function setInputType(EnumInputTypeInterface|string|null $value): static
     {
         if (is_string($value)) {
-            // Convert the string input type to the correct InputType or InputTypeExtended enums
+            // Convert the string input type to the correct EnumInputType
             try {
                 $value = EnumElementInputType::from($value);
 

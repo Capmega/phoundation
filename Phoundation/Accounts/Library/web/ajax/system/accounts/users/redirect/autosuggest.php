@@ -1,10 +1,4 @@
 <?php
-
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Json\AutoSuggestRequest;
-
-
 /**
  * AJAX REST request system/accounts/users/redirect/autosuggest
  *
@@ -16,20 +10,19 @@ use Phoundation\Web\Http\Json\AutoSuggestRequest;
  * @package   Phoundation\Web
  */
 
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Utils\Json;
+use Phoundation\Web\Http\Json\AutoSuggestRequest;
 
 // Ensure we'll have auto suggest data
 AutoSuggestRequest::init(true);
 
-
 // Validate
-$get = GetValidator::new()->validate();
-
+$get = GetValidator::new()
+                   ->validate();
 
 // Reply
-$reply = Json::encode([
-                          '/force-password-update.html',
-                      ]);
-
+$reply = Json::encode(['/force-password-update.html']);
 $reply = AutoSuggestRequest::getCallback() . '(' . $reply . ')';
 
 Json::reply($reply);
