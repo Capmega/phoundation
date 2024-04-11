@@ -50,7 +50,6 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Ajax\Ajax;
 use Phoundation\Web\Api\Api;
-use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenusInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menus;
 use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelsInterface;
@@ -954,8 +953,8 @@ abstract class Request implements RequestInterface
         // POST-requests should always show a flash message for feedback!
         if (static::isPostRequestMethod()) {
             if (
-                !static::getFlashMessages()
-                       ?->getCount()
+                !Response::getFlashMessages()
+                         ?->getCount()
             ) {
                 Log::warning('Detected POST request without a flash message to give user feedback on what happened with this request!');
             }
@@ -1554,12 +1553,10 @@ abstract class Request implements RequestInterface
                     ':language' => LANGUAGE,
                 ]));
                 static::$page = new Ajax();
-
                 if (!static::$stack_level) {
                     // Start session only for AJAX and HTML requests
                     Session::startup();
                 }
-
                 break;
             default:
                 Log::information(tr('Executing page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
