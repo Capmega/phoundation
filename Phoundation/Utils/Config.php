@@ -328,8 +328,7 @@ class Config implements ConfigInterface
                         ':environment' => ENVIRONMENT,
                         ':section'     => $section,
                         ':path'        => Strings::force($path, '.'),
-                    ]))
-                                                          ->makeWarning();
+                    ]));
                 }
 
                 // The requested key does not exist in configuration, return the default value instead
