@@ -1062,7 +1062,7 @@ class Core implements CoreInterface
                         } elseif (($e instanceof Exception) and ($e->isWarning())) {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
-                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
+                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
                             Request::executeSystem(500);
 
                         }
