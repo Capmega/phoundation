@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Traits;
 
 use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
+use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
@@ -70,11 +71,11 @@ trait TraitInputButtonProperties
     /**
      * Set the button type
      *
-     * @param EnumElementInputType|null $type
+     * @param EnumButtonType|null $type
      *
      * @return InputButton
      */
-    public function setType(?EnumElementInputType $type): static
+    public function setType(?EnumButtonType $type): static
     {
         $this->setElement('button');
         $this->input_type = $type;
@@ -86,9 +87,9 @@ trait TraitInputButtonProperties
     /**
      * Returns the button type
      *
-     * @return EnumElementInputType|null
+     * @return EnumButtonType|null
      */
-    public function getType(): ?EnumElementInputType
+    public function getType(): ?EnumButtonType
     {
         return $this->input_type;
     }
