@@ -265,6 +265,12 @@ class Route
             ]));
             Request::executeSystem(404);
         }
+
+        if (str_ends_with($_SERVER['HTTP_HOST'], '.')) {
+            // The specified domain ends with a "." like "phoundation.org." instead of "phoundation.org" so redirect
+            Response::redirect($_SERVER['REQUEST_SCHEME'] . '://' . Strings::ensureEndsNotWith($_SERVER['HTTP_HOST'], '.') . $_SERVER['REQUEST_URI']);
+        }
+
         // Apply mappings
         static::$uri = static::applyMappings(static::$uri);
     }
