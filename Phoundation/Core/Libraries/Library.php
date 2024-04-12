@@ -1,4 +1,14 @@
 <?php
+/**
+ * Library class
+ *
+ * This library can initialize all other libraries
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Developer
+ */
 
 declare(strict_types=1);
 
@@ -23,18 +33,15 @@ use Phoundation\Os\Processes\Commands\Cp;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 
-/**
- * Library class
- *
- * This library can initialize all other libraries
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Developer
- */
 class Library implements LibraryInterface
 {
+    /**
+     * The library vendor
+     *
+     * @var string $vendor
+     */
+    protected string $vendor;
+
     /**
      * The library name
      *
@@ -59,7 +66,7 @@ class Library implements LibraryInterface
     /**
      * The plugin object for this library
      *
-     * @var \Phoundation\Core\Plugins\Interfaces\PluginInterface|null $plugin
+     * @var PluginInterface|null $plugin
      */
     protected ?PluginInterface $plugin = null;
 
@@ -78,10 +85,19 @@ class Library implements LibraryInterface
      */
     public function __construct(string $directory)
     {
+        // Extract vendor and library names
         $directory       = Strings::slash($directory);
         $this->directory = $directory;
         $this->library   = Strings::fromReverse(Strings::unslash($directory), '/');
         $this->library   = strtolower($this->library);
+        $this->vendor    = strtolower($directory);
+        $this->vendor    = Strings::from(Strings::unslash($directory), DIRECTORY_ROOT);
+        $this->vendor    = strtolower($this->vendor);
+        $this->vendor    = Strings::untilReverse($this->vendor, '/' . $this->library);
+        $this->vendor    = strtolower($this->vendor);
+        if (str_starts_with($this->vendor, 'plugin')) {
+            $this->vendor = Strings::from($this->vendor, 'plugins/');
+        }
         // Get the Init object
         $this->loadUpdatesObject()
              ->loadPluginObject();
@@ -196,6 +212,17 @@ class Library implements LibraryInterface
 
         // Now we can return the class path
         return Strings::ensureEndsWith($namespace, '\\') . $class;
+    }
+
+
+    /**
+     * Returns the library vendor
+     *
+     * @return string
+     */
+    public function getVendor(): string
+    {
+        return $this->vendor;
     }
 
 
@@ -670,7 +697,7 @@ class Library implements LibraryInterface
         $restrictions = Restrictions::readonly($path, tr('Commands cache rebuild for ":library"', [
             ':library' => $this->getName(),
         ]));
-        $path = Directory::new($path, $restrictions);
+        $path         = Directory::new($path, $restrictions);
         if (!$path->exists()) {
             // This library does not have a web/ directory, we're fine
             return;
@@ -697,7 +724,7 @@ class Library implements LibraryInterface
         $restrictions = Restrictions::readonly($path, tr('Web page cache rebuild for ":library"', [
             ':library' => $this->getName(),
         ]));
-        $path = Directory::new($path, $restrictions);
+        $path         = Directory::new($path, $restrictions);
         if (!$path->exists()) {
             // This library does not have a web/ directory, we're fine
             return;
@@ -724,7 +751,7 @@ class Library implements LibraryInterface
         $restrictions = Restrictions::readonly($path, tr('Web page cache rebuild for ":library"', [
             ':library' => $this->getName(),
         ]));
-        $path = Directory::new($path, $restrictions);
+        $path         = Directory::new($path, $restrictions);
         if (!$path->exists()) {
             // This library does not have a web/ directory, we're fine
             return;

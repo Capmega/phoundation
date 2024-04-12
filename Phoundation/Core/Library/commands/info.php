@@ -1,4 +1,14 @@
 <?php
+/**
+ * Script info
+ *
+ * This script will display detailed information about the current framework, project, database ,etc.
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Scripts
+ */
 
 declare(strict_types=1);
 
@@ -15,17 +25,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
-
-/**
- * Script info
- *
- * This script will display detailed information about the current framework, project, database ,etc.
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Scripts
- */
 CliDocumentation::setUsage('./pho info');
 CliDocumentation::setHelp('The info script will show detailed information about the current framework, project, database and more
 
@@ -62,14 +61,15 @@ $templates_size = 0;
 //$framework_status = version_compare(Core::FRAMEWORKCODEVERSION, Core::getVersion('framework'));
 //$project_status   = version_compare(Config::get('project.version')  , Core::getVersion('project'));
 
+Log::cli(CliColor::apply(Strings::size(tr('Framework:'), 28), 'white') . ' ' . 'PHOUNDATION');
 Log::cli(CliColor::apply(Strings::size(tr('Project name:'), 28), 'white') . ' ' . PROJECT);
-Log::cli(CliColor::apply(Strings::size(tr('Platform:'), 28), 'white') . ' ' . PLATFORM);
+Log::cli(CliColor::apply(Strings::size(tr('Current platform:'), 28), 'white') . ' ' . PLATFORM);
 Log::cli(CliColor::apply(Strings::size(tr('Environment:'), 28), 'white') . ' ' . ENVIRONMENT);
 Log::cli(CliColor::apply(Strings::size(tr('Production:'), 28), 'white') . ' ' . Strings::fromBoolean(Core::isProductionEnvironment()));
 Log::cli(CliColor::apply(Strings::size(tr('Debug:'), 28), 'white') . ' ' . Strings::fromBoolean(Debug::getEnabled()));
 Log::cli(CliColor::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown') . ($no_db ? ' (' . CliColor::apply(tr('NOT CONNECTED BECAUSE ":reason"', [':reason' => $no_db]), 'red') . ')' : ''));
 
-Log::cli();
+Log::cli(' ');
 Log::cli(CliColor::apply(Strings::size(tr('System libraries:'), 28) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));
 
 foreach (Libraries::listLibraries(true, false, false) as $library) {
@@ -77,15 +77,15 @@ foreach (Libraries::listLibraries(true, false, false) as $library) {
     Log::cli(CliColor::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size(($no_db ? '?' : $library->getDatabaseVersion() ?? '-'), 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14));
 }
 
-Log::cli();
+Log::cli(' ');
 Log::cli(CliColor::apply(Strings::size(tr('Plugin libraries:'), 28) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));
 
 foreach (Libraries::listLibraries(false, true, false) as $library) {
     $plugins_size += $library->getSize();
-    Log::cli(CliColor::apply(Strings::size($library->getName(), 28) . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size(($no_db ? '?' : $library->getDatabaseVersion() ?? '-'), 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14), 'white'));
+    Log::cli(CliColor::apply(Strings::size($library->getVendor() . '/' . $library->getName(), 28) . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size(($no_db ? '?' : $library->getDatabaseVersion() ?? '-'), 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14), 'white'));
 }
 
-Log::cli();
+Log::cli(' ');
 Log::cli(CliColor::apply(Strings::size(tr('Template libraries:'), 61) . Strings::size(tr('Size'), 14), 'white'));
 
 foreach (Libraries::listLibraries(false, false, true) as $library) {
@@ -93,7 +93,7 @@ foreach (Libraries::listLibraries(false, false, true) as $library) {
     Log::cli(CliColor::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size('-', 14) . Strings::size('-', 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14));
 }
 
-Log::cli();
+Log::cli(' ');
 Log::cli(CliColor::apply(Strings::size(tr('Statistics:'), 28), 'white'));
 Log::cli(CliColor::apply(Strings::size(tr('Total library size:'), 28), 'white') . ' ' . Numbers::getHumanReadableBytes($system_size));
 Log::cli(CliColor::apply(Strings::size(tr('Plugins library size:'), 28), 'white') . ' ' . Numbers::getHumanReadableBytes($plugins_size));
