@@ -1068,8 +1068,9 @@ class Response implements ResponseInterface
     #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
     {
         if (!PLATFORM_WEB) {
-            throw new ResponseRedirectException(tr('static::target() can only be called on web sessions'));
+            throw new ResponseRedirectException(tr('Response::redirect() can only be called on web sessions'));
         }
+
         //        if (Session::getSignInKey()?->getAllowNavigation()) {
         //            // This session was opened using a sign-in key that does not allow navigation, we cannot target away!
         //            throw new RedirectException(tr('Cannot target sign-in session with UUID ":uuid" for user ":user" to URL ":url", this session does not allow navigation', [
@@ -1185,7 +1186,7 @@ class Response implements ResponseInterface
             // Headers already sent
             return -1;
         }
-        if (static::$page_headers === null) {
+        if (empty(static::$http_headers)) {
             // Specified NULL for headers, which is what buildHeaders() returned, so there are no headers to send
             return -1;
         }
@@ -1298,7 +1299,7 @@ class Response implements ResponseInterface
     public static function send(bool $exit = true): void
     {
         if (PLATFORM_WEB) {
-            if (static::$page_headers) {
+            if (isset(static::$page_headers)) {
                 // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
                 // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
                 Cache::write([
