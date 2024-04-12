@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Requests\Routing;
+namespace Phoundation\Web\Routing;
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
@@ -16,7 +16,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Requests\Routing\Interfaces\RoutingParametersInterface;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Templates\AdminLte\AdminLte;
 
 /**

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Requests\Routing;
+namespace Phoundation\Web\Routing;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Requests\Routing\Interfaces\MapInterface;
-use Phoundation\Web\Requests\Routing\Interfaces\MappingInterface;
+use Phoundation\Web\Routing\Interfaces\MapInterface;
+use Phoundation\Web\Routing\Interfaces\MappingInterface;
 
 /**
  * Class Mapping

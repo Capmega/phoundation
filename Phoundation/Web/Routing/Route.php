@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Requests\Routing;
+namespace Phoundation\Web\Routing;
 
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
@@ -32,7 +32,7 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-use Phoundation\Web\Requests\Routing\Interfaces\MappingInterface;
+use Phoundation\Web\Routing\Interfaces\MappingInterface;
 use Throwable;
 
 /**

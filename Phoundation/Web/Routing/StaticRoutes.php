@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Requests\Routing;
+namespace Phoundation\Web\Routing;
 
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Html\Components\Input\InputSelect;

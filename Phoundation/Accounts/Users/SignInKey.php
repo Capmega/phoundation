@@ -24,7 +24,7 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-use Phoundation\Web\Requests\Routing\Route;
+use Phoundation\Web\Routing\Route;
 use Stringable;
 
 /**

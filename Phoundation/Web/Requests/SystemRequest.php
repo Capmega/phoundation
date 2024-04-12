@@ -21,7 +21,7 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
-use Phoundation\Web\Requests\Routing\Route;
+use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Web;
 use Throwable;
 

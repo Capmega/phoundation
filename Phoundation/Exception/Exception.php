@@ -24,7 +24,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
-use Phoundation\Web\Requests\Routing\Route;
+use Phoundation\Web\Routing\Route;
 use RuntimeException;
 use Throwable;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Requests\Routing\Interfaces;
+namespace Phoundation\Web\Routing\Interfaces;
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;

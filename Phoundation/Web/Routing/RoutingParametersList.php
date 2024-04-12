@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Requests\Routing;
+namespace Phoundation\Web\Routing;
 
 use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Web\Exception\RouteException;
-use Phoundation\Web\Requests\Routing\Interfaces\RoutingParametersInterface;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Stringable;
 
 /**

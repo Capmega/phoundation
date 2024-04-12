@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Requests\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Requests\Routing\Interfaces\RoutingParametersInterface;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 
 /**
  * Trait TraitDataStaticParameters

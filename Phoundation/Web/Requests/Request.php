@@ -67,8 +67,8 @@ use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\RequestTypeException;
 use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
 use Phoundation\Web\Requests\Interfaces\RequestInterface;
-use Phoundation\Web\Requests\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Requests\Traits\TraitDataStaticRouteParameters;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Stringable;
 use Templates\AdminLte\AdminLte;
 use Throwable;
@@ -1446,7 +1446,7 @@ abstract class Request implements RequestInterface
         } else {
             ob_start();
             static::preparePageVariable();
-            $return = static::tryCache();
+            $return = static::tryCache($die);
             if (!$return) {
                 // Check user access rights from routing parameters
                 // Check only for non-system pages
@@ -1586,7 +1586,7 @@ abstract class Request implements RequestInterface
      *
      * @return string|null
      */
-    protected static function tryCache(): ?string
+    protected static function tryCache(bool $die): ?string
     {
         // Do we have a cached version available?
         $cache = Cache::read(static::$hash, 'pages');
@@ -1596,7 +1596,7 @@ abstract class Request implements RequestInterface
                 $cache = Json::decode($cache);
                 Response::setHttpHeaders($cache['headers']);
                 Response::addOutput($cache['output']);
-                Response::send();
+                Response::send($die);
 
             } catch (Throwable $e) {
                 // Cache failed!
