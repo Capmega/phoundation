@@ -1,4 +1,14 @@
 <?php
+/**
+ * Class Route
+ *
+ * Core routing class that will route URL request queries to PHP scripts in the DIRECTORY_WEB path
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
 
 declare(strict_types=1);
 
@@ -35,16 +45,6 @@ use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Routing\Interfaces\MappingInterface;
 use Throwable;
 
-/**
- * Class Route
- *
- * Core routing class that will route URL request queries to PHP scripts in the DIRECTORY_WEB path
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 class Route
 {
     /**
