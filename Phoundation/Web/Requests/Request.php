@@ -1462,7 +1462,7 @@ abstract class Request implements RequestInterface
             // The stack is empty, there is nothing executing above this. Assume HTTP headers have been set by this
             // point, and send the output to the client
             Response::addOutput($return);
-            Response::send($die);
+            Response::send(true);
         }
 
         // Return the output to the page that executed this page
