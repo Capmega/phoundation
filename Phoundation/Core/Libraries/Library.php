@@ -6,7 +6,7 @@ namespace Phoundation\Core\Libraries;
 
 use Error;
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\Interfaces\EnumLibraryTypeInterface;
+use Phoundation\Core\Enums\EnumLibraryType;
 use Phoundation\Core\Libraries\Exception\LibrariesException;
 use Phoundation\Core\Libraries\Exception\LibraryExistsException;
 use Phoundation\Core\Libraries\Interfaces\LibraryInterface;
@@ -292,12 +292,12 @@ class Library implements LibraryInterface
     /**
      * Creates a new library of the specified type
      *
-     * @param string                   $name
-     * @param EnumLibraryTypeInterface $type
+     * @param string          $name
+     * @param EnumLibraryType $type
      *
      * @return static
      */
-    public static function create(string $name, EnumLibraryTypeInterface $type): static
+    public static function create(string $name, EnumLibraryType $type): static
     {
         // Library names must be CamelCased
         if (!Strings::isCamelCase($name)) {

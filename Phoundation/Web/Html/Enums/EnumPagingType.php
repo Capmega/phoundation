@@ -1,11 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Enums;
-
-use Phoundation\Web\Html\Enums\Interfaces\EnumPagingTypeInterface;
-
 /**
  * Enum PagingType
  *
@@ -16,7 +9,12 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumPagingTypeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
-enum EnumPagingType: string implements EnumPagingTypeInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Enums;
+
+enum EnumPagingType: string
 {
     case numbers            = 'numbers';
     case simple             = 'simple';

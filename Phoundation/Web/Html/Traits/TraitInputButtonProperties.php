@@ -1,6 +1,6 @@
 <?php
 /**
- * Trait ButtonProperties
+ * Trait TraitButtonProperties
  *
  *
  *
@@ -12,15 +12,14 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Input\Buttons;
+namespace Phoundation\Web\Html\Traits;
 
-use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
-use Phoundation\Web\Html\Traits\TraitMode;
-use Phoundation\Web\Html\Traits\TraitUsesSize;
+use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
-trait ButtonProperties
+trait TraitInputButtonProperties
 {
     use TraitMode;
     use TraitUsesSize;
@@ -71,11 +70,11 @@ trait ButtonProperties
     /**
      * Set the button type
      *
-     * @param EnumInputTypeInterface|null $type
+     * @param EnumElementInputType|null $type
      *
-     * @return Button
+     * @return InputButton
      */
-    public function setType(?EnumInputTypeInterface $type): static
+    public function setType(?EnumElementInputType $type): static
     {
         $this->setElement('button');
         $this->input_type = $type;
@@ -87,9 +86,9 @@ trait ButtonProperties
     /**
      * Returns the button type
      *
-     * @return EnumInputTypeInterface|null
+     * @return EnumElementInputType|null
      */
-    public function getType(): ?EnumInputTypeInterface
+    public function getType(): ?EnumElementInputType
     {
         return $this->input_type;
     }
@@ -111,7 +110,7 @@ trait ButtonProperties
      *
      * @param Stringable|string|null $anchor_url
      *
-     * @return Button
+     * @return InputButton
      */
     public function setAnchorUrl(Stringable|string|null $anchor_url): static
     {
@@ -139,7 +138,7 @@ trait ButtonProperties
      *
      * @param bool $outlined
      *
-     * @return Button
+     * @return InputButton
      */
     public function setOutlined(bool $outlined): static
     {
@@ -165,7 +164,7 @@ trait ButtonProperties
      *
      * @param bool $block
      *
-     * @return Button
+     * @return InputButton
      */
     public function setBlock(bool $block): static
     {
@@ -191,7 +190,7 @@ trait ButtonProperties
      *
      * @param bool $flat
      *
-     * @return Button
+     * @return InputButton
      */
     public function setFlat(bool $flat): static
     {
@@ -217,7 +216,7 @@ trait ButtonProperties
      *
      * @param bool $rounded
      *
-     * @return Button
+     * @return InputButton
      */
     public function setRounded(bool $rounded): static
     {
@@ -243,7 +242,7 @@ trait ButtonProperties
      *
      * @param bool $wrapping
      *
-     * @return Button
+     * @return InputButton
      */
     public function setWrapping(bool $wrapping): static
     {

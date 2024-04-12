@@ -1,11 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Utils\Enums;
-
-use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
-
 /**
  * Enum EnumMatchMode
  *
@@ -16,17 +9,22 @@ use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @package   Phoundation\Utils
  */
-enum EnumMatchMode: string implements EnumMatchModeInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Utils\Enums;
+
+enum EnumMatchMode: string
 {
-    case not             = 'not';
-    case full            = 'full';
-    case regex           = 'regex';
-    case strict          = 'strict';
-    case case_ignore     = 'case_ignore';
-    case contains        = 'contains';
-    case contains_not    = 'contains_not';
-    case starts_with     = 'starts_with';
-    case starts_not_with = 'starts_not_with';
-    case ends_with       = 'ends_with';
-    case ends_not_with   = 'ends_not_with';
+    case not             = 'not';             // The value must NOT match the needle
+    case full            = 'full';            // The value must match the needle completely, but loosely (So "0" is 0)
+    case regex           = 'regex';           // The value must match this regular expression needle
+    case strict          = 'strict';          // The value must match the needle, and strict (So "0" is NOT 0)
+    case case_ignore     = 'case_ignore';     // The value must match the needle in a loose, case-insensitive comparison
+    case contains        = 'contains';        // The value must contain the needle
+    case contains_not    = 'contains_not';    // The value must NOT contain the needle
+    case starts_with     = 'starts_with';     // The value must start with the needle
+    case starts_not_with = 'starts_not_with'; // The value must NOT start with the needle
+    case ends_with       = 'ends_with';       // The value must end with the needle
+    case ends_not_with   = 'ends_not_with';   // The value must NOT end with the needle
 }

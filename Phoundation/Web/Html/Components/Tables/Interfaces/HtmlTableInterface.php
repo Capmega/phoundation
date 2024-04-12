@@ -7,7 +7,7 @@ namespace Phoundation\Web\Html\Components\Tables\Interfaces;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
-use Phoundation\Web\Html\Enums\Interfaces\EnumTableIdColumnInterface;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Stringable;
 
 /**
@@ -183,19 +183,19 @@ interface HtmlTableInterface extends ResourceElementInterface
     /**
      * Returns if the first column will automatically be converted to checkboxes
      *
-     * @return EnumTableIdColumnInterface
+     * @return EnumTableIdColumn
      */
-    public function getCheckboxSelectors(): EnumTableIdColumnInterface;
+    public function getCheckboxSelectors(): EnumTableIdColumn;
 
 
     /**
      * Sets if the first column will automatically be converted to checkboxes
      *
-     * @param EnumTableIdColumnInterface $checkbox_selectors
+     * @param EnumTableIdColumn $checkbox_selectors
      *
      * @return static
      */
-    public function setCheckboxSelectors(EnumTableIdColumnInterface $checkbox_selectors): static;
+    public function setCheckboxSelectors(EnumTableIdColumn $checkbox_selectors): static;
 
 
     /**

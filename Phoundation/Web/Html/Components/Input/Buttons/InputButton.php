@@ -15,14 +15,15 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input\Buttons;
 
 use Phoundation\Web\Html\Components\Icons\Icons;
-use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\InputButtonInterface;
 use Phoundation\Web\Html\Components\Input\Input;
 use Phoundation\Web\Html\Enums\EnumButtonType;
+use Phoundation\Web\Html\Traits\TraitInputButtonProperties;
 use Stringable;
 
-class Button extends Input implements ButtonInterface
+class InputButton extends Input implements InputButtonInterface
 {
-    use ButtonProperties;
+    use TraitInputButtonProperties;
 
     /**
      * Floating buttons
@@ -65,7 +66,7 @@ class Button extends Input implements ButtonInterface
      *
      * @param bool $floating
      *
-     * @return Button
+     * @return InputButton
      */
     public function setFloating(bool $floating): static
     {

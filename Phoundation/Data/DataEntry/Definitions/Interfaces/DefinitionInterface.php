@@ -1,4 +1,14 @@
 <?php
+/**
+ * Class Definition
+ *
+ * Contains the definitions for a single DataEntry object column
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Data
+ */
 
 declare(strict_types=1);
 
@@ -12,20 +22,9 @@ use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
-use Phoundation\Web\Html\Enums\Interfaces\EnumElementInterface;
-use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
+use Phoundation\Web\Html\Enums\EnumElement;
 use Stringable;
 
-/**
- * Class Definition
- *
- * Contains the definitions for a single DataEntry object column
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Data
- */
 interface DefinitionInterface
 {
     /**
@@ -65,7 +64,7 @@ interface DefinitionInterface
 
 
     /**
-     * Returns the prefix that is automatically added to this value, after validation
+     * Returns the prefix automatically added to this value, after validation
      *
      * @return string|null
      */
@@ -73,7 +72,7 @@ interface DefinitionInterface
 
 
     /**
-     * Sets the prefix that is automatically added to this value, after validation
+     * Sets the prefix automatically added to this value, after validation
      *
      * @param string|null $prefix
      *
@@ -83,7 +82,7 @@ interface DefinitionInterface
 
 
     /**
-     * Returns the postfix that is automatically added to this value, after validation
+     * Returns the postfix automatically added to this value, after validation
      *
      * @return string|null
      */
@@ -91,7 +90,7 @@ interface DefinitionInterface
 
 
     /**
-     * Sets the postfix that is automatically added to this value, after validation
+     * Sets the postfix automatically added to this value, after validation
      *
      * @param string|null $postfix
      *
@@ -462,11 +461,11 @@ interface DefinitionInterface
     /**
      * Sets the HTML client element to be used for this column
      *
-     * @param EnumElementInterface|null $value
+     * @param EnumElement|null $value
      *
      * @return static
      */
-    public function setElement(EnumElementInterface|null $value): static;
+    public function setElement(EnumElement|null $value): static;
 
 
     /**
@@ -491,19 +490,19 @@ interface DefinitionInterface
     /**
      * Return the type of input element.
      *
-     * @return EnumInputTypeInterface
+     * @return EnumElementInputType
      */
-    public function getInputType(): EnumInputTypeInterface;
+    public function getInputType(): EnumElementInputType;
 
 
     /**
      * Sets the type of input element.
      *
-     * @param EnumInputTypeInterface|string $value
+     * @param EnumElementInputType|string $value
      *
      * @return static
      */
-    public function setInputType(EnumInputTypeInterface|string $value): static;
+    public function setInputType(EnumElementInputType|string $value): static;
 
 
     /**
@@ -1210,19 +1209,19 @@ interface DefinitionInterface
     /**
      * Returns what element should be displayed if the value of this entry is NULL
      *
-     * @return EnumElementInterface|null
+     * @return EnumElement|null
      */
-    public function getNullElement(): EnumElementInterface|null;
+    public function getNullElement(): EnumElement|null;
 
 
     /**
      * Sets what element should be displayed if the value of this entry is NULL
      *
-     * @param EnumElementInterface|null $value
+     * @param EnumElement|null $value
      *
      * @return static
      */
-    public function setNullElement(EnumElementInterface|null $value): static;
+    public function setNullElement(EnumElement|null $value): static;
 
 
     /**

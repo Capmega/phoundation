@@ -25,8 +25,7 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Enums\EnumPagingType;
-use Phoundation\Web\Html\Enums\Interfaces\EnumPagingTypeInterface;
-use Phoundation\Web\Html\Enums\Interfaces\EnumTableRowTypeInterface;
+use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Requests\Response;
 
@@ -105,9 +104,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Pagination button display options
      *
-     * @var EnumPagingTypeInterface|null $paging_enabled
+     * @var EnumPagingType|null $paging_enabled
      */
-    protected ?EnumPagingTypeInterface $paging_type = null;
+    protected ?EnumPagingType $paging_type = null;
 
     /**
      * The menu available to the user displaying the optional paging lengths
@@ -234,7 +233,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                  'print',
                  'colvis',
              ])
-             ->addCallback(function (IteratorInterface|array &$row, EnumTableRowTypeInterface $type, &$params) {
+             ->addCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
                  if (isset($row['created_on'])) {
                      $row['created_on'] = DateTime::new($row['created_on'])
                                                   ->setTimezone('user')
@@ -786,9 +785,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Sets pagination button display options
      *
-     * @return EnumPagingTypeInterface
+     * @return EnumPagingType
      */
-    public function getPagingType(): EnumPagingTypeInterface
+    public function getPagingType(): EnumPagingType
     {
         return $this->paging_type;
     }
@@ -797,11 +796,11 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Sets pagination button display options
      *
-     * @param EnumPagingTypeInterface $type
+     * @param EnumPagingType $type
      *
      * @return $this
      */
-    public function setPagingType(EnumPagingTypeInterface $type): static
+    public function setPagingType(EnumPagingType $type): static
     {
         $this->paging_type = $type;
 

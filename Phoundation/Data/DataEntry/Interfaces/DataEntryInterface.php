@@ -14,7 +14,6 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Utils\Enums\EnumMatchMode;
-use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
@@ -571,12 +570,12 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * The extracted data entry will have the same class and interface as this
      *
-     * @param array|string           $columns
-     * @param EnumMatchModeInterface $match_mode
+     * @param array|string  $columns
+     * @param EnumMatchMode $match_mode
      *
      * @return DataEntryInterface
      */
-    public function extractDataEntryObject(array|string $columns, EnumMatchModeInterface $match_mode = EnumMatchMode::full): DataEntryInterface;
+    public function extractDataEntryObject(array|string $columns, EnumMatchMode $match_mode = EnumMatchMode::full): DataEntryInterface;
 
 
     /**

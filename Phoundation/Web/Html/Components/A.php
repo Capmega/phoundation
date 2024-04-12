@@ -6,7 +6,7 @@ namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\AInterface;
-use Phoundation\Web\Html\Enums\Interfaces\EnumAnchorTargetInterface;
+use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -64,9 +64,9 @@ class A extends Span implements AInterface
     /**
      * Returns the target for this anchor
      *
-     * @return EnumAnchorTargetInterface|null
+     * @return EnumAnchorTarget|null
      */
-    public function getTarget(): ?EnumAnchorTargetInterface
+    public function getTarget(): ?EnumAnchorTarget
     {
         return $this->attributes->get('target', false);
     }
@@ -75,11 +75,11 @@ class A extends Span implements AInterface
     /**
      * Sets the target for this anchor
      *
-     * @param EnumAnchorTargetInterface|null $target
+     * @param EnumAnchorTarget|null $target
      *
      * @return $this
      */
-    public function setTarget(?EnumAnchorTargetInterface $target): static
+    public function setTarget(?EnumAnchorTarget $target): static
     {
         $this->attributes->set($target, 'target');
 

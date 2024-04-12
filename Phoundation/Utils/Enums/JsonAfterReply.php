@@ -1,12 +1,20 @@
 <?php
+/**
+ * Enum JsonAfterReply
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
 
 declare(strict_types=1);
 
 namespace Phoundation\Utils\Enums;
 
-use Phoundation\Utils\Enums\Interfaces\JsonAfterReplyInterface;
-
-enum JsonAfterReply: string implements JsonAfterReplyInterface
+enum JsonAfterReply: string
 {
     case die                     = 'die';
     case continue                = 'continue';

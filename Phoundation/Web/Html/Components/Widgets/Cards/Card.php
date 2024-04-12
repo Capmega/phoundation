@@ -8,9 +8,9 @@ use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
-use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\InputButtonInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\InputButtonsInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Tabs;
 use Phoundation\Web\Html\Components\Widgets\Widget;
@@ -83,9 +83,9 @@ class Card extends Widget
     /**
      * Buttons for this card
      *
-     * @var ButtonsInterface $buttons
+     * @var InputButtonsInterface $buttons
      */
-    protected ButtonsInterface $buttons;
+    protected InputButtonsInterface $buttons;
 
     /**
      * The Tabs object
@@ -98,12 +98,12 @@ class Card extends Widget
     /**
      * Returns the buttons for this card
      *
-     * @return ButtonsInterface
+     * @return InputButtonsInterface
      */
-    public function getButtons(): ButtonsInterface
+    public function getButtons(): InputButtonsInterface
     {
         if (empty($this->buttons)) {
-            $this->buttons = new Buttons();
+            $this->buttons = new InputButtons();
         }
 
         return $this->buttons;
@@ -113,16 +113,16 @@ class Card extends Widget
     /**
      * Sets the buttons for this card
      *
-     * @param ButtonsInterface|ButtonInterface|null $buttons
+     * @param InputButtonsInterface|InputButtonInterface|null $buttons
      *
      * @return static
      */
-    public function setButtons(ButtonsInterface|ButtonInterface|null $buttons): static
+    public function setButtons(InputButtonsInterface|InputButtonInterface|null $buttons): static
     {
-        if (is_object($buttons) and ($buttons instanceof ButtonInterface)) {
+        if (is_object($buttons) and ($buttons instanceof InputButtonInterface)) {
             // This is a single button, store it in a buttons group
-            $buttons = Buttons::new()
-                              ->addButton($buttons);
+            $buttons = InputButtons::new()
+                                   ->addButton($buttons);
         }
         $this->buttons = $buttons;
 

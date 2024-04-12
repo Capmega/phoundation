@@ -10,7 +10,7 @@ use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryEmail;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryName;
-use Phoundation\Emails\Enums\Interfaces\EnumEmailAddressTypeInterface;
+use Phoundation\Emails\Enums\EnumEmailAddressType;
 
 /**
  * Class EmailAddressLinked
@@ -30,9 +30,9 @@ class EmailAddressLinked extends DataEntry
     /**
      * The type of email address for this email, to, from, cc, or bcc
      *
-     * @var EnumEmailAddressTypeInterface|null $type
+     * @var EnumEmailAddressType|null $type
      */
-    protected ?EnumEmailAddressTypeInterface $type = null;
+    protected ?EnumEmailAddressType $type = null;
 
 
     /**

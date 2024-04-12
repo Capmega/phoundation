@@ -53,7 +53,6 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Enums\EnumMatchMode;
-use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
@@ -2095,12 +2094,12 @@ abstract class DataEntry implements DataEntryInterface
      *
      * The extracted data entry will have the same class and interface as this
      *
-     * @param array|string           $columns
-     * @param EnumMatchModeInterface $match_mode
+     * @param array|string  $columns
+     * @param EnumMatchMode $match_mode
      *
      * @return DataEntryInterface
      */
-    public function extractDataEntryObject(array|string $columns, EnumMatchModeInterface $match_mode = EnumMatchMode::full): DataEntryInterface
+    public function extractDataEntryObject(array|string $columns, EnumMatchMode $match_mode = EnumMatchMode::full): DataEntryInterface
     {
         $entry = static::newFromSource(Arrays::keepKeys($this->source, $columns, $match_mode));
         $entry->getDefinitionsObject()

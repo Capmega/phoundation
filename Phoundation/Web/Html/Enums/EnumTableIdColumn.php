@@ -14,9 +14,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
 
-use Phoundation\Web\Html\Enums\Interfaces\EnumTableIdColumnInterface;
-
-enum EnumTableIdColumn: string implements EnumTableIdColumnInterface
+enum EnumTableIdColumn: string
 {
     case hidden   = 'hidden';
     case checkbox = 'checkbox';

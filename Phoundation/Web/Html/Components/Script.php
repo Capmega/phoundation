@@ -20,7 +20,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Html\Enums\Interfaces\EnumJavascriptWrappersInterface;
 use Phoundation\Web\Requests\Response;
 
 class Script extends Element implements ScriptInterface
@@ -65,9 +64,9 @@ class Script extends Element implements ScriptInterface
     /**
      * What event to wrap this script into
      *
-     * @var EnumJavascriptWrappersInterface $javascript_wrapper
+     * @var EnumJavascriptWrappers $javascript_wrapper
      */
-    protected EnumJavascriptWrappersInterface $javascript_wrapper = EnumJavascriptWrappers::dom_content;
+    protected EnumJavascriptWrappers $javascript_wrapper = EnumJavascriptWrappers::dom_content;
 
 
     /**
@@ -203,9 +202,9 @@ class Script extends Element implements ScriptInterface
     /**
      * Returns the event wrapper code for this script
      *
-     * @return EnumJavascriptWrappersInterface
+     * @return EnumJavascriptWrappers
      */
-    public function getJavascriptWrapper(): EnumJavascriptWrappersInterface
+    public function getJavascriptWrapper(): EnumJavascriptWrappers
     {
         return $this->javascript_wrapper;
     }
@@ -214,11 +213,11 @@ class Script extends Element implements ScriptInterface
     /**
      * Sets the event wrapper code for this script
      *
-     * @param EnumJavascriptWrappersInterface $javascript_wrapper
+     * @param EnumJavascriptWrappers $javascript_wrapper
      *
      * @return static
      */
-    public function setJavascriptWrapper(EnumJavascriptWrappersInterface $javascript_wrapper): static
+    public function setJavascriptWrapper(EnumJavascriptWrappers $javascript_wrapper): static
     {
         $this->javascript_wrapper = $javascript_wrapper;
 

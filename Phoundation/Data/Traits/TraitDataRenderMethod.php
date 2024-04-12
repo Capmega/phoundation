@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use Phoundation\Web\Html\Enums\EnumWebRenderMethods;
-use Phoundation\Web\Html\Enums\Interfaces\EnumWebRenderMethodsInterface;
 
 /**
  * Trait TraitDataRenderMethod
@@ -22,17 +21,17 @@ trait TraitDataRenderMethod
     /**
      * The render_method for this object
      *
-     * @var EnumWebRenderMethodsInterface|null $render_method
+     * @var EnumWebRenderMethods|null $render_method
      */
-    protected ?EnumWebRenderMethodsInterface $render_method = EnumWebRenderMethods::html;
+    protected ?EnumWebRenderMethods $render_method = EnumWebRenderMethods::html;
 
 
     /**
      * Returns the render_method data
      *
-     * @return EnumWebRenderMethodsInterface
+     * @return EnumWebRenderMethods
      */
-    public function getRenderMethod(): EnumWebRenderMethodsInterface
+    public function getRenderMethod(): EnumWebRenderMethods
     {
         return $this->render_method;
     }
@@ -41,11 +40,11 @@ trait TraitDataRenderMethod
     /**
      * Sets the render_method data
      *
-     * @param EnumWebRenderMethodsInterface $render_method
+     * @param EnumWebRenderMethods $render_method
      *
      * @return static
      */
-    public function setRenderMethod(EnumWebRenderMethodsInterface $render_method): static
+    public function setRenderMethod(EnumWebRenderMethods $render_method): static
     {
         $this->render_method = $render_method;
 

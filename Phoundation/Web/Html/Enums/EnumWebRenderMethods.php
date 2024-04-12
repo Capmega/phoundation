@@ -1,11 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Enums;
-
-use Phoundation\Web\Html\Enums\Interfaces\EnumWebRenderMethodsInterface;
-
 /**
  * Enum EnumRenderMethods
  *
@@ -16,7 +9,12 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumWebRenderMethodsInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
-enum EnumWebRenderMethods: string implements EnumWebRenderMethodsInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Enums;
+
+enum EnumWebRenderMethods: string
 {
     case javascript = 'javascript';
     case html       = 'html';

@@ -1,11 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Core\Enums;
-
-use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
-
 /**
  * Enum EnumRequestTypes
  *
@@ -41,7 +34,12 @@ use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
-enum EnumRequestTypes: string implements EnumRequestTypesInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Core\Enums;
+
+enum EnumRequestTypes: string
 {
     case api     = 'api';
     case admin   = 'admin';

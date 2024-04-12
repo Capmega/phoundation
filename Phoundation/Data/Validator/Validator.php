@@ -23,7 +23,6 @@ use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
 use Phoundation\Web\Http\Url;
 use ReflectionProperty;
 use Stringable;
@@ -1724,7 +1723,7 @@ abstract class Validator implements ValidatorInterface
                 // Validation already failed, don't test anything more
                 return;
             }
-            if (!($value instanceof EnumDisplayModeInterface)) {
+            if (!($value instanceof EnumDisplayMode)) {
                 if (is_string($value)) {
                     // Maybe a string representation of a backed enum?
                     $test = EnumDisplayMode::tryFrom($value);

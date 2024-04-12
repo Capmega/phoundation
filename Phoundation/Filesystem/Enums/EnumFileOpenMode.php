@@ -1,13 +1,6 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Filesystem\Enums;
-
-use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
-
 /**
- * enum EnumFileOpenMode
+ * Enum EnumFileOpenMode
  *
  * This enum contains all possible file modes in a human readable way
  *
@@ -17,7 +10,12 @@ use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
  * @category  Function reference
  * @package   Phoundation\Filesystem
  */
-enum EnumFileOpenMode: string implements EnumFileOpenModeInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Filesystem\Enums;
+
+enum EnumFileOpenMode: string
 {
     case readOnly            = 'r';
     case readWriteExisting   = 'r+';

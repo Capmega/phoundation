@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Accounts\Enums\EnumAccountType;
-use Phoundation\Accounts\Enums\Interfaces\EnumAccountTypeInterface;
 
 /**
  * Trait TraitDataEntryVerificationCode
@@ -33,13 +32,13 @@ trait TraitDataEntryAccountType
     /**
      * Sets the account_type for this user
      *
-     * @param EnumAccountTypeInterface|string|null $account_type
+     * @param EnumAccountType|string|null $account_type
      *
      * @return static
      */
-    public function setAccountType(EnumAccountTypeInterface|string|null $account_type): static
+    public function setAccountType(EnumAccountType|string|null $account_type): static
     {
-        if ($account_type instanceof EnumAccountTypeInterface) {
+        if ($account_type instanceof EnumAccountType) {
             $account_type = $account_type->value;
 
         } elseif ($account_type) {

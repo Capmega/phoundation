@@ -1,13 +1,6 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Enums;
-
-use Phoundation\Web\Html\Enums\Interfaces\EnumAttachJavascriptInterface;
-
 /**
- * Enum Services
+ * Enum EnumAttachJavascript
  *
  *
  *
@@ -16,7 +9,12 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumAttachJavascriptInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
-enum EnumAttachJavascript: string implements EnumAttachJavascriptInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Enums;
+
+enum EnumAttachJavascript: string
 {
     case here   = 'here';
     case header = 'header';

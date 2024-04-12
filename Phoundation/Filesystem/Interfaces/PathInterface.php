@@ -3,7 +3,7 @@
 namespace Phoundation\Filesystem\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
+use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
 use Phoundation\Filesystem\Restrictions;
@@ -496,12 +496,12 @@ interface PathInterface
     /**
      * This is an fopen() wrapper with some built-in error handling
      *
-     * @param EnumFileOpenModeInterface $mode
-     * @param resource                  $context
+     * @param EnumFileOpenMode $mode
+     * @param resource         $context
      *
      * @return static
      */
-    public function open(EnumFileOpenModeInterface $mode, $context = null): static;
+    public function open(EnumFileOpenMode $mode, $context = null): static;
 
 
     /**
@@ -633,9 +633,9 @@ interface PathInterface
     /**
      * Returns how the file was opened, NULL if the file is not open
      *
-     * @return EnumFileOpenModeInterface|null
+     * @return EnumFileOpenMode|null
      */
-    public function getOpenMode(): ?EnumFileOpenModeInterface;
+    public function getOpenMode(): ?EnumFileOpenMode;
 
 
     /**

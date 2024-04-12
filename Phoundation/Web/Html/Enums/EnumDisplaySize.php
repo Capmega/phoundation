@@ -1,11 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Enums;
-
-use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
-
 /**
  * Enum DisplaySizeInterface
  *
@@ -16,7 +9,12 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
-enum EnumDisplaySize: string implements EnumDisplaySizeInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Enums;
+
+enum EnumDisplaySize: string
 {
     case one    = '1';
     case two    = '2';

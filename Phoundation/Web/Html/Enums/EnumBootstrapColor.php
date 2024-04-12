@@ -1,11 +1,6 @@
 <?php
-
-namespace Phoundation\Web\Html\Enums;
-
-use Phoundation\Web\Html\Enums\Interfaces\EnumBootstrapColorInterface;
-
 /**
- * enum EnumBootstrapColor
+ * Enum EnumBootstrapColor
  *
  *
  *
@@ -14,7 +9,10 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumBootstrapColorInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Templates\AdminLte
  */
-enum EnumBootstrapColor: string implements EnumBootstrapColorInterface
+
+namespace Phoundation\Web\Html\Enums;
+
+enum EnumBootstrapColor: string
 {
     case primary   = 'primary';
     case secondary = 'secondary';

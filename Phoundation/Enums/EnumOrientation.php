@@ -1,11 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Enums;
-
-use Phoundation\Enums\Interfaces\EnumOrientationInterface;
-
 /**
  * Enum EnumOrientation
  *
@@ -16,7 +9,12 @@ use Phoundation\Enums\Interfaces\EnumOrientationInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
-enum EnumOrientation: string implements EnumOrientationInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Enums;
+
+enum EnumOrientation: string
 {
     case top    = 'top';
     case bottom = 'bottom';

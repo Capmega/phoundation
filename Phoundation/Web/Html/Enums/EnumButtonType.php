@@ -1,11 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Enums;
-
-use Phoundation\Web\Html\Enums\Interfaces\EnumButtonTypeInterface;
-
 /**
  * Enum ButtonTypes
  *
@@ -16,7 +9,12 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumButtonTypeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
-enum EnumButtonType: string implements EnumButtonTypeInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Enums;
+
+enum EnumButtonType: string
 {
     case button = 'button';
     case submit = 'submit';

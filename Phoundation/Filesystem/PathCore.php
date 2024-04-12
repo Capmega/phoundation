@@ -14,7 +14,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
-use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
@@ -104,9 +103,9 @@ class PathCore implements Stringable, PathInterface
     /**
      * If the file is opened, specifies how it was opened
      *
-     * @var EnumFileOpenModeInterface|null $open_mode
+     * @var EnumFileOpenMode|null $open_mode
      */
-    protected ?EnumFileOpenModeInterface $open_mode = null;
+    protected ?EnumFileOpenMode $open_mode = null;
 
     /**
      * The path requirements system
@@ -1810,9 +1809,9 @@ class PathCore implements Stringable, PathInterface
     /**
      * Returns how the file was opened, NULL if the file is not open
      *
-     * @return EnumFileOpenModeInterface|null
+     * @return EnumFileOpenMode|null
      */
-    public function getOpenMode(): ?EnumFileOpenModeInterface
+    public function getOpenMode(): ?EnumFileOpenMode
     {
         return $this->open_mode;
     }
@@ -1843,12 +1842,12 @@ class PathCore implements Stringable, PathInterface
     /**
      * Throws an exception if the file is not open
      *
-     * @param string                         $method
-     * @param EnumFileOpenModeInterface|null $mode
+     * @param string                $method
+     * @param EnumFileOpenMode|null $mode
      *
      * @return $this
      */
-    protected function checkOpen(string $method, ?EnumFileOpenModeInterface $mode = null): static
+    protected function checkOpen(string $method, ?EnumFileOpenMode $mode = null): static
     {
         if (!$this->isOpen()) {
             throw new FileOpenException(tr('Cannot execute method ":method()" on file ":file", it is closed', [
@@ -1894,11 +1893,11 @@ class PathCore implements Stringable, PathInterface
     /**
      * Ensure that the specified mode allows writing
      *
-     * @param EnumFileOpenModeInterface $mode
+     * @param EnumFileOpenMode $mode
      *
      * @return $this
      */
-    protected function checkWriteMode(EnumFileOpenModeInterface $mode): static
+    protected function checkWriteMode(EnumFileOpenMode $mode): static
     {
         if ($mode == EnumFileOpenMode::readOnly) {
             throw new ReadOnlyModeException(tr('Cannot write to file ":file", the file is opened in readonly mode', [
@@ -2114,12 +2113,12 @@ class PathCore implements Stringable, PathInterface
     /**
      * This is an fopen() wrapper with some built-in error handling
      *
-     * @param EnumFileOpenModeInterface $mode
-     * @param resource                  $context
+     * @param EnumFileOpenMode $mode
+     * @param resource         $context
      *
      * @return static
      */
-    public function open(EnumFileOpenModeInterface $mode, $context = null): static
+    public function open(EnumFileOpenMode $mode, $context = null): static
     {
         // Check filesystem restrictions and open the file
         $this->checkClosed('open')->restrictions->check($this->path, ($mode !== EnumFileOpenMode::readOnly));
@@ -2978,12 +2977,12 @@ class PathCore implements Stringable, PathInterface
     /**
      * Write the specified data to this file with the requested file mode
      *
-     * @param string                    $data
-     * @param EnumFileOpenModeInterface $write_mode
+     * @param string           $data
+     * @param EnumFileOpenMode $write_mode
      *
      * @return $this
      */
-    protected function save(string $data, EnumFileOpenModeInterface $write_mode = EnumFileOpenMode::writeOnly): static
+    protected function save(string $data, EnumFileOpenMode $write_mode = EnumFileOpenMode::writeOnly): static
     {
         $this->checkRestrictions(true)
              ->checkWriteMode($write_mode);

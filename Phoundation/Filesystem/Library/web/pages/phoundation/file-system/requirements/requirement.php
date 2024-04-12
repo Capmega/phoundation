@@ -19,8 +19,8 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Filesystem\Requirements\Requirement;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Img;
-use Phoundation\Web\Html\Components\Input\Buttons\Button;
-use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
+use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -102,53 +102,53 @@ if (Request::isPostRequestMethod()) {
 
 // Save button
 if (!$requirement->getReadonly()) {
-    $save = Button::new()
-        ->setValue(tr('Save'))
-        ->setContent(tr('Save'));
+    $save = InputButton::new()
+                       ->setValue(tr('Save'))
+                       ->setContent(tr('Save'));
 }
 
 
 // Delete button.
 if (!$requirement->isNew()) {
     if ($requirement->isDeleted()) {
-        $delete = Button::new()
-            ->setFloatRight(true)
-            ->setMode(EnumDisplayMode::warning)
-            ->setOutlined(true)
-            ->setValue(tr('Undelete'))
-            ->setContent(tr('Undelete'));
+        $delete = InputButton::new()
+                             ->setFloatRight(true)
+                             ->setMode(EnumDisplayMode::warning)
+                             ->setOutlined(true)
+                             ->setValue(tr('Undelete'))
+                             ->setContent(tr('Undelete'));
 
     } else {
-        $delete = Button::new()
-            ->setFloatRight(true)
-            ->setMode(EnumDisplayMode::warning)
-            ->setOutlined(true)
-            ->setValue(tr('Delete'))
-            ->setContent(tr('Delete'));
+        $delete = InputButton::new()
+                             ->setFloatRight(true)
+                             ->setMode(EnumDisplayMode::warning)
+                             ->setOutlined(true)
+                             ->setValue(tr('Delete'))
+                             ->setContent(tr('Delete'));
 
         if ($requirement->isLocked()) {
-            $lock = Button::new()
-                ->setFloatRight(true)
-                ->setMode(EnumDisplayMode::warning)
-                ->setValue(tr('Unlock'))
-                ->setContent(tr('Unlock'));
+            $lock = InputButton::new()
+                               ->setFloatRight(true)
+                               ->setMode(EnumDisplayMode::warning)
+                               ->setValue(tr('Unlock'))
+                               ->setContent(tr('Unlock'));
 
         } else {
-            $lock = Button::new()
-                ->setFloatRight(true)
-                ->setMode(EnumDisplayMode::warning)
-                ->setValue(tr('Lock'))
-                ->setContent(tr('Lock'));
+            $lock = InputButton::new()
+                               ->setFloatRight(true)
+                               ->setMode(EnumDisplayMode::warning)
+                               ->setValue(tr('Lock'))
+                               ->setContent(tr('Lock'));
         }
 
         // Audit button.
-        $audit = Button::new()
-            ->setFloatRight(true)
-            ->setMode(EnumDisplayMode::information)
-            ->setAnchorUrl('/audit/meta+' . $requirement->getMetaId() . '.html')
-            ->setFloatRight(true)
-            ->setValue(tr('Audit'))
-            ->setContent(tr('Audit'));
+        $audit = InputButton::new()
+                            ->setFloatRight(true)
+                            ->setMode(EnumDisplayMode::information)
+                            ->setAnchorUrl('/audit/meta+' . $requirement->getMetaId() . '.html')
+                            ->setFloatRight(true)
+                            ->setValue(tr('Audit'))
+                            ->setContent(tr('Audit'));
     }
 }
 
@@ -159,13 +159,13 @@ $requirement_card = Card::new()
     ->setMaximizeSwitch(true)
     ->setTitle(tr('Edit requirement :name', [':name' => $requirement->getDisplayName()]))
     ->setContent($requirement->getHtmlDataEntryFormObject()->render())
-    ->setButtons(Buttons::new()
-        ->addButton(isset_get($save))
-        ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/file-system/requirements/requirements.html'), true)
-        ->addButton(isset_get($audit))
-        ->addButton(isset_get($delete))
-        ->addButton(isset_get($lock))
-        ->addButton(isset_get($impersonate)));
+    ->setButtons(InputButtons::new()
+                             ->addButton(isset_get($save))
+                             ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/file-system/requirements/requirements.html'), true)
+                             ->addButton(isset_get($audit))
+                             ->addButton(isset_get($delete))
+                             ->addButton(isset_get($lock))
+                             ->addButton(isset_get($impersonate)));
 
 
 // Build profile picture card

@@ -8,7 +8,6 @@ use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Utils\Enums\EnumMatchMode;
-use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
@@ -444,22 +443,22 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * Remove source keys on the specified needles with the specified match mode
      *
      * @param Stringable|array|string|float|int $keys
-     * @param EnumMatchModeInterface            $match_mode
+     * @param EnumMatchMode                     $match_mode
      *
      * @return $this
      */
-    public function removeKeys(Stringable|array|string|float|int $keys, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
+    public function removeKeys(Stringable|array|string|float|int $keys, EnumMatchMode $match_mode = EnumMatchMode::full): static;
 
 
     /**
      * Keep source keys on the specified needles with the specified match mode
      *
-     * @param array|string|null      $needles
-     * @param EnumMatchModeInterface $match_mode
+     * @param array|string|null $needles
+     * @param EnumMatchMode     $match_mode
      *
      * @return $this
      */
-    public function keepKeys(array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
+    public function keepKeys(array|string|null $needles, EnumMatchMode $match_mode = EnumMatchMode::full): static;
 
 
     /**
@@ -467,11 +466,11 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param Stringable|array|string|float|int $values
      * @param string|null                       $column
-     * @param EnumMatchModeInterface            $match_mode
+     * @param EnumMatchMode                     $match_mode
      *
      * @return $this
      */
-    public function removeValues(Stringable|array|string|float|int $values, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
+    public function removeValues(Stringable|array|string|float|int $values, ?string $column = null, EnumMatchMode $match_mode = EnumMatchMode::full): static;
 
 
     /**
@@ -488,13 +487,13 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     /**
      * Keep source values on the specified needles with the specified match mode
      *
-     * @param array|string|null      $needles
-     * @param string|null            $column
-     * @param EnumMatchModeInterface $match_mode
+     * @param array|string|null $needles
+     * @param string|null       $column
+     * @param EnumMatchMode     $match_mode
      *
      * @return $this
      */
-    public function keepValues(array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
+    public function keepValues(array|string|null $needles, ?string $column = null, EnumMatchMode $match_mode = EnumMatchMode::full): static;
 
 
     /**

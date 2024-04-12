@@ -28,8 +28,6 @@ use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
-use Phoundation\Web\Html\Enums\Interfaces\EnumElementInterface;
-use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Html;
 use Stringable;
 use Throwable;
@@ -856,9 +854,9 @@ class Definition implements DefinitionInterface
     /**
      * Sets the type of input element.
      *
-     * @return EnumInputTypeInterface
+     * @return EnumElementInputType
      */
-    public function getInputType(): EnumInputTypeInterface
+    public function getInputType(): EnumElementInputType
     {
         $return = $this->getKey('type');
         if ($return === null) {
@@ -894,11 +892,11 @@ class Definition implements DefinitionInterface
     /**
      * Sets the type of input element.
      *
-     * @param EnumInputTypeInterface|string|null $value
+     * @param EnumElementInputType|string|null $value
      *
      * @return static
      */
-    public function setInputType(EnumInputTypeInterface|string|null $value): static
+    public function setInputType(EnumElementInputType|string|null $value): static
     {
         if (is_string($value)) {
             // Convert the string input type to the correct EnumInputType
@@ -1250,11 +1248,11 @@ class Definition implements DefinitionInterface
     /**
      * Sets the HTML client element to be used for this column
      *
-     * @param EnumElementInterface|null $value
+     * @param EnumElement|null $value
      *
      * @return static
      */
-    public function setElement(EnumElementInterface|null $value): static
+    public function setElement(EnumElement|null $value): static
     {
         return $this->setKey($value?->value, 'element');
     }
@@ -2089,9 +2087,9 @@ class Definition implements DefinitionInterface
     /**
      * Returns what element should be displayed if the value of this entry is NULL
      *
-     * @return EnumElementInterface|null
+     * @return EnumElement|null
      */
-    public function getNullElement(): EnumElementInterface|null
+    public function getNullElement(): EnumElement|null
     {
         return isset_get_typed('Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface|null', $this->source['null_element']);
     }
@@ -2100,11 +2098,11 @@ class Definition implements DefinitionInterface
     /**
      * Sets what element should be displayed if the value of this entry is NULL
      *
-     * @param EnumElementInterface|null $value
+     * @param EnumElement|null $value
      *
      * @return static
      */
-    public function setNullElement(EnumElementInterface|null $value): static
+    public function setNullElement(EnumElement|null $value): static
     {
         return $this->setKey($value, 'null_element');
     }
@@ -2349,7 +2347,7 @@ class Definition implements DefinitionInterface
     final public function getMetaColumns(): array
     {
         if ($this->data_entry) {
-            // Return the meta colums from the data entry
+            // Return the meta-columns from the data entry
             return $this->data_entry->getMetaColumns();
         }
 

@@ -7,7 +7,7 @@ use Phoundation\Business\Customers\Customer;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Img;
-use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -48,10 +48,10 @@ if (Request::isPostRequestMethod()) {
 
 
 // Build the buttons
-$buttons = Buttons::new()
-                  ->addButton('Submit')
-                  ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/customers.html'), true)
-                  ->addButton(tr('Audit'), EnumDisplayMode::information, '/audit/meta+' . $customer->getMetaId() . '.html', false, true);
+$buttons = InputButtons::new()
+                       ->addButton('Submit')
+                       ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/customers.html'), true)
+                       ->addButton(tr('Audit'), EnumDisplayMode::information, '/audit/meta+' . $customer->getMetaId() . '.html', false, true);
 
 
 // Build the customer form

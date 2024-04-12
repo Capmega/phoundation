@@ -1,12 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Enums;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
-
 /**
  * Enum DisplayMode
  *
@@ -17,7 +9,14 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
-enum EnumDisplayMode: string implements EnumDisplayModeInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Enums;
+
+use Phoundation\Exception\OutOfBoundsException;
+
+enum EnumDisplayMode: string
 {
     case white     = 'white';
     case success   = 'success';
@@ -48,11 +47,11 @@ enum EnumDisplayMode: string implements EnumDisplayModeInterface
     /**
      * Returns the primary mode for the given mode which might be an alias
      *
-     * @param EnumDisplayModeInterface $mode
+     * @param EnumDisplayMode $mode
      *
-     * @return EnumDisplayModeInterface
+     * @return EnumDisplayMode
      */
-    public static function getPrimary(EnumDisplayModeInterface $mode): EnumDisplayModeInterface
+    public static function getPrimary(EnumDisplayMode $mode): EnumDisplayMode
     {
         // Convert aliases
         return match ($mode) {

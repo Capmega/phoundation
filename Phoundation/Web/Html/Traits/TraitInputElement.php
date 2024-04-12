@@ -20,7 +20,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataIcon;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Phoundation\Web\Html\Html;
 use Stringable;
 
@@ -33,9 +33,9 @@ trait TraitInputElement
     /**
      * Input element type
      *
-     * @var EnumInputTypeInterface|null $input_type
+     * @var EnumElementInputType|null $input_type
      */
-    protected ?EnumInputTypeInterface $input_type = null;
+    protected ?EnumElementInputType $input_type = null;
 
     /**
      * Sets if this control should have a clear button
@@ -111,9 +111,9 @@ trait TraitInputElement
     /**
      * Returns the type for the input element
      *
-     * @return EnumInputTypeInterface|null
+     * @return EnumElementInputType|null
      */
-    public function getInputType(): ?EnumInputTypeInterface
+    public function getInputType(): ?EnumElementInputType
     {
         return $this->input_type;
     }
@@ -122,11 +122,11 @@ trait TraitInputElement
     /**
      * Sets the type for the input element
      *
-     * @param EnumInputTypeInterface|null $input_type
+     * @param EnumElementInputType|null $input_type
      *
      * @return static
      */
-    public function setInputType(?EnumInputTypeInterface $input_type): static
+    public function setInputType(?EnumElementInputType $input_type): static
     {
         $this->input_type = $input_type;
 

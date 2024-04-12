@@ -14,9 +14,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
 
-use Phoundation\Web\Html\Enums\Interfaces\EnumJavascriptWrappersInterface;
-
-enum EnumJavascriptWrappers: string implements EnumJavascriptWrappersInterface
+enum EnumJavascriptWrappers: string
 {
     case dom_content = 'dom_content';
     case window      = 'window';

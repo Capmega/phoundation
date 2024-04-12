@@ -1,13 +1,6 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Emails\Enums;
-
-use Phoundation\Emails\Enums\Interfaces\EnumEmailAddressTypeInterface;
-
 /**
- * enum EnumEmailAddressType
+ * Enum EnumEmailAddressType
  *
  *
  *
@@ -16,7 +9,12 @@ use Phoundation\Emails\Enums\Interfaces\EnumEmailAddressTypeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Plugins\Emails
  */
-enum EnumEmailAddressType: string implements EnumEmailAddressTypeInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Emails\Enums;
+
+enum EnumEmailAddressType: string
 {
     case to   = 'to';
     case cc   = 'cc';

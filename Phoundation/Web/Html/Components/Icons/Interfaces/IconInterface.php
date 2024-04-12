@@ -3,7 +3,7 @@
 namespace Phoundation\Web\Html\Components\Icons\Interfaces;
 
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
 /**
  * Icon class
@@ -45,17 +45,17 @@ interface IconInterface extends ElementInterface
     /**
      * Returns the type of mode for the element or element block
      *
-     * @return EnumDisplayModeInterface
+     * @return EnumDisplayMode
      */
-    public function getMode(): EnumDisplayModeInterface;
+    public function getMode(): EnumDisplayMode;
 
 
     /**
      * Sets the type of mode for the element or element block
      *
-     * @param EnumDisplayModeInterface|string $mode
+     * @param EnumDisplayMode|string $mode
      *
      * @return static
      */
-    public function setMode(EnumDisplayModeInterface|string $mode): static;
+    public function setMode(EnumDisplayMode|string $mode): static;
 }

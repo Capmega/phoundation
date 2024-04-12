@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
 
 /**
  * GridRow class
@@ -22,13 +22,13 @@ class GridRow extends Layout
     /**
      * Set the source for this row
      *
-     * @param array                             $source
-     * @param EnumDisplaySizeInterface|int|null $size $size
-     * @param bool                              $use_form
+     * @param array                    $source
+     * @param EnumDisplaySize|int|null $size
+     * @param bool                     $use_form
      *
      * @return static
      */
-    public function setColumns(array $source, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
+    public function setColumns(array $source, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
     {
         $this->source = [];
 
@@ -39,13 +39,13 @@ class GridRow extends Layout
     /**
      * Add the specified source to this row
      *
-     * @param array                             $source
-     * @param EnumDisplaySizeInterface|int|null $size
-     * @param bool                              $use_form
+     * @param array                    $source
+     * @param EnumDisplaySize|int|null $size
+     * @param bool                     $use_form
      *
      * @return static
      */
-    public function addColumns(array $source, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
+    public function addColumns(array $source, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
     {
         // Validate source
         foreach ($source as $column) {
@@ -64,13 +64,13 @@ class GridRow extends Layout
     /**
      * Add the specified column to this row
      *
-     * @param object|string|null                $column
-     * @param EnumDisplaySizeInterface|int|null $size $size
-     * @param bool                              $use_form
+     * @param object|string|null       $column
+     * @param EnumDisplaySize|int|null $size
+     * @param bool                     $use_form
      *
      * @return static
      */
-    public function addColumn(object|string|null $column, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
+    public function addColumn(object|string|null $column, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
     {
         if ($column) {
             if (is_object($column) and !($column instanceof GridColumn)) {

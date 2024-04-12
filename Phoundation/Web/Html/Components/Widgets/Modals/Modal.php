@@ -7,8 +7,8 @@ namespace Phoundation\Web\Html\Components\Widgets\Modals;
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\InputButtonsInterface;
 
 /**
  * Modal class
@@ -34,9 +34,9 @@ abstract class Modal extends ElementsBlock
     /**
      * The bottom buttons content for this modal
      *
-     * @var ButtonsInterface
+     * @var InputButtonsInterface
      */
-    protected ButtonsInterface $buttons;
+    protected InputButtonsInterface $buttons;
 
     /**
      * Sets the size for this modal
@@ -227,12 +227,12 @@ abstract class Modal extends ElementsBlock
     /**
      * Returns the modal buttons
      *
-     * @return ButtonsInterface
+     * @return InputButtonsInterface
      */
-    public function getButtons(): ButtonsInterface
+    public function getButtons(): InputButtonsInterface
     {
         if (empty($this->buttons)) {
-            $this->buttons = new Buttons();
+            $this->buttons = new InputButtons();
         }
 
         return $this->buttons;
@@ -242,11 +242,11 @@ abstract class Modal extends ElementsBlock
     /**
      * Sets the modal buttons
      *
-     * @param ButtonsInterface|null $buttons
+     * @param InputButtonsInterface|null $buttons
      *
      * @return static
      */
-    public function setButtons(?ButtonsInterface $buttons): static
+    public function setButtons(?InputButtonsInterface $buttons): static
     {
         if ($buttons) {
             $this->buttons = $buttons;

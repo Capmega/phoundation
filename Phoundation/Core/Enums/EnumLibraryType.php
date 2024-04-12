@@ -1,11 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Core\Enums;
-
-use Phoundation\Core\Enums\Interfaces\EnumLibraryTypeInterface;
-
 /**
  * Enum EnumLibraryType
  *
@@ -16,7 +9,12 @@ use Phoundation\Core\Enums\Interfaces\EnumLibraryTypeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
-enum EnumLibraryType: string implements EnumLibraryTypeInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Core\Enums;
+
+enum EnumLibraryType: string
 {
     case system   = 'Phoundation/';
     case plugin   = 'Plugins/';

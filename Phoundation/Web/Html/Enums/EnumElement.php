@@ -14,9 +14,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
 
-use Phoundation\Web\Html\Enums\Interfaces\EnumElementInterface;
-
-enum EnumElement: string implements EnumElementInterface
+enum EnumElement: string
 {
     case input    = 'input';
     case textarea = 'textarea';

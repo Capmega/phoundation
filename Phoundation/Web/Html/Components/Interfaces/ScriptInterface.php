@@ -3,7 +3,7 @@
 namespace Phoundation\Web\Html\Components\Interfaces;
 
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
-use Phoundation\Web\Html\Enums\Interfaces\EnumJavascriptWrappersInterface;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 
 interface ScriptInterface
 {
@@ -100,19 +100,19 @@ interface ScriptInterface
     /**
      * Returns the event wrapper code for this script
      *
-     * @return EnumJavascriptWrappersInterface
+     * @return EnumJavascriptWrappers
      */
-    public function getJavascriptWrapper(): EnumJavascriptWrappersInterface;
+    public function getJavascriptWrapper(): EnumJavascriptWrappers;
 
 
     /**
      * Sets the event wrapper code for this script
      *
-     * @param EnumJavascriptWrappersInterface $javascript_wrapper
+     * @param EnumJavascriptWrappers $javascript_wrapper
      *
      * @return static
      */
-    public function setJavascriptWrapper(EnumJavascriptWrappersInterface $javascript_wrapper): static;
+    public function setJavascriptWrapper(EnumJavascriptWrappers $javascript_wrapper): static;
 
 
     /**

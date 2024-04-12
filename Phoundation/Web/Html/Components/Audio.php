@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Web\Html\Enums\EnumAudioPreload;
-use Phoundation\Web\Html\Enums\Interfaces\EnumAudioPreloadInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
@@ -36,9 +35,9 @@ class Audio extends Element
     /**
      * Returns how audio should be preloaded
      *
-     * @return EnumAudioPreloadInterface|null
+     * @return EnumAudioPreload|null
      */
-    public function getPreload(): ?EnumAudioPreloadInterface
+    public function getPreload(): ?EnumAudioPreload
     {
         return EnumAudioPreload::from($this->attributes->get('preload', false));
     }
@@ -47,11 +46,11 @@ class Audio extends Element
     /**
      * Sets how audio should be preloaded
      *
-     * @param EnumAudioPreloadInterface $value
+     * @param EnumAudioPreload $value
      *
      * @return static
      */
-    public function setPreload(EnumAudioPreloadInterface $value): static
+    public function setPreload(EnumAudioPreload $value): static
     {
         return $this->setAttribute($value, 'preload');
     }

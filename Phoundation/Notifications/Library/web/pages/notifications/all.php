@@ -17,7 +17,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\FilterForm;
 use Phoundation\Notifications\Notifications;
-use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -76,8 +76,8 @@ $notifications = Card::new()
     ->setSwitches('reload')
     ->setContent($table->render())
     ->useForm(true)
-    ->setButtons(Buttons::new()
-        ->addButton(tr('Mark all as read')));
+    ->setButtons(InputButtons::new()
+                             ->addButton(tr('Mark all as read')));
 
 $notifications->getForm()
         ->setAction(UrlBuilder::getCurrent())

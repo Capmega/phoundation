@@ -1,11 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Date\Enums;
-
-use Phoundation\Date\Enums\Interfaces\DateTimeSegmentInterface;
-
 /**
  * Enum DateSegment
  *
@@ -16,7 +9,12 @@ use Phoundation\Date\Enums\Interfaces\DateTimeSegmentInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Date
  */
-enum DateTimeSegment: string implements DateTimeSegmentInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Date\Enums;
+
+enum DateTimeSegment: string
 {
     case millennium  = 'millennium';
     case century     = 'century';

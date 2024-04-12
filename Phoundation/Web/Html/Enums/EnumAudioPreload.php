@@ -1,11 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Enums;
-
-use Phoundation\Web\Html\Enums\Interfaces\EnumAudioPreloadInterface;
-
 /**
  * Enum EnumAudioPreload
  *
@@ -16,7 +9,12 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumAudioPreloadInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation/Web
  */
-enum EnumAudioPreload: string implements EnumAudioPreloadInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Enums;
+
+enum EnumAudioPreload: string
 {
     case none     = 'none';
     case metadata = 'metadata';

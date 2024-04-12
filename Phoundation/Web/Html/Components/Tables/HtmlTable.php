@@ -29,7 +29,6 @@ use Phoundation\Web\Html\Components\ResourceElement;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
-use Phoundation\Web\Html\Enums\Interfaces\EnumTableIdColumnInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
@@ -125,9 +124,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Sets how the id columns will be displayed
      *
-     * @var EnumTableIdColumnInterface $checkbox_selectors
+     * @var EnumTableIdColumn $checkbox_selectors
      */
-    protected EnumTableIdColumnInterface $checkbox_selectors = EnumTableIdColumn::hidden;
+    protected EnumTableIdColumn $checkbox_selectors = EnumTableIdColumn::hidden;
 
     /**
      * Sets whether the table is responsive or not
@@ -468,9 +467,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Returns if the first column automatically is converted to checkboxes
      *
-     * @return EnumTableIdColumnInterface
+     * @return EnumTableIdColumn
      */
-    public function getCheckboxSelectors(): EnumTableIdColumnInterface
+    public function getCheckboxSelectors(): EnumTableIdColumn
     {
         return $this->checkbox_selectors;
     }
@@ -479,11 +478,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Sets if the first column automatically is converted to checkboxes
      *
-     * @param EnumTableIdColumnInterface $checkbox_selectors
+     * @param EnumTableIdColumn $checkbox_selectors
      *
      * @return static
      */
-    public function setCheckboxSelectors(EnumTableIdColumnInterface $checkbox_selectors): static
+    public function setCheckboxSelectors(EnumTableIdColumn $checkbox_selectors): static
     {
         $this->checkbox_selectors = $checkbox_selectors;
 

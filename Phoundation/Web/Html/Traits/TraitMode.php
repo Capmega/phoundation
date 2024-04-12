@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Traits;
 
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
 
 /**
  * Trait TraitMode
@@ -22,17 +21,17 @@ trait TraitMode
     /**
      * The type of mode for the element or element block
      *
-     * @var EnumDisplayModeInterface $mode
+     * @var EnumDisplayMode $mode
      */
-    protected EnumDisplayModeInterface $mode = EnumDisplayMode::primary;
+    protected EnumDisplayMode $mode = EnumDisplayMode::primary;
 
 
     /**
      * Returns the type of mode for the element or element block
      *
-     * @return EnumDisplayModeInterface
+     * @return EnumDisplayMode
      */
-    public function getMode(): EnumDisplayModeInterface
+    public function getMode(): EnumDisplayMode
     {
         return $this->mode;
     }
@@ -41,11 +40,11 @@ trait TraitMode
     /**
      * Sets the type of mode for the element or element block
      *
-     * @param EnumDisplayModeInterface|string $mode
+     * @param EnumDisplayMode|string $mode
      *
      * @return static
      */
-    public function setMode(EnumDisplayModeInterface|string $mode): static
+    public function setMode(EnumDisplayMode|string $mode): static
     {
         if (is_string($mode)) {
             $mode = EnumDisplayMode::from($mode);

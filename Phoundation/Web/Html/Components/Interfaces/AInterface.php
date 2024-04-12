@@ -12,7 +12,7 @@
 
 namespace Phoundation\Web\Html\Components\Interfaces;
 
-use Phoundation\Web\Html\Enums\Interfaces\EnumAnchorTargetInterface;
+use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 
 interface AInterface extends SpanInterface
 {
@@ -37,17 +37,17 @@ interface AInterface extends SpanInterface
     /**
      * Returns the target for this anchor
      *
-     * @return EnumAnchorTargetInterface|null
+     * @return EnumAnchorTarget|null
      */
-    public function getTarget(): ?EnumAnchorTargetInterface;
+    public function getTarget(): ?EnumAnchorTarget;
 
 
     /**
      * Sets the target for this anchor
      *
-     * @param EnumAnchorTargetInterface|null $target
+     * @param EnumAnchorTarget|null $target
      *
      * @return $this
      */
-    public function setTarget(?EnumAnchorTargetInterface $target): static;
+    public function setTarget(?EnumAnchorTarget $target): static;
 }

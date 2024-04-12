@@ -8,7 +8,6 @@ use DateTimeInterface;
 use MongoDB\Exception\UnsupportedException;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Enums\DateTimeSegment;
-use Phoundation\Date\Enums\Interfaces\DateTimeSegmentInterface;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -757,11 +756,11 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Round the current date time object contents to the specified segment
      *
-     * @param DateTimeSegmentInterface $segment
+     * @param DateTimeSegment $segment
      *
      * @return $this
      */
-    public function round(DateTimeSegmentInterface $segment): static
+    public function round(DateTimeSegment $segment): static
     {
         $date = $this->format('Y m d H i s v u');
         $date = explode(' ', $date);

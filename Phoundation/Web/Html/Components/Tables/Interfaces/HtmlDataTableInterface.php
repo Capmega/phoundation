@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Tables\Interfaces;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Web\Html\Enums\Interfaces\EnumPagingTypeInterface;
+use Phoundation\Web\Html\Enums\EnumPagingType;
 
 /**
  * Interface HtmlDataTableInterface
@@ -220,19 +220,19 @@ interface HtmlDataTableInterface extends HtmlTableInterface
     /**
      * Sets pagination button display options
      *
-     * @return EnumPagingTypeInterface
+     * @return EnumPagingType
      */
-    public function getPagingType(): EnumPagingTypeInterface;
+    public function getPagingType(): EnumPagingType;
 
 
     /**
      * Sets pagination button display options
      *
-     * @param EnumPagingTypeInterface $type
+     * @param EnumPagingType $type
      *
      * @return $this
      */
-    public function setPagingType(EnumPagingTypeInterface $type): static;
+    public function setPagingType(EnumPagingType $type): static;
 
 
     /**

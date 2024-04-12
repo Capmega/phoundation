@@ -14,7 +14,7 @@ use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Html\Enums\Interfaces\EnumTableRowTypeInterface;
+use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Http\UrlBuilder;
 
 /**
@@ -212,7 +212,7 @@ class Notifications extends DataList implements NotificationsInterface
      */
     public function markSeverityColumn(): static
     {
-        return $this->addCallback(function (IteratorInterface|array &$row, EnumTableRowTypeInterface $type, &$params) {
+        return $this->addCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
             if (!array_key_exists('severity', $row)) {
                 return;
             }

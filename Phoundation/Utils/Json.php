@@ -13,7 +13,6 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Enums\EnumJsonAfterReply;
-use Phoundation\Utils\Enums\Interfaces\EnumJsonAfterReplyInterface;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
@@ -280,11 +279,11 @@ class Json
      * Send correct JSON reply
      *
      * @param array|Stringable|string|null $data
-     * @param EnumJsonAfterReplyInterface  $action_after
+     * @param EnumJsonAfterReply           $action_after
      *
      * @return void
      */
-    #[NoReturn] public static function reply(array|Stringable|string|null $data = null, EnumJsonAfterReplyInterface $action_after = EnumJsonAfterReply::die): void
+    #[NoReturn] public static function reply(array|Stringable|string|null $data = null, EnumJsonAfterReply $action_after = EnumJsonAfterReply::die): void
     {
         // Always return all numbers as strings as javascript borks BADLY on large numbers, WTF JS?!
         if (is_array($data)) {

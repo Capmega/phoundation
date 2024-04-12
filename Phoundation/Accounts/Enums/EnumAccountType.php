@@ -1,11 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Accounts\Enums;
-
-use Phoundation\Accounts\Enums\Interfaces\EnumAccountTypeInterface;
-
 /**
  * Enum EnumAccountType
  *
@@ -16,7 +9,12 @@ use Phoundation\Accounts\Enums\Interfaces\EnumAccountTypeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
-enum EnumAccountType: string implements EnumAccountTypeInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Accounts\Enums;
+
+enum EnumAccountType: string
 {
     case business = 'business';
     case personal = 'personal';

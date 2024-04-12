@@ -4,7 +4,6 @@ namespace Phoundation\Web\Html\Traits;
 
 use Phoundation\Core\Sessions\Config;
 use Phoundation\Web\Html\Enums\EnumBootstrapColor;
-use Phoundation\Web\Html\Enums\Interfaces\EnumBootstrapColorInterface;
 
 /**
  * Trait TraitBootstrapColor
@@ -19,22 +18,22 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumBootstrapColorInterface;
 trait TraitBootstrapColor
 {
     /**
-     * @var EnumBootstrapColorInterface|EnumBootstrapColor $foreground_color
+     * @var EnumBootstrapColor $foreground_color
      */
-    protected EnumBootstrapColorInterface $foreground_color;
+    protected EnumBootstrapColor $foreground_color;
 
     /**
-     * @var EnumBootstrapColorInterface|EnumBootstrapColor $background_color
+     * @var EnumBootstrapColor $background_color
      */
-    protected EnumBootstrapColorInterface $background_color;
+    protected EnumBootstrapColor $background_color;
 
 
     /**
      * Returns the foreground color
      *
-     * @return EnumBootstrapColorInterface
+     * @return EnumBootstrapColor
      */
-    public function getBootstrapForegroundColor(): EnumBootstrapColorInterface
+    public function getBootstrapForegroundColor(): EnumBootstrapColor
     {
         if (empty($this->foreground_color)) {
             $this->foreground_color = EnumBootstrapColor::from(Config::get('web.bootstrap.theme.colors.foreground', EnumBootstrapColor::light->value));
@@ -47,11 +46,11 @@ trait TraitBootstrapColor
     /**
      * Returns the background color
      *
-     * @param EnumBootstrapColorInterface $color
+     * @param EnumBootstrapColor $color
      *
      * @return static
      */
-    public function setBootstrapForegroundColor(EnumBootstrapColorInterface $color): static
+    public function setBootstrapForegroundColor(EnumBootstrapColor $color): static
     {
         // Configurable theming allows colors to be remapped from configuration
         $this->foreground_color = EnumBootstrapColor::from(Config::get('web.bootstrap.theme.colors.' . $color->value, $color->value));
@@ -63,9 +62,9 @@ trait TraitBootstrapColor
     /**
      * Returns the foreground color
      *
-     * @return EnumBootstrapColorInterface
+     * @return EnumBootstrapColor
      */
-    public function getBootstrapBackgroundColor(): EnumBootstrapColorInterface
+    public function getBootstrapBackgroundColor(): EnumBootstrapColor
     {
         if (empty($this->background_color)) {
             $this->background_color = EnumBootstrapColor::from(Config::get('web.bootstrap.theme.colors.background', EnumBootstrapColor::dark->value));
@@ -78,11 +77,11 @@ trait TraitBootstrapColor
     /**
      * Returns the background color
      *
-     * @param EnumBootstrapColorInterface $color
+     * @param EnumBootstrapColor $color
      *
      * @return static
      */
-    public function setBootstrapBackgroundColor(EnumBootstrapColorInterface $color): static
+    public function setBootstrapBackgroundColor(EnumBootstrapColor $color): static
     {
         // Configurable theming allows colors to be remapped from configuration
         $this->background_color = EnumBootstrapColor::from(Config::get('web.bootstrap.theme.colors.' . $color->value, $color->value));

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Enums\Interfaces\EnumOrientationInterface;
+use Phoundation\Enums\EnumOrientation;
 
 /**
  * Trait TraitDataOrientation
@@ -19,17 +19,17 @@ use Phoundation\Enums\Interfaces\EnumOrientationInterface;
 trait TraitDataOrientation
 {
     /**
-     * @var EnumOrientationInterface|null $orientation
+     * @var EnumOrientation|null $orientation
      */
-    protected ?EnumOrientationInterface $orientation = null;
+    protected ?EnumOrientation $orientation = null;
 
 
     /**
      * Returns the orientation
      *
-     * @return EnumOrientationInterface|null
+     * @return EnumOrientation|null
      */
-    public function getOrientation(): ?EnumOrientationInterface
+    public function getOrientation(): ?EnumOrientation
     {
         return $this->orientation;
     }
@@ -38,11 +38,11 @@ trait TraitDataOrientation
     /**
      * Sets the orientation
      *
-     * @param EnumOrientationInterface|null $orientation
+     * @param EnumOrientation|null $orientation
      *
      * @return static
      */
-    public function setOrientation(?EnumOrientationInterface $orientation): static
+    public function setOrientation(?EnumOrientation $orientation): static
     {
         $this->orientation = $orientation;
 

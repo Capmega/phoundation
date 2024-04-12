@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
 /**
@@ -24,9 +24,9 @@ class InputMultiButtonText extends ElementsBlock
     /**
      * The button for this text input
      *
-     * @var Button $button
+     * @var InputButton $button
      */
-    protected Button $button;
+    protected InputButton $button;
 
     /**
      * The input text box object
@@ -43,9 +43,9 @@ class InputMultiButtonText extends ElementsBlock
      */
     public function __construct(?string $content = null)
     {
-        $this->setButton(Button::new()
-                               ->setMode(EnumDisplayMode::info)
-                               ->setContent(tr('Action')));
+        $this->setButton(InputButton::new()
+                                    ->setMode(EnumDisplayMode::info)
+                                    ->setContent(tr('Action')));
 
         return parent::__construct($content);
     }
@@ -54,9 +54,9 @@ class InputMultiButtonText extends ElementsBlock
     /**
      * Returns the internal button object
      *
-     * @return Button
+     * @return InputButton
      */
-    public function getButton(): Button
+    public function getButton(): InputButton
     {
         return $this->button;
     }
@@ -65,11 +65,11 @@ class InputMultiButtonText extends ElementsBlock
     /**
      * Returns the internal button object
      *
-     * @param Button $button
+     * @param InputButton $button
      *
      * @return static
      */
-    public function setButton(Button $button): static
+    public function setButton(InputButton $button): static
     {
         $button->addClasses([
             'btn',

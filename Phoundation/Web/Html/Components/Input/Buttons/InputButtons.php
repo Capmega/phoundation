@@ -18,16 +18,17 @@ use Iterator;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\InputButtonsInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Traits\TraitInputButtonProperties;
 use ReturnTypeWillChange;
 use Stringable;
 
-class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
+class InputButtons extends ElementsBlock implements Iterator, InputButtonsInterface
 {
-    use ButtonProperties;
+    use TraitInputButtonProperties;
 
     /**
      * If true, the buttons will be grouped in one larger button
@@ -72,15 +73,15 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
     /**
      * Adds a single button to button list
      *
-     * @param Button|string|null                       $button
-     * @param EnumDisplayMode                          $mode
-     * @param EnumInputTypeInterface|Stringable|string $type_or_anchor_url
-     * @param bool                                     $outline
-     * @param bool                                     $right
+     * @param InputButton|string|null                $button
+     * @param EnumDisplayMode                        $mode
+     * @param EnumElementInputType|Stringable|string $type_or_anchor_url
+     * @param bool                                   $outline
+     * @param bool                                   $right
      *
      * @return static
      */
-    public function addButton(Button|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumInputTypeInterface|Stringable|string $type_or_anchor_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
+    public function addButton(InputButton|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_anchor_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
     {
         if (!$button) {
             // Don't add anything
@@ -91,17 +92,17 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
                 $type_or_anchor_url = EnumButtonType::submit;
             }
             // Button was specified as string, create a button first
-            $button = Button::new()
-                            ->setWrapping($this->wrapping)
-                            ->setOutlined($this->outlined)
-                            ->setRounded($this->rounded)
-                            ->addClasses($this->classes)
-                            ->setOutlined($outline)
-                            ->setContent($button)
-                            ->setValue($button)
-                            ->setFloatRight($right)
-                            ->setMode($mode)
-                            ->setName('submit');
+            $button = InputButton::new()
+                                 ->setWrapping($this->wrapping)
+                                 ->setOutlined($this->outlined)
+                                 ->setRounded($this->rounded)
+                                 ->addClasses($this->classes)
+                                 ->setOutlined($outline)
+                                 ->setContent($button)
+                                 ->setValue($button)
+                                 ->setFloatRight($right)
+                                 ->setMode($mode)
+                                 ->setName('submit');
             switch ($type_or_anchor_url) {
                 case EnumButtonType::submit:
                     // no break
@@ -172,9 +173,9 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
     /**
      * Returns the current button
      *
-     * @return Button
+     * @return InputButton
      */
-    #[ReturnTypeWillChange] public function current(): Button
+    #[ReturnTypeWillChange] public function current(): InputButton
     {
         return current($this->source);
     }

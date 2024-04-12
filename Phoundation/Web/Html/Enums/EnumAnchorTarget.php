@@ -1,9 +1,4 @@
 <?php
-
-namespace Phoundation\Web\Html\Enums;
-
-use Phoundation\Web\Html\Enums\Interfaces\EnumAnchorTargetInterface;
-
 /**
  * Enum EnumAnchorTarget
  *
@@ -14,7 +9,10 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumAnchorTargetInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
-enum EnumAnchorTarget: string implements EnumAnchorTargetInterface
+
+namespace Phoundation\Web\Html\Enums;
+
+enum EnumAnchorTarget: string
 {
     case self   = '_self';
     case blank  = '_blank';

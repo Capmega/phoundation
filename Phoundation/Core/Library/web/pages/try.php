@@ -6,7 +6,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -33,8 +33,8 @@ if (Request::isPostRequestMethod()) {
 
 
 // Build the buttons
-$buttons = Buttons::new()
-                  ->addButton('Submit');
+$buttons = InputButtons::new()
+                       ->addButton('Submit');
 
 
 // Alter the default user form
