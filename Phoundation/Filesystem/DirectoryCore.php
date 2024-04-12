@@ -9,6 +9,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpException;
 use Phoundation\Filesystem\Exception\DirectoryException;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Filesystem\Exception\FilesystemException;
@@ -659,13 +660,19 @@ class DirectoryCore extends PathCore implements DirectoryInterface
             if (($file == '.') or ($file == '..')) {
                 continue;
             }
-            if (is_dir($this->path . $file)) {
-                // Recurse
-                $return += Directory::new($this->path . $file, $this->restrictions)
-                                    ->treeFileSize();
+            try {
+                if (is_dir($this->path . $file)) {
+                    // Recurse
+                    $return += Directory::new($this->path . $file, $this->restrictions)
+                                        ->treeFileSize();
 
-            } else {
-                $return += filesize($this->path . $file);
+                } else {
+                    $return += filesize($this->path . $file);
+                }
+            } catch (PhpException) {
+                Log::warning(tr('Ignoring file size for path ":path", it does not exist (path is likely a dead symlink)', [
+                    ':path' => $this->path . $file,
+                ]), 2);
             }
         }
 
@@ -689,12 +696,17 @@ class DirectoryCore extends PathCore implements DirectoryInterface
             if (($file == '.') or ($file == '..')) {
                 continue;
             }
-            if (is_dir($this->path . $file)) {
-                $return += Directory::new($this->path . $file, $this->restrictions)
-                                    ->treeFileCount();
-
-            } else {
-                $return++;
+            try {
+                if (is_dir($this->path . $file)) {
+                        $return += Directory::new($this->path . $file, $this->restrictions)
+                                            ->treeFileCount();
+                } else {
+                    $return++;
+                }
+            } catch (PhpException) {
+                Log::warning(tr('Ignoring file count for directory ":path", it does not exist (path is likely a dead symlink)', [
+                    ':path' => $this->path . $file,
+                ]), 2);
             }
         }
 
@@ -1059,8 +1071,8 @@ class DirectoryCore extends PathCore implements DirectoryInterface
         foreach ($glob as $file) {
             foreach ($file_patterns as $file_pattern) {
                 $file_pattern = $base_pattern . $file_pattern;
-                $file = Strings::from($file, $this->getRealPath());
-                $test = Strings::fromReverse(Strings::ensureEndsNotWith($file, '/'), '/');
+                $file         = Strings::from($file, $this->getRealPath());
+                $test         = Strings::fromReverse(Strings::ensureEndsNotWith($file, '/'), '/');
                 if ($file_pattern) {
                     if (is_dir($this->path . $file)) {
                         $directory_pattern = Strings::until($file_pattern, '.');
