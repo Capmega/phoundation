@@ -31,6 +31,7 @@ use Phoundation\Data\Traits\TraitDataStaticContentType;
 use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\Time;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Interfaces\AccessDeniedExceptionInterface;
@@ -1526,6 +1527,40 @@ abstract class Request implements RequestInterface
             throw new OutOfBoundsException(tr('This is now a system web request, this request cannot be changed into a non system web request'));
         }
         static::$system = $system;
+    }
+
+
+    /**
+     * Returns the value for the specified submit button for POST requests
+     *
+     * This method will search for and -if found- return the value for the specified HTTP POST key. By default it will
+     * search for the POST name "submit". If can scan in prefix mode, where it will search for HTTP POST keys that start
+     * with the specified POST key. If it finds a matching entry, that first entry will be returned.
+     *
+     * This method will not (and cannot) return if ANY button was pressed as it cannot see the difference between a
+     * button and a form value. A specific button name must be specified.
+     *
+     * @note This method will return NULL in case the requested submit button was not pressed
+     * @note For non POST requests this method will always return NULL
+     * @note For buttons that have an empty value (null, ""), this method will return TRUE instead
+     * @note The specified POST key, if found, will be removed from the POST array. If a prefix scan was requested, the
+     *       found (and returned) POST key will be removed from the POST array.
+     * @note The button values will be removed from the POST array but kept in cache, so calling this method twice for
+     *       the same button will return the same value, even though it was removed from POST after the first call.
+     * @note If $return_key AND $prefix were specified, this method will return the POST key FROM the specified
+     *       $post_key. So if $post_key was "delete_" and the found key was "delete_2342897342", this method will return
+     *       the value "2342897342" instead of "delete_2342897342"
+     *
+     * @param string $post_key
+     * @param bool   $prefix     Will not return the specified POST $post_key value but scan for a POST key that starts
+     *                           with $post_key, and return that value.
+     * @param bool   $return_key If true, will return the found POST_KEY instead of the value.
+     *
+     * @return string|true|null
+     */
+    public static function getSubmitButton(string $post_key = 'submit', bool $prefix = false, bool $return_key = false): string|true|null
+    {
+        return PostValidator::getSubmitButton($post_key, $prefix, $return_key);
     }
 
 
