@@ -651,7 +651,7 @@ abstract class DataEntry implements DataEntryInterface
         if (!$identifier) {
             // No identifier specified
             // Identifier is required here
-            throw DataEntryNotExistsException::new(tr('The specified ":class" ":column" identifier ":identifier" was empty', [
+            throw DataEntryNotExistsException::new(tr('The specified ":class" class column ":column" with identifier ":identifier" was empty', [
                 ':class'      => static::getClassName(),
                 ':column'     => static::getColumn($identifier, $column),
                 ':identifier' => $identifier,
@@ -712,7 +712,7 @@ abstract class DataEntry implements DataEntryInterface
                 // We already had another exception pending, possibly SqlTableDoesNotExistException, continue with that.
                 throw $e;
             }
-            throw DataEntryNotExistsException::new(tr('The ":class" ":column" identifier ":identifier" does not exist', [
+            throw DataEntryNotExistsException::new(tr('The ":class" class column ":column" with identifier ":identifier" does not exist', [
                 ':class'      => static::getClassName(),
                 ':column'     => static::getColumn($identifier, $column),
                 ':identifier' => $identifier,
@@ -727,7 +727,7 @@ abstract class DataEntry implements DataEntryInterface
                 !Session::getUser()
                         ->hasAllRights('deleted')
             ) {
-                throw DataEntryDeletedException::new(tr('The ":class" ":column" identifier ":identifier" is deleted', [
+                throw DataEntryDeletedException::new(tr('The ":class" class column ":column" with identifier ":identifier" is deleted', [
                     ':class'      => static::getClassName(),
                     ':column'     => static::getColumn($identifier, $column),
                     ':identifier' => $identifier,
