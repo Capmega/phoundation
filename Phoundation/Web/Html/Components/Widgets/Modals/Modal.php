@@ -1,17 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Widgets\Modals;
-
-use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Data\Traits\TraitDataTitle;
-use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
-use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\InputButtonsInterface;
-
 /**
- * Modal class
+ * Class Modal
  *
  *
  *
@@ -20,9 +10,20 @@ use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\InputButtonsInterfa
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Widgets\Modals;
+
+use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Data\Traits\TraitDataTitle;
+use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Traits\TraitInputButtons;
+
 abstract class Modal extends ElementsBlock
 {
     use TraitDataTitle;
+    use TraitInputButtons;
 
     /**
      * The Modal identifier
@@ -32,22 +33,15 @@ abstract class Modal extends ElementsBlock
     protected ?string $id = null;
 
     /**
-     * The bottom buttons content for this modal
-     *
-     * @var InputButtonsInterface
-     */
-    protected InputButtonsInterface $buttons;
-
-    /**
      * Sets the size for this modal
      *
      * @var string|null $size
      */
     #[ExpectedValues(values: [
-        "sm",
-        "lg",
-        "xl",
-        "fullscreen",
+        'sm',
+        'lg',
+        'xl',
+        'fullscreen',
     ])]
     protected ?string $size = null;
 
@@ -66,7 +60,7 @@ abstract class Modal extends ElementsBlock
     protected bool $vertical_center = true;
 
     /**
-     * Sets if the escape key will close the modal or not
+     * Sets if the escape key closes the modal or not
      *
      * @var bool $escape
      */
@@ -86,10 +80,10 @@ abstract class Modal extends ElementsBlock
      * @return string|null
      */
     #[ExpectedValues(values: [
-        "sm",
-        "lg",
-        "xl",
-        "fullscreen",
+        'sm',
+        'lg',
+        'xl',
+        'fullscreen',
     ])] public function getSize(): ?string
     {
         return $this->size;
@@ -104,11 +98,11 @@ abstract class Modal extends ElementsBlock
      * @return static
      */
     public function setSize(#[ExpectedValues(values: [
-        "sm",
-        "md",
-        "lg",
-        "xl",
-        "fullscreen",
+        'sm',
+        'md',
+        'lg',
+        'xl',
+        'fullscreen',
     ])] ?string $size): static
     {
         if ($size === 'md') {
@@ -190,7 +184,7 @@ abstract class Modal extends ElementsBlock
      *
      * @return static
      */
-    public function setVerticalCenter($vertical_center): static
+    public function setVerticalCenter(bool $vertical_center): static
     {
         $this->vertical_center = $vertical_center;
 
@@ -219,41 +213,6 @@ abstract class Modal extends ElementsBlock
     public function setEscape(bool $escape): static
     {
         $this->escape = $escape;
-
-        return $this;
-    }
-
-
-    /**
-     * Returns the modal buttons
-     *
-     * @return InputButtonsInterface
-     */
-    public function getButtons(): InputButtonsInterface
-    {
-        if (empty($this->buttons)) {
-            $this->buttons = new InputButtons();
-        }
-
-        return $this->buttons;
-    }
-
-
-    /**
-     * Sets the modal buttons
-     *
-     * @param InputButtonsInterface|null $buttons
-     *
-     * @return static
-     */
-    public function setButtons(?InputButtonsInterface $buttons): static
-    {
-        if ($buttons) {
-            $this->buttons = $buttons;
-
-        } else {
-            unset($this->buttons);
-        }
 
         return $this;
     }

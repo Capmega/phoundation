@@ -12,6 +12,7 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
+use Phoundation\Web\Html\Traits\TraitInputButtons;
 use Stringable;
 
 /**
@@ -26,6 +27,7 @@ use Stringable;
  */
 class Tabs extends ElementsBlock implements TabsInterface
 {
+    use TraitInputButtons;
     use TraitDataOrientation {
         setOrientation as protected __setOrientation;
     }
@@ -33,7 +35,7 @@ class Tabs extends ElementsBlock implements TabsInterface
     /**
      * The display size of the contents
      *
-     * @var EnumDisplaySize|EnumDisplaySize
+     * @var EnumDisplaySize
      */
     protected EnumDisplaySize $content_display_size = EnumDisplaySize::ten;
 
