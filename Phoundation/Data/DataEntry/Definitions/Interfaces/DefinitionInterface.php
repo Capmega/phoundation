@@ -114,10 +114,11 @@ interface DefinitionInterface
      *
      * @param mixed  $value
      * @param string $key
+     * @param bool   $trim
      *
      * @return static
      */
-    public function setKey(mixed $value, string $key): static;
+    public function setKey(mixed $value, string $key, bool $trim): static;
 
 
     /**

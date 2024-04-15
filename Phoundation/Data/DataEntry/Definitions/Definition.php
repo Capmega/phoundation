@@ -157,12 +157,13 @@ class Definition implements DefinitionInterface
      *
      * @param mixed  $value
      * @param string $key
+     * @param bool   $trim
      *
      * @return static
      */
-    public function setKey(mixed $value, string $key): static
+    public function setKey(mixed $value, string $key, bool $trim = true): static
     {
-        if (is_string($value)) {
+        if (is_string($value) and $trim) {
             // Auto trim all string values
             $value = trim($value);
         }
@@ -232,7 +233,7 @@ class Definition implements DefinitionInterface
      */
     public function setPrefix(?string $prefix): static
     {
-        return $this->setKey($prefix, 'prefix');
+        return $this->setKey($prefix, 'prefix', false);
     }
 
 
@@ -280,7 +281,7 @@ class Definition implements DefinitionInterface
      */
     public function setPostfix(?string $postfix): static
     {
-        return $this->setKey($postfix, 'postfix');
+        return $this->setKey($postfix, 'postfix', false);
     }
 
 
