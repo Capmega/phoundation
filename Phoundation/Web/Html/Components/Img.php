@@ -108,7 +108,7 @@ class Img extends Span implements ImgInterface
             $lazy_load = Config::get('web.images.lazy-load', true);
         }
         if ($lazy_load) {
-            $this->addClass('lazy');
+            $this->addClasses('lazy');
             Response::loadJavascript('js/jquery/lazyload/jquery.lazyload');
         }
         $this->lazy_load = $lazy_load;

@@ -140,7 +140,7 @@ $mount_card = Card::new()
 $picture = Card::new()
     ->setTitle(tr('Mount profile picture'))
     ->setContent(Img::new()
-        ->addClass('w100')
+        ->addClasses('w100')
         ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
 //        ->setSrc($mount->getPicture())
         ->setAlt(tr('Profile picture for :mount', [':mount' => $mount->getDisplayName()])));

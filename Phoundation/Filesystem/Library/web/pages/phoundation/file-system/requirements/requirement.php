@@ -172,7 +172,7 @@ $requirement_card = Card::new()
 $picture = Card::new()
     ->setTitle(tr('Requirement profile picture'))
     ->setContent(Img::new()
-        ->addClass('w100')
+        ->addClasses('w100')
         ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
 //        ->setSrc($requirement->getPicture())
         ->setAlt(tr('Profile picture for :requirement', [':requirement' => $requirement->getDisplayName()])));

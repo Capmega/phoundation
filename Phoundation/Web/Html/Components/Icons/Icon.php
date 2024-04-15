@@ -77,7 +77,7 @@ class Icon extends Element implements IconInterface
      */
     public function render(): ?string
     {
-        $this->addClass($this->getContent());
+        $this->addClasses($this->getContent());
         $this->setContent(null);
 
         return parent::render();

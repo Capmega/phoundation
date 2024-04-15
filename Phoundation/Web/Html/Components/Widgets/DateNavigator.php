@@ -200,7 +200,7 @@ class DateNavigator extends ElementsBlock
                    ->addRow()
                    ->addColumn(GridColumn::new()
                                          ->setSize(2)
-                                         ->addClass('mb-3')
+                                         ->addClasses('mb-3')
                                          ->setContent(InputButton::new()
                                                                  ->setName('nav_prev')
                                                                  ->setBlock(true)
@@ -210,7 +210,7 @@ class DateNavigator extends ElementsBlock
                                                                  ->render()))
                    ->addColumn(GridColumn::new()
                                          ->setSize(8)
-                                         ->addClass('mb-3')
+                                         ->addClasses('mb-3')
                                          ->setContent(Form::new()
                                                           ->setMethod('get')
                                                           ->setAction($this->selector_link)
@@ -223,7 +223,7 @@ class DateNavigator extends ElementsBlock
                                                           ->render()))
                    ->addColumn(GridColumn::new()
                                          ->setSize(2)
-                                         ->addClass('mb-3')
+                                         ->addClasses('mb-3')
                                          ->setContent($this->next_button->render()))
                    ->render();
 

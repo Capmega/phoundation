@@ -89,7 +89,7 @@ class InputButton extends Input implements InputButtonInterface
     {
         if ($this->floating) {
             // What does this do?????????????
-            $this->addClass('btn-floating');
+            $this->addClasses('btn-floating');
             Icons::new()
                  ->setContent($this->content)
                  ->render();
@@ -134,29 +134,29 @@ class InputButton extends Input implements InputButtonInterface
             }
         }
         if ($this->mode->value) {
-            $this->addClass('btn-' . ($this->outlined ? 'outline-' : '') . $this->mode->value);
+            $this->addClasses('btn-' . ($this->outlined ? 'outline-' : '') . $this->mode->value);
         } else {
             if ($this->outlined) {
-                $this->addClass('btn-outline');
+                $this->addClasses('btn-outline');
             }
         }
         if ($this->flat) {
-            $this->addClass('btn-flat');
+            $this->addClasses('btn-flat');
         }
         if ($this->size->value) {
-            $this->addClass('btn-' . $this->size->value);
+            $this->addClasses('btn-' . $this->size->value);
         }
         if ($this->block) {
-            $this->addClass('btn-block');
+            $this->addClasses('btn-block');
         }
         if ($this->rounded) {
-            $this->addClass('btn-rounded');
+            $this->addClasses('btn-rounded');
         }
         if (!$this->wrapping) {
-            $this->addClass('text-nowrap');
+            $this->addClasses('text-nowrap');
         }
         if ($this->floating) {
-            $this->addClass('btn-floating');
+            $this->addClasses('btn-floating');
             $this->setContent(Icons::new()
                                    ->setContent($this->content)
                                    ->render());
@@ -177,7 +177,7 @@ class InputButton extends Input implements InputButtonInterface
     {
         if ($this->floating) {
             // What does this do?????????????
-            $this->addClass('btn-floating');
+            $this->addClasses('btn-floating');
             Icons::new()
                  ->setContent($this->content, $make_safe)
                  ->render();

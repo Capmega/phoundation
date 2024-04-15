@@ -88,7 +88,7 @@ class TreeViewer extends Widget
             return Div::new()
                       ->setId($this->getId())
                       ->setContent($this->renderHtml($this->source))
-                      ->addClass('treeview')
+                      ->addClasses('treeview')
                       ->addData(null, 'mdb-treeview-init')
                       ->render() . Script::new('$("#' . $this->getId() . '").treeview()')
                                          ->render();
@@ -97,7 +97,7 @@ class TreeViewer extends Widget
         // Render the tree-view using javascript data
         return Div::new()
                   ->setId($this->getId())
-                  ->addClass('treeview')
+                  ->addClasses('treeview')
                   ->render() . Script::new('
              const jsTreeview = document.getElementById("' . $this->getId() . '");
              const jsInstance = new Treeview(jsTreeview, {

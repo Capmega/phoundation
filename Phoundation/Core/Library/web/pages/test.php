@@ -5,7 +5,7 @@ use Phoundation\Web\Http\UrlBuilder;
 
 $suggest = InputSelect2::new()
                        ->setId('test')
-                       ->addClass('form-control')
+                       ->addClasses('form-control')
                        ->setSourceUrl(UrlBuilder::getWww('/ajax/test/autosuggest.json'));
 
 echo $suggest->render();

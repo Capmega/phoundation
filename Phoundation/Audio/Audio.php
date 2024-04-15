@@ -78,7 +78,7 @@ class Audio extends File
                     // no break
                 case EnumRequestTypes::admin:
                     Response::addToFooter(\Phoundation\Web\Html\Components\Audio::new()
-                                                                                ->addClass($class)
+                                                                                ->addClasses($class)
                                                                                 ->setFile($this->path)
                                                                                 ->render());
                     break;

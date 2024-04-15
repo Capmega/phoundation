@@ -382,21 +382,6 @@ trait ElementAttributes
 
 
     /**
-     * Adds a class to the HTML class element attribute
-     *
-     * @param string|null $class
-     *
-     * @return static
-     */
-    public function addClass(?string $class): static
-    {
-        $this->classes->add(true, $class, exception: false);
-
-        return $this;
-    }
-
-
-    /**
      * Adds a data-KEY(=VALUE) attribute
      *
      * @param string|float|int|null $value
@@ -1121,6 +1106,23 @@ trait ElementAttributes
     {
         foreach (Arrays::force($classes, ' ') as $class) {
             $this->classes->add(true, $class, exception: false);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Adds the specified classes to the HTML element class attribute
+     *
+     * @param IteratorInterface|array|string|null $classes
+     *
+     * @return static
+     */
+    public function removeClasses(IteratorInterface|array|string|null $classes): static
+    {
+        foreach (Arrays::force($classes, ' ') as $class) {
+            $this->classes->removeKeys($class);
         }
 
         return $this;

@@ -254,7 +254,7 @@ if ($user->getId()) {
 $picture = Card::new()
                ->setTitle(tr('User profile picture'))
                ->setContent(Img::new()
-                               ->addClass('w100')
+                               ->addClasses('w100')
                                ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
 //        ->setSrc($user->getPicture())
                                ->setAlt(tr('Profile picture for :user', [':user' => $user->getDisplayName()])));

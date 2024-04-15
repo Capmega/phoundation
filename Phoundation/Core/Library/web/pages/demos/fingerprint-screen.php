@@ -43,7 +43,7 @@ Response::setBuildBody(false);
             <div class="fingerprint-image">
                 <?= Session::getUser()->getPicture()
                            ->getHtmlElement()
-                           ->addClass('rounded-circle')
+                           ->addClasses('rounded-circle')
                            ->setSrc(UrlBuilder::getImg('img/fingerprint-256x192.png'))
                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                            ->render() ?>

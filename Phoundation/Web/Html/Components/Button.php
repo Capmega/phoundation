@@ -28,7 +28,7 @@ class Button extends Span
         parent::__construct($content);
         $this->setElement('button')
              ->setType(EnumElementButtonType::button)
-             ->addClass('btn');
+             ->addClasses('btn');
     }
 
 

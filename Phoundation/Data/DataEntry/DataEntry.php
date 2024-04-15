@@ -1,4 +1,15 @@
 <?php
+/**
+ * Class DataEntry
+ *
+ * This class contains the basic data entry traits
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Data
+ */
+
 
 declare(strict_types=1);
 
@@ -64,16 +75,6 @@ use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Stringable;
 use Throwable;
 
-/**
- * Class DataEntry
- *
- * This class contains the basic data entry traits
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Data
- */
 abstract class DataEntry implements DataEntryInterface
 {
     use TraitDataConfigPath;
@@ -131,13 +132,6 @@ abstract class DataEntry implements DataEntryInterface
      * @var string|null $diff
      */
     protected ?string $diff = null;
-
-    /**
-     * If true, set configuration to display meta data
-     *
-     * @var bool $display_meta
-     */
-    protected bool $display_meta = true;
 
     /**
      * If true, this DataEntry will allow the creation of new entries

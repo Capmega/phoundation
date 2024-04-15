@@ -159,16 +159,16 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     {
         if ($readonly) {
             if (!$this->readonly) {
-                $this->classes->add(true, 'readonly');
+                $this->addClasses('readonly');
             }
             if (!$this->disabled) {
-                $this->classes->add(true, 'disabled');
+                $this->addClasses('disabled');
             }
             $this->readonly = true;
             $this->disabled = true;
 
         } else {
-            $this->classes->removeKeys('readonly');
+            $this->removeClasses('readonly');
             $this->readonly = false;
         }
 
@@ -199,12 +199,12 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     public function setDisabled(bool $disabled): static
     {
         if ($disabled) {
-            $this->classes->add(true, 'disabled');
+            $this->addClasses('disabled');
             $this->disabled = true;
 
         } else {
             if (!$this->readonly) {
-                $this->classes->removeKeys('disabled');
+                $this->removeClasses('disabled');
                 $this->disabled = false;
             }
         }
