@@ -1584,6 +1584,8 @@ abstract class Request implements RequestInterface
     /**
      * Try to send this page from cache, if available
      *
+     * @param bool $die
+     *
      * @return string|null
      */
     protected static function tryCache(bool $die): ?string
@@ -1685,9 +1687,9 @@ abstract class Request implements RequestInterface
         }
 
         return match (static::getRequestType()) {
-            EnumRequestTypes::api                                                                                                    => 'api/' . $target,
-            EnumRequestTypes::ajax                                                                                                   => 'ajax/' . $target,
-            EnumRequestTypes::admin, EnumRequestTypes::amp, EnumRequestTypes::system, EnumRequestTypes::html, EnumRequestTypes::file => 'pages/' . $target,
+            EnumRequestTypes::api                                                                                                    => Strings::ensureStartsWith($target, 'api/'),
+            EnumRequestTypes::ajax                                                                                                   => Strings::ensureStartsWith($target, 'ajax/'),
+            EnumRequestTypes::html, EnumRequestTypes::file, EnumRequestTypes::system, EnumRequestTypes::admin, EnumRequestTypes::amp => Strings::ensureStartsWith($target, 'pages/'),
             default                                                                                                                  => throw new OutOfBoundsException(tr('Unsupported request type ":request" for this process', [
                 ':request' => static::getRequestType(),
             ])),
