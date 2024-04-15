@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Forms;
-
-use Phoundation\Utils\Config;
-use Phoundation\Web\Html\Components\Forms\Form;
-use Phoundation\Web\Http\UrlBuilder;
-use Stringable;
-
 /**
  * SignIn form class
  *
@@ -19,6 +10,16 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Forms;
+
+use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Components\Forms\Form;
+use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
+
 class SignInForm extends Form
 {
     /**

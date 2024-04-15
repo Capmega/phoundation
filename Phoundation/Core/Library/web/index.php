@@ -1,10 +1,5 @@
 <?php
 
-use Phoundation\Web\Routing\Map;
-use Phoundation\Web\Routing\Route;
-use Phoundation\Web\Routing\RoutingParameters;
-use Templates\Mdb\Mdb;
-
 /**
  * Routing table script
  *
@@ -96,6 +91,15 @@ use Templates\Mdb\Mdb;
  * @category  Function reference
  * @package   route
  */
+
+declare(strict_types=1);
+
+use Phoundation\Web\Routing\Map;
+use Phoundation\Web\Routing\Route;
+use Phoundation\Web\Routing\RoutingParameters;
+use Templates\Mdb\Mdb;
+use Templates\AdminLte\AdminLte;
+
 require('../../../../vendor/autoload.php');
 
 

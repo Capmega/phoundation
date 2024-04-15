@@ -1,5 +1,5 @@
 {
-  "name": "medinet/phoundation",
+  "name": "capmega/phoundation",
   "description": "The phoundation PHP framework",
   "require": {
     "php": "^8.2.0",

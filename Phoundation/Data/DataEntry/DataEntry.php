@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class DataEntry
  *
@@ -9,7 +10,6 @@
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
-
 
 declare(strict_types=1);
 

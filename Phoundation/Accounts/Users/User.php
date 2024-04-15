@@ -1,4 +1,15 @@
 <?php
+/**
+ * Class User
+ *
+ * This is the default user class.
+ *
+ * @see       DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Accounts
+ */
 
 declare(strict_types=1);
 
@@ -76,17 +87,6 @@ use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
-/**
- * Class User
- *
- * This is the default user class.
- *
- * @see       DataEntry
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Accounts
- */
 class User extends DataEntry implements UserInterface
 {
     use TraitDataEntryAddress;
