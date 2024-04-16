@@ -1065,7 +1065,7 @@ class Arrays extends Utils
             return $value[$column];
         }
         if ($value instanceof DataEntryInterface) {
-            return $value->getValue($column);
+            return $value->get($column);
         }
         throw new OutOfBoundsException(tr('Specified value ":value" must be either scalar, array, or a DataEntryInterface type object', [
             ':value' => $value,
@@ -2910,7 +2910,7 @@ class Arrays extends Utils
                     ]));
                 }
                 try {
-                    $test_value = $value->getValue($subkey);
+                    $test_value = $value->get($subkey);
 
                 } catch (OutOfBoundsException $e) {
                     throw new OutOfBoundsException(tr('Cannot filter value with key ":key" for needles ":needles", the value does not have the required sub key ":sub"', [

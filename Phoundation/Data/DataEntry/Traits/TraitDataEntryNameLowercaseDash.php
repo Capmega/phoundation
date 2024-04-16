@@ -51,7 +51,7 @@ trait TraitDataEntryNameLowercaseDash
     public function setName(?string $name): static
     {
         if ($name === null) {
-            $this->setValue('seo_name', null, true);
+            $this->set('seo_name', null, true);
 
         } else {
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
@@ -59,10 +59,10 @@ trait TraitDataEntryNameLowercaseDash
             $name     = static::convertToLowerCaseDash($name);
             $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')
                                                                        ->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_name');
-            $this->setValue('seo_name', $seo_name, true);
+            $this->set('seo_name', $seo_name, true);
         }
 
-        return $this->setValue('name', $name);
+        return $this->set('name', $name);
     }
 
 
@@ -108,6 +108,6 @@ trait TraitDataEntryNameLowercaseDash
      */
     protected function setSeoName(?string $seo_name): static
     {
-        return $this->setValue('seo_name', $seo_name);
+        return $this->set('seo_name', $seo_name);
     }
 }

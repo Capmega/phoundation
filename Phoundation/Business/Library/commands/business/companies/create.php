@@ -47,7 +47,7 @@ Company::notExists($argv['name'], 'name', null, true);
 // Ensure that specified companies exist
 if ($argv['rights']) {
     foreach ($argv['rights'] as &$right) {
-        $right = Company::get($right);
+        $right = Company::load($right);
     }
 
     unset($right);

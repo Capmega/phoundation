@@ -36,6 +36,6 @@ trait TraitDataEntrySpent
      */
     public function setSpent(float|null $spent): static
     {
-        return $this->setValue('spent', $spent);
+        return $this->set('spent', $spent);
     }
 }

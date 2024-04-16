@@ -797,23 +797,12 @@ abstract class Request implements RequestInterface
      *
      * @return void
      */
-    public static function addValue(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): void
+    public static function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): void
     {
         if (empty(static::$source)) {
             static::$source = new Iterator();
         }
         static::$source->add($value, $key, $skip_null, $exception);
-    }
-
-
-    /**
-     * Returns the data sent to this executed file
-     *
-     * @return IteratorInterface|null
-     */
-    public static function getSource(): ?IteratorInterface
-    {
-        return static::$source;
     }
 
 
@@ -825,9 +814,38 @@ abstract class Request implements RequestInterface
      *
      * @return mixed
      */
-    public static function getValue(string $key, mixed $default = null): mixed
+    public static function get(string $key, mixed $default = null): mixed
     {
         return static::$source?->get($key, false) ?? $default;
+    }
+
+
+    /**
+     * Returns the value for the specified data key, if exist. If not, the default value will be returned
+     *
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return void
+     */
+    public static function set(string $key, mixed $default = null): void
+    {
+        if (empty(static::$source)) {
+            static::$source = new Iterator();
+        }
+
+        static::$source?->get($key, false) ?? $default;
+    }
+
+
+    /**
+     * Returns the data sent to this executed file
+     *
+     * @return IteratorInterface|null
+     */
+    public static function getSource(): ?IteratorInterface
+    {
+        return static::$source;
     }
 
 

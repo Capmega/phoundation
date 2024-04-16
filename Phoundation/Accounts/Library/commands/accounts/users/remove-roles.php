@@ -48,18 +48,18 @@ try {
     // Ensure that specified roles exist
     if ($argv['roles']) {
         foreach ($argv['roles'] as &$role) {
-            $role = Role::get($role);
+            $role = Role::load($role);
         }
 
         unset($role);
     }
 
     // Get role and remove rights
-    $user  = User::get($argv['user']);
+    $user  = User::load($argv['user']);
     $roles = $user->getRoles();
 
     foreach ($argv['roles'] as $role) {
-        $roles->removeKeys(Role::get($role));
+        $roles->removeKeys(Role::load($role));
     }
 
     if ($roles->save()) {

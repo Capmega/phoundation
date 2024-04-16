@@ -96,10 +96,10 @@ class Right extends DataEntry implements RightInterface
      *
      * @return Right
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
         try {
-            return parent::get(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force);
+            return parent::load(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RightNotExistsException($e);

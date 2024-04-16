@@ -39,6 +39,6 @@ trait TraitDataEntryStart
      */
     public function setStart(DateTimeInterface|string|null $start): static
     {
-        return $this->setValue('start', $start ? new DateTime($start, 'system') : null);
+        return $this->set('start', $start ? new DateTime($start, 'system') : null);
     }
 }

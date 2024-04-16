@@ -39,6 +39,6 @@ trait TraitDataEntryStop
      */
     public function setStop(DateTimeInterface|string|null $stop): static
     {
-        return $this->setValue('stop', new DateTime($stop, 'system'));
+        return $this->set('stop', new DateTime($stop, 'system'));
     }
 }

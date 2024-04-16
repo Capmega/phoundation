@@ -182,7 +182,7 @@ class Incident extends DataEntry implements IncidentInterface
             $severity = Severity::from($severity);
         }
 
-        return $this->setValue('severity', $severity->value);
+        return $this->set('severity', $severity->value);
     }
 
 

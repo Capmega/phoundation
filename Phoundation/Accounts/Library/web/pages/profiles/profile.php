@@ -34,7 +34,7 @@ $get = GetValidator::new()
 
 
 // Get user
-$user = User::get($get['id']);
+$user = User::load($get['id']);
 
 
 // Set page meta data

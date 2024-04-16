@@ -44,6 +44,6 @@ trait TraitDataEntryPriority
             ]));
         }
 
-        return $this->setValue('priority', $priority);
+        return $this->set('priority', $priority);
     }
 }

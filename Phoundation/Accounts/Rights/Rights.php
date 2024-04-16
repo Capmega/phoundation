@@ -257,7 +257,7 @@ class Rights extends DataList implements RightsInterface
 
             } else {
                 // Add single right. Since this is a Right object, the entry already exists in the database
-                $value = Right::get($value);
+                $value = Right::load($value);
                 // Right already exists for this parent?
                 if ($this->hasRight($value)) {
                     // Ignore and continue
@@ -291,7 +291,7 @@ class Rights extends DataList implements RightsInterface
                     $this->add($value);
                     // Update all users with this role to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user)
+                        User::load($user)
                             ->getRights()
                             ->add($value);
                     }
@@ -358,7 +358,7 @@ class Rights extends DataList implements RightsInterface
 
         } else {
             // Add single right. Since this is a Right object, the entry already exists in the database
-            $right = Right::get($keys);
+            $right = Right::load($keys);
             if ($this->parent instanceof UserInterface) {
                 Log::action(tr('Removing right ":right" from user ":user"', [
                     ':user'  => $this->parent->getLogId(),
@@ -382,7 +382,7 @@ class Rights extends DataList implements RightsInterface
                 ]);
                 // Update all users with this role to get the new right as well!
                 foreach ($this->parent->getUsers() as $user) {
-                    User::get($user, null)
+                    User::load($user, null)
                         ->getRights()
                         ->deleteKeys($right);
                 }

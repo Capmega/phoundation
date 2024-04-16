@@ -38,6 +38,6 @@ trait TraitDataEntryProduct
      */
     public function setProduct(Stringable|string|null $product): static
     {
-        return $this->setValue('product', (string) $product);
+        return $this->set('product', (string) $product);
     }
 }

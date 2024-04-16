@@ -36,6 +36,6 @@ trait TraitDataEntryReason
      */
     public function setReason(?string $reason): static
     {
-        return $this->setValue('reason', $reason);
+        return $this->set('reason', $reason);
     }
 }

@@ -148,7 +148,7 @@ class Users extends DataList implements UsersInterface
 
             } else {
                 // Add single right. Since this is a User object, the entry already exists in the database
-                $value = User::get($value);
+                $value = User::load($value);
                 // User already exists for this parent?
                 if ($this->hasUser($value)) {
                     // Ignore and continue
@@ -243,7 +243,7 @@ class Users extends DataList implements UsersInterface
 
         } else {
             // Add single user. Since this is a User object, the entry already exists in the database
-            $user = User::get($keys);
+            $user = User::load($keys);
             if ($this->parent instanceof RoleInterface) {
                 Log::action(tr('Removing user ":user" from role ":role"', [
                     ':role' => $this->parent->getLogId(),
@@ -474,7 +474,7 @@ class Users extends DataList implements UsersInterface
      */
     public function loadForRole(RoleInterface|Stringable|string $role): static
     {
-        $role = Role::get($role, 'seo_name');
+        $role = Role::load($role, 'seo_name');
         $this->getQueryBuilder()
              ->addSelect('`accounts_users`.*')
              ->addJoin('JOIN `accounts_users_roles` ON `accounts_users_roles`.`users_id` = `accounts_users`.`id`')

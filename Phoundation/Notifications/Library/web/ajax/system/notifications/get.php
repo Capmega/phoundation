@@ -19,6 +19,6 @@ $get = GetValidator::new()
                    ->select('id')->isDbId()
                    ->validate();
 // Update notification status to READ and return it
-Json::reply(Notification::get($get['id'])
+Json::reply(Notification::load($get['id'])
                         ->setStatus('READ')
                         ->__toArray());

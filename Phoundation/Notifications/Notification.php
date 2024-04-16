@@ -326,7 +326,7 @@ POST variables:
             }
             // Save and send this notification to all users that are members of the specified roles
             foreach ($this->getRoles() as $role) {
-                $users = Role::get($role)
+                $users = Role::load($role)
                              ->getUsers();
                 foreach ($users as $user) {
                     try {
@@ -514,7 +514,7 @@ POST variables:
             // No user specified, save nothing
             return $this;
         }
-        $user = User::get($user);
+        $user = User::load($user);
         PhoCommand::new('email send')
                   ->addArgument('--no-audio')
                   ->addArgument('-h')
@@ -556,7 +556,7 @@ POST variables:
             }
         }
         // Set the id to NULL so that the DataEntry will save a new record
-        $this->setValue('id', null)
+        $this->set('id', null)
              ->setUsersId($user);
 
         return parent::save();

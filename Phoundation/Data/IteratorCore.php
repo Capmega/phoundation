@@ -1024,7 +1024,7 @@ class IteratorCore implements IteratorInterface
                         ]));
                     }
                     // This entry is not an array but DataEntry object. Compare using DataEntry::getSourceValue()
-                    if ($data->get($key) === $value) {
+                    if ($data->load($key) === $value) {
                         unset($this->source[$key]);
                     }
                 }

@@ -661,7 +661,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $entries = sql()->query('SELECT `id`, `rights_id`, `name` FROM `accounts_users_rights`');
 
             foreach ($entries as $entry) {
-                $right = Right::get($entry['rights_id'], 'id');
+                $right = Right::load($entry['rights_id'], 'id');
 
                 sql()->update('accounts_users_rights', [
                     'name'     => $right->getName(),
@@ -832,11 +832,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             }
 
             // Various rights go together...
-            Role::get('Audit')->getRights()->add('Admin');
+            Role::load('Audit')->getRights()->add('Admin');
 
-            Role::get('Security')->getRights()->add('Admin');
+            Role::load('Security')->getRights()->add('Admin');
 
-            Role::get('Impersonate')
+            Role::load('Impersonate')
                 ->getRights()
                 ->add('Admin')
                 ->add('Accounts');

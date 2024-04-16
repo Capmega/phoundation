@@ -27,7 +27,7 @@ trait TraitDataEntryCity
      */
     public function setCitiesId(?int $cities_id): static
     {
-        return $this->setValue('cities_id', $cities_id);
+        return $this->set('cities_id', $cities_id);
     }
 
 
@@ -79,6 +79,6 @@ trait TraitDataEntryCity
      */
     public function setCitiesName(?string $cities_name): static
     {
-        return $this->setValue('cities_name', $cities_name);
+        return $this->set('cities_name', $cities_name);
     }
 }

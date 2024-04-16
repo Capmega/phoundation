@@ -40,6 +40,6 @@ trait TraitDataEntryCode
      */
     public function setCode(?string $code): static
     {
-        return $this->setValue('code', $code);
+        return $this->set('code', $code);
     }
 }

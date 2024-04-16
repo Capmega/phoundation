@@ -36,6 +36,6 @@ trait TraitDataEntryKey
      */
     public function setKey(?string $key): static
     {
-        return $this->setValue('key', $key);
+        return $this->set('key', $key);
     }
 }

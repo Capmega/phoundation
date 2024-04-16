@@ -36,7 +36,7 @@ trait TraitDataEntryRole
     {
         unset($this->role);
 
-        return $this->setValue('roles_id', $roles_id);
+        return $this->set('roles_id', $roles_id);
     }
 
 
@@ -60,7 +60,7 @@ trait TraitDataEntryRole
     public function getRole(): ?RoleInterface
     {
         if (!isset($this->role)) {
-            $this->role = Role::getOrNull($this->getRolesId());
+            $this->role = Role::loadOrNull($this->getRolesId());
         }
 
         return $this->role;
@@ -79,7 +79,7 @@ trait TraitDataEntryRole
         if ($role) {
             $this->role = $role;
 
-            return $this->setValue('roles_id', $role->getId());
+            return $this->set('roles_id', $role->getId());
         }
 
         return $this->setRolesId(null);
@@ -107,6 +107,6 @@ trait TraitDataEntryRole
      */
     public function setRolesName(?string $name): static
     {
-        return $this->setRole(Role::get($name, 'name'));
+        return $this->setRole(Role::load($name, 'name'));
     }
 }

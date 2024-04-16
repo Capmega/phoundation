@@ -21,7 +21,7 @@ use Phoundation\Web\Http\UrlBuilder;
 $get = GetValidator::new()
                    ->select('id')->isDbId()->validate();
 // Update notification status to READ and build modal information and send reply
-$notification = Notification::get($get['id'])
+$notification = Notification::load($get['id'])
                             ->setStatus('READ');
 if ($notification->getUrl()) {
     $button = Button::new()

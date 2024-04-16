@@ -114,7 +114,7 @@ class Emails extends DataList implements EmailsInterface
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static
     {
-        $this->parent  = User::get($this->parent, 'seo_name');
+        $this->parent  = User::load($this->parent, 'seo_name');
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
@@ -206,7 +206,7 @@ class Emails extends DataList implements EmailsInterface
             $diff = Arrays::valueDiff($this->getAllRowsSingleColumn('email'), array_keys($emails), true);
             $diff = Arrays::deleteDiff($diff, $emails);
             foreach ($diff['delete'] as $id => $email) {
-                Email::get($id, 'id')
+                Email::load($id, 'id')
                      ->setEmail(null)
                      ->save()
                      ->erase();
@@ -222,7 +222,7 @@ class Emails extends DataList implements EmailsInterface
             }
             // Update all other email addresses
             foreach ($diff['keep'] as $id => $email) {
-                Email::get($id, 'id')
+                Email::load($id, 'id')
                      ->apply(false, $emails[$email])
                      ->setUsersId($this->parent->getId())
                      ->save();

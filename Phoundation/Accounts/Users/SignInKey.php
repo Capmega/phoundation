@@ -68,7 +68,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function setAllowNavigation(int|bool|null $allow_navigation): static
     {
-        return $this->setValue('allow_navigation', (bool) $allow_navigation);
+        return $this->set('allow_navigation', (bool) $allow_navigation);
     }
 
 
@@ -130,7 +130,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function setValidUntil(?string $valid_until): static
     {
-        return $this->setValue('valid_until', $valid_until);
+        return $this->set('valid_until', $valid_until);
     }
 
 
@@ -147,7 +147,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
             $once = (int) $once;
         }
 
-        return $this->setValue('once', $once);
+        return $this->set('once', $once);
     }
 
 

@@ -36,7 +36,7 @@ trait TraitDataEntryTask
     {
         unset($this->task);
 
-        return $this->setValue('tasks_id', $tasks_id);
+        return $this->set('tasks_id', $tasks_id);
     }
 
 
@@ -60,7 +60,7 @@ trait TraitDataEntryTask
     public function getTask(): ?TaskInterface
     {
         if (!isset($this->task)) {
-            $this->task = Task::getOrNull($this->getTasksId());
+            $this->task = Task::loadOrNull($this->getTasksId());
         }
 
         return $this->task;
@@ -79,7 +79,7 @@ trait TraitDataEntryTask
         if ($task) {
             $this->task = $task;
 
-            return $this->setValue('tasks_id', $task->getId());
+            return $this->set('tasks_id', $task->getId());
         }
 
         return $this->setTasksId(null);
@@ -107,6 +107,6 @@ trait TraitDataEntryTask
      */
     public function setTasksCode(?string $code): static
     {
-        return $this->setTask(Task::get($code, 'code'));
+        return $this->setTask(Task::load($code, 'code'));
     }
 }

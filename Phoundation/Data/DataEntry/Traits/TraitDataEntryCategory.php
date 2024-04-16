@@ -39,7 +39,7 @@ trait TraitDataEntryCategory
      */
     public function setCategoriesId(?int $categories_id): static
     {
-        return $this->setValue('categories_id', $categories_id);
+        return $this->set('categories_id', $categories_id);
     }
 
 
@@ -79,6 +79,6 @@ trait TraitDataEntryCategory
      */
     public function setCategoriesName(?string $categories_name): static
     {
-        return $this->setValue('categories_name', $categories_name);
+        return $this->set('categories_name', $categories_name);
     }
 }

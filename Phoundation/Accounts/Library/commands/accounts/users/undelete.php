@@ -46,4 +46,4 @@ $argv = ArgvValidator::new()
 
 
 // Undelete the user
-User::get($argv['user'])->undelete();
+User::load($argv['user'])->undelete();

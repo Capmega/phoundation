@@ -44,6 +44,6 @@ trait TraitDataEntryFile
             ]));
         }
 
-        return $this->setValue('file', $file);
+        return $this->set('file', $file);
     }
 }

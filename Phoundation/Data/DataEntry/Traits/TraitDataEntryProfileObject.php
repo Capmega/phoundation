@@ -39,7 +39,7 @@ trait TraitDataEntryProfileObject
      */
     public function setProfilesId(?int $profiles_id): static
     {
-        return $this->setValue('profiles_id', $profiles_id);
+        return $this->set('profiles_id', $profiles_id);
     }
 
 
@@ -79,6 +79,6 @@ trait TraitDataEntryProfileObject
      */
     public function setProfilesName(?string $profiles_name): static
     {
-        return $this->setValue('profiles_name', $profiles_name);
+        return $this->set('profiles_name', $profiles_name);
     }
 }

@@ -38,7 +38,7 @@ trait TraitDataEntryParent
      */
     public function setParentsId(?int $parents_id): static
     {
-        return $this->setValue('parents_id', $parents_id);
+        return $this->set('parents_id', $parents_id);
     }
 
 
@@ -78,6 +78,6 @@ trait TraitDataEntryParent
      */
     public function setParentsName(?string $parents_name): static
     {
-        return $this->setValue('parents_name', $parents_name);
+        return $this->set('parents_name', $parents_name);
     }
 }

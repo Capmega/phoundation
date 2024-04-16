@@ -36,7 +36,7 @@ trait TraitDataEntryLongLat
      */
     public function setLongitude(float|null $longitude): static
     {
-        return $this->setValue('longitude', $longitude);
+        return $this->set('longitude', $longitude);
     }
 
 
@@ -60,6 +60,6 @@ trait TraitDataEntryLongLat
      */
     public function setLatitude(float|null $latitude): static
     {
-        return $this->setValue('latitude', $latitude);
+        return $this->set('latitude', $latitude);
     }
 }

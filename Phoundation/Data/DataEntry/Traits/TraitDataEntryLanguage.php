@@ -38,7 +38,7 @@ trait TraitDataEntryLanguage
      */
     public function setLanguagesId(?int $languages_id): static
     {
-        return $this->setValue('languages_id', $languages_id);
+        return $this->set('languages_id', $languages_id);
     }
 
 
@@ -78,7 +78,7 @@ trait TraitDataEntryLanguage
      */
     public function setLanguagesName(?string $languages_name): static
     {
-        return $this->setValue('languages_name', $languages_name);
+        return $this->set('languages_name', $languages_name);
     }
 
 
@@ -102,6 +102,6 @@ trait TraitDataEntryLanguage
      */
     public function setLanguagesCode(?string $languages_code): static
     {
-        return $this->setValue('languages_code', $languages_code);
+        return $this->set('languages_code', $languages_code);
     }
 }

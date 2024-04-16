@@ -47,7 +47,7 @@ Provider::notExists($argv['name'], 'name', null, true);
 // Ensure that specified providers exist
 if ($argv['rights']) {
     foreach ($argv['rights'] as &$right) {
-        $right = Provider::get($right);
+        $right = Provider::load($right);
     }
 
     unset($right);

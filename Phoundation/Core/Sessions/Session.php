@@ -728,7 +728,7 @@ class Session implements SessionInterface
         // Create a new user object and ensure it's still good to go
         try {
             // This user is loaded by the session object and should NOT use meta-tracking!
-            $user = User::get($users_id, 'id');
+            $user = User::load($users_id, 'id');
             if (!$user->getStatus()) {
                 return $user;
             }
@@ -1142,7 +1142,7 @@ class Session implements SessionInterface
                     ->setDetails([
                         'user'                => static::getUser()
                                                        ->getLogId(),
-                        'impersonating'       => User::get($_SESSION['user']['impersonate_id'], 'id')
+                        'impersonating'       => User::load($_SESSION['user']['impersonate_id'], 'id')
                                                      ->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
@@ -1359,15 +1359,15 @@ class Session implements SessionInterface
                             ->setType('User impersonation')
                             ->setSeverity(Severity::low)
                             ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
-                                ':user'        => User::get($_SESSION['user']['id'], 'id')
+                                ':user'        => User::load($_SESSION['user']['id'], 'id')
                                                       ->getLogId(),
-                                ':impersonate' => User::get($_SESSION['user']['impersonate_id'], 'id')
+                                ':impersonate' => User::load($_SESSION['user']['impersonate_id'], 'id')
                                                       ->getLogId(),
                             ]))
                             ->setDetails([
-                                'user'        => User::get($_SESSION['user']['id'], 'id')
+                                'user'        => User::load($_SESSION['user']['id'], 'id')
                                                      ->getLogId(),
-                                'impersonate' => User::get($_SESSION['user']['impersonate_id'], 'id')
+                                'impersonate' => User::load($_SESSION['user']['impersonate_id'], 'id')
                                                      ->getLogId(),
                             ])
                             ->notifyRoles('accounts')
@@ -1379,7 +1379,7 @@ class Session implements SessionInterface
                     unset($_SESSION['user']['impersonate_url']);
                     Response::getFlashMessages()
                            ->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
-                               ':user' => User::get($users_id, 'id')
+                               ':user' => User::load($users_id, 'id')
                                               ->getLogId(),
                            ]));
                     Response::redirect($url);

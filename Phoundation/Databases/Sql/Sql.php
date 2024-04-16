@@ -189,7 +189,7 @@ class Sql implements SqlInterface
             return $this->applyConfigurationTemplate($configuration);
         }
 
-        return Connector::get($connector)
+        return Connector::load($connector)
                         ->getSource();
     }
 

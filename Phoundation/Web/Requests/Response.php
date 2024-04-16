@@ -862,7 +862,7 @@ class Response implements ResponseInterface
     public static function getLanguage(): LanguageInterface
     {
         if (empty(static::$language_code)) {
-            static::$language = Language::get(static::getLanguageCode());
+            static::$language = Language::load(static::getLanguageCode());
         }
 
         return static::$language;

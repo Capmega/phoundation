@@ -39,7 +39,7 @@ trait TraitDataEntryDeviceObject
      */
     public function setDevicesId(?int $devices_id): static
     {
-        return $this->setValue('devices_id', $devices_id);
+        return $this->set('devices_id', $devices_id);
     }
 
 
@@ -79,6 +79,6 @@ trait TraitDataEntryDeviceObject
      */
     public function setDevicesName(?string $devices_name): static
     {
-        return $this->setValue('devices_name', $devices_name);
+        return $this->set('devices_name', $devices_name);
     }
 }

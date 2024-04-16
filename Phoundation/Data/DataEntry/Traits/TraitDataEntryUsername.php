@@ -36,6 +36,6 @@ trait TraitDataEntryUsername
      */
     public function setUsername(?string $username): static
     {
-        return $this->setValue('username', $username);
+        return $this->set('username', $username);
     }
 }

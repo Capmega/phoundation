@@ -36,6 +36,6 @@ trait TraitDataEntryMethod
      */
     public function setMethod(?string $method): static
     {
-        return $this->setValue('method', $method);
+        return $this->set('method', $method);
     }
 }
