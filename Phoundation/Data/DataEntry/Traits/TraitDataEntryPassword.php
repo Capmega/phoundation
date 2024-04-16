@@ -36,6 +36,6 @@ trait TraitDataEntryPassword
      */
     public function setPassword(?string $password): static
     {
-        return $this->setValue('password', $password);
+        return $this->set('password', $password);
     }
 }

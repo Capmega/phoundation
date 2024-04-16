@@ -22,7 +22,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$incident = Incident::get($get['id']);
+$incident = Incident::load($get['id']);
 $form     = $incident->getHtmlDataEntryFormObject();
 $card     = Card::new()
                 ->setTitle($incident->getTitle())

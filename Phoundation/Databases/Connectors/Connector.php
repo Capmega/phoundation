@@ -174,7 +174,7 @@ class Connector extends DataEntry implements ConnectorInterface
      * @return Connector
      * @throws SqlExceptionInterface
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
         if (($column === 'id') or (($column === null) and is_numeric($identifier))) {
             if ($identifier < 0) {
@@ -185,7 +185,7 @@ class Connector extends DataEntry implements ConnectorInterface
             }
         }
         try {
-            return parent::get($identifier, $column, $meta_enabled, $force);
+            return parent::load($identifier, $column, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsException $e) {
             throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [
@@ -257,7 +257,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function setType(?string $type): static
     {
-        return $this->setValue('type', $type);
+        return $this->set('type', $type);
     }
 
 
@@ -281,7 +281,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function setDriver(?string $driver): static
     {
-        return $this->setValue('driver', $driver);
+        return $this->set('driver', $driver);
     }
 
 
@@ -305,7 +305,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function setPdoAttributes(?string $pdo_attributes): static
     {
-        return $this->setValue('pdo_attributes', $pdo_attributes);
+        return $this->set('pdo_attributes', $pdo_attributes);
     }
 
 
@@ -329,7 +329,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function setMode(?string $mode): static
     {
-        return $this->setValue('mode', $mode);
+        return $this->set('mode', $mode);
     }
 
 
@@ -353,7 +353,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function setLimitMax(?int $limit_max): static
     {
-        return $this->setValue('limit_max', $limit_max);
+        return $this->set('limit_max', $limit_max);
     }
 
 
@@ -377,7 +377,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function setAutoIncrement(?int $auto_increment): static
     {
-        return $this->setValue('auto_increment', $auto_increment);
+        return $this->set('auto_increment', $auto_increment);
     }
 
 
@@ -401,7 +401,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function setSshTunnelsId(int|null $ssh_tunnels_id): static
     {
-        return $this->setValue('ssh_tunnels_id', $ssh_tunnels_id);
+        return $this->set('ssh_tunnels_id', $ssh_tunnels_id);
     }
 
 
@@ -425,7 +425,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function setLog(int|bool|null $log): static
     {
-        return $this->setValue('log', (bool) $log);
+        return $this->set('log', (bool) $log);
     }
 
 
@@ -449,7 +449,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function setPersist(int|bool|null $persist): static
     {
-        return $this->setValue('persist', (bool) $persist);
+        return $this->set('persist', (bool) $persist);
     }
 
 
@@ -473,7 +473,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function setInit(int|bool|null $init): static
     {
-        return $this->setValue('init', (bool) $init);
+        return $this->set('init', (bool) $init);
     }
 
 
@@ -497,7 +497,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function setBuffered(int|bool|null $buffered): static
     {
-        return $this->setValue('buffered', (bool) $buffered);
+        return $this->set('buffered', (bool) $buffered);
     }
 
 
@@ -521,7 +521,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function setStatistics(int|bool|null $statistics): static
     {
-        return $this->setValue('statistics', (bool) $statistics);
+        return $this->set('statistics', (bool) $statistics);
     }
 
 

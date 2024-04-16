@@ -36,6 +36,6 @@ trait TraitDataEntrySync
      */
     public function setSync(int|bool|null $sync): static
     {
-        return $this->setValue('sync', (bool) $sync);
+        return $this->set('sync', (bool) $sync);
     }
 }

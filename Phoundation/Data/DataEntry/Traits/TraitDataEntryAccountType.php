@@ -45,6 +45,6 @@ trait TraitDataEntryAccountType
             $account_type = EnumAccountType::from($account_type)->value;
         }
 
-        return $this->setValue('account_type', get_null($account_type));
+        return $this->set('account_type', get_null($account_type));
     }
 }

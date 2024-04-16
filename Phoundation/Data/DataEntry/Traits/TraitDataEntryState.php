@@ -38,7 +38,7 @@ trait TraitDataEntryState
      */
     public function setStatesId(?int $states_id): static
     {
-        return $this->setValue('states_id', $states_id);
+        return $this->set('states_id', $states_id);
     }
 
 
@@ -78,6 +78,6 @@ trait TraitDataEntryState
      */
     public function setStatesName(?string $states_name): static
     {
-        return $this->setValue('states_name', $states_name);
+        return $this->set('states_name', $states_name);
     }
 }

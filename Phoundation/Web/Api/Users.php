@@ -33,7 +33,7 @@ class Users extends \Phoundation\Accounts\Users\Users
             ':key' => $key,
         ]);
         if ($users_id) {
-            return User::get($users_id, 'id');
+            return User::load($users_id, 'id');
         }
 
         return null;

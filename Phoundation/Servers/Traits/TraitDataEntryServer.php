@@ -36,7 +36,7 @@ trait TraitDataEntryServer
     {
         unset($this->server);
 
-        return $this->setValue('servers_id', $servers_id);
+        return $this->set('servers_id', $servers_id);
     }
 
 
@@ -60,7 +60,7 @@ trait TraitDataEntryServer
     public function getServer(): ?ServerInterface
     {
         if (!isset($this->server)) {
-            $this->server = Server::getOrNull($this->getServersId());
+            $this->server = Server::loadOrNull($this->getServersId());
         }
 
         return $this->server;
@@ -79,7 +79,7 @@ trait TraitDataEntryServer
         if ($server) {
             $this->server = $server;
 
-            return $this->setValue('servers_id', $server->getId());
+            return $this->set('servers_id', $server->getId());
         }
 
         return $this->setServersId(null);
@@ -107,6 +107,6 @@ trait TraitDataEntryServer
      */
     public function setServersHostname(?string $hostname): static
     {
-        return $this->setServer(Server::get($hostname, 'hostname'));
+        return $this->setServer(Server::load($hostname, 'hostname'));
     }
 }

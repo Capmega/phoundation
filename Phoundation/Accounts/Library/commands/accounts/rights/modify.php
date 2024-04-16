@@ -41,7 +41,7 @@ $argv = ArgvValidator::new()
 
 
 // Get right, ensure new name doesn't exist yet, and modify it
-$right = Right::get($argv['right']);
+$right = Right::load($argv['right']);
 
 if ($argv['name']) {
     // If changing name, ensure it doesn't exist yet as its a unique identifier

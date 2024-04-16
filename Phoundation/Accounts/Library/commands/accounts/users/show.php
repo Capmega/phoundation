@@ -47,7 +47,7 @@ $argv = ArgvValidator::new()
 
 
 // Display user data
-User::get($argv['user'])->displayCliForm();
+User::load($argv['user'])->displayCliForm();
 
 
 // Display extra email addresses
@@ -55,7 +55,7 @@ Log::cli();
 Log::information('Extra email addresses:', use_prefix: false);
 Log::cli();
 
-User::get($argv['user'])->getEmails()->displayCliTable([
+User::load($argv['user'])->getEmails()->displayCliTable([
                                                            'email'        => tr('Email address'),
                                                            'account_type' => tr('Email address type'),
                                                        ]);
@@ -66,7 +66,7 @@ Log::cli();
 Log::information('Extra phone numbers:', use_prefix: false);
 Log::cli();
 
-User::get($argv['user'])->getPhones()->displayCliTable([
+User::load($argv['user'])->getPhones()->displayCliTable([
                                                            'phone'        => tr('Phone number'),
                                                            'account_type' => tr('Phone number type'),
                                                        ]);
@@ -75,7 +75,7 @@ User::get($argv['user'])->getPhones()->displayCliTable([
 // Display roles
 Log::cli();
 
-User::get($argv['user'])->getRoles()->displayCliTable([
+User::load($argv['user'])->getRoles()->displayCliTable([
                                                           'name' => tr('Roles assigned to this user:'),
                                                       ]);
 
@@ -83,6 +83,6 @@ User::get($argv['user'])->getRoles()->displayCliTable([
 // Display rights
 Log::cli();
 
-User::get($argv['user'])->getRights()->displayCliTable([
+User::load($argv['user'])->getRights()->displayCliTable([
                                                            'name' => tr('Rights assigned to this user through its roles:'),
                                                        ]);

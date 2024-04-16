@@ -20,7 +20,7 @@ $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId()
                    ->validate();
 
-$plugin = Plugin::get($get['id']);
+$plugin = Plugin::load($get['id']);
 
 // Build the buttons
 $buttons = Buttons::new()

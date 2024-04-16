@@ -47,7 +47,7 @@ $argv = ArgvValidator::new()
 
 
 // Load account, ensure the new account name doesn't exist yet
-$account = SshAccount::get($argv['identifier']);
+$account = SshAccount::load($argv['identifier']);
 
 
 // Add SSH key for this account either from file or from CLI input

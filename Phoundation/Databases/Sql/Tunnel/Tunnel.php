@@ -41,7 +41,7 @@ class Tunnel extends Server
                 'domain'      => $restrictions['domain'],
             ],
         ]);
-        $this->get('SELECT TRUE', true, null, $this->instance);
+        $this->load('SELECT TRUE', true, null, $this->instance);
 
         return $this;
     }

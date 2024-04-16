@@ -47,7 +47,7 @@ Customer::notExists($argv['name'], 'name', null, true);
 // Ensure that specified customers exist
 if ($argv['rights']) {
     foreach ($argv['rights'] as &$right) {
-        $right = Customer::get($right);
+        $right = Customer::load($right);
     }
 
     unset($right);

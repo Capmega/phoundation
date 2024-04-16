@@ -115,7 +115,7 @@ class Phones extends DataList implements PhonesInterface
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static
     {
-        $this->parent  = User::get($this->parent, 'seo_name');
+        $this->parent  = User::load($this->parent, 'seo_name');
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
@@ -228,7 +228,7 @@ class Phones extends DataList implements PhonesInterface
             $diff = Arrays::valueDiff($this->getAllRowsSingleColumn('phone'), array_keys($phones), true);
             $diff = Arrays::deleteDiff($diff, $phones);
             foreach ($diff['delete'] as $id => $phone) {
-                Phone::get($id, 'id')
+                Phone::load($id, 'id')
                      ->setPhone(null)
                      ->save()
                      ->erase();
@@ -244,7 +244,7 @@ class Phones extends DataList implements PhonesInterface
             }
             // Update all other phone numbers
             foreach ($diff['keep'] as $id => $phone) {
-                Phone::get($id, 'id')
+                Phone::load($id, 'id')
                      ->apply(false, $phones[$phone])
                      ->setUsersId($this->parent->getId())
                      ->save();

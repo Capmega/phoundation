@@ -149,7 +149,7 @@ class Role extends DataEntry implements RoleInterface
      */
     public function mergeFrom(RoleInterface|string|int|null $from_identifier = null, ?string $column = null): static
     {
-        $from = Role::get($from_identifier, $column);
+        $from = Role::load($from_identifier, $column);
         if (!$this->getId()) {
             throw new OutOfBoundsException(tr('Cannot merge role ":from" to this role ":this" because this role does not yet exist in the database', [
                 ':from' => $from->getLogId(),
@@ -187,10 +187,10 @@ class Role extends DataEntry implements RoleInterface
      *
      * @return Role
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
         try {
-            return parent::get(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force);
+            return parent::load(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RoleNotExistsException($e);

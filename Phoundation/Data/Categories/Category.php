@@ -82,7 +82,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function setParentsId(?int $parents_id): static
     {
-        return $this->setValue('parents_id', $parents_id);
+        return $this->set('parents_id', $parents_id);
     }
 
 
@@ -122,7 +122,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function setParentsName(?string $parents_name): static
     {
-        return $this->setValue('parents_name', $parents_name);
+        return $this->set('parents_name', $parents_name);
     }
 
 

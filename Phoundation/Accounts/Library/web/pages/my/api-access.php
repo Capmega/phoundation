@@ -16,7 +16,7 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
-$user = User::get(Session::getUser()->getId());
+$user = User::load(Session::getUser()->getId());
 
 // Validate POST and submit
 if (Request::isPostRequestMethod()) {

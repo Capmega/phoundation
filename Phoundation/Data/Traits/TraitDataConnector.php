@@ -56,7 +56,7 @@ trait TraitDataConnector
             $connector = 'system';
         }
         try {
-            $this->connector = Connector::get($connector);
+            $this->connector = Connector::load($connector);
 
         } catch (SqlExceptionInterface $e) {
             if (!$ignore_sql_exceptions) {

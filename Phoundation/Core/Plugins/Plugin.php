@@ -111,9 +111,9 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return static
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
-        $plugin = parent::get($identifier, $column, $meta_enabled, $force);
+        $plugin = parent::load($identifier, $column, $meta_enabled, $force);
         $file   = DIRECTORY_ROOT . $plugin->getPath() . 'Library/Plugin.php';
         $class  = Library::getClassPath($file);
         $class  = Library::includeClassFile($class);
@@ -211,7 +211,7 @@ class Plugin extends DataEntry implements PluginInterface
             }
         }
 
-        return $this->setValue('status', $enabled ? null : 'disabled');
+        return $this->set('status', $enabled ? null : 'disabled');
     }
 
 
@@ -235,7 +235,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setMenuEnabled(int|bool|null $menu_enabled): static
     {
-        return $this->setValue('menu_enabled', (bool) $menu_enabled);
+        return $this->set('menu_enabled', (bool) $menu_enabled);
     }
 
 
@@ -265,7 +265,7 @@ class Plugin extends DataEntry implements PluginInterface
             ]));
         }
 
-        return $this->setValue('menu_priority', $menu_priority);
+        return $this->set('menu_priority', $menu_priority);
     }
 
 
@@ -403,7 +403,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setClass(?string $class): static
     {
-        return $this->setValue('class', $class);
+        return $this->set('class', $class);
     }
 
 
@@ -416,7 +416,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setVendor(?string $vendor): static
     {
-        return $this->setValue('vendor', $vendor);
+        return $this->set('vendor', $vendor);
     }
 
 
@@ -456,7 +456,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setCommandsEnabled(int|bool|null $commands_enabled): static
     {
-        return $this->setValue('commands_enabled', (bool) $commands_enabled);
+        return $this->set('commands_enabled', (bool) $commands_enabled);
     }
 
 
@@ -480,7 +480,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setWebEnabled(int|bool|null $web_enabled): static
     {
-        return $this->setValue('web_enabled', (bool) $web_enabled);
+        return $this->set('web_enabled', (bool) $web_enabled);
     }
 
 

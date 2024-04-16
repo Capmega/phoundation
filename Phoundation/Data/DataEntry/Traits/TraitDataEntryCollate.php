@@ -36,6 +36,6 @@ trait TraitDataEntryCollate
      */
     public function setCollate(?string $collate): static
     {
-        return $this->setValue('collate', $collate);
+        return $this->set('collate', $collate);
     }
 }

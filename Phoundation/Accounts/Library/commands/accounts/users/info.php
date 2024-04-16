@@ -44,7 +44,7 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-$user = User::get($argv['user']);
+$user = User::load($argv['user']);
 
 // Display user data
 $user->displayCliForm();

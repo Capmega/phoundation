@@ -95,7 +95,7 @@ class Email extends DataEntry implements EmailInterface
             ]));
         }
 
-        return $this->setValue('users_id', $users_id);
+        return $this->set('users_id', $users_id);
     }
 
 
@@ -116,7 +116,7 @@ class Email extends DataEntry implements EmailInterface
             ]));
         }
 
-        return $this->setValue('users_email', $users_email);
+        return $this->set('users_email', $users_email);
     }
 
 
@@ -210,10 +210,10 @@ class Email extends DataEntry implements EmailInterface
      *
      * @return Email
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
         try {
-            return parent::get($identifier, $column, $meta_enabled, $force);
+            return parent::load($identifier, $column, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new EmailNotExistsException($e);

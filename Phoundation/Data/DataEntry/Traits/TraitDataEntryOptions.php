@@ -42,6 +42,6 @@ trait TraitDataEntryOptions
             $options = Json::encode($options);
         }
 
-        return $this->setValue('options', $options);
+        return $this->set('options', $options);
     }
 }

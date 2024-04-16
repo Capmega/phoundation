@@ -53,7 +53,7 @@ $argv = ArgvValidator::new()
 if ($argv['task']) {
     try {
         // Execute a specific task
-        $task = Task::get($argv['task'])->execute();
+        $task = Task::load($argv['task'])->execute();
 
     } catch (TaskAlreadyExecutedException) {
         throw TaskAlreadyExecutedException::new(tr('Task ":task" has already been executed', [

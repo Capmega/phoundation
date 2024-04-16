@@ -38,6 +38,6 @@ trait TraitDataEntryPhones
      */
     public function setPhones(array|string|null $phones): static
     {
-        return $this->setValue('phones', Strings::force($phones));
+        return $this->set('phones', Strings::force($phones));
     }
 }

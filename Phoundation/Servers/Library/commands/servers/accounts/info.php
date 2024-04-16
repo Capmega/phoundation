@@ -38,4 +38,4 @@ $argv = ArgvValidator::new()
 
 
 // Display SSH account data
-SshAccount::get($argv['account'])->displayCliForm();
+SshAccount::load($argv['account'])->displayCliForm();

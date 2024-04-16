@@ -37,7 +37,7 @@ if (Request::isPostRequestMethod()) {
                              ->select('email')->isEmail()
                              ->validate();
 
-        $user = User::get($post['email'], 'email');
+        $user = User::load($post['email'], 'email');
 
         if ($user->isLocked() or $user->isDeleted()) {
             // Yikes, this cannot be impersonated!

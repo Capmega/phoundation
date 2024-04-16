@@ -36,6 +36,6 @@ trait TraitDataEntryPost
      */
     public function setPost(?array $post): static
     {
-        return $this->setValue('post', $post);
+        return $this->set('post', $post);
     }
 }

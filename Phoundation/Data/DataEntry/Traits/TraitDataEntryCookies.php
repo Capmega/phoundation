@@ -36,6 +36,6 @@ trait TraitDataEntryCookies
      */
     public function setCookies(?array $cookies): static
     {
-        return $this->setValue('cookies', $cookies);
+        return $this->set('cookies', $cookies);
     }
 }

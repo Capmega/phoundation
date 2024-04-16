@@ -95,7 +95,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @return DataEntryInterface
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static;
+    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static;
 
 
     /**
@@ -435,7 +435,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *       will not become available outside this object
      * @return array
      */
-    public function getValue(string $key): mixed;
+    public function get(string $key): mixed;
 
 
     /**

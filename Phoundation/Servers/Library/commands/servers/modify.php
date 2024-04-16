@@ -47,7 +47,7 @@ $argv = ArgvValidator::new()
 
 
 // Get the server, modify, and save
-$server = Server::get($argv['hostname'])->apply()->save();
+$server = Server::load($argv['hostname'])->apply()->save();
 
 
 // Done!

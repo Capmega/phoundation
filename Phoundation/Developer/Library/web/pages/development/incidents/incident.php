@@ -21,7 +21,7 @@ $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId()
                    ->validate();
 
-$incident = Incident::get($get['id']);
+$incident = Incident::load($get['id']);
 
 // Build the buttons
 $buttons = Buttons::new()

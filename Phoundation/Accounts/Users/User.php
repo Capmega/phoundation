@@ -224,7 +224,7 @@ class User extends DataEntry implements UserInterface
      */
     public static function getForRole(RolesInterface|Stringable|string $role): userInterface
     {
-        $role = Role::get($role, null);
+        $role = Role::load($role, null);
         $id   = sql()->getColumn('SELECT `accounts_users`.`id` 
                                     FROM   `accounts_users`
                                     JOIN   `accounts_users_roles`  
@@ -239,7 +239,7 @@ class User extends DataEntry implements UserInterface
             ]));
         }
 
-        return static::get($id, 'id');
+        return static::load($id, 'id');
     }
 
 
@@ -253,10 +253,10 @@ class User extends DataEntry implements UserInterface
      *
      * @return static
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
         try {
-            return parent::get($identifier, $column, $meta_enabled, $force);
+            return parent::load($identifier, $column, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsException $e) {
             if ((static::getDefaultConnectorName() === 'system') and (static::getTable() === 'accounts_users')) {
@@ -270,7 +270,7 @@ class User extends DataEntry implements UserInterface
                     ]);
                     if ($user) {
                         if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
-                            $user = static::get($user['users_id'], 'id', $meta_enabled);
+                            $user = static::load($user['users_id'], 'id', $meta_enabled);
                             Log::warning(tr('Identified user ":user" with alternate email ":email"', [
                                 ':user'  => $user->getLogId(),
                                 ':email' => $identifier,
@@ -357,7 +357,7 @@ class User extends DataEntry implements UserInterface
      */
     protected static function doAuthenticate(string|int $identifier, string $password, ?string $domain = null, bool $test = false, string $non_id_column = 'email'): static
     {
-        $user = static::get($identifier, (is_numeric($identifier) ? 'id' : $non_id_column));
+        $user = static::load($identifier, (is_numeric($identifier) ? 'id' : $non_id_column));
         if ($user->passwordMatch($password)) {
             if ($user->getDomain()) {
                 // User is limited to a domain!
@@ -753,7 +753,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setRemoteId(?int $remote_id): static
     {
-        return $this->setValue('remote_id', $remote_id);
+        return $this->set('remote_id', $remote_id);
     }
 
 
@@ -835,7 +835,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setNickname(?string $nickname): static
     {
-        return $this->setValue('nickname', $nickname);
+        return $this->set('nickname', $nickname);
     }
 
 
@@ -848,7 +848,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setUsername(?string $username): static
     {
-        return $this->setValue('username', $username);
+        return $this->set('username', $username);
     }
 
 
@@ -872,7 +872,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLastSignin(?string $last_sign_in): static
     {
-        return $this->setValue('last_sign_in', $last_sign_in);
+        return $this->set('last_sign_in', $last_sign_in);
     }
 
 
@@ -908,7 +908,7 @@ class User extends DataEntry implements UserInterface
             $date_time = $date_time->getTimestamp();
         }
 
-        return $this->setValue('update_password', $date_time);
+        return $this->set('update_password', $date_time);
     }
 
 
@@ -932,7 +932,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setAuthenticationFailures(?int $authentication_failures): static
     {
-        return $this->setValue('authentication_failures', (int) $authentication_failures);
+        return $this->set('authentication_failures', (int) $authentication_failures);
     }
 
 
@@ -956,7 +956,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLockedUntil(?string $locked_until): static
     {
-        return $this->setValue('locked_until', $locked_until);
+        return $this->set('locked_until', $locked_until);
     }
 
 
@@ -980,7 +980,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setSigninCount(?int $sign_in_count): static
     {
-        return $this->setValue('sign_in_count', $sign_in_count);
+        return $this->set('sign_in_count', $sign_in_count);
     }
 
 
@@ -1006,7 +1006,7 @@ class User extends DataEntry implements UserInterface
     {
         sql()->update('accounts_users', ['notifications_hash' => $notifications_hash], ['id' => $this->getId()]);
 
-        return $this->setValue('notifications_hash', $notifications_hash);
+        return $this->set('notifications_hash', $notifications_hash);
     }
 
 
@@ -1037,10 +1037,10 @@ class User extends DataEntry implements UserInterface
                 $fingerprint = new DateTime($fingerprint);
             }
 
-            return $this->setValue('fingerprint', $fingerprint->format('Y-m-d H:i:s'));
+            return $this->set('fingerprint', $fingerprint->format('Y-m-d H:i:s'));
         }
 
-        return $this->setValue('fingerprint', null);
+        return $this->set('fingerprint', null);
     }
 
 
@@ -1064,7 +1064,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setKeywords(array|string|null $keywords): static
     {
-        return $this->setValue('keywords', Strings::force($keywords, ', '));
+        return $this->set('keywords', Strings::force($keywords, ', '));
     }
 
 
@@ -1088,7 +1088,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setPriority(?int $priority): static
     {
-        return $this->setValue('priority', $priority);
+        return $this->set('priority', $priority);
     }
 
 
@@ -1112,7 +1112,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setIsLeader(int|bool|null $is_leader): static
     {
-        return $this->setValue('is_leader', (bool) $is_leader);
+        return $this->set('is_leader', (bool) $is_leader);
     }
 
 
@@ -1136,7 +1136,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLeadersId(?int $leaders_id): static
     {
-        return $this->setValue('leaders_id', $leaders_id);
+        return $this->set('leaders_id', $leaders_id);
     }
 
 
@@ -1176,7 +1176,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLeadersName(?string $leaders_name): static
     {
-        return $this->setValue('leaders_name', $leaders_name);
+        return $this->set('leaders_name', $leaders_name);
     }
 
 
@@ -1200,7 +1200,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLatitude(?float $latitude): static
     {
-        return $this->setValue('latitude', $latitude);
+        return $this->set('latitude', $latitude);
     }
 
 
@@ -1224,7 +1224,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLongitude(?float $longitude): static
     {
-        return $this->setValue('longitude', $longitude);
+        return $this->set('longitude', $longitude);
     }
 
 
@@ -1248,7 +1248,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setAccuracy(?float $accuracy): static
     {
-        return $this->setValue('accuracy', $accuracy);
+        return $this->set('accuracy', $accuracy);
     }
 
 
@@ -1272,7 +1272,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setOffsetLatitude(?float $offset_latitude): static
     {
-        return $this->setValue('offset_latitude', $offset_latitude);
+        return $this->set('offset_latitude', $offset_latitude);
     }
 
 
@@ -1296,7 +1296,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setOffsetLongitude(?float $offset_longitude): static
     {
-        return $this->setValue('offset_longitude', $offset_longitude);
+        return $this->set('offset_longitude', $offset_longitude);
     }
 
 
@@ -1325,7 +1325,7 @@ class User extends DataEntry implements UserInterface
             $redirect = UrlBuilder::getWww($redirect);
         }
 
-        return $this->setValue('redirect', get_null((string) $redirect));
+        return $this->set('redirect', get_null((string) $redirect));
     }
 
 
@@ -1349,7 +1349,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setGender(?string $gender): static
     {
-        return $this->setValue('gender', $gender);
+        return $this->set('gender', $gender);
     }
 
 
@@ -1378,7 +1378,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setBirthdate(DateTimeInterface|string|null $birthdate): static
     {
-        return $this->setValue('birthdate', $birthdate);
+        return $this->set('birthdate', $birthdate);
     }
 
 

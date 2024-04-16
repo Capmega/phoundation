@@ -44,6 +44,6 @@ trait TraitDataEntryLine
             ]));
         }
 
-        return $this->setValue('line', get_null($line));
+        return $this->set('line', get_null($line));
     }
 }

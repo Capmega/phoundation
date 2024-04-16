@@ -38,7 +38,7 @@ trait TraitDataEntryCountry
      */
     public function setCountriesId(?int $countries_id): static
     {
-        return $this->setValue('countries_id', $countries_id);
+        return $this->set('countries_id', $countries_id);
     }
 
 
@@ -78,6 +78,6 @@ trait TraitDataEntryCountry
      */
     public function setCountriesName(?string $countries_name): static
     {
-        return $this->setValue('countries_name', $countries_name);
+        return $this->set('countries_name', $countries_name);
     }
 }

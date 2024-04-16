@@ -145,7 +145,7 @@ class Roles extends DataList implements RolesInterface
 
             } else {
                 // Add single right. Since this is a Role object, the entry already exists in the database
-                $value = Role::get($value);
+                $value = Role::load($value);
                 // Role already exists for this parent?
                 if ($this->hasRole($value)) {
                     // Ignore and continue
@@ -182,7 +182,7 @@ class Roles extends DataList implements RolesInterface
                     $this->add($value);
                     // Update all users with this right to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user)
+                        User::load($user)
                             ->getRights()
                             ->add($this->parent);
                     }
@@ -249,7 +249,7 @@ class Roles extends DataList implements RolesInterface
 
         } else {
             // Delete a single role. Since this is a Role object, the entry already exists in the database
-            $right = Role::get($keys);
+            $right = Role::load($keys);
             if ($this->parent instanceof UserInterface) {
                 Log::action(tr('Removing role ":role" from user ":user"', [
                     ':user' => $this->parent->getLogId(),
@@ -287,7 +287,7 @@ class Roles extends DataList implements RolesInterface
                 $this->removeKeys($right->getId());
                 // Update all users with this right to remove the new right as well!
                 foreach ($this->parent->getUsers() as $user) {
-                    User::get($user, null)
+                    User::load($user, null)
                         ->getRights()
                         ->deleteKeys($this->parent);
                 }

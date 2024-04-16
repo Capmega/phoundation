@@ -59,7 +59,7 @@ try {
     // Ensure that specified roles exist
     if ($argv['roles']) {
         foreach ($argv['roles'] as &$role) {
-            $role = Role::get($role);
+            $role = Role::load($role);
         }
 
         unset($role);

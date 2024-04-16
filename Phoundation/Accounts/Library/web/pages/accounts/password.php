@@ -26,7 +26,7 @@ $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId()
                    ->validate();
 
-$user     = User::get($get['id'], 'id');
+$user     = User::load($get['id'], 'id');
 $password = $user->getPassword();
 
 

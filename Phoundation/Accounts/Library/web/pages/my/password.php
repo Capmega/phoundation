@@ -23,7 +23,7 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 // Get current user and password objects
-$user     = User::get(Session::getUser()->getId());
+$user     = User::load(Session::getUser()->getId());
 $password = $user->getPassword();
 
 

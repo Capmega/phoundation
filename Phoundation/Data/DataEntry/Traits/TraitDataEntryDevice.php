@@ -36,6 +36,6 @@ trait TraitDataEntryDevice
      */
     public function setDevice(?string $device): static
     {
-        return $this->setValue('device', $device);
+        return $this->set('device', $device);
     }
 }

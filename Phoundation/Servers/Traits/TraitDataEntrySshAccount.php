@@ -52,7 +52,7 @@ trait TraitDataEntrySshAccount
             $this->ssh_account = null;
         }
 
-        return $this->setValue('ssh_accounts_id', $ssh_accounts_id);
+        return $this->set('ssh_accounts_id', $ssh_accounts_id);
     }
 
 
@@ -78,7 +78,7 @@ trait TraitDataEntrySshAccount
     {
         $this->ssh_account = $account;
 
-        return $this->setValue('ssh_accounts_id', $account?->getId());
+        return $this->set('ssh_accounts_id', $account?->getId());
     }
 
 
@@ -103,13 +103,13 @@ trait TraitDataEntrySshAccount
     public function setSshAccountsName(?string $ssh_accounts_name): static
     {
         if ($ssh_accounts_name) {
-            $this->ssh_account = SshAccount::get($ssh_accounts_name, 'name');
+            $this->ssh_account = SshAccount::load($ssh_accounts_name, 'name');
 
-            return $this->setValue('ssh_accounts_id', $this->ssh_account->getId());
+            return $this->set('ssh_accounts_id', $this->ssh_account->getId());
 
         }
         $this->ssh_account = null;
 
-        return $this->setValue('ssh_accounts_id', null);
+        return $this->set('ssh_accounts_id', null);
     }
 }

@@ -225,7 +225,7 @@ abstract class DataEntry implements DataEntryInterface
         }
         $this->columns_filter_on_insert = [static::getIdColumn()];
         $this->database_connector       = static::getDefaultConnectorName();
-        $column                         = static::getColumn($identifier, $column);
+        $column                         = static::determineColumn($identifier, $column);
         // Set up the columns for this object
         $this->setMetaDefinitions();
         $this->setDefinitions($this->definitions);
@@ -235,7 +235,7 @@ abstract class DataEntry implements DataEntryInterface
                 $this->source = $identifier->getSource();
 
             } else {
-                $this->load($identifier, $column, $meta_enabled);
+                $this->loadFromDatabase($identifier, $column, $meta_enabled);
             }
 
         } else {
@@ -292,7 +292,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return string|null
      */
-    protected static function getColumn(DataEntryInterface|string|int|null $identifier, ?string $column): ?string
+    protected static function determineColumn(DataEntryInterface|string|int|null $identifier, ?string $column): ?string
     {
         if ($column) {
             // Column was specified. Identifier MAY be empty but that is fine as a value actually might be NULL
@@ -388,7 +388,7 @@ abstract class DataEntry implements DataEntryInterface
                                                             return InputText::new()
                                                                             ->setDisabled(true)
                                                                             ->addClasses('text-center')
-                                                                            ->setValue(User::get($source[$key], null)
+                                                                            ->setValue(User::load($source[$key], null)
                                                                                            ->getDisplayName());
                                                         } else {
                                                             return InputText::new()
@@ -528,7 +528,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return static
      */
-    public function setValue(string $column, mixed $value, bool $force = false): static
+    public function set(string $column, mixed $value, bool $force = false): static
     {
         if ($this->debug) {
             Log::debug('TRY SET SOURCE VALUE FIELD "' . get_class($this) . '>' . $column . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
@@ -646,14 +646,14 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return static
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
         if (!$identifier) {
             // No identifier specified
             // Identifier is required here
             throw DataEntryNotExistsException::new(tr('The specified ":class" class column ":column" with identifier ":identifier" was empty', [
                 ':class'      => static::getClassName(),
-                ':column'     => static::getColumn($identifier, $column),
+                ':column'     => static::determineColumn($identifier, $column),
                 ':identifier' => $identifier,
             ]))
                                              ->addData([
@@ -714,7 +714,7 @@ abstract class DataEntry implements DataEntryInterface
             }
             throw DataEntryNotExistsException::new(tr('The ":class" class column ":column" with identifier ":identifier" does not exist', [
                 ':class'      => static::getClassName(),
-                ':column'     => static::getColumn($identifier, $column),
+                ':column'     => static::determineColumn($identifier, $column),
                 ':identifier' => $identifier,
             ]))
                                              ->addData([
@@ -729,7 +729,7 @@ abstract class DataEntry implements DataEntryInterface
             ) {
                 throw DataEntryDeletedException::new(tr('The ":class" class column ":column" with identifier ":identifier" is deleted', [
                     ':class'      => static::getClassName(),
-                    ':column'     => static::getColumn($identifier, $column),
+                    ':column'     => static::determineColumn($identifier, $column),
                     ':identifier' => $identifier,
                 ]))
                                                ->addData([
@@ -976,7 +976,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return void
      */
-    protected function load(string|int $identifier, ?string $column, ?bool $meta_enabled): void
+    protected function loadFromDatabase(string|int $identifier, ?string $column, ?bool $meta_enabled): void
     {
         $this->is_loading = true;
         // Get the data using the query builder
@@ -1107,7 +1107,7 @@ abstract class DataEntry implements DataEntryInterface
                                                                                 ?->getDirectUpdate()
         ) {
             // Store data directly, bypassing the set method for this key
-            $this->setValue($column, $value);
+            $this->set($column, $value);
 
         } else {
             // Store this data through the set method to ensure datatype and filtering is done correctly
@@ -1508,7 +1508,7 @@ abstract class DataEntry implements DataEntryInterface
      *       will not become available outside this object
      * @return array
      */
-    public function getValue(string $key): mixed
+    public function get(string $key): mixed
     {
         if ($this->definitions->keyExists($key)) {
             return isset_get($this->source[$key]);
@@ -1715,13 +1715,13 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return static|null
      */
-    public static function getOrNull(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): ?static
+    public static function loadOrNull(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): ?static
     {
         if ($identifier === null) {
             return null;
         }
 
-        return static::get($identifier, $column, $meta_enabled, $force);
+        return static::load($identifier, $column, $meta_enabled, $force);
     }
 
 
@@ -1732,14 +1732,14 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return static|null
      */
-    public static function getRandom(bool $meta_enabled = false): ?static
+    public static function loadRandom(bool $meta_enabled = false): ?static
     {
         $identifier = sql(static::getDefaultConnectorName())->getInteger('SELECT   `id` 
                                                                                 FROM     `' . static::getTable() . '` 
                                                                                 ORDER BY RAND() 
                                                                                 LIMIT    1;');
         if ($identifier) {
-            return static::get($identifier, 'id', $meta_enabled);
+            return static::load($identifier, 'id', $meta_enabled);
         }
         throw new OutOfBoundsException(tr('Cannot select random record for table ":table", no records found', [
             ':table' => static::getTable(),
@@ -1768,7 +1768,7 @@ abstract class DataEntry implements DataEntryInterface
                 ':class' => static::getClassName(),
             ]));
         }
-        $column  = static::getColumn($identifier, $column);
+        $column  = static::determineColumn($identifier, $column);
         $execute = [':identifier' => $identifier];
         if ($not_id) {
             $execute[':id'] = $not_id;
@@ -1828,7 +1828,7 @@ abstract class DataEntry implements DataEntryInterface
                 ':class' => static::getClassName(),
             ]));
         }
-        $column  = static::getColumn($identifier, $column);
+        $column  = static::determineColumn($identifier, $column);
         $execute = [':identifier' => $identifier];
         if ($id) {
             $execute[':id'] = $id;
@@ -2809,7 +2809,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     protected function setMetaState(?string $state): static
     {
-        return $this->setValue('meta_state', $state);
+        return $this->set('meta_state', $state);
     }
 
 

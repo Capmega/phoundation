@@ -36,6 +36,6 @@ trait TraitDataEntryFirstNames
      */
     public function setFirstNames(?string $first_names): static
     {
-        return $this->setValue('first_names', $first_names);
+        return $this->set('first_names', $first_names);
     }
 }
