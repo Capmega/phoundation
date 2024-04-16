@@ -19,7 +19,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryReason;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Routing\Route;
 
 /**
@@ -116,7 +116,7 @@ class Non200Url extends DataEntry
                                            ->setReadonly(true))
                     ->add(Definition::new($this, 'method')
                                     ->setReadonly(true)
-                                    ->setInputType(EnumElementInputType::variable)
+                                    ->setInputType(EnumInputType::variable)
                                     ->setSize(4)
                                     ->setMaxlength(12)
                                     ->setHelpText(tr('The HTTP method used for this request'))
@@ -136,7 +136,7 @@ class Non200Url extends DataEntry
                                     }))
                     ->add(Definition::new($this, 'http_code')
                                     ->setReadonly(true)
-                                    ->setInputType(EnumElementInputType::number)
+                                    ->setInputType(EnumInputType::number)
                                     ->setSize(4)
                                     ->setMin(100)
                                     ->setMax(599)

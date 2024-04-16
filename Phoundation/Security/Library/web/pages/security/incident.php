@@ -6,7 +6,7 @@ declare(strict_types=1);
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -28,7 +28,7 @@ $card     = Card::new()
                 ->setTitle($incident->getTitle())
                 ->setMaximizeSwitch(true)
                 ->setContent($form->render())
-                ->setButtons(InputButtons::new()->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/security/incidents.html'), true));
+                ->setButtons(Buttons::new()->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/security/incidents.html'), true));
 
 
 // Build relevant links

@@ -19,8 +19,8 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -117,9 +117,9 @@ if (Request::isPostRequestMethod()) {
 
 // Save button
 if (!$connector->getReadonly()) {
-    $save = InputButton::new()
-                       ->setValue(tr('Save'))
-                       ->setContent(tr('Save'));
+    $save = Button::new()
+                  ->setValue(tr('Save'))
+                  ->setContent(tr('Save'));
 }
 
 
@@ -127,52 +127,52 @@ if (!$connector->getReadonly()) {
 if (!$connector->isNew()) {
     if (!$connector->isReadonly()) {
         if ($connector->isDeleted()) {
-            $delete = InputButton::new()
-                                 ->setFloatRight(true)
-                                 ->setMode(EnumDisplayMode::warning)
-                                 ->setOutlined(true)
-                                 ->setValue(tr('Undelete'))
-                                 ->setContent(tr('Undelete'));
+            $delete = Button::new()
+                            ->setFloatRight(true)
+                            ->setMode(EnumDisplayMode::warning)
+                            ->setOutlined(true)
+                            ->setValue(tr('Undelete'))
+                            ->setContent(tr('Undelete'));
 
         } else {
-            $delete = InputButton::new()
-                                 ->setFloatRight(true)
-                                 ->setMode(EnumDisplayMode::warning)
-                                 ->setOutlined(true)
-                                 ->setValue(tr('Delete'))
-                                 ->setContent(tr('Delete'));
+            $delete = Button::new()
+                            ->setFloatRight(true)
+                            ->setMode(EnumDisplayMode::warning)
+                            ->setOutlined(true)
+                            ->setValue(tr('Delete'))
+                            ->setContent(tr('Delete'));
 
             if ($connector->isLocked()) {
-                $lock = InputButton::new()
-                                   ->setFloatRight(true)
-                                   ->setMode(EnumDisplayMode::warning)
-                                   ->setValue(tr('Unlock'))
-                                   ->setContent(tr('Unlock'));
+                $lock = Button::new()
+                              ->setFloatRight(true)
+                              ->setMode(EnumDisplayMode::warning)
+                              ->setValue(tr('Unlock'))
+                              ->setContent(tr('Unlock'));
 
             } else {
-                $lock = InputButton::new()
-                                   ->setFloatRight(true)
-                                   ->setMode(EnumDisplayMode::warning)
-                                   ->setValue(tr('Lock'))
-                                   ->setContent(tr('Lock'));
+                $lock = Button::new()
+                              ->setFloatRight(true)
+                              ->setMode(EnumDisplayMode::warning)
+                              ->setValue(tr('Lock'))
+                              ->setContent(tr('Lock'));
             }
 
             // Audit button.
-            $audit = InputButton::new()
-                                ->setFloatRight(true)
-                                ->setMode(EnumDisplayMode::information)
-                                ->setAnchorUrl('/audit/meta+' . $connector->getMetaId() . '.html')
-                                ->setValue(tr('Audit'))
-                                ->setContent(tr('Audit'));
+            $audit = Button::new()
+                           ->setFloatRight(true)
+                           ->setMode(EnumDisplayMode::information)
+                           ->setAnchorUrl('/audit/meta+' . $connector->getMetaId() . '.html')
+                           ->setValue(tr('Audit'))
+                           ->setContent(tr('Audit'));
         }
     }
 
     // Test button.
-    $test = InputButton::new()
-                       ->setFloatRight(true)
-                       ->setMode(EnumDisplayMode::information)
-                       ->setValue(tr('Test'))
-                       ->setContent(tr('Test'));
+    $test = Button::new()
+                  ->setFloatRight(true)
+                  ->setMode(EnumDisplayMode::information)
+                  ->setValue(tr('Test'))
+                  ->setContent(tr('Test'));
 }
 
 
@@ -182,14 +182,14 @@ $connector_card = Card::new()
                       ->setMaximizeSwitch(true)
                       ->setTitle(tr('Edit connector :name', [':name' => $connector->getDisplayName()]))
                       ->setContent($connector->getHtmlDataEntryFormObject()->render())
-                      ->setButtons(InputButtons::new()
-                                               ->addButton(isset_get($save))
-                                               ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/databases/connectors/connectors.html'), true)
-                                               ->addButton(isset_get($test))
-                                               ->addButton(isset_get($audit))
-                                               ->addButton(isset_get($delete))
-                                               ->addButton(isset_get($lock))
-                                               ->addButton(isset_get($impersonate)));
+                      ->setButtons(Buttons::new()
+                                          ->addButton(isset_get($save))
+                                          ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/databases/connectors/connectors.html'), true)
+                                          ->addButton(isset_get($test))
+                                          ->addButton(isset_get($audit))
+                                          ->addButton(isset_get($delete))
+                                          ->addButton(isset_get($lock))
+                                          ->addButton(isset_get($impersonate)));
 
 
 // Build relevant links

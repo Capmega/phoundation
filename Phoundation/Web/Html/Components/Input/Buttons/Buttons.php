@@ -18,17 +18,17 @@ use Iterator;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\InputButtonsInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
-use Phoundation\Web\Html\Traits\TraitInputButtonProperties;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Traits\TraitButtonProperties;
 use ReturnTypeWillChange;
 use Stringable;
 
-class InputButtons extends ElementsBlock implements Iterator, InputButtonsInterface
+class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
 {
-    use TraitInputButtonProperties;
+    use TraitButtonProperties;
 
     /**
      * If true, the buttons will be grouped in one larger button
@@ -73,15 +73,15 @@ class InputButtons extends ElementsBlock implements Iterator, InputButtonsInterf
     /**
      * Adds a single button to button list
      *
-     * @param InputButton|string|null                $button
-     * @param EnumDisplayMode                        $mode
-     * @param EnumElementInputType|Stringable|string $type_or_anchor_url
-     * @param bool                                   $outline
-     * @param bool                                   $right
+     * @param Button|string|null              $button
+     * @param EnumDisplayMode                 $mode
+     * @param EnumInputType|Stringable|string $type_or_anchor_url
+     * @param bool                            $outline
+     * @param bool                            $right
      *
      * @return static
      */
-    public function addButton(InputButton|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_anchor_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
+    public function addButton(Button|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_anchor_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
     {
         if (!$button) {
             // Don't add anything
@@ -92,17 +92,17 @@ class InputButtons extends ElementsBlock implements Iterator, InputButtonsInterf
                 $type_or_anchor_url = EnumButtonType::submit;
             }
             // Button was specified as string, create a button first
-            $button = InputButton::new()
-                                 ->setWrapping($this->wrapping)
-                                 ->setOutlined($this->outlined)
-                                 ->setRounded($this->rounded)
-                                 ->addClasses($this->classes)
-                                 ->setOutlined($outline)
-                                 ->setContent($button)
-                                 ->setValue($button)
-                                 ->setFloatRight($right)
-                                 ->setMode($mode)
-                                 ->setName('submit');
+            $button = Button::new()
+                            ->setWrapping($this->wrapping)
+                            ->setOutlined($this->outlined)
+                            ->setRounded($this->rounded)
+                            ->addClasses($this->classes)
+                            ->setOutlined($outline)
+                            ->setContent($button)
+                            ->setValue($button)
+                            ->setFloatRight($right)
+                            ->setMode($mode)
+                            ->setName('submit');
             switch ($type_or_anchor_url) {
                 case EnumButtonType::submit:
                     // no break
@@ -110,7 +110,7 @@ class InputButtons extends ElementsBlock implements Iterator, InputButtonsInterf
                     // no break
                 case EnumButtonType::reset:
                     // One of the submit, reset, or button buttons
-                    $button->setType($type_or_anchor_url);
+                    $button->setButtonType($type_or_anchor_url);
                     break;
                 default:
                     // This is a URL button, place an anchor with href instead
@@ -173,9 +173,9 @@ class InputButtons extends ElementsBlock implements Iterator, InputButtonsInterf
     /**
      * Returns the current button
      *
-     * @return InputButton
+     * @return Button
      */
-    #[ReturnTypeWillChange] public function current(): InputButton
+    #[ReturnTypeWillChange] public function current(): Button
     {
         return current($this->source);
     }

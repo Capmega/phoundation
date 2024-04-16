@@ -17,7 +17,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\FilterForm;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
@@ -96,9 +96,9 @@ switch ($filters->get('entry_status')) {
 }
 
 // Build SQL connectors table
-$buttons = InputButtons::new()
-                       ->addButton(tr('Create'), EnumDisplayMode::primary, '/phoundation/databases/connectors/connector.html')
-                       ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
+$buttons = Buttons::new()
+                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/phoundation/databases/connectors/connector.html')
+                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
 
 // TODO Automatically re-select items if possible
 //    ->select($post['id']);

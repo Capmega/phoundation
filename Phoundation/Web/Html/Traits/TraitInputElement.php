@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Traits;
@@ -20,8 +21,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataIcon;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\EnumButtonType;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Html;
 use Stringable;
 
@@ -34,9 +34,9 @@ trait TraitInputElement
     /**
      * Input element type
      *
-     * @var EnumElementInputType|EnumButtonType|null $input_type
+     * @var EnumInputType|null $input_type
      */
-    protected EnumElementInputType|EnumButtonType|null $input_type = null;
+    protected EnumInputType|null $input_type = null;
 
     /**
      * Sets if this control should have a clear button
@@ -112,9 +112,9 @@ trait TraitInputElement
     /**
      * Returns the type for the input element
      *
-     * @return EnumElementInputType|EnumButtonType|null
+     * @return EnumInputType|null
      */
-    public function getInputType(): EnumElementInputType|EnumButtonType|null
+    public function getInputType(): EnumInputType|null
     {
         return $this->input_type;
     }
@@ -123,11 +123,11 @@ trait TraitInputElement
     /**
      * Sets the type for the input element
      *
-     * @param EnumElementInputType|EnumButtonType|null $input_type
+     * @param EnumInputType|null $input_type
      *
      * @return static
      */
-    public function setInputType(EnumElementInputType|EnumButtonType|null $input_type): static
+    public function setInputType(EnumInputType|null $input_type): static
     {
         $this->input_type = $input_type;
 

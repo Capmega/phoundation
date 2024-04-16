@@ -23,7 +23,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Sanitize;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Enums\EnumElement;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 
 /**
@@ -255,7 +255,7 @@ class Phone extends DataEntry implements PhoneInterface
                     ->add(DefinitionFactory::getDateTime($this, 'verified_on')
                                            ->setReadonly(true)
                                            ->setSize(3)
-                                           ->setNullInputType(EnumElementInputType::text)
+                                           ->setNullInputType(EnumInputType::text)
                                            ->setNullDb(true, tr('Not verified'))
                                            ->addClasses('text-center')
                                            ->setLabel(tr('Verified on'))
@@ -263,7 +263,7 @@ class Phone extends DataEntry implements PhoneInterface
                                            ->setHelpText(tr('The date when this user was phone verified. Empty if not yet verified')))
                     ->add(Definition::new($this, 'delete')
                                     ->setVirtual(true)
-                                    ->setInputType(EnumElementInputType::submit)
+                                    ->setInputType(EnumInputType::submit)
                                     ->setSize(2)
                                     ->setLabel(tr('Delete'))
                                     ->addClasses('btn btn-outline-warning')

@@ -8,7 +8,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 /**
  * Class EmailAttachment
@@ -71,10 +71,10 @@ class EmailAttachment extends DataEntry
                     ->add(DefinitionFactory::getPort($this, 'smtp_port')
                                            ->setRender(false))
                     ->add(Definition::new($this, 'smtp_auth')
-                                    ->setInputType(EnumElementInputType::checkbox)
+                                    ->setInputType(EnumInputType::checkbox)
                                     ->setRender(false))
                     ->add(Definition::new($this, 'smtp_secure')
-                                    ->setInputType(EnumElementInputType::text)
+                                    ->setInputType(EnumInputType::text)
                                     ->setDataSource(['tls' => tr('TLS')])
                                     ->setRender(false))
                     ->add(DefinitionFactory::getName($this)

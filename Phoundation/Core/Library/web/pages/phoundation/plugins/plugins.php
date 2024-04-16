@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Phoundation\Core\Plugins\FilterForm;
 use Phoundation\Core\Plugins\Plugins;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
@@ -38,10 +38,10 @@ $filters = Card::new()
 
 
 // Build plugins table
-$buttons = InputButtons::new()
-                       ->addButton(tr('Add'), EnumDisplayMode::primary, '/phoundation/plugins/plugin.html')
-                       ->addButton(tr('Delete'), EnumDisplayMode::danger, EnumButtonType::submit, true, true)
-                       ->addButton(tr('Disable'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
+$buttons = Buttons::new()
+                  ->addButton(tr('Add'), EnumDisplayMode::primary, '/phoundation/plugins/plugin.html')
+                  ->addButton(tr('Delete'), EnumDisplayMode::danger, EnumButtonType::submit, true, true)
+                  ->addButton(tr('Disable'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
 
 
 // Build plugins table

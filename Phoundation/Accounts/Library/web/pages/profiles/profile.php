@@ -18,8 +18,8 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Forms\Form;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Html;
@@ -85,33 +85,33 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
     }
 
 
-    $edit = InputButton::new()
-                       ->setMode(EnumDisplayMode::secondary)
-                       ->setValue(tr('Edit'))
-                       ->setContent(tr('Edit'))
-                       ->setAnchorUrl('/accounts/user+' . $user->getId() . '.html');
+    $edit = Button::new()
+                  ->setMode(EnumDisplayMode::secondary)
+                  ->setValue(tr('Edit'))
+                  ->setContent(tr('Edit'))
+                  ->setAnchorUrl('/accounts/user+' . $user->getId() . '.html');
 
     if ($user->canBeImpersonated()) {
-        $impersonate = InputButton::new()
-                                  ->setFloatRight(true)
-                                  ->setMode(EnumDisplayMode::danger)
-                                  ->setValue(tr('Impersonate'))
-                                  ->setContent(tr('Impersonate'));
+        $impersonate = Button::new()
+                             ->setFloatRight(true)
+                             ->setMode(EnumDisplayMode::danger)
+                             ->setValue(tr('Impersonate'))
+                             ->setContent(tr('Impersonate'));
     }
 
     if ($user->canBeStatusChanged()) {
         if ($user->isLocked()) {
-            $lock = InputButton::new()
-                               ->setFloatRight(true)
-                               ->setMode(EnumDisplayMode::warning)
-                               ->setValue(tr('Unlock'))
-                               ->setContent(tr('Unlock'));
+            $lock = Button::new()
+                          ->setFloatRight(true)
+                          ->setMode(EnumDisplayMode::warning)
+                          ->setValue(tr('Unlock'))
+                          ->setContent(tr('Unlock'));
         } else {
-            $lock = InputButton::new()
-                               ->setFloatRight(true)
-                               ->setMode(EnumDisplayMode::warning)
-                               ->setValue(tr('Lock'))
-                               ->setContent(tr('Lock'));
+            $lock = Button::new()
+                          ->setFloatRight(true)
+                          ->setMode(EnumDisplayMode::warning)
+                          ->setValue(tr('Lock'))
+                          ->setContent(tr('Lock'));
         }
     }
 }
@@ -236,7 +236,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
                                 Form::new()
                                     ->setMethod('post')
                                     ->setContent('   <div class="form-group row">' .
-                                                 InputButtons::new()
+                                                 Buttons::new()
                                                         ->addButton(isset_get($edit))
                                                         ->addButton(isset_get($lock))
                                                         ->addButton(isset_get($impersonate))

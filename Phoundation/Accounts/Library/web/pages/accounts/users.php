@@ -17,7 +17,7 @@ use Phoundation\Accounts\Users\FilterForm;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
@@ -118,9 +118,9 @@ if ($filters->get('rights_id')) {
 
 // Build users table
 
-$buttons = InputButtons::new()
-                       ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')
-                       ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
+$buttons = Buttons::new()
+                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')
+                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
 
 // TODO Automatically re-select items if possible
 //    ->select($post['id']);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Phoundation\Core\Plugins\Plugin;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -23,9 +23,9 @@ $get = GetValidator::new()
 $plugin = Plugin::get($get['id']);
 
 // Build the buttons
-$buttons = InputButtons::new()
-                       ->addButton('Submit')
-                       ->addButton('Back', EnumDisplayMode::secondary, '/development/plugins.html', true);
+$buttons = Buttons::new()
+                  ->addButton('Submit')
+                  ->addButton('Back', EnumDisplayMode::secondary, '/development/plugins.html', true);
 
 
 // Build the plugin form

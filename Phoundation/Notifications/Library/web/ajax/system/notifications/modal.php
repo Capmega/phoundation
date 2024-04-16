@@ -13,7 +13,7 @@
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -24,20 +24,20 @@ $get = GetValidator::new()
 $notification = Notification::get($get['id'])
                             ->setStatus('READ');
 if ($notification->getUrl()) {
-    $button = InputButton::new()
-                         ->setMode(EnumDisplayMode::primary)
-                         ->setAnchorUrl($notification->getUrl())
-                         ->setContent(tr('Go'))
-                         ->render();
+    $button = Button::new()
+                    ->setMode(EnumDisplayMode::primary)
+                    ->setAnchorUrl($notification->getUrl())
+                    ->setContent(tr('Go'))
+                    ->render();
 }
 $reply = [
     'title'   => $notification->getTitle(),
     'body'    => $notification->getMessage(),
     'url'     => $notification->getUrl(),
-    'buttons' => isset_get($button) . InputButton::new()
-                                                 ->setOutlined(true)
-                                                 ->setAnchorUrl(UrlBuilder::getWww('notifications/notification+' . $notification->getId() . '.html'))
-                                                 ->setContent(tr('See details'))
-                                                 ->render(),
+    'buttons' => isset_get($button) . Button::new()
+                                            ->setOutlined(true)
+                                            ->setAnchorUrl(UrlBuilder::getWww('notifications/notification+' . $notification->getId() . '.html'))
+                                            ->setContent(tr('See details'))
+                                            ->render(),
 ];
 Json::reply($reply);

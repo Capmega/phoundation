@@ -29,7 +29,7 @@ use Phoundation\Web\Requests\Request;
 
 abstract class Element implements ElementInterface
 {
-    use ElementAttributes;
+    use TraitElementAttributes;
 
     /**
      * The element type
@@ -96,7 +96,7 @@ abstract class Element implements ElementInterface
         if (!$this->element) {
             if ($this->element === null) {
                 // This is a NULL element, only return the contents
-                return $this->content;
+                return $this->content . $this->extra;
             }
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
@@ -113,7 +113,6 @@ abstract class Element implements ElementInterface
         $render_function = function () use ($postfix) {
             $attributes = $this->renderAttributes();
             $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
-            $attributes .= $this->extra;
             if ($attributes) {
                 $attributes = ' ' . $attributes;
             }
@@ -147,17 +146,19 @@ abstract class Element implements ElementInterface
             // This element has an anchor. Render the anchor -which will render this element to be its contents- instead
             return $this->anchor->setContent($render)
                                 ->setChildElement(null)
-                                ->render();
+                                ->render() . $this->extra;
         }
 
-        return $render;
+        return $render . $this->extra;
     }
 
 
     /**
      * Returns a new ElementAttributes class
      *
-     * @return $this
+     * @param string|null $content
+     *
+     * @return static
      */
     public static function new(?string $content = null): static
     {

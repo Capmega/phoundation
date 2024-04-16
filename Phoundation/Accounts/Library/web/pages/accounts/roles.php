@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\FilterForm;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
@@ -38,9 +38,9 @@ $filters = Card::new()
 
 
 // Build users table
-$buttons = InputButtons::new()
-                       ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/role.html')
-                       ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
+$buttons = Buttons::new()
+                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/role.html')
+                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
 
 
 // Build roles table

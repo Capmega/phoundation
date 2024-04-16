@@ -15,7 +15,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Servers\Interfaces\SshAccountInterface;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 /**
  * SshAccount class
@@ -133,7 +133,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                     ->setReadonly(true))
                     ->add(Definition::new($this, 'username')
                                     ->setLabel(tr('Username'))
-                                    ->setInputType(EnumElementInputType::username)
+                                    ->setInputType(EnumInputType::username)
                                     ->setCliColumn(tr('-u,--username NAME'))
                                     ->setCliAutoComplete(true)
                                     ->setSize(6)

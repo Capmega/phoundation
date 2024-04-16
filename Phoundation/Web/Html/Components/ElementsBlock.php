@@ -27,7 +27,7 @@ use Phoundation\Web\Requests\Request;
 
 abstract class ElementsBlock extends Iterator implements IteratorInterface, ElementsBlockInterface
 {
-    use ElementAttributes {
+    use TraitElementAttributes {
         __construct as ___construct;
     }
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Web\Html\Components\ElementAttributes;
+use Phoundation\Web\Html\Components\TraitElementAttributes;
 use Stringable;
 
 /**
@@ -43,7 +43,7 @@ interface ElementAttributesInterface
      * @param object|string $class
      *
      * @return void
-     * @see  ElementAttributes::ensureElementAttributesTrait()
+     * @see  TraitElementAttributes::ensureElementAttributesTrait()
      */
     static function canRenderHtml(object|string $class): void;
 

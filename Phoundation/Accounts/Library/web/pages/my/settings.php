@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -38,11 +38,11 @@ $form = $user->getSettings()->getHtmlDataEntryFormObject();
 $card = Card::new()
             ->setTitle(tr('Edit data for right :name', [':name' => $user->getName()]))
             ->setContent($form->render())
-            ->setButtons(InputButtons::new()
-                                     ->addButton(tr('Save'))
-                                     ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/my/settings.html'), true)
-                                     ->addButton(isset_get($delete))
-                                     ->addButton(isset_get($audit)));
+            ->setButtons(Buttons::new()
+                                ->addButton(tr('Save'))
+                                ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/my/settings.html'), true)
+                                ->addButton(isset_get($delete))
+                                ->addButton(isset_get($audit)));
 
 
 // Build relevant links

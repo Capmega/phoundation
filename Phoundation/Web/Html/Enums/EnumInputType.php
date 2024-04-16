@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
 
-enum EnumElementInputType: string
+enum EnumInputType: string
 {
     // HTML input types
     case button         = 'button';

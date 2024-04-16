@@ -20,7 +20,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryPriority;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 /**
  * Class Plugin
@@ -506,14 +506,14 @@ class Plugin extends DataEntry implements PluginInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions->add(Definition::new($this, 'disabled')
-                                    ->setInputType(EnumElementInputType::boolean)
+                                    ->setInputType(EnumInputType::boolean)
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setRender(false)
                                     ->setCliColumn('-d,--disable'))
                     ->add(Definition::new($this, 'vendor')
                                     ->setLabel(tr('Vendor'))
-                                    ->setInputType(EnumElementInputType::text)
+                                    ->setInputType(EnumInputType::text)
                                     ->setMaxlength(128)
                                     ->setSize(6)
                                     ->setHelpText(tr('The vendor that manages this plugin')))
@@ -524,7 +524,7 @@ class Plugin extends DataEntry implements PluginInterface
                                            ->setHelpText(tr('The name of this plugin')))
                     ->add(Definition::new($this, 'priority')
                                     ->setOptional(true)
-                                    ->setInputType(EnumElementInputType::number)
+                                    ->setInputType(EnumInputType::number)
                                     ->setNullDb(false, 50)
                                     ->setSize(3)
                                     ->setCliColumn('--priority')
@@ -538,7 +538,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     }))
                     ->add(Definition::new($this, 'menu_priority')
                                     ->setOptional(true)
-                                    ->setInputType(EnumElementInputType::number)
+                                    ->setInputType(EnumInputType::number)
                                     ->setNullDb(false, 50)
                                     ->setSize(3)
                                     ->setCliColumn('--menu-priority')
@@ -552,7 +552,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     }))
                     ->add(Definition::new($this, 'menu_enabled')
                                     ->setOptional(true)
-                                    ->setInputType(EnumElementInputType::checkbox)
+                                    ->setInputType(EnumInputType::checkbox)
                                     ->setNullDb(false, true)
                                     ->setSize(2)
                                     ->setCliColumn('--menu-enabled')
@@ -561,7 +561,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setHelpText(tr('Sets if the menu of this plugin will be available and visible, or not')))
                     ->add(Definition::new($this, 'commands_enabled')
                                     ->setOptional(true)
-                                    ->setInputType(EnumElementInputType::checkbox)
+                                    ->setInputType(EnumInputType::checkbox)
                                     ->setNullDb(false, true)
                                     ->setSize(2)
                                     ->setCliColumn('--commands-enabled')
@@ -570,7 +570,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setHelpText(tr('Sets if the command line commands of this plugin will be available, or not')))
                     ->add(Definition::new($this, 'web_enabled')
                                     ->setOptional(true)
-                                    ->setInputType(EnumElementInputType::checkbox)
+                                    ->setInputType(EnumInputType::checkbox)
                                     ->setSize(3)
                                     ->setCliColumn('-w,--web-enabled')
                                     ->setLabel(tr('Web enabled'))
@@ -581,7 +581,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     }))
                     ->add(Definition::new($this, 'class')
                                     ->setLabel(tr('Class'))
-                                    ->setInputType(EnumElementInputType::text)
+                                    ->setInputType(EnumInputType::text)
                                     ->setMaxlength(255)
                                     ->setSize(6)
                                     ->setHelpText(tr('The base class path of this plugin'))
@@ -591,7 +591,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     }))
                     ->add(Definition::new($this, 'path')
                                     ->setLabel(tr('Directory'))
-                                    ->setInputType(EnumElementInputType::path)
+                                    ->setInputType(EnumInputType::path)
                                     ->setMaxlength(128)
                                     ->setSize(6)
                                     ->setHelpText(tr('The filesystem path where this plugin is located')))

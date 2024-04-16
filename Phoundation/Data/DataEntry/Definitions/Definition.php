@@ -27,7 +27,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Html;
 use Stringable;
 use Throwable;
@@ -855,21 +855,21 @@ class Definition implements DefinitionInterface
     /**
      * Sets the type of input element.
      *
-     * @return EnumElementInputType
+     * @return EnumInputType
      */
-    public function getInputType(): EnumElementInputType
+    public function getInputType(): EnumInputType
     {
         $return = $this->getKey('type');
         if ($return === null) {
-            return EnumElementInputType::text;
+            return EnumInputType::text;
         }
         try {
-            return EnumElementInputType::from($return);
+            return EnumInputType::from($return);
 
         } catch (Throwable $e) {
             if (str_contains($e->getMessage(), 'is not a valid backing value for enum')) {
                 // So the input type is not from InputTypeInterface, it must be from EnumInputType
-                return EnumElementInputType::from($return);
+                return EnumInputType::from($return);
             }
             // WTF else could possibly have happened?
             throw $e;
@@ -893,20 +893,20 @@ class Definition implements DefinitionInterface
     /**
      * Sets the type of input element.
      *
-     * @param EnumElementInputType|string|null $value
+     * @param EnumInputType|string|null $value
      *
      * @return static
      */
-    public function setInputType(EnumElementInputType|string|null $value): static
+    public function setInputType(EnumInputType|string|null $value): static
     {
         if (is_string($value)) {
             // Convert the string input type to the correct EnumInputType
             try {
-                $value = EnumElementInputType::from($value);
+                $value = EnumInputType::from($value);
 
             } catch (ValueError) {
                 try {
-                    $value = EnumElementInputType::from($value);
+                    $value = EnumInputType::from($value);
 
                 } catch (ValueError) {
                     throw new OutOfBoundsException(tr('Invalid input type ":type" specified', [
@@ -923,7 +923,7 @@ class Definition implements DefinitionInterface
         }
         // Apply default definitions for this input type
         switch ($value) {
-            case EnumElementInputType::number:
+            case EnumInputType::number:
                 // Numbers should never be longer than 24 digits
                 $this->setMaxlength(24)
                      ->setElement(EnumElement::input)
@@ -936,7 +936,7 @@ class Definition implements DefinitionInterface
                          }
                      });
                 break;
-            case EnumElementInputType::year:
+            case EnumInputType::year:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          if ($this->getMin() ?? 0) {
@@ -947,7 +947,7 @@ class Definition implements DefinitionInterface
                          }
                      });
                 break;
-            case EnumElementInputType::month:
+            case EnumInputType::month:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          if ($this->getMin() ?? 1) {
@@ -958,7 +958,7 @@ class Definition implements DefinitionInterface
                          }
                      });
                 break;
-            case EnumElementInputType::week:
+            case EnumInputType::week:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          if ($this->getMin() ?? 1) {
@@ -969,7 +969,7 @@ class Definition implements DefinitionInterface
                          }
                      });
                 break;
-            case EnumElementInputType::day:
+            case EnumInputType::day:
                 // Validate days
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -981,33 +981,33 @@ class Definition implements DefinitionInterface
                          }
                      });
                 break;
-            case EnumElementInputType::datetime_local:
+            case EnumInputType::datetime_local:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isDateTime();
                      });
                 break;
-            case EnumElementInputType::date:
+            case EnumInputType::date:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isDate();
                      });
                 break;
-            case EnumElementInputType::color:
+            case EnumInputType::color:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isColor();
                      });
                 break;
-            case EnumElementInputType::dbid:
-                $value = EnumElementInputType::number;
+            case EnumInputType::dbid:
+                $value = EnumInputType::number;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isNatural();
                      });
                 break;
-            case EnumElementInputType::natural:
-                $value = EnumElementInputType::number;
+            case EnumInputType::natural:
+                $value = EnumInputType::number;
                 $this->setElement(EnumElement::input)
                      ->setKey($value->value, 'type')
                      ->setMin(0)
@@ -1015,112 +1015,112 @@ class Definition implements DefinitionInterface
                          $validator->isNatural();
                      });
                 break;
-            case EnumElementInputType::integer:
-                $value = EnumElementInputType::number;
+            case EnumInputType::integer:
+                $value = EnumInputType::number;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isInteger();
                      });
                 break;
-            case EnumElementInputType::positiveInteger:
-                $value = EnumElementInputType::number;
+            case EnumInputType::positiveInteger:
+                $value = EnumInputType::number;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isInteger()
                                    ->isMoreThan(0, true);
                      });
                 break;
-            case EnumElementInputType::negativeInteger:
-                $value = EnumElementInputType::number;
+            case EnumInputType::negativeInteger:
+                $value = EnumInputType::number;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isInteger()
                                    ->isLessThan(0, true);
                      });
                 break;
-            case EnumElementInputType::float:
-                $value = EnumElementInputType::number;
+            case EnumInputType::float:
+                $value = EnumInputType::number;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isFloat();
                      });
                 break;
-            case EnumElementInputType::name:
-                $value = EnumElementInputType::text;
+            case EnumInputType::name:
+                $value = EnumInputType::text;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isName();
                      });
                 break;
-            case EnumElementInputType::variable:
-                $value = EnumElementInputType::text;
+            case EnumInputType::variable:
+                $value = EnumInputType::text;
                 break;
-            case EnumElementInputType::email:
+            case EnumInputType::email:
                 $this->setElement(EnumElement::input)
                      ->setMaxlength(128)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isEmail();
                      });
                 break;
-            case EnumElementInputType::time:
-                $value = EnumElementInputType::text;
+            case EnumInputType::time:
+                $value = EnumInputType::text;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isTime();
                      });
                 break;
-            case EnumElementInputType::url:
-                $value = EnumElementInputType::text;
+            case EnumInputType::url:
+                $value = EnumInputType::text;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isUrl();
                      });
                 break;
-            case EnumElementInputType::phone:
+            case EnumInputType::phone:
                 // no break
-            case EnumElementInputType::tel:
-                $value = EnumElementInputType::tel;
+            case EnumInputType::tel:
+                $value = EnumInputType::tel;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->sanitizePhoneNumber();
                      });
                 break;
-            case EnumElementInputType::phones:
-                $value = EnumElementInputType::text;
+            case EnumInputType::phones:
+                $value = EnumInputType::text;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isPhoneNumbers();
                      });
                 break;
-            case EnumElementInputType::username:
-                $value = EnumElementInputType::text;
+            case EnumInputType::username:
+                $value = EnumInputType::text;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isUsername();
                      });
                 break;
-            case EnumElementInputType::path:
-                $value = EnumElementInputType::text;
+            case EnumInputType::path:
+                $value = EnumInputType::text;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isDirectory();
                      });
                 break;
-            case EnumElementInputType::file:
-                $value = EnumElementInputType::text;
+            case EnumInputType::file:
+                $value = EnumInputType::text;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isFile();
                      });
                 break;
-            case EnumElementInputType::code:
-                $value = EnumElementInputType::text;
+            case EnumInputType::code:
+                $value = EnumInputType::text;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isCode();
                      });
                 break;
-            case EnumElementInputType::description:
+            case EnumInputType::description:
                 $this->setElement(EnumElement::textarea)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->sanitizeTrim();
@@ -1135,38 +1135,38 @@ class Definition implements DefinitionInterface
 
                 // Don't set the value
                 return $this;
-            case EnumElementInputType::checkbox:
+            case EnumInputType::checkbox:
                 // no break
-            case EnumElementInputType::boolean:
-                $value = EnumElementInputType::checkbox;
+            case EnumInputType::boolean:
+                $value = EnumInputType::checkbox;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isBoolean();
                      });
                 break;
-            case EnumElementInputType::array_json:
+            case EnumInputType::array_json:
                 $this->setElement(EnumElement::textarea)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->sanitizeForceArray(',')
                                    ->sanitizeEncodeJson();
                      });
                 break;
-            case EnumElementInputType::array_serialized:
+            case EnumInputType::array_serialized:
                 $this->setElement(EnumElement::textarea)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->sanitizeForceArray(',')
                                    ->sanitizeEncodeSerialized();
                      });
                 break;
-            case EnumElementInputType::button:
+            case EnumInputType::button:
                 // no break
-            case EnumElementInputType::submit:
+            case EnumInputType::submit:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->hasMaxCharacters(255);
                      });
                 break;
-            case EnumElementInputType::password:
+            case EnumInputType::password:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          // Validate input text strings
@@ -1179,17 +1179,17 @@ class Definition implements DefinitionInterface
                          }
                      });
                 break;
-            case EnumElementInputType::select:
+            case EnumInputType::select:
                 $this->setElement(EnumElement::select)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->sanitizeTrim();
                      });
                 break;
-            case EnumElementInputType::search:
+            case EnumInputType::search:
                 // no break
-            case EnumElementInputType::text:
+            case EnumInputType::text:
                 // no break
-            case EnumElementInputType::auto_suggest:
+            case EnumInputType::auto_suggest:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          // Validate input text strings
@@ -1202,23 +1202,23 @@ class Definition implements DefinitionInterface
                          }
                      });
                 break;
-            case EnumElementInputType::reset:
+            case EnumInputType::reset:
                 // Reset button should never arrive
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->addFailure(tr('is not supported'));
                      });
                 break;
-            case EnumElementInputType::radio:
+            case EnumInputType::radio:
                 $this->setElement(EnumElement::input);
                 break;
-            case EnumElementInputType::range:
+            case EnumInputType::range:
                 $this->setElement(EnumElement::input);
                 break;
-            case EnumElementInputType::hidden:
+            case EnumInputType::hidden:
                 $this->setElement(EnumElement::input);
                 break;
-            case EnumElementInputType::image:
+            case EnumInputType::image:
                 throw new UnderConstructionException('Input type EnumInputType::image is not yet supported');
         }
         // If a data source is available then ensure its resolved and that the user data will match source
@@ -1571,7 +1571,7 @@ class Definition implements DefinitionInterface
      */
     public function getAutoSubmit(): bool
     {
-        return (bool) isset_get_typed('bool', $this->source['auto_submit']);
+        return (bool) isset_get_typed('bool', $this->source['auto_submit'], false);
     }
 
 
@@ -2177,11 +2177,11 @@ class Definition implements DefinitionInterface
     /**
      * Sets the type for this element if the value is NULL
      *
-     * @param EnumElementInputType|null $value
+     * @param EnumInputType|null $value
      *
      * @return static
      */
-    public function setNullInputType(?EnumElementInputType $value): static
+    public function setNullInputType(?EnumInputType $value): static
     {
         if (empty($this->source['element'])) {
             $this->source['element'] = 'input';

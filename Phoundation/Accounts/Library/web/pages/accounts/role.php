@@ -8,8 +8,8 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Forms\Form;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -86,20 +86,20 @@ if (Request::isPostRequestMethod()) {
 
 // Audit button.
 if (!$role->isNew()) {
-    $audit = InputButton::new()
-                        ->setFloatRight(true)
-                        ->setMode(EnumDisplayMode::information)
-                        ->setAnchorUrl('/audit/meta+' . $role->getMetaId() . '.html')
-                        ->setFloatRight(true)
-                        ->setValue(tr('Audit'))
-                        ->setContent(tr('Audit'));
+    $audit = Button::new()
+                   ->setFloatRight(true)
+                   ->setMode(EnumDisplayMode::information)
+                   ->setAnchorUrl('/audit/meta+' . $role->getMetaId() . '.html')
+                   ->setFloatRight(true)
+                   ->setValue(tr('Audit'))
+                   ->setContent(tr('Audit'));
 
-    $delete = InputButton::new()
-                         ->setFloatRight(true)
-                         ->setMode(EnumDisplayMode::warning)
-                         ->setOutlined(true)
-                         ->setValue(tr('Delete'))
-                         ->setContent(tr('Delete'));
+    $delete = Button::new()
+                    ->setFloatRight(true)
+                    ->setMode(EnumDisplayMode::warning)
+                    ->setOutlined(true)
+                    ->setValue(tr('Delete'))
+                    ->setContent(tr('Delete'));
 }
 
 
@@ -108,11 +108,11 @@ $form = $role->getHtmlDataEntryFormObject();
 $card = Card::new()
             ->setTitle(tr('Edit data for role :name', [':name' => $role->getName()]))
             ->setContent($form->render())
-            ->setButtons(InputButtons::new()
-                                     ->addButton(tr('Save'))
-                                     ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/roles.html'), true)
-                                     ->addButton(isset_get($delete))
-                                     ->addButton(isset_get($audit)));
+            ->setButtons(Buttons::new()
+                                ->addButton(tr('Save'))
+                                ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/roles.html'), true)
+                                ->addButton(isset_get($delete))
+                                ->addButton(isset_get($audit)));
 
 
 // Build relevant links

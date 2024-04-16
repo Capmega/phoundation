@@ -52,7 +52,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @return DataList
      */
-    public function setInputSelectClass(string $input_select_class): static;
+    public function setComponentClass(string $input_select_class): static;
 
 
     /**

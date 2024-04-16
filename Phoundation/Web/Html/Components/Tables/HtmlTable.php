@@ -29,13 +29,16 @@ use Phoundation\Web\Html\Components\ResourceElement;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
+use Phoundation\Web\Html\Traits\TraitButtons;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
 class HtmlTable extends ResourceElement implements HtmlTableInterface
 {
+    use TraitButtons;
     use TraitDataTitle;
     use TraitDataCallbacks;
+
 
     /**
      * The HTML class element attribute cache for the <tr> element

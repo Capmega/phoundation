@@ -2,17 +2,17 @@
 
 namespace Phoundation\Web\Html\Components\Input\Buttons\Interfaces;
 
-use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Stringable;
 
-interface InputButtonInterface
+interface ButtonInterface
 {
     /**
      * Set if the button is floating or not
      *
      * @param bool $floating
      *
-     * @return InputButton
+     * @return Button
      */
     public function setFloating(bool $floating): static;
 

@@ -8,7 +8,7 @@ use Phoundation\Data\Traits\TraitDataDate;
 use Phoundation\Date\DateTime;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Forms\Form;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\InputDate;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -52,9 +52,9 @@ class DateNavigator extends ElementsBlock
     /**
      * The next button
      *
-     * @var InputButton $next_button
+     * @var Button $next_button
      */
-    protected InputButton $next_button;
+    protected Button $next_button;
 
 
     /**
@@ -66,7 +66,7 @@ class DateNavigator extends ElementsBlock
     {
         parent::__construct($content);
         // Create the next button
-        $this->next_button = InputButton::new();
+        $this->next_button = Button::new();
     }
 
 
@@ -201,13 +201,13 @@ class DateNavigator extends ElementsBlock
                    ->addColumn(GridColumn::new()
                                          ->setSize(2)
                                          ->addClasses('mb-3')
-                                         ->setContent(InputButton::new()
-                                                                 ->setName('nav_prev')
-                                                                 ->setBlock(true)
-                                                                 ->setContent(tr('<'))
-                                                                 ->setMode(EnumDisplayMode::primary)
-                                                                 ->setAnchorUrl($this->prev_link)
-                                                                 ->render()))
+                                         ->setContent(Button::new()
+                                                            ->setName('nav_prev')
+                                                            ->setBlock(true)
+                                                            ->setContent(tr('<'))
+                                                            ->setMode(EnumDisplayMode::primary)
+                                                            ->setAnchorUrl($this->prev_link)
+                                                            ->render()))
                    ->addColumn(GridColumn::new()
                                          ->setSize(8)
                                          ->addClasses('mb-3')

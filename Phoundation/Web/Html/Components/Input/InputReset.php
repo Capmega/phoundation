@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 /**
  * Class InputReset
@@ -25,7 +25,7 @@ class InputReset extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->input_type = EnumElementInputType::reset;
+        $this->input_type = EnumInputType::reset;
         parent::__construct($content);
     }
 }

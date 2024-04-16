@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 /**
  * Class InputImage
@@ -25,7 +25,7 @@ class InputImage extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->input_type = EnumElementInputType::image;
+        $this->input_type = EnumInputType::image;
         parent::__construct($content);
     }
 }

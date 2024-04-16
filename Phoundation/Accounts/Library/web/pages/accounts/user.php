@@ -8,8 +8,8 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Img;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -119,54 +119,54 @@ if (Request::isPostRequestMethod()) {
 
 // Save button
 if (!$user->getReadonly()) {
-    $save = InputButton::new()
-                       ->setValue(tr('Save'))
-                       ->setContent(tr('Save'));
+    $save = Button::new()
+                  ->setValue(tr('Save'))
+                  ->setContent(tr('Save'));
 }
 
 
 // Impersonate button. We must have the right to impersonate, we cannot impersonate ourselves, and we cannot impersonate
 // god users
 if ($user->canBeImpersonated()) {
-    $impersonate = InputButton::new()
-                              ->setFloatRight(true)
-                              ->setMode(EnumDisplayMode::danger)
-                              ->setValue(tr('Impersonate'))
-                              ->setContent(tr('Impersonate'));
+    $impersonate = Button::new()
+                         ->setFloatRight(true)
+                         ->setMode(EnumDisplayMode::danger)
+                         ->setValue(tr('Impersonate'))
+                         ->setContent(tr('Impersonate'));
 }
 
 
 // Delete button. We cannot delete god users
 if ($user->canBeStatusChanged()) {
     if ($user->isDeleted()) {
-        $delete = InputButton::new()
-                             ->setFloatRight(true)
-                             ->setMode(EnumDisplayMode::warning)
-                             ->setOutlined(true)
-                             ->setValue(tr('Undelete'))
-                             ->setContent(tr('Undelete'));
+        $delete = Button::new()
+                        ->setFloatRight(true)
+                        ->setMode(EnumDisplayMode::warning)
+                        ->setOutlined(true)
+                        ->setValue(tr('Undelete'))
+                        ->setContent(tr('Undelete'));
 
     } else {
-        $delete = InputButton::new()
-                             ->setFloatRight(true)
-                             ->setMode(EnumDisplayMode::warning)
-                             ->setOutlined(true)
-                             ->setValue(tr('Delete'))
-                             ->setContent(tr('Delete'));
+        $delete = Button::new()
+                        ->setFloatRight(true)
+                        ->setMode(EnumDisplayMode::warning)
+                        ->setOutlined(true)
+                        ->setValue(tr('Delete'))
+                        ->setContent(tr('Delete'));
 
         if ($user->isLocked()) {
-            $lock = InputButton::new()
-                               ->setFloatRight(true)
-                               ->setMode(EnumDisplayMode::warning)
-                               ->setValue(tr('Unlock'))
-                               ->setContent(tr('Unlock'));
+            $lock = Button::new()
+                          ->setFloatRight(true)
+                          ->setMode(EnumDisplayMode::warning)
+                          ->setValue(tr('Unlock'))
+                          ->setContent(tr('Unlock'));
 
         } else {
-            $lock = InputButton::new()
-                               ->setFloatRight(true)
-                               ->setMode(EnumDisplayMode::warning)
-                               ->setValue(tr('Lock'))
-                               ->setContent(tr('Lock'));
+            $lock = Button::new()
+                          ->setFloatRight(true)
+                          ->setMode(EnumDisplayMode::warning)
+                          ->setValue(tr('Lock'))
+                          ->setContent(tr('Lock'));
         }
     }
 }
@@ -174,13 +174,13 @@ if ($user->canBeStatusChanged()) {
 
 // Audit button.
 if (!$user->isNew()) {
-    $audit = InputButton::new()
-                        ->setFloatRight(true)
-                        ->setMode(EnumDisplayMode::information)
-                        ->setAnchorUrl('/audit/meta+' . $user->getMetaId() . '.html')
-                        ->setFloatRight(true)
-                        ->setValue(tr('Audit'))
-                        ->setContent(tr('Audit'));
+    $audit = Button::new()
+                   ->setFloatRight(true)
+                   ->setMode(EnumDisplayMode::information)
+                   ->setAnchorUrl('/audit/meta+' . $user->getMetaId() . '.html')
+                   ->setFloatRight(true)
+                   ->setValue(tr('Audit'))
+                   ->setContent(tr('Audit'));
 }
 
 
@@ -190,13 +190,13 @@ $user_card = Card::new()
                  ->setMaximizeSwitch(true)
                  ->setTitle(tr('Edit profile for user :name', [':name' => $user->getDisplayName()]))
                  ->setContent($user->getHtmlDataEntryFormObject()->render())
-                 ->setButtons(InputButtons::new()
-                                          ->addButton(isset_get($save))
-                                          ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true)
-                                          ->addButton(isset_get($audit))
-                                          ->addButton(isset_get($delete))
-                                          ->addButton(isset_get($lock))
-                                          ->addButton(isset_get($impersonate)));
+                 ->setButtons(Buttons::new()
+                                     ->addButton(isset_get($save))
+                                     ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true)
+                                     ->addButton(isset_get($audit))
+                                     ->addButton(isset_get($delete))
+                                     ->addButton(isset_get($lock))
+                                     ->addButton(isset_get($impersonate)));
 
 
 // Build the additional cards only if we're not working on a new user
@@ -206,9 +206,9 @@ if ($user->getId()) {
                       ->setCollapsed(true)
                       ->setTitle(tr('Edit roles for this user [:count]', [':count' => $user->getRoles()->getCount()]))
                       ->setContent($user->getRolesHtmlDataEntryFormObject()->render())
-                      ->setButtons(InputButtons::new()
-                                               ->addButton(tr('Save'))
-                                               ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
+                      ->setButtons(Buttons::new()
+                                          ->addButton(tr('Save'))
+                                          ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
 
     $rights_card = Card::new()
                        ->setCollapseSwitch(true)
@@ -235,18 +235,18 @@ if ($user->getId()) {
                        ->setCollapsed(true)
                        ->setTitle(tr('Additional email addresses for this user [:count]', [':count' => $user->getEmails()->getCount()]))
                        ->setContent($user->getEmails()->getHtmlDataEntryFormObject()->render())
-                       ->setButtons(InputButtons::new()
-                                                ->addButton(tr('Save'))
-                                                ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
+                       ->setButtons(Buttons::new()
+                                           ->addButton(tr('Save'))
+                                           ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
 
     $phones_card = Card::new()
                        ->setCollapseSwitch(true)
                        ->setCollapsed(true)
                        ->setTitle(tr('Additional phone numbers for this user [:count]', [':count' => $user->getPhones()->getCount()]))
                        ->setContent($user->getPhones()->getHtmlDataEntryFormObject()->render())
-                       ->setButtons(InputButtons::new()
-                                                ->addButton(tr('Save'))
-                                                ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
+                       ->setButtons(Buttons::new()
+                                           ->addButton(tr('Save'))
+                                           ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
 }
 
 

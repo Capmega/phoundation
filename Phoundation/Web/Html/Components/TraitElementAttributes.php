@@ -31,7 +31,7 @@ use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Stringable;
 
-trait ElementAttributes
+trait TraitElementAttributes
 {
     use TraitDataDefinition {
         setDefinition as protected __setDefinition;
@@ -660,7 +660,7 @@ trait ElementAttributes
      */
     public function addExtra(?string $extra): static
     {
-        $this->extra .= ' ' . $extra;
+        $this->extra .= $extra;
 
         return $this;
     }
@@ -700,7 +700,7 @@ trait ElementAttributes
      * @param object|string $class
      *
      * @return void
-     * @see  ElementAttributes::ensureElementAttributesTrait()
+     * @see  TraitElementAttributes::ensureElementAttributesTrait()
      */
     public static function canRenderHtml(object|string $class): void
     {
@@ -718,7 +718,7 @@ trait ElementAttributes
      */
     protected static function ensureElementAttributesTrait(object|string $class): void
     {
-        if (!has_trait(ElementAttributes::class, $class)) {
+        if (!has_trait(TraitElementAttributes::class, $class)) {
             if (is_object($class)) {
                 $class = get_class($class);
             }

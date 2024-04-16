@@ -112,7 +112,7 @@ class IteratorCore implements IteratorInterface
      *
      * @return DataList
      */
-    public function setInputSelectClass(string $input_select_class): static
+    public function setComponentClass(string $input_select_class): static
     {
         if (is_a($input_select_class, InputSelectInterface::class, true)) {
             $this->input_select_class = $input_select_class;
@@ -1388,20 +1388,19 @@ class IteratorCore implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
-        if ($exception) {
-            try {
-                return $this->source[$key];
-
-            } catch (Throwable $e) {
-                // The key does not exist
-                throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
-                    ':key'   => $key,
-                    ':class' => get_class($this),
-                ]));
-            }
+        if (array_key_exists($key, $this->source)) {
+            return $this->source[$key];
         }
 
-        return isset_get($this->source[$key]);
+        if ($exception) {
+            // The key does not exist
+            throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
+                ':key'   => $key,
+                ':class' => get_class($this),
+            ]));
+        }
+
+        return null;
     }
 
 

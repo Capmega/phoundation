@@ -14,16 +14,24 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Traits;
 
-use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
+use Phoundation\Web\Html\Components\Icons\Icons;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumButtonType;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
-trait TraitInputButtonProperties
+trait TraitButtonProperties
 {
     use TraitMode;
     use TraitUsesSize;
+
+
+    /**
+     * Button type
+     *
+     * @var EnumButtonType|null $button_type
+     */
+    protected ?EnumButtonType $button_type = null;
 
     /**
      * Sets if this is an anchor button or not
@@ -67,18 +75,25 @@ trait TraitInputButtonProperties
      */
     protected bool $wrapping = true;
 
+    /**
+     * Floating buttons
+     *
+     * @var bool $floating
+     */
+    protected bool $floating = false;
+
 
     /**
      * Set the button type
      *
      * @param EnumButtonType|null $type
      *
-     * @return InputButton
+     * @return Button
      */
-    public function setType(?EnumButtonType $type): static
+    public function setButtonType(?EnumButtonType $type): static
     {
         $this->setElement('button');
-        $this->input_type = $type;
+        $this->button_type = $type;
 
         return $this;
     }
@@ -89,9 +104,35 @@ trait TraitInputButtonProperties
      *
      * @return EnumButtonType|null
      */
-    public function getType(): ?EnumButtonType
+    public function getButtonType(): ?EnumButtonType
     {
-        return $this->input_type;
+        return $this->button_type;
+    }
+
+
+    /**
+     * Returns if the button is floating or not
+     *
+     * @return bool
+     */
+    public function getFloating(): bool
+    {
+        return $this->floating;
+    }
+
+
+    /**
+     * Set if the button is floating or not
+     *
+     * @param bool $floating
+     *
+     * @return Button
+     */
+    public function setFloating(bool $floating): static
+    {
+        $this->floating = $floating;
+
+        return $this;
     }
 
 
@@ -111,13 +152,13 @@ trait TraitInputButtonProperties
      *
      * @param Stringable|string|null $anchor_url
      *
-     * @return InputButton
+     * @return Button
      */
     public function setAnchorUrl(Stringable|string|null $anchor_url): static
     {
         $this->setElement('a');
-        $this->anchor_url = (string) UrlBuilder::getWww($anchor_url);
-        $this->input_type = null;
+        $this->anchor_url  = (string) UrlBuilder::getWww($anchor_url);
+        $this->button_type = null;
 
         return $this;
     }
@@ -139,7 +180,7 @@ trait TraitInputButtonProperties
      *
      * @param bool $outlined
      *
-     * @return InputButton
+     * @return Button
      */
     public function setOutlined(bool $outlined): static
     {
@@ -165,7 +206,7 @@ trait TraitInputButtonProperties
      *
      * @param bool $block
      *
-     * @return InputButton
+     * @return Button
      */
     public function setBlock(bool $block): static
     {
@@ -191,7 +232,7 @@ trait TraitInputButtonProperties
      *
      * @param bool $flat
      *
-     * @return InputButton
+     * @return Button
      */
     public function setFlat(bool $flat): static
     {
@@ -217,7 +258,7 @@ trait TraitInputButtonProperties
      *
      * @param bool $rounded
      *
-     * @return InputButton
+     * @return Button
      */
     public function setRounded(bool $rounded): static
     {
@@ -243,12 +284,74 @@ trait TraitInputButtonProperties
      *
      * @param bool $wrapping
      *
-     * @return InputButton
+     * @return Button
      */
     public function setWrapping(bool $wrapping): static
     {
         $this->wrapping = $wrapping;
 
         return $this;
+    }
+
+
+    /**
+     * Renders and returns the HTML for this object
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        $this->resetButtonClasses();
+        $this->attributes->set($this->button_type?->value, 'type');
+        if ($this->anchor_url) {
+            $this->attributes->removeKeys('type');
+            $this->attributes->set($this->anchor_url, 'href');
+        }
+
+        return parent::render();
+    }
+
+
+    /**
+     * Set the classes for this button
+     *
+     * @return void
+     */
+    protected function resetButtonClasses(): void
+    {
+        // Remove the current button mode
+        foreach ($this->classes as $class => $value) {
+            if (str_starts_with($class, 'btn-')) {
+                $this->classes->removeKeys($class);
+            }
+        }
+        if ($this->mode->value) {
+            $this->addClasses('btn-' . ($this->outlined ? 'outline-' : '') . $this->mode->value);
+        } else {
+            if ($this->outlined) {
+                $this->addClasses('btn-outline');
+            }
+        }
+        if ($this->flat) {
+            $this->addClasses('btn-flat');
+        }
+        if ($this->size->value) {
+            $this->addClasses('btn-' . $this->size->value);
+        }
+        if ($this->block) {
+            $this->addClasses('btn-block');
+        }
+        if ($this->rounded) {
+            $this->addClasses('btn-rounded');
+        }
+        if (!$this->wrapping) {
+            $this->addClasses('text-nowrap');
+        }
+        if ($this->floating) {
+            $this->addClasses('btn-floating');
+            $this->setContent(Icons::new()
+                                   ->setContent($this->content)
+                                   ->render());
+        }
     }
 }

@@ -27,7 +27,7 @@ use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Enums\EnumElement;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 /**
  * SqlConnector class
@@ -660,16 +660,16 @@ class Connector extends DataEntry implements ConnectorInterface
                                     ->setLabel(tr('SSL Tunnel'))
                                     ->setOptional(true)
                                     ->setDataSource([])
-                                    ->setInputType(EnumElementInputType::select)
+                                    ->setInputType(EnumInputType::select)
                                     ->setSize(2))
                     ->add(DefinitionFactory::getNumber($this, 'auto_increment')
                                            ->setLabel(tr('Auto increment'))
-                                           ->setInputType(EnumElementInputType::positiveInteger)
+                                           ->setInputType(EnumInputType::positiveInteger)
                                            ->setSize(1))
                     ->add(DefinitionFactory::getNumber($this, 'limit_max')
                                            ->setLabel(tr('Maximum row limit'))
                                            ->setDefault(1_000_000)
-                                           ->setInputType(EnumElementInputType::positiveInteger)
+                                           ->setInputType(EnumInputType::positiveInteger)
                                            ->setSize(1))
                     ->add(DefinitionFactory::getBoolean($this, 'persist')
                                            ->setLabel(tr('Persist'))

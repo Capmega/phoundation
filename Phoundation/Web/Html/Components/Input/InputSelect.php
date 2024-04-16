@@ -1,19 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Input;
-
-use Phoundation\Data\Iterator;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
-use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Html\Components\ResourceElement;
-use Stringable;
-use Throwable;
-
 /**
  * class InputSelect
  *
@@ -24,8 +9,28 @@ use Throwable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
-class InputSelect extends ResourceElement implements InputSelectInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Input;
+
+use Phoundation\Data\Iterator;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\ResourceElement;
+use Phoundation\Web\Html\Traits\TraitBeforeAfterButtons;
+use Stringable;
+use Throwable;
+
+class InputSelect extends ResourceElement implements InputSelectInterface, InputInterface
 {
+    use TraitBeforeAfterButtons;
+
+
     /**
      * The class for the <option> elements within the <select> element
      *

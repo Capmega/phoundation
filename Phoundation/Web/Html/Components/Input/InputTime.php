@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 class InputTime extends InputText
 {
@@ -25,7 +25,7 @@ class InputTime extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->input_type = EnumElementInputType::time;
+        $this->input_type = EnumInputType::time;
         parent::__construct($content);
     }
 }

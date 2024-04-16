@@ -25,7 +25,7 @@ use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 /**
  * Class Role
@@ -226,7 +226,7 @@ class Role extends DataEntry implements RoleInterface
     {
         $definitions->add(DefinitionFactory::getName($this)
                                            ->setOptional(false)
-                                           ->setInputType(EnumElementInputType::name)
+                                           ->setInputType(EnumInputType::name)
                                            ->setSize(12)
                                            ->setMaxlength(64)
                                            ->setHelpText(tr('The name for this role'))

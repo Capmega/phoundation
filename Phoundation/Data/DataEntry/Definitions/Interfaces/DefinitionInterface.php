@@ -21,7 +21,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Stringable;
 
@@ -491,19 +491,19 @@ interface DefinitionInterface
     /**
      * Return the type of input element.
      *
-     * @return EnumElementInputType
+     * @return EnumInputType
      */
-    public function getInputType(): EnumElementInputType;
+    public function getInputType(): EnumInputType;
 
 
     /**
      * Sets the type of input element.
      *
-     * @param EnumElementInputType|string $value
+     * @param EnumInputType|string $value
      *
      * @return static
      */
-    public function setInputType(EnumElementInputType|string $value): static;
+    public function setInputType(EnumInputType|string $value): static;
 
 
     /**
@@ -1060,11 +1060,11 @@ interface DefinitionInterface
     /**
      * Sets the type for this element if the value is NULL
      *
-     * @param EnumElementInputType|null $value
+     * @param EnumInputType|null $value
      *
      * @return static
      */
-    public function setNullInputType(?EnumElementInputType $value): static;
+    public function setNullInputType(?EnumInputType $value): static;
 
 
     /**

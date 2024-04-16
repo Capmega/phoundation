@@ -15,14 +15,12 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Data\Traits\TraitDataInline;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Traits\TraitInputChecked;
 use Phoundation\Web\Html\Traits\TraitInputCheckRadioRender;
-use Phoundation\Web\Html\Traits\TraitInputElement;
 
 class InputRadio extends Input
 {
-    use TraitInputElement;
     use TraitDataInline;
     use TraitInputChecked;
     use TraitInputCheckRadioRender;
@@ -35,7 +33,7 @@ class InputRadio extends Input
     public function __construct(?string $content = null)
     {
         $this->setElement('input')
-             ->setInputType(EnumElementInputType::radio)
+             ->setInputType(EnumInputType::radio)
              ->setValue(1);
         parent::__construct($content);
     }

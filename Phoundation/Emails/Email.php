@@ -11,7 +11,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Os\Processes\Commands\PhoCommand;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Pages\Template;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -180,7 +180,7 @@ class Email extends DataEntry
                                            ->setRender(false))
                     ->add(Definition::new($this, 'parents_id')
                                     ->setRender(false)
-                                    ->setInputType(EnumElementInputType::dbid)
+                                    ->setInputType(EnumInputType::dbid)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         // Ensure the specified parents_id exists
                                         $validator->isOptional()
@@ -190,13 +190,13 @@ class Email extends DataEntry
                                     }))
                     ->add(Definition::new($this, 'main')
                                     ->setRender(false)
-                                    ->setInputType(EnumElementInputType::checkbox))
+                                    ->setInputType(EnumInputType::checkbox))
                     ->add(Definition::new($this, 'read')
                                     ->setRender(false)
-                                    ->setInputType(EnumElementInputType::checkbox))
+                                    ->setInputType(EnumInputType::checkbox))
                     ->add(Definition::new($this, 'categories_id')
                                     ->setRender(false)
-                                    ->setInputType(EnumElementInputType::dbid)
+                                    ->setInputType(EnumInputType::dbid)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         // Ensure the specified parents_id exists
                                         $validator->isOptional()
@@ -206,7 +206,7 @@ class Email extends DataEntry
                                     }))
                     ->add(Definition::new($this, 'templates_id')
                                     ->setRender(false)
-                                    ->setInputType(EnumElementInputType::dbid)
+                                    ->setInputType(EnumInputType::dbid)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         // Ensure the specified parents_id exists
                                         $validator->isOptional()

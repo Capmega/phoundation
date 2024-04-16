@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 /**
  * Class InputDateTimeLocal
@@ -25,7 +25,7 @@ class InputDateTimeLocal extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->input_type = EnumElementInputType::datetime_local;
+        $this->input_type = EnumInputType::datetime_local;
         parent::__construct($content);
     }
 }

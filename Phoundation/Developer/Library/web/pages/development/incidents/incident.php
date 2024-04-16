@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Developer\Incidents\Incident;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -24,9 +24,9 @@ $get = GetValidator::new()
 $incident = Incident::get($get['id']);
 
 // Build the buttons
-$buttons = InputButtons::new()
-                       ->addButton('Submit')
-                       ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/incidents.html'), true);
+$buttons = Buttons::new()
+                  ->addButton('Submit')
+                  ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/incidents.html'), true);
 
 
 // Build the incident form

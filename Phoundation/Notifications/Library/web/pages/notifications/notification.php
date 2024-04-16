@@ -17,8 +17,8 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButtons;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -58,10 +58,10 @@ if (Request::isPostRequestMethod()) {
 
 // Do we have a URL?
 if ($notification->getUrl()) {
-    $go = InputButton::new()
-                     ->setFloatRight(true)
-                     ->setValue(tr('Go'))
-                     ->setAnchorUrl($notification->getUrl());
+    $go = Button::new()
+                ->setFloatRight(true)
+                ->setValue(tr('Go'))
+                ->setAnchorUrl($notification->getUrl());
 }
 
 // Build the notification form
@@ -70,10 +70,10 @@ $notification_card = Card::new()
     ->setMaximizeSwitch(true)
     ->setTitle($notification->getTitle())
     ->setContent($notification->getHtmlDataEntryFormObject()->render())
-    ->setButtons(InputButtons::new()
-                             ->addButton(tr('Mark unread'))
-                             ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/notifications/notifications.html'), true)
-                             ->addButton(isset_get($go)));
+    ->setButtons(Buttons::new()
+                        ->addButton(tr('Mark unread'))
+                        ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/notifications/notifications.html'), true)
+                        ->addButton(isset_get($go)));
 
 
 // Build relevant links

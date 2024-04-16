@@ -7,6 +7,7 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
+use Phoundation\Web\Html\Traits\TraitBeforeAfterButtons;
 use Phoundation\Web\Html\Traits\TraitInputElement;
 
 /**
@@ -22,6 +23,8 @@ use Phoundation\Web\Html\Traits\TraitInputElement;
 abstract class Input extends Element implements InputInterface
 {
     use TraitInputElement;
+    use TraitBeforeAfterButtons;
+
 
     /**
      * Input class constructor

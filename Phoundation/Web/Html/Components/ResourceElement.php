@@ -1,4 +1,14 @@
 <?php
+/**
+ * Class ResourceElement
+ *
+ * This class is an abstract HTML element object class that can display resource data
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
 
 declare(strict_types=1);
 
@@ -13,20 +23,11 @@ use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Html\Traits\TraitInputElement;
 
-/**
- * Class RenderElement
- *
- * This class is an abstract HTML element object class that can display resource data
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
-abstract class ResourceElement extends Element implements ResourceElementInterface, InputInterface
+abstract class ResourceElement extends Element implements ResourceElementInterface
 {
     use TraitInputElement;
     use TraitDataConnector;
+
 
     /**
      * The text displayed for "none selected"

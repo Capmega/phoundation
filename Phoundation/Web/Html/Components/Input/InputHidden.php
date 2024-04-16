@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 /**
  * Class InputHidden
@@ -26,7 +26,7 @@ class InputHidden extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->input_type = EnumElementInputType::hidden;
+        $this->input_type = EnumInputType::hidden;
         parent::__construct($content);
     }
 

@@ -12,7 +12,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Web\Html\Components\Avatar;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Icons\Icon;
-use Phoundation\Web\Html\Components\Input\Buttons\InputButton;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Logo;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\ImageMenu;
@@ -181,7 +181,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->buttons)) {
             $this->buttons = Iterator::new()
-                                     ->setDataTypes('object:' . InputButton::class);
+                                     ->setDataTypes('object:' . Button::class);
         }
 
         return $this->buttons;

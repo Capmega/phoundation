@@ -12,7 +12,7 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
-use Phoundation\Web\Html\Traits\TraitInputButtons;
+use Phoundation\Web\Html\Traits\TraitButtons;
 use Stringable;
 
 /**
@@ -27,7 +27,7 @@ use Stringable;
  */
 class Tabs extends ElementsBlock implements TabsInterface
 {
-    use TraitInputButtons;
+    use TraitButtons;
     use TraitDataOrientation {
         setOrientation as protected __setOrientation;
     }
