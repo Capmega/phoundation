@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class HtmlDataTable
  *
@@ -21,6 +22,8 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
@@ -193,13 +196,6 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     protected ?bool $order_multi_enabled = false;
 
     /**
-     * Table top-buttons
-     *
-     * @var array|null $buttons
-     */
-    protected ?array $buttons = null;
-
-    /**
      * Date format for data table ordering
      *
      * @var string|null $js_date_format
@@ -255,9 +251,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Returns table top-buttons
      *
-     * @return array
+     * @return ButtonsInterface
      */
-    public function getButtons(): array
+    public function getButtons(): ButtonsInterface
     {
         return $this->buttons;
     }
@@ -266,11 +262,11 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Sets table top-buttons
      *
-     * @param ArrayableInterface|array|string|null $buttons
+     * @param ButtonsInterface|array|string|null $buttons
      *
      * @return $this
      */
-    public function setButtons(ArrayableInterface|array|string|null $buttons): static
+    public function setButtons(ButtonsInterface|array|string|null $buttons): static
     {
         // For now only built in buttons are supported
         $builtin = [
@@ -292,7 +288,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             }
             $button = $builtin[$button];
         }
-        $this->buttons = $buttons;
+        $this->buttons = new Buttons($buttons);
         unset($button);
 
         return $this;
@@ -1275,8 +1271,8 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         if ($this->order_fixed !== null) {
             $options[] = 'orderFixed: { pre: [' . implode(', ' . PHP_EOL, $this->order_fixed) . '] }';
         }
-        if ($this->buttons !== null) {
-            $options[] = 'buttons: { buttons: [ ' . implode(', ' . PHP_EOL, $this->buttons) . ' ] }';
+        if (isset($this->buttons)) {
+            $options[] = 'buttons: { buttons: [ ' . implode(', ' . PHP_EOL, array_keys($this->buttons->getSource())) . ' ] }';
         }
         if ($this->responsive) {
             $options[] = $this->getDataTableResponsive();

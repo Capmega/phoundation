@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Tables\Interfaces;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Enums\EnumPagingType;
 
 /**
@@ -22,19 +23,19 @@ interface HtmlDataTableInterface extends HtmlTableInterface
     /**
      * Returns table top-buttons
      *
-     * @return array
+     * @return ButtonsInterface
      */
-    public function getButtons(): array;
+    public function getButtons(): ButtonsInterface;
 
 
     /**
      * Sets table top-buttons
      *
-     * @param ArrayableInterface|array|string|null $buttons
+     * @param ButtonsInterface|array|string|null $buttons
      *
      * @return $this
      */
-    public function setButtons(ArrayableInterface|array|string|null $buttons): static;
+    public function setButtons(ButtonsInterface|array|string|null $buttons): static;
 
 
     /**
