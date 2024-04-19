@@ -525,7 +525,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
     public function list(): FilesInterface
     {
         $return = [];
-        $list   = Arrays::removeValues(scandir($this->path), [
+        $list   = Arrays::removeMatchingValues(scandir($this->path), [
             '.',
             '..',
         ]);

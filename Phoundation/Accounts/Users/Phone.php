@@ -236,7 +236,7 @@ class Phone extends DataEntry implements PhoneInterface
                                     ])
                                     ->setCliAutoComplete([
                                         'word'   => function (string $word) {
-                                            return Arrays::removeValues([
+                                            return Arrays::removeMatchingValues([
                                                 tr('Business'),
                                                 tr('Personal'),
                                                 tr('Other'),

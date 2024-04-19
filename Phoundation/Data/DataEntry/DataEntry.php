@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry;
 
 use Exception;
+use GeoIp2\Util;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
@@ -63,9 +64,9 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
-use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
+use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Input\InputText;
@@ -2027,8 +2028,15 @@ abstract class DataEntry implements DataEntryInterface
     {
         $data_entry   = clone $data_entry;
         $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()));
-        $this->definitions->spliceByKey($at_key, 0, $data_entry->getDefinitionsObject()
-                                                               ->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null), $after);
+
+        try {
+            $this->definitions->spliceByKey($at_key, 0, $data_entry->getDefinitionsObject()
+                                                                   ->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null), $after);
+        } catch (OutOfBoundsException $e) {
+            throw new OutOfBoundsException(tr('Failed to inject DataEntry object at key ":key", the key does not exist', [
+                ':key' => $at_key,
+            ]), $e);
+        }
 
         return $this;
     }
@@ -2059,7 +2067,15 @@ abstract class DataEntry implements DataEntryInterface
         $element_definition                             = $value->getDefinition()
                                                                 ->setContent($value->render());
         $this->source[$element_definition->getColumn()] = null;
-        $this->definitions->spliceByKey($at_key, 0, [$element_definition->getColumn() => $element_definition], $after);
+
+        try {
+            $this->definitions->spliceByKey($at_key, 0, [$element_definition->getColumn() => $element_definition], $after);
+        } catch (OutOfBoundsException $e) {
+            throw new OutOfBoundsException(tr('Failed to inject element at key ":key", the key does not exist', [
+                ':key' => $at_key,
+            ]), $e);
+        }
+
         if ($definition) {
             // Apply specified definitions as well
             if ($definition instanceof DefinitionInterface) {
@@ -2089,15 +2105,15 @@ abstract class DataEntry implements DataEntryInterface
      * The extracted data entry will have the same class and interface as this
      *
      * @param array|string  $columns
-     * @param EnumMatchMode $match_mode
+     * @param int $flags
      *
      * @return DataEntryInterface
      */
-    public function extractDataEntryObject(array|string $columns, EnumMatchMode $match_mode = EnumMatchMode::full): DataEntryInterface
+    public function extractDataEntryObject(array|string $columns, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): DataEntryInterface
     {
-        $entry = static::newFromSource(Arrays::keepKeys($this->source, $columns, $match_mode));
+        $entry = static::newFromSource(Arrays::keepMatchingKeys($this->source, $columns, $flags));
         $entry->getDefinitionsObject()
-              ->keepKeys($columns, $match_mode);
+              ->keepKeys($columns, $flags);
 
         return $entry;
     }
@@ -2443,7 +2459,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getMetaData(): array
     {
-        $meta = Arrays::keep($this->source, $this->meta_columns);
+        $meta = Arrays::keepKeys($this->source, $this->meta_columns);
         $meta = Arrays::ensureReturn($meta, $this->meta_columns);
 
         return $meta;

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Interface DataEntryInterface
+ *
+ * This class contains the basic data entry traits
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Data
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Interfaces;
@@ -13,22 +24,11 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\DateTime;
-use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Stringable;
 
-/**
- * Class DataEntry
- *
- * This class contains the basic data entry traits
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Data
- */
 interface DataEntryInterface extends ArrayableInterface, Stringable
 {
     /**
@@ -570,12 +570,12 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * The extracted data entry will have the same class and interface as this
      *
-     * @param array|string  $columns
-     * @param EnumMatchMode $match_mode
+     * @param array|string $columns
+     * @param int          $flags
      *
      * @return DataEntryInterface
      */
-    public function extractDataEntryObject(array|string $columns, EnumMatchMode $match_mode = EnumMatchMode::full): DataEntryInterface;
+    public function extractDataEntryObject(array|string $columns, int $flags): DataEntryInterface;
 
 
     /**

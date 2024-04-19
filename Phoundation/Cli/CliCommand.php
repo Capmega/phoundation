@@ -1,5 +1,24 @@
 <?php
 
+/**
+ * Class Scripts
+ *
+ * This is the default Scripts object
+ *
+ * @note      Modifier arguments start with - or --. - only allows a letter whereas -- allows one or multiple words
+ *            separated by a -. Modifier arguments may have or not have values accompanying them.
+ * @note      Commands are arguments NOT starting with - or --
+ * @note      As soon as non-command arguments start, we can no longer discern if a value like "system" is actually a
+ *            command or a value linked to an argument. Because of this, as soon as modifier arguments start, commands
+ *            may no longer be specified. An exception to this is system modifier arguments because system modifier
+ *            arguments are filtered out BEFORE commands are processed.
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Cli
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Cli;
@@ -32,31 +51,12 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
-use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Requests\Request;
 use Throwable;
 
-/**
- * Class Scripts
- *
- * This is the default Scripts object
- *
- * @note      Modifier arguments start with - or --. - only allows a letter whereas -- allows one or multiple words
- *            separated by a -. Modifier arguments may have or not have values accompanying them.
- * @note      Commands are arguments NOT starting with - or --
- * @note      As soon as non-command arguments start, we can no longer discern if a value like "system" is actually a
- *            command or a value linked to an argument. Because of this, as soon as modifier arguments start, commands
- *            may no longer be specified. An exception to this is system modifier arguments because system modifier
- *            arguments are filtered out BEFORE commands are processed.
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Cli
- */
 class CliCommand
 {
     use TraitDataStaticExecuted;
@@ -752,8 +752,8 @@ class CliCommand
         // Is any command specified at all?
         if (!ArgvValidator::getCommandCount()) {
             $commands = scandir(DIRECTORY_COMMANDS);
-            $commands = Arrays::each($commands, function ($key, $value) { return strip_extension($value); });
-            $commands = Arrays::removeValues($commands, '/^\./', match_mode: EnumMatchMode::regex);
+            $commands = Arrays::replaceValuesWithCallbackReturn($commands, function ($key, $value) { return strip_extension($value); });
+            $commands = Arrays::removeMatchingValues($commands, '/^\./', flags: Utils::MATCH_REGEX);
             throw CliNoCommandSpecifiedException::new('No command specified!')
                                                 ->makeWarning()
                                                 ->addData([
@@ -772,9 +772,9 @@ class CliCommand
             if (!file_exists($file) and !file_exists($file . '.php')) {
                 // The specified directory doesn't exist. Does a part exist, perhaps? Get the parent and find out
                 try {
-                    $files = Arrays::removeValues(scandir(dirname($file)), '/^\./', match_mode: EnumMatchMode::regex);
-                    $files = Arrays::each($files, function ($key, $value) { return strip_extension($value); });
-                    $files = Arrays::getMatches($files, basename($file), Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN);
+                    $files = Arrays::removeMatchingValues(scandir(dirname($file)), '/^\./', flags: Utils::MATCH_REGEX);
+                    $files = Arrays::replaceValuesWithCallbackReturn($files, function ($key, $value) { return strip_extension($value); });
+                    $files = Arrays::getMatches($files, basename($file), Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH);
 
                 } catch (Throwable) {
                     $files = [];
@@ -791,8 +791,8 @@ class CliCommand
                     }
                 }
                 $previous = scandir(dirname($file));
-                $previous = Arrays::each($previous, function ($key, $value) { return strip_extension($value); });
-                $previous = Arrays::removeValues($previous, '/^\./', match_mode: EnumMatchMode::regex);
+                $previous = Arrays::replaceValuesWithCallbackReturn($previous, function ($key, $value) { return strip_extension($value); });
+                $previous = Arrays::removeMatchingValues($previous, '/^\./', flags: Utils::MATCH_REGEX);
                 throw CliCommandNotExistsException::new(tr('The specified command file ":file" does not exist', [
                     ':file' => $file,
                 ]))
@@ -837,11 +837,11 @@ class CliCommand
             }
         }
         $previous = scandir(dirname($file));
-        $previous = Arrays::each($previous, function ($key, $value) { return strip_extension($value); });
-        $previous = Arrays::removeValues($previous, '/^\./', match_mode: EnumMatchMode::regex);
+        $previous = Arrays::replaceValuesWithCallbackReturn($previous, function ($key, $value) { return strip_extension($value); });
+        $previous = Arrays::removeMatchingValues($previous, '/^\./', flags: Utils::MATCH_REGEX);
         $commands = scandir($file);
-        $commands = Arrays::each($commands, function ($key, $value) { return strip_extension($value); });
-        $commands = Arrays::removeValues($commands, '/^\./', match_mode: EnumMatchMode::regex);
+        $commands = Arrays::replaceValuesWithCallbackReturn($commands, function ($key, $value) { return strip_extension($value); });
+        $commands = Arrays::removeMatchingValues($commands, '/^\./', flags: Utils::MATCH_REGEX);
         // We're stuck in a directory still, no command to execute.
         // Add the available files to display to help the user
         throw CliCommandNotFoundException::new(tr('The specified command file ":file" was not found', [

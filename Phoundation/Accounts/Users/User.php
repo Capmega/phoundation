@@ -1963,7 +1963,7 @@ class User extends DataEntry implements UserInterface
                                     ])
                                     ->setCliAutoComplete([
                                         'word'   => function (string $word) {
-                                            return Arrays::removeValues([
+                                            return Arrays::removeMatchingValues([
                                                 tr('Male'),
                                                 tr('Female'),
                                                 tr('Other'),

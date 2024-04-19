@@ -1,17 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Connectors\Connectors;
-use Phoundation\Databases\Export;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Utils\Enums\EnumMatchMode;
-
-
 /**
  * Script system/databases/export
  *
@@ -22,6 +10,19 @@ use Phoundation\Utils\Enums\EnumMatchMode;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Connectors\Connectors;
+use Phoundation\Databases\Export;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Utils\Utils;
+
+
 $restrictions = Restrictions::writable([
                                            DIRECTORY_DATA . 'sources/',
                                            DIRECTORY_TMP,
@@ -57,7 +58,7 @@ CliDocumentation::setAutoComplete([
                                               'noword' => function () use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.sql'); },
                                           ],
                                           '-c,--connector' => [
-                                              'word'   => function ($word) { return Connectors::new()->load(true, true)->keepValues('sys', 'name', EnumMatchMode::starts_with)->getAllRowsSingleColumn('name'); },
+                                              'word'   => function ($word) { return Connectors::new()->load(true, true)->keepValues('sys', 'name', Utils::MATCH_STARTS_WITH)->getAllRowsSingleColumn('name'); },
                                               'noword' => function () { return Connectors::new()->load(true, true)->getAllRowsSingleColumn('name'); },
                                           ],
                                           '-b,--database'  => [

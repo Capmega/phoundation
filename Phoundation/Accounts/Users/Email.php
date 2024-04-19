@@ -159,7 +159,7 @@ class Email extends DataEntry implements EmailInterface
                                     ])
                                     ->setCliAutoComplete([
                                         'word'   => function (string $word) {
-                                            return Arrays::removeValues([
+                                            return Arrays::removeMatchingValues([
                                                 tr('Business'),
                                                 tr('Personal'),
                                                 tr('Other'),

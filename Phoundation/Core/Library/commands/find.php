@@ -27,7 +27,16 @@ $results = Find::new(DIRECTORY_ROOT . 'commands/')
     ->setName($argv['command'] . '.php')
     ->executeReturnIterator();
 
-foreach ($results as $result) {
-    $result = Strings::from($result, DIRECTORY_ROOT . 'commands/');
-    Log::cli($result);
+if ($results->getCount()) {
+    foreach ($results as $result) {
+        $result = Strings::from($result, DIRECTORY_ROOT . 'commands/');
+        $result = Strings::until($result, '.php');
+        $result = str_replace('/', ' ', $result);
+
+        Log::cli($result);
+    }
+} else {
+    Log::warning(tr('Could not find command ":command"', [
+        ':command' => $argv['command']
+    ]));
 }

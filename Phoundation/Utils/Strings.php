@@ -2300,23 +2300,23 @@ class Strings extends Utils
      * @param array|string      $needles
      * @param Stringable|string $haystack
      * @param int               $options Flags that will modify this functions behavior. Current flags are one of
-     *                                   Utils::MATCH_ALL, Utils::MATCH_BEGIN, Utils::MATCH_END, or
-     *                                   Utils::MATCH_ANYWHERE Utils::MATCH_ANY
+     *                                   Utils::MATCH_ALL, Utils::MATCH_STARTS_WITH, Utils::MATCH_END, or
+     *                                   Utils::MATCH_CONTAINS Utils::MATCH_ANY
      *
      * Utils::MATCH_NO_CASE:  Will match entries in case-insensitive mode
      * Utils::MATCH_ALL:      Will match entries that contain all the specified needles
      * Utils::MATCH_ANY:      Will match entries that contain any of the specified needles
-     * Utils::MATCH_BEGIN:    Will match entries that start with the specified needles. Mutually exclusive with
-     *                         Utils::MATCH_END, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_STARTS_WITH:    Will match entries that start with the specified needles. Mutually exclusive with
+     *                         Utils::MATCH_END, Utils::MATCH_CONTAINS
      * Utils::MATCH_END:      Will match entries that end with the specified needles. Mutually exclusive with
-     *                         Utils::MATCH_BEGIN, Utils::MATCH_ANYWHERE
-     * Utils::MATCH_ANYWHERE: Will match entries that contain the specified needles anywhere. Mutually exclusive with
-     *                         Utils::MATCH_BEGIN, Utils::MATCH_ANYWHERE
+     *                         Utils::MATCH_STARTS_WITH, Utils::MATCH_CONTAINS
+     * Utils::MATCH_CONTAINS: Will match entries that contain the specified needles anywhere. Mutually exclusive with
+     *                         Utils::MATCH_STARTS_WITH, Utils::MATCH_CONTAINS
      * Utils::MATCH_RECURSE:  Will recurse into sub-arrays, if encountered
      *
      * @return string|null
      */
-    public static function getIfMatch(Stringable|string $haystack, array|string $needles, int $options = self::MATCH_NO_CASE | self::MATCH_ALL | self::MATCH_ANYWHERE | self::MATCH_RECURSE): ?string
+    public static function getIfMatch(Stringable|string $haystack, array|string $needles, int $options = self::MATCH_CASE_INSENSITIVE | self::MATCH_ALL | self::MATCH_CONTAINS | self::MATCH_RECURSE): ?string
     {
         if (static::matches($haystack, $needles, $options)) {
             return $haystack;
@@ -2331,29 +2331,47 @@ class Strings extends Utils
      *
      * @param array|string      $needles
      * @param Stringable|string $haystack
-     * @param int               $options Flags that will modify this functions behavior. Current flags are one of
-     *                                   Utils::MATCH_ALL, Utils::MATCH_BEGIN, Utils::MATCH_END, or
-     *                                   Utils::MATCH_ANYWHERE Utils::MATCH_ANY
+     * @param int               $options Flags that will modify this functions behavior.
      *
-     * Utils::MATCH_NO_CASE:  Will match entries in case-insensitive mode
-     * Utils::MATCH_ALL:      Will match entries that contain all the specified needles
-     * Utils::MATCH_ANY:      Will match entries that contain any of the specified needles
-     * Utils::MATCH_BEGIN:    Will match entries that start with the specified needles. Mutually exclusive with
-     *                         Utils::MATCH_END, Utils::MATCH_ANYWHERE
-     * Utils::MATCH_END:      Will match entries that end with the specified needles. Mutually exclusive with
-     *                         Utils::MATCH_BEGIN, Utils::MATCH_ANYWHERE
-     * Utils::MATCH_ANYWHERE: Will match entries that contain the specified needles anywhere. Mutually exclusive with
-     *                         Utils::MATCH_BEGIN, Utils::MATCH_ANYWHERE
-     * Utils::MATCH_RECURSE:  Will recurse into sub-arrays, if encountered
+     * Supported match flags are:
+     *
+     * Utils::MATCH_CASE_INSENSITIVE  Will match needles for entries in case-insensitive mode.
+     * Utils::MATCH_ALL               Will match needles for entries that contain all the specified needles.
+     * Utils::MATCH_ANY               Will match needles for entries that contain any of the specified needles.
+     * Utils::MATCH_STARTS_WITH       Will match needles for entries that start with the specified needles. Mutually
+     *                                exclusive with Utils::MATCH_ENDS_WITH, Utils::MATCH_CONTAINS,
+     *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
+     * Utils::MATCH_ENDS_WITH         Will match needles for entries that end with the specified needles. Mutually
+     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_CONTAINS,
+     *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
+     * Utils::MATCH_CONTAINS          Will match needles for entries that contain the specified needles anywhere.
+     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
+     * Utils::MATCH_RECURSE           Will recurse into arrays, if encountered.
+     * Utils::MATCH_NOT               Will match needles for entries that do NOT match the needle.
+     * Utils::MATCH_STRICT            Will match needles for entries that match the needle strict (so 0 does NOT match
+     *                                "0", "" does NOT match 0, etc.).
+     * Utils::MATCH_FULL              Will match needles for entries that fully match the needle. Mutually
+     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Utils::MATCH_CONTAINS, and Utils::MATCH_REGEX.
+     * Utils::MATCH_REGEX             Will match needles for entries that match the specified regular expression.
+     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Utils::MATCH_CONTAINS, and Utils::MATCH_FULL.
+     * Utils::MATCH_EMPTY             Will match empty values instead of ignoring them. NOTE: Empty values may be
+     *                                ignored while NULL values are still matched using the MATCH_NULL flag
+     * Utils::MATCH_NULL              Will match NULL values instead of ignoring them. NOTE: NULL values may be
+     *                                ignored while non-NULL empty values are still matched using the MATCH_EMPTY flag
+     * Utils::MATCH_REQUIRE           Requires at least one result
+     * Utils::MATCH_SINGLE            Will match only a single entry for the executed action (return, remove, etc.)
      *
      * @return bool
      */
-    public static function matches(Stringable|string $haystack, array|string $needles, int $options = self::MATCH_NO_CASE | self::MATCH_ALL | self::MATCH_ANYWHERE | self::MATCH_RECURSE): bool
+    public static function matches(int $action, Stringable|string $haystack, array|string $needles, int $options = self::MATCH_CASE_INSENSITIVE | self::MATCH_ALL | self::MATCH_CONTAINS | self::MATCH_RECURSE): bool
     {
         // Caseless match? Compare lowercase
-        $flags      = static::decodeMatchOptions($options, false);
-        $needles    = static::checkRequiredNeedles($needles, $flags['match_no_case']);
-        $test_value = static::getTestValue($haystack, $flags['match_no_case']);
+        $flags      = static::decodeMatchFlags($action, $options, false);
+        $needles    = static::prepareNeedles($needles, $flags['no_case']);
+        $test_value = static::getTestValue($haystack, $flags['no_case']);
 
         return static::testStringMatchesNeedles($test_value, $needles, $flags);
     }

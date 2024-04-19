@@ -386,7 +386,7 @@ class Plugins extends Project
 //                        } else {
 //                            // There are no problematic files found, look for other issues.
 //                            $output = $e->getDataKey('output');
-//                            $output = Arrays::getMatches($output, 'already exists in working directory', Utils::MATCH_ALL|Utils::MATCH_ANYWHERE|Utils::MATCH_NO_CASE);
+//                            $output = Arrays::getMatches($output, 'already exists in working directory', Utils::MATCH_ALL|Utils::MATCH_CONTAINS|Utils::MATCH_NO_CASE);
 //
 //                            if ($output) {
 //                                // Found already existing files that cannot be merged. Delete on this side
@@ -566,7 +566,7 @@ class Plugins extends Project
                           ->isTracked()
                 ) {
                     // This Plugin isn't tracked yet, ensure its removed!
-                    $phoundation_plugins = Arrays::removeValues($phoundation_plugins, $path);
+                    $phoundation_plugins = Arrays::removeMatchingValues($phoundation_plugins, $path);
                 }
             }
         }

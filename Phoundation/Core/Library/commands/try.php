@@ -14,14 +14,30 @@ declare(strict_types=1);
  * @package   Phoundation\Scripts
  */
 
-use Phoundation\Filesystem\Path;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Utils\Arrays;
+use Phoundation\Data\Iterator;
+use Phoundation\Utils\Utils;
 
-$root        = Path::new(DIRECTORY_ROOT, Restrictions::writable(DIRECTORY_DATA, tr('test!')));
-$test        = Path::new(DIRECTORY_DATA . 'test', Restrictions::writable(DIRECTORY_DATA, tr('test!')));
-$data        = Path::new(DIRECTORY_DATA, Restrictions::writable(DIRECTORY_DATA, tr('test!')));
-$target      = Path::new(DIRECTORY_DATA . 'target', Restrictions::writable(DIRECTORY_DATA, tr('test!')));
-$phoundation = Path::new('~/Downloads/firefox', Restrictions::readonly('~', tr('test!')));
+$a = [
+    'sven' => tr('Sven'),
+    'Svensen' => tr('Svensen'),
+    'Svensven' => tr('Svensven'),
+    'corey' => tr('Corey'),
+    'Corey' => tr('Corey'),
+    'Carey' => tr('Carey'),
+    'doug' => tr('Doug'),
+    'kate' => tr('Kate'),
+    'kat' => tr('Kat'),
+    'alice' => tr('Alice'),
+    'bob' => tr('Bob'),
+    'gerton' => tr('Gerton'),
+    'Gerton' => tr('Gerton'),
+    'Gertjan' => tr('Gertjan'),
+];
 
-$yolo = $test->symlinkTreeToTarget($target);
+$b = new Iterator($a);
 
+show($a);
+show(Arrays::removeMatchingKeys($a, 'e,a', Utils::MATCH_CONTAINS | Utils::MATCH_NOT | Utils::MATCH_ALL));
+//show(Arrays::removeMatchingKeys($a, 'sven,corey,Kate,Quinn', Utils::MATCH_NOT));
+//show($b->removeMatchingKeys('sven,corey,Kate')->getSource());

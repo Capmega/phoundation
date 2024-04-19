@@ -8,7 +8,6 @@ use PDOStatement;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
@@ -21,7 +20,6 @@ use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
@@ -34,7 +32,6 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
-use Throwable;
 
 /**
  * Class IteratorCore
@@ -497,7 +494,13 @@ class IteratorCore implements IteratorInterface
      */
     public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, array &$spliced = null): static
     {
-        $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
+        try {
+            $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
+        } catch (OutOfBoundsException $e) {
+            throw new OutOfBoundsException(tr('Failed to splice iterator by key ":key", the key does not exist', [
+                ':key' => $key,
+            ]), $e);
+        }
 
         return $this;
     }
@@ -960,77 +963,31 @@ class IteratorCore implements IteratorInterface
 
 
     /**
+     * Keep source keys on the specified needles with the specified match mode
+     *
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param bool                                           $strict
+     *
+     * @return $this
+     */
+    public function keepKeys(ArrayableInterface|array|string|float|int|null $needles, bool $strict = false): static
+    {
+        $this->source = Arrays::keepKeys($this->source, $needles, $strict);
+        return $this;
+    }
+
+
+    /**
      * Remove source keys on the specified needles with the specified match mode
      *
      * @param Stringable|array|string|float|int $keys
-     * @param EnumMatchMode                     $match_mode
+     * @param bool                              $strict
      *
      * @return $this
      */
-    public function removeKeys(Stringable|array|string|float|int $keys, EnumMatchMode $match_mode = EnumMatchMode::full): static
+    public function removeKeys(Stringable|array|string|float|int $keys, bool $strict = false): static
     {
-        $this->source = Arrays::removeKeys($this->source, $keys, $match_mode);
-
-        return $this;
-    }
-
-
-    /**
-     * Remove source values on the specified needles with the specified match mode
-     *
-     * @param Stringable|array|string|float|int $values
-     * @param string|null                       $column
-     * @param EnumMatchMode                     $match_mode
-     *
-     * @return $this
-     */
-    public function removeValues(Stringable|array|string|float|int $values, ?string $column = null, EnumMatchMode $match_mode = EnumMatchMode::full): static
-    {
-        $this->source = Arrays::removeValues($this->source, $values, $column, $match_mode);
-
-        return $this;
-    }
-
-
-    /**
-     * Deletes the entries that have columns with the specified value(s)
-     *
-     * @param Stringable|array|string|float|int $values
-     * @param string                            $column
-     *
-     * @return static
-     */
-    public function removeValuesByColumn(Stringable|array|string|float|int $values, string $column): static
-    {
-        foreach (Arrays::force($values, null) as $value) {
-            foreach ($this->source as $key => $data) {
-                if (is_array($data)) {
-                    if (!array_key_exists($column, $data)) {
-                        throw new OutOfBoundsException(tr('Cannot delete entries by column ":column" value ":value" because entry ":key" does not have the requested column ":column"', [
-                            ':key'    => $key,
-                            ':value'  => $value,
-                            ':column' => $column,
-                        ]));
-                    }
-                    if ($data[$key] === $value) {
-                        unset($this->source[$key]);
-                    }
-                } else {
-                    if (!$data instanceof DataEntry) {
-                        throw new OutOfBoundsException(tr('Cannot delete entries by column ":column" value ":value" because key ":key" is neither array nor DataEntry', [
-                            ':key'    => $key,
-                            ':value'  => $value,
-                            ':column' => $column,
-                        ]));
-                    }
-                    // This entry is not an array but DataEntry object. Compare using DataEntry::getSourceValue()
-                    if ($data->load($key) === $value) {
-                        unset($this->source[$key]);
-                    }
-                }
-            }
-        }
-
+        $this->source = Arrays::removeKeys($this->source, $keys, $strict);
         return $this;
     }
 
@@ -1038,18 +995,138 @@ class IteratorCore implements IteratorInterface
     /**
      * Keep source values on the specified needles with the specified match mode
      *
-     * @param array|string|null $needles
-     * @param string|null       $column
-     * @param EnumMatchMode     $match_mode
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param string|null                                    $column
+     * @param bool                                           $strict
      *
      * @return $this
      */
-    public function keepValues(array|string|null $needles, ?string $column = null, EnumMatchMode $match_mode = EnumMatchMode::full): static
+    public function keepValues(ArrayableInterface|array|string|float|int|null $needles, ?string $column = null, bool $strict = false): static
     {
-        $this->source = Arrays::keepValues($this->source, $needles, $column, $match_mode);
-
+        $this->source = Arrays::keepValues($this->source, $needles, $column, $strict);
         return $this;
     }
+
+
+    /**
+     * Remove source values on the specified needles with the specified match mode
+     *
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param string|null                                    $column
+     * @param bool                                           $strict
+     *
+     * @return $this
+     */
+    public function removeValues(ArrayableInterface|array|string|float|int|null $needles, ?string $column = null, bool $strict = false): static
+    {
+        $this->source = Arrays::removeValues($this->source, $needles, $column, $strict);
+        return $this;
+    }
+
+
+    /**
+     * Remove source keys on the specified needles with the specified match mode
+     *
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param int                                            $flags
+     *
+     * @return $this
+     */
+    public function keepMatchingKeys(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
+    {
+        $this->source = Arrays::keepMatchingKeys($this->source, $needles, $flags);
+        return $this;
+    }
+
+
+    /**
+     * Keep source values on the specified needles with the specified match mode
+     *
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param string|null                                    $column
+     * @param int                                            $flags
+     *
+     * @return $this
+     */
+    public function keepMatchingValues(ArrayableInterface|array|string|float|int|null $needles, ?string $column = null, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
+    {
+        $this->source = Arrays::keepMatchingValues($this->source, $needles, $column, $flags);
+        return $this;
+    }
+
+
+    /**
+     * Remove source keys on the specified needles with the specified match mode
+     *
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param int                                            $flags
+     *
+     * @return $this
+     */
+    public function removeMatchingKeys(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
+    {
+        $this->source = Arrays::removeMatchingKeys($this->source, $needles, $flags);
+        return $this;
+    }
+
+
+    /**
+     * Remove source values on the specified needles with the specified match mode
+     *
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param string|null                                    $column
+     * @param int                                            $flags
+     *
+     * @return $this
+     */
+    public function removeMatchingValues(ArrayableInterface|array|string|float|int|null $needles, ?string $column = null, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
+    {
+        $this->source = Arrays::removeMatchingValues($this->source, $needles, $column, $flags);
+        return $this;
+    }
+
+
+//    /**
+//     * Deletes the entries that have columns with the specified value(s)
+//     *
+//     * @param Stringable|array|string|float|int $values
+//     * @param string                            $column
+//     *
+//     * @return static
+//     */
+//    public function removeMatchingValuesByColumn(Stringable|array|string|float|int $values, string $column): static
+//    {
+//        foreach (Arrays::force($values, null) as $value) {
+//            foreach ($this->source as $key => $data) {
+//                if (is_array($data)) {
+//                    if (!array_key_exists($column, $data)) {
+//                        throw new OutOfBoundsException(tr('Cannot delete entries by column ":column" value ":value" because entry ":key" does not have the requested column ":column"', [
+//                            ':key'    => $key,
+//                            ':value'  => $value,
+//                            ':column' => $column,
+//                        ]));
+//                    }
+//                    if ($data[$key] === $value) {
+//                        unset($this->source[$key]);
+//                    }
+//                } else {
+//                    if (!$data instanceof DataEntry) {
+//                        throw new OutOfBoundsException(tr('Cannot delete entries by column ":column" value ":value" because key ":key" is neither array nor DataEntry', [
+//                            ':key'    => $key,
+//                            ':value'  => $value,
+//                            ':column' => $column,
+//                        ]));
+//                    }
+//                    // This entry is not an array but DataEntry object. Compare using DataEntry::getSourceValue()
+//                    if ($data->load($key) === $value) {
+//                        unset($this->source[$key]);
+//                    }
+//                }
+//            }
+//        }
+//
+//        return $this;
+//    }
 
 
     /**
@@ -1304,14 +1381,14 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns a list with all the keys that match the specified key
      *
-     * @param array|string $needles
-     * @param int          $options
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param int                                            $flags
      *
      * @return IteratorInterface
      */
-    public function getMatchingKeys(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface
+    public function getMatchingKeys(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH | Utils::MATCH_RECURSE): IteratorInterface
     {
-        return new Iterator(Arrays::getMatches($this->getKeys(), $needles, $options));
+        return new Iterator(Arrays::getMatches($this->getKeys(), $needles, $flags));
     }
 
 
@@ -1329,14 +1406,14 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns a list with all the values that match the specified value
      *
-     * @param array|string $needles
-     * @param int          $options
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param int                                            $flags
      *
      * @return IteratorInterface
      */
-    public function getMatchingValues(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface
+    public function getMatchingValues(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH | Utils::MATCH_RECURSE): IteratorInterface
     {
-        return new Iterator(Arrays::getMatches($this->source, $needles, $options));
+        return new Iterator(Arrays::getMatches($this->source, $needles, $flags));
     }
 
 
@@ -1349,7 +1426,7 @@ class IteratorCore implements IteratorInterface
      *
      * @return IteratorInterface
      */
-    public function getMatchingColumnValues(string $column, array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface
+    public function getMatchingColumnValues(string $column, array|string $needles, int $options = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH | Utils::MATCH_RECURSE): IteratorInterface
     {
         return new Iterator(Arrays::getSubMatches($this->source, $needles, $column, $options));
     }
@@ -1432,22 +1509,6 @@ class IteratorCore implements IteratorInterface
         }
 
         return $value;
-    }
-
-
-    /**
-     * Keep source keys on the specified needles with the specified match mode
-     *
-     * @param array|string|null $needles
-     * @param EnumMatchMode     $match_mode
-     *
-     * @return $this
-     */
-    public function keepKeys(array|string|null $needles, EnumMatchMode $match_mode = EnumMatchMode::full): static
-    {
-        $this->source = Arrays::keepKeys($this->source, $needles, $match_mode);
-
-        return $this;
     }
 
 

@@ -22,7 +22,7 @@ use Phoundation\Databases\Import;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Enums\EnumMatchMode;
+use Phoundation\Utils\Utils;
 
 $restrictions = Restrictions::readonly([
                                            DIRECTORY_DATA . 'sources/',
@@ -63,8 +63,8 @@ CliDocumentation::setAutoComplete([
                                               'noword' => function () use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.{sql,sql.gz}'); },
                                           ],
                                           '-c,--connector' => [
-                                              'word'   => function ($word) { return Arrays::keep(Connectors::new()->load(true, true)->keepValues('sys', 'name', EnumMatchMode::starts_with)->getAllRowsSingleColumn('name'), $word); },
-                                              'noword' => function () { return Connectors::new()->load(true, true)->keepValues('sys', 'name', EnumMatchMode::starts_with)->getAllRowsSingleColumn('name'); },
+                                              'word'   => function ($word) { return Arrays::keep(Connectors::new()->load(true, true)->keepValues('sys', 'name', Utils::MATCH_STARTS_WITH)->getAllRowsSingleColumn('name'), $word); },
+                                              'noword' => function () { return Connectors::new()->load(true, true)->keepValues('sys', 'name', Utils::MATCH_STARTS_WITH)->getAllRowsSingleColumn('name'); },
                                           ],
                                           '-b,--database'  => [
                                               'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },

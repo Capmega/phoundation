@@ -334,7 +334,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @return bool
      */
-    public function dataContains(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_ANYWHERE | Utils::MATCH_NO_CASE, string|float|int|null $key = null): bool
+    public function dataContains(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE, string|float|int|null $key = null): bool
     {
         return (bool) $this->getDataMatch($needles, $options, $key);
     }
@@ -349,7 +349,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @return array
      */
-    public function getDataMatch(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_ANYWHERE | Utils::MATCH_NO_CASE, string|float|int|null $key = null): array
+    public function getDataMatch(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE, string|float|int|null $key = null): array
     {
         if ($key) {
             return Arrays::getMatches(isset_get($this->data[$key], []), $needles, $options);
@@ -392,7 +392,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @return bool
      */
-    public function messageContains(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_ANYWHERE | Utils::MATCH_NO_CASE): bool
+    public function messageContains(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE): bool
     {
         return Strings::matches($this->message, $needles, $options);
     }
@@ -406,7 +406,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @return bool
      */
-    public function messagesContain(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_ANYWHERE | Utils::MATCH_NO_CASE): bool
+    public function messagesContain(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE): bool
     {
         return Arrays::matches($this->messages, $needles, $options);
     }

@@ -82,7 +82,7 @@ try {
     $status = Arrays::getMatches($status, [
         'loaded',
         'active',
-    ],                           Utils::MATCH_ANY | Utils::MATCH_ANYWHERE | Utils::MATCH_NO_CASE);
+    ],                           Utils::MATCH_ANY | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE);
 
     if (count($status) == 2) {
         Notification::new()

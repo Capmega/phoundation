@@ -648,7 +648,7 @@ class Debug
             $return .= $prefix . htmlspecialchars('-') . '<br>';
         }
         if ($e->getPrevious()) {
-            $return .= tr('Previous exception: ') . '<br>';
+            $return .= $prefix . tr('Previous exception: ') . '<br>';
             $return .= static::displayException($e->getPrevious(), $full_backtrace, $indent + 4);
         }
 

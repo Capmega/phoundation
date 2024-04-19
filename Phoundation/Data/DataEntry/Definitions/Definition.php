@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Definition
  *
@@ -29,12 +30,16 @@ use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Html;
+use Phoundation\Web\Html\Traits\TraitBeforeAfterButtons;
 use Stringable;
 use Throwable;
 use ValueError;
 
 class Definition implements DefinitionInterface
 {
+    use TraitBeforeAfterButtons;
+
+
     /**
      * Supported input element types
      *
