@@ -7,6 +7,7 @@ namespace Phoundation\Utils;
 use Phoundation\Cli\CliColor;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
@@ -2329,9 +2330,10 @@ class Strings extends Utils
     /**
      * Returns true if the given haystack matches the given needles with the specified match flags
      *
-     * @param array|string      $needles
+     * @param int               $action
      * @param Stringable|string $haystack
-     * @param int               $options Flags that will modify this functions behavior.
+     * @param array|string      $needles
+     * @param int               $flags Flags that will modify this functions behavior.
      *
      * Supported match flags are:
      *
@@ -2366,13 +2368,13 @@ class Strings extends Utils
      *
      * @return bool
      */
-    public static function matches(int $action, Stringable|string $haystack, array|string $needles, int $options = self::MATCH_CASE_INSENSITIVE | self::MATCH_ALL | self::MATCH_CONTAINS | self::MATCH_RECURSE): bool
+    public static function matches(int $action, Stringable|string $haystack, array|string $needles, int $flags = self::MATCH_CASE_INSENSITIVE | self::MATCH_ALL | self::MATCH_CONTAINS | self::MATCH_RECURSE): bool
     {
         // Caseless match? Compare lowercase
-        $flags      = static::decodeMatchFlags($action, $options, false);
+        $flags      = static::decodeMatchFlags($flags, false);
         $needles    = static::prepareNeedles($needles, $flags['no_case']);
-        $test_value = static::getTestValue($haystack, $flags['no_case']);
 
-        return static::testStringMatchesNeedles($test_value, $needles, $flags);
+
+        return static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, null, $flags);
     }
 }
