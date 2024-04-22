@@ -1068,7 +1068,6 @@ class Definition implements DefinitionInterface
                      });
                 break;
             case EnumInputType::time:
-                $value = EnumInputType::text;
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isTime();
