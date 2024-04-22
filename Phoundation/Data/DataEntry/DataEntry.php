@@ -2111,9 +2111,9 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function extractDataEntryObject(array|string $columns, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): DataEntryInterface
     {
-        $entry = static::newFromSource(Arrays::keepMatchingKeys($this->source, $columns, $flags));
+        $entry = static::newFromSource(Arrays::keepMatchingKeys($this->source, $columns, $flags &= ~Utils::MATCH_REQUIRE));
         $entry->getDefinitionsObject()
-              ->keepKeys($columns, $flags);
+              ->keepMatchingKeys($columns, $flags);
 
         return $entry;
     }
