@@ -561,15 +561,21 @@ trait TraitElementAttributes
     /**
      * Returns the HTML class element attribute
      *
+     * @param string|null $prefix
+     *
      * @return string|null
      */
-    public function getClass(): ?string
+    public function getClass(?string $prefix = null): ?string
     {
         if (empty($this->class)) {
             $this->class = implode(' ', $this->classes->getKeys());
         }
 
-        return get_null($this->class);
+        if ($this->class) {
+            return $prefix . $this->class;
+        }
+
+        return null;
     }
 
 

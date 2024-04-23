@@ -119,9 +119,11 @@ interface ElementAttributesInterface
     /**
      * Returns the HTML class element attribute
      *
+     * @param string|null $prefix
+     *
      * @return string|null
      */
-    function getClass(): ?string;
+    function getClass(?string $prefix = null): ?string;
 
 
     /**
