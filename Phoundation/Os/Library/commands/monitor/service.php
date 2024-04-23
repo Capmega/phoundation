@@ -79,7 +79,7 @@ try {
     Log::warning(tr('Trying to restart service'));
 
     $status = Service::new()->setServiceName($argv['service'])->restart()->status();
-    $status = Arrays::getMatches($status, [
+    $status = Arrays::keepMatchingValues($status, [
         'loaded',
         'active',
     ],                           Utils::MATCH_ANY | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE);

@@ -58,7 +58,7 @@ CliDocumentation::setAutoComplete([
                                               'noword' => function () use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.sql'); },
                                           ],
                                           '-c,--connector' => [
-                                              'word'   => function ($word) { return Connectors::new()->load(true, true)->keepValues('sys', 'name', Utils::MATCH_STARTS_WITH)->getAllRowsSingleColumn('name'); },
+                                              'word'   => function ($word) { return Connectors::new()->load(true, true)->keepMatchingValuesStartingWith('sys', column: 'name')->getAllRowsSingleColumn('name'); },
                                               'noword' => function () { return Connectors::new()->load(true, true)->getAllRowsSingleColumn('name'); },
                                           ],
                                           '-b,--database'  => [

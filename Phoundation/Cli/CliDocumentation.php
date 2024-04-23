@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Cli;
-
-use Phoundation\Core\Log\Log;
-use Throwable;
-
 /**
  * Class Documentation
  *
@@ -16,6 +9,14 @@ use Throwable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Cli
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Cli;
+
+use Phoundation\Core\Log\Log;
+use Throwable;
+
 class CliDocumentation
 {
     /**

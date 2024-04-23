@@ -26,7 +26,7 @@ use Phoundation\Filesystem\Directory;
 CliDocumentation::setAutoComplete([
                                       'arguments' => [
                                           '-b,--branch'      => [
-                                              'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->getMatchingKeys($word); },
+                                              'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->keepMatchingKeysStartingWith($word); },
                                               'noword' => function () { return Phoundation::new()->getPhoundationBranches()->getKeys(); },
                                           ],
                                           '-p,--phoundation' => [

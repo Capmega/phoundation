@@ -1,16 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Filesystem;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Exception\RestrictionsException;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
-use Stringable;
-
 /**
  * Restrictions class
  *
@@ -22,6 +11,18 @@ use Stringable;
  * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Filesystem;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\RestrictionsException;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
+use Stringable;
+
 class Restrictions implements RestrictionsInterface
 {
     /**

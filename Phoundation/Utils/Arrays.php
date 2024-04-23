@@ -16,8 +16,6 @@ declare(strict_types=1);
 namespace Phoundation\Utils;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
@@ -713,60 +711,11 @@ class Arrays extends Utils
             $source = $source->getSource();
         }
         foreach ($source as &$entry) {
-            $entry = Arrays::keepMatchingValues($entry, $needles, $column, $flags);
+            $entry = Arrays::keepMatchingValues($entry, $needles, $flags, $column);
         }
         unset($entry);
 
         return $source;
-    }
-
-
-    /**
-     * Returns the value if it's a scalar, the key value if it's an array, or the object value if it's a
-     * DataEntryInterface object
-     *
-     * @param mixed       $value
-     * @param string|null $column
-     *
-     * @return string
-     */
-    protected static function getStringValue(mixed $value, ?string $column): string
-    {
-        if (is_string($value)) {
-            return $value;
-        }
-        if (is_scalar($value)) {
-            return Strings::force($value);
-        }
-        if (!$column) {
-            throw new OutOfBoundsException(tr('Cannot extract string value from array or DataEntryInterface object, no column specified', [
-                ':value' => $value,
-            ]));
-        }
-        if (is_array($value)) {
-            return $value[$column];
-        }
-        if ($value instanceof DataEntryInterface) {
-            return $value->get($column);
-        }
-        throw new OutOfBoundsException(tr('Specified value ":value" must be either scalar, array, or a DataEntryInterface type object', [
-            ':value' => $value,
-        ]));
-    }
-
-
-    /**
-     * Returns the keys from the source array that match the given needles with the specified match mode
-     *
-     * @param DataListInterface|array             $source
-     * @param DataListInterface|array|string|null $needles
-     * @param int                                 $flags
-     *
-     * @return array
-     */
-    public static function getMatchingKeys(DataListInterface|array $source, DataListInterface|array|string|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): array
-    {
-        return array_keys(static::matchKeys(Utils::MATCH_ACTION_RETURN_KEYS, $source, $needles, $flags));
     }
 
 
@@ -907,15 +856,15 @@ class Arrays extends Utils
      *
      * @param DataListInterface|array             $source  The source array on which to work
      * @param DataListInterface|array|string|null $needles The needles to keep
-     * @param string|null                         $column
      * @param int                                 $flags
+     * @param string|null                         $column
      *
      * @return array
      * @see EnumMatchMode
      */
-    public static function keepMatchingValues(DataListInterface|array $source, DataListInterface|array|string|null $needles, ?string $column, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): array
+    public static function keepMatchingValues(DataListInterface|array $source, DataListInterface|array|string|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): array
     {
-        return static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, $source, $needles, $column, $flags);
+        return static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, $source, $needles, $flags, $column);
     }
 
 
@@ -929,9 +878,40 @@ class Arrays extends Utils
      *
      * @return array
      */
-    public static function removeMatchingValues(DataListInterface|array $source, DataListInterface|array|string|null $needles, ?string $column = null, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): array
+    public static function removeMatchingValues(DataListInterface|array $source, DataListInterface|array|string|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): array
     {
-        return static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, $source, $needles, $column, $flags);
+        return static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, $source, $needles, $flags, $column);
+    }
+
+
+    /**
+     * Returns a list with all the values that match the specified value
+     *
+     * @param DataListInterface|array                        $source
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param int                                            $flags
+     * @param string|null                                    $column
+     *
+     * @return array
+     */
+    public static function keepMatchingValuesStartingWith(DataListInterface|array $source, ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): array
+    {
+        return static::keepMatchingValues($source, $needles, $flags, $column);
+    }
+
+
+    /**
+     * Returns a list with all the values that match the specified value
+     *
+     * @param DataListInterface|array                        $source
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param int                                            $flags
+     *
+     * @return array
+     */
+    public static function keepMatchingKeysStartingWith(DataListInterface|array $source, ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): array
+    {
+        return static::keepMatchingKeys($source, $needles, $flags);
     }
 
 
@@ -2384,162 +2364,33 @@ class Arrays extends Utils
 
 
     /**
-     * Returns all array values from the haystack that matches the needle(s)
+     * Returns true if any of the array values matches the specified needles using the specified match options
      *
-     * @param array                                          $haystack
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param string                                         $subkey
-     * @param int                                            $flags   Flags that will modify this functions behavior.
+     * @param array        $haystack
+     * @param array|string $needles
+     * @param int          $flags
      *
-     * Supported match flags are:
-     *
-     * Utils::MATCH_CASE_INSENSITIVE  Will match needles for entries in case-insensitive mode.
-     * Utils::MATCH_ALL               Will match needles for entries that contain all the specified needles.
-     * Utils::MATCH_ANY               Will match needles for entries that contain any of the specified needles.
-     * Utils::MATCH_STARTS_WITH       Will match needles for entries that start with the specified needles. Mutually
-     *                                exclusive with Utils::MATCH_ENDS_WITH, Utils::MATCH_CONTAINS.
-     * Utils::MATCH_ENDS_WITH         Will match needles for entries that end with the specified needles. Mutually
-     *                                exclusive withUtils::MATCH_STARTS_WITH, Utils::MATCH_CONTAINS.
-     * Utils::MATCH_CONTAINS          Will match needles for entries that contain the specified needles anywhere.
-     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH.
-     * Utils::MATCH_RECURSE           Will recurse into arrays, if encountered.
-     * Utils::MATCH_NOT               Will match needles for entries that do NOT match the needle.
-     * Utils::MATCH_STRICT            Will match needles for entries that match the needle strict (so 0 does NOT match
-     *                                "0", "" does NOT match 0, etc.).
-     * Utils::MATCH_FULL              Will match needles for entries that fully match the needle
-     * Utils::MATCH_REGEX             Will match needles for entries that match the specified regular expression
-     * Utils::MATCH_EMPTY             Will match empty values instead of ignoring them. NOTE: Empty values may be
-     *                                ignored while NULL values are still matched using the MATCH_NULL flag
-     * Utils::MATCH_NULL              Will match NULL values instead of ignoring them. NOTE: NULL values may be
-     *                                ignored while non-NULL empty values are still matched using the MATCH_EMPTY flag
-     *
-     * @return array
+     * @return bool
      */
-    public static function getSubMatches(int $action, array $haystack, ArrayableInterface|array|string|float|int|null $needles, string $subkey, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): array
+    public static function keysMatch(array $haystack, array|string $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): bool
     {
-        $flags   = static::decodeMatchFlags($flags, true);
-        $needles = static::prepareNeedles($needles, $flags);
-        $return  = [];
-        foreach ($haystack as $key => $value) {
-            if (!$value) {
-                if (!$flags['empty']) {
-                    if (($value !== null) or !$flags['null']) {
-                        // Ignore empty or null lines
-                        continue;
-                    }
-                } elseif (($value === null) and !$flags['null']) {
-                    // Ignore NULL lines
-                    continue;
-                }
-            }
-            // $value must be an array or DataEntry, get the test value from the subkey
-            if (!is_array($value)) {
-                if (!($value instanceof DataEntryInterface)) {
-                    throw new OutOfBoundsException(tr('Cannot filter value with key ":key" for needles ":needles", the value must be an array or DataEntryInterface but is an ":type"', [
-                        ':key'     => $key,
-                        ':needles' => Strings::force($needles),
-                        ':type'    => gettype($value),
-                    ]));
-                }
-                try {
-                    $test_value = $value->get($subkey);
-
-                } catch (OutOfBoundsException $e) {
-                    throw new OutOfBoundsException(tr('Cannot filter value with key ":key" for needles ":needles", the value does not have the required sub key ":sub"', [
-                        ':key'     => $key,
-                        ':needles' => Strings::force($needles),
-                        ':sub'     => $subkey,
-                    ]), $e);
-                }
-
-            } else {
-                if (!array_key_exists($key, $value)) {
-                    throw new OutOfBoundsException(tr('Cannot filter value with key ":key" for needles ":needles", the value does not have the required sub key ":sub"', [
-                        ':key'     => $key,
-                        ':needles' => Strings::force($needles),
-                        ':sub'     => $subkey,
-                    ]));
-                }
-                $test_value = $value[$subkey];
-            }
-            if (static::testStringMatchesNeedles(static::getTestValue($test_value, $flags['no_case']), $needles, $flags)) {
-                $return[$key] = $value;
-            }
-        }
-
-        return $return;
+        return (bool) static::keepMatchingKeys($haystack, $needles, $flags);
     }
 
 
     /**
      * Returns true if any of the array values matches the specified needles using the specified match options
      *
-     * @param array        $haystack
-     * @param array|string $needles
-     * @param int          $options
+     * @param DataListInterface|array             $haystack
+     * @param DataListInterface|array|string|null $needles
+     * @param string|null                         $column
+     * @param int                                 $flags
      *
      * @return bool
      */
-    public static function matches(array $haystack, array|string $needles, int $options = self::MATCH_CASE_INSENSITIVE | self::MATCH_ALL | self::MATCH_CONTAINS | self::MATCH_RECURSE): bool
+    public static function valuesMatch(DataListInterface|array $haystack, DataListInterface|array|string|null $needles, ?string $column, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): bool
     {
-        if (static::getMatches($haystack, $needles, $options)) {
-            return true;
-        }
-
-        return false;
-    }
-
-
-    /**
-     * Returns all array values from the haystack that matches the needle(s)
-     *
-     * @param array|string $needles
-     * @param array        $haystack
-     * @param int          $options Flags that will modify this functions behavior. Current flags are one of
-     *                              Utils::MATCH_ALL, Utils::MATCH_STARTS_WITH, Utils::MATCH_END, or Utils::MATCH_CONTAINS
-     *                              Utils::MATCH_ANY
-     *
-     * Utils::MATCH_NO_CASE:  Will match entries in case-insensitive mode
-     * Utils::MATCH_ALL:      Will match entries that contain all the specified needles
-     * Utils::MATCH_ANY:      Will match entries that contain any of the specified needles
-     * Utils::MATCH_STARTS_WITH:    Will match entries that start with the specified needles. Mutually exclusive with
-     *                         Utils::MATCH_END, Utils::MATCH_CONTAINS
-     * Utils::MATCH_END:      Will match entries that end with the specified needles. Mutually exclusive with
-     *                         Utils::MATCH_STARTS_WITH, Utils::MATCH_CONTAINS
-     * Utils::MATCH_CONTAINS: Will match entries that contain the specified needles anywhere. Mutually exclusive with
-     *                         Utils::MATCH_STARTS_WITH, Utils::MATCH_CONTAINS
-     * Utils::MATCH_RECURSE:  Will recurse into sub-arrays, if encountered
-     *
-     * @return array
-     */
-    public static function getMatches(int $action, array $haystack, array|string $needles, int $options = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): array
-    {
-        $flags   = static::decodeMatchFlags($action, $options, true);
-        $needles = static::prepareNeedles($needles, $flags);
-        $return  = [];
-        foreach ($haystack as $key => $value) {
-            if (!$value) {
-                // Ignore empty lines
-                continue;
-            }
-            if (!is_scalar($value)) {
-                if (!is_array($value) or !$flags['recurse']) {
-                    Log::warning(tr('Arrays match ignoring key ":key" with non scalar value ":value"', [
-                        ':key'   => $key,
-                        ':value' => $value,
-                    ]), 3);
-                    continue;
-                }
-                // Recurse!
-                $return = array_merge($return, static::getMatches($value, $needles, $options));
-                continue;
-            }
-            if (static::testStringMatchesNeedles(static::getTestValue($value, $flags['no_case']), $needles, $flags)) {
-                $return[$key] = $value;
-            }
-        }
-
-        return $return;
+        return (bool) static::keepMatchingValues($haystack, $needles, $flags, $column);
     }
 
 

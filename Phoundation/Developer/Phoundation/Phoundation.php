@@ -395,7 +395,7 @@ class Phoundation extends Project
 //                        } else {
 //                            // There are no problematic files found, look for other issues.
 //                            $output = $e->getDataKey('output');
-//                            $output = Arrays::getMatches($output, 'already exists in working directory', Utils::MATCH_ALL|Utils::MATCH_CONTAINS|Utils::MATCH_NO_CASE);
+//                            $output = Arrays::keepMatchingValues($output, 'already exists in working directory', Utils::MATCH_ALL|Utils::MATCH_CONTAINS|Utils::MATCH_CASE_INSENSITIVE);
 //
 //                            if ($output) {
 //                                // Found already existing files that cannot be merged. Delete on this side

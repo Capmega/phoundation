@@ -1,9 +1,5 @@
 <?php
 
-namespace Phoundation\Data\Interfaces;
-
-use PDOStatement;
-
 /**
  * Trait DataTree
  *
@@ -14,6 +10,11 @@ use PDOStatement;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+namespace Phoundation\Data\Interfaces;
+
+use PDOStatement;
+
 interface TreeInterface extends IteratorInterface
 {
     /**

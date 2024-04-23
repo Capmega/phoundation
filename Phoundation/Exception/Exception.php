@@ -11,6 +11,7 @@ use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -352,10 +353,10 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     public function getDataMatch(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE, string|float|int|null $key = null): array
     {
         if ($key) {
-            return Arrays::getMatches(isset_get($this->data[$key], []), $needles, $options);
+            return Arrays::keepMatchingValues(isset_get($this->data[$key], []), $needles, $options);
         }
 
-        return Arrays::getMatches($this->data, $needles, $options);
+        return Arrays::keepMatchingValues($this->data, $needles, $options);
     }
 
 
@@ -387,28 +388,45 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     /**
      * Returns true if the exception message matches the specified needle(s)
      *
-     * @param array|string $needles
-     * @param int          $options
+     * @param DataListInterface|array|string|null $needles
+     * @param int                                 $flags Flags that will modify this functions behavior.
+     *
+     * Supported match flags are:
+     *
+     * Utils::MATCH_CASE_INSENSITIVE  Will match needles for entries in case-insensitive mode.
+     * Utils::MATCH_ALL               Will match needles for entries that contain all the specified needles.
+     * Utils::MATCH_ANY               Will match needles for entries that contain any of the specified needles.
+     * Utils::MATCH_STARTS_WITH       Will match needles for entries that start with the specified needles. Mutually
+     *                                exclusive with Utils::MATCH_ENDS_WITH, Utils::MATCH_CONTAINS,
+     *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
+     * Utils::MATCH_ENDS_WITH         Will match needles for entries that end with the specified needles. Mutually
+     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_CONTAINS,
+     *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
+     * Utils::MATCH_CONTAINS          Will match needles for entries that contain the specified needles anywhere.
+     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
+     * Utils::MATCH_RECURSE           Will recurse into arrays, if encountered.
+     * Utils::MATCH_NOT               Will match needles for entries that do NOT match the needle.
+     * Utils::MATCH_STRICT            Will match needles for entries that match the needle strict (so 0 does NOT match
+     *                                "0", "" does NOT match 0, etc.).
+     * Utils::MATCH_FULL              Will match needles for entries that fully match the needle. Mutually
+     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Utils::MATCH_CONTAINS, and Utils::MATCH_REGEX.
+     * Utils::MATCH_REGEX             Will match needles for entries that match the specified regular expression.
+     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Utils::MATCH_CONTAINS, and Utils::MATCH_FULL.
+     * Utils::MATCH_EMPTY             Will match empty values instead of ignoring them. NOTE: Empty values may be
+     *                                ignored while NULL values are still matched using the MATCH_NULL flag
+     * Utils::MATCH_NULL              Will match NULL values instead of ignoring them. NOTE: NULL values may be
+     *                                ignored while non-NULL empty values are still matched using the MATCH_EMPTY flag
+     * Utils::MATCH_REQUIRE           Requires at least one result
+     * Utils::MATCH_SINGLE            Will match only a single entry for the executed action (return, remove, etc.)
      *
      * @return bool
      */
-    public function messageContains(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE): bool
+    public function messageMatches(DataListInterface|array|string|null $needles, int $flags = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE): bool
     {
-        return Strings::matches($this->message, $needles, $options);
-    }
-
-
-    /**
-     * Returns true if the exception message matches the specified needle(s)
-     *
-     * @param array|string $needles
-     * @param int          $options
-     *
-     * @return bool
-     */
-    public function messagesContain(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE): bool
-    {
-        return Arrays::matches($this->messages, $needles, $options);
+        return Strings::matches($this->message, $needles, $flags);
     }
 
 

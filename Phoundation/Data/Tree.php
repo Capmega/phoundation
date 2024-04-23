@@ -1,14 +1,5 @@
 <?php
 
-namespace Phoundation\Data;
-
-use PDOStatement;
-use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Interfaces\TreeInterface;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Json;
-
 /**
  * Trait DataTree
  *
@@ -19,6 +10,16 @@ use Phoundation\Utils\Json;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+namespace Phoundation\Data;
+
+use PDOStatement;
+use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Interfaces\TreeInterface;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Json;
+
 class Tree extends Iterator implements TreeInterface
 {
     /**

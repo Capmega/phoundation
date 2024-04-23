@@ -24,7 +24,7 @@ use Phoundation\Filesystem\Mounts\Mounts;
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
-            'word'   => function ($word) { return Mounts::new()->load()->getMatchingValues($word)->limitAutoComplete(); },
+            'word'   => function ($word) { return Mounts::new()->load()->keepMatchingValuesStartingWith($word)->limitAutoComplete(); },
             'noword' => function ()      { return Mounts::new()->load()->limitAutoComplete(); }
         ]
     ]

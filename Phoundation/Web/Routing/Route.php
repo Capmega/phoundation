@@ -392,7 +392,7 @@ class Route
                     }
 
                 } catch (PhpException $e) {
-                    if ($e->messageContains('preg_replace():')) {
+                    if ($e->messageMatches('preg_replace():')) {
                         throw new RegexException(tr('The Route::modify() match regular expression ":regex" failed with ":e"', [
                             ':e'     => trim(Strings::from($e->getMessage(), 'preg_replace():')),
                             ':regex' => $match_regex,
@@ -404,7 +404,7 @@ class Route
             static::$uri = preg_replace($replace_regex, $replace_value, static::$uri);
 
         } catch (PhpException $e) {
-            if ($e->messageContains('preg_replace():')) {
+            if ($e->messageMatches('preg_replace():')) {
                 throw new RegexException(tr('The Route::modify() replace regular expression ":regex" failed with ":e"', [
                     ':e'     => trim(Strings::from($e->getMessage(), 'preg_replace():')),
                     ':regex' => $replace_regex,

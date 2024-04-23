@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Packages
+ *
+ * This class tracks required packages per operating system
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Os
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Packages;
@@ -14,16 +25,6 @@ use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Stringable;
 
-/**
- * Class Packages
- *
- * This class tracks required packages per operating system
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Os
- */
 class Packages extends Iterator implements PackagesInterface
 {
     /**
@@ -41,7 +42,7 @@ class Packages extends Iterator implements PackagesInterface
                 ':packages' => $packages,
             ]));
         }
-        if (!$packages or (($packages instanceof Packages) and $packages->isEmpty())) {
+        if (!$packages or (($packages instanceof PackagesInterface) and $packages->isEmpty())) {
             throw new OutOfBoundsException(tr('Cannot add packages for operating system ":operating_system", no pacakges specified', [
                 ':operating_system' => $operating_system,
             ]));

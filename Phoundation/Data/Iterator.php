@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data;
-
-use PDOStatement;
-use Phoundation\Data\Interfaces\IteratorInterface;
-
 /**
  * Class Iterator
  *
@@ -28,6 +21,14 @@ use Phoundation\Data\Interfaces\IteratorInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data;
+
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
+
 class Iterator extends IteratorCore
 {
     /**

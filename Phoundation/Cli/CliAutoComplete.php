@@ -146,7 +146,7 @@ class CliAutoComplete
             '--system-language'        => [
                 'word'   => function ($word) {
                     return Languages::new()
-                                    ->getMatchingKeys($word);
+                                    ->keepMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Languages::new()
@@ -159,7 +159,7 @@ class CliAutoComplete
             '--timezone'               => [
                 'word'   => function ($word) {
                     return Timezones::new()
-                                    ->getMatchingKeys($word);
+                                    ->keepMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Timezones::new()

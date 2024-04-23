@@ -1,5 +1,27 @@
 <?php
 
+/**
+ * Class IteratorCore
+ *
+ * This is a slightly extended interface to the default PHP iterator class. This class also requires the following
+ * methods:
+ *
+ * - IteratorCore::getCount() Returns the number of elements contained in this object
+ *
+ * - IteratorCore::getFirst() Returns the first element contained in this object without changing the internal pointer
+ *
+ * - IteratorCore::getLast() Returns the last element contained in this object without changing the internal pointer
+ *
+ * - IteratorCore::clear() Clears all the internal content for this object
+ *
+ * - IteratorCore::delete() Deletes the specified key
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Data
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Data;
@@ -33,27 +55,6 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
 
-/**
- * Class IteratorCore
- *
- * This is a slightly extended interface to the default PHP iterator class. This class also requires the following
- * methods:
- *
- * - IteratorCore::getCount() Returns the number of elements contained in this object
- *
- * - IteratorCore::getFirst() Returns the first element contained in this object without changing the internal pointer
- *
- * - IteratorCore::getLast() Returns the last element contained in this object without changing the internal pointer
- *
- * - IteratorCore::clear() Clears all the internal content for this object
- *
- * - IteratorCore::delete() Deletes the specified key
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Data
- */
 class IteratorCore implements IteratorInterface
 {
     use TraitDataCallbacks;
@@ -1043,14 +1044,14 @@ class IteratorCore implements IteratorInterface
      * Keep source values on the specified needles with the specified match mode
      *
      * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param string|null                                    $column
      * @param int                                            $flags
+     * @param string|null                                    $column
      *
      * @return $this
      */
-    public function keepMatchingValues(ArrayableInterface|array|string|float|int|null $needles, ?string $column = null, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
+    public function keepMatchingValues(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static
     {
-        $this->source = Arrays::keepMatchingValues($this->source, $needles, $column, $flags);
+        $this->source = Arrays::keepMatchingValues($this->source, $needles, $flags, $column);
         return $this;
     }
 
@@ -1074,15 +1075,44 @@ class IteratorCore implements IteratorInterface
      * Remove source values on the specified needles with the specified match mode
      *
      * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param string|null                                    $column
      * @param int                                            $flags
+     * @param string|null                                    $column
      *
      * @return $this
      */
-    public function removeMatchingValues(ArrayableInterface|array|string|float|int|null $needles, ?string $column = null, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
+    public function removeMatchingValues(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static
     {
-        $this->source = Arrays::removeMatchingValues($this->source, $needles, $column, $flags);
+        $this->source = Arrays::removeMatchingValues($this->source, $needles, $flags, $column);
         return $this;
+    }
+
+
+    /**
+     * Returns a list with all the values that match the specified value
+     *
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param int                                            $flags
+     * @param string|null                                    $column
+     *
+     * @return IteratorInterface
+     */
+    public function keepMatchingValuesStartingWith(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): IteratorInterface
+    {
+        return new Iterator(Arrays::keepMatchingValuesStartingWith($this->source, $needles, $flags, $column));
+    }
+
+
+    /**
+     * Returns a list with all the values that match the specified value
+     *
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param int                                            $flags
+     *
+     * @return IteratorInterface
+     */
+    public function keepMatchingKeysStartingWith(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): IteratorInterface
+    {
+        return new Iterator(Arrays::keepMatchingKeysStartingWith($this->source, $needles, $flags));
     }
 
 
@@ -1379,20 +1409,6 @@ class IteratorCore implements IteratorInterface
 
 
     /**
-     * Returns a list with all the keys that match the specified key
-     *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param int                                            $flags
-     *
-     * @return IteratorInterface
-     */
-    public function getMatchingKeys(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH | Utils::MATCH_RECURSE): IteratorInterface
-    {
-        return new Iterator(Arrays::getMatches($this->getKeys(), $needles, $flags));
-    }
-
-
-    /**
      * Returns a list of all internal definition keys
      *
      * @return mixed
@@ -1400,35 +1416,6 @@ class IteratorCore implements IteratorInterface
     public function getKeys(): array
     {
         return array_keys($this->source);
-    }
-
-
-    /**
-     * Returns a list with all the values that match the specified value
-     *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param int                                            $flags
-     *
-     * @return IteratorInterface
-     */
-    public function getMatchingValues(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH | Utils::MATCH_RECURSE): IteratorInterface
-    {
-        return new Iterator(Arrays::getMatches($this->source, $needles, $flags));
-    }
-
-
-    /**
-     * Returns a list with all the values that have a sub value in the specified key that match the specified value
-     *
-     * @param string       $column
-     * @param array|string $needles
-     * @param int          $options
-     *
-     * @return IteratorInterface
-     */
-    public function getMatchingColumnValues(string $column, array|string $needles, int $options = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH | Utils::MATCH_RECURSE): IteratorInterface
-    {
-        return new Iterator(Arrays::getSubMatches($this->source, $needles, $column, $options));
     }
 
 

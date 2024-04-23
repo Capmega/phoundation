@@ -442,7 +442,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliAutoComplete([
                                         'word'   => function ($word) {
                                             return Categories::new()
-                                                             ->getMatchingKeys($word);
+                                                             ->keepMatchingKeys($word);
                                         },
                                         'noword' => function () {
                                             return Categories::new()
@@ -460,7 +460,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliAutoComplete([
                                         'word'   => function ($word) {
                                             return Providers::new()
-                                                            ->getMatchingKeys($word);
+                                                            ->keepMatchingKeys($word);
                                         },
                                         'noword' => function () {
                                             return Providers::new()
@@ -478,7 +478,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliAutoComplete([
                                         'word'   => function ($word) {
                                             return Customers::new()
-                                                            ->getMatchingKeys($word);
+                                                            ->keepMatchingKeys($word);
                                         },
                                         'noword' => function () {
                                             return Customers::new()
@@ -498,7 +498,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliAutoComplete([
                                         'word'   => function ($word) {
                                             return Countries::new()
-                                                            ->getMatchingKeys($word);
+                                                            ->keepMatchingKeys($word);
                                         },
                                         'noword' => function () {
                                             return Countries::new()
@@ -518,7 +518,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliAutoComplete([
                                         'word'   => function ($word) {
                                             return States::new()
-                                                         ->getMatchingKeys($word);
+                                                         ->keepMatchingKeys($word);
                                         },
                                         'noword' => function () {
                                             return States::new()
@@ -538,7 +538,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliAutoComplete([
                                         'word'   => function ($word) {
                                             return Cities::new()
-                                                         ->getMatchingKeys($word);
+                                                         ->keepMatchingKeys($word);
                                         },
                                         'noword' => function () {
                                             return Cities::new()
@@ -579,7 +579,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliAutoComplete([
                                         'word'   => function ($word) {
                                             return SshAccounts::new()
-                                                              ->getMatchingKeys($word);
+                                                              ->keepMatchingKeys($word);
                                         },
                                         'noword' => function () {
                                             return SshAccounts::new()
@@ -599,7 +599,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliAutoComplete([
                                         'word'   => function ($word) {
                                             return SshAccounts::new()
-                                                              ->getMatchingKeys($word);
+                                                              ->keepMatchingKeys($word);
                                         },
                                         'noword' => function () {
                                             return SshAccounts::new()

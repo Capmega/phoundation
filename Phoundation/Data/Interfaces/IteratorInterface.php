@@ -1,18 +1,5 @@
 <?php
 
-namespace Phoundation\Data\Interfaces;
-
-use Iterator;
-use PDOStatement;
-use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Utils\Utils;
-use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
-use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
-use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
-use Stringable;
-
 /**
  * Class IteratorCore
  *
@@ -34,6 +21,20 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+namespace Phoundation\Data\Interfaces;
+
+use Iterator;
+use PDOStatement;
+use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
+use Stringable;
+
 interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
 {
     /**
@@ -465,6 +466,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param ArrayableInterface|array|string|float|int|null $needles
      * @param string|null                                    $column
+     * @param bool                                           $strict
      *
      * @return $this
      */
@@ -476,6 +478,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param ArrayableInterface|array|string|float|int|null $needles
      * @param string|null                                    $column
+     * @param bool                                           $strict
      *
      * @return $this
      */
@@ -513,7 +516,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @return $this
      */
-    public function keepMatchingValues(ArrayableInterface|array|string|float|int|null $needles, ?string $column = null, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static;
+    public function keepMatchingValues(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static;
 
 
     /**
@@ -525,7 +528,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @return $this
      */
-    public function removeMatchingValues(ArrayableInterface|array|string|float|int|null $needles, ?string $column = null, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static;
+    public function removeMatchingValues(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static;
 
 
     /**
@@ -642,37 +645,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
 
 
     /**
-     * Returns a list with all the keys that match the specified key
-     *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param int                                            $flags
-     *
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
-     */
-    public function getMatchingKeys(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH | Utils::MATCH_RECURSE): IteratorInterface;
-
-
-    /**
      * Returns a list with all the values that match the specified value
      *
      * @param ArrayableInterface|array|string|float|int|null $needles
      * @param int                                            $flags
      *
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
+     * @return IteratorInterface
      */
-    public function getMatchingValues(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH | Utils::MATCH_RECURSE): IteratorInterface;
-
-
-    /**
-     * Returns a list with all the values that have a sub value in the specified key that match the specified value
-     *
-     * @param string       $column
-     * @param array|string $needles
-     * @param int          $options
-     *
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
-     */
-    public function getMatchingColumnValues(string $column, array|string $needles, int $options = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH | Utils::MATCH_RECURSE): IteratorInterface;
+    public function keepMatchingValuesStartingWith(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): IteratorInterface;
 
 
     /**
@@ -682,7 +662,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param array|string                $columns
      * @param bool                        $exception
      *
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
+     * @return IteratorInterface
      */
     public function getSingleRowMultipleColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): IteratorInterface;
 
@@ -709,7 +689,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param array|string|null $columns
      *
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
+     * @return IteratorInterface
      */
     public function getAllRowsMultipleColumns(array|string|null $columns): IteratorInterface;
 
@@ -722,7 +702,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param string $column
      *
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
+     * @return IteratorInterface
      */
     public function getAllRowsSingleColumn(string $column): IteratorInterface;
 

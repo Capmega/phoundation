@@ -154,7 +154,7 @@ class Page extends DataEntry implements PageInterface
                                            ->setCliAutoComplete([
                                                'word'   => function ($word) {
                                                    return Categories::new()
-                                                                    ->getMatchingKeys($word);
+                                                                    ->keepMatchingKeys($word);
                                                },
                                                'noword' => function () {
                                                    return Categories::new()

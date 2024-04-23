@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Stringable;
 
 /**
  * Class Utils
@@ -122,22 +122,22 @@ class Utils
     {
         // Decode options
         $return             = [];
-        $return['no_case']  = (bool) ($options & self::MATCH_CASE_INSENSITIVE);
-        $return['all']      = (bool) ($options & self::MATCH_ALL);
-        $return['any']      = (bool) ($options & self::MATCH_ANY);
-        $return['require']  = (bool) ($options & self::MATCH_REQUIRE);
-        $return['start']    = (bool) ($options & self::MATCH_STARTS_WITH);
-        $return['end']      = (bool) ($options & self::MATCH_ENDS_WITH);
-        $return['contains'] = (bool) ($options & self::MATCH_CONTAINS);
-        $return['recurse']  = (bool) ($options & self::MATCH_RECURSE);
-        $return['not']      = (bool) ($options & self::MATCH_NOT);
-        $return['strict']   = (bool) ($options & self::MATCH_STRICT);
-        $return['full']     = (bool) ($options & self::MATCH_FULL);
-        $return['regex']    = (bool) ($options & self::MATCH_REGEX);
-        $return['empty']    = (bool) ($options & self::MATCH_EMPTY);
-        $return['null']     = (bool) ($options & self::MATCH_NULL);
-        $return['single']   = (bool) ($options & self::MATCH_SINGLE);
-        $return['trim']     = (bool) ($options & self::MATCH_TRIM);
+        $return['no_case']  = (bool) ($options & Utils::MATCH_CASE_INSENSITIVE);
+        $return['all']      = (bool) ($options & Utils::MATCH_ALL);
+        $return['any']      = (bool) ($options & Utils::MATCH_ANY);
+        $return['require']  = (bool) ($options & Utils::MATCH_REQUIRE);
+        $return['start']    = (bool) ($options & Utils::MATCH_STARTS_WITH);
+        $return['end']      = (bool) ($options & Utils::MATCH_ENDS_WITH);
+        $return['contains'] = (bool) ($options & Utils::MATCH_CONTAINS);
+        $return['recurse']  = (bool) ($options & Utils::MATCH_RECURSE);
+        $return['not']      = (bool) ($options & Utils::MATCH_NOT);
+        $return['strict']   = (bool) ($options & Utils::MATCH_STRICT);
+        $return['full']     = (bool) ($options & Utils::MATCH_FULL);
+        $return['regex']    = (bool) ($options & Utils::MATCH_REGEX);
+        $return['empty']    = (bool) ($options & Utils::MATCH_EMPTY);
+        $return['null']     = (bool) ($options & Utils::MATCH_NULL);
+        $return['single']   = (bool) ($options & Utils::MATCH_SINGLE);
+        $return['trim']     = (bool) ($options & Utils::MATCH_TRIM);
 
         // Validate options
         if ($return['full']) {
@@ -301,12 +301,12 @@ class Utils
      * @param int                                 $action
      * @param DataListInterface|array             $source
      * @param DataListInterface|array|string|null $needles
-     * @param string|null                         $column
      * @param int                                 $flags
+     * @param string|null $column
      *
      * @return array
      */
-    protected static function matchValues(int $action, DataListInterface|array $source, DataListInterface|array|string|null $needles, ?string $column, int $flags): array
+    protected static function matchValues(int $action, DataListInterface|array $source, DataListInterface|array|string|null $needles, int $flags, ?string $column = null): array
     {
         $flags   = static::decodeMatchFlags($flags, true);
         $needles = static::prepareNeedles($needles, $flags);
@@ -318,27 +318,27 @@ class Utils
         // Execute matching
         switch ($flags['match_mode']) {
             case 'full':
-                return static::matchValuesFunction($action, $source, $needles, $column, $flags, function (mixed $value, mixed $needle, array $flags) {
+                return static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                     return (($flags['strict'] and ($value === $needle)) or ($value == $needle));
                 });
 
             case 'regex':
-                return static::matchValuesFunction($action, $source, $needles, $column, $flags, function (mixed $value, mixed $needle, array $flags) {
+                return static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                     return preg_match($needle, $value);
                 });
 
             case 'contains':
-                return static::matchValuesFunction($action, $source, $needles, $column, $flags, function (mixed $value, mixed $needle, array $flags) {
+                return static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                     return str_contains($value, $needle);
                 });
 
             case 'starts':
-                return static::matchValuesFunction($action, $source, $needles, $column, $flags, function (mixed $value, mixed $needle, array $flags) {
+                return static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                     return str_starts_with($value, $needle);
                 });
 
             case 'ends':
-                return static::matchValuesFunction($action, $source, $needles, $column, $flags, function (mixed $value, mixed $needle, array $flags) {
+                return static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                     return str_ends_with($value, $needle);
                 });
         }
@@ -532,7 +532,7 @@ class Utils
      *
      * @return array
      */
-    protected static function matchValuesFunction(int $action, array $source, array $needles, ?string $column, array $flags, callable $function): array
+    protected static function matchValuesFunction(int $action, array $source, array $needles, array $flags, ?string $column, callable $function): array
     {
         $return = [];
 
@@ -540,6 +540,8 @@ class Utils
             $needles_match = false;
 
             foreach ($needles as $needle) {
+                $value = static::getStringValue($value, $column);
+
                 if (!static::useCleanedHaystackValue($value, $flags)) {
                     continue;
                 }
@@ -577,5 +579,39 @@ class Utils
         }
 
         return static::checkMatch($needles, $flags, $return);
+    }
+
+
+    /**
+     * Returns the value if it's a scalar, the key value if it's an array, or the object value if it's a
+     * DataEntryInterface object
+     *
+     * @param mixed       $value
+     * @param string|null $column
+     *
+     * @return string
+     */
+    protected static function getStringValue(mixed $value, ?string $column): string
+    {
+        if (is_string($value)) {
+            return $value;
+        }
+        if (is_scalar($value)) {
+            return Strings::force($value);
+        }
+        if (!$column) {
+            throw new OutOfBoundsException(tr('Cannot extract string value from array or DataEntryInterface object, no column specified', [
+                ':value' => $value,
+            ]));
+        }
+        if (is_array($value)) {
+            return $value[$column];
+        }
+        if ($value instanceof DataEntryInterface) {
+            return $value->get($column);
+        }
+        throw new OutOfBoundsException(tr('Specified value ":value" must be either scalar, array, or a DataEntryInterface type object', [
+            ':value' => $value,
+        ]));
     }
 }

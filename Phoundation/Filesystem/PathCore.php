@@ -1584,7 +1584,7 @@ class PathCore implements Stringable, PathInterface
 
         } catch (PhpException $e) {
             // Crap, what happened?
-            if ($e->messageContains('symlink(): File exists')) {
+            if ($e->messageMatches('symlink(): File exists')) {
 
                 throw new FileExistsException(tr('Cannot symlink ":this" to target ":target" because ":e"', [
                     ':this'   => $this->path,
@@ -2933,7 +2933,7 @@ class PathCore implements Stringable, PathInterface
 
         } catch (PhpException $e) {
             // Crap, what happened?
-            if ($e->messageContains('symlink(): File exists')) {
+            if ($e->messageMatches('symlink(): File exists')) {
                 throw new FileExistsException(tr('Cannot symlink ":this" to target ":target" because ":e"', [
                     ':this'   => $this->getPath(),
                     ':target' => $target->getPath(),

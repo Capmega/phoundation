@@ -106,7 +106,7 @@ class DefinitionFactory
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Categories::new()
-                                                  ->getMatchingKeys($word);
+                                                  ->keepMatchingKeys($word);
                              },
                              'noword' => function () {
                                  return Categories::new()
@@ -173,7 +173,7 @@ class DefinitionFactory
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Servers::new()
-                                               ->getMatchingKeys($word);
+                                               ->keepMatchingKeys($word);
                              },
                              'noword' => function () {
                                  return Servers::new()
@@ -276,7 +276,7 @@ class DefinitionFactory
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Companies::new()
-                                                 ->getMatchingKeys($word);
+                                                 ->keepMatchingKeys($word);
                              },
                              'noword' => function () {
                                  return Companies::new()
@@ -348,7 +348,7 @@ class DefinitionFactory
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Languages::new()
-                                                 ->getMatchingKeys($word);
+                                                 ->keepMatchingKeys($word);
                              },
                              'noword' => function () {
                                  return Languages::new()
@@ -414,7 +414,7 @@ class DefinitionFactory
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Providers::new()
-                                                 ->getMatchingKeys($word);
+                                                 ->keepMatchingKeys($word);
                              },
                              'noword' => function () {
                                  return Providers::new()
@@ -480,7 +480,7 @@ class DefinitionFactory
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Customers::new()
-                                                 ->getMatchingKeys($word);
+                                                 ->keepMatchingKeys($word);
                              },
                              'noword' => function () {
                                  return Customers::new()
@@ -552,7 +552,7 @@ class DefinitionFactory
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Timezones::new()
-                                                 ->getMatchingKeys($word);
+                                                 ->keepMatchingKeys($word);
                              },
                              'noword' => function () {
                                  return Timezones::new()
@@ -620,7 +620,7 @@ class DefinitionFactory
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Countries::new()
-                                                 ->getMatchingKeys($word);
+                                                 ->keepMatchingKeys($word);
                              },
                              'noword' => function () {
                                  return Countries::new()
@@ -692,7 +692,7 @@ class DefinitionFactory
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return States::new()
-                                              ->getMatchingKeys($word);
+                                              ->keepMatchingKeys($word);
                              },
                              'noword' => function () {
                                  return States::new()
@@ -767,7 +767,7 @@ class DefinitionFactory
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Cities::new()
-                                              ->getMatchingKeys($word);
+                                              ->keepMatchingKeys($word);
                              },
                              'noword' => function () {
                                  return Cities::new()
@@ -838,7 +838,7 @@ class DefinitionFactory
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Users::new()
-                                             ->getMatchingKeys($word);
+                                             ->keepMatchingKeys($word);
                              },
                              'noword' => function () {
                                  return Users::new()
@@ -904,7 +904,7 @@ class DefinitionFactory
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Roles::new()
-                                             ->getMatchingKeys($word);
+                                             ->keepMatchingKeys($word);
                              },
                              'noword' => function () {
                                  return Roles::new()

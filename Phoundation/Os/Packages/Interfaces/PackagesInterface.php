@@ -17,7 +17,7 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
-interface PackagesInterface
+interface PackagesInterface extends IteratorInterface
 {
     /**
      * Adds the package list for the specified operating system

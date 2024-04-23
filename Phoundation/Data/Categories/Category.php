@@ -159,7 +159,7 @@ class Category extends DataEntry implements CategoryInterface
                                     ->setCliAutoComplete([
                                         'word' => function ($word) {
                                             return Categories::new()
-                                                             ->getMatchingKeys($word);
+                                                             ->keepMatchingKeys($word);
                                         },
                                         'noword' => function () {
                                             return Categories::new()
