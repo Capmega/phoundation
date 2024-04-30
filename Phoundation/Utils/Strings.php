@@ -6,6 +6,7 @@ namespace Phoundation\Utils;
 
 use Phoundation\Cli\CliColor;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -1369,9 +1370,11 @@ class Strings extends Utils
         $source = (string) $source;
         $string = (string) $string;
         $length = mb_strlen($string);
+
         if (!$string) {
             throw new OutOfBoundsException(tr('Cannot ensure source ends with string, empty string specified'));
         }
+
         if (mb_substr($source, -$length, $length) == $string) {
             return $source;
         }
@@ -1406,6 +1409,7 @@ class Strings extends Utils
     public static function ensureEndsNotWith(Stringable|string|null $source, Stringable|array|string $strings, bool $loop = true): string
     {
         $source = (string) $source;
+
         if (is_array($strings)) {
             // For array test, we always loop
             $redo = true;
@@ -1473,33 +1477,16 @@ class Strings extends Utils
     /**
      * Return a string that is suitable for logging.
      *
+     * If the specified data is not string, it will be converted to string. If the string is too large it will be
+     * truncated to (by default) 8192 characters
+     *
      * @param mixed $source
      * @param int   $truncate
      *
      * @return string The string, truncated if required, according to the specified truncating rules
-     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   system
-     * @note      While log_console() will log towards the DIRECTORY_ROOT/data/log/ log files, cli_dot() will only log
-     *            one single dot even though on the command line multiple dots may be shown
      * @see       Strings::truncate()
-     * @see       Json::Encode()
-     * @example
-     *            code
-     *            echo Strings::truncate('This is a long long long long test text!', 10);
-     *            }
-     *            /code
-     *
-     * This will return something like
-     *
-     * code
-     * This is...
-     * /code
-     *
      */
-    public static function log(mixed $source, int $truncate = 8187): string
+    public static function log(mixed $source, int $truncate = 8192): string
     {
         if (!$source) {
             if (is_numeric($source)) {
@@ -1539,7 +1526,7 @@ class Strings extends Utils
             $source = trim(Json::encode($source));
         }
 
-        return static::noDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', static::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
+        return static::replaceDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', static::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
     }
 
 
@@ -1570,25 +1557,41 @@ class Strings extends Utils
     /**
      * Remove double "replace" chars
      *
-     * @param Stringable|string|null     $source
-     * @param Stringable|string|null     $replace
-     * @param Stringable|string|int|null $character
-     * @param bool                       $case_insensitive
+     * @param Stringable|string|null                               $source
+     * @param Stringable|string|null                               $replace
+     * @param ArrayableInterface|array|\Stringable|string|int|null $characters
+     * @param bool                                                 $case_insensitive
      *
      * @return string
      */
-    public static function noDouble(Stringable|string|null $source, Stringable|string|null $replace = '\1', Stringable|string|int|null $character = null, bool $case_insensitive = true): string
+    public static function replaceDouble(Stringable|string|null $source, Stringable|string|null $replace = '\1', ArrayableInterface|array|Stringable|string|int|null $characters = null, bool $case_insensitive = true): string
     {
-        $source    = (string) $source;
-        $replace   = (string) $replace;
-        $character = (string) $character;
-        if ($character) {
-            // Remove specific character
-            return preg_replace('/(' . $character . ')\\1+/u' . ($case_insensitive ? 'i' : ''), $replace, $source);
+        $source  = (string) $source;
+        $replace = (string) $replace;
+
+        if ($characters) {
+            $characters = Arrays::force($characters, null);
+
+            foreach ($characters as $character) {
+                // Remove specific character doubles
+                try {
+                    // Ensure that / is always escaped
+                    $character = ($character === '/' ? '\/' : $character);
+                    $source    = (string) preg_replace('/(' . $character . ')\\1+/u' . ($case_insensitive ? 'i' : ''), $replace, $source);
+
+                } catch (Throwable $e) {
+                    throw new OutOfBoundsException(tr('Failed to filter out doubles with regex ":regex" for character ":character"', [
+                        ':character' => $character,
+                        ':regex'     => '/(' . $character . ')\\1+/u'
+                    ]), $e);
+                }
+            }
+
+            return $source;
         }
 
         // Remove ALL double characters
-        return preg_replace('/(.)\\1+/u' . ($case_insensitive ? 'i' : ''), $replace, $source);
+        return (string) preg_replace('/(.)\\1+/u' . ($case_insensitive ? 'i' : ''), $replace, $source);
     }
 
 
@@ -1796,7 +1799,7 @@ class Strings extends Utils
     {
         $source = (string) $source;
         $source = str_replace("\n", ' ', $source);
-        $source = Strings::noDouble($source, ' ', '\s');
+        $source = Strings::replaceDouble($source, ' ', '\s');
 
         return $source;
     }
@@ -2281,7 +2284,7 @@ class Strings extends Utils
     public static function characterSplit(Stringable|string $source, Stringable|string $character, array|int $headers): array
     {
         $source = trim((string) $source);
-        $source = Strings::noDouble($source, ' ', ' ');
+        $source = Strings::replaceDouble($source, ' ', ' ');
         $source = explode($character, $source);
         $return = [];
         if (!$source) {

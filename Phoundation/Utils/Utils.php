@@ -332,19 +332,19 @@ class Utils
                     return str_contains($value, $needle);
                 });
 
-            case 'starts':
+            case 'start':
                 return static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                     return str_starts_with($value, $needle);
                 });
 
-            case 'ends':
+            case 'end':
                 return static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                     return str_ends_with($value, $needle);
                 });
         }
 
         throw new OutOfBoundsException(tr('Unknown match mode ":mode" specified', [
-            'mode' => $flags['match_mode']
+            ':mode' => $flags['match_mode']
         ]));
     }
 
