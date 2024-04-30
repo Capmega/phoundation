@@ -97,7 +97,6 @@ class Plugins extends Project
         foreach ($directories as $directory) {
             try {
                 $directory = Path::absolutePath($directory);
-
             } catch (FileNotExistException) {
                 // Okay, that was easy, doesn't exist. NEXT!
                 continue;
@@ -175,7 +174,6 @@ class Plugins extends Project
             ]), 3);
             $this->git->setBranch($this->branch);
             $this->branch = null;
-
         } else {
             // Select the previous branch and reset it
             Log::action(tr('Switching Phoundation plugins to branch ":branch"', [
@@ -354,7 +352,6 @@ class Plugins extends Project
                    ->getStashObject()
                    ->pop();
             }
-
         } catch (GitHasChangesException $e) {
             // Since the operation failed, ensure that Phoundation is back on its original branch
             if (isset($this->phoundation_git)) {
@@ -411,10 +408,7 @@ class Plugins extends Project
             'Phoundation',
             'disabled',
         ];
-        foreach ($plugins as &$plugin) {
-            $plugin = Strings::ensureEndsNotWith($plugin, '/');
-        }
-        unset($plugin);
+
         // All the plugins must contain files, or git stash will fail
         foreach ($plugins as $plugin) {
             if (in_array($plugin, $skip)) {
@@ -426,7 +420,6 @@ class Plugins extends Project
                          ->containFiles()
             ) {
                 $return[] = $plugin;
-
             } else {
                 Log::warning(tr('Ignoring plugin ":plugin" because it contains no files', [
                     ':plugin' => $plugin,
@@ -445,7 +438,11 @@ class Plugins extends Project
      */
     public function getLocalPlugins(): IteratorInterface
     {
-        return Directory::new(DIRECTORY_ROOT . 'Plugins/', DIRECTORY_ROOT . 'Plugins/')->scan();
+        return Directory::new(DIRECTORY_ROOT . 'Plugins/', DIRECTORY_ROOT . 'Plugins/')
+                        ->scan()
+                        ->each(function ($key, &$value) {
+                            $value = Strings::ensureEndsNotWith($value, '/');
+                        });
     }
 
 
@@ -456,7 +453,11 @@ class Plugins extends Project
      */
     public function getPhoundationPlugins(): IteratorInterface
     {
-        return Directory::new($this->directory . 'Plugins/', $this->directory)->scan();
+        return Directory::new($this->directory . 'Plugins/', $this->directory)
+                        ->scan()
+                        ->each(function ($key, &$value) {
+                            $value = Strings::ensureEndsNotWith($value, '/');
+                        });
     }
 
 
