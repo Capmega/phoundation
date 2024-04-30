@@ -7,6 +7,8 @@ namespace Phoundation\Filesystem;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
@@ -152,7 +154,9 @@ class DirectoryCore extends PathCore implements DirectoryInterface
             case 'style':
                 return '/pub/css/' . $directory;
             default:
-                throw new OutOfBoundsException(tr('Unknown system directory type ":type" specified', [':type' => $type]));
+                throw new OutOfBoundsException(tr('Unknown system directory type ":type" specified', [
+                    ':type' => $type
+                ]));
         }
     }
 
@@ -165,12 +169,13 @@ class DirectoryCore extends PathCore implements DirectoryInterface
      *
      * @return $this
      */
-    public function makeAbsolute(?string $prefix, bool $must_exist = true): static
+    public function makeAbsolute(?string $prefix = null, bool $must_exist = true): static
     {
         parent::makeAbsolute($prefix, $must_exist);
+
         if ($must_exist) {
             if (!$this->isDir()) {
-                throw new PathNotDirectoryException(tr('The (now absolute) path ":path" exists but is not a directory', [
+                throw new PathNotDirectoryException(tr('The absolute path ":path" exists but is not a directory', [
                     ':path' => $this->path,
                 ]));
             }
@@ -1008,9 +1013,9 @@ class DirectoryCore extends PathCore implements DirectoryInterface
      * @param int         $glob_flags    Flags for the internal glob() call
      * @param int         $match_flags   Flags for the internal fnmatch() call
      *
-     * @return array                     The resulting file directories
+     * @return IteratorInterface         The resulting file directories
      */
-    public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): array
+    public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): IteratorInterface
     {
         $this->restrictions->check($this->path, false);
         $return = [];
@@ -1065,7 +1070,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
         $glob = glob($this->path . $directory_pattern . '*', $glob_flags);
         if (empty($glob)) {
             // This directory pattern search had no results
-            return [];
+            return new Iterator();
         }
         // Check file patterns
         foreach ($glob as $file) {
@@ -1092,7 +1097,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
             }
         }
 
-        return $return;
+        return new Iterator($return);
     }
 
 

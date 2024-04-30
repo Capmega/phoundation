@@ -1,5 +1,25 @@
 <?php
 
+/**
+ * functions file functions.php
+ *
+ * This is the core functions library file
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category  Function reference
+ * @package   functions
+ */
+/**
+ * Returns true if the specified string is a version, or false if it is not
+ *
+ * @param string $version The version to be validated
+ *
+ * @return boolean True if the specified $version is an N.N.N version string
+ * @version 2.5.46: Added function and documentation
+ */
+
 declare(strict_types=1);
 
 use CNZ\Helpers\Yml;
@@ -20,29 +40,11 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
 
-/**
- * functions file functions.php
- *
- * This is the core functions library file
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category  Function reference
- * @package   functions
- */
-/**
- * Returns true if the specified string is a version, or false if it is not
- *
- * @param string $version The version to be validated
- *
- * @return boolean True if the specified $version is an N.N.N version string
- * @version 2.5.46: Added function and documentation
- */
 function is_version(string $version): bool
 {
     $return = preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
@@ -633,11 +635,18 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
 function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false): mixed
 {
     if (Debug::getEnabled()) {
-        if (Core::scriptStarted()) {
+        if (Core::userScriptRunning()) {
             return Debug::show($source, $sort, $trace_offset, $quiet);
         }
 
-        return show_system($source, false);
+        if (Core::inShutdownState() and Config::getBoolean('debug.shutdown', false)) {
+            return Debug::show($source, $sort, $trace_offset, $quiet);
+        }
+
+        if (Core::inStartupState() and Config::getBoolean('debug.startup', false)) {
+            // Startup debugging may not have all libraries loaded required for Debug::show(), use show_system() instead
+            return show_system($source, false);
+        }
     }
 
     return null;
@@ -657,9 +666,7 @@ function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bo
 function showhex(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false): mixed
 {
     if (Debug::getEnabled()) {
-        $source = bin2hex($source);
-
-        return show($source, $sort, $trace_offset);
+        return show(bin2hex($source), $sort, $trace_offset);
     }
 
     return null;
@@ -680,6 +687,7 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
     if (Debug::getEnabled()) {
         $backtrace = Debug::backtrace();
         $backtrace = Debug::formatBackTrace($backtrace);
+
         if ($count) {
             $backtrace = Arrays::limit($backtrace, $count);
         }
@@ -704,10 +712,18 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
 #[NoReturn] function showdie(mixed $source = null, bool $sort = true, int $trace_offset = 2, bool $quiet = false): void
 {
     if (Debug::getEnabled()) {
-        if (Core::scriptStarted()) {
+        if (Core::userScriptRunning()) {
             Debug::showdie($source, $sort, $trace_offset, $quiet);
         }
-        show_system($source);
+
+        if (Core::inShutdownState() and Config::getBoolean('debug.shutdown', false)) {
+            Debug::showdie($source, $sort, $trace_offset, $quiet);
+        }
+
+        if (Core::inStartupState() and Config::getBoolean('debug.startup', false)) {
+            // Startup debugging may not have all libraries loaded required for Debug::show(), use show_system() instead
+            show_system($source);
+        }
     }
 }
 
@@ -715,7 +731,7 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
 /**
  * Return $source if $source is not considered "empty".
  *
- * Return null if specified variable is considered "empty", like 0, "", array(), etc.
+ * Return null if the specified variable is considered "empty", like 0, "", array(), etc.
  *
  * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
  *
@@ -905,6 +921,8 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
  */
 function execute(): ?string
 {
+    Core::setScriptState();
+
     include(Request::getTarget());
 
     return get_null((string) ob_get_clean());
@@ -1050,15 +1068,31 @@ function has_trait(string $trait, object|string $class): bool
  */
 #[NoReturn] function show_system(mixed $source = null, bool $die = true): mixed
 {
-    if (php_sapi_name() !== 'cli') {
-        // Only add this on browsers
-        echo '<pre>' . PHP_EOL . '"';
+    $do = false;
+
+    if (!Core::userScriptRunning()) {
+        $do = true;
+
+    } elseif (Core::inShutdownState() and Config::getBoolean('debug.shutdown', false)) {
+        $do = true;
+
+    } elseif (Core::inStartupState() and Config::getBoolean('debug.startup', false)) {
+        $do = true;
     }
-    echo 'message-' . random_int(1, 10000) . PHP_EOL . '"';
-    print_r($source);
-    echo '"' . PHP_EOL;
-    if ($die) {
-        exit('die-' . random_int(1, 10000) . PHP_EOL);
+
+    if ($do) {
+        if (php_sapi_name() !== 'cli') {
+            // Only add this on browsers
+            echo '<pre>' . PHP_EOL . '"';
+        }
+
+        echo 'message-' . random_int(1, 10000) . PHP_EOL . '"';
+        print_r($source);
+        echo '"' . PHP_EOL;
+
+        if ($die) {
+            exit('die-' . random_int(1, 10000) . PHP_EOL);
+        }
     }
 
     return $source;

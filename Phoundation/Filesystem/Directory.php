@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Filesystem;
-
-use Phoundation\Filesystem\Exception\PathNotDirectoryException;
-use Phoundation\Filesystem\Interfaces\DirectoryInterface;
-use Phoundation\Filesystem\Traits\TraitPathConstructor;
-use Phoundation\Filesystem\Traits\TraitPathNew;
-use Phoundation\Utils\Strings;
-
 /**
  * Class Directory
  *
@@ -23,6 +13,17 @@ use Phoundation\Utils\Strings;
  * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Filesystem;
+
+use Phoundation\Filesystem\Exception\PathNotDirectoryException;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
+use Phoundation\Filesystem\Traits\TraitPathConstructor;
+use Phoundation\Filesystem\Traits\TraitPathNew;
+use Phoundation\Utils\Strings;
+
 class Directory extends DirectoryCore implements DirectoryInterface
 {
     use TraitPathConstructor {

@@ -37,9 +37,11 @@ class Process extends ProcessCore implements ProcessInterface
     public function __construct(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
     {
         parent::__construct($restrictions);
+
         if ($operating_system or $packages) {
             $this->setPackages($operating_system, $packages);
         }
+
         if ($command) {
             $this->setCommand($command);
         }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Security\Incidents\Exception;
 
-use Phoundation\Security\Exception\SecurityException;
+use Phoundation\Security\Exception\LuksException;
 use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
 
 /**
@@ -17,6 +17,6 @@ use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterf
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Security
  */
-class IncidentsException extends SecurityException implements IncidentsExceptionInterface
+class IncidentsException extends LuksException implements IncidentsExceptionInterface
 {
 }

@@ -579,7 +579,7 @@ class Response implements ResponseInterface
             if (!$url) {
                 $url  = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
                 $url  = static::versionFile($url, 'img');
-                $file = Path::getAbsolute(LANGUAGE . '/' . $url, DIRECTORY_CDN);
+                $file = Path::absolutePath(LANGUAGE . '/' . $url, DIRECTORY_CDN);
                 static::$page_headers['link'][$url] = [
                     'rel'  => 'icon',
                     'href' => UrlBuilder::getImg($url),

@@ -25,6 +25,7 @@ namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Audio\Audio;
+use Phoundation\Cache\InstanceCache;
 use Phoundation\Cli\Exception\CliCommandException;
 use Phoundation\Cli\Exception\CliCommandNotExistsException;
 use Phoundation\Cli\Exception\CliCommandNotFoundException;
@@ -41,6 +42,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Date\Time;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
@@ -208,14 +210,17 @@ class CliCommand
         // Get parameters, get the command to execute
         $parameters = static::startup();
         $command    = static::findCommandOrExecuteDocumentation();
+
         // See if the command execution should be stopped for some reason. If not, setup a run file
         static::$command  = static::limitCommand($command, isset_get($parameters['limit']), isset_get($parameters['reason']));
         static::$run_file = new CliRunFile($command);
         // TODO Move this to the Request object
         static::addExecutedPath(static::$command);
+
         // Should we execute usage or help documentation instead?
         static::checkUsage();
         static::checkHelp();
+
         // Execute the command and finish execution
         try {
             Request::setRestrictions(Restrictions::readonly(DIRECTORY_COMMANDS, 'CLI command execution'));
@@ -224,14 +229,17 @@ class CliCommand
         } catch (SqlNoTimezonesException $e) {
             static::fixMysqlTimezoneException($e);
         }
+
         // Make sure that the CLI auto-completion is configured for this shell.
         CliAutoComplete::ensureAvailable();
+
         if (!stream_isatty(STDIN) and !static::$stdin_has_been_read) {
             // STDIN might happen with commands executed. Test the input stream if there was any data at all in it
             if (static::getStdInStream()) {
                 Log::warning(tr('Warning: STDIN stream was specified but not used'));
             }
         }
+
         // We're done, start the shut down procedures
         exit();
     }
@@ -500,10 +508,13 @@ class CliCommand
                 ':usage'   => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
             ]), 8);
         }
+
         if (!CliAutoComplete::isActive()) {
+            InstanceCache::logStatistics();
             echo CliColor::getColorReset();
             system('stty echo');
         }
+
         exit($exit_code);
     }
 
@@ -696,6 +707,7 @@ class CliCommand
         try {
             // Get the command file to execute and execute auto complete for within this command, if available
             $command = static::findCommand();
+
             // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last command.
             // If this is the case we actually have to expand the command, NOT yet the command parameters!
             if ((CliAutoComplete::getPosition() - count(static::$found_commands)) === 0) {
@@ -708,6 +720,7 @@ class CliCommand
                                                       'commands' => [basename($command)],
                                                   ]);
             }
+
             // Check if this command has support for auto complete. If not
             if (!CliAutoComplete::hasSupport($command)) {
                 // This command has no auto complete support, so if we execute the command it won't go for auto
@@ -741,6 +754,7 @@ class CliCommand
         $file             = DIRECTORY_COMMANDS;
         $commands         = ArgvValidator::getCommands();
         static::$commands = $commands;
+
         // Ensure commands cache directory exists
         if (!file_exists($file)) {
             Log::warning(tr('Commands cache directory ":path" does not yet exists, rebuilding commands cache', [
@@ -749,11 +763,14 @@ class CliCommand
             // Rebuild the command cache
             Libraries::rebuildCommandCache();
         }
+
         // Is any command specified at all?
         if (!ArgvValidator::getCommandCount()) {
+            // Strip slashes and remove hidden commands
             $commands = scandir(DIRECTORY_COMMANDS);
             $commands = Arrays::replaceValuesWithCallbackReturn($commands, function ($key, $value) { return strip_extension($value); });
             $commands = Arrays::removeMatchingValues($commands, '/^\./', flags: Utils::MATCH_REGEX);
+
             throw CliNoCommandSpecifiedException::new('No command specified!')
                                                 ->makeWarning()
                                                 ->addData([
@@ -769,6 +786,7 @@ class CliCommand
             // Start processing arguments as commands here
             $file .= $command;
             ArgvValidator::removeCommand($command);
+
             if (!file_exists($file) and !file_exists($file . '.php')) {
                 // The specified directory doesn't exist. Does a part exist, perhaps? Get the parent and find out
                 try {
@@ -779,17 +797,7 @@ class CliCommand
                 } catch (Throwable) {
                     $files = [];
                 }
-                if (!$files) {
-                    // No files were found at all. Try a cache rebuild, because maybe the file exists as a new command
-                    // in a library somewhere?
-                    if (!static::cacheHasBeenRebuilt()) {
-                        // Command was not found, try rebuilding the cache and try at least once more.
-                        static::rebuildCache();
-                        ArgvValidator::recoverBackupSource();
 
-                        return static::findCommand();
-                    }
-                }
                 $previous = scandir(dirname($file));
                 $previous = Arrays::replaceValuesWithCallbackReturn($previous, function ($key, $value) { return strip_extension($value); });
                 $previous = Arrays::removeMatchingValues($previous, '/^\./', flags: Utils::MATCH_REGEX);
@@ -1065,10 +1073,13 @@ class CliCommand
     {
         if (empty(static::$stdin_data)) {
             if (stream_isatty(STDIN)) {
-                throw new CliStdInException(tr('Cannot read STDIN stream, the file descriptor is a TTY'));
+                // There is no STDIN stream, its a TTY
+                return null;
             }
+
             $return = null;
             $stdin  = File::new(STDIN);
+
             while (!$stdin->isEof()) {
                 if ($binary_safe) {
                     $data = $stdin->read();
@@ -1080,6 +1091,7 @@ class CliCommand
                 }
                 $return .= $data;
             }
+
             static::$stdin_has_been_read = true;
             static::$stdin_data          = $return;
         }

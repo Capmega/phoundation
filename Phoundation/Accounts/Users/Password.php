@@ -6,6 +6,7 @@ namespace Phoundation\Accounts\Users;
 
 use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
 use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
+use Phoundation\Accounts\Users\Exception\PasswordWeakException;
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
@@ -128,6 +129,45 @@ class Password extends DataEntry implements PasswordInterface
 
 
     /**
+     * Checks if the specified password is strong enough, throws a PasswordWeakException exception if it is not
+     *
+     * @param string $password
+     *
+     * @return void
+     */
+    public static function checkStrong(string $password): void
+    {
+        if (!static::isStrong($password)) {
+            throw new PasswordWeakException(tr('The specified password is not strong enough. Please specify a password with at least ":count" characters, and contains uppercase, lowercase, numeric, and special characters', [
+                ':count' => Config::getInteger('security.password.min-length', 10),
+            ]));
+        }
+    }
+
+
+    /**
+     * Returns true if the password is considered secure enough
+     *
+     * @param string      $password
+     *
+     * @return bool
+     */
+    public static function isStrong(string $password): bool
+    {
+        $strength = static::getStrength($password, null);
+        $strong   = ($strength > Config::getInteger('security.password.strength', 50));
+
+        if (!$strong and Validator::disabled()) {
+            Log::warning(tr('Ignoring weak password because validation is disabled'));
+
+            return true;
+        }
+
+        return $strong;
+    }
+
+
+    /**
      * Returns true if the password is considered secure enough
      *
      * @param string      $password
@@ -139,6 +179,7 @@ class Password extends DataEntry implements PasswordInterface
     {
         $strength = static::getStrength($password, $email);
         $weak     = ($strength < Config::getInteger('security.password.strength', 50));
+
         if ($weak and Validator::disabled()) {
             Log::warning(tr('Ignoring weak password because validation is disabled'));
 

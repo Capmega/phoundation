@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Script try
  *
  * General quick try and test script. Scribble any test code that you want to execute here and execute it with
- * ./pho test
+ * ./pho try
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,30 +12,15 @@ declare(strict_types=1);
  * @package   Phoundation\Scripts
  */
 
-use Phoundation\Utils\Arrays;
-use Phoundation\Data\Iterator;
+declare(strict_types=1);
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Developer\Phoundation\Repositories;
+use Phoundation\Filesystem\Commands\Df;
+use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\MountedStorageDevices;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Security\Luks\Device;
 use Phoundation\Utils\Utils;
+use Phoundation\Filesystem\File;
 
-$a = [
-    'sven' => tr('Sven'),
-    'Svensen' => tr('Svensen'),
-    'Svensven' => tr('Svensven'),
-    'corey' => tr('Corey'),
-    'Corey' => tr('Corey'),
-    'Carey' => tr('Carey'),
-    'doug' => tr('Doug'),
-    'kate' => tr('Kate'),
-    'kat' => tr('Kat'),
-    'alice' => tr('Alice'),
-    'bob' => tr('Bob'),
-    'gerton' => tr('Gerton'),
-    'Gerton' => tr('Gerton'),
-    'Gertjan' => tr('Gertjan'),
-];
-
-$b = new Iterator($a);
-
-show($a);
-show(Arrays::removeMatchingKeys($a, 'e,a', Utils::MATCH_CONTAINS | Utils::MATCH_NOT | Utils::MATCH_ALL));
-//show(Arrays::removeMatchingKeys($a, 'sven,corey,Kate,Quinn', Utils::MATCH_NOT));
-//show($b->removeMatchingKeys('sven,corey,Kate')->getSource());

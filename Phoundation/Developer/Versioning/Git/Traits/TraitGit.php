@@ -91,8 +91,9 @@ trait TraitGit
      */
     public function setDirectory(string $directory): static
     {
-        $this->directory = Path::getAbsolute($directory);
+        $this->directory = Path::absolutePath($directory);
         $this->git       = Git::new($this->directory);
+
         if (!$this->directory) {
             if (!file_exists($directory)) {
                 throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [

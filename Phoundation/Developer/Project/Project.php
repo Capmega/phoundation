@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Project class
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   \Phoundation\Developer
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Project;
@@ -10,13 +21,17 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
 use Phoundation\Developer\Phoundation\Exception\PhoundationBranchNotExistException;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Phoundation\Plugins;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Developer\Project\Interfaces\DeployInterface;
 use Phoundation\Developer\Project\Interfaces\ProjectInterface;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
+use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
+use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGit;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -33,16 +48,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Throwable;
 
-/**
- * Project class
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   \Phoundation\Developer
- */
 class Project implements ProjectInterface
 {
     use TraitDataRestrictions;
@@ -91,6 +96,7 @@ class Project implements ProjectInterface
             // Default to this project
             $directory = DIRECTORY_ROOT;
         }
+
         $this->construct($directory);
     }
 
@@ -181,7 +187,6 @@ class Project implements ProjectInterface
             $user->getRoles()
                  ->add('god');
             Log::success(tr('Finished project setup'));
-
         } catch (Throwable $e) {
             Log::warning('Setup failed with the following exception. Cancelling setup process and removing files.');
             Log::warning($e);
@@ -386,8 +391,8 @@ class Project implements ProjectInterface
      */
     public static function load(): ?string
     {
-        $project = file_get_contents(DIRECTORY_ROOT . 'config/project');
-        $project = static::sanitize($project);
+        $project      = file_get_contents(DIRECTORY_ROOT . 'config/project');
+        $project      = static::sanitize($project);
         static::$name = $project;
 
         return $project;
@@ -695,7 +700,6 @@ class Project implements ProjectInterface
             }
 
             return $this;
-
         } catch (Throwable $e) {
             if (isset($stash)) {
                 Log::warning(tr('Moving stashed files back'));
@@ -749,7 +753,6 @@ class Project implements ProjectInterface
         try {
             $phoundation = Phoundation::new($directory)
                                       ->switchBranch($branch);
-
         } catch (ProcessFailedException $e) {
             // TODO Check if it actually does not exist or if there is another problem!
             throw new PhoundationBranchNotExistException(tr('Cannot switch to Phoundation branch ":branch", it does not exist', [
@@ -863,23 +866,24 @@ class Project implements ProjectInterface
             ]));
         }
         Log::information('Updating your project plugins from a local Phoundation repository');
+
         // Ensure that the local Phoundation has no changes
         Plugins::new()
                ->ensureNoChanges();
+
         try {
             // Add all files to index to ensure everything will be stashed
-            if (
-                $this->git->getStatus()
-                          ->getCount()
-            ) {
+            if ($this->git->getStatus()->getCount()) {
                 $this->git->add(DIRECTORY_ROOT);
                 $this->git->getStashObject()
                           ->stash();
                 $stash = true;
             }
+
             // Cache ALL Phoundation files to avoid code incompatibility after update, then copy Phoundation core files
             $this->cacheLibraries($skip_caching)
                  ->copyPluginsFilesLocal($phoundation_path, $branch);
+
             // If there are changes, then add and commit
             if (
                 $this->git->getStatus()
@@ -888,14 +892,19 @@ class Project implements ProjectInterface
                 if (!$message) {
                     $message = tr('Phoundation plugins update');
                 }
+
                 $this->git->add([DIRECTORY_ROOT]);
+
                 if ($commit) {
                     $this->git->commit($message, $signed);
                 }
+
                 Log::warning(tr('Committed local Phoundation update to git'));
+
             } else {
                 Log::warning(tr('No updates found in local Phoundation plugins update'));
             }
+
             // Stash pop the previous changes and reset HEAD to ensure the index is empty
             if (isset($stash)) {
                 $this->git->getStashObject()
@@ -912,6 +921,7 @@ class Project implements ProjectInterface
                           ->pop();
                 $this->git->reset('HEAD');
             }
+
             throw $e;
         }
     }
@@ -934,9 +944,9 @@ class Project implements ProjectInterface
         if (!$branch) {
             throw new OutOfBoundsException(tr('Cannot copy local plugin files, no Phoundation branch specified'));
         }
+
         try {
-            $plugins = Plugins::new($directory)
-                              ->switchBranch($branch);
+            $plugins = Plugins::new($directory)->switchBranch($branch);
 
         } catch (ProcessFailedException $e) {
             // TODO Check if it actually does not exist or if there is another problem!
@@ -944,32 +954,123 @@ class Project implements ProjectInterface
                 ':branch' => $branch,
             ]), $e);
         }
+
         // ATTENTION! Next up, we're going to delete the Phoundation main libraries! To avoid any next commands not
         // finding files they require, include them here so that we have them available in memory
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Commands/Rsync.php');
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Enum/EnumExecuteMethod.php');
-        // Move /Phoundation and /scripts out of the way
-        try {
-            Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))
-                     ->delete();
-            // Copy new plugin libraries
-            Log::action('Updating Phoundation plugins');
-            Rsync::new()
-                 ->setSource($plugins->getDirectory())
-                 ->setTarget(DIRECTORY_ROOT)
-                 ->setExclude([
-                     '.idea',
-                     '.git',
-                     '.gitignore',
-                     '/Phoundation',
-                     '/Plugins/Phoundation/Phoundation',
-                 ])
-                 ->execute();
-            // Switch phoundation back to its previous branch
-            $plugins->switchBranch();
 
-        } catch (Throwable $e) {
-            throw $e;
+        // Copy new plugin libraries
+        Log::action('Updating Phoundation plugins');
+        Rsync::new()
+             ->setSource($plugins->getDirectory())
+             ->setTarget(DIRECTORY_ROOT)
+             ->setExclude([
+                 '.idea',
+                 '.git',
+                 '.gitignore',
+                 '/Phoundation',
+                 '/Plugins/Phoundation/Phoundation',
+             ])
+             ->execute();
+
+        // Switch phoundation back to its previous branch
+        $plugins->switchBranch();
+    }
+
+
+    /**
+     * Will patch the specified sections
+     *
+     * @param array             $sections
+     * @param IteratorInterface $stash
+     * @param bool              $checkout
+     *
+     * @return void
+     */
+    protected function patchSections(array $sections, IteratorInterface $stash, bool $checkout): void
+    {
+        $failed = [];
+
+        foreach ($sections as $section) {
+            $failed = array_merge($failed, static::patchSection($section, $stash));
+        }
+
+        if ($checkout) {
+            // Checkout files locally in the specified sections so that these changes are removed from the project
+            // Clean files locally in the specified sections so that new files are removed from the project
+            Git::new(DIRECTORY_ROOT)
+               ->checkout($sections)
+               ->clean($sections, true, true);
+        }
+
+        if ($stash->getCount()) {
+            $bad_files = clone $stash;
+            // Whoopsie, we have shirts in the stash, meaning some file was naughty.
+            Log::warning(tr('Returning problematic files ":files" from stash', [':files' => $failed]));
+            Git::new(DIRECTORY_ROOT)
+               ->getStashObject()
+               ->pop();
+            throw PatchPartiallySuccessfulException::new(tr('Phoundation plugins patch was partially successful, some files failed'))
+                                                   ->addData([
+                                                       'files' => $bad_files,
+                                                   ]);
+        }
+    }
+
+
+    /**
+     * Patches the specified section and returns the files that were stashed
+     *
+     * @param string            $section
+     * @param IteratorInterface $stash
+     *
+     * @return array|null
+     */
+    protected function patchSection(string $section, IteratorInterface $stash): ?array
+    {
+        $files = [];
+
+        // Patch phoundation target section and remove the changes locally
+        while (true) {
+            try {
+                StatusFiles::new()
+                           ->setDirectory(DIRECTORY_ROOT . $section)
+                           ->patch($this->getDirectory() . $section);
+
+                // All okay!
+                return $files;
+
+            } catch (GitPatchFailedException $e) {
+                // Fork me, the patch failed on one or multiple files. Stash those files and try again to patch
+                // the rest of the files that do apply
+                $files = $e->getDataKey('files');
+                $git   = Git::new(DIRECTORY_ROOT);
+
+                if ($files) {
+                    Log::warning(tr('Trying to fix by stashing ":count" problematic file(s) ":files"', [
+                        ':count' => count($files),
+                        ':files' => $files,
+                    ]));
+
+                    // Add all files to index before stashing, except deleted files.
+                    foreach ($files as $file) {
+                        $stash->add($file);
+
+                        // Deleted files cannot be stashed after being added, un-add, and then stash
+                        if (File::new($file)->exists()) {
+                            $git->add($file);
+
+                        } else {
+                            // Ensure it's not added yet
+                            $git->reset('HEAD', $file);
+                        }
+                    }
+
+                    // Stash all problematic files (auto un-stash later)
+                    $git->getStashObject()->stash($files);
+                }
+            }
         }
     }
 }

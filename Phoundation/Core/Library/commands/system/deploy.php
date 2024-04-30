@@ -26,7 +26,7 @@ CliDocumentation::setAutoComplete([
                                       'positions' => [
                                           0 => [
                                               'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan($word . '*.yaml'); },
-                                              'noword' => function () use ($restrictions) { return Directory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan('*.yaml'); },
+                                              'noword' => function ()      use ($restrictions) { return Directory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan('*.yaml'); },
                                           ],
                                       ],
                                       'arguments' => [

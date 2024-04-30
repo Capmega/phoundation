@@ -548,6 +548,7 @@ class Log
             if (empty(static::$file) and !static::$failed) {
                 throw new LogException(tr('Cannot log, no log file specified'));
             }
+
             // If we received an array, then log each line separately
             if (is_array($messages)) {
                 $success = true;
@@ -558,15 +559,18 @@ class Log
 
                 return $success;
             }
+
             // Get the real level and check if we passed the threshold. If $threshold was negative, the same message may be
             // logged multiple times
             $real_threshold = abs($threshold);
+
             if ($real_threshold < static::$threshold) {
                 // This log message level did not meet the threshold, discard it
                 static::$lock = false;
 
                 return false;
             }
+
             // Validate the specified log level
             if ($real_threshold > 9) {
                 // This is an "always log!" message, which only are displayed if we're running in debug mode
@@ -579,23 +583,28 @@ class Log
                     }
                 }
             }
+
             // If the message to be logged is an object, then extract the log information from there
             if (is_object($messages)) {
                 return static::object($messages, $class, $threshold, $clean, $newline, $use_prefix, $echo_screen);
             }
+
             // Make sure the log message is clean and readable.
             // Don't truncate as we might have huge log messages!
             // If no or an empty class was specified, we do not clean
             if ($class and $clean) {
                 $messages = Strings::log($messages, 0);
             }
+
             // Don't log the same message twice in a row
             if (($threshold > 0) and (static::$last_message === $messages) and (static::$filter_double)) {
                 static::$lock = false;
 
                 return false;
             }
+
             static::$last_message = $messages;
+
             // If we're initializing the log, then write to the system log
             if (static::$failed) {
                 static::errorLog(Strings::force($messages));
@@ -603,17 +612,21 @@ class Log
 
                 return true;
             }
+
             // Build the message to be logged, clean it and log
             // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL
             if ($clean) {
                 $messages = Strings::cleanWhiteSpace($messages);
             }
+
             if (!$messages) {
                 // Do not log empty messages
                 return false;
             }
+
             // Add coloring for easier reading
             $messages = CliColor::apply((string) $messages, $class);
+
             // Build message string that should be written to log and (possibly) screen
             if (static::$use_prefix and $use_prefix) {
                 if (is_bool($use_prefix)) {
@@ -709,7 +722,7 @@ class Log
      *
      * @return bool
      */
-    public static function warning(mixed $messages = null, int $threshold = 9, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function warning(mixed $messages = null, int $threshold = 8, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         return static::write($messages, 'warning', $threshold, $clean, $newline, $use_prefix, $echo_screen);
     }
@@ -990,7 +1003,7 @@ class Log
      *
      * @return bool
      */
-    public static function error(mixed $messages = null, int $threshold = 10, string|bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function error(mixed $messages = null, int $threshold = 9, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         return static::write($messages, 'error', $threshold, false, use_prefix: $use_prefix, echo_screen: $echo_screen);
     }

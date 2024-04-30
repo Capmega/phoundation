@@ -65,7 +65,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Save'):
                 // Update connector, roles, emails, and phones
-                $connector->setDebug(true)->apply(false)->save();
+                $connector->apply(false)->save();
 
                 Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been saved', [
                     ':connector' => $connector->getDisplayName(),

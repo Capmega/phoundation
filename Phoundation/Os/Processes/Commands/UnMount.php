@@ -118,16 +118,16 @@ class UnMount extends Command
                      ->executeNoReturn();
 
             } catch (ProcessFailedException $e) {
-                if (!$e->dataContains('device is busy', key: 'output')) {
+                if (!$e->dataMatches('device is busy', key: 'output')) {
                     throw $e;
                 }
-                $processes = Lsof::new()
-                                 ->getForFile($target);
+
                 // The device is busy. Check by who and add it to the exception
+                $processes = Lsof::new()->getForFile($target);
+
                 throw UnmountBusyException::new(tr('Cannot unmount target ":target", it is busy', [
                     ':target' => $target,
-                ]))
-                                          ->addData(['processes' => $processes]);
+                ]))->addData(['processes' => $processes]);
             }
         }
     }

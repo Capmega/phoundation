@@ -11,6 +11,7 @@ use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\TraitDataRestrictions;
@@ -201,9 +202,16 @@ trait ProcessVariables
     /**
      * If specified, output from this command will be piped to the next command
      *
-     * @var ProcessCoreInterface|string|null $pipe
+     * @var ProcessCoreInterface|FileInterface|string|null $pipe
      */
-    protected ProcessCoreInterface|string|null $pipe = null;
+    protected ProcessCoreInterface|FileInterface|string|null $pipe = null;
+
+    /**
+     * If specified, will pipe the string or process output into this command
+     *
+     * @var ProcessCoreInterface|FileInterface|string|null $pipe
+     */
+    protected ProcessCoreInterface|FileInterface|string|null $pipe_from = null;
 
     /**
      * Stores the data on where to redirect input channels
@@ -582,7 +590,6 @@ trait ProcessVariables
     {
         if (is_null($ionice_class)) {
             $ionice_class = EnumIoNiceClass::none;
-
         } elseif (is_int($ionice_class)) {
             $ionice_class = EnumIoNiceClass::from($ionice_class);
         }
@@ -953,7 +960,6 @@ trait ProcessVariables
         $this->cached_command_line = null;
         if (!$sudo) {
             $this->sudo = false;
-
         } else {
             if ($sudo === true) {
                 $sudo = 'sudo -Es';
@@ -1087,7 +1093,6 @@ trait ProcessVariables
             try {
                 $real_command = Which::new($this->restrictions)
                                      ->which($command);
-
             } catch (CommandNotFoundException) {
                 // Check if the command exist on disk
                 if (($command !== 'which') and !file_exists($command)) {
@@ -1095,7 +1100,6 @@ trait ProcessVariables
                     try {
                         $real_command = Which::new($this->restrictions)
                                              ->which($command);
-
                     } catch (CommandsException) {
                         // The command does not exist, but maybe we can auto install?
                         if (!$this->failed) {
@@ -1432,17 +1436,18 @@ trait ProcessVariables
 
 
     /**
-     * Returns the process command line for hte pipe
+     * Returns the process command line for the pipe
      *
      * @return Process|null
      */
-    public function getPipeCommandLine(): ?string
+    protected function getPipeCommandLine(): ?string
     {
         if (empty($this->pipe)) {
             return null;
         }
+
         if (is_string($this->pipe)) {
-            return $this->pipe;
+            return escapeshellarg($this->pipe);
         }
 
         return $this->pipe->getFullCommandLine();
@@ -1450,11 +1455,34 @@ trait ProcessVariables
 
 
     /**
+     * Returns the process command line for the pipe
+     *
+     * @return Process|null
+     */
+    protected function getPipeIntoCommandLine(): ?string
+    {
+        if (empty($this->pipe_from)) {
+            return null;
+        }
+
+        if (is_string($this->pipe_from)) {
+            return 'echo -n ' . escapeshellarg($this->pipe_from);
+        }
+
+        if ($this->pipe_from instanceof FileInterface) {
+            return 'cat ' . escapeshellarg($this->pipe_from);
+        }
+
+        return $this->pipe_from->getFullCommandLine();
+    }
+
+
+    /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
-     * @return ProcessCoreInterface|string|null
+     * @return ProcessCoreInterface|FileInterface|string|null
      */
-    public function getPipe(): ProcessCoreInterface|string|null
+    public function getPipe(): ProcessCoreInterface|FileInterface|string|null
     {
         return $this->pipe;
     }
@@ -1463,17 +1491,49 @@ trait ProcessVariables
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param ProcessCoreInterface|string|null $pipe
+     * @param ProcessCoreInterface|FileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipe(ProcessCoreInterface|string|null $pipe): static
+    public function setPipe(ProcessCoreInterface|FileInterface|string|null $pipe): static
     {
         $this->cached_command_line = null;
         $this->pipe                = $pipe;
+
         if (is_object($pipe)) {
             $this->pipe->increaseQuoteEscapes();
             $this->pipe->setTerm();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the process or string that will be piped into this process
+     *
+     * @return ProcessCoreInterface|FileInterface|string|null
+     */
+    public function getPipeFrom(): ProcessCoreInterface|FileInterface|string|null
+    {
+        return $this->pipe_from;
+    }
+
+
+    /**
+     * Sets the process or string that will be piped into this process*
+     *
+     * @param ProcessCoreInterface|FileInterface|string|null $pipe
+     *
+     * @return static
+     */
+    public function setPipeFrom(ProcessCoreInterface|FileInterface|string|null $pipe): static
+    {
+        $this->cached_command_line = null;
+        $this->pipe_from           = $pipe;
+
+        if (is_object($pipe)) {
+            $pipe->setPipe($this);
         }
 
         return $this;
@@ -1524,14 +1584,12 @@ trait ProcessVariables
                         ':redirect' => $redirect,
                     ]));
                 }
-
             } else {
                 // Redirect output to a file
                 Directory::new(dirname($redirect), $this->restrictions->getParent())
                          ->ensure('output redirect file');
                 $this->output_redirect[$channel] = ($append ? '>>' : '> ') . $redirect;
             }
-
         } else {
             unset($this->output_redirect[$channel]);
         }

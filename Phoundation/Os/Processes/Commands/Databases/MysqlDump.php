@@ -404,7 +404,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
             $file = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName() . DateTime::new()
                                                                                                 ->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
         }
-        $file = Path::getAbsolute($file, DIRECTORY_DATA . 'sources/', false);
+        $file = Path::absolutePath($file, DIRECTORY_DATA . 'sources/', false);
         $file = File::new($file, $this->restrictions);
         $file->getParentDirectory()
              ->ensure();

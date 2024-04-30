@@ -203,20 +203,29 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             }
             $this->cached_command_line = $this->server->getSshCommandLine($this->cached_command_line);
         }
+
         // Execute the command in the specified terminal
         if ($this->term) {
             $this->cached_command_line = 'export TERM=' . $this->term . '; ' . $this->cached_command_line;
         }
+
         // Add other environment variables
         if ($this->environment_variables) {
             foreach ($this->environment_variables as $key => $value) {
                 $this->cached_command_line = 'export ' . $key . '=' . $value . '; ' . $this->cached_command_line;
             }
         }
+
         // Pipe the output through to the next command
         if ($this->pipe) {
             $this->cached_command_line .= ' | ' . $this->getPipeCommandLine();
         }
+
+        // Pipe the output of the pipe_into through to this command
+        if ($this->pipe_from) {
+            $this->cached_command_line = $this->getPipeIntoCommandLine() .  ' | ' . $this->cached_command_line;
+        }
+
         // Redirect command output to the specified files for the specified channels
         foreach ($this->output_redirect as $channel => $file) {
             switch (substr($file, 0, 2)) {
@@ -496,24 +505,25 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
      *
      * @return IteratorInterface The output from the executed command
      */
-    public function executeReturnIterator(): IteratorInterface
+    public function executeReturnIterator(?string $separator = null): IteratorInterface
     {
         $this->setExecutionMethod(EnumExecuteMethod::returnIterator);
 
-        return Iterator::new()
-                       ->setSource($this->executeReturnArray());
+        return Iterator::new()->setKeyValueSource($this->executeReturnArray(), separator: $separator);
     }
 
 
     /**
      * Execute the command using the PHP exec() call and return a string
      *
-     * @return void
+     * @return static
      */
-    public function executeNoReturn(): void
+    public function executeNoReturn(): static
     {
         $this->setExecutionMethod(EnumExecuteMethod::noReturn);
         $this->executeReturnArray();
+
+        return $this;
     }
 
 

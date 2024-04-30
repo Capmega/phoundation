@@ -187,6 +187,7 @@ class Debug
                 static::show($value, $sort, $trace_offset, $quiet);
                 // Don't log within Log::write() or tr() to avoid endless loops
                 if (!function_called('Log::write()') and !function_called('tr()')) {
+                    Core::setShutdownState();
                     Log::warning(tr('Reached showdie() call at :location', [
                         ':location' => static::currentLocation($trace_offset),
                     ]));
@@ -648,7 +649,7 @@ class Debug
             $return .= $prefix . htmlspecialchars('-') . '<br>';
         }
         if ($e->getPrevious()) {
-            $return .= $prefix . tr('Previous exception: ') . '<br>';
+            $return .= tr('Previous exception: ') . '<br>';
             $return .= static::displayException($e->getPrevious(), $full_backtrace, $indent + 4);
         }
 
@@ -953,7 +954,7 @@ class Debug
         }
         if (empty(Core::readRegister('debug', 'clean'))) {
             $query = str_replace(PHP_EOL, ' ', $query);
-            $query = Strings::noDouble($query, ' ', '\s');
+            $query = Strings::replaceDouble($query, ' ', '\s');
         }
         // Debug::enabled() already logs the query, don't log it again
         if (!Debug::getEnabled()) {

@@ -2,6 +2,7 @@
 
 namespace Phoundation\Filesystem\Interfaces;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Stringable;
@@ -285,9 +286,9 @@ interface DirectoryInterface extends PathInterface
      * @param int         $glob_flags    Flags for the internal glob() call
      * @param int         $match_flags   Flags for the internal fnmatch() call
      *
-     * @return array                     The resulting file directories
+     * @return IteratorInterface         The resulting file directories
      */
-    public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): array;
+    public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): IteratorInterface;
 
 
     /**

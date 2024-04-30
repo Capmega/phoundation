@@ -358,7 +358,7 @@ class SqlQueries
         }
         if (!Core::readRegister('debug', 'clean')) {
             $query = str_replace("\n", ' ', $query);
-            $query = Strings::nodouble($query, ' ', '\s');
+            $query = Strings::replaceDouble($query, ' ', '\s');
         }
         // Debug::enabled() already logs the query, don't log it again
         if (!Debug::getEnabled()) {

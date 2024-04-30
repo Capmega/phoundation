@@ -50,7 +50,7 @@ trait TraitDataDirectory
     public function setDirectory(?string $directory, string $prefix = null, bool $must_exist = true): static
     {
         if ($directory) {
-            $this->directory = Strings::slash(Path::getAbsolute($directory, $prefix, $must_exist));
+            $this->directory = Strings::slash(Path::absolutePath($directory, $prefix, $must_exist));
 
         } else {
             $this->directory = null;

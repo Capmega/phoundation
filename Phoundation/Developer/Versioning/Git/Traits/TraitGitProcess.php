@@ -59,7 +59,7 @@ trait TraitGitProcess
      */
     public function setDirectory(string $directory): static
     {
-        $this->directory   = Path::getAbsolute($directory);
+        $this->directory   = Path::absolutePath($directory);
         $this->git_process = Process::new('git')
                                     ->setExecutionDirectory($this->directory);
         if (!$this->directory) {

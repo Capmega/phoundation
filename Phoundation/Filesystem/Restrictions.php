@@ -249,7 +249,7 @@ class Restrictions implements RestrictionsInterface
      */
     public function addDirectory(Stringable|string $directory, bool $write = false): static
     {
-        $this->source[Path::getAbsolute($directory, null, false)] = $write;
+        $this->source[Path::absolutePath($directory, null, false)] = $write;
 
         return $this;
     }
@@ -409,8 +409,8 @@ class Restrictions implements RestrictionsInterface
         // Check each specified directory pattern to see if its allowed or restricted
         foreach (Arrays::force($patterns) as &$pattern) {
             foreach ($this->source as $path => $restrict_write) {
-                $path    = Path::getAbsolute($path, null, false);
-                $pattern = Path::getAbsolute($pattern, null, false);
+                $path    = Path::absolutePath($path, null, false);
+                $pattern = Path::absolutePath($pattern, null, false);
                 if (str_starts_with($pattern, Strings::ensureEndsNotWith($path, '/'))) {
                     if ($write and !$restrict_write) {
                         throw RestrictionsException::new(tr('Write access to directory patterns ":patterns" denied by ":label" restrictions', [

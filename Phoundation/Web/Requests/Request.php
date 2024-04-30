@@ -18,6 +18,7 @@ use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Cache\Cache;
+use Phoundation\Cache\InstanceCache;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
@@ -33,6 +34,7 @@ use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\Time;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Interfaces\AccessDeniedExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -927,11 +929,9 @@ abstract class Request implements RequestInterface
     protected static function setTarget(FileInterface|string $target): void
     {
         $target         = static::ensureRequestPathPrefix($target);
-        static::$target = File::new($target, static::getRestrictions())
-                              ->makeAbsolute(DIRECTORY_WEB);
+        static::$target = File::new($target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
         static::$target->checkRestrictions(false);
-        static::getTargets()
-              ->add(static::$target);
+        static::getTargets()->add(static::$target);
         static::addExecutedPath($target); // TODO We should get this from targets
         // Store request hash used for caching, store real / original target
         if (empty(static::$main_target)) {
@@ -1003,6 +1003,9 @@ abstract class Request implements RequestInterface
                     ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
                 ]));
         }
+
+        InstanceCache::logStatistics();
+
         // Normal kill request
         Log::action(tr('Killing web page process'), 2);
         exit();

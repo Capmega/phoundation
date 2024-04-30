@@ -80,7 +80,7 @@ class Git extends Versioning implements GitInterface
      */
     public function setDirectory(DirectoryInterface|string $directory): static
     {
-        $this->directory = Path::getAbsolute($directory);
+        $this->directory = Path::absolutePath($directory);
         $this->git       = Process::new('git')
                                   ->setExecutionDirectory($this->directory)
                                   ->setTimeout(300);

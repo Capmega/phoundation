@@ -119,7 +119,7 @@ class MaxMindImport extends GeoIpImport
         // Determine what target path to use
         $restrictions = $restrictions ?? Restrictions::new(DIRECTORY_DATA, true);
         $target_path  = Config::getString('geo.ip.max-mind.path', DIRECTORY_DATA . 'sources/geoip/maxmind/', $target_path);
-        $target_path  = Path::getAbsolute($target_path, DIRECTORY_ROOT, false);
+        $target_path  = Path::absolutePath($target_path, DIRECTORY_ROOT, false);
         Directory::new($target_path, $restrictions)
                  ->ensure();
         Log::action(tr('Processing GeoIP files and moving to directory ":directory"', [':directory' => $target_path]));

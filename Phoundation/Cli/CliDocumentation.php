@@ -94,7 +94,8 @@ class CliDocumentation
 
         } catch (Throwable $e) {
             Log::error($e, echo_screen: false);
-            exit('autocomplete-failed-see-system-log');
+            echo 'autocomplete-failed-see-system-log';
+            exit(1);
         }
     }
 }

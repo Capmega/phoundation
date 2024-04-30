@@ -166,7 +166,7 @@ class Mount extends Command
 
         } catch (ProcessFailedException $e) {
             // Failed to mount, try to figure out what went wrong to give a clear error message
-            if ($e->dataContains('you might need a /sbin/mount.<type> helper program.', key: 'output') and in_array($filesystem, ['nfs'])) {
+            if ($e->dataMatches('you might need a /sbin/mount.<type> helper program.', key: 'output') and in_array($filesystem, ['nfs'])) {
                 // This is a missing filesystem driver
                 throw FilesystemDriverMissingException::new(tr('Failed to mount ":source" to ":target", a driver is missing for filesystem ":fs". On Debian type systems, try "sudo apt install nfs-common"', [
                     ':source' => $source,

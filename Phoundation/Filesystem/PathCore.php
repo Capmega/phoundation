@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class PathCore
  *
@@ -16,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Exception;
+use Phoundation\Cache\InstanceCache;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -24,11 +26,13 @@ use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Commands\Df;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
+use Phoundation\Filesystem\Exception\FileNotReadableException;
 use Phoundation\Filesystem\Exception\FileNotSymlinkException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FileOpenException;
@@ -38,10 +42,13 @@ use Phoundation\Filesystem\Exception\FileSyncException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\FileTruncateException;
 use Phoundation\Filesystem\Exception\MountLocationNotFoundException;
+use Phoundation\Filesystem\Exception\NotASymlinkException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
+use Phoundation\Filesystem\Exception\SymlinkBrokenException;
 use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\FilesInterface;
+use Phoundation\Filesystem\Interfaces\FilesystemInterface;
 use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Mount;
@@ -55,6 +62,7 @@ use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessesException;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Traits\TraitDataServer;
 use Phoundation\Utils\Arrays;
@@ -278,7 +286,7 @@ class PathCore implements Stringable, PathInterface
         }
         if ($make_absolute) {
             // Ensure absolute paths are absolute
-            $this->path = static::getAbsolute($path, $prefix, $must_exist);
+            $this->path = static::absolutePath($path, $prefix, $must_exist);
 
         } else {
             // Realpath does not make sense with relative paths that may not even exist
@@ -308,11 +316,25 @@ class PathCore implements Stringable, PathInterface
      *
      * @return $this
      */
-    public function makeAbsolute(?string $prefix, bool $must_exist = true): static
+    public function makeAbsolute(?string $prefix = null, bool $must_exist = true): static
     {
-        $this->path = static::getAbsolute($this->path, $prefix, $must_exist);
+        $this->path = static::absolutePath($this->path, $prefix, $must_exist);
 
         return $this;
+    }
+
+
+    /**
+     * Returns the absolute version of this path
+     *
+     * @param string|null $prefix
+     * @param bool        $must_exist
+     *
+     * @return string|null
+     */
+    public function getAbsolutePath(?string $prefix = null, bool $must_exist = true): ?string
+    {
+        return static::absolutePath($this->path, $prefix, $must_exist);
     }
 
 
@@ -329,42 +351,56 @@ class PathCore implements Stringable, PathInterface
      *
      * @return static
      */
-    public static function getAbsolute(Stringable|string|null $path = null, Stringable|string|bool|null $prefix = null, bool $must_exist = true): string
+    public static function absolutePath(Stringable|string|null $path = null, Stringable|string|bool|null $prefix = null, bool $must_exist = true): string
     {
         $path = trim((string) $path);
+
+        if (InstanceCache::exists('path::absolutePath', $path)) {
+            return InstanceCache::getLastChecked();
+        }
+
         $path = str_replace('//', '/', $path);
+
         if ($prefix === false) {
             // Don't make it absolute at all
             return $path;
         }
+
         if (!$path) {
             // No path specified? Use the project root directory
             return DIRECTORY_ROOT;
         }
+
         if ($prefix === true) {
             // Prefix true is considered the same as prefix null
             $prefix = null;
         }
+
         // Validate the specified path, it must be an actual path
         static::validateFilename($path);
-        switch (substr($path, 0, 1)) {
+
+        switch ($path[0]) {
             case '/':
                 // This is already an absolute directory
-                $return = $path;
+                $return = static::normalizePath($path);
                 break;
+
             case '~':
                 // This starts at the process users home directory
                 if (empty($_SERVER['HOME'])) {
                     throw new OutOfBoundsException(tr('Cannot use "~" paths, cannot determine this users home directory'));
                 }
+
                 $return = Strings::slash($_SERVER['HOME'], '/') . Strings::ensureStartsNotWith(substr($path, 1), '/');
                 break;
+
             case '.':
                 if (str_starts_with($path, './')) {
                     // This is the CWD (Take from DIRECTORY_START as getcwd() output might change during processing)
                     $return = DIRECTORY_START . substr($path, 2);
                     break;
                 }
+
             // no break
             default:
                 // This is not an absolute directory, make it an absolute directory
@@ -373,14 +409,17 @@ class PathCore implements Stringable, PathInterface
                     case '':
                         $prefix = DIRECTORY_ROOT;
                         break;
+
                     case 'css':
                         $prefix = DIRECTORY_CDN . LANGUAGE . '/css/';
                         break;
+
                     case 'js':
                         // no-break
                     case 'javascript':
                         $prefix = DIRECTORY_CDN . LANGUAGE . '/js/';
                         break;
+
                     case 'img':
                         // no-break
                     case 'image':
@@ -388,41 +427,45 @@ class PathCore implements Stringable, PathInterface
                     case 'images':
                         $prefix = DIRECTORY_CDN . LANGUAGE . '/img/';
                         break;
+
                     case 'font':
                         // no-break
                     case 'fonts':
                         $prefix = DIRECTORY_CDN . LANGUAGE . '/fonts/';
                         break;
+
                     case 'video':
                         // no-break
                     case 'videos':
                         $prefix = DIRECTORY_CDN . LANGUAGE . '/video/';
                         break;
                 }
+
                 // Prefix $path with $prefix
                 $return = Strings::slash($prefix) . Strings::unslash($path);
         }
+
         // If this is a directory, make sure it has a slash suffix
         if (file_exists($return)) {
             if (is_dir($return)) {
                 $return = Strings::slash($return);
             }
+
         } else {
             if ($must_exist) {
                 throw FileNotExistException::new(tr('The resolved path ":resolved" for the specified path ":directory" with prefix ":prefix" does not exist', [
                     ':prefix'    => $prefix,
                     ':directory' => $path,
                     ':resolved'  => $return,
-                ]))
-                                           ->addData([
-                                               'path' => $return,
-                                           ]);
+                ]))->addData([
+                   'path' => $return,
+                ]);
             }
 
             // The path doesn't exist, but apparently that's okay! Continue!
         }
 
-        return $return;
+        return InstanceCache::set($return, 'path::absolutePath', $path);
     }
 
 
@@ -534,7 +577,7 @@ class PathCore implements Stringable, PathInterface
      */
     public function setTarget(Stringable|string $target): static
     {
-        $this->target = PathCore::getAbsolute($target, null, false);
+        $this->target = PathCore::absolutePath($target, null, false);
 
         return $this;
     }
@@ -608,6 +651,42 @@ class PathCore implements Stringable, PathInterface
     public function isLink(): bool
     {
         return is_link(Strings::ensureEndsNotWith($this->path, '/'));
+    }
+
+
+    /**
+     * Follows the symlink and updates this object's path to be the target of the symlink
+     *
+     * @param bool $force
+     * @param bool $all
+     *
+     * @return $this
+     */
+    public function followLink(bool $force = false, bool $all = false): static
+    {
+        if ($this->isLink()) {
+            if (!$this->isLinkAndTargetExists()) {
+                throw new SymlinkBrokenException(tr('Cannot follow symlink ":path", the target does not exist', [
+                    ':path' => $this->path,
+                ]));
+            }
+
+            $this->path = static::absolutePath($this->getLinkTarget(true)->getPath());
+
+            if ($this->isLink() and $all) {
+                // The link target is a link too, and with $all set, we keep following!
+                return $this->followLink($force, $all);
+            }
+
+        } else {
+            if (!$force) {
+                throw new NotASymlinkException(tr('Cannot follow file ":path", the file is not a symlink', [
+                    ':path' => $this->path,
+                ]));
+            }
+        }
+
+        return $this;
     }
 
 
@@ -996,26 +1075,30 @@ class PathCore implements Stringable, PathInterface
     {
         // Check filesystem restrictions
         $this->checkRestrictions(false);
+
         if (!$this->exists()) {
             if (!file_exists(dirname($this->path))) {
                 // The file doesn't exist and neither does its parent directory
-                throw new FilesystemException(tr('The ":type" type file ":file" cannot be read because the directory ":directory" does not exist', [
+                throw new FileNotExistException(tr('The ":type" type file ":file" cannot be read because the directory ":directory" does not exist', [
                     ':type'      => ($type ?: ''),
                     ':file'      => $this->path,
                     ':directory' => dirname($this->path),
                 ]), $previous_e);
             }
-            throw new FilesystemException(tr('The ":type" type file ":file" cannot be read because it does not exist', [
+
+            throw new FileNotExistException(tr('The ":type" type file ":file" cannot be read because it does not exist', [
                 ':type' => ($type ? ' ' . $type : ''),
                 ':file' => $this->path,
             ]), $previous_e);
         }
+
         if (!is_readable($this->path)) {
-            throw new FilesystemException(tr('The ":type" type file ":file" cannot be read', [
+            throw new FileNotReadableException(tr('The ":type" type file ":file" cannot be read', [
                 ':type' => ($type ? ' ' . $type : ''),
                 ':file' => $this->path,
             ]), $previous_e);
         }
+
         if ($previous_e) {
             throw $previous_e;
 //            // This method was called because a read action failed, throw an exception for it
@@ -1087,7 +1170,7 @@ class PathCore implements Stringable, PathInterface
         // Ensure restrictions and ensure target is absolute
         // Restrictions are either specified, included in the target, or this object's restrictions
         $restrictions = Restrictions::default($restrictions, ($target instanceof PathInterface ? $target->getRestrictions() : null), $this->getRestrictions());
-        $target       = PathCore::getAbsolute($target, must_exist: false);
+        $target       = PathCore::absolutePath($target, must_exist: false);
         // Ensure the target directory exists
         if (file_exists($target)) {
             // Target exists. It has to be a directory where we can move into, or fail!
@@ -1683,45 +1766,101 @@ class PathCore implements Stringable, PathInterface
      */
     public function getNormalizedPath(Stringable|string|bool|null $make_absolute = null): ?string
     {
+        return static::normalizePath($this->path, $make_absolute);
+    }
+
+
+    /**
+     * Returns a normalized path that has all ./ and ../ resolved
+     *
+     * @param Stringable|string           $path
+     * @param Stringable|string|bool|null $make_absolute
+     *
+     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if
+     *                 whatever was specified does not exist.
+     *
+     * @example
+     * code
+     * show(File::new()->getRealPath());
+     * showdie(File::new()->getRealPath());
+     * /code
+     *
+     * This would result in
+     * code
+     * null
+     * /bin
+     * /code
+     */
+    public static function normalizePath(Stringable|string $path, Stringable|string|bool|null $make_absolute = null): ?string
+    {
+        $path = trim((string) $path);
+
+        if (InstanceCache::exists('path::normalizePath', $path)) {
+            return InstanceCache::getLastChecked();
+        }
+
+        if ($path[0] !== '/') {
+            // Ensure the path is absolute
+            $path = static::absolutePath($path, $make_absolute, false);
+        }
+
         // Get the absolute path if requested (default yes, NULL will make an absolute path, only FALSE will skip that)
         // Then resolve all path parts that have ../ or ./
         // Reverse parts to first add to return before removing to avoid immediately passing through root with
         // paths like ../../../this/is/a/test
-        $path   = static::getAbsolute($this->path, $make_absolute, false);
-        $path   = str_replace([
-            '/',
-            '\\',
-        ], DIRECTORY_SEPARATOR, $path);                                                                     // \ and / will both be single slash
-        $path   = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $path);       // Remove double slashes
+        // \ and / will both be single slashes
+        $path   = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+        $path   = Strings::replaceDouble($path, DIRECTORY_SEPARATOR, '/');
         $parts  = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
         $return = [];
         $root   = (str_starts_with($path, '/') ? '/' : '');
         $parts  = array_reverse($parts);
-        foreach ($parts as $part) {
+        $count  = count($parts);
+        $skip   = 0;
+
+        foreach ($parts as $part_id => $part) {
             if ($part === '.') {
                 continue;
             }
+
             if ($part === '..') {
-                if (empty($return)) {
-                    throw new OutOfBoundsException(tr('Cannot normalize path ":path", it passes beyond the root directory', [
-                        ':path' => $this->path,
-                    ]));
+                if (($skip + $part_id + 1) < $count) {
+                    // Skip this entry and the next one
+                    $skip++;
+                    continue;
+
+                } else {
+                    if (!$return) {
+                        // There are no more parts to remove either from return or parts, so we passed beyond root
+                        throw new OutOfBoundsException(tr('Cannot normalize path ":path", it passes beyond the root directory', [
+                            ':path' => $path,
+                        ]));
+                    }
+
+                    array_pop($return);
                 }
-                array_pop($return);
 
             } else {
+                if ($skip) {
+                    // Skip this entry
+                    $skip--;
+                    continue;
+                }
+
                 $return[] = $part;
             }
         }
+
         $return = array_reverse($return);
         $return = implode(DIRECTORY_SEPARATOR, $return);
+
         if (!$return) {
             // There is no path, this must be the root directory
             return '/';
         }
 
         // Put all the processed path parts back together again, normalized never ends with a / though!
-        return Strings::ensureEndsNotWith($root . $return, '/');
+        return InstanceCache::set(Strings::ensureEndsNotWith($root . $return, '/'), 'path::normalizePath', $path);
     }
 
 
@@ -1739,18 +1878,23 @@ class PathCore implements Stringable, PathInterface
                 ':path' => $this->path,
             ]));
         }
+
         $path = readlink(Strings::ensureEndsNotWith($this->path, '/'));
+
         if ($make_absolute and !str_starts_with($path, '/')) {
             // Links are relative, make them absolute
             if (is_bool($make_absolute)) {
                 $make_absolute = dirname($this->getPath()) . '/';
             }
+
             $path = Strings::slash($make_absolute) . $path;
         }
+
         // Return (possibly) relative links
         if (is_dir($path)) {
             return new Directory($path, $this->restrictions, false);
         }
+
         if (file_exists($path)) {
             return new File($path, $this->restrictions, false);
         }
@@ -2193,7 +2337,7 @@ class PathCore implements Stringable, PathInterface
         if (!$this->exists()) {
             if (!file_exists(dirname($this->path))) {
                 // The file doesn't exist and neither does its parent directory
-                throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent directory ":directory"', [
+                throw new FileNotExistException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent directory ":directory"', [
                     ':type'      => ($type ? '' : ' ' . $type),
                     ':file'      => $this->path,
                     ':directory' => dirname($this->path),
@@ -2204,7 +2348,7 @@ class PathCore implements Stringable, PathInterface
                      ->checkWritable($type, $previous_e);
 
         } elseif (!is_writable($this->path)) {
-            throw new FilesystemException(tr('The:type file ":file" cannot be written', [
+            throw new FileNotWritableException(tr('The:type file ":file" cannot be written', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->path,
             ]), $previous_e);
@@ -3016,6 +3160,20 @@ class PathCore implements Stringable, PathInterface
 
 
     /**
+     * @param callable $callback
+     * @return $this
+     */
+    public function each(callable $callback): static
+    {
+        foreach ($this->scan() as $file) {
+            $callback($file);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Checks if the current path obeys the requirements
      *
      * @return void
@@ -3027,5 +3185,29 @@ class PathCore implements Stringable, PathInterface
                                               ->load();
         }
         $this->requirements->check($this->path);
+    }
+
+
+    /**
+     * Returns the filesystem for the current path
+     *
+     * @return FilesystemInterface
+     */
+    public function getFilesystem(): FilesystemInterface
+    {
+        try {
+            $results = Df::new()
+                         ->setPath($this->path)
+                         ->executeNoReturn()
+                         ->getResults();
+        } catch (ProcessFailedException $e) {
+            $this->checkReadable('block-file', $e);
+            throw $e;
+        }
+
+        $results = $results->getFirstValue();
+        $results = $results['filesystem'];
+
+        return new Filesystem($results);
     }
 }

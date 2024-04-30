@@ -2632,7 +2632,7 @@ abstract class DataEntry implements DataEntryInterface
         if ($this->debug) {
             Log::debug('SAVING "' . get_class($this) . '" DATA ENTRY WITH ID "' . $this->getId() . '"', 10, echo_header: false);
             $debug = sql($this->database_connector)->getDebug();
-            sql($this->database_connector)->setDebug(true);
+            sql($this->database_connector);
         }
         // Write the entry
         if ($this->insert_update) {

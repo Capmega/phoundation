@@ -40,7 +40,7 @@ class Audio extends File
             if (!defined('NOAUDIO') or !NOAUDIO) {
                 try {
                     Mpg123::new(Restrictions::new(DIRECTORY_DATA . 'audio', true))
-                          ->setFile(Path::getAbsolute($this->path, DIRECTORY_DATA . 'audio'))
+                          ->setFile(Path::absolutePath($this->path, DIRECTORY_DATA . 'audio'))
                           ->play($background);
 
                 } catch (FileNotExistException|ProcessesException $e) {

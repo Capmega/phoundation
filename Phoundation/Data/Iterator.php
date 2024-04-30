@@ -28,6 +28,9 @@ namespace Phoundation\Data;
 
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+use Throwable;
 
 class Iterator extends IteratorCore
 {
@@ -57,5 +60,37 @@ class Iterator extends IteratorCore
     public static function new(IteratorInterface|PDOStatement|array|string|null $source = null): static
     {
         return new static($source);
+    }
+
+
+    /**
+     * Sets the internal source directly from the specified CSV string line table
+     *
+     * @param IteratorInterface|PDOStatement|array|string $source
+     * @param array                                       $format
+     * @param string|null                                 $use_key
+     * @param int                                         $skip
+     *
+     * @return static
+     */
+    public static function newFromCsvSource(IteratorInterface|PDOStatement|array|string $source, array $format, ?string $use_key = null, int $skip = 1): static
+    {
+        return static::new(Arrays::fromCsvSource($source, $format, $use_key, $skip));
+    }
+
+
+    /**
+     * Sets the internal source directly from the specified static size text line table
+     *
+     * @param IteratorInterface|PDOStatement|array|string $source
+     * @param array                                       $format
+     * @param string|null                                 $use_key
+     * @param int                                         $skip
+     *
+     * @return static
+     */
+    public static function newFromTableSource(IteratorInterface|PDOStatement|array|string $source, array $format, ?string $use_key = null, int $skip = 1): static
+    {
+        return static::new(Arrays::fromTableSource($source, $format, $use_key, $skip));
     }
 }

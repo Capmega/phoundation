@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Interfaces;
 
 use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
@@ -420,19 +421,19 @@ interface ProcessVariablesInterface
     /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
-     * @return ProcessCoreInterface|string|null
+     * @return ProcessCoreInterface|FileInterface|string|null
      */
-    public function getPipe(): ProcessCoreInterface|string|null;
+    public function getPipe(): ProcessCoreInterface|FileInterface|string|null;
 
 
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param ProcessCoreInterface|string|null $pipe
+     * @param ProcessCoreInterface|FileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipe(ProcessCoreInterface|string|null $pipe): static;
+    public function setPipe(ProcessCoreInterface|FileInterface|string|null $pipe): static;
 
 
     /**

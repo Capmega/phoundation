@@ -615,34 +615,39 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     {
         if (!$this->headers) {
             // Auto set headers from the column names
-            $this->getHeaders()
-                 ->setSource(array_keys($row_values));
+            $this->getHeaders()->setSource(array_keys($row_values));
+
             // Update the headers to look pretty for humans
             foreach ($this->headers as $key => $column_header) {
-                $column_header = str_replace([
-                    '-',
-                    '_',
-                ], ' ', (string) $column_header);
+                $column_header = str_replace(['-', '_'], ' ', (string) $column_header);
                 $column_header = Strings::capitalize($column_header);
+
                 $this->headers->set($column_header, $key);
             }
         }
+
         // ID is the first value in the row
-        $row_id = reset($row_values);
+        $row_id   = reset($row_values);
         $row_data = '';
+
         $this->count++;
+
         // Add data-* in this option?
         if (array_key_exists($key, $this->source_data)) {
             $row_data = ' data-' . $key . '="' . $this->source_data[$key] . '"';
         }
+
         $return = '<tr' . $row_data . $this->renderRowClassString() . '>';
         $first  = true;
+
         foreach ($row_values as $column => $value) {
             $made_checkbox = false;
+
             if ($first) {
                 // Convert first column to checkboxes?
                 $value = $this->renderCheckboxColumn($column, $value, $made_checkbox);
                 $first = false;
+
                 $params['htmlentities'] = !$made_checkbox;
                 $params['no_url']       = ($made_checkbox or !$value);
                 // If HtmlTable::renderCheckboxColumn() returned NULL, it means that we should not render this cell
@@ -652,7 +657,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
             } else {
                 $params['no_url'] = false;
-                $return           .= $this->renderCell($row_id, $column, $value, $params);
+                $return          .= $this->renderCell($row_id, $column, $value, $params);
             }
         }
 

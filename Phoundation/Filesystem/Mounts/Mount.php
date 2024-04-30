@@ -101,7 +101,7 @@ class Mount extends DataEntry implements MountInterface
                                  FROM     `filesystem_mounts` 
                                  ORDER BY LENGTH(`target_path`)');
             while ($mount_path = $paths->fetch()) {
-                $mount_path['target_path'] = Path::getAbsolute($mount_path['target_path'], must_exist: false);
+                $mount_path['target_path'] = Path::absolutePath($mount_path['target_path'], must_exist: false);
                 if (str_starts_with($path, $mount_path['target_path'])) {
                     return static::new($mount_path['id'], 'id')
                                  ->setRestrictions($restrictions);
@@ -191,7 +191,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getAbsoluteSourcePath(): ?string
     {
-        return Path::getAbsolute($this->getSourcePath(), must_exist: false);
+        return Path::absolutePath($this->getSourcePath(), must_exist: false);
     }
 
 
@@ -334,7 +334,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getAbsoluteTargetPath(): ?string
     {
-        return Path::getAbsolute($this->getTargetPath(), must_exist: false);
+        return Path::absolutePath($this->getTargetPath(), must_exist: false);
     }
 
 

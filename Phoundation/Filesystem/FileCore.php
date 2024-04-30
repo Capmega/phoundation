@@ -275,12 +275,14 @@ class FileCore extends PathCore implements FileInterface
     public function checkReadable(?string $type = null, ?Throwable $previous_e = null): static
     {
         parent::checkReadable($type, $previous_e);
+
         if (is_dir($this->path)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be read because it is a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
                 ':file' => $this->path,
             ]), $previous_e);
         }
+
         if ($previous_e) {
             throw $previous_e;
         }

@@ -72,7 +72,7 @@ trait TraitGitRepository
      */
     public function setRepository(string $repository): static
     {
-        $this->repository = Path::getAbsolute($repository);
+        $this->repository = Path::absolutePath($repository);
         $this->git        = Process::new('git')
                                    ->setExecutionDirectory($this->repository);
         if (!$this->repository) {

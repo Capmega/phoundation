@@ -313,7 +313,7 @@ class Execute extends Directory implements ExecuteInterface
     public function addSkipDirectory(string $directory): static
     {
         if ($directory) {
-            $this->skip[] = Path::getAbsolute($directory);
+            $this->skip[] = Path::absolutePath($directory);
         }
 
         return $this;
@@ -358,7 +358,7 @@ class Execute extends Directory implements ExecuteInterface
         $this->restrictions->check($this->path, true);
         foreach (Arrays::force($this->path, '') as $this->path) {
             // Get al files in this directory
-            $this->path = Path::getAbsolute($this->path);
+            $this->path = Path::absolutePath($this->path);
             // Skip this directory
             if ($this->skip($this->path)) {
                 continue;
@@ -412,7 +412,7 @@ class Execute extends Directory implements ExecuteInterface
         $count = 0;
         $files = [];
         // Get al files in this directory
-        $this->path = Path::getAbsolute($this->path);
+        $this->path = Path::absolutePath($this->path);
         // Skip this directory?
         if ($this->skip($this->path)) {
             return 0;

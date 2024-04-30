@@ -278,7 +278,6 @@ class IteratorCore implements IteratorInterface
         // NULL keys will be added as numerical "next" entries
         if ($key === null) {
             $this->source[] = $value;
-
         } else {
             if (array_key_exists($key, $this->source) and $exception) {
                 throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
@@ -312,7 +311,6 @@ class IteratorCore implements IteratorInterface
                 if ($value instanceof $data_type) {
                     return;
                 }
-
             } else {
                 if (gettype($value) === $data_type) {
                     return;
@@ -352,7 +350,6 @@ class IteratorCore implements IteratorInterface
         if ($source instanceof ArrayableInterface) {
             // This is an object that can convert to array. Extract the array
             $source = $source->__toArray();
-
         } else {
             // Unknown datatype, toss it into an array
             $source = [$source];
@@ -377,7 +374,6 @@ class IteratorCore implements IteratorInterface
         $source = (string) $source;
         if ($separator) {
             $source = explode($separator, $source);
-
         } else {
             // We cannot explode with an empty separator, assume that $source is a single item and return it as such
             $source = [$source];
@@ -423,7 +419,6 @@ class IteratorCore implements IteratorInterface
         // NULL keys will be added as numerical "first" entries
         if ($key === null) {
             array_unshift($this->source, $value);
-
         } else {
             if (array_key_exists($key, $this->source) and $exception) {
                 throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
@@ -685,25 +680,38 @@ class IteratorCore implements IteratorInterface
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
-        if (is_array($source)) {
-            // This is a standard array, load it into the source
-            $this->source = $source;
+        $this->source = Arrays::extractSourceArray($source, $execute);
+        return $this;
+    }
 
-        } elseif (is_string($source)) {
-            // This must be a query. Execute it and get a list of all entries from the result
-            $this->source = sql()->list($source, $execute);
 
-        } elseif ($source instanceof PDOStatement) {
-            // Get a list of all entries from the specified query PDOStatement
-            $this->source = sql()->list($source);
+    /**
+     * Sets the internal source directly, but separating the values in key > values by $separator
+     *
+     * Any value that is NOT a string will be quietly ignored
+     *
+     * @param IteratorInterface|\PDOStatement|array|string|null $source
+     * @param array|null                                        $execute
+     * @param string|null                                       $separator
+     * @return $this
+     */
+    public function setKeyValueSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, ?string $separator = null): static
+    {
+        $source = Arrays::extractSourceArray($source, $execute);
 
-        } elseif ($source instanceof IteratorInterface) {
-            // This is another iterator object, get the data from it
-            $this->source = $source->getSource();
+        if ($separator) {
+            foreach ($source as $key => &$value) {
+                if (is_string($value)) {
+                    $key   = trim(Strings::until($value, $separator));
+                    $value = trim(Strings::from($value, $separator));
 
+                    $this->source[$key] = $value;
+                }
+            }
+
+            unset($value);
         } else {
-            // NULL was specified
-            $this->source = [];
+            $this->source = $source;
         }
 
         return $this;
@@ -835,6 +843,10 @@ class IteratorCore implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function getFirstValue(): mixed
     {
+        if (empty($this->source)) {
+            return null;
+        }
+
         return $this->source[array_key_first($this->source)];
     }
 
@@ -846,6 +858,10 @@ class IteratorCore implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function getLastValue(): mixed
     {
+        if (empty($this->source)) {
+            return null;
+        }
+
         return $this->source[array_key_last($this->source)];
     }
 
@@ -1088,6 +1104,34 @@ class IteratorCore implements IteratorInterface
 
 
     /**
+     * Returns Iterator with the entries where the keys match the specified needles and flags
+     *
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param int                                            $flags
+     *
+     * @return $this
+     */
+    public function getMatchingKeys(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface
+    {
+        return new Iterator(Arrays::keepMatchingKeys($this->source, $needles, $flags));
+    }
+
+
+    /**
+     * Returns Iterator with the entries where the values match the specified needles and flags
+     *
+     * @param ArrayableInterface|array|string|float|int|null $needles
+     * @param int                                            $flags
+     *
+     * @return $this
+     */
+    public function getMatchingValues(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface
+    {
+        return new Iterator(Arrays::keepMatchingValues($this->source, $needles, $flags));
+    }
+
+
+    /**
      * Returns a list with all the values that match the specified value
      *
      * @param ArrayableInterface|array|string|float|int|null $needles
@@ -1184,11 +1228,9 @@ class IteratorCore implements IteratorInterface
                 if ($total) {
                     if (array_key_exists($column, $return)) {
                         $return[$column] += $entry[$column];
-
                     } else {
                         $return[$column] = $entry[$column];
                     }
-
                 } else {
                     $return[$column] = null;
                 }
@@ -1211,7 +1253,6 @@ class IteratorCore implements IteratorInterface
     {
         if ($header) {
             Log::information($message, use_prefix: false);
-
         } else {
             Log::cli($message);
         }
@@ -1368,7 +1409,6 @@ class IteratorCore implements IteratorInterface
 
                     return false;
                 }
-
             } elseif (!$all) {
                 // only one needs to be in the array, we found one, we're good!
                 return true;
@@ -1689,5 +1729,22 @@ class IteratorCore implements IteratorInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns a diff between this Iterator and the specified Iterator or array
+     *
+     * @param IteratorInterface|array $source
+     *
+     * @return IteratorInterface
+     */
+    public function diff(IteratorInterface|array $source): IteratorInterface
+    {
+        if ($source instanceof IteratorInterface) {
+            $source = $source->getSource();
+        }
+
+        return new Iterator(array_diff($this->source, $source));
     }
 }

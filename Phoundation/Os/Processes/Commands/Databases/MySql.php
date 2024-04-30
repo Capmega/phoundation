@@ -98,7 +98,7 @@ class MySql extends Command
     public function import(string $file, RestrictionsInterface $restrictions): void
     {
         // Get file and database information
-        $file         = Path::getAbsolute($file, DIRECTORY_DATA . 'sources/');
+        $file         = Path::absolutePath($file, DIRECTORY_DATA . 'sources/');
         $restrictions = Restrictions::default($restrictions, Restrictions::new(DIRECTORY_DATA . 'sources/', false, 'Mysql importer'));
         $threshold    = Log::setThreshold(3);
         // If we're importing the system database, then switch to init mode!

@@ -437,9 +437,6 @@ class Core implements CoreInterface
             case 'cli':
                 static::startupCli();
         }
-        // We're done, transfer control to script
-        static::$state  = 'script';
-        static::$script = true;
     }
 
 
@@ -539,27 +536,32 @@ class Core implements CoreInterface
     #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false, bool $direct_exit = false): void
     {
         static $exit = false;
+
         if ($exit) {
             // In case somebody calls Core::exit(), the exit(); called at the end of this method would cause this method
             // to be called again. Just don't.
             return;
         }
+
         if (!static::$shutdown_handling) {
             // Shutdown handling by Core has been disabled
             return;
         }
+
         $exit = true;
         static::setErrorHandling(true);
+
         if ($direct_exit) {
             // Exit without logging, cleaning, etc.
             exit($exit_code);
         }
+
         if ($sig_kill) {
             Log::warning(tr('Not cleaning up due to kill signal!'), 3);
 
         } elseif (static::inStartupState()) {
             // Exit with exitcode during startup == baaaaaaad.
-            if ($exit_code) {
+            if ($exit_code and !CliAutoComplete::isActive()) {
                 Log::setFailed();
                 Log::error('Shutdown procedure started before Core was in script execution state');
             }
@@ -567,7 +569,6 @@ class Core implements CoreInterface
         } else {
             // Try shutdown with cleanup
             try {
-                static::$state = 'shutdown';
                 static::executeShutdownCallbacks($exit_code, $exit_message, $sig_kill);
                 static::executePeriodicals($exit_code, $exit_message, $sig_kill);
                 static::exitCleanup();
@@ -584,6 +585,32 @@ class Core implements CoreInterface
         }
         // Kill a CLI command
         CliCommand::exit($exit_code, $exit_message, $sig_kill);
+    }
+
+
+    /**
+     * Lets the core know that the system is now executing user level scripts
+     *
+     * @return void
+     */
+    public static function setScriptState(): void
+    {
+        // We're done, transfer control to script
+        static::$state  = 'script';
+        static::$script = true;
+    }
+
+
+    /**
+     * Lets the core know that the system is now in a shutdown state
+     *
+     * @todo Get rid of this method. ALL methods (including showdie()) should call exit() which Core will then handle
+     * @return void
+     */
+    public static function setShutdownState(): void
+    {
+        static::$script = false;
+        static::$state  = 'shutdown';
     }
 
 
@@ -839,13 +866,16 @@ class Core implements CoreInterface
                 }
             }
         }
+
         if (CliAutoComplete::isActive()) {
-            Log::error($e, echo_screen: false);
+            Log::error($e, 10, echo_screen: false);
             echo 'auto-complete-failed-see-system-log';
             exit(1);
         }
+
         // Ensure the exception is a Phoundation exception and register it
         $e = Exception::ensurePhoundationException($e);
+
         // Don't register warning exceptions
         if (!$e->isWarning()) {
             // Only notify and register developer incident if we're on production
@@ -870,6 +900,7 @@ class Core implements CoreInterface
                 }
             }
         }
+
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
         /*
          * Phoundation uncaught exception handler
@@ -932,7 +963,9 @@ class Core implements CoreInterface
 //                    print_r($e);
                     exit('uncaught exception handler loop detected, please check logs');
                 }
+
                 $executed = true;
+
                 if (!defined('PLATFORM')) {
                     // The system crashed before platform detection.
                     Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":command" ***', [
@@ -943,6 +976,7 @@ class Core implements CoreInterface
                     Log::error($e);
                     exit('exception before platform detection');
                 }
+
                 switch (PLATFORM) {
                     case 'cli':
                         // Command line command crashed.
@@ -953,10 +987,12 @@ class Core implements CoreInterface
                             Log::warning($e->getData(), 10);
                             Core::exit(255);
                         }
+
                         if (($e instanceof Exception) and $e->isWarning()) {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
-                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 9);
+                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
+
                             if ($e instanceof CliNoCommandSpecifiedException) {
                                 if ($data = $e->getData()) {
                                     Log::information('Available methods:', 9);
@@ -1538,97 +1574,35 @@ class Core implements CoreInterface
         // Validate system modifier arguments. Ensure that these variables get stored in the global $argv array because
         // they may be used later down the line by (for example) Documenation class, for example!
         $argv = ArgvValidator::new()
-                             ->select('-A,--all')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-C,--no-color')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-D,--debug')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-E,--environment', true)
-                             ->isOptional()
-                             ->hasMinCharacters(1)
-                             ->hasMaxCharacters(64)
-                             ->select('-F,--force')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-H,--help')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-L,--log-level', true)
-                             ->isOptional()
-                             ->isInteger()
-                             ->isBetween(1, 10)
-                             ->select('-O,--order-by', true)
-                             ->isOptional()
-                             ->hasMinCharacters(1)
-                             ->hasMaxCharacters(128)
-                             ->select('-P,--page', true)
-                             ->isOptional(1)
-                             ->isDbId()
-                             ->select('-Q,--quiet')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-R,--very-quiet')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-G,--no-prefix')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-N,--no-audio')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-S,--status', true)
-                             ->isOptional()
-                             ->hasMinCharacters(1)
-                             ->hasMaxCharacters(16)
-                             ->select('-T,--test')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-U,--usage')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-V,--verbose')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-W,--no-warnings')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-Y,--clear-tmp')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('-Z,--clear-caches')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('--language', true)
-                             ->isOptional()
-                             ->isCode()
-                             ->select('--deleted')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('--version')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('--limit', true)
-                             ->isOptional(0)
-                             ->isNatural()
-                             ->select('--timezone', true)
-                             ->isOptional()
-                             ->isString()
-                             ->select('--auto-complete', true)
-                             ->isOptional()
-                             ->hasMaxCharacters(1024)
-                             ->select('--show-passwords')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('--no-validation')
-                             ->isOptional(false)
-                             ->isBoolean()
-                             ->select('--no-password-validation')
-                             ->isOptional(false)
-                             ->isBoolean()
+                             ->select('-A,--all')->isOptional(false)->isBoolean()
+                             ->select('-C,--no-color')->isOptional(false)->isBoolean()
+                             ->select('-D,--debug')->isOptional(false)->isBoolean()
+                             ->select('-E,--environment', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(64)
+                             ->select('-F,--force')->isOptional(false)->isBoolean()
+                             ->select('-H,--help')->isOptional(false)->isBoolean()
+                             ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
+                             ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
+                             ->select('-P,--page', true)->isOptional(1)->isDbId()
+                             ->select('-Q,--quiet')->isOptional(false)->isBoolean()
+                             ->select('-R,--very-quiet')->isOptional(false)->isBoolean()
+                             ->select('-G,--no-prefix')->isOptional(false)->isBoolean()
+                             ->select('-N,--no-audio')->isOptional(false)->isBoolean()
+                             ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
+                             ->select('-T,--test')->isOptional(false)->isBoolean()
+                             ->select('-U,--usage')->isOptional(false)->isBoolean()
+                             ->select('-V,--verbose')->isOptional(false)->isBoolean()
+                             ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
+                             ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
+                             ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
+                             ->select('--language', true)->isOptional()->isCode()
+                             ->select('--deleted')->isOptional(false)->isBoolean()
+                             ->select('--version')->isOptional(false)->isBoolean()
+                             ->select('--limit', true)->isOptional(0)->isNatural()
+                             ->select('--timezone', true)->isOptional()->isString()
+                             ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
+                             ->select('--show-passwords')->isOptional(false)->isBoolean()
+                             ->select('--no-validation')->isOptional(false)->isBoolean()
+                             ->select('--no-password-validation')->isOptional(false)->isBoolean()
                              ->validate(false);
 //        $argv = [
 //            'all'                    => false,
@@ -2236,11 +2210,10 @@ class Core implements CoreInterface
     {
         if (file_exists(DIRECTORY_DATA . 'system/maintenance')) {
             // System is in maintenance mode, show who put it there
-            $files = Directory::new(DIRECTORY_DATA . 'system/maintenance')
-                              ->scan();
-            if ($files) {
-                return array_first(Directory::new(DIRECTORY_DATA . 'system/maintenance')
-                                            ->scan());
+            $files = Directory::new(DIRECTORY_DATA . 'system/maintenance')->scan();
+
+            if ($files->getCount()) {
+                return $files->getFirstValue();
             }
 
             // ??? The maintenance directory is empty? It should contain a file with the email address of who locked it
@@ -2307,11 +2280,10 @@ class Core implements CoreInterface
     {
         if (file_exists(DIRECTORY_DATA . 'system/readonly')) {
             // System is in maintenance mode, show who put it there
-            $files = Directory::new(DIRECTORY_DATA . 'system/readonly')
-                              ->scan();
-            if ($files) {
-                return array_first(Directory::new(DIRECTORY_DATA . 'system/readonly')
-                                            ->scan());
+            $files = Directory::new(DIRECTORY_DATA . 'system/readonly')->scan();
+
+            if ($files->getCount()) {
+                return $files->getFirstValue();
             }
 
             // ??? The maintenance directory is empty? It should contain a file with the email address of who locked it
@@ -2329,10 +2301,9 @@ class Core implements CoreInterface
      */
     public static function resetModes(): void
     {
-        File::new(DIRECTORY_DATA . 'system/maintenace', Restrictions::new(DIRECTORY_DATA, true))
-            ->delete();
-        File::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))
-            ->delete();
+        File::new(DIRECTORY_DATA . 'system/maintenace', Restrictions::new(DIRECTORY_DATA, true))->delete();
+        File::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))->delete();
+
         Log::warning(tr('System has been relieved from readonly mode. All web requests will now again be answered, all commands are available'), 10);
     }
 
@@ -2530,7 +2501,7 @@ class Core implements CoreInterface
      *
      * @return bool
      */
-    public static function scriptStarted(): bool
+    public static function userScriptRunning(): bool
     {
         return static::$script;
     }

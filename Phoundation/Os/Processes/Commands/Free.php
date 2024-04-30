@@ -38,7 +38,7 @@ class Free extends Command
             if (!$line_number) {
                 continue;
             }
-            $line = Strings::noDouble($line, ' ', ' ');
+            $line = Strings::replaceDouble($line, ' ', ' ');
             $data['total']       = Strings::until(Strings::skip($line, ' ', 1, true), ' ');
             $data['used']        = Strings::until(Strings::skip($line, ' ', 2, true), ' ');
             $data['free']        = Strings::until(Strings::skip($line, ' ', 3, true), ' ');

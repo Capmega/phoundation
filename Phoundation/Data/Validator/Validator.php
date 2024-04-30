@@ -2169,7 +2169,7 @@ abstract class Validator implements ValidatorInterface
         $file         = basename($value);
         $restrictions = Restrictions::ensure($restrictions);
         foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
-            $test = Path::getAbsolute($value, $exists_in_directory, false);
+            $test = Path::absolutePath($value, $exists_in_directory, false);
             $test = Path::new($test, $restrictions)
                         ->checkRestrictions(false);
             if (empty($does_exist)) {

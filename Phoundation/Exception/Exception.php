@@ -96,42 +96,55 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         if (is_object($messages)) {
             // The message actually is an Exception! Extract data and make this exception the previous
             $previous = $messages;
+
             if ($messages instanceof ExceptionInterface) {
                 // This is a Phoundation exception, get more information
-                $this->setMessage($messages->getMessage());
+                $message = $messages->getMessage();
+
                 $this->setMessages($messages->getMessages());
                 $this->setWarning($messages->getWarning());
                 $this->setData($messages->getData());
-                $messages = $messages->getMessages();
 
             } else {
                 // This is a standard PHP exception
+                $message = $messages->getMessage();
+
                 $this->setLine($messages->getLine());
                 $this->setFile($messages->getFile());
-                $messages = [$messages->getMessage()];
             }
 
-        } elseif (!is_array($messages)) {
+        } elseif (is_array($messages)) {
+            if (empty($messages)) {
+                $messages = tr('No message specified');
+            }
+
+            $message = array_shift($messages);
+            $message = Strings::force($message);
+            $message = trim($message);
+
+            // Add all extra messages
+            $this->addMessages($messages);
+
+        } else {
+            // Fix the location and backtrace due to Exception::new() usage?
+            if (isset($this->file) and ($this->file === __FILE__)) {
+                // Adjust the file and location pointers by 1, remove the top trace entry
+                $trace = $this->getTrace();
+                $this->setFile($trace[0]['file'])
+                     ->setLine($trace[0]['line']);
+            }
+
             if (!$messages) {
                 $messages = tr('No message specified');
             }
-            $messages = [$messages];
+
+            $message = $messages;
+            $message = trim((string) $message);
         }
-        // Fix the location and backtrace due to Exception::new() usage?
-        if (isset($this->file) and ($this->file === __FILE__)) {
-            // Adjust the file and location pointers by 1, remove the top trace entry
-            $trace = $this->getTrace();
-            $this->setFile($trace[0]['file'])
-                 ->setLine($trace[0]['line']);
-        }
-        $message = reset($messages);
-        $message = Strings::force($message);
-        $message = trim($message);
-        // Remove the first message from $messages as this is stored in static::getMessage()
-        array_shift($messages);
-        $this->addMessages($messages);
+
         parent::__construct($message, 0, $previous);
         Log::warning('Exception: ' . $message, 2, echo_screen: !CliAutoComplete::isActive());
+
         if (Debug::getEnabled()) {
             if (Config::getBoolean('debug.exceptions.auto.full', true)) {
                 Log::error($this, 2);
@@ -241,14 +254,16 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     /**
      * Returns the exception messages
      *
-     * @param array $messages
+     * @param array|null $messages
      *
      * @return static
      */
-    public function addMessages(array $messages): static
+    public function addMessages(array|null $messages): static
     {
-        foreach ($messages as $message) {
-            $this->messages[] = trim($message);
+        if ($messages) {
+            foreach ($messages as $message) {
+                $this->messages[] = trim($message);
+            }
         }
 
         return $this;
@@ -329,13 +344,26 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     /**
      * Returns true if the exception data matches the specified needle(s)
      *
+     * @param array|string $needle
+     *
+     * @return bool
+     */
+    public function dataContains(array|string $needle): bool
+    {
+        return str_contains(Strings::force($this->data), $needle);
+    }
+
+
+    /**
+     * Returns true if the exception data matches the specified needle(s)
+     *
      * @param array|string          $needles
      * @param int                   $options
      * @param string|float|int|null $key
      *
      * @return bool
      */
-    public function dataContains(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE, string|float|int|null $key = null): bool
+    public function dataMatches(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE, string|float|int|null $key = null): bool
     {
         return (bool) $this->getDataMatch($needles, $options, $key);
     }
@@ -357,6 +385,33 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         }
 
         return Arrays::keepMatchingValues($this->data, $needles, $options);
+    }
+
+
+    /**
+     * Returns true if the exception data matches the specified Perl compatible regular expression
+     *
+     * @param string $regex
+     *
+     * @return bool
+     */
+    public function dataMatchesRegex(string $regex): bool
+    {
+        return (bool) preg_match($regex, Strings::force($this->data, "\n"));
+    }
+
+
+    /**
+     * Returns the matches from the data with the Perl compatible regular expression
+     *
+     * @param string $regex
+     *
+     * @return array
+     */
+    public function getDataRegexMatches(string $regex): array
+    {
+        preg_match_all($regex, Strings::force($this->data, "\n"), $matches);
+        return $matches;
     }
 
 

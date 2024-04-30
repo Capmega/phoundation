@@ -158,7 +158,7 @@ class Import extends \Phoundation\Developer\Project\Import
         // Determine what target path to use
         $restrictions = $restrictions ?? Restrictions::new(DIRECTORY_DATA, true);
         $target_path  = Config::getString('geo.geonames.path', DIRECTORY_DATA . 'sources/geo/geonames/', $target_path);
-        $target_path  = Path::getAbsolute($target_path, DIRECTORY_ROOT, false);
+        $target_path  = Path::absolutePath($target_path, DIRECTORY_ROOT, false);
         Directory::new($target_path, $restrictions)
                  ->ensure();
         Log::action(tr('Processing GeoNames Geo files and moving to directory ":directory"', [':directory' => $target_path]));

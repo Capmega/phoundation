@@ -66,9 +66,9 @@ interface ProcessCoreInterface
     /**
      * Execute the command using the PHP exec() call and return a string
      *
-     * @return void
+     * @return static
      */
-    public function executeNoReturn(): void;
+    public function executeNoReturn(): static;
 
 
     /**

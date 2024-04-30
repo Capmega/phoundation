@@ -63,8 +63,8 @@ CliDocumentation::setAutoComplete([
                                               'noword' => function () use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.{sql,sql.gz}'); },
                                           ],
                                           '-c,--connector' => [
-                                              'word'   => function ($word) { return Arrays::keep(Connectors::new()->load(true, true)->keepValues('sys', 'name', Utils::MATCH_STARTS_WITH)->getAllRowsSingleColumn('name'), $word); },
-                                              'noword' => function () { return Connectors::new()->load(true, true)->keepValues('sys', 'name', Utils::MATCH_STARTS_WITH)->getAllRowsSingleColumn('name'); },
+                                              'word'   => function ($word) { return Arrays::keepValues(Connectors::new()->load(true, true)->keepMatchingValues('sys', Utils::MATCH_STARTS_WITH, 'name')->getAllRowsSingleColumn('name'), $word); },
+                                              'noword' => function () { return Connectors::new()->load(true, true)->keepMatchingValues('sys', Utils::MATCH_STARTS_WITH, 'name')->getAllRowsSingleColumn('name'); },
                                           ],
                                           '-b,--database'  => [
                                               'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },

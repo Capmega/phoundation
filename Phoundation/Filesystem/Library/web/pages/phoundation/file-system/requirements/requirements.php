@@ -78,7 +78,7 @@ if (Request::isPostRequestMethod()) {
 
 // Get the requirements list and apply filters
 $requirements   = Requirements::new();
-$builder = $requirements->getQueryBuilder()->setDebug(true)
+$builder = $requirements->getQueryBuilder()
     ->addSelect('`filesystem_requirements`.`id`, 
                  `filesystem_requirements`.`name`, 
                  `filesystem_requirements`.`path`, 
