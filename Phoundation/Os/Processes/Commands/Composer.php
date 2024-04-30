@@ -72,4 +72,23 @@ class Composer extends Command
 
         return $this->execute($method);
     }
+
+
+    /**
+     * Execute composer remove
+     *
+     * @param EnumExecuteMethodInterface $method
+     *
+     * @return IteratorInterface|array|string|int|bool|null
+     */
+    public function remove(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): IteratorInterface|array|string|int|bool|null
+    {
+        array_unshift($this->arguments, [
+            'escape_argument' => true,
+            'escape_quotes'   => true,
+            'argument'        => 'remove',
+        ]);
+
+        return $this->execute($method);
+    }
 }

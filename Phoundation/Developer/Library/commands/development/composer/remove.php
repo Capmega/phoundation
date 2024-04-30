@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Command developer composer require
+ * Command developer composer remove
  *
- * This command will execute "composer require"
+ * This command will execute "composer remove"
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -18,7 +18,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Os\Processes\Commands\Composer;
 use Phoundation\Utils\Strings;
 
-CliDocumentation::setHelp('This command will execute "composer require" passing on the given arguments to the composer
+CliDocumentation::setHelp('This command will execute "composer remove" passing on the given arguments to the composer
 command
 
 
@@ -26,12 +26,12 @@ ARGUMENTS
 
 ' . Strings::from(Composer::new()->addArguments([
                                                                               'help',
-                                                                              'require',
+                                                                              'remove',
                                                                           ])->executeReturnString(), 'Arguments:'));
 
 CliDocumentation::setUsage('
-./pho composer require vendor/package1
-./pho composer require vendor/package:1.0.*
+./pho composer remove vendor/package1
+./pho composer remove vendor/package:1.0.*
 ');
 
 
@@ -39,5 +39,5 @@ CliDocumentation::setUsage('
 $argv = ArgvValidator::getArguments();
 
 
-// Execute composer update
-Composer::new()->setArguments($argv)->require();
+// Execute composer remove
+Composer::new()->setArguments($argv)->remove();
