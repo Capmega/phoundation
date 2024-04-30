@@ -29,6 +29,7 @@ use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Stringable;
 
@@ -295,8 +296,9 @@ class Git extends Versioning implements GitInterface
      *
      * @return static
      */
-    public function commit(string $message, bool $signed = false): static
+    public function commit(string $message, bool $signed = null): static
     {
+        $signed = $signed ?? Config::getBoolean('versioning.git.commit.signed', false);
         $output = $this->git->clearArguments()
                             ->addArgument('commit')
                             ->addArgument('-m')
