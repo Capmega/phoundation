@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Utils\Config;
@@ -46,18 +47,23 @@ CliDocumentation::setAutoComplete([
 
 
 // Get command arguments
-ArgvValidator::new()
-             ->select('-c,--commit')->isOptional(false)->isBoolean()
-             ->select('-s,--sign')->isOptional(false)->isBoolean()
-             ->validate();
+$argv = ArgvValidator::new()
+                     ->select('-c,--commit')->isOptional(false)->isBoolean()
+                     ->select('-s,--sign')->isOptional(false)->isBoolean()
+                     ->validate();
 
 
 // Rebuild commands cache
 Libraries::rebuildCommandCache();
 
 
-if (Config::getBoolean('versioning.git.commit.auto', false) or $argv['commit']) {
-    // Commit the system commands cache
-    Git::new(DIRECTORY_DATA . 'system/cache/commands/')
-       ->commit('Rebuilt system commands cache', Config::getBoolean('versioning.git.commit.signed', false) or $argv['signed']);
+// Commit the system web cache?
+$git = Git::new(DIRECTORY_DATA . 'system/cache/commands/');
+
+if ($git->getStatus()->getCount()) {
+    if (Config::getBoolean('versioning.git.commit.auto', false) or $argv['commit']) {
+        // Commit the system commands cache
+        $git->commit('Rebuilt system commands cache', Config::getBoolean('versioning.git.commit.signed', false) or $argv['signed']);
+        Log::success('Committed system cache update to git');
+    }
 }

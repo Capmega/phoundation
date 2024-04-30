@@ -130,7 +130,7 @@ if ($argv['local']) {
     }
 
 } elseif ($argv['check']) {
-    // Don't update, just check
+    // Don't update, check instead
     Log::information(tr('Checking for Phoundation updates...'));
     Project::checkUpdates();
 
