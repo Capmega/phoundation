@@ -1724,9 +1724,11 @@ class IteratorCore implements IteratorInterface
      */
     public function each(callable $callback): static
     {
-        foreach ($this->source as $key => $value) {
+        foreach ($this->source as $key => &$value) {
             $callback($key, $value);
         }
+
+        unset($value);
 
         return $this;
     }
