@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command developer/composer/update
+ * Command developer composer require
  *
  * This command will execute "composer update"
  *
@@ -18,7 +18,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Os\Processes\Commands\Composer;
 use Phoundation\Utils\Strings;
 
-CliDocumentation::setHelp('This command will execute "composer update" passing on the given arguments to the composer
+CliDocumentation::setHelp('This command will execute "composer require" passing on the given arguments to the composer
 command
 
 
@@ -29,9 +29,9 @@ ARGUMENTS
                                                                               'update',
                                                                           ])->executeReturnString(), 'Arguments:'));
 
-CliDocumentation::setUsage('./pho composer update
-./pho composer update vendor/package1
-./pho composer update vendor/package:1.0.*
+CliDocumentation::setUsage('./pho composer require
+./pho composer require vendor/package1
+./pho composer require vendor/package:1.0.*
 ');
 
 
@@ -40,4 +40,4 @@ $argv = ArgvValidator::getArguments();
 
 
 // Execute composer update
-Composer::new()->setArguments($argv)->update();
+Composer::new()->setArguments($argv)->require();

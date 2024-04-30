@@ -37,7 +37,7 @@ class Composer extends Command
 
 
     /**
-     * Returns an array containing the found files
+     * Execute composer update
      *
      * @param EnumExecuteMethodInterface $method
      *
@@ -49,6 +49,25 @@ class Composer extends Command
             'escape_argument' => true,
             'escape_quotes'   => true,
             'argument'        => 'update',
+        ]);
+
+        return $this->execute($method);
+    }
+
+
+    /**
+     * Execute composer require
+     *
+     * @param EnumExecuteMethodInterface $method
+     *
+     * @return IteratorInterface|array|string|int|bool|null
+     */
+    public function require(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): IteratorInterface|array|string|int|bool|null
+    {
+        array_unshift($this->arguments, [
+            'escape_argument' => true,
+            'escape_quotes'   => true,
+            'argument'        => 'require',
         ]);
 
         return $this->execute($method);
