@@ -61,8 +61,11 @@ Web::rebuildCache();
 $git = Git::new(DIRECTORY_DATA . 'system/cache/web/');
 
 if ($git->getStatus()->getCount()) {
-    if (Config::getBoolean('versioning.git.commit.auto', false) or $argv['commit']) {
-        $git->commit('Rebuilt system web cache', Config::getBoolean('versioning.git.commit.signed', false) or $argv['signed']);
-        Log::success('Committed system cache update to git');
+    if (Config::getBoolean('cache.system.commit.auto', false) or $argv['commit']) {
+        // Commit the system web cache
+        $git->add(DIRECTORY_DATA . 'system/cache/web/')
+            ->commit(tr('Rebuilt system web cache'), Config::getBoolean('cache.system.commit.signed', false) or $argv['signed']);
+
+        Log::success(tr('Committed system cache update to git'));
     }
 }

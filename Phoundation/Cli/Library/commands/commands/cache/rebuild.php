@@ -61,9 +61,11 @@ Libraries::rebuildCommandCache();
 $git = Git::new(DIRECTORY_DATA . 'system/cache/commands/');
 
 if ($git->getStatus()->getCount()) {
-    if (Config::getBoolean('versioning.git.commit.auto', false) or $argv['commit']) {
+    if (Config::getBoolean('cache.system.commit.auto', false) or $argv['commit']) {
         // Commit the system commands cache
-        $git->commit('Rebuilt system commands cache', Config::getBoolean('versioning.git.commit.signed', false) or $argv['signed']);
-        Log::success('Committed system cache update to git');
+        $git->add(DIRECTORY_DATA . 'system/cache/commands/')
+            ->commit(tr('Rebuilt system commands cache'), Config::getBoolean('cache.system.commit.signed', false) or $argv['signed']);
+
+        Log::success(tr('Committed system cache update to git'));
     }
 }
