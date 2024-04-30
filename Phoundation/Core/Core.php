@@ -1797,7 +1797,9 @@ class Core implements CoreInterface
                 mb_internal_encoding('UTF-8');
             }
         }
+
         static::setTimeZone($argv['timezone']);
+
         //
         static::$register['ready'] = true;
         // Validate parameters and give some startup messages, if needed
@@ -1813,6 +1815,7 @@ class Core implements CoreInterface
                 ]));
             }
         }
+
         if (FORCE) {
             if (TEST) {
                 throw new CoreException(tr('Both FORCE and TEST modes where specified, these modes are mutually exclusive'));
@@ -1822,28 +1825,33 @@ class Core implements CoreInterface
         } elseif (TEST) {
             Log::warning(tr('Running in TEST mode, various modifications may not be executed!'));
         }
+
         if (!is_natural(PAGE)) {
             throw new CoreException(tr('Specified -P or --page ":page" is not a natural number', [
                 ':page' => PAGE,
             ]));
         }
+
         if (!is_natural(LIMIT)) {
             throw new CoreException(tr('Specified --limit":limit" is not a natural number', [
                 ':limit' => LIMIT,
             ]));
         }
+
         if (ALL) {
             if (PAGE > 1) {
                 throw new CoreException(tr('Both -A or --all and -P or --page have been specified, these options are mutually exclusive'));
             }
+
             if (DELETED) {
                 throw new CoreException(tr('Both -A or --all and -D or --deleted have been specified, these options are mutually exclusive'));
             }
+
             if (STATUS) {
                 throw new CoreException(tr('Both -A or --all and -S or --status have been specified, these options are mutually exclusive'));
             }
-
         }
+
         if ($argv['clear_caches']) {
             // Clear all caches
             static::enableInitState();
@@ -1851,6 +1859,7 @@ class Core implements CoreInterface
             CliCommand::setRequireDefault(false);
             static::disableInitState();
         }
+
         if ($argv['clear_tmp']) {
             // Clear all tmp data
             static::enableInitState();
