@@ -951,10 +951,14 @@ class CliCommand
             CliDocumentation::setUsage('./pho METHODS [ARGUMENTS]
 ./pho intro
 ./pho info
+./pho find COMMAND
+./pho rebuild
 ./pho accounts users create --help
 ./pho system update -H
-./pho system update -H
+./pho dev patch -H
 ./pho system maintenance disable
+./pho <TAB>
+./pho sy<TAB>
 ./pho system <TAB>', false);
             CliDocumentation::setHelp(tr('This is the Phoundation CLI interface command "pho". For more basic information please execute ./pho intro which will print an introduction text to Phoundation
 '), false);
