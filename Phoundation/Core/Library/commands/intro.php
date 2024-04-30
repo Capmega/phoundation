@@ -1,12 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-
-
 /**
- * Script info
+ * Script intro
  *
  * This script will display detailed information about the current framework, project, database ,etc.
  *
@@ -15,7 +10,13 @@ use Phoundation\Cli\CliDocumentation;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+
 CliDocumentation::setUsage('./pho intro');
+
 CliDocumentation::setHelp('This introduction script will print a help text to help you familiarize yourself with Phoundation
 
 
