@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
+use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -225,18 +226,21 @@ class Arrays extends Utils
 
                 return $value;
             }
+
             if ($value === $current_value) {
                 if ($delete) {
                     unset($source[$key]);
                 }
+
                 $next = true;
             }
         }
+
         if (isset($next)) {
             // The current value was found, but it was at the end of the array
-            throw new OutOfBoundsException(tr('Option ":value" does not have a required value specified, see --help or --usage', [
+            throw OutOfBoundsException::new(tr('Option ":value" does not have a required value specified, see --help or --usage', [
                 ':value' => $current_value,
-            ]));
+            ]))->makeWarning();
         }
 
         return null;
@@ -880,7 +884,7 @@ class Arrays extends Utils
      */
     public static function removeMatchingValues(DataListInterface|array $source, DataListInterface|array|string|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): array
     {
-        return static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, $source, $needles, $flags, $column);
+        return static::matchValues(Utils::MATCH_ACTION_RETURN_NOT_VALUES, $source, $needles, $flags, $column);
     }
 
 
@@ -2768,6 +2772,255 @@ class Arrays extends Utils
                 $value = Strings::quote($value);
             }
             $return[] = $key . '=' . $value;
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Converts the given source string using the specified format array
+     *
+     * The format array should look like
+     * [
+     *   key => size,
+     *   key => size,
+     * ]
+     *
+     * The string will be split up to
+     * [
+     *    key => value,
+     *    key => value,
+     *  ]
+     *
+     * Where each value is the size cut string from the source
+     *
+     * @param string $source
+     * @param array  $format
+     * @param bool   $trim
+     *
+     * @return array
+     */
+    public static function convertStringWithSizeFormat(string $source, array $format, bool $trim = true): array
+    {
+        $return   = [];
+        $position = 0;
+
+        foreach ($format as $key => $size) {
+            try {
+                $return[$key] = substr($source, $position, $size);
+
+                if ($trim) {
+                    $return[$key] = trim($return[$key]);
+                }
+
+                $position += $size;
+            } catch (Throwable $e) {
+                if (!is_numeric($size)) {
+                    throw new OutOfBoundsException(tr('Invalid conversion format entry ":key" with size ":size" encountered, the size must be an integer', [
+                        ':key'  => $key,
+                        ':size' => $size,
+                    ]));
+                }
+
+                throw $e;
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Converts the given source string using the specified format array
+     *
+     * The format array should look like
+     * [
+     *   key => size,
+     *   key => size,
+     * ]
+     *
+     * The string will be split up to
+     * [
+     *    key => value,
+     *    key => value,
+     *  ]
+     *
+     * Where each value is the size cut string from the source
+     *
+     * @param string $source
+     * @param array  $format
+     * @param bool   $trim
+     *
+     * @return array
+     */
+    public static function convertStringWithSeparatorFormat(string $source, array $format, bool $trim = true): array
+    {
+        $return = [];
+        $source = trim($source);
+
+        foreach ($format as $key => $separator) {
+            if (!$source) {
+                throw new OutOfBoundsException(tr('Failed to parse line "" with format key ":key", the source line has reached its end', [
+                    ':key' => $key,
+                ]));
+            }
+
+            if ($separator) {
+                $return[$key] = Strings::until($source, $separator);
+                $source       = trim(Strings::from($source, $separator));
+            } else {
+                // Take the entire string
+                $return = $source;
+                $source = '';
+            }
+
+            if ($trim) {
+                $return[$key] = trim($return[$key]);
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Sets the internal source directly from the specified CSV string line table
+     *
+     * @param IteratorInterface|PDOStatement|array|string $source
+     * @param array                                       $format
+     * @param string|null                                 $use_key
+     * @param int                                         $skip
+     *
+     * @return array
+     */
+    public static function fromCsvSource(IteratorInterface|PDOStatement|array|string $source, array $format, ?string $use_key = null, int $skip = 1): array
+    {
+        $return = [];
+        $source = static::extractSourceArray($source);
+
+        foreach ($source as $line) {
+            if ($skip > 0) {
+                // Continue the skip lines
+                $skip--;
+                continue;
+            }
+
+            $value = Arrays::convertStringWithSeparatorFormat($line, $format);
+
+            if ($use_key) {
+                try {
+                    $return[$value[$use_key]] = $value;
+
+                } catch (Throwable) {
+                    throw new OutOfBoundsException(tr('The specified $use_key ":use_key" was not found in the source line ":line"', [
+                        ':use_key' => $use_key,
+                        ':line'    => $value[$use_key],
+                    ]));
+                }
+
+            } else {
+                $return[] = $value;
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Sets the internal source directly from the specified static size text line table
+     *
+     * @param IteratorInterface|PDOStatement|array|string $source
+     * @param array                                       $format
+     * @param string|null                                 $use_key
+     * @param int                                         $skip
+     *
+     * @return array
+     */
+    public static function fromTableSource(IteratorInterface|PDOStatement|array|string $source, array $format, ?string $use_key = null, int $skip = 1): array
+    {
+        $return = [];
+        $source = static::extractSourceArray($source);
+
+        foreach ($source as $line) {
+            if ($skip > 0) {
+                // Continue the skip lines
+                $skip--;
+                continue;
+            }
+
+            $value = Arrays::convertStringWithSizeFormat($line, $format);
+
+            if ($use_key) {
+                try {
+                    $return[$value[$use_key]] = $value;
+
+                } catch (Throwable) {
+                    throw new OutOfBoundsException(tr('The specified $use_key ":use_key" was not found in the source line ":line"', [
+                        ':use_key' => $use_key,
+                        ':line'    => $value[$use_key],
+                    ]));
+                }
+
+            } else {
+                $return[] = $value;
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Extracts the source array from the specified source
+     *
+     * @param IteratorInterface|\PDOStatement|array|string|null $source
+     * @param array|null                                        $execute
+     * @return array
+     */
+    public static function extractSourceArray(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): array
+    {
+        if (is_array($source)) {
+            // This is a standard array, load it into the source
+            return $source;
+        }
+
+        if (is_string($source)) {
+            // This must be a query. Execute it and get a list of all entries from the result
+            return sql()->list($source, $execute);
+        }
+
+        if ($source instanceof PDOStatement) {
+            // Get a list of all entries from the specified query PDOStatement
+            return sql()->list($source);
+        }
+
+        if ($source instanceof IteratorInterface) {
+            // This is another iterator object, get the data from it
+            return $source->getSource();
+        }
+
+        // NULL was specified
+        return [];
+    }
+
+
+    /**
+     * Remove empty values from the given array
+     *
+     * @param array $source The array to be filtered
+     *
+     * @return array The array with empty values removed
+     */
+    public static function filterEmpty(array $source): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            if ($value) {
+                $return[$key] = $value;
+            }
         }
 
         return $return;
