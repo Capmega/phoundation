@@ -78,6 +78,13 @@ class Log
     protected static bool $file_enabled = true;
 
     /**
+     * Sets if logging to a screen is enabled or disabled
+     *
+     * @var bool $screen_enabled
+     */
+    protected static bool $screen_enabled = true;
+
+    /**
      * Keeps track of what log files we're logging to
      */
     protected static array $streams = [];
@@ -160,7 +167,9 @@ class Log
         if (static::$init) {
             return;
         }
+
         static::$init = true;
+
         // Apply configuration
         try {
             // Determine log threshold
@@ -168,32 +177,39 @@ class Log
                 if (defined('QUIET') and QUIET) {
                     // Ssshhhhhhhh..
                     $threshold = 9;
+
                 } elseif (defined('VERBOSE') and VERBOSE) {
                     // Be loud!
                     $threshold = 1;
+
                 } else {
                     // Be... normal, I guess
                     if (Debug::getEnabled()) {
                         // Debug shows a bit more
                         $threshold = Config::getInteger('log.threshold', Core::errorState() ? 1 : 3);
+
                     } else {
                         $threshold = Config::getInteger('log.threshold', Core::errorState() ? 1 : 5);
                     }
                 }
+
                 static::setThreshold($threshold);
             }
+
             static::$restrictions = Restrictions::new(DIRECTORY_DATA . 'log/', true, 'Log');
             static::setFile(Config::get('log.file', DIRECTORY_ROOT . 'data/log/syslog'));
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
 
         } catch (Throwable $e) {
             static::errorLog(tr('Configuration read failed with ":e"', [':e' => $e->getMessage()]));
+
             // Likely configuration read failed. Set defaults
             static::$restrictions = Restrictions::new(DIRECTORY_DATA . 'log/', true, 'Log');
             static::setThreshold(10);
             static::setFile(DIRECTORY_ROOT . 'data/log/syslog');
             static::setBacktraceDisplay(self::BACKTRACE_DISPLAY_BOTH);
         }
+
         static::$init = false;
     }
 
@@ -233,25 +249,32 @@ class Log
     {
         switch ($display) {
             case 'BACKTRACE_DISPLAY_FUNCTION':
-                // no-break
+                // no break
+
             case self::BACKTRACE_DISPLAY_FUNCTION:
                 $display = self::BACKTRACE_DISPLAY_FUNCTION;
                 break;
+
             case 'BACKTRACE_DISPLAY_FILE':
-                // no-break
+                // no break
+
             case self::BACKTRACE_DISPLAY_FILE:
                 $display = self::BACKTRACE_DISPLAY_FILE;
                 break;
+
             case 'BACKTRACE_DISPLAY_BOTH':
-                // no-break
+                // no break
+
             case self::BACKTRACE_DISPLAY_BOTH:
                 $display = self::BACKTRACE_DISPLAY_BOTH;
                 break;
+
             default:
                 throw new OutOfBoundsException(tr('Invalid backtrace display value ":display" specified. Please ensure it is one of Log::BACKTRACE_DISPLAY_FUNCTION, Log::BACKTRACE_DISPLAY_FILE, or Log::BACKTRACE_DISPLAY_BOTH', [
                     ':display' => $display,
                 ]));
         }
+
         $return          = static::$display;
         static::$display = $display;
 
@@ -269,6 +292,7 @@ class Log
     protected static function errorLog($message): void
     {
         error_log($message);
+
         if (php_sapi_name() !== 'cli') {
             flush();
         }
@@ -334,8 +358,8 @@ class Log
      * Sets if log messages will have a prefix or not
      *
      * @param string|bool $use_prefix
+     * @return void
      *
-     * @return int
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
     public static function setUsePrefix(bool $use_prefix): void
@@ -368,9 +392,9 @@ class Log
         if (!is_numeric($threshold) or ($threshold < 1) or ($threshold > 10)) {
             throw OutOfBoundsException::new(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 1 and 10', [
                 ':level' => $threshold,
-            ]))
-                                      ->makeWarning();
+            ]))->makeWarning();
         }
+
         $return            = $threshold;
         static::$threshold = $threshold;
 
@@ -429,7 +453,40 @@ class Log
      */
     public static function getFileEnabled(): bool
     {
-        return static::$file_enabled;
+        return static::$enabled and static::$file_enabled and File::writeIsEnabled();
+    }
+
+
+    /**
+     * Enables to screen logging
+     *
+     * @return void
+     */
+    public static function enableScreen(): void
+    {
+        static::$screen_enabled = true;
+    }
+
+
+    /**
+     * Disables to screen logging
+     *
+     * @return void
+     */
+    public static function disableScreen(): void
+    {
+        static::$screen_enabled = false;
+    }
+
+
+    /**
+     * Returns if logging to screen is enabled or not
+     *
+     * @return bool
+     */
+    public static function getScreenEnabled(): bool
+    {
+        return static::$enabled and static::$screen_enabled;
     }
 
 
@@ -468,9 +525,11 @@ class Log
             // Default log file is always the syslog
             $file = DIRECTORY_ROOT . 'data/log/syslog';
         }
+
         if (empty(static::$streams[$file])) {
             throw new FilesystemException(tr('Cannot close log file ":file", it was never opened', [':file' => $file]));
         }
+
         static::$streams[$file]->close();
     }
 
@@ -502,7 +561,7 @@ class Log
      *
      * @return bool
      */
-    public static function success(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function success(mixed $messages = null, int $threshold = 6, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         return static::write($messages, 'success', $threshold, $clean, $newline, $use_prefix, $echo_screen);
     }
@@ -532,6 +591,7 @@ class Log
         if (!static::$enabled) {
             return false;
         }
+
         if (static::$init) {
             // Do not log anything while locked, initializing, or while dealing with a Log internal failure
             foreach (Arrays::force($messages, null) as $message) {
@@ -540,21 +600,30 @@ class Log
 
             return false;
         }
+
         // TODO Delete static::$lock as it looks like its not needed anymore
         static::$lock = true;
+
         static::ensureInstance();
+
         try {
             // Do we have a log file setup?
             if (empty(static::$file) and !static::$failed) {
-                throw new LogException(tr('Cannot log, no log file specified'));
+                if (static::getFileEnabled()) {
+                    throw new LogException(tr('Cannot log, no log file specified'));
+                }
+
+                // Log file has not been set, but file logging is disabled, so continue
             }
 
             // If we received an array, then log each line separately
             if (is_array($messages)) {
                 $success = true;
+
                 foreach ($messages as $message) {
                     $success = ($success and static::write($message, $class, $threshold, $clean, $newline, $use_prefix, $echo_screen));
                 }
+
                 static::$lock = false;
 
                 return $success;
@@ -630,27 +699,34 @@ class Log
             // Build message string that should be written to log and (possibly) screen
             if (static::$use_prefix and $use_prefix) {
                 if (is_bool($use_prefix)) {
-                    // Display the default prefix
-                    $messages = DateTime::new(null, 'server')
-                                        ->format('Y-m-d H:i:s.v') . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . Core::getGlobalId() . ' / ' . Core::getLocalId() . ' ' . $messages . ($newline ? PHP_EOL : null);
+                    // Build log message with the default prefix
+                    $messages = DateTime::new(null, 'server')->format('Y-m-d H:i:s.v') . ' ' .
+                                ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
+                                getmypid() . ' ' .
+                                Core::getGlobalId() . ' / ' . Core::getLocalId() . ' ' .
+                                $messages .
+                                ($newline ? PHP_EOL : null);
 
                 } else {
-                    // Display the specified prefix instead of the default one
+                    // Build the log message using the specified prefix instead of the default one
                     $messages = $use_prefix . $messages . ($newline ? PHP_EOL : null);
                 }
 
             } else {
-                // Display the log message without a prefix
+                // Build the log message without a prefix
                 $messages = $messages . ($newline ? PHP_EOL : null);
             }
+
             // Write the message to the log file
-            if (static::$file_enabled) {
+            if (static::getFileEnabled()) {
                 static::$streams[static::$file]->write($messages);
             }
+
             // In Command Line mode, if requested, always log to the screen too but not during PHPUnit test!
-            if ($echo_screen and (PHP_SAPI === 'cli') and !Core::isPhpUnitTest() and !CliAutoComplete::isActive()) {
+            if ($echo_screen and (PHP_SAPI === 'cli') and static::getScreenEnabled()) {
                 echo $messages;
             }
+
             static::$lock = false;
 
             return true;
@@ -671,6 +747,7 @@ class Log
         try {
             if (!isset(static::$instance)) {
                 static::$instance = new static();
+
                 // Log class startup message
                 if (Debug::getEnabled()) {
                     static::information(tr('Logger started, threshold set to ":threshold"', [
@@ -747,6 +824,7 @@ class Log
             // Log exception
             return static::exception($object, $threshold, $clean, $newline, $use_prefix, $echo_screen);
         }
+
         if ($object instanceof ArrayableInterface) {
             // Convert to array
             $message = $object->__toArray();
@@ -776,7 +854,7 @@ class Log
      *
      * @return bool
      */
-    public static function exception(Throwable $exception, int $threshold = 10, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function exception(Throwable $exception, int $threshold = 9, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         // This is an exception object, log the warning or error  message data. PHP exceptions have
         // $e->getMessage() and Phoundation exceptions can have multiple messages using $e->getMessages()
@@ -786,6 +864,7 @@ class Log
                 // This is a warning exception, which can be displayed to user (usually this is caused by user
                 // data validation issues, etc.
                 $class = 'warning';
+
             } else {
                 // This is an error exception, which is more severe
                 $class = 'error';
@@ -795,14 +874,15 @@ class Log
             // This is a PHP error, which is always a hard error
             $class = 'error';
         }
+
         // Log the initial exception message
-        static::write(tr('Script  : '), 'information', $threshold, true, false, echo_screen: $echo_screen);
+        static::write(tr('Script    : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
         static::write(basename(isset_get($_SERVER['SCRIPT_FILENAME'])), $class, $threshold, true, true, false, $echo_screen);
-        static::write(tr('Class   : '), 'information', $threshold, true, false, echo_screen: $echo_screen);
+        static::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
         static::write(get_class($exception), $class, $threshold, true, true, false, $echo_screen);
-        static::write(tr('Location: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
+        static::write(tr('Location  : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
         static::write($exception->getFile() . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
-        static::write(tr('Message : '), 'information', $threshold, true, false, echo_screen: $echo_screen);
+        static::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
         static::write('[' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
         // Log the exception data and trace
         static::logExceptionData($exception, $threshold, $clean, $newline, $use_prefix, $echo_screen);
@@ -834,10 +914,11 @@ class Log
      */
     public static function setFile(string $file = null): ?string
     {
-        if (!static::$file_enabled) {
+        if (!static::getFileEnabled()) {
             // Logging to file is disabled, don't set a file
             return static::$file;
         }
+
         if (static::$failed) {
             // If the log is in failed mode, we cannot switch file
             error_log(tr('Not switching log file to ":file", log is running in failed mode', [
@@ -846,20 +927,25 @@ class Log
 
             return static::$file;
         }
+
         try {
             $return = static::$file;
+
             if ($file === null) {
                 // Default log file is always the syslog
                 $file = DIRECTORY_ROOT . 'data/log/syslog';
             }
+
             // Log file is already open? Close so re-open will ensure that the file exists
             if (isset(static::$streams[$file])) {
                 static::$streams[$file]->close(true);
             }
+
             // Open the specified log file
             static::$streams[$file] = File::new($file, static::$restrictions)
                                           ->ensureWritable(0640)
                                           ->open(EnumFileOpenMode::writeOnlyAppend);
+
             // Set the class file to the specified file and return the old value and
             static::$file = $file;
 
@@ -892,7 +978,9 @@ class Log
     {
         if ($exception instanceof Exception) {
             $data = $exception->getData();
+
             static::write(tr('Data: '), 'information', $threshold, echo_screen: $echo_screen);
+
             if ($data) {
                 if ($exception->isWarning()) {
                     // Log warning data as individual lines for easier read
@@ -930,14 +1018,17 @@ class Log
         if ($class == 'error') {
             // Log the backtrace
             static::write(tr('Backtrace:'), 'information', $threshold, $clean, $newline, $use_prefix, $echo_screen);
+
             if ($exception->getTrace()) {
                 static::writeTrace($exception->getTrace(), $threshold, class: $class, echo_screen: $echo_screen);
 
             } else {
                 static::write('-', 'debug', $threshold, false, $newline, $use_prefix, $echo_screen);
             }
+
             // Log all previous exceptions as well
             $previous = $exception->getPrevious();
+
             while ($previous) {
                 static::write('Previous exception: ', 'information', $threshold, $clean, $newline, $use_prefix, $echo_screen);
                 static::exception($previous, $threshold, $clean, $newline, $use_prefix, $echo_screen);
@@ -965,17 +1056,21 @@ class Log
     {
         try {
             $lines = Debug::formatBackTrace($backtrace);
+
             if ($from_script) {
                 // Filter out all entries before the script start
                 $copy  = $lines;
                 $lines = [];
+
                 foreach ($copy as $line) {
                     if (str_contains($line, 'functions.php') and str_contains($line, 'include()')) {
                         break;
                     }
+
                     $lines[] = $line;
                 }
             }
+
             foreach ($lines as $line) {
                 static::write($line, $class, $threshold, false, use_prefix: $use_prefix, echo_screen: $echo_screen);
             }
@@ -1022,9 +1117,12 @@ class Log
     {
         // Don't ever let the system crash because of a log issue, so we catch all possible exceptions
         static::$failed = true;
+
         try {
             $message = $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . ' Failed to log message to internal log files because "' . $e->getMessage() . '"';
+
             static::errorLog($message);
+
             try {
                 foreach (Arrays::force($messages, null) as $message) {
                     $message = CliColor::strip((string) $message);
@@ -1072,6 +1170,7 @@ class Log
      *
      * @param mixed       $messages
      * @param int         $threshold
+     * @param bool        $clean
      * @param bool        $newline
      * @param string|bool $use_prefix
      *
@@ -1100,17 +1199,21 @@ class Log
             case 'array':
                 $size = count($messages);
                 break;
+
             case 'boolean':
                 $size     = '-';
                 $messages = strtoupper(Strings::fromBoolean($messages));
                 break;
+
             case 'string':
                 $size = strlen($messages);
                 break;
+
             default:
                 // For all other types size does not matter
                 $size = '-';
         }
+
         if (!is_scalar($messages)) {
             if (is_object($messages) and $messages instanceof Throwable) {
                 // Convert exception in readable message
@@ -1121,6 +1224,7 @@ class Log
                         'messages'  => $messages->getMessages(),
                         'data'      => $messages->getData(),
                     ];
+
                 } else {
                     $messages = [
                         'exception' => get_class($messages),
@@ -1135,6 +1239,7 @@ class Log
             $use_prefix = strtoupper($type) . ' [' . $size . '] ';
             $messages   = $use_prefix . $messages;
         }
+
         if ($echo_header) {
             static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
         }
@@ -1161,6 +1266,7 @@ class Log
         $function = Debug::currentFunction($trace);
         $file     = Strings::from(Debug::currentFile($trace), DIRECTORY_ROOT);
         $line     = Debug::currentLine($trace);
+
         if ($class) {
             // Add class - method separator
             $class .= '::';
@@ -1288,9 +1394,11 @@ class Log
         if ($backtrace === null) {
             $backtrace = Debug::backtrace(1);
         }
+
         if ($echo_header) {
             static::logDebugHeader('BACKTRACE', 1, $threshold, echo_screen: $echo_screen, use_prefix: $use_prefix);
         }
+
         static::writeTrace($backtrace, $threshold, $display, echo_screen: $echo_screen, use_prefix: $use_prefix);
     }
 
@@ -1312,10 +1420,11 @@ class Log
     /**
      * Write a debug message using print_r() in the log file
      *
-     * @param mixed $messages
-     * @param int   $threshold
-     * @param bool  $echo_screen
-     * @param bool  $echo_header
+     * @param mixed       $messages
+     * @param int         $threshold
+     * @param string|bool $use_prefix
+     * @param bool        $echo_screen
+     * @param bool        $echo_header
      *
      * @return bool
      */
@@ -1379,28 +1488,35 @@ class Log
     public static function dot(int|true $each = 10, string $color = 'green', string $dot = '.', bool $quiet = false): bool
     {
         static $count = 0, $l_each = 0;
+
         if (!PLATFORM_CLI) {
             return false;
         }
+
         if ($quiet and QUIET) {
             // Don't show this in QUIET mode
             return false;
         }
+
         if (($each === 0) or ($each === true)) {
             if ($count) {
                 // Only show "Done" if we have shown any dot at all
                 Log::write(tr('Done'), $color, 10, false, true, false);
             }
+
             $l_each = 0;
             $count  = 0;
 
             return true;
         }
+
         $count++;
+
         if ($l_each != $each) {
             $l_each = $each;
             $count  = 0;
         }
+
         if ($count >= $l_each) {
             $count = 0;
             Log::write($dot, $color, 10, false, false, false);
@@ -1421,12 +1537,13 @@ class Log
     {
         $current = static::$file;
         $file    = File::new(static::$file);
-        $target  = $file->getPath() . '~' . DateTime::new()
-                                                    ->format('Ymd');
+        $target  = $file->getPath() . '~' . DateTime::new()->format('Ymd');
         $target  = File::getAvailableVersion($target, '.gz');
+
         static::action(tr('Rotating to next syslog file'));
-        $file = $file->rename($target)
-                     ->gzip();
+
+        $file = $file->rename($target)->gzip();
+
         static::setFile($current);
         Log::information(tr('Continuing syslog from file ":file"', [':file' => $file->getPath()]));
 
@@ -1464,9 +1581,11 @@ class Log
         if (!$age_in_days) {
             $age_in_days = Config::getInteger('log.clean.age', 30);
         }
+
         Log::action(tr('Cleaning log files older than ":age" days', [
             ':age' => $age_in_days,
         ]));
+
         Find::new()
             ->setFindPath(DIRECTORY_DATA . 'log/')
             ->setMtime('+' . ($age_in_days * 1440))
