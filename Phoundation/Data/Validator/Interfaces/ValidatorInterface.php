@@ -1,17 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Validator\Interfaces;
-
-use DateTime;
-use PDOStatement;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Validator\Validator;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Stringable;
-use UnitEnum;
-
 /**
  * Validator class
  *
@@ -22,8 +10,44 @@ use UnitEnum;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Validator\Interfaces;
+
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Validator\Validator;
+use Phoundation\Date\DateTime;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Stringable;
+use UnitEnum;
+
 interface ValidatorInterface
 {
+    /**
+     * Returns the amount of tests performed on the current column
+     *
+     * @return int
+     */
+    public function getTestCount(): int;
+
+    /**
+     * Increases the test counter by the specified amount
+     *
+     * @param int $count
+     *
+     * @return static
+     */
+    public function increaseTestCount(int $count = 1): static;
+
+    /**
+     * This method will act as a "fake test" making sure that this selected value requires no testing
+     *
+     * @return $this
+     */
+    public function doNotValidate(): static;
+
     /**
      * Forcibly set the specified key of this validator source to the specified value
      *

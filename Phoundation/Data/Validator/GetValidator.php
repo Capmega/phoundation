@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\GetValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -122,6 +123,36 @@ class GetValidator extends Validator
     public static function new(?ValidatorInterface $parent = null): GetValidator
     {
         return new static($parent);
+    }
+
+
+    /**
+     * Force a return of a single POST key value
+     *
+     * @return array
+     */
+    public function get(string $key): mixed
+    {
+        Log::warning(tr('Forceably returned $_GET[:key] without data validation!', [':key' => $key]));
+
+        return isset_get(static::$get[$key]);
+    }
+
+
+    /**
+     * Removes the specified key from the source
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public static function remove(string $key): bool
+    {
+        $exists = array_key_exists($key, static::$get);
+
+        unset(static::$get[$key]);
+
+        return $exists;
     }
 
 

@@ -127,8 +127,10 @@ class PostValidator extends Validator
         if (!Request::isPostRequestMethod()) {
             return null;
         }
+
         // Return button from cache if available
         $button = static::getButton(static::$buttons, $post_key, $prefix, false);
+
         if ($button) {
             // We had it from cache. Get button key and value
             $key   = (string) key($button);
@@ -137,13 +139,16 @@ class PostValidator extends Validator
         } else {
             // Not cached. Get button from post and remove it there, then store it in cache
             $button = static::getButton(static::$post, $post_key, $prefix, true);
+
             if (!$button) {
                 // Button was not in cache nor in POST
                 return null;
             }
+
             // Get button key and value
             $key   = (string) key($button);
             $value = (string) current($button);
+
             // Quick validate button value. Don't allow weird shit
             if ($key) {
                 if ((strlen($key) > 255) or !ctype_print($key)) {
@@ -153,6 +158,7 @@ class PostValidator extends Validator
                                                    ]);
                 }
             }
+
             if ($value) {
                 if ((strlen($value) > 255) or !ctype_print($value)) {
                     throw ValidationFailedException::new(tr('Invalid submit button specified'))
@@ -161,8 +167,10 @@ class PostValidator extends Validator
                                                    ]);
                 }
             }
+
             static::$buttons[$key] = $value;
         }
+
         // We have a button, yay!
         if ($return_key) {
             if ($prefix) {
@@ -171,6 +179,7 @@ class PostValidator extends Validator
 
             return $key;
         }
+
         if (!$value) {
             // Button exists, but has no value
             return true;
@@ -297,7 +306,9 @@ class PostValidator extends Validator
         if (!$prefix) {
             return $this->source;
         }
+
         $return = [];
+
         foreach ($this->source as $key => $value) {
             if (str_starts_with($key, $prefix)) {
                 $return[Strings::from($key, $prefix)] = $value;
@@ -313,11 +324,28 @@ class PostValidator extends Validator
      *
      * @return array
      */
-    public function getSourceKey(string $key): mixed
+    public function get(string $key): mixed
     {
         Log::warning(tr('Forceably returned $_POST[:key] without data validation!', [':key' => $key]));
 
-        return isset_get($this->source[$key]);
+        return isset_get(static::$get[$key]);
+    }
+
+
+    /**
+     * Removes the specified key from the source
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public static function remove(string $key): bool
+    {
+        $exists = array_key_exists($key, static::$post);
+
+        unset(static::$post[$key]);
+
+        return $exists;
     }
 
 

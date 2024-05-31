@@ -21,7 +21,7 @@ use Phoundation\Exception\OutOfBoundsException;
  */
 class FileValidator
 {
-    use ValidatorBasics;
+    use TraitValidatorCore;
 
     /**
      * FileValidator constructor

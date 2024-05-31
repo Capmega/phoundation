@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator\Exception;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataDataEntryClass;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
+use Phoundation\Utils\Config;
 use Throwable;
 
 /**
@@ -34,6 +36,11 @@ class ValidationFailedException extends ValidatorException implements Validation
     {
         parent::__construct($messages, $previous);
         $this->makeWarning();
+
+        if (Config::getBoolean('security.validation.failures.log', true)) {
+            // Automatically log validation failures
+            Log::warning($this);
+        }
     }
 
 
@@ -67,11 +74,12 @@ class ValidationFailedException extends ValidatorException implements Validation
             $definitions      = $data_entry_class->getDefinitionsObject();
             $data             = $this->data;
             $this->data       = [];
+
             // Create a new exception data array with labels instead of keys
             foreach ($data as $key => $value) {
-                $label = $definitions->get($key)
-                                     ->getLabel() ?? $key;
+                $label = $definitions->get($key)->getLabel() ?? $key;
                 $value = str_replace($key, $label, $value);
+
                 $this->data[$label] = $value;
             }
         }
