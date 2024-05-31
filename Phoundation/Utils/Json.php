@@ -61,81 +61,113 @@ class Json
         }
         switch ($code) {
             case 301:
-                // no-break
+                // no break
+
             case 'redirect':
                 Json::error(null, ['location' => $data], 'REDIRECT', 301);
+
             case 302:
                 Json::error(null, ['location' => UrlBuilder::getAjax($_CONFIG['redirects']['signin'])], 'REDIRECT', 302);
+
             case 'signin':
                 Json::error(null, ['location' => UrlBuilder::getAjax($_CONFIG['redirects']['signin'])], 'SIGNIN', 302);
+
             case 400:
-                // no-break
+                // no break
+
             case 'invalid':
-                // no-break
+                // no break
+
             case 'validation':
                 Json::error(null, $data, 'BAD-REQUEST', 400);
             case 'locked':
                 Json::error(null, $data, 'LOCKED', 403);
             case 403:
-                // no-break
+                // no break
+
             case 'forbidden':
-                // no-break
+                // no break
+
             case 'access-denied':
                 Json::error(null, $data, 'FORBIDDEN', 403);
+
             case 404:
-                // no-break
+                // no break
+
             case 'not-found':
                 Json::error(null, $data, 'NOT-FOUND', 404);
+
             case 'not-exists':
                 Json::error(null, $data, 'NOT-EXISTS', 404);
+
             case 405:
-                // no-break
+                // no break
+
             case 'method-not-allowed':
                 Json::error(null, $data, 'METHOD-NOT-ALLOWED', 405);
+
             case 406:
-                // no-break
+                // no break
+
             case 'not-acceptable':
                 Json::error(null, $data, 'NOT-ACCEPTABLE', 406);
+
             case 408:
-                // no-break
+                // no break
+
             case 'timeout':
                 Json::error(null, $data, 'TIMEOUT', 408);
+
             case 409:
-                // no-break
+                // no break
             case 'conflict':
                 Json::error(null, $data, 'CONFLICT', 409);
+
             case 412:
-                // no-break
+                // no break
+
             case 'expectation-failed':
                 Json::error(null, $data, 'EXPECTATION-FAILED', 412);
+
             case 418:
-                // no-break
+                // no break
+
             case 'im-a-teapot':
                 Json::error(null, $data, 'IM-A-TEAPOT', 418);
+
             case 429:
-                // no-break
+                // no break
+
             case 'too-many-requests':
                 Json::error(null, $data, 'TOO-MANY-REQUESTS', 429);
+
             case 451:
-                // no-break
+                // no break
             case 'unavailable-for-legal-reasons':
                 Json::error(null, $data, 'UNAVAILABLE-FOR-LEGAL-REASONS', 451);
+
             case 500:
-                // no-break
+                // no break
             case 'error':
                 Json::error(null, $data, 'ERROR', 500);
+
             case 503:
-                // no-break
+                // no break
             case 'maintenance':
-                // no-break
+                // no break
+
             case 'service-unavailable':
                 Json::error(null, null, 'SERVICE-UNAVAILABLE', 503);
+
             case 504:
-                // no-break
+                // no break
+
             case 'gateway-timeout':
                 Json::error(null, null, 'GATEWAY-TIMEOUT', 504);
+
             case 'reload':
                 Json::reply(null, 'RELOAD');
+
             default:
                 Notification::new()
                             ->setMode(EnumDisplayMode::exception)
@@ -156,12 +188,8 @@ class Json
      * @param mixed             $result
      * @param int               $http_code The HTTP code to send out with Json::reply()
      *
-     * @return void (dies)
-     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   json
+     * @return never
+     *
      * @see       Json::reply()
      * @see       Json::message()
      * @version   2.7.102: Added function and documentation
@@ -169,7 +197,7 @@ class Json
      * @todo      Fix $data and $result parameters. Are they used correctly? They are sometimes overwritten in the
      *            method
      */
-    public static function error(string|array|null $message, $data = null, $result = null, int $http_code = 500): void
+    #[NoReturn] public static function error(string|array|null $message, $data = null, $result = null, int $http_code = 500): never
     {
         if (!$message) {
             $message = '';
@@ -184,6 +212,7 @@ class Json
                 $default = $message['default'];
                 unset($message['default']);
             }
+
             if (empty($message['e'])) {
                 if (Core::isProductionEnvironment()) {
                     $message = $default;
@@ -211,6 +240,7 @@ class Json
                     $message = $message['e']->getMessages("\n<br>");
                 }
             }
+
             $message = trim(Strings::from($message, '():'));
 
         } elseif (is_object($message)) {
@@ -218,18 +248,20 @@ class Json
             if (!($message instanceof CoreException)) {
                 if (!($message instanceof Exception)) {
                     $type = gettype($message);
+
                     if ($type === 'object') {
                         $type .= '/' . get_class($message);
                     }
+
                     throw new JsonException(tr('Specified message must either be a string or an CoreException ojbect, or PHP Exception ojbect, but is a ":type"', [
                         ':type' => $type,
                     ]));
                 }
+
                 $code = $message->getCode();
+
                 if (Debug::getEnabled()) {
-                    /*
-                     * This is a user visible message
-                     */
+                    // This is a user visible message
                     $message = $message->getMessage();
 
                 } elseif (!empty($default)) {
@@ -238,16 +270,20 @@ class Json
 
             } else {
                 $result = $message->getCode();
+
                 switch ($result) {
                     case 'access-denied':
                         $http_code = '403';
                         break;
+
                     case 'ssl-required':
                         $http_code = '403.4';
                         break;
+
                     default:
                         $http_code = '500';
                 }
+
                 if (Strings::until($result, '/') == 'warning') {
                     $data = $message->getMessage();
 
@@ -255,12 +291,15 @@ class Json
                     if (Debug::getEnabled()) {
                         // This is a user visible message
                         $messages = $message->getMessages();
+
                         foreach ($messages as $id => &$message) {
                             $message = trim(Strings::from($message, '():'));
+
                             if ($message == tr('Failed')) {
                                 unset($messages[$id]);
                             }
                         }
+
                         unset($message);
                         $data = implode("\n", $messages);
 
@@ -270,20 +309,22 @@ class Json
                 }
             }
         }
+
         $data = Arrays::force($data);
         Json::reply($data, ($result ? $result : 'ERROR'), $http_code);
     }
 
 
     /**
-     * Send correct JSON reply
+     * Send a JSON reply
      *
      * @param array|Stringable|string|null $data
      * @param EnumJsonAfterReply           $action_after
      *
-     * @return void
+     * @todo Split this in 3 functions, one for exit(), one for continue, one for close connection and continue
+     * @return never
      */
-    #[NoReturn] public static function reply(array|Stringable|string|null $data = null, EnumJsonAfterReply $action_after = EnumJsonAfterReply::die): void
+    #[NoReturn] public static function reply(array|Stringable|string|null $data = null, EnumJsonAfterReply $action_after = EnumJsonAfterReply::die): never
     {
         // Always return all numbers as strings as javascript borks BADLY on large numbers, WTF JS?!
         if (is_array($data)) {
@@ -296,6 +337,7 @@ class Json
 
             }, $data);
         }
+
         if (!is_string($data)) {
             if (is_object($data)) {
                 // Stringable object
@@ -306,21 +348,26 @@ class Json
                 $data = Json::encode($data);
             }
         }
+
         Response::setContentType('application/json');
         Response::setOutput($data);
         Response::send(false);
+
         switch ($action_after) {
             case EnumJsonAfterReply::die:
                 // We're done, kill the connection % process (default)
                 exit();
+
             case EnumJsonAfterReply::continue:
                 // Continue running, keep the HTTP connection open
                 break;
+
             case EnumJsonAfterReply::closeConnectionContinue:
                 // Close the current HTTP connection but continue in the background
                 session_write_close();
                 fastcgi_finish_request();
                 break;
+
             default:
                 throw new OutOfBoundsException(tr('Unknown after ":after" specified. Use one of "JsonAfterReply::die", "JsonAfterReply::continue", or "JsonAfterReply::closeConnectionContinue"', [
                     ':after' => $action_after,

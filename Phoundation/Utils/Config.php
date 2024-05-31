@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Utils;
 
 use Exception;
+use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\Project\Configuration;
 use Phoundation\Exception\OutOfBoundsException;
@@ -128,9 +130,11 @@ class Config implements ConfigInterface
 
             return;
         }
+
         // Use the specified environment
         static::$include_production = $include_production;
         static::$environment        = strtolower(trim($environment));
+
         static::reset();
         static::read(false);
     }
@@ -159,9 +163,11 @@ class Config implements ConfigInterface
     public static function setSection(string $section, string $environment, bool $include_production = true): void
     {
         static::$section = get_null(strtolower(trim($section)));
+
         if (static::$section) {
             static::$section .= '/';
         }
+
         if (!$environment) {
             // Environment was specified as "", use no environment!
             static::$environment = null;
@@ -169,9 +175,11 @@ class Config implements ConfigInterface
 
             return;
         }
+
         // Use the specified environment
         static::$include_production = $include_production;
         static::$environment        = strtolower(trim($environment));
+
         static::reset();
         static::read(true);
     }
@@ -206,6 +214,7 @@ class Config implements ConfigInterface
     public static function forSection(string $section, string $environment): ConfigInterface
     {
         $key = $section . '-' . $environment;
+
         if (empty(static::$instances[$key])) {
             static::$instances[$key] = new static();
             static::$instances[$key]->setSection($section, $environment);
@@ -240,6 +249,7 @@ class Config implements ConfigInterface
     public static function getBoolean(string|array $path, ?bool $default = null, mixed $specified = null): bool
     {
         $return = static::get($path, $default, $specified);
+
         try {
             if (is_bool($return)) {
                 return $return;
@@ -250,11 +260,12 @@ class Config implements ConfigInterface
 
         } catch (OutOfBoundsException) {
             // Do nothing, following exception will do the job
+
+            throw new ConfigException(tr('The configuration path ":path" should be a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has value ":value" instead', [
+                ':path'  => $path,
+                ':value' => $return,
+            ]));
         }
-        throw new ConfigException(tr('The configuration path ":path" should be a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has value ":value" instead', [
-            ':path'  => $path,
-            ':value' => $return,
-        ]));
     }
 
 
@@ -262,7 +273,7 @@ class Config implements ConfigInterface
      * Return configuration data for the specified key path
      *
      * @param string|array $path      The key path to search for. This should be specified either as an array with key
-     *                                names or a . separated string
+     *                                names or a "." separated string
      * @param mixed|null   $default   The default value to return if no value was found in the configuration files
      * @param mixed|null   $specified A value that might have been specified by a calling function. IF this value is
      *                                not
@@ -275,11 +286,13 @@ class Config implements ConfigInterface
     public static function get(string|array $path = '', mixed $default = null, mixed $specified = null): mixed
     {
         if (!static::$environment) {
-            // We don't really have an environment, don't check configuration, just return default values
-            return $default;
+            // We don't really have an environment, don't check configuration
+            // NOTE: DO NOT USE TR() HERE AS THE FUNCTIONS FILE MAY NOT YET BE LOADED
+            throw new ConfigException('Cannot access configuration, environment has not been determined yet');
         }
-        Debug::counter('Config::get()')
-             ->increase();
+
+        Debug::counter('Config::get()')->increase();
+
         if (static::$failed) {
             // Config class failed, return all default values when not NULL
             if ($default === null) {
@@ -290,25 +303,33 @@ class Config implements ConfigInterface
 
             return $default;
         }
+
         // Do we have cached configuration information?
         $path = Strings::force($path, '.');
+
         if (array_key_exists($path, static::$cache)) {
             return static::$cache[$path];
         }
+
         static::getInstance();
+
         if ($specified) {
             return $specified;
         }
+
         if (!$path) {
             // No path specified, return everything
             return static::fixKeys(static::$data);
         }
-        // Replace escaped . in the path
+
+        // Replace escaped "." in the path
         $path = str_replace('\\.', ':', $path);
         $data = &static::$data;
+
         // Go over each key and if the value for the key is an array, request a subsection
         foreach (Arrays::force($path, '.') as $section) {
             $section = str_replace(':', '.', $section);
+
             if (!is_array($data)) {
 //                echo "<pre>";var_dump($path);var_dump($section);var_dump($data);echo "\n";
                 if ($data !== null) {
@@ -317,9 +338,11 @@ class Config implements ConfigInterface
                         ':section' => $section,
                     ]));
                 }
+
                 // This section is missing in config files. No biggie, initialize it as an array
                 $data = [];
             }
+
             if (!array_key_exists($section, $data)) {
                 // The requested key does not exist
                 if ($default === null) {
@@ -334,6 +357,7 @@ class Config implements ConfigInterface
                 // The requested key does not exist in configuration, return the default value instead
                 return static::$cache[$path] = $default;
             }
+
             // Get the requested subsection. This subsection must be an array!
             $data = &$data[$section];
         }
@@ -367,11 +391,13 @@ class Config implements ConfigInterface
     protected static function fixKeys(array $data): array
     {
         $return = [];
+
         foreach ($data as $key => $value) {
             if (is_array($value)) {
                 // Recurse
                 $value = static::fixKeys($value);
             }
+
             $return[str_replace('-', '_', (string) $key)] = $value;
         }
 
@@ -393,9 +419,11 @@ class Config implements ConfigInterface
     public static function getInteger(string|array $path, ?int $default = null, mixed $specified = null): int
     {
         $return = static::get($path, $default, $specified);
+
         if (is_integer($return)) {
             return $return;
         }
+
         throw new ConfigException(tr('The configuration path ":path" should be an integer number but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
@@ -417,9 +445,11 @@ class Config implements ConfigInterface
     public static function getNatural(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
     {
         $return = static::get($path, $default, $specified);
+
         if (is_natural($return)) {
             return $return;
         }
+
         throw new ConfigException(tr('The configuration path ":path" should be a natural number, integer 0 or above, but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
@@ -441,9 +471,11 @@ class Config implements ConfigInterface
     public static function getFloat(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
     {
         $return = static::get($path, $default, $specified);
+
         if (is_float($return)) {
             return $return;
         }
+
         throw new ConfigException(tr('The configuration path ":path" should be a number but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
@@ -482,9 +514,11 @@ class Config implements ConfigInterface
     public static function getArray(string|array $path, array|null $default = null, mixed $specified = null): array
     {
         $return = static::get($path, $default, $specified);
+
         if (is_array($return)) {
             return static::fixKeys($return);
         }
+
         throw new ConfigException(tr('The configuration path ":path" should be an array but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
@@ -506,9 +540,11 @@ class Config implements ConfigInterface
     public static function getString(string|array $path, string|null $default = null, mixed $specified = null): string
     {
         $return = static::get($path, $default, $specified);
+
         if (is_string($return)) {
             return $return;
         }
+
         throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
@@ -530,9 +566,11 @@ class Config implements ConfigInterface
     public static function getBoolString(string|array $path, string|bool|null $default = null, mixed $specified = null): string|bool
     {
         $return = static::get($path, $default, $specified);
+
         if (is_string($return) or is_bool($return)) {
             return $return;
         }
+
         throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
@@ -551,6 +589,7 @@ class Config implements ConfigInterface
     public static function exists(string|array $path): bool
     {
         $uuid = Strings::getUuid();
+
         if (static::get($path, $uuid) === $uuid) {
             // We got the default value, the requested path does not exist
             return false;
@@ -572,27 +611,32 @@ class Config implements ConfigInterface
     public static function set(string|array $path, mixed $value = null): mixed
     {
         static::getInstance();
+
         $path = Strings::force($path, '.');
         $path = str_replace('\\.', ':', $path);
         $data = &static::$data;
+
         // Go over each key and if the value for the key is an array, request a subsection
         foreach (Arrays::force($path, '.') as $section) {
             $section = str_replace(':', '.', $section);
+
             if (!is_array($data)) {
                 // Oops, this data section should be an array
                 throw ConfigException::new(tr('The configuration section ":section" from requested path ":path" does not exist', [
                     ':section' => $section,
                     ':path'    => $path,
-                ]))
-                                     ->makeWarning();
+                ]))->makeWarning();
             }
+
             if (!array_key_exists($section, $data)) {
                 // The requested key does not exist, initialize with an array just in case
                 $data[$section] = [];
             }
+
             // Get the requested subsection
             $data = &$data[$section];
         }
+
         // The variable $data should now be the correct leaf node. Assign it $value and return it.
         $data = $value;
 

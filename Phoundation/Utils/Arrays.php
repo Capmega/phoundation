@@ -416,13 +416,39 @@ class Arrays extends Utils
     /**
      * Return a random value from the specified array
      *
-     * @param array $array
+     * @param array $source
      *
      * @return mixed
      */
-    public static function getRandomValue(array $array): mixed
+    public static function getRandomValue(array $source): mixed
     {
-        return $array[array_rand($array)];
+        return $source[array_rand($source)];
+    }
+
+
+    /**
+     * Return an array with the specified amount of random key/values from the specified array
+     *
+     * @param array $source
+     * @param int   $count
+     *
+     * @return mixed
+     */
+    public static function getRandomValues(array $source, int $count = 1): array
+    {
+        if ($count === 1) {
+            // WTF PHP? I can't have a list of 1 item?
+            return Arrays::keepKeys($source, [array_rand($source, 1)]);
+        }
+
+        if ($count > count($source)) {
+            throw new OutOfBoundsException(tr('The requested number of random values ":requested" is larger than the number of entries ":available" in the specified source array', [
+                ':requested'  => $count,
+                ':available'  => count($source),
+            ]));
+        }
+
+        return Arrays::keepKeys($source, array_rand($source, $count));
     }
 
 

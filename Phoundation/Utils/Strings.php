@@ -717,7 +717,7 @@ class Strings extends Utils
         // First find all words
         preg_match_all('/\b(?:\w|\s)+\b/umsi', (string) $string, $results);
         if ($type == 'random') {
-            $type = pick_random(1, 'lowercase', 'uppercase', 'capitalize', 'doublecapitalize', 'invertcapitalize', 'invertdoublecapitalize', 'interleave', 'invertinterleave', 'consonantcaps', 'vowelcaps', 'lowercentercaps', 'capscenterlower');
+            $type = pick_random_argument(1, 'lowercase', 'uppercase', 'capitalize', 'doublecapitalize', 'invertcapitalize', 'invertdoublecapitalize', 'interleave', 'invertinterleave', 'consonantcaps', 'vowelcaps', 'lowercentercaps', 'capscenterlower');
         }
         // Now apply the specified type to all words
         foreach ($results as $words) {
@@ -1759,23 +1759,23 @@ class Strings extends Utils
         }
         switch (strtolower((string) $source)) {
             case 'true':
-                // no-break
+                // no break
             case 'yes':
-                // no-break
+                // no break
             case 'y':
-                // no-break
+                // no break
             case 'on':
-                // no-break
+                // no break
             case '1':
                 return true;
             case 'off':
-                // no-break
+                // no break
             case 'no':
-                // no-break
+                // no break
             case 'n':
-                // no-break
+                // no break
             case 'false':
-                // no-break
+                // no break
             case '0':
                 return false;
             default:
