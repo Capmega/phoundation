@@ -111,6 +111,7 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
     // Only on non-production machines, crash when not all entries were replaced as an extra check.
     if (!Core::isProductionEnvironment() and $check) {
         preg_match_all('/:\w+/', $text, $matches);
+
         if (!empty($matches[0])) {
             if (empty($replace)) {
                 throw new OutOfBoundsException(tr('The tr() text ":text" contains key(s) ":keys" but no replace values were specified', [
@@ -118,7 +119,8 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
                     ':text' => $text,
                 ]));
             }
-            // Verify that all specified text keys are available in the replace array
+
+            // Verify that all specified text keys are available in the replacement array
             foreach ($matches[0] as $match) {
                 if (!array_key_exists($match, $replace)) {
                     throw new OutOfBoundsException(tr('The tr() text key ":key" does not exist in the specified replace values for the text ":text"', [
@@ -128,6 +130,7 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
                 }
             }
         }
+
         if ($replace) {
             if (empty($matches[0])) {
                 throw new OutOfBoundsException(tr('The tr() replace array contains key(s) ":keys" but the text ":text" contains no keys', [
@@ -135,8 +138,10 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
                     ':text' => $text,
                 ]));
             }
+
             // Verify that all specified replacement keys are available in the text
             $matches = array_flip($matches[0]);
+
             foreach ($replace as $key => $value) {
                 if (!array_key_exists($key, $matches)) {
                     throw new OutOfBoundsException(tr('The tr() replace key ":key" does not exist in the specified text ":text"', [
@@ -147,12 +152,14 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
             }
         }
     }
+
     if ($replace) {
         if ($clean) {
             foreach ($replace as &$value) {
                 $value = Strings::log($value);
             }
         }
+
         unset($value);
 
         return str_replace(array_keys($replace), array_values($replace), $text);
@@ -290,104 +297,165 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                     if (is_scalar($variable)) {
                         return $variable;
                     }
+
                     break;
+
                 case 'string':
                     if (is_string($variable)) {
                         return $variable;
                     }
+
                     if (is_object($variable) and ($variable instanceof Stringable)) {
                         // This is fine, this object has __toString() implemented
                         return (string) $variable;
                     }
+
                     break;
+
                 case 'int':
                     // no break
                 case 'integer':
                     if (is_integer($variable)) {
                         return $variable;
                     }
+
+                    if (is_numeric($variable)) {
+                        // This is a number stored as a string, if it's an integer, then type cast it
+                        if ((int) $variable == $variable) {
+                            return (int) $variable;
+                        }
+                    }
+
                     break;
+
                 case 'double':
                     // no break
                 case 'float':
                     if (is_float($variable)) {
                         return $variable;
                     }
+
+                    if (is_numeric($variable)) {
+                        // This is a float number stored as a string, convert it to integer
+                        return (float) $variable;
+                    }
+
                     break;
+
                 case 'bool':
                     // no break
                 case 'boolean':
                     if (is_bool($variable)) {
                         return $variable;
                     }
+
+                    if (is_integer($variable)) {
+                        if ($variable === 1) {
+                            return true;
+                        }
+
+                        if ($variable === 0) {
+                            return false;
+                        }
+                    }
+
+                    if (is_string($variable)) {
+                        $variable = strtolower(trim($variable));
+
+                        if ($variable === 'true') {
+                            return true;
+                        }
+
+                        if ($variable === 'false') {
+                            return false;
+                        }
+                    }
+
                     break;
+
                 case 'array':
                     if (is_array($variable)) {
                         return $variable;
                     }
+
                     break;
+
                 case 'resource':
                     if (is_resource($variable)) {
                         return $variable;
                     }
+
                     break;
+
                 case 'function':
-                    // no-break
+                    // no break
                 case 'callable':
                     if (is_callable($variable)) {
                         return $variable;
                     }
+
                     break;
+
                 case 'null':
                     if (is_null($variable)) {
                         return $variable;
                     }
+
                     break;
+
                 case 'datetime':
                     if ($variable instanceof \DateTimeInterface) {
                         return $variable;
                     }
+
                     break;
+
                 case 'object':
                     if (is_object($variable)) {
                         return $variable;
                     }
+
                     break;
+
                 default:
                     // This should be an object
                     if (is_subclass_of($variable, $type)) {
                         return $variable;
                     }
+
                     break;
             }
         }
+
         if ($exception) {
             if (is_object($variable)) {
                 throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable ":variable" is an object of the class ":class" but it should be one of ":types"', [
                     ':variable' => $variable,
                     ':class'    => get_class($variable),
                     ':types'    => $types,
-                ]))
-                                          ->addData(['variable' => $variable]);
+                ]))->addData(['variable' => $variable]);
             }
+
             throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable ":variable" has datatype ":has" but it should be one of ":types"', [
                 ':variable' => $variable,
                 ':has'      => gettype($variable),
                 ':types'    => $types,
-            ]))
-                                      ->addData(['variable' => $variable]);
+            ]))->addData(['variable' => $variable]);
         }
 
         // Don't throw an exception, return null instead.
         return null;
     }
+
     // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
     unset($variable);
+
     if ($default === null) {
         return null;
     }
 
-    // Return the default variable after validating datatype
+    // Return the default variable after validating datatype. This WILL throw an exception, no matter what, if the data
+    // type does not match
     return isset_get_typed($types, $default);
 }
 
@@ -583,7 +651,7 @@ function not_null(): mixed
  *
  * @return mixed
  */
-function pick_random(mixed ...$arguments): mixed
+function pick_random_argument(mixed ...$arguments): mixed
 {
     return Arrays::getRandomValue($arguments);
 }
@@ -1202,6 +1270,21 @@ function get_object_class_or_data_type(mixed $value): string
     }
 
     return $type;
+}
+
+
+/**
+ * Returns the index for the specified key in the specified array
+ *
+ * @param int|string $needle
+ * @param array      $haystack
+ * @param bool       $strict
+ *
+ * @return int|false
+ */
+function array_key_index(int|string $needle, array $haystack, bool $strict = true): int|false
+{
+    return array_search($needle, array_keys($haystack), $strict);
 }
 
 
