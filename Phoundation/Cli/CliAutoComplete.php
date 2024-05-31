@@ -145,12 +145,10 @@ class CliAutoComplete
             '-W,--no-warnings'         => false,
             '--system-language'        => [
                 'word'   => function ($word) {
-                    return Languages::new()
-                                    ->keepMatchingKeys($word);
+                    return Languages::new()->keepMatchingKeys($word);
                 },
                 'noword' => function () {
-                    return Languages::new()
-                                    ->getSource();
+                    return Languages::new()->getSource();
                 },
             ],
             '--deleted'                => false,
@@ -158,12 +156,10 @@ class CliAutoComplete
             '--limit'                  => true,
             '--timezone'               => [
                 'word'   => function ($word) {
-                    return Timezones::new()
-                                    ->keepMatchingKeys($word);
+                    return Timezones::new()->keepMatchingKeys($word);
                 },
                 'noword' => function () {
-                    return Timezones::new()
-                                    ->getSource();
+                    return Timezones::new()->getSource();
                 },
             ],
             '--show-passwords'         => false,
@@ -191,6 +187,12 @@ class CliAutoComplete
      */
     public static function setPosition(int $position): void
     {
+        if ($position < 0) {
+            throw new CliAutoCompleteException(tr('Invalid position ":position" specified, must be 0 or higher', [
+                ':position' => $position
+            ]));
+        }
+
         static::$position = $position;
     }
 
@@ -276,8 +278,10 @@ class CliAutoComplete
                 if (str_starts_with($argument_command, '-')) {
                     // This is a system modifier argument, show the system modifier arguments instead.
                     $data['commands'] = [];
+
                     foreach (static::$system_arguments as $arguments => $definitions) {
                         $arguments = explode(',', $arguments);
+
                         foreach ($arguments as $argument) {
                             $data['commands'][] = $argument;
                         }
@@ -329,52 +333,56 @@ class CliAutoComplete
             $previous_word = isset_get(ArgvValidator::getArguments()[static::$position - 1]);
             $word          = isset_get(ArgvValidator::getArguments()[static::$position]);
             $word          = strtolower(trim((string) $word));
+
             // Check if the previous key was a modifier argument that requires a value
             foreach ($argument_definitions as $key => $value) {
                 // Values may contain multiple arguments!
                 $keys = explode(',', Strings::until($key, ' '));
+
                 foreach ($keys as $key) {
                     if ($key === $previous_word) {
                         $requires_value = $value;
                     }
                 }
             }
+
         } else {
             $word = '';
         }
+
         if (isset_get($requires_value)) {
             if ($requires_value === true) {
                 // non-suggestible value, the user will have to type this themselves...
+
             } else {
                 if (is_array($requires_value)) {
-                    if (
-                        array_keys($requires_value) === [
-                            'word',
-                            'noword',
-                        ]
-                    ) {
+                    if (array_keys($requires_value) === ['word', 'noword']) {
                         // The $requires_value contains queries for if there is a partial word, or when there is no
                         // partial word
                         if ($word) {
                             if (array_key_exists('word', $requires_value)) {
                                 $results = static::processDefinition($requires_value['word'], $word);
                             }
+
                         } else {
                             if (array_key_exists('noword', $requires_value)) {
                                 $results = static::processDefinition($requires_value['noword'], null);
                             }
                         }
+
                     } else {
                         // The $requires_value contains a list of possible values
                         $results = $requires_value;
                     }
                 }
             }
+
         } else {
             // The previous argument (if any?) requires no value. Check if we can suggest more modifier arguments
             foreach ($argument_definitions as $key => $value) {
                 // Values may contain multiple arguments!
                 $keys = explode(',', Strings::until($key, ' '));
+
                 foreach ($keys as $key) {
                     if (!$word or str_contains(strtolower(trim($key)), $word)) {
                         $results[] = $key;
@@ -382,11 +390,13 @@ class CliAutoComplete
                 }
             }
         }
+
         // Process results only if we have any
         if (isset($results)) {
             foreach ($results as $result) {
                 echo $result . PHP_EOL;
             }
+
             // Die here as we have echoed results!
             exit();
         }
@@ -407,9 +417,11 @@ class CliAutoComplete
         if (is_null($definition)) {
             return null;
         }
+
         // If the given definition was a function, we can just return the result
         if (is_callable($definition)) {
             $results = $definition($word, ArgvValidator::getArguments());
+
             if (is_array($results)) {
                 // Limit the number of results
                 $results = static::limit($results);
@@ -417,8 +429,10 @@ class CliAutoComplete
 
             return $results;
         }
+
         if (is_string($definition)) {
             $definition = trim($definition);
+
             if (str_starts_with($definition, 'SELECT ')) {
                 if ($word) {
                     // Execute the query filtering on the specified word and limit the results
@@ -431,10 +445,12 @@ class CliAutoComplete
 
             return $definition;
         }
+
         // Process an array, return all entries that have partial match
         if (is_array($definition)) {
             $definition = static::limit($definition);
             $results    = [];
+
             foreach ($definition as $value) {
                 if (!$word or str_contains(strtolower(trim($value)), $word)) {
                     $results[] = $value;
@@ -443,6 +459,7 @@ class CliAutoComplete
 
             return $results;
         }
+
         throw new CliAutoCompleteException(tr('Failed to process auto complete definition ":definition" for command ":command"', [
             ':command'    => static::$command,
             ':definition' => $definition,
@@ -485,6 +502,7 @@ class CliAutoComplete
     protected static function getCommandsStartingWith(array $commands, string $word): array
     {
         $return = [];
+
         foreach ($commands as $command) {
             if (str_starts_with($command, $word)) {
                 // A command contains the word we try to auto complete
@@ -556,33 +574,40 @@ class CliAutoComplete
         if (array_key_exists($position, isset_get($definitions))) {
             // Get position specific data
             $position_data = $definitions[$position];
+
             // We may have a word or not, check if position_data allows word (or not) and process
             if ($word) {
                 if (array_key_exists('word', $position_data)) {
                     $results = static::processDefinition($position_data['word'], $word);
                 }
+
             } else {
                 if (array_key_exists('noword', $position_data)) {
                     $results = static::processDefinition($position_data['noword'], null);
                 }
             }
+
             // Process results only if we have any
             if (isset($results)) {
                 // Sort the results, either array or Iterator
                 if (is_array($results)) {
                     asort($results);
+
                 } elseif ($results instanceof IteratorInterface) {
                     $results->sort();
+
                 } else {
                     // The given result is neither array nor Iterator
                     throw new OutOfBoundsException(tr('Invalid ":word" auto completion results specified', [
                         ':word' => $word ? 'word' : 'noword',
                     ]));
                 }
+
                 foreach ($results as $result) {
                     if (!$result) {
                         continue;
                     }
+
                     if (!is_scalar($result)) {
                         if (!$result instanceof DataEntryInterface) {
                             throw OutOfBoundsException::new(tr('Invalid ":word" auto completion results ":result" specified (from results list ":results")', [
@@ -595,10 +620,13 @@ class CliAutoComplete
                             ])
                             ->makeWarning();
                         }
+
                         $result = $result->getAutoCompleteValue();
                     }
+
                     echo ((string) $result) . PHP_EOL;
                 }
+
                 // Die here as we have echoed the results!
                 exit();
             }
@@ -622,6 +650,7 @@ class CliAutoComplete
             }
 
             static::processArguments(array_merge($definitions, static::$system_arguments));
+
         } else {
             static::processArguments(static::$system_arguments);
         }

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Cli\Cli class
+ *
+ * This class contains basic Command Line Interface management methods
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Cli
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Cli;
@@ -13,16 +24,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
-/**
- * Cli\Cli class
- *
- * This class contains basic Command Line Interface management methods
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Cli
- */
 class Cli
 {
     /**

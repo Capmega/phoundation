@@ -122,9 +122,9 @@ class CliCommand
     /**
      * Tracks if the UID of the process and the pho file match
      *
-     * @var bool $pho_uid_match
+     * @var bool|null $pho_uid_match
      */
-    protected static bool $pho_uid_match = true;
+    protected static ?bool $pho_uid_match = null;
 
     /**
      * Tracks if the ./pho file UID
@@ -253,10 +253,12 @@ class CliCommand
     protected static function startup(): array
     {
         static::detectProcessUidMatchesPhoundationOwner();
+
         $return = [
             'limit'  => null,
             'reason' => null,
         ];
+
         // Startup the system core
         try {
             Core::startup();
@@ -269,23 +271,23 @@ class CliCommand
             $return['limit']  = 'system/project/setup';
             $return['reason'] = tr('Project file not found, please execute "./cli system project setup"');
         }
+
         static::ensureProcessUidMatchesPhoundationOwner();
-        $maintenance = Core::getMaintenanceMode();
-        if ($maintenance) {
+
+        if (Core::getMaintenanceMode()) {
             // We're running in maintenance mode, limit command execution to system/
-            $return['limit']  = [
-                'system/',
-                'info',
-            ];
+            $return['limit']  = ['system/', 'info'];
             $return['reason'] = tr('system has been placed in maintenance mode by user ":user" and only ./pho system ... commands are available right now. If maintenance mode is stuck then please run "./pho system maintenance disable" to disable maintenance mode. Please note that all web requests are being blocked as well during maintenance mode!', [
-                ':user' => $maintenance,
+                ':user' => Core::getMaintenanceMode(),
             ]);
         }
+
         // Define the readline completion function
         readline_completion_function([
             '\Phoundation\Cli\CliCommand',
             'completeReadline',
         ]);
+
         // Only allow this to be run by the command line interface
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
         static::onlyCommandLine();
@@ -303,24 +305,42 @@ class CliCommand
     protected static function detectProcessUidMatchesPhoundationOwner(): void
     {
         $owner = @fileowner(__DIR__ . '/../../pho');
+
         if ($owner === false) {
             // Wut? What happened? Does the pho command exist? If it does, how did we got here? ./pho renamed, perhaps?
             echo 'Failed to get file owner information of "PROJECT_ROOT/pho" command file' . PHP_EOL;
             exit();
         }
+
         static::$pho_uid = $owner;
+
         Core::getInstance();
+
         if (Core::getProcessUid() === static::$pho_uid) {
             // Correct user, yay!
+            static::$pho_uid_match = true;
             return;
         }
-        if (!Config::getBoolean('cli.require-same-uid', true)) {
-            // According to configuration, we don't need to have the same UID.
-            return;
-        }
-        // UID mismatch, stop logging to file as that likely won't be possible at all
-        Log::disableFile();
+
+        // UID does NOT match, disable logging for now to avoid issues
         static::$pho_uid_match = false;
+
+        // UID mismatch, stop logging to file as that likely won't be possible at all. Also stop all file access
+        Log::disableFile();
+        File::disable();
+    }
+
+
+    /**
+     * Returns true if the PHO command UID matches the UID of the current process
+     *
+     * @note Returns NULL if the UID match check has not yet been executed
+     *
+     * @return bool|null
+     */
+    public static function phoUidMatch(): ?bool
+    {
+        return static::$pho_uid_match;
     }
 
 
@@ -338,60 +358,61 @@ class CliCommand
             // Correct user, yay!
             return;
         }
-        if (CliAutoComplete::isActive()) {
-            // Auto complete does not require same UID
-            return;
-        }
+
         if (!Core::getProcessUid() and $permit_root) {
             // This command is run as root and the user root is authorized!
             return;
         }
+
+        if (!Config::getBoolean('cli.security.require-same-uid', true)) {
+            // According to configuration, we don't need to have the same UID.
+            return;
+        }
+
         if (!$auto_switch) {
             throw new CliException(tr('The user ":puser" is not allowed to execute these commands, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', [
                 ':puser' => CliCommand::getProcessUser(),
                 ':fuser' => get_current_user(),
             ]));
         }
-        // From here we will restart the process using SUDO with the correct user
-        global $argv;
-        // Start building the arguments list
-        foreach ($argv as &$argument) {
-            if (
-                in_array($argument, [
-                    '-Q',
-                    '--quiet',
-                ])
-            ) {
-                $quiet = true;
 
-            } elseif (
-                in_array($argument, [
-                    '-V',
-                    '--verbose',
-                ])
-            ) {
-                $verbose = true;
+        // From here we will restart the process using SUDO with the correct user
+        // Start building the argument list
+        $command   = escapeshellcmd(DIRECTORY_ROOT . 'pho');
+        $arguments = ArgvValidator::new()->getSource();
+
+        if (CliAutoComplete::isActive()) {
+            // Auto complete requires re-adding the --auto-complete and position and a different argument handling
+            $arguments = [
+                '--auto-complete',
+                '"' . CliAutoComplete::getPosition() . ' ' . implode(' ', $arguments) . '"'
+            ];
+
+        } else {
+            // Ensure all arguments are properly escaped
+            foreach ($arguments as &$argument) {
+                $argument = escapeshellarg($argument);
             }
-            if ($argument === '--auto-complete') {
-                // Auto complete active, be quiet!
-                $quiet   = true;
-                $verbose = false;
-            }
-            $argument = escapeshellarg((string) $argument);
         }
+
+        unset($argument);
+
         // As what user should we execute this? Build the sudo command to be executed
         $user    = posix_getpwuid(static::$pho_uid);
-        $command = 'sudo -Eu ' . escapeshellarg($user['name']) . ' ' . implode(' ', $argv);
-        if (empty($quiet)) {
-            if (isset($verbose)) {
+        $command = 'sudo -Eu ' . escapeshellarg($user['name']) . ' ' . $command . ' ' . implode(' ', $arguments);
+
+        if (!QUIET) {
+            if (VERBOSE) {
                 echo 'Re-executing ./pho command as user "' . $user['name'] . '" with command "' . $command . '"' . PHP_EOL;
 
             } else {
                 echo 'Re-executing ./pho command as user "' . $user['name'] . '"' . PHP_EOL;
             }
         }
+
         // Re-execute this PHO command with sudo as the correct user
         passthru($command, $result_code);
+
         // We likely won't be able to log here (nor should we), so disable logging
         Core::exit($result_code, direct_exit: true);
     }
@@ -659,9 +680,7 @@ class CliCommand
 
         } catch (Exception $e) {
             if ($e->getCode() == 'already-running') {
-                /*
-                * Just keep throwing this one
-                */
+                // Keep throwing this one
                 throw($e);
             }
             throw new CliException('cli_run_once_local(): Failed', $e);
@@ -714,11 +733,11 @@ class CliCommand
                 throw CliCommandNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
                     ':file' => $command,
                 ]))
-                                                  ->makeWarning()
-                                                  ->addData([
-                                                      'position' => CliAutoComplete::getPosition(),
-                                                      'commands' => [basename($command)],
-                                                  ]);
+                ->makeWarning()
+                ->addData([
+                    'position' => CliAutoComplete::getPosition(),
+                    'commands' => [basename($command)],
+                ]);
             }
 
             // Check if this command has support for auto complete. If not
@@ -731,11 +750,11 @@ class CliCommand
             return $command;
 
         } catch (ValidationFailedException $e) {
-            // Whoops, somebody typed something weird or naughty. Either way, just ignore it
+            // Whoops, somebody typed something weird or naughty. Either way, ignore it
             Log::warning($e);
             exit(1);
 
-        } catch (CliNoCommandSpecifiedException|CliCommandNotFoundException|CliCommandNotExistsException $e) {
+        } catch (CliNoCommandSpecifiedException | CliCommandNotFoundException | CliCommandNotExistsException $e) {
             // Auto complete the command
             CliAutoComplete::processCommands(static::$commands, $e->getData());
         }

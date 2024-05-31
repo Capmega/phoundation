@@ -142,6 +142,7 @@ class Core implements CoreInterface
      * Can be one of:
      *
      * NULL        state has not yet been defined
+     * boot        Core is booting, no configuration available yet
      * startup     Core is starting up
      * script      Script execution is now running
      * maintenance System is in maintenance state
@@ -246,12 +247,14 @@ class Core implements CoreInterface
      */
     protected function __construct()
     {
-        static::$state                         = 'startup';
+        static::$state                         = 'boot';
         static::$register['system']['startup'] = microtime(true);
+
         // Set local and global process identifiers
         // TODO Implement support for global process identifier
         static::setLocalId(substr(uniqid(), -8, 8));
         static::setGlobalId('');
+
         // Define a unique process request ID
         // Define project paths.
         // DIRECTORY_START  is the CWD from the moment this process started
@@ -267,13 +270,16 @@ class Core implements CoreInterface
         define('DIRECTORY_PUBTMP', DIRECTORY_DATA . 'content/cdn/tmp/');
         define('DIRECTORY_TMP', DIRECTORY_DATA . 'tmp/');
         define('DIRECTORY_WEB', DIRECTORY_DATA . 'system/cache/web/');
+
         // Setup error handling, report ALL errors, setup shutdown functions
         static::setErrorHandling(true);
         static::setExceptionHandling(true);
+
         register_shutdown_function([
             '\Phoundation\Core\Core',
             'exit',
         ]);
+
         // Catch and handle process control signals
         if (function_exists('pcntl_signal')) {
             pcntl_async_signals(true);
@@ -290,9 +296,11 @@ class Core implements CoreInterface
                 'execute',
             ]);
         }
+
         // Load the functions and mb files
         require(DIRECTORY_ROOT . 'Phoundation/functions.php');
         require(DIRECTORY_ROOT . 'Phoundation/mb.php');
+
         // Register the process start
         static::$timer = Timers::new('core', 'system');
         define('STARTTIME', static::$timer->getStart());
@@ -315,6 +323,7 @@ class Core implements CoreInterface
                     ':state' => static::$state,
                 ]));
             }
+
             // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
             // project name, platform and request type
             static::getInstance();
@@ -332,14 +341,17 @@ class Core implements CoreInterface
                             ':location' => $file . '@' . $line,
                         ]), $e);
                     }
+
                     throw new CoreException(tr('Failed because headers were already sent on ":location"', [
                         ':location' => $file . '@' . $line,
                     ]), $e);
                 }
             }
+
             if (($e instanceof ValidationFailedException) or ($e instanceof CliArgumentsException)) {
                 throw $e;
             }
+
             throw new CoreStartupFailedException('Failed core startup because "' . $e->getMessage() . '"', $e);
         }
     }
@@ -408,15 +420,16 @@ class Core implements CoreInterface
         // Check what platform we're in
         switch (php_sapi_name()) {
             case 'cli':
-                define('PLATFORM', 'cli');
+                define('PLATFORM'    , 'cli');
                 define('PLATFORM_WEB', false);
                 define('PLATFORM_CLI', true);
                 break;
+
             default:
-                define('PLATFORM', 'web');
+                define('PLATFORM'    , 'web');
                 define('PLATFORM_WEB', true);
                 define('PLATFORM_CLI', false);
-                define('NOCOLOR', (getenv('NOCOLOR') ? 'NOCOLOR' : null));
+                define('NOCOLOR'     , (getenv('NOCOLOR') ? 'NOCOLOR' : null));
                 break;
         }
     }
@@ -434,9 +447,12 @@ class Core implements CoreInterface
             case 'web':
                 static::startupWeb();
                 break;
+
             case 'cli':
                 static::startupCli();
         }
+
+        static::$state = 'startup';
     }
 
 
@@ -449,49 +465,59 @@ class Core implements CoreInterface
     {
         if (PROJECT === 'UNKNOWN') {
             $env = '';
+
         } else {
             // Check what environment we're in
             $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
+
             if (empty($env)) {
                 // No environment set in ENV, maybe given by parameter?
                 Core::exit(2, 'startup: No required web environment specified for project "' . PROJECT . '"');
             }
         }
+
         // Set environment and protocol
         define('ENVIRONMENT', $env);
-        define('PROTOCOL', Config::get('web.protocol', 'https://'));
+
         Config::setEnvironment(ENVIRONMENT);
+
         // Register basic HTTP information
         // TODO MOVE TO HTTP CLASS
         static::$register['http']['code'] = 200;
 //                    static::$register['http']['accepts'] = Request::accepts();
 //                    static::$register['http']['accepts_languages'] = Request::acceptsLanguages();
+
         // Define basic platform constants
-        define('ADMIN', '');
-        define('PWD', Strings::slash(isset_get($_SERVER['PWD'])));
-        define('PAGE', $_GET['page'] ?? 1);
-        define('ALL', (getenv('ALL') ? 'ALL' : false));
-        define('DELETED', (getenv('DELETED') ? 'DELETED' : false));
-        define('FORCE', (getenv('FORCE') ? 'FORCE' : false));
-        define('ORDERBY', (getenv('ORDERBY') ? 'ORDERBY' : ''));
-        define('STATUS', (getenv('STATUS') ? 'STATUS' : ''));
-        define('QUIET', ((getenv('QUIET') or getenv('VERY_QUIET')) ? 'QUIET' : false));
+        define('ADMIN'     , '');
+        define('PROTOCOL'  , Config::get('web.protocol', 'https://'));
+        define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
+        define('PAGE'      , $_GET['page'] ?? 1);
+        define('QUIET'     , ((getenv('QUIET') or getenv('VERY_QUIET')) ? 'QUIET' : false));
+        define('ALL'       , (getenv('ALL')        ? 'ALL'        : false));
+        define('DELETED'   , (getenv('DELETED')    ? 'DELETED'    : false));
+        define('FORCE'     , (getenv('FORCE')      ? 'FORCE'      : false));
+        define('ORDERBY'   , (getenv('ORDERBY')    ? 'ORDERBY'    : ''));
+        define('STATUS'    , (getenv('STATUS')     ? 'STATUS'     : ''));
         define('VERY_QUIET', (getenv('VERY_QUIET') ? 'VERY_QUIET' : false));
-        define('TEST', (getenv('TEST') ? 'TEST' : false));
-        define('VERBOSE', (getenv('VERBOSE') ? 'VERBOSE' : false));
-        define('NOAUDIO', (getenv('NOAUDIO') ? 'NOAUDIO' : false));
-        define('LIMIT', (getenv('LIMIT') ? 'LIMIT' : Config::getNatural('paging.limit', 50)));
+        define('TEST'      , (getenv('TEST')       ? 'TEST'       : false));
+        define('VERBOSE'   , (getenv('VERBOSE')    ? 'VERBOSE'    : false));
+        define('NOAUDIO'   , (getenv('NOAUDIO')    ? 'NOAUDIO'    : false));
+        define('LIMIT'     , (getenv('LIMIT')      ? 'LIMIT'      : Config::getNatural('paging.limit', 50)));
+
         // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'OPTIONS':
                 throw new UnderConstructionException();
         }
+
         // Set security umask
         umask(Config::get('filesystem.umask', 0007));
+
         // Set language and locale
         static::setLanguage();
         static::setLocale();
+
         // Prepare for unicode usage
         if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
             mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
@@ -499,12 +525,15 @@ class Core implements CoreInterface
                 mb_internal_encoding('UTF-8');
             }
         }
+
         // Check for configured maintenance mode
         if (Config::getBoolean('system.maintenance', false)) {
             // We are in maintenance mode, have to show mainenance page.
             Request::executeSystem(503);
         }
+
         static::setTimeZone();
+
         // If POST request, automatically untranslate translated POST entries
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 //                        Html::untranslate();
@@ -514,6 +543,7 @@ class Core implements CoreInterface
 //                            Http::checkCsrf();
             }
         }
+
         // Set the CDN url for javascript and validate HTTP GET request data
 // TODO Below
 //                    Html::setJsCdnUrl();
@@ -559,13 +589,6 @@ class Core implements CoreInterface
         if ($sig_kill) {
             Log::warning(tr('Not cleaning up due to kill signal!'), 3);
 
-        } elseif (static::inStartupState()) {
-            // Exit with exitcode during startup == baaaaaaad.
-            if ($exit_code and !CliAutoComplete::isActive()) {
-                Log::setFailed();
-                Log::error('Shutdown procedure started before Core was in script execution state');
-            }
-
         } else {
             // Try shutdown with cleanup
             try {
@@ -578,11 +601,13 @@ class Core implements CoreInterface
                 Core::uncaughtException($e);
             }
         }
+
         // Execute platform specific exit
         if (PLATFORM_WEB) {
             // Kill a web page
             Request::exit($exit_message, $sig_kill);
         }
+
         // Kill a CLI command
         CliCommand::exit($exit_code, $exit_message, $sig_kill);
     }
@@ -615,6 +640,22 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns true if the system state (or the specified state) is "boot"
+     *
+     * @param string|null $state If specified will return the startup state for the specified state instead of the
+     *                           internal Core state
+     *
+     * @return bool
+     * @see Core::getState()
+     * @see Core::inInitState()
+     */
+    public static function inBootState(?string $state = null): bool
+    {
+        return ($state ?? static::$state) === 'boot';
+    }
+
+
+    /**
      * Returns true if the system state (or the specified state) is "startup"
      *
      * @param string|null $state If specified will return the startup state for the specified state instead of the
@@ -642,42 +683,49 @@ class Core implements CoreInterface
      */
     protected static function executeShutdownCallbacks(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false): void
     {
-        if (!static::$shutdown_callbacks) {
+        if (empty(static::$shutdown_callbacks)) {
             return;
         }
-        Log::action(tr('Executing shutdown callbacks for script ":script"', [
-            ':script' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
-        ]), 2);
+
+        Log::action(tr('Executing shutdown callbacks'), 3);
+
         // Reverse the shutdown calls to execute them last added first, first added last
         static::$shutdown_callbacks = array_reverse(static::$shutdown_callbacks);
+
         foreach (static::$shutdown_callbacks as $identifier => $data) {
             try {
                 $function = $data['function'];
                 $data     = Arrays::force($data['data'], null);
+
                 // If no data was specified at all, then ensure at least one NULL value
                 if (!$data) {
                     $data = [null];
                 }
+
                 // Execute this shutdown function for each data value
                 foreach ($data as $value) {
                     Log::action(tr('Executing shutdown function ":identifier" with data value ":value"', [
                         ':identifier' => $identifier,
                         ':value'      => $value,
                     ]), 1);
+
                     if (is_callable($function)) {
                         // Execute this call directly
                         $function($value);
                         continue;
                     }
+
                     if (is_string($function)) {
                         if (str_contains($function, ',')) {
                             // This is an array containing components. Explode and treat as array
                             $function = explode(',', $function);
+
                         } else {
                             $function[0]::{$function[1]}($value);
                             continue;
                         }
                     }
+
                     // Execute this shutdown function with the specified value
                     if (is_array($function)) {
                         // Decode the array contents. If anything is not correct, it will no-break fall through to the
@@ -691,7 +739,7 @@ class Core implements CoreInterface
                                     continue;
                                 }
 
-                                // no-break
+                                // no break
                             } elseif (is_string($function[0])) {
                                 if (is_string($function[1])) {
                                     // Ensure the class file is loaded
@@ -701,14 +749,15 @@ class Core implements CoreInterface
                                     continue;
                                 }
 
-                                // no-break
+                                // no break
                             }
 
-                            // no-break
+                            // no break
                         }
 
-                        // no-break
+                        // no break
                     }
+
                     Log::warning(tr('Unknown function information ":function" encountered, quietly skipping', [
                         ':function' => $function,
                     ]));
@@ -754,15 +803,18 @@ class Core implements CoreInterface
         // Periodically execute the following functions
         if (!$exit_code) {
             $level = random_int(0, 100);
+
             if (Config::get('system.shutdown', false)) {
                 if (!is_array(Config::get('system.shutdown', false))) {
                     throw new OutOfBoundsException(tr('Invalid system.shutdown configuration, it should be an array'));
                 }
+
                 foreach (Config::get('system.shutdown', false) as $name => $parameters) {
                     if ($parameters['interval'] and ($level < $parameters['interval'])) {
                         Log::notice(tr('Executing periodical shutdown function ":function()"', [
                             ':function' => $name,
                         ]));
+
                         $parameters['function']();
                     }
                 }
@@ -780,8 +832,10 @@ class Core implements CoreInterface
     {
         // Flush the metadata
         Meta::flush();
+
         // Stop time measuring here
         static::$timer->stop();
+
         // Log debug information?
         if (Debug::getEnabled() and Debug::printStatistics()) {
             // Only when auto complete is not active!
@@ -789,6 +843,7 @@ class Core implements CoreInterface
                 static::logDebug();
             }
         }
+
         // Cleanup
         Session::exit();
         Directory::removeTemporary();
@@ -807,24 +862,30 @@ class Core implements CoreInterface
         Log::information(tr('Query timers [:count]:', [
             ':count' => count(Timers::get('sql', false)) ?? 0,
         ]), 10);
+
         Timers::stop(true);
+
         if (Timers::exists('sql')) {
             Timers::sortHighLow('sql', false);
             foreach (Timers::pop('sql', false) as $timer) {
                 Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $timer->getLabel(), 'debug', 10);
             }
+
         } else {
             Log::warning('-', 10);
         }
+
         Log::information(tr('Other timers [:count]:', [
             ':count' => Timers::getCount(),
         ]), 10);
+
         if (Timers::getCount()) {
             foreach (Timers::getAll() as $group => $timers) {
                 foreach ($timers as $timer) {
                     Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $group . ' > ' . $timer->getLabel(), 'debug', 10);
                 }
             }
+
         } else {
             Log::warning('-', 10);
         }
@@ -847,17 +908,14 @@ class Core implements CoreInterface
             try {
                 if ($e instanceof Exception) {
                     if ($e->isWarning()) {
-                        Audio::new('warning.mp3')
-                             ->playLocal(true);
+                        Audio::new('warning.mp3')->playLocal(true);
 
                     } else {
-                        Audio::new('critical.mp3')
-                             ->playLocal(true);
+                        Audio::new('critical.mp3')->playLocal(true);
                     }
 
                 } else {
-                    Audio::new('critical.mp3')
-                         ->playLocal(true);
+                    Audio::new('critical.mp3')->playLocal(true);
                 }
 
             } catch (Throwable $f) {
@@ -1169,7 +1227,7 @@ class Core implements CoreInterface
                         if (Debug::getEnabled()) {
                             switch (Request::getRequestType()) {
                                 case EnumRequestTypes::api:
-                                    // no-break
+                                    // no break
                                 case EnumRequestTypes::ajax:
                                     echo "UNCAUGHT EXCEPTION\n\n";
                                     showdie($e);
@@ -1276,7 +1334,7 @@ class Core implements CoreInterface
                                     ->send();
                         switch (Request::getRequestType()) {
                             case EnumRequestTypes::api:
-                                // no-break
+                                // no break
                             case EnumRequestTypes::ajax:
                                 if ($e instanceof CoreException) {
                                     Json::message($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
@@ -1356,11 +1414,14 @@ class Core implements CoreInterface
     public static function isProductionEnvironment(?bool $production = null): bool
     {
         static $loop = false;
+
         if ($loop) {
             // We're in a loop!
             return false;
         }
+
         $loop = true;
+
         try {
             if ($production === null) {
                 if (!defined('ENVIRONMENT')) {
@@ -1370,17 +1431,20 @@ class Core implements CoreInterface
 
                     return true;
                 }
+
                 // Return the setting
                 $return = Config::getBoolean('debug.production', false);
                 $loop   = false;
 
                 return $return;
             }
+
             // Set the value
             Config::set('debug.production', $production);
             $loop = false;
 
             return $production;
+
         } catch (ConfigException) {
             // Failed to get (or write) config. Assume production
             $loop = false;
@@ -1395,7 +1459,8 @@ class Core implements CoreInterface
      *
      * This function will ensure that the specified function will not be executed on shutdown
      *
-     * @param string $identifier
+     * @param string|int $identifier
+     * @param bool       $exception
      *
      * @return bool
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -1406,14 +1471,19 @@ class Core implements CoreInterface
      * @see       exit()
      * @see       Core::addShutdownCallback()
      * @version   1.27.0: Added function and documentation
-     *
      */
-    public static function removeShutdownCallback(string $identifier): bool
+    public static function removeShutdownCallback(string|int $identifier, bool $exception = false): bool
     {
         if (array_key_exists($identifier, static::$shutdown_callbacks)) {
             unset(static::$shutdown_callbacks[$identifier]);
 
             return true;
+        }
+
+        if ($exception) {
+            throw new OutOfBoundsException(tr('Cannot remove shutdown callback ":identifier", it does not exist', [
+                ':identifier' => $identifier
+            ]));
         }
 
         return false;
@@ -1432,11 +1502,13 @@ class Core implements CoreInterface
                 'en',
                 'es',
             ]);
+
             if ($supported) {
                 // Language is defined by the www/LANGUAGE dir that is used.
                 $url      = $_SERVER['REQUEST_URI'];
                 $url      = Strings::ensureStartsNotWith($url, '/');
                 $language = Strings::until($url, '/');
+
                 if (!in_array($language, $supported)) {
                     $language = Config::get('languages.default', 'en');
                     Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
@@ -1447,8 +1519,10 @@ class Core implements CoreInterface
             } else {
                 $language = Config::get('languages.default', 'en');
             }
+
             define('LANGUAGE', $language);
             define('LOCALE', $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
+
             // Ensure $_SESSION['language'] available
             if (empty($_SESSION['language'])) {
                 $_SESSION['language'] = LANGUAGE;
@@ -1459,7 +1533,8 @@ class Core implements CoreInterface
             if (!defined('LANGUAGE')) {
                 define('LANGUAGE', 'en');
             }
-            $e = new OutOfBoundsException('Language selection failed', $e);
+
+            throw new OutOfBoundsException(tr('Language selection failed'), $e);
         }
     }
 
@@ -1484,11 +1559,13 @@ class Core implements CoreInterface
             LC_TIME     => null,
             LC_MESSAGES => null,
         ]);
+
         if (!is_array($locale)) {
             throw new CoreException(tr('Specified $data should be an array but is an ":type"', [
                 ':type' => gettype($locale),
             ]));
         }
+
         // Determine language and location
         if (defined('LANGUAGE')) {
             $language = LANGUAGE;
@@ -1502,27 +1579,34 @@ class Core implements CoreInterface
         } else {
             $country = Config::get('location.default-country', 'us');
         }
+
         // First set LC_ALL as a baseline, then each entry
         if (isset($locale[LC_ALL])) {
             $locale[LC_ALL] = str_replace(':LANGUAGE', $language, $locale[LC_ALL]);
             $locale[LC_ALL] = str_replace(':COUNTRY', $country, $locale[LC_ALL]);
+
             setlocale(LC_ALL, $locale[LC_ALL]);
             unset($locale[LC_ALL]);
         }
+
         // Apply all parameters
         foreach ($locale as $key => $value) {
             if ($key === 'country') {
                 // Ignore this key
                 continue;
             }
+
             if ($value) {
                 // Ignore this empty value
                 continue;
             }
+
             $value = str_replace(':LANGUAGE', $language, (string) $value);
             $value = str_replace(':COUNTRY', $country, (string) $value);
+
             setlocale($key, $value);
         }
+
         static::$register['system']['locale'] = $locale;
     }
 
@@ -1562,18 +1646,17 @@ class Core implements CoreInterface
      */
     protected static function startupCli(): void
     {
-        if (!CliCommand::getPhoUidMatch()) {
-            // Do NOT startup CLI because we'll restart soon
-            return;
-        }
         // Hide all command line arguments
         ArgvValidator::hideData($GLOBALS['argv']);
+
         // USe global $argv ONLY if CliCommand::PhoUidMatch() is true because if it isn't we're going to restart and
         // we'll need the $argv as-is
         global $argv;
+
         // Validate system modifier arguments. Ensure that these variables get stored in the global $argv array because
         // they may be used later down the line by (for example) Documenation class, for example!
         $argv = ArgvValidator::new()
+                             ->setTest(!CliCommand::phoUidMatch())
                              ->select('-A,--all')->isOptional(false)->isBoolean()
                              ->select('-C,--no-color')->isOptional(false)->isBoolean()
                              ->select('-D,--debug')->isOptional(false)->isBoolean()
@@ -1633,26 +1716,16 @@ class Core implements CoreInterface
 //            'no_validation'          => false,
 //            'no_password_validation' => false
 //    ];
-        // Set requested language
-        Core::writeRegister($argv['language'] ?? Config::getString('languages.default', 'en'), 'system', 'language');
-        if ($argv['auto_complete']) {
-            // We're in auto complete mode. Show only direct output, don't use any color
-            $argv['log_level']     = 10;
-            $argv['no_color']      = true;
-            $argv['auto_complete'] = explode(' ', trim($argv['auto_complete']));
-            $location = (int) array_shift($argv['auto_complete']);
-            // Reset the $argv array to the auto complete data
-            ArgvValidator::hideData($argv['auto_complete']);
-            CliAutoComplete::setPosition($location - 1);
-            CliAutoComplete::initSystemArguments();
-        }
+
         // Check what environment we're in
         if ($argv['environment']) {
             // The Environment was manually specified on the command line
             $env = $argv['environment'];
+
         } else {
             // Get environment variable from the shell environment
             $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
+
             if (empty($env)) {
                 if (PROJECT !== 'UNKNOWN') {
                     // If we're in auto complete mode, then we don't need an environment
@@ -1660,48 +1733,82 @@ class Core implements CoreInterface
                         Core::exit(2, 'startup: No required cli environment specified for project "' . PROJECT . '". Use -E PROJECTNAME or check if your .bashrc file contains a line like "export PHOUNDATION_' . PROJECT . '_ENVIRONMENT=PROJECTNAME"');
                     }
                 }
+
                 $env = '';
             }
         }
+
         if (empty($env)) {
             Core::exit(2, 'startup: No required cli environment specified for project "' . PROJECT . '".  Use -E PROJECTNAME or check if your .bashrc file contains a line like "export PHOUNDATION_' . PROJECT . '_ENVIRONMENT=PROJECTNAME"');
         }
+
         // Set environment and protocol
         define('ENVIRONMENT', $env);
-        define('PROTOCOL', Config::get('web.protocol', 'https://'));
+
         Config::setEnvironment(ENVIRONMENT);
+
         // Define basic platform constants
-        define('ADMIN', '');
-        define('PWD', Strings::slash(isset_get($_SERVER['PWD'])));
-        define('QUIET', ($argv['very_quiet'] or $argv['quiet']));
+        define('ADMIN'     , '');
+        define('PROTOCOL'  , Config::get('web.protocol', 'https://'));
+        define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
+        define('QUIET'     , ($argv['very_quiet'] or $argv['quiet']));
         define('VERY_QUIET', $argv['very_quiet']);
-        define('VERBOSE', $argv['verbose']);
-        define('FORCE', $argv['force']);
-        define('NOCOLOR', $argv['no_color']);
-        define('TEST', $argv['test']);
-        define('DELETED', $argv['deleted']);
-        define('ALL', $argv['all']);
-        define('STATUS', $argv['status']);
-        define('PAGE', $argv['page']);
-        define('NOAUDIO', $argv['no_audio']);
-        define('LIMIT', get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
+        define('VERBOSE'   , $argv['verbose']);
+        define('FORCE'     , $argv['force']);
+        define('NOCOLOR'   , $argv['no_color']);
+        define('TEST'      , $argv['test']);
+        define('DELETED'   , $argv['deleted']);
+        define('ALL'       , $argv['all']);
+        define('STATUS'    , $argv['status']);
+        define('PAGE'      , $argv['page']);
+        define('NOAUDIO'   , $argv['no_audio']);
+        define('LIMIT'     , get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
+
+        // Set requested language
+        Core::writeRegister($argv['language'] ?? Config::getString('languages.default', 'en'), 'system', 'language');
+
+        if ($argv['auto_complete']) {
+            // We're in auto complete mode. Show only direct output, don't use any color, don't log to screen
+            Log::disableScreen();
+
+            $argv['no_color']      = true;
+            $argv['auto_complete'] = explode(' ', trim($argv['auto_complete']));
+
+            $location = (int) array_shift($argv['auto_complete']);
+
+            // Reset the $argv array to the auto complete data
+            ArgvValidator::hideData($argv['auto_complete']);
+            CliAutoComplete::setPosition($location - 1);
+            CliAutoComplete::initSystemArguments();
+        }
+
         // Correct $_SERVER['PHP_SELF'], sometimes seems empty
         if (empty($_SERVER['PHP_SELF'])) {
             if (!isset($_SERVER['_'])) {
                 $e = new OutOfBoundsException('No $_SERVER[PHP_SELF] or $_SERVER[_] found');
             }
+
             $_SERVER['PHP_SELF'] = $_SERVER['_'];
         }
+
         // Set more system parameters
         if ($argv['debug']) {
             Debug::switch();
         }
+
+        if (!CliCommand::getPhoUidMatch()) {
+            // Do NOT do the rest of the CLI startup because we'll restart soon
+            return;
+        }
+
         if ($argv['log_level']) {
             Log::setThreshold($argv['log_level']);
         }
+
         if ($argv['no_prefix']) {
-            Log::setUsePrefix(!$argv['no_prefix']);
+            Log::setUsePrefix(false);
         }
+
         // Process command line system arguments if we have no exception so far
         if ($argv['version']) {
             Log::cli(tr('Phoundation framework version ":version"', [
@@ -1713,46 +1820,61 @@ class Core implements CoreInterface
             Log::cli(tr('Phoundation minimum PHP version ":version"', [
                 ':version' => static::PHP_MINIMUM_VERSION,
             ]), 10);
+
             $exit = 0;
         }
+
         if ($argv['order_by']) {
             define('ORDERBY', ' ORDER BY `' . Strings::until($argv['order_by'], ' ') . '` ' . Strings::from($argv['order_by'], ' ') . ' ');
+
             $valid = preg_match('/^ ORDER BY `[a-z0-9_]+`(?:\s+(?:DESC|ASC))? $/', ORDERBY);
+
             if (!$valid) {
                 // The specified column ordering is NOT valid
                 $e = new CoreException(tr('The specified orderby argument ":argument" is invalid', [':argument' => ORDERBY]));
             }
         }
+
         if ($argv['no_warnings']) {
             define('NOWARNINGS', true);
         }
+
         if ($argv['show_passwords']) {
             Cli::showPasswords(true);
         }
+
         if ($argv['no_validation']) {
             Validator::disable();
         }
+
         if ($argv['no_password_validation']) {
             Validator::disablePasswords();
         }
+
         // Remove the command itself from the argv array
         array_shift($GLOBALS['argv']);
+
         // Set timeout
         static::setTimeout();
+
         // Something failed?
         if (isset($e)) {
             echo "startup-cli: Command line parser failed with \"" . $e->getMessage() . "\"\n";
             CliCommand::setExitCode(1);
             exit(1);
         }
+
         if (isset($exit)) {
             Core::exit($exit);
         }
+
         // set terminal data
         static::$register['cli'] = ['term' => Cli::getTerm()];
+
         if (static::$register['cli']['term']) {
             static::$register['cli']['columns'] = Cli::getColumns();
             static::$register['cli']['lines']   = Cli::getLines();
+
             if (!static::$register['cli']['columns']) {
                 static::$register['cli']['size'] = 'unknown';
 
@@ -1766,16 +1888,21 @@ class Core implements CoreInterface
                 static::$register['cli']['size'] = 'large';
             }
         }
+
         // Set security umask
         umask(Config::get('filesystem.umask', 0007));
+
         // Get required language.
         try {
             $language = not_empty($argv['language'], Config::get('language.default', 'en'));
+
             if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
                 throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
             }
+
             define('LANGUAGE', $language);
             define('LOCALE', $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
+
             $_SESSION['language'] = $language;
 
         } catch (Throwable $e) {
@@ -1783,12 +1910,15 @@ class Core implements CoreInterface
             if (!defined('LANGUAGE')) {
                 define('LANGUAGE', 'en');
             }
+
             $e = new CoreException('Language selection failed', $e);
         }
+
         // Setup locale and character encoding
         // TODO Check this mess!
         ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
         static::setLocale();
+
         // Prepare for unicode usage
         if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
 // TODO Fix this godawful mess!
@@ -1802,6 +1932,7 @@ class Core implements CoreInterface
 
         //
         static::$register['ready'] = true;
+
         // Validate parameters and give some startup messages, if needed
         if (Debug::getEnabled()) {
             if (Debug::getEnabled()) {
@@ -1820,6 +1951,7 @@ class Core implements CoreInterface
             if (TEST) {
                 throw new CoreException(tr('Both FORCE and TEST modes where specified, these modes are mutually exclusive'));
             }
+
             Log::warning(tr('Running in FORCE mode'));
 
         } elseif (TEST) {
@@ -1867,6 +1999,9 @@ class Core implements CoreInterface
             CliCommand::setRequireDefault(false);
             static::disableInitState();
         }
+
+        // Ensure any extra dashed arguments are "undashed"
+        ArgvValidator::unDoubleDash();
     }
 
 
@@ -1885,6 +2020,7 @@ class Core implements CoreInterface
 // TODO Check how to fix this later
 //            throw new AccessDeniedException('The "system" register cannot be written to');
         }
+
         if ($subkey) {
             // We want to write to a sub key. Ensure that the key exists and is an array
             if (array_key_exists($key, static::$register)) {
@@ -1895,12 +2031,15 @@ class Core implements CoreInterface
                         'subkey' => $subkey,
                     ]));
                 }
+
             } else {
                 // Libraries the register subarray
                 static::$register[$key] = [];
             }
+
             // Write the key / subkey
             static::$register[$key][$subkey] = $value;
+
         } else {
             // Write the key
             static::$register[$key] = $value;
@@ -1924,11 +2063,13 @@ class Core implements CoreInterface
             if (PLATFORM_WEB) {
                 // Default timeout to either system configuration web.timeout, or environment variable TIMEOUT
                 $timeout = Config::get('web.timeout', get_null(getenv('TIMEOUT')) ?? 5);
+
             } else {
                 // Default timeout to either system configuration cli.timeout, or environment variable TIMEOUT
                 $timeout = Config::get('cli.timeout', get_null(getenv('TIMEOUT')) ?? 30);
             }
         }
+
         static::$register['system']['timeout'] = $timeout;
 
         return set_time_limit($timeout);
@@ -2070,9 +2211,9 @@ class Core implements CoreInterface
 //    {
 //        switch ($state) {
 //            case 'startup':
-//                // no-break
+//                // no break
 //            case 'script':
-//                // no-break
+//                // no break
 //            case 'shutdown':
 //                // These are not allowed
 //                throw new OutOfBoundsException(tr('Core state update to ":state" is not allowed. Core state can only be updated to "error" or "phperror"', [
@@ -2107,10 +2248,12 @@ class Core implements CoreInterface
         if (Core::$usleep) {
             // Ups, we were sleeping but it got interrupted. Resume
             sleep(Core::$usleep - time() + $offset);
+
         } else {
             Core::$usleep = (time()) + $seconds;
             sleep($seconds);
         }
+
         Core::$usleep = null;
     }
 
@@ -2154,10 +2297,12 @@ class Core implements CoreInterface
         if (Core::$usleep) {
             // Ups, we were sleeping but it got interrupted. Resume
             usleep(Core::$usleep - (microtime(true) * 1000000) + $offset);
+
         } else {
             Core::$usleep = (microtime(true) * 1000000) + $micro_seconds;
             usleep($micro_seconds);
         }
+
         Core::$usleep = null;
     }
 
@@ -2176,6 +2321,7 @@ class Core implements CoreInterface
     public static function setMaintenanceMode(bool $enable): void
     {
         $enabled = static::getMaintenanceMode();
+
         if ($enable) {
             // Enable maintenance mode
             if ($enabled) {
@@ -2185,22 +2331,27 @@ class Core implements CoreInterface
 
                 return;
             }
+
             Directory::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))
                      ->ensure();
+
             touch(DIRECTORY_DATA . 'system/maintenance/' . (Session::getUser()
-                                                                   ->getEmail() ?? get_current_user()));
+                                                                           ->getEmail() ?? get_current_user()));
             Log::warning(tr('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
 
             return;
         }
+
         // Disable maintenance mode
         if (!$enabled) {
             Log::Warning(tr('Not disabling maintenance mode, the system is not in maintenance mode'));
 
             return;
         }
+
         File::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))
             ->delete();
+
         Log::warning(tr('System has been relieved from maintenance mode. All web requests will now again be answered, all commands are available'), 10);
     }
 
@@ -2217,19 +2368,25 @@ class Core implements CoreInterface
      */
     public static function getMaintenanceMode(): ?string
     {
+        static $maintenance = null;
+
+        if ($maintenance) {
+            return $maintenance;
+        }
+
         if (file_exists(DIRECTORY_DATA . 'system/maintenance')) {
-            // System is in maintenance mode, show who put it there
+            // The system is in maintenance mode, show who put it there
             $files = Directory::new(DIRECTORY_DATA . 'system/maintenance')->scan();
 
             if ($files->getCount()) {
-                return $files->getFirstValue();
+                $maintenance = $files->getFirstValue();
             }
 
             // ??? The maintenance directory is empty? It should contain a file with the email address of who locked it
-            return tr('Unknown');
+            $maintenance = tr('Unknown');
         }
 
-        return null;
+        return $maintenance;
     }
 
 
@@ -2247,6 +2404,7 @@ class Core implements CoreInterface
     public static function setReadonlyMode(bool $enable): void
     {
         $enabled = static::getReadonlyMode();
+
         if ($enable) {
             // Enable readonly mode
             if ($enabled) {
@@ -2256,6 +2414,7 @@ class Core implements CoreInterface
 
                 return;
             }
+
             Directory::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))
                      ->ensure();
             touch(DIRECTORY_DATA . 'system/readonly/' . (Session::getUser()
@@ -2264,9 +2423,11 @@ class Core implements CoreInterface
 
             return;
         }
+
         // Disable readonly mode
         if (!$enabled) {
             Log::warning(tr('Cannot disable readonly mode, the system is not in readonly mode'));
+
         } else {
             File::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))
                 ->delete();
@@ -2325,6 +2486,7 @@ class Core implements CoreInterface
     public static function getProjectVersion(): string
     {
         static $version;
+
         if (empty($version)) {
             // Get the project version
             try {
@@ -2332,6 +2494,7 @@ class Core implements CoreInterface
                 if (!strlen($version)) {
                     throw new OutOfBoundsException(tr('No version defined in DIRECTORY_ROOT/config/project file'));
                 }
+
                 if (!is_version($version)) {
                     throw new OutOfBoundsException(tr('Invalid version ":version" defined in DIRECTORY_ROOT/config/project file', [
                         ':version' => $version,
@@ -2342,9 +2505,11 @@ class Core implements CoreInterface
 
             } catch (Throwable $e) {
                 static::$failed = true;
+
                 if ($e instanceof OutOfBoundsException) {
                     throw $e;
                 }
+
                 // Project file is not readable
                 if (!is_readable(DIRECTORY_ROOT . 'config/version')) {
                     if (file_exists(DIRECTORY_ROOT . 'config/version')) {
@@ -2353,11 +2518,14 @@ class Core implements CoreInterface
                         // won't be able to work our way around this.
                         throw new CoreException(tr('Project version file "config/version" does exist but is not readable. Please check the owner, group and mode for this file'));
                     }
+
                     // The file doesn't exist, that is good. Go to setup mode
                     error_log('Project version file "config/version" does not exist, entering setup mode');
+
                     static::setPlatform();
                     static::startupPlatform();
                     static::$state = 'setup';
+
                     throw new NoProjectException(tr('Project version file ":path" cannot be read. Please ensure it exists', [
                         ':path' => DIRECTORY_ROOT . 'config/version',
                     ]));
@@ -2526,6 +2694,7 @@ class Core implements CoreInterface
     public static function isState(#[ExpectedValues(values: [
         null,
         'setup',
+        'boot',
         'startup',
         'script',
         'shutdown',
@@ -2763,13 +2932,13 @@ class Core implements CoreInterface
      * @note Function can be either a function name, a callable function, or an array with static object::method or an
      *       array with [$object, 'methodname']
      *
-     * @param string                $identifier
+     * @param string|int            $identifier
      * @param array|string|callable $function
      * @param mixed                 $data
      *
      * @return void
      */
-    public static function addShutdownCallback(string $identifier, array|string|callable $function, mixed $data = null): void
+    public static function addShutdownCallback(string|int $identifier, array|string|callable $function, mixed $data = null): void
     {
         static::$shutdown_callbacks[$identifier] = [
             'data'     => $data,
@@ -2832,7 +3001,7 @@ class Core implements CoreInterface
      */
     public static function ExecuteNotInTestMode(callable $function, string $task): void
     {
-        if (TEST) {
+        if (defined('TEST') and TEST) {
             Log::warning(tr('Not executing ":task" while running in test mode', [
                 ':task' => $task,
             ]), 3);
@@ -2972,4 +3141,26 @@ class Core implements CoreInterface
     {
         static::$shutdown_handling = $enabled;
     }
+
+
+    /**
+     * Will sleep this process for X number of nanoseconds depending on user input to avoid timing attacks
+     *
+     * @param string      $input
+     * @param string|null $secret_key
+     *
+     * @return void
+     */
+    public static function delayFromInput(string $input, ?string $secret_key = null): void
+    {
+        if (!$secret_key) {
+            $secret_key = static::getLocalId() . static::getGlobalId();
+        }
+
+        $hash = crc32(serialize($secret_key . $input . $secret_key));
+        // make it take a maximum of 0.1 milliseconds
+        time_nanosleep(0, abs($hash % 100000));
+    }
 }
+
+

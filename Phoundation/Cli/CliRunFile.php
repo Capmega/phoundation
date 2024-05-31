@@ -188,20 +188,24 @@ class CliRunFile implements CliRunFileInterface
                          // This is the pids directory, ignore it.
                          return;
                      }
+
                      // Extract command and PID from the file
                      $pid     = Strings::fromReverse($file, '/');
                      $command = Strings::until($file, '/' . $pid);
                      $command = Strings::fromReverse($command, '/');
+
                      if (!static::validateRunFile($pid, $file)) {
                          // This run file was messed up
                          return;
                      }
+
                      // Ensure that this PID exist, and that it's the correct process
-                     $process = Ps::new()
-                                  ->ps($pid);
+                     $process = Ps::new()->ps($pid);
                      $cmd     = Strings::from($process['cmd'], '/pho ');
+
                      show($process['cmd']);
                      showdie($cmd);
+
                      if ($cmd !== $command) {
                          // The PID exists, but its a different command. Remove the runfile and all PID files
                          File::new($runfile, static::$restrictions)

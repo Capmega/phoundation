@@ -45,9 +45,11 @@ class CliDocumentation
     public static function setHelp(string $help, bool $exit = true): void
     {
         global $argv;
+
         if (isset_get($argv['help'])) {
             Log::information(tr('Command help:'), 9);
             Log::notice(trim($help), 10, false);
+
             if ($exit) {
                 exit();
             }
@@ -66,9 +68,11 @@ class CliDocumentation
     public static function setUsage(string $usage, bool $exit = true): void
     {
         global $argv;
+
         if (isset_get($argv['usage'])) {
             Log::information(tr('Command usage:'), 9, use_prefix: false);
             Log::notice(trim($usage) . PHP_EOL, 10, false, use_prefix: false);
+
             if ($exit) {
                 exit();
             }
