@@ -26,10 +26,10 @@ class InputSelect2 extends InputSelect
      */
     public function __construct(?string $content = null)
     {
-        showbacktrace();
-        showdie();
         parent::__construct($content);
+
         $this->addClasses('select2bs4');
+
         Response::loadCss('css/plugins/select2/css/select2');
         Response::loadCss('css/plugins/select2-bootstrap4-theme/select2-bootstrap4');
         Response::loadJavascript('js/plugins/select2/js/select2.full');

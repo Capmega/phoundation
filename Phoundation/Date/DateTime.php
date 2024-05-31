@@ -1,11 +1,23 @@
 <?php
 
+/**
+ * Class DateTime
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Date
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Date;
 
 use DateTimeInterface;
 use MongoDB\Exception\UnsupportedException;
+use Phoundation\Core\Sessions\Config;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Exception\DateIntervalException;
@@ -17,16 +29,6 @@ use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
 
-/**
- * Class DateTime
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Date
- */
 class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInterface
 {
     /**
@@ -40,9 +42,11 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
         // Ensure we have NULL or timezone object for parent constructor
         $timezone = get_null($timezone);
         $datetime = $datetime ?? 'now';
+
         if (is_string($timezone)) {
             $timezone = new DateTimeZone($timezone);
         }
+
         // Return Phoundation DateTime object for whatever given $datetime
         try {
             if (is_object($datetime)) {
@@ -64,6 +68,37 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
+     * Applies specific format strings
+     *
+     * @param string|null $format
+     *
+     * @return string
+     */
+    protected static function parseFormat(?string $format = null): string
+    {
+        switch (strtolower($format)) {
+            case 'human_readable_date':
+                return Config::getString('locale.dates.formats.human.date', 'd-m-Y');
+
+            case 'human_readable_date_time':
+                return Config::getString('locale.dates.formats.human.datetime', 'd-m-Y H:i:s');
+
+            case 'iso_date':
+                return 'd-m-Y';
+
+            case 'iso_date_time':
+                return 'Y-m-d H:i:s';
+
+            case 'mysql':
+                $format = 'Y-m-d H:i:s';
+                break;
+        }
+
+        return $format;
+    }
+
+
+    /**
      * Wrapper around the PHP Datetime but with support for named formats, like "mysql"
      *
      * @param string|null $format
@@ -72,13 +107,29 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function format(?string $format = null): string
     {
-        switch (strtolower($format)) {
-            case 'mysql':
-                $format = 'Y-m-d H:i:s';
-                break;
-        }
+        return parent::format(static::parseFormat($format));
+    }
 
-        return parent::format($format);
+
+    /**
+     * Returns this date time as a human readable date string
+     *
+     * @return string
+     */
+    public function getHumanReadableDate(): string
+    {
+        return $this->format('human_readable_date');
+    }
+
+
+    /**
+     * Returns this date time as a human readable date-time string
+     *
+     * @return string
+     */
+    public function getHumanReadableDateTime(): string
+    {
+        return $this->format('human_readable_date_time');
     }
 
 
@@ -92,8 +143,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getBeginningOfDay(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
     {
-        return new static(static::new($datetime)
-                                ->format('Y-m-d 00:00:00'), DateTimeZone::new($timezone));
+        return new static(static::new($datetime)->format('Y-m-d 00:00:00'), DateTimeZone::new($timezone));
     }
 
 
@@ -121,8 +171,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getEndOfDay(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
     {
-        return new static(static::new($datetime)
-                                ->format('Y-m-d 23:59:59.999999'), DateTimeZone::new($timezone));
+        return new static(static::new($datetime)->format('Y-m-d 23:59:59.999999'), DateTimeZone::new($timezone));
     }
 
 

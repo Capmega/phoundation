@@ -152,14 +152,12 @@ interface SqlDataEntryInterface
      * @note This method assumes that the specified rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
      *
-     * @param array       $insert_row
-     * @param array       $update_row
      * @param string|null $comments
      * @param string|null $diff
      *
      * @return int
      */
-    public function write(array $insert_row, array $update_row, ?string $comments, ?string $diff): int;
+    public function write(?string $comments, ?string $diff): int;
 
 
     /**

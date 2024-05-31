@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class SqlDataEntry
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Databases
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql;
@@ -27,16 +38,6 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
-/**
- * Class SqlDataEntry
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Databases
- */
 class SqlDataEntry implements SqlDataEntryInterface
 {
     use TraitDataDataEntry {
@@ -172,44 +173,61 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @note This method assumes that the specified rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
      *
-     * @param array       $insert_row
-     * @param array       $update_row
      * @param string|null $comments
      * @param string|null $diff
      *
      * @return int
      */
-    public function write(array $insert_row, array $update_row, ?string $comments, ?string $diff): int
+    public function write(?string $comments, ?string $diff): int
     {
         // New entry, insert
-        $retry = 0;
+        $retry     = 0;
+        $random_id = null;
+
         while ($retry++ < $this->max_id_retries) {
-            // Init the random table ID
-            $random_id = ($this->random_id ? Numbers::getRandomInt() : null);
             try {
+                // Write the entry
                 if ($this->insert_update) {
-                    // Insert / Update the row
-                    $insert_row = Arrays::prepend($insert_row, $this->id_column, $random_id);
+                    // THIS OBJECT ALWAYS INSERT / UPDATES. Init the random table ID
+                    if ($this->random_id) {
+                        $random_id = Numbers::getRandomInt($this->data_entry->getIdLowerLimit(), $this->data_entry->getIdUpperLimit());
+                    }
 
-                    return $this->insertUpdate($insert_row, $update_row, $comments, $diff);
+                    $update = $this->data_entry->getSqlColumns(false);
+                    $insert = $this->data_entry->getSqlColumns(true);
 
-                } else {
-                    // Insert the row
-                    $insert_row = Arrays::prepend($insert_row, $this->id_column, $random_id);
-
-                    return $this->insert($insert_row, $comments, $diff);
+                    // With these queries always do add the id column
+                    $insert[$this->data_entry->getIdColumn()] = ($update[$this->data_entry->getIdColumn()] ?? $random_id);
+                    return $this->insertUpdate($insert, $update, $comments, $this->data_entry->getDiff());
                 }
+
+                if ($this->data_entry->isNew()) {
+                    // NEW ENTRY, INSERT. Init the random table ID
+                    if ($this->random_id) {
+                        $random_id = Numbers::getRandomInt($this->data_entry->getIdLowerLimit(), $this->data_entry->getIdUpperLimit());
+                    }
+
+                    $insert = $this->data_entry->getSqlColumns(true);
+                    $insert = Arrays::prepend($insert, $this->id_column, $random_id);
+
+                    return $this->insert($insert, $comments, $this->data_entry->getDiff());
+                }
+
+                // EXISTING ENTRY, UPDATE
+                return $this->update($this->data_entry->getSqlColumns(false), $comments, $this->data_entry->getDiff());
 
             } catch (SqlException $e) {
                 if ($e->getCode() !== 1062) {
                     // Some different error, keep throwing
                     throw $e;
                 }
+
                 // Duplicate entry, which?
                 $column = $e->getMessage();
                 $column = Strings::until(Strings::fromReverse($column, 'key \''), '\'');
                 $column = Strings::from($column, '.');
                 $column = trim($column);
+
                 if ($column === $this->id_column) {
                     // Duplicate ID, try with a different random number
                     Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry ":rowid" encountered for insert in table ":table", retrying', [
@@ -218,12 +236,14 @@ class SqlDataEntry implements SqlDataEntryInterface
                         ]));
                     continue;
                 }
+
                 // Duplicate another column, continue throwing
                 throw new SqlDuplicateException(tr('Duplicate entry encountered for column ":column"', [
                     ':column' => $column,
                 ]), $e);
             }
         }
+
         // If the randomly selected ID already exists, try again
         throw new SqlException(tr('Could not find a unique id in ":retries" retries', [
             ':retries' => $this->max_id_retries,
@@ -251,20 +271,25 @@ class SqlDataEntry implements SqlDataEntryInterface
     public function insertUpdate(array $insert_row, array $update_row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): ?int
     {
         Core::checkReadonly('sql data-entry-insert-update');
+
         // Filter row and set meta fields for insert
         $insert_row = static::initializeInsertRow($insert_row, $comments, $diff);
         $update_row = static::initializeUpdateRow($update_row, $comments, $diff, $meta_action);
+
         // Build variables for the insert part of the query
         $insert_columns = SqlQueries::getPrefixedColumns($insert_row, $this->data_entry->getColumnPrefix());
         $insert_values  = SqlQueries::getBoundValues($insert_row, $this->data_entry->getColumnPrefix(), true);
         $keys           = SqlQueries::getBoundKeys($insert_row);
+
         // Build variables for the update part of the query
         $updates       = SqlQueries::getUpdateKeyValues($update_row, 'update_' . $this->data_entry->getColumnPrefix(), $this->id_column);
         $update_values = SqlQueries::getBoundValues($update_row, 'update_' . $this->data_entry->getColumnPrefix(), false, [$this->id_column]);
         $execute       = array_merge($insert_values, $update_values);
+
         $this->sql->query('INSERT INTO            `' . $this->table . '` (' . $insert_columns . ')
                                  VALUES                                        (' . $keys . ')
                                  ON DUPLICATE KEY UPDATE ' . $updates, $execute);
+
         if (empty($insert_row[$this->id_column])) {
             // No row id specified, get the insert id from SQL driver
             return $this->sql->getInsertId();
@@ -288,18 +313,20 @@ class SqlDataEntry implements SqlDataEntryInterface
     {
         // Filter out non modified rows
         $row = Arrays::keepKeys($row, array_merge($this->data_entry->getChanges(), $this->data_entry->getMetaColumns()));
+
         // Set meta fields
         if ($this->data_entry->isMetaColumn('meta_id')) {
-            $row['meta_id'] = ($this->meta_enabled ? Meta::init($comments, $diff)
-                                                         ->getId() : null);
+            $row['meta_id'] = ($this->meta_enabled ? Meta::init($comments, $diff)->getId() : null);
         }
+
         if ($this->data_entry->isMetaColumn('created_by')) {
-            $row['created_by'] = Session::getUser()
-                                        ->getId();
+            $row['created_by'] = Session::getUser()->getId();
         }
+
         if ($this->data_entry->isMetaColumn('meta_state')) {
             $row['meta_state'] = Strings::getRandom(16);
         }
+
         // Created_on is always automatically set
         unset($row['created_on']);
 
@@ -363,14 +390,18 @@ class SqlDataEntry implements SqlDataEntryInterface
     public function insert(array $row, ?string $comments = null, ?string $diff = null): ?int
     {
         Core::checkReadonly('sql data-entry-insert');
+
         // Set meta fields for insert
         $row = static::initializeInsertRow($row, $comments, $diff);
+
         // Build bound variables for the query
         $columns = SqlQueries::getPrefixedColumns($row, $this->data_entry->getColumnPrefix());
         $values  = SqlQueries::getBoundValues($row, $this->data_entry->getColumnPrefix(), true);
         $keys    = SqlQueries::getBoundKeys($row);
+
         $this->sql->query('INSERT INTO `' . $this->table . '` (' . $columns . ')
                                  VALUES                             (' . $keys . ')', $values);
+
         if (empty($row[$this->id_column])) {
             // No row id specified, get the insert id from SQL driver
             return $this->sql->getInsertId();
@@ -399,11 +430,14 @@ class SqlDataEntry implements SqlDataEntryInterface
     public function update(array $row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): ?int
     {
         Core::checkReadonly('sql data-entry-update');
+
         // Filter row and set meta fields for update
         $row = static::initializeUpdateRow($row, $comments, $diff, $meta_action);
+
         // Build bound variables for the query
         $update = SqlQueries::getUpdateKeyValues($row, id_column: $this->id_column);
         $values = SqlQueries::getBoundValues($row);
+
         $this->sql->query('UPDATE `' . $this->table . '`
                                  SET     ' . $update . '
                                  WHERE  `' . $this->id_column . '` = :' . $this->id_column, $values);

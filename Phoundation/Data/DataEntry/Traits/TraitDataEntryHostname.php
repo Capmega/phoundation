@@ -25,7 +25,7 @@ trait TraitDataEntryHostname
      */
     public function getSeoHostname(): ?string
     {
-        return $this->getSourceFieldValue('string', 'seo_hostname');
+        return $this->getValueTypesafe('string', 'seo_hostname');
     }
 
 
@@ -36,7 +36,7 @@ trait TraitDataEntryHostname
      */
     public function getHostname(): ?string
     {
-        return $this->getSourceFieldValue('string', 'hostname');
+        return $this->getValueTypesafe('string', 'hostname');
     }
 
 
@@ -51,13 +51,13 @@ trait TraitDataEntryHostname
     {
         if ($this->definitions->exists('seo_hostname')) {
             if ($hostname === null) {
-                $this->setSourceValue('seo_hostname', null);
+                $this->set('seo_hostname', null);
             } else {
-                $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getSourceFieldValue('int', 'id'), static::getUniqueField());
-                $this->setSourceValue('seo_hostname', $seo_hostname);
+                $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getValueTypesafe('int', 'id'), static::getUniqueField());
+                $this->set('seo_hostname', $seo_hostname);
             }
         }
 
-        return $this->setSourceValue('hostname', $hostname);
+        return $this->set($hostname, 'hostname');
     }
 }

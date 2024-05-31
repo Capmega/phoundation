@@ -27,21 +27,26 @@ use Stringable;
 class Mounts extends DataList implements MountsInterface
 {
     /**
-     *
-     * @return string
+     * @inheritDoc
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'filesystem_mounts';
     }
 
 
-    public static function getEntryClass(): string
+    /**
+     * @inheritDoc
+     */
+    public static function getEntryClass(): ?string
     {
         return Mount::class;
     }
 
 
+    /**
+     * @inheritDoc
+     */
     public static function getUniqueColumn(): ?string
     {
         return 'name';

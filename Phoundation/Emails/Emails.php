@@ -22,7 +22,7 @@ class Emails extends DataList
     /**
      * @inheritDoc
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'emails';
     }
@@ -31,7 +31,7 @@ class Emails extends DataList
     /**
      * @inheritDoc
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Email::class;
     }

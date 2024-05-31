@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
-use Phoundation\Seo\Seo;
-
 /**
  * Trait TraitDataEntryNameLowercase
  *
@@ -16,6 +10,13 @@ use Phoundation\Seo\Seo;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Seo\Seo;
+
 trait TraitDataEntryNameLowercase
 {
     /**
@@ -25,7 +26,7 @@ trait TraitDataEntryNameLowercase
      */
     public function getSeoName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'seo_name');
+        return $this->getValueTypesafe('string', 'seo_name');
     }
 
 
@@ -36,7 +37,7 @@ trait TraitDataEntryNameLowercase
      */
     public function getName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'name');
+        return $this->getValueTypesafe('string', 'name');
     }
 
 
@@ -50,18 +51,18 @@ trait TraitDataEntryNameLowercase
     public function setName(?string $name): static
     {
         if ($name === null) {
-            $this->setSourceValue('seo_name', null, true);
+            $this->set(null, 'seo_name', true);
 
         } else {
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
             // the entry if it does!
             $name     = strtolower($name);
-            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')
-                                                                       ->getMaxlength()), static::getTable(), $this->getSourceFieldValue('int', 'id'), 'seo_name');
-            $this->setSourceValue('seo_name', $seo_name, true);
+            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_name');
+
+            $this->set($seo_name, 'seo_name', true);
         }
 
-        return $this->setSourceValue('name', $name);
+        return $this->set($name, 'name');
     }
 
 
@@ -76,6 +77,6 @@ trait TraitDataEntryNameLowercase
      */
     protected function setSeoName(?string $seo_name): static
     {
-        return $this->setSourceValue('seo_name', $seo_name);
+        return $this->set($seo_name, 'seo_name');
     }
 }

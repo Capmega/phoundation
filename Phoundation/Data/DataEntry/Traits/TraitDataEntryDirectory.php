@@ -23,7 +23,7 @@ trait TraitDataEntryDirectory
      */
     public function getDirectory(): ?string
     {
-        return $this->getSourceFieldValue('string', 'directory');
+        return $this->getValueTypesafe('string', 'directory');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryDirectory
      */
     public function setDirectory(?string $directory): static
     {
-        return $this->setSourceValue('directory', $directory);
+        return $this->set($directory, 'directory');
     }
 }

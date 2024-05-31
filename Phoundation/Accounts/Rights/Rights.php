@@ -63,7 +63,7 @@ class Rights extends DataList implements RightsInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'accounts_rights';
     }
@@ -226,9 +226,9 @@ class Rights extends DataList implements RightsInterface
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Right::class;
     }
@@ -571,7 +571,7 @@ class Rights extends DataList implements RightsInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('rights_id')
-                     ->setNone(tr('Select a right'))
-                     ->setObjectEmpty(tr('No rights available'));
+                     ->setNotSelectedLabel(tr('Select a right'))
+                     ->setComponentEmptyLabel(tr('No rights available'));
     }
 }

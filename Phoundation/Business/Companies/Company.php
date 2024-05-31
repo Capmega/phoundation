@@ -48,7 +48,7 @@ class Company extends DataEntry implements CompanyInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'business_companies';
     }

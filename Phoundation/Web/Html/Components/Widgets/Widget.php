@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Widgets;
-
-use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Traits\TraitBackground;
-use Phoundation\Web\Html\Traits\TraitMode;
-
 /**
  * Widget class
  *
@@ -18,7 +10,17 @@ use Phoundation\Web\Html\Traits\TraitMode;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
-abstract class Widget extends ElementsBlock
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Widgets;
+
+use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Components\Widgets\Interfaces\WidgetInterface;
+use Phoundation\Web\Html\Traits\TraitBackground;
+use Phoundation\Web\Html\Traits\TraitMode;
+
+abstract class Widget extends ElementsBlock implements WidgetInterface
 {
     use TraitMode;
     use TraitBackground;

@@ -157,7 +157,7 @@ class Js
 //        foreach ($lists as $key => $section) {
 //            switch ($section) {
 //                case 'js_header':
-//                    // no-break
+//                    // no break
 //                case 'js_footer':
 //                    continue 2;
 //

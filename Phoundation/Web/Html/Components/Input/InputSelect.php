@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -73,6 +74,13 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     protected ?string $value_column = null;
 
+    /**
+     * Tracks if this object renders a list of checkboxes instead of a select drop-down
+     *
+     * @var bool $render_checkboxes
+     */
+    protected bool $render_checkboxes = false;
+
 
     /**
      * Select constructor
@@ -107,6 +115,32 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     public function setKeyColumn(?string $key_column): static
     {
         $this->key_column = $key_column;
+
+        return $this;
+    }
+
+
+    /**
+     * Returns if this object renders a list of checkboxes instead of a select drop-down
+     *
+     * @return bool
+     */
+    public function getRenderCheckboxes(): bool
+    {
+        return $this->render_checkboxes;
+    }
+
+
+    /**
+     * Sets if this object renders a list of checkboxes instead of a select drop-down
+     *
+     * @param bool $render_checkboxes
+     *
+     * @return static
+     */
+    public function setRenderCheckboxes(bool $render_checkboxes): static
+    {
+        $this->render_checkboxes = $render_checkboxes;
 
         return $this;
     }
@@ -357,7 +391,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * Enables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
+     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
      */
     public function enableAutoSelect(): static
     {
@@ -371,7 +405,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * Disables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
+     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
      */
     public function disableAutoSelect(): static
     {
@@ -532,6 +566,34 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
 
 
     /**
+     * @inheritDoc
+     */
+    public function render(): ?string
+    {
+        static $count = 0;
+
+        if ($this->render_checkboxes) {
+            // Render checkboxes instead of a <select> component
+            $render = '';
+
+            foreach ($this->source as $key => $value) {
+                $render .= InputCheckbox::new()
+                                        ->setName($this->name)
+                                        ->setId($this->name . $count++)
+                                        ->setValue($key)
+                                        ->setLabel($value)
+                                        ->setInline(false)
+                                        ->render();
+            }
+
+            return '<div>' . $render . '</div>';
+        }
+
+        return parent::render();
+    }
+
+
+    /**
      * Generates and returns the HTML string for only the select body
      *
      * This will return all HTML WITHOUT the <select> tags around it
@@ -539,19 +601,21 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::render()
-     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
+     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
     public function renderBody(): ?string
     {
-        $return = null;
+        $return  = null;
         $return .= $this->renderBodyQuery();
         $return .= $this->renderBodyArray();
+
         if (!$return) {
             return $this->renderBodyEmpty();
         }
+
         if ($this->none) {
             return '<option' . $this->renderOptionClassString() . $this->renderSelectedString(null, null) . ' value="">' . $this->none . '</option>' . $return;
         }
@@ -568,8 +632,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * Return the body HTML for a <select> list
      *
      * @return string|null
-     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::render()
-     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
+     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -578,22 +642,29 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
         if (empty($this->source_query)) {
             return null;
         }
+
         if (empty($this->source)) {
             $this->source = new Iterator();
         }
+
         while ($row = $this->source_query->fetch()) {
             if ($this->key_column) {
                 $key = $row[$this->key_column];
+
             } else {
                 $key = $row[array_key_first($row)];
             }
+
             if ($this->value_column) {
                 $value = $row[$this->value_column];
+
             } else {
                 $value = $row[array_key_last($row)];
             }
+
             $this->source->add($value, $key);
         }
+
         $this->source_query = null;
 
         return null;
@@ -665,8 +736,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::render()
-     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
+     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -675,21 +746,26 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
         if (!$this->source) {
             return null;
         }
+
         $return = '';
+
         if ($this->auto_select and ((count($this->source) == 1) and !$this->none)) {
             // Auto select the only available element
             // TODO implement
         }
+
         // Process array resource
         foreach ($this->source as $key => $value) {
             $this->count++;
             $option_data = '';
+
             // Add data- in this option?
             if (array_key_exists($key, $this->source_data)) {
                 foreach ($this->source_data as $data_key => $data_value) {
                     $option_data = ' data-' . $data_key . '="' . $data_value . '"';
                 }
             }
+
             if (!is_scalar($value)) {
                 if (!($value instanceof Stringable)) {
                     if (!is_array($value)) {
@@ -736,6 +812,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     protected function renderOptionClassString(): ?string
     {
         $option_class = $this->getOptionClass();
+
         if ($option_class) {
             return ' class="' . $option_class . '"';
         }
@@ -774,6 +851,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
             // If $this->selected[$value] is false, it means it's a key
             return ($this->selected[$key] ? null : ' selected');
         }
+
         // Does the value match?
         if (array_key_exists($value, $this->selected)) {
             // If $this->selected[$value] is true, it means it's a value

@@ -31,7 +31,7 @@ class Country extends DataEntry
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'geo_countries';
     }
@@ -91,15 +91,15 @@ class Country extends DataEntry
     public function getHtmlStatesSelect(string $name = 'states_id'): InputSelect
     {
         return InputSelect::new()
-                          ->setConnector(static::getDefaultConnectorName())
+                          ->setConnector(static::getConnector())
                           ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_states` 
                                           WHERE `countries_id` = :countries_id AND `status` IS NULL ORDER BY `name`', [
                               ':countries_id' => $this->getId(),
                           ])
                           ->setName($name)
-                          ->setNone(tr('Select a state'))
-                          ->setObjectEmpty(tr('No states available'));
+                          ->setNotSelectedLabel(tr('Select a state'))
+                          ->setComponentEmptyLabel(tr('No states available'));
     }
 
 

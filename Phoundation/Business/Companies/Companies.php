@@ -40,7 +40,7 @@ class Companies extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'business_companies';
     }
@@ -49,9 +49,9 @@ class Companies extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Company::class;
     }
@@ -99,7 +99,7 @@ class Companies extends DataList
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('companies_id')
-                     ->setNone(tr('Select a company'))
-                     ->setObjectEmpty(tr('No companies available'));
+                     ->setNotSelectedLabel(tr('Select a company'))
+                     ->setComponentEmptyLabel(tr('No companies available'));
     }
 }

@@ -35,7 +35,7 @@ class Time
         $ceil = ceil($time);
         switch ($precision) {
             case 'second':
-                // no-break
+                // no break
             case 'seconds':
                 $time = number_format($time, $decimals);
 
@@ -45,7 +45,7 @@ class Time
                     ':time' => $time,
                 ]));
             case 'minute':
-                // no-break
+                // no break
             case 'minutes':
                 $time = number_format($time / 60, $decimals);
 
@@ -55,7 +55,7 @@ class Time
                     ':time' => $time,
                 ]));
             case 'hour':
-                // no-break
+                // no break
             case 'hours':
                 $time = number_format($time / 3600, $decimals);
 
@@ -65,7 +65,7 @@ class Time
                     ':time' => $time,
                 ]));
             case 'day':
-                // no-break
+                // no break
             case 'days':
                 $time = number_format($time / 86400, $decimals);
 
@@ -75,7 +75,7 @@ class Time
                     ':time' => $time,
                 ]));
             case 'week':
-                // no-break
+                // no break
             case 'weeks':
                 $time = number_format($time / 604800, $decimals);
 
@@ -85,7 +85,7 @@ class Time
                     ':time' => $time,
                 ]));
             case 'month':
-                // no-break
+                // no break
             case 'months':
                 // NOTE: Month is assumed 30 days!
                 $time = number_format($time / 2592000, $decimals);
@@ -96,7 +96,7 @@ class Time
                     ':time' => $time,
                 ]));
             case 'year':
-                // no-break
+                // no break
             case 'years':
                 // NOTE: Year is assumed 365 days!
                 $time = number_format($time / 31536000, $decimals);

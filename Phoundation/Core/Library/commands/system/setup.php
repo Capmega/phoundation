@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * Command system setup
+ *
+ * This is the setup script for the project. This script will be the first script to be run to set up your system
+ *
+ * To be able to set up, one conditions must be met: There is no configuration file available
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @category  Function reference
+ * @package   Phoundation\Core
+ */
+
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
@@ -10,21 +24,6 @@ use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\OutOfBoundsException;
 
-
-/**
- * Script system/setup
- *
- * This is the setup script for the project. This script will be the first script to be run to set up your system
- *
- * In order to be able to set up, one conditions must be met: There is no configuration file available
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
- * @package   Phoundation\Core
- */
-
 CliDocumentation::setUsage('./pho system setup [OPTIONS]
 ./pho system setup --no-password-validation
 ./pho system setup --force');
@@ -32,9 +31,7 @@ CliDocumentation::setUsage('./pho system setup [OPTIONS]
 CliDocumentation::setHelp('This command allows you to setup a new project
 
 
-
 ARGUMENTS
-
 
 
 [--import]                              Run import for all libraries that support it. This will automatically import all
@@ -65,9 +62,10 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Validate and create project
+// Validate and create the project
 if (!Project::projectFileExists()) {
     $create = true;
+
 } elseif ($argv['project']) {
     if (!FORCE) {
         throw new OutOfBoundsException(tr('Cannot setup system, project file "config/project" already exists. Please re-run this script with -F / --force option'));
@@ -75,6 +73,7 @@ if (!Project::projectFileExists()) {
 
     Project::remove();
     $create = true;
+
 } else {
     Project::load();
 }
@@ -85,6 +84,7 @@ $config = [];
 
 if (isset($create)) {
     $config['project'] = Cli::readInput('Please specify the project name:', 'Phoundation');
+
 } else {
     $config['project'] = Project::getName();
 }

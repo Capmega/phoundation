@@ -245,11 +245,11 @@ class Http
 //         */
 //        switch ($http_code) {
 //            case 301:
-//                // no-break
+//                // no break
 //            case 302:
-//                // no-break
+//                // no break
 //            case 303:
-//                // no-break
+//                // no break
 //            case 307:
 //                /*
 //                 * All valid

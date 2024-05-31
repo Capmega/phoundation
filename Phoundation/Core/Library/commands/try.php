@@ -14,13 +14,13 @@
 
 declare(strict_types=1);
 
+use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
-use Phoundation\Developer\Phoundation\Repositories;
-use Phoundation\Filesystem\Commands\Df;
-use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\MountedStorageDevices;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Security\Luks\Device;
-use Phoundation\Utils\Utils;
-use Phoundation\Filesystem\File;
+use Phoundation\Developer\Phoundation\Repositories\Repositories;
 
+$repositories = Repositories::new()->scan();
+
+foreach($repositories as $name => $repository) {
+    Log::information($repository->getName());
+    Log::cli($repository->getVendors());
+}

@@ -24,7 +24,7 @@ class Hooks extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'core_hooks';
     }
@@ -33,9 +33,9 @@ class Hooks extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Hook::class;
     }

@@ -14,7 +14,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 class Non200Urls extends DataList
@@ -22,7 +22,7 @@ class Non200Urls extends DataList
     /**
      * @inheritDoc
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'web_non200_urls';
     }
@@ -31,7 +31,7 @@ class Non200Urls extends DataList
     /**
      * @inheritDoc
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Non200Url::class;
     }

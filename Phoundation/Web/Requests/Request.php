@@ -34,9 +34,7 @@ use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\Time;
-use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
-use Phoundation\Exception\Interfaces\AccessDeniedExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
@@ -73,8 +71,9 @@ use Phoundation\Web\Requests\Interfaces\RequestInterface;
 use Phoundation\Web\Requests\Traits\TraitDataStaticRouteParameters;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Stringable;
-use Templates\AdminLte\AdminLte;
+use Templates\Phoundation\AdminLte\AdminLte;
 use Throwable;
+
 
 abstract class Request implements RequestInterface
 {
@@ -203,20 +202,25 @@ abstract class Request implements RequestInterface
      * Sets the routing parameters for this request
      *
      * @param RoutingParametersInterface $parameters
+     * @param bool                       $force
      *
      * @return void
      */
-    public static function setRoutingParameters(RoutingParametersInterface $parameters): void
+    public static function setRoutingParameters(RoutingParametersInterface $parameters, bool $force = false): void
     {
         if (isset(static::$parameters)) {
-            throw new OutOfBoundsException(tr('Cannot set routing parameters for this request, routing parameters have already been set'));
+            if (!$force) {
+                throw new OutOfBoundsException(tr('Cannot set routing parameters for this request, routing parameters have already been set'));
+            }
         }
+
         if (!$parameters->getTemplate()) {
             throw new OutOfBoundsException(tr('Cannot use routing parameters ":pattern", it has no template set', [
                 ':pattern' => static::getRoutingParameters()
                                     ->getPattern(),
             ]));
         }
+
         static::$parameters = $parameters;
         static::setTemplate($parameters->getTemplateObject());
     }
@@ -823,20 +827,20 @@ abstract class Request implements RequestInterface
 
 
     /**
-     * Returns the value for the specified data key, if exist. If not, the default value will be returned
+     * Sets the value for the specified data key, if exist. If not, the default value will be returned
      *
-     * @param string $key
-     * @param mixed  $default
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
      *
      * @return void
      */
-    public static function set(string $key, mixed $default = null): void
+    public static function set(mixed $value, Stringable|string|float|int $key): void
     {
         if (empty(static::$source)) {
             static::$source = new Iterator();
         }
 
-        static::$source?->get($key, false) ?? $default;
+        static::$source->set($value, $key);
     }
 
 
@@ -928,11 +932,15 @@ abstract class Request implements RequestInterface
      */
     protected static function setTarget(FileInterface|string $target): void
     {
+        // Determine the target request type
+        static::detectRequestType($target);
+
         $target         = static::ensureRequestPathPrefix($target);
         static::$target = File::new($target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
         static::$target->checkRestrictions(false);
         static::getTargets()->add(static::$target);
         static::addExecutedPath($target); // TODO We should get this from targets
+
         // Store request hash used for caching, store real / original target
         if (empty(static::$main_target)) {
             if (PLATFORM_WEB) {
@@ -947,8 +955,6 @@ abstract class Request implements RequestInterface
                 ob_start();
             }
         }
-        // Determine the target request type
-        static::detectRequestType();
     }
 
 
@@ -1086,40 +1092,42 @@ abstract class Request implements RequestInterface
     /**
      * Determines what type of web request was made
      *
+     * @param string|null $target
+     *
      * @return void
      */
-    public static function detectRequestType(): void
+    public static function detectRequestType(?string $target = null): void
     {
+        $target = $target ?? static::$target;
+
         if (PLATFORM_CLI) {
             // We're running on the command line
             $request_type = EnumRequestTypes::cli;
 
         } else {
-            if (str_contains(static::$target, '/admin/')) {
+            if (str_contains($target, '/admin/')) {
                 $request_type = EnumRequestTypes::admin;
 
-            } elseif (str_contains(static::$target, '/ajax/')) {
+            } elseif (str_contains($target, '/ajax/')) {
                 $request_type = EnumRequestTypes::ajax;
 
-            } elseif (str_contains(static::$target, '/api/')) {
+            } elseif (str_contains($target, '/api/') or (str_starts_with($_SERVER['SERVER_NAME'], 'api'))) {
                 $request_type = EnumRequestTypes::api;
 
-            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
+            } elseif (str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) {
                 $request_type = EnumRequestTypes::file;
 
-            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                $request_type = EnumRequestTypes::api;
-
-            } elseif (Config::get('web.html.amp.enabled', false) and !empty($_GET['amp'])) {
+            } elseif (Config::get('web.html.amp.enabled', false) and (!empty($_GET['amp']) or (str_starts_with($_SERVER['SERVER_NAME'], 'amp')))) {
                 $request_type = EnumRequestTypes::amp;
 
-            } elseif (is_numeric(substr(static::$target, -3, 3))) {
+            } elseif (is_numeric(substr($target, -3, 3))) {
                 $request_type = EnumRequestTypes::system;
 
             } else {
                 $request_type = EnumRequestTypes::html;
             }
         }
+
         static::setRequestType($request_type);
     }
 
@@ -1135,36 +1143,35 @@ abstract class Request implements RequestInterface
      */
     protected static function hasRightsOrRedirects(array|string $rights, string|int|null $rights_redirect = null, string|int|null $guest_redirect = null): void
     {
-        if (
-            Session::getUser()
-                   ->hasAllRights($rights)
-        ) {
+        if (Session::getUser()->hasAllRights($rights)) {
+
             if (Session::getSignInKey() === null) {
                 // Well, then, all fine and dandy!
                 return;
             }
+
             // Check sign-key restrictions and if those are okay, we are good to go
             static::hasSignKeyRestrictions($rights, static::$target);
-
             return;
         }
+
         // Is this a system page though? System pages require no rights to be viewed.
         if (static::getRequestType() === EnumRequestTypes::system) {
             // Hurrah, it's a bo, eh, system page! System pages require no rights. Everyone can see a 404, 500, etc...
             return;
         }
+
         // Is this a guest? Guests have no rights and can only see system pages and pages that require no rights
-        if (
-            Session::getUser()
-                   ->isGuest()
-        ) {
+        if (Session::getUser()->isGuest()) {
             // This user has no rights at all, send to sign-in page
             if (!$guest_redirect) {
                 $guest_redirect = 'sign-in';
             }
+
             $current        = Response::getRedirect(UrlBuilder::getCurrent());
             $guest_redirect = UrlBuilder::getWww($guest_redirect)
                                         ->addQueries($current ? 'redirect=' . $current : null);
+
             Incident::new()
                     ->setType('401 - Unauthorized')
                     ->setSeverity(Severity::low)
@@ -1182,6 +1189,7 @@ abstract class Request implements RequestInterface
                         'rights'      => $rights,
                     ])
                     ->save();
+
             if (static::isRequestType(EnumRequestTypes::api)) {
                 // This method will exit
                 Json::reply([
@@ -1190,6 +1198,7 @@ abstract class Request implements RequestInterface
                     ],
                 ]);
             }
+
             if (static::isRequestType(EnumRequestTypes::ajax)) {
                 // This method will exit
                 Json::reply([
@@ -1199,13 +1208,16 @@ abstract class Request implements RequestInterface
                     ],
                 ]);
             }
+
             // This method will exit
             Response::redirect($guest_redirect);
         }
+
         // This user is missing rights
         if (!$rights_redirect) {
             $rights_redirect = 403;
         }
+
         // Do the specified rights exist at all? If they aren't defined then no wonder this user doesn't have them
         if (Rights::getNotExist($rights)) {
             // One or more of the rights do not exist
@@ -1338,6 +1350,7 @@ abstract class Request implements RequestInterface
     {
         if (static::$request_type !== EnumRequestTypes::unknown) {
             $fail = true;
+
             // We already have a request type determined, so we already have an appropriate response object initialized
             // as well. We cannot just change from generating a web page to returning an API output, for example, so
             // check if the change is allowed
@@ -1346,25 +1359,32 @@ abstract class Request implements RequestInterface
                     // The new request type matches the initial request type, we can continue. The response won't be
                     // reset, so we are done here
                     return;
+
                 case EnumRequestTypes::system:
-                    // Any HTML request can cause a 404, 500, etc, so any HTML request can switch to a system page
+                    // Any HTML request can cause a 404, 500, etc., so any HTML request can switch to a system page
                     // no break
+
                 case EnumRequestTypes::file:
                     // Any HTML request may generate and return a file, so any HTML request can switch to a file
                     switch (static::$request_type) {
                         case EnumRequestTypes::html:
                             // no break
+
                         case EnumRequestTypes::admin:
                             // no break
+
                         case EnumRequestTypes::amp:
                             // no break
+
                         case EnumRequestTypes::file:
                             break;
                         default:
                             $fail = false;
                     }
+
                     break;
             }
+
             if ($fail) {
                 throw new RequestTypeException(tr('Cannot process target ":target" it has request type ":current" while the current request type is ":new"', [
                     ':target'  => static::$target,
@@ -1372,19 +1392,23 @@ abstract class Request implements RequestInterface
                     ':current' => static::$request_type,
                 ]));
             }
+
             // Clean any current responses that are in buffer
             Response::clean();
         }
+
         // Set up the response object for this request
         switch ($request_type) {
             case EnumRequestTypes::unsupported:
                 throw new OutOfBoundsException(tr('Unsupported web request type ":type" encountered', [
                     ':type' => static::getRequestType(),
                 ]));
+
             case EnumRequestTypes::unknown:
                 throw new OutOfBoundsException(tr('Unknown web request type ":type" encountered', [
                     ':type' => static::getRequestType(),
                 ]));
+
             default:
                 static::$request_type = $request_type;
         }
@@ -1402,8 +1426,7 @@ abstract class Request implements RequestInterface
      */
     #[NoReturn] public static function executeSystem(int $http_code, ?Throwable $e = null, ?string $message = null): never
     {
-        SystemRequest::new()
-                     ->execute($http_code, $e, $message);
+        SystemRequest::new()->execute($http_code, $e, $message);
     }
 
 
@@ -1599,16 +1622,20 @@ abstract class Request implements RequestInterface
                     ':template' => static::$template->getName(),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
-                ]));
+                ]), (static::$stack_level ? 5 : 7));
+
                 static::$page = new Api();
                 break;
+
             case EnumRequestTypes::ajax:
                 Log::information(tr('Executing page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
-                ]));
+                ]), (static::$stack_level ? 5 : 7));
+
                 static::$page = new Ajax();
+
                 if (!static::$stack_level) {
                     // Start session only for AJAX and HTML requests
                     Session::startup();
@@ -1620,13 +1647,15 @@ abstract class Request implements RequestInterface
                     ':template' => static::$template->getName(),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
-                ]));
+                ]), (static::$stack_level ? 5 : 7));
+
                 // static::$page should already be defined at this stage
                 if (empty(static::$page)) {
                     throw new OutOfBoundsException(tr('Cannot execute HTML page request for target ":target", no template specified', [
                         ':target' => static::$target,
                     ]));
                 }
+
                 if (!static::$stack_level) {
                     // Start session only for AJAX and HTML requests
                     // Initialize the flash messages
@@ -1695,11 +1724,13 @@ abstract class Request implements RequestInterface
         } catch (AuthenticationExceptionInterface $e) {
             static::executeSystem(401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
 
-        } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
+        } catch (IncidentsExceptionInterface $e) {
             $new_target = $e->getNewTarget();
+
             if (!$new_target) {
                 static::executeSystem(403, $e, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
             }
+
             Log::warning(tr('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
                 ':target' => static::$target,
                 ':user'   => Session::getUser()
@@ -1735,7 +1766,7 @@ abstract class Request implements RequestInterface
                 return $target;
             }
 
-        } elseif ($target->isRelative()) {
+        } elseif ($target->isAbsolute()) {
             return $target;
 
         } else {
@@ -1743,11 +1774,15 @@ abstract class Request implements RequestInterface
         }
 
         return match (static::getRequestType()) {
-            EnumRequestTypes::api                                                                                                    => Strings::ensureStartsWith($target, 'api/'),
-            EnumRequestTypes::ajax                                                                                                   => Strings::ensureStartsWith($target, 'ajax/'),
-            EnumRequestTypes::html, EnumRequestTypes::file, EnumRequestTypes::system, EnumRequestTypes::admin, EnumRequestTypes::amp => Strings::ensureStartsWith($target, 'pages/'),
-            default                                                                                                                  => throw new OutOfBoundsException(tr('Unsupported request type ":request" for this process', [
-                ':request' => static::getRequestType(),
+            EnumRequestTypes::api     => Strings::ensureStartsWith($target, 'api/'),
+            EnumRequestTypes::ajax    => Strings::ensureStartsWith($target, 'ajax/'),
+            EnumRequestTypes::html,
+            EnumRequestTypes::file,
+            EnumRequestTypes::system,
+            EnumRequestTypes::admin,
+            EnumRequestTypes::amp     => Strings::ensureStartsWith($target, 'pages/'),
+            default                   => throw new OutOfBoundsException(tr('Unsupported request type ":request" for this process', [
+                ':request'            => static::getRequestType(),
             ])),
         };
     }

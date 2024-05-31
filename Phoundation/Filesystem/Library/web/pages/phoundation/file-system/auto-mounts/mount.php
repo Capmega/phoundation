@@ -52,7 +52,7 @@ if (Request::isPostRequestMethod()) {
                 // Update mount, roles, emails, and phones
                 $mount->apply(false)->save();
 
-                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been saved', [
+                Response::getFlashMessages()->addSuccess(tr('The mount ":mount" has been saved', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
@@ -61,7 +61,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Delete'):
                 $mount->delete();
-                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been deleted', [
+                Response::getFlashMessages()->addSuccess(tr('The mount ":mount" has been deleted', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
@@ -69,7 +69,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Undelete'):
                 $mount->undelete();
-                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been undeleted', [
+                Response::getFlashMessages()->addSuccess(tr('The mount ":mount" has been undeleted', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 

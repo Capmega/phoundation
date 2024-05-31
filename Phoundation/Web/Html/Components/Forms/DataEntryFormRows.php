@@ -121,12 +121,12 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
     /**
      * Adds the column component and its definition as a DataEntryFormColumn
      *
-     * @param DefinitionInterface|null $definition
-     * @param RenderInterface|null     $component
+     * @param DefinitionInterface|null    $definition
+     * @param RenderInterface|string|null $component
      *
      * @return $this
      */
-    public function add(?DefinitionInterface $definition = null, RenderInterface|null $component = null): static
+    public function add(?DefinitionInterface $definition = null, RenderInterface|string|null $component = null): static
     {
         return $this->addColumn(DataEntryFormColumn::new()
                                                    ->setDefinition($definition)
@@ -171,21 +171,25 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
     {
         $column_count = $this->column_count;
         $render       = '';
+
         foreach ($this->columns as $column) {
             $definition = $column->getDefinition();
+
             if ($definition === null) {
+                // No row is open right now?
                 if ($column_count === $this->column_count) {
-                    // No row is open right now
                     break;
                 }
+
                 // Close the row
                 $column_count = 0;
 
             } else {
+                // Hidden elements don't display anything beyond the hidden <input>
                 if ($definition->getHidden()) {
-                    // Hidden elements don't display anything beyond the hidden <input>
                     $render .= $column->render();
                 }
+
                 if (($definition->getSize() <= 0) or ($definition->getSize() > 12)) {
                     throw new OutOfBoundsException(tr('Cannot render DataEntryForm ":class" because the definition for column ":column" has invalid size ":size", it must be an integer number between 1 and 12', [
                         ':size'   => $definition->getSize(),
@@ -193,7 +197,9 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
                         ':class'  => get_class($this->render_object),
                     ]));
                 }
+
                 $cols[] = $definition->getLabel() . ' = "' . $definition->getColumn() . '" [' . $definition->getSize() . ']';
+
                 // Keep track of column size, close each row when size 12 is reached
                 if (static::$force_rows) {
                     if ($column_count == $this->column_count) {
@@ -206,31 +212,34 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
                         $column_count = $this->column_count;
                     }
                 }
+
                 $render       .= $column->render();
                 $column_count -= $definition->getSize();
+
                 if ($column_count < 0) {
                     throw OutOfBoundsException::new(tr('Cannot add column ":label" for table / class ":class" form with size ":size", the row would surpass size 12 by ":count"', [
-                        ':class' => $this->render_object?->getDefinitionsObject()
-                                                        ->getTable(),
+                        ':class' => $this->render_object?->getDefinitionsObject()->getTable(),
                         ':label' => $definition->getLabel() . ' [' . $definition->getColumn() . ']',
                         ':size'  => abs($definition->getSize()),
                         ':count' => abs($column_count),
-                    ]))
-                                              ->setData([
-                                                  'Columns on this row' => $cols,
-                                                  'HTML so far'         => $render,
-                                              ]);
+                    ]))->setData([
+                        'Columns on this row' => $cols,
+                        'HTML so far'         => $render,
+                    ]);
                 }
             }
+
             if ($column_count == 0) {
                 // Close the row
                 $column_count = $this->column_count;
                 $cols         = [];
+
                 if (static::$force_rows) {
                     $render .= '</div>';
                 }
             }
         }
+
         if (static::$force_rows) {
             if ($column_count < $this->column_count) {
                 // A row is still open, close it first

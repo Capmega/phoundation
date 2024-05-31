@@ -434,7 +434,7 @@ class Html
                 $extension = Strings::fromReverse($font, '.');
                 switch ($extension) {
                     case 'woff':
-                        // no-break
+                        // no break
                     case 'woff2':
                         $return .= '<link rel="preload" href="' . $font . '" as="font" type="font/' . $extension . '" crossorigin="anonymous">';
                         break;
@@ -861,7 +861,7 @@ class Html
 //                    break;
 //
 //                case 'exception':
-//                    // no-break
+//                    // no break
 //                case 'error':
 //                    $color = 'green';
 //                    break;
@@ -1287,7 +1287,7 @@ class Html
                 // may even change per page
                 $return            = substr($script['script'], 1);
                 $script['to_file'] = false;
-            // no-break
+            // no break
             default:
                 /*
                  * Event wrapper
@@ -2131,58 +2131,58 @@ class Html
                         switch ($key) {
                             // Booleans
                             case 'auto_destroy':
-                                // no-break
+                                // no break
                             case 'chainable':
-                                // no-break
+                                // no break
                             case 'combined':
-                                // no-break
+                                // no break
                             case 'enable_throttle':
-                                // no-break
+                                // no break
                             case 'visible_only':
-                                // no-break
+                                // no break
                                 /*
                                  * Numbers
                                  */
                             case 'delay':
-                                // no-break
+                                // no break
                             case 'effect_time':
-                                // no-break
+                                // no break
                             case 'threshold':
-                                // no-break
+                                // no break
                             case 'throttle':
                                 // All these need no quotes
                                 $options[Strings::underscoreToCamelcase($key)] = $value;
                                 break;
                             // Callbacks
                             case 'after_load':
-                                // no-break
+                                // no break
                             case 'on_load':
-                                // no-break
+                                // no break
                             case 'before_load':
-                                // no-break
+                                // no break
                             case 'on_error':
-                                // no-break
+                                // no break
                             case 'on_finished_all':
                                 // All these need no quotes
                                 $options[Strings::underscoreToCamelcase($key)] = 'function(e) {' . $value . '}';
                                 break;
                             // Strings
                             case 'append_scroll':
-                                // no-break
+                                // no break
                             case 'bind':
-                                // no-break
+                                // no break
                             case 'default_image':
-                                // no-break
+                                // no break
                             case 'effect':
-                                // no-break
+                                // no break
                             case 'image_base':
-                                // no-break
+                                // no break
                             case 'name':
-                                // no-break
+                                // no break
                             case 'placeholder':
-                                // no-break
+                                // no break
                             case 'retina_attribute':
-                                // no-break
+                                // no break
                             case 'scroll_direction':
                                 /*
                                  * All these need quotes

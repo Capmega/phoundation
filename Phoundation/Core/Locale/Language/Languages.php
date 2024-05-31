@@ -39,7 +39,7 @@ class Languages extends DataList implements LanguagesInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'core_languages';
     }
@@ -48,9 +48,9 @@ class Languages extends DataList implements LanguagesInterface
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Language::class;
     }
@@ -82,8 +82,8 @@ class Languages extends DataList implements LanguagesInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('languages_id')
-                     ->setNone(tr('Select a language'))
-                     ->setObjectEmpty(tr('No languages available'));
+                     ->setNotSelectedLabel(tr('Select a language'))
+                     ->setComponentEmptyLabel(tr('No languages available'));
     }
 
 

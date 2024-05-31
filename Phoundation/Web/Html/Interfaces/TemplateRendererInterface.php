@@ -39,19 +39,19 @@ interface TemplateRendererInterface
     /**
      * Sets the element to be rendered
      *
-     * @param RenderInterface $component
+     * @param RenderInterface|null $component
      *
      * @return static
      */
-    public function setComponent(RenderInterface $component): static;
+    public function setComponent(RenderInterface|null $component): static;
 
 
     /**
      * Returns the element to be rendered
      *
-     * @return RenderInterface
+     * @return RenderInterface|null
      */
-    public function getComponent(): RenderInterface;
+    public function getComponent(): RenderInterface|null;
 
 
     /**

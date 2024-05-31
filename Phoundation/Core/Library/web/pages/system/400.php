@@ -39,7 +39,7 @@ switch (Request::getRequestType()) {
 // Build the error page
 echo Template::new('system/http-error')->setSource([
                                                        ':h2'     => '400',
-                                                       ':h3'     => tr('400 Bad Request'),
+                                                       ':h3'     => tr('Bad Request'),
                                                        ':p'      => tr('You sent incorrect or invalid information and your request was denied. If you think this was in error, please contact the system administrator'),
                                                        ':type'   => 'warning',
                                                        ':search' => tr('Search'),

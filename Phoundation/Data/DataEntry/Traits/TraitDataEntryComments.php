@@ -36,6 +36,6 @@ trait TraitDataEntryComments
      */
     public function setComments(?string $comments): static
     {
-        return $this->set('comments', $comments);
+        return $this->set($comments, 'comments');
     }
 }

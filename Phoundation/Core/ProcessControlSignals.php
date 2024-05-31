@@ -282,7 +282,7 @@ class ProcessControlSignals
         Log::backtrace();
         Log::warning(tr('Signal information:'), 10);
         Log::table($info);
-        Core::exit($exit_code, tr('Script ":script" was terminated because of signal ":signal" with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
+        Core::exit($exit_code, tr('Command ":script" was terminated because of signal ":signal" with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
             ':signal'   => $signal,
             ':script'   => Core::getExecutedPath(),
             ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),

@@ -48,13 +48,14 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     /**
      * SignInKey class constructor
      *
-     * @param int|string|DataEntryInterface|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      * @param string|null                        $column
      * @param bool|null                          $meta_enabled
+     * @param bool                               $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
-        parent::__construct($identifier, $column, $meta_enabled);
+        parent::__construct($identifier, $column, $meta_enabled, $init);
         $this->setAllowNavigation(false);
     }
 
@@ -68,14 +69,14 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function setAllowNavigation(int|bool|null $allow_navigation): static
     {
-        return $this->set('allow_navigation', (bool) $allow_navigation);
+        return $this->set((bool) $allow_navigation, 'allow_navigation');
     }
 
 
     /**
      * @inheritDoc
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'accounts_signin_keys';
     }
@@ -130,7 +131,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function setValidUntil(?string $valid_until): static
     {
-        return $this->set('valid_until', $valid_until);
+        return $this->set($valid_until, 'valid_until');
     }
 
 
@@ -147,7 +148,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
             $once = (int) $once;
         }
 
-        return $this->set('once', $once);
+        return $this->set($once, 'once');
     }
 
 

@@ -19,6 +19,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Phoundation\Interfaces\RepositoriesInterface;
 use Phoundation\Developer\Phoundation\Interfaces\RepositoryInterface;
+use Phoundation\Developer\Versioning\Git\Exception\BranchNotAvailableException;
+use Phoundation\Developer\Versioning\Git\Traits\TraitDataBranch;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
@@ -26,6 +28,177 @@ use Stringable;
 
 class Repositories extends Iterator implements RepositoriesInterface
 {
+    use TraitDataBranch {
+        setBranch as protected __setBranch;
+    }
+
+
+    /**
+     * Tracks if core repository should be updated / patched
+     *
+     * @var bool $patch_core
+     */
+    protected bool $patch_core = true;
+
+    /**
+     * Tracks if core repository should be updated / patched
+     *
+     * @var bool $patch_plugins
+     */
+    protected bool $patch_plugins = true;
+
+    /**
+     * Tracks if core repository should be updated / patched
+     *
+     * @var bool $patch_templates
+     */
+    protected bool $patch_templates = true;
+
+    /**
+     * Tracks if patches should be forced with a simple copy if applying a git diff failed
+     *
+     * @var bool $patch_forced_copy
+     */
+    protected bool $patch_forced_copy = true;
+
+
+    /**
+     * Returns true if the core repository will be patched, false if not
+     *
+     * @return bool
+     */
+    public function getPatchCore(): bool
+    {
+        return $this->patch_core;
+    }
+
+
+    /**
+     * Sets if the core repository will be patched, or not
+     *
+     * @param bool $patch_core
+     *
+     * @return static
+     */
+    public function setPatchCore(bool $patch_core): static
+    {
+        $this->patch_core = $patch_core;
+        return $this;
+    }
+
+
+    /**
+     * Returns true if the plugins repository will be patched, false if not
+     *
+     * @return bool
+     */
+    public function getPatchPlugins(): bool
+    {
+        return $this->patch_plugins;
+    }
+
+
+    /**
+     * Sets if the plugins repository will be patched, or not
+     *
+     * @param bool $patch_plugins
+     *
+     * @return static
+     */
+    public function setPatchPlugins(bool $patch_plugins): static
+    {
+        $this->patch_plugins = $patch_plugins;
+        return $this;
+    }
+
+
+    /**
+     * Returns true if the templates repository will be patched, false if not
+     *
+     * @return bool
+     */
+    public function getPatchTemplates(): bool
+    {
+        return $this->patch_templates;
+    }
+
+
+    /**
+     * Sets if the templates repository will be patched, or not
+     *
+     * @param bool $patch_templates
+     *
+     * @return static
+     */
+    public function setPatchTemplates(bool $patch_templates): static
+    {
+        $this->patch_templates = $patch_templates;
+        return $this;
+    }
+
+
+    /**
+     * Returns if patches should be forced with a simple copy if applying a git diff failed
+     *
+     * @return bool
+     */
+    public function getPatchForcedCopy(): bool
+    {
+        return $this->patch_forced_copy;
+    }
+
+
+    /**
+     * Sets if patches should be forced with a simple copy if applying a git diff failed
+     *
+     * @param bool $patch_forced_copy
+     *
+     * @return static
+     */
+    public function setPatchForcedCopy(bool $patch_forced_copy): static
+    {
+        $this->patch_forced_copy = $patch_forced_copy;
+        return $this;
+    }
+
+
+
+    /**
+     * Sets the branch for all the repositories in this list
+     *
+     * @param string $branch
+     * @return $this
+     */
+    public function setBranch(string $branch): static
+    {
+        // First check that all repositories have the requested branch available.
+        foreach ($this->source as $value) {
+            if (!$value->hasBranch($branch)) {
+                throw new BranchNotAvailableException(tr('Cannot switch repository "" to branch "", that branch does not exist in that repository', [
+                    ':branch' => $branch
+                ]));
+            }
+        }
+
+        // Switch all repositories to the requested branch
+        foreach ($this->source as $value) {
+            $value->setBranch($branch);
+        }
+
+        return $this->__setBranch($branch);
+    }
+
+
+    /**
+     * Try to patch all loaded repositories according to the configured rules
+     *
+     * @return $this
+     */
+    public function patch(): static
+    {
+
+    }
+
     /**
      * Adds the specified repository to this repositories list
      *

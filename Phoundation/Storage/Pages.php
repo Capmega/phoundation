@@ -23,7 +23,7 @@ class Pages extends DataList implements PagesInterface
     /**
      * @inheritDoc
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'storage_pages';
     }
@@ -32,7 +32,7 @@ class Pages extends DataList implements PagesInterface
     /**
      * @inheritDoc
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Request::class;
     }

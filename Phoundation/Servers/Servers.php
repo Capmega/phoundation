@@ -44,7 +44,7 @@ class Servers extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'servers';
     }
@@ -53,9 +53,9 @@ class Servers extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Server::class;
     }
@@ -103,8 +103,8 @@ class Servers extends DataList
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('servers_id')
-                     ->setNone(tr('Select a server'))
-                     ->setObjectEmpty(tr('No servers available'));
+                     ->setNotSelectedLabel(tr('Select a server'))
+                     ->setComponentEmptyLabel(tr('No servers available'));
     }
 
 

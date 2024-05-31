@@ -60,9 +60,9 @@ class Tasks extends DataList implements TasksInterface
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Task::class;
     }
@@ -112,14 +112,14 @@ class Tasks extends DataList implements TasksInterface
         }
 
         return InputSelect::new()
-                          ->setConnector(static::getDefaultConnectorName())
+                          ->setConnector(static::getConnector())
                           ->setSourceQuery('SELECT   `' . $key_column . '`, ' . $value_column . ' 
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `created_on` ASC')
                           ->setName('tasks_id')
-                          ->setNone(tr('Select a task'))
-                          ->setObjectEmpty(tr('No tasks available'));
+                          ->setNotSelectedLabel(tr('Select a task'))
+                          ->setComponentEmptyLabel(tr('No tasks available'));
     }
 
 
@@ -128,7 +128,7 @@ class Tasks extends DataList implements TasksInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'os_tasks';
     }
@@ -145,7 +145,7 @@ class Tasks extends DataList implements TasksInterface
             throw new OutOfBoundsException(tr('Cannot execute pending tasks, tasks are already being executed'));
         }
         static::$executing = now();
-        $keys = $this->getKeys();
+        $keys = $this->getSourceKeys();
         if (!count($keys)) {
             throw NoTasksPendingExceptions::new(tr('There are no pending tasks'))
                                           ->makeWarning();

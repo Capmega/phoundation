@@ -45,7 +45,7 @@ if (Request::isPostRequestMethod()) {
         switch (PostValidator::getSubmitButton()) {
             case tr('Mark unread'):
                 $notification->setStatus('UNREAD');
-                Response::getFlashMessages()->addSuccessMessage(tr('The notification ":notification" has been marked as unread', [
+                Response::getFlashMessages()->addSuccess(tr('The notification ":notification" has been marked as unread', [
                     ':notification' => $notification->getTitle()
                 ]));
         }

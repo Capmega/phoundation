@@ -146,11 +146,11 @@ class DirectoryCore extends PathCore implements DirectoryInterface
     {
         switch ($type) {
             case 'img':
-                // no-break
+                // no break
             case 'image':
                 return '/pub/img/' . $directory;
             case 'css':
-                // no-break
+                // no break
             case 'style':
                 return '/pub/css/' . $directory;
             default:
@@ -423,11 +423,11 @@ class DirectoryCore extends PathCore implements DirectoryInterface
     /**
      * Ensures existence of the specified directory
      *
-     * @param string|null $mode  octal $mode If the specified $this->directory does not exist, it will be created with
-     *                           this directory mode. Defaults to $_CONFIG[fs][dir_mode]
-     * @param boolean     $clear If set to true, and the specified directory already exists, it will be deleted and
-     *                           then re-created
-     * @param bool        $sudo
+     * @param string|int|null $mode  octal $mode If the specified $this->directory does not exist, it will be created
+     *                               with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+     * @param boolean         $clear If set to true, and the specified directory already exists, it will be deleted and
+     *                               then re-created
+     * @param bool            $sudo
      *
      * @return static
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -436,25 +436,29 @@ class DirectoryCore extends PathCore implements DirectoryInterface
      * @category  Function reference
      * @package   file
      * @version   2.4.16: Added documentation
-     *
      */
-    public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): static
+    public function ensure(string|int|null $mode = null, ?bool $clear = false, bool $sudo = false): static
     {
         $this->path = Strings::slash($this->path);
         static::validateFilename($this->path);
+
         $mode = Config::get('filesystem.mode.directories', 0750, $mode);
+
         if ($clear) {
             // Delete the currently existing directory, so we can  be sure we have a clean directory to work with
             File::new($this->path, $this->restrictions)
                 ->delete(false, $sudo);
         }
+
         if (!file_exists(Strings::unslash($this->path))) {
             // The complete requested directory doesn't exist. Try to create it, but directory by directory so that we can
             // correct issues as we run in to them
             $dirs       = explode('/', Strings::ensureStartsNotWith($this->path, '/'));
             $this->path = '';
+
             foreach ($dirs as $id => $dir) {
                 $this->path .= '/' . $dir;
+
                 if (file_exists($this->path)) {
                     if (!is_dir($this->path)) {
                         // Some normal file is in the way. Delete the file, and retry
@@ -463,13 +467,14 @@ class DirectoryCore extends PathCore implements DirectoryInterface
 
                         return $this->ensure($mode, $clear, $sudo);
                     }
+
                     continue;
 
                 } elseif (is_link($this->path)) {
                     // This is a dead symlink, delete it
-                    File::new($this->path, $this->restrictions)
-                        ->delete(false, $sudo);
+                    File::new($this->path, $this->restrictions)->delete(false, $sudo);
                 }
+
                 try {
                     // Make sure that the parent directory is writable when creating the directory
                     Directory::new(dirname($this->path), $this->restrictions->getParent($id + 1))
@@ -768,7 +773,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
                      // Add file type and extension statistics
                      switch ($extension) {
                          case 'css':
-                             // no-break
+                             // no break
                          case 'scss':
                              $return['file_types']['css']++;
                              $return['file_extensions'][$extension]++;
@@ -778,21 +783,21 @@ class DirectoryCore extends PathCore implements DirectoryInterface
                              $return['file_extensions'][$extension]++;
                              break;
                          case 'js':
-                             // no-break
+                             // no break
                          case 'json':
                              $return['file_types']['js']++;
                              $return['file_extensions'][$extension]++;
                              break;
                          case 'html':
-                             // no-break
+                             // no break
                          case 'htm':
                              $return['file_types']['html']++;
                              $return['file_extensions'][$extension]++;
                              break;
                          case 'php':
-                             // no-break
+                             // no break
                          case 'phps':
-                             // no-break
+                             // no break
                          case 'phtml':
                              $return['file_types']['php']++;
                              $return['file_extensions'][$extension]++;
@@ -802,7 +807,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
                              $return['file_extensions'][$extension]++;
                              break;
                          case 'yaml':
-                             // no-break
+                             // no break
                          case 'yml':
                              $return['file_types']['yaml']++;
                              $return['file_extensions'][$extension]++;
@@ -1018,7 +1023,9 @@ class DirectoryCore extends PathCore implements DirectoryInterface
     public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): IteratorInterface
     {
         $this->restrictions->check($this->path, false);
+
         $return = [];
+
         // Get directory pattern part and file pattern part
         if ($file_patterns) {
             $directory_pattern = dirname($file_patterns);

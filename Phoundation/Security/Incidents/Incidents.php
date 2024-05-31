@@ -39,7 +39,7 @@ class Incidents extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'security_incidents';
     }
@@ -48,9 +48,9 @@ class Incidents extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Incident::class;
     }
@@ -82,7 +82,7 @@ class Incidents extends DataList
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('incidents_id')
-                     ->setNone(tr('Select an incident'))
-                     ->setObjectEmpty(tr('No incidents available'));
+                     ->setNotSelectedLabel(tr('Select an incident'))
+                     ->setComponentEmptyLabel(tr('No incidents available'));
     }
 }

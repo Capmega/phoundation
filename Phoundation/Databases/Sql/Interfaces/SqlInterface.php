@@ -31,16 +31,6 @@ interface SqlInterface
 
 
     /**
-     * Returns an SqlDataEntry object for this SQL class
-     *
-     * @param DataEntryInterface $data_entry
-     *
-     * @return SqlDataEntryInterface
-     */
-    public function getSqlDataEntryObject(DataEntryInterface $data_entry): SqlDataEntryInterface;
-
-
-    /**
      * Returns if query printing is enabled for this instance or not
      *
      * @return bool

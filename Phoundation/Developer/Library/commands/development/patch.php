@@ -1,22 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
-use Phoundation\Developer\Phoundation\Phoundation;
-use Phoundation\Developer\Phoundation\Plugins;
-use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
-use Phoundation\Utils\Arrays;
-
-
 /**
+ * Command developer patch
+ *
  * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This script will copy changed files back to your phoundation installation. The script will assume your phoundation
- * installation is in ~/projects/phoundation
+ * This script will copy git change patches back to your phoundation core, phoundation plugins, and phoundation
+ * templates installations where you can submit them.
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -24,10 +14,26 @@ use Phoundation\Utils\Arrays;
  * @category  Function reference
  * @package   Phoundation\Development
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
+use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Developer\Phoundation\Repositories\Repositories;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
+use Phoundation\Os\Processes\Commands\PhoCommand;
+use Phoundation\Utils\Arrays;
+
 // TODO Improve autocomplete, --branch should show branch options
 CliDocumentation::setAutoComplete([
                                       'arguments' => [
-                                          '-b,--branch'      => true,
+                                          '-b,--branch'      => [
+                                              'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->keepMatchingKeysStartingWith($word); },
+                                              'noword' => function ()      { return Phoundation::new()->getPhoundationBranches()->getSourceKeys(); },
+                                          ],
                                           '-m,--message'     => true,
                                           '-c,--no-checkout' => false,
                                           '--no-phoundation' => false,
@@ -77,47 +83,50 @@ $argv = ArgvValidator::new()
                      ->select('-p,--phoundation', true)->isOptional()->isPrintable()
                      ->select('-s,--signed')->isOptional()->isBoolean()
                      ->select('-n,--no-plugins')->isOptional()->isBoolean()
+                     ->select('-t,--no-templates')->isOptional()->isBoolean()
                      ->select('--no-phoundation')->isOptional()->isBoolean()
                      ->select('-u,--no-update')->isOptional()->isBoolean()
+                     ->select('-f,--no-forced-copy')->isOptional()->isBoolean()
                      ->validate();
 
 
-Log::information(tr('Copying local changes in ":project" project back to your Phoundation installation', [
+Log::information(tr('Copying local changes in project ":project" back to your Phoundation repositories', [
     ':project' => PROJECT,
 ]));
 
+
+// First update Phoundation, if allowed
+if (!$argv['no_checkout']) {
+    PhoCommand::new('system update')
+              ->addArguments([
+                                 $argv['no_phoundation'] ? '--no-phoundation'              : null,
+                                 $argv['no_plugins']     ? '--no-plugins'                  : null,
+                                 $argv['no_templates']   ? '--no-templates'                : null,
+                                 $argv['signed']         ? ['--signed' , $argv['signed']]  : null,
+                                 $argv['message']        ? ['--message', $argv['message']] : null,
+                                 $argv['branch']         ? ['--branch' , $argv['branch']]  : null,
+                             ])
+              ->executePassthru();
+}
+
+
+// Start the repository patching process
 try {
-    if ($argv['no_phoundation']) {
-        Log::warning('Not patching Phoundation core libraries');
+    Repositories::new()
+                ->scan()
+                ->setBranch($argv['branch'])
+                ->setPatchCore(!$argv['no_phoundation'])
+                ->setPatchPlugins(!$argv['no_plugins'])
+                ->setPatchTemplates(!$argv['no_templates'])
+                ->setPatchForcedCopy(!$argv['no_forced_copy'])
+                ->setPatchCheckout(!$argv['no_checkout'])
+                ->patch();
 
-    } else {
-        Log::action('Patching Phoundation core libraries');
-
-        if ($argv['no_update']) {
-            Log::warning('Not executing phoundation update');
-        }
-
-        Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout'], !$argv['no_update']);
-    }
-
-    if ($argv['no_plugins']) {
-        Log::warning('Not patching plugins');
-
-    } else {
-        Log::action('Patching plugins');
-
-        if ($argv['no_update']) {
-            Log::warning('Not executing plugins update');
-        }
-
-        Plugins::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout'], !$argv['no_update']);
-    }
-
-} catch (GitPatchFailedException|PatchPartiallySuccessfulException $e) {
+} catch (GitPatchFailedException | PatchPartiallySuccessfulException $e) {
     $files = $e->getDataKey('files');
 
     if ($files) {
-        Log::warning(tr('Failed to merge the following files:'));
+        Log::warning(tr('Failed to patch the following files:'));
 
         foreach (Arrays::force($files) as $file) {
             Log::write($file, 'debug');

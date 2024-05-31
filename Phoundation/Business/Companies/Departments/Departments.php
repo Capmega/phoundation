@@ -39,7 +39,7 @@ class Departments extends DataList implements DepartmentsInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'business_departments';
     }
@@ -48,9 +48,9 @@ class Departments extends DataList implements DepartmentsInterface
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Department::class;
     }
@@ -82,7 +82,7 @@ class Departments extends DataList implements DepartmentsInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('departments_id')
-                     ->setNone(tr('Select a department'))
-                     ->setObjectEmpty(tr('No departments available'));
+                     ->setNotSelectedLabel(tr('Select a department'))
+                     ->setComponentEmptyLabel(tr('No departments available'));
     }
 }

@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Os\Processes\Commands\Interfaces\PhoCommandCoreInterface;
-use Phoundation\Os\Processes\WorkersCore;
-use Phoundation\Utils\Arrays;
-
 /**
  * Class PhoCommand
  *
@@ -20,6 +10,17 @@ use Phoundation\Utils\Arrays;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Processes\Commands\Interfaces\PhoCommandCoreInterface;
+use Phoundation\Os\Processes\WorkersCore;
+use Phoundation\Utils\Arrays;
+
 class PhoCommand extends WorkersCore implements PhoCommandCoreInterface
 {
     /**
@@ -30,15 +31,18 @@ class PhoCommand extends WorkersCore implements PhoCommandCoreInterface
      */
     public function __construct(array|string|null $commands, bool $which_command = true)
     {
+        if (is_string($commands)) {
+            $commands = str_replace('/', ' ', $commands);
+        }
+
         // Ensure that the run files directory is available
         Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run'))
                  ->ensure();
+
         parent::__construct(Restrictions::new(DIRECTORY_ROOT . 'pho'));
+
         $this->setCommand(DIRECTORY_ROOT . 'pho', $which_command)
-             ->addArguments([
-                 '-E',
-                 ENVIRONMENT,
-             ])
+             ->addArguments(['-E', ENVIRONMENT])
              ->addArguments($commands ? Arrays::force($commands, ' ') : null);
     }
 

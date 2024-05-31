@@ -40,7 +40,7 @@ class Categories extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'categories';
     }
@@ -49,9 +49,9 @@ class Categories extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Category::class;
     }
@@ -99,7 +99,7 @@ class Categories extends DataList
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('categories_id')
-                     ->setNone(tr('Select a category'))
-                     ->setObjectEmpty(tr('No categories available'));
+                     ->setNotSelectedLabel(tr('Select a category'))
+                     ->setComponentEmptyLabel(tr('No categories available'));
     }
 }

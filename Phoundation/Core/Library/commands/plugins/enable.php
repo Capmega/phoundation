@@ -46,7 +46,7 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->selectAll('plugins')->isOptional()->exclusiveOrArgument('all', ALL)->sanitizeForceArray()->each()->isName()
+                     ->selectAll('plugins')->isOptional()->xorArgument('all', ALL)->sanitizeForceArray()->each()->isName()
                      ->validate();
 
 

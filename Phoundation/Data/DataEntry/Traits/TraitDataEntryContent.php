@@ -36,6 +36,6 @@ trait TraitDataEntryContent
      */
     public function setContent(?string $content): static
     {
-        return $this->set('content', $content);
+        return $this->set($content, 'content');
     }
 }

@@ -501,9 +501,9 @@ class Session implements SessionInterface
                 break;
             case 'memcached':
             case 'redis':
-                // no-break
+                // no break
             case 'mongo':
-                // no-break
+                // no break
             case 'sql':
                 // TODO Implement these session handlers ASAP
                 throw new UnderConstructionException();
@@ -1326,7 +1326,7 @@ class Session implements SessionInterface
                             ->save();
                     Session::signOut();
                     Response::getFlashMessages()
-                           ->addWarningMessage(tr('Something went wrong with your session, please sign in again'));
+                           ->addWarning(tr('Something went wrong with your session, please sign in again'));
                     Response::redirect('sign-in');
                 }
             }
@@ -1372,13 +1372,16 @@ class Session implements SessionInterface
                             ])
                             ->notifyRoles('accounts')
                             ->save();
+
                     // We're impersonating a user, return to the original user.
                     $url      = $_SESSION['user']['impersonate_url'];
                     $users_id = $_SESSION['user']['impersonate_id'];
+
                     unset($_SESSION['user']['impersonate_id']);
                     unset($_SESSION['user']['impersonate_url']);
+
                     Response::getFlashMessages()
-                           ->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
+                           ->addSuccess(tr('You have stopped impersonating user ":user"', [
                                ':user' => User::load($users_id, 'id')
                                               ->getLogId(),
                            ]));

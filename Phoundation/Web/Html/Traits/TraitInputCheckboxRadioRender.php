@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Trait TraitInputCheckRadioRender
  *
@@ -14,7 +15,7 @@ namespace Phoundation\Web\Html\Traits;
 
 use Phoundation\Web\Html\Components\Label;
 
-trait TraitInputCheckRadioRender
+trait TraitInputCheckboxRadioRender
 {
     use TraitInputLabel;
 
@@ -25,20 +26,16 @@ trait TraitInputCheckRadioRender
      */
     public function render(): ?string
     {
-        $this->getAria()
-             ->add($this->label, 'label');
+        // Automatically give the component ID the same value as the name so that label "for" will work correctly
+        if(!$this->getId()) {
+            $this->setId($this->getName());
+        }
+
+        $this->getAria()->add($this->label, 'label');
+
         if ($this->label_hidden) {
-            // Hide the label, put it in aria instead
+            // Hide the label, apply it to aria only
             $this->label = null;
-
-        } elseif ($this->label) {
-            $element = Label::new()
-                            ->setClass($this->label_class)
-                            ->setContent($this->label);
-            $element->getAttributes()
-                    ->add($this->id, 'for');
-
-            return parent::render() . $element->render();
         }
 
         return parent::render();

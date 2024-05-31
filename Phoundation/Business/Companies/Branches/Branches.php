@@ -39,7 +39,7 @@ class Branches extends DataList implements BranchesInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'business_branches';
     }
@@ -48,9 +48,9 @@ class Branches extends DataList implements BranchesInterface
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Branch::class;
     }
@@ -82,7 +82,7 @@ class Branches extends DataList implements BranchesInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('branches_id')
-                     ->setNone(tr('Select a branch'))
-                     ->setObjectEmpty(tr('No branches available'));
+                     ->setNotSelectedLabel(tr('Select a branch'))
+                     ->setComponentEmptyLabel(tr('No branches available'));
     }
 }

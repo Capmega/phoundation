@@ -38,7 +38,7 @@ trait TraitDataEntryCompany
      */
     public function setCompaniesId(?int $companies_id): static
     {
-        return $this->set('companies_id', $companies_id);
+        return $this->set($companies_id, 'companies_id');
     }
 
 
@@ -78,6 +78,6 @@ trait TraitDataEntryCompany
      */
     public function setCompaniesName(?string $companies_name): static
     {
-        return $this->set('companies_name', $companies_name);
+        return $this->set($companies_name, 'companies_name');
     }
 }

@@ -3,8 +3,7 @@
 /**
  * Page 401
  *
- * This page will be executed when a guest user accesses a resource that requires authentication first. The sign-in page
- * will be shown with an HTTP 401 error code
+ * This is the page that will be shown when the system encounters an internal error from which it could not recover
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,11 +13,16 @@
 
 declare(strict_types=1);
 
+use Phoundation\Core\Core;
+use Phoundation\Utils\Json;
+use Phoundation\Web\Html\Pages\Template;
+use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 Response::setHttpCode(401);
-Request::executeSystem('401');
+Response::redirect('signin');
 
 //// Get the exception
 //$e = Core::readRegister('e');
@@ -30,25 +34,25 @@ Request::executeSystem('401');
 //        // no break
 //    case EnumRequestTypes::api:
 //        Response::setHttpCode(401);
-//        Json::reply(['error' => tr('Authentication required')]);
+//        Json::reply(['error' => tr('Unauthorized')]);
 //}
 //
 //
 //// Build the error page
-//echo Template::page('system/http-error')->render([
-//    ':h2'     => '401',
-//    ':h3'     => tr('Unauthorized'),
-//    ':p'      => tr('You need to login to access the specified resource. Please contact the system administrator if you think this was in error'),
-//    ':type'   => 'warning',
-//    ':search' => tr('Search'),
-//    ':action' => UrlBuilder::getWww('search/')
-//]);
+//echo Template::new('system/http-error')->setSource([
+//                                                       ':h2'     => '401',
+//                                                       ':h3'     => tr('Unauthorized'),
+//                                                       ':p'      => tr('The server encountered an internal error and could not fulfill your request. Please contact the system administrator'),
+//                                                       ':type'   => 'warning',
+//                                                       ':search' => tr('Search'),
+//                                                       ':action' => UrlBuilder::getWww('search/'),
+//                                                   ])->render();
 //
 //
 //// Set page meta data
 //Response::setHttpCode(401);
 //Response::setBuildBody(false);
-//Response::setPageTitle('401 - Unauthorized');
+//Response::setPageTitle('401 - Internal Server Error');
 //Response::setHeaderTitle(tr('401 - Error'));
-//Response::setDescription(tr('You need to login to access the specified resource'));
+//Response::setDescription(tr('The server encountered an internal error and could not fulfill your request'));
 //Response::setBreadCrumbs();

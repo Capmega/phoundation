@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Accounts\Users\User;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Sql\Limit;
-
-
 /**
  * Script accounts/users/lock
  *
@@ -19,6 +11,14 @@ use Phoundation\Databases\Sql\Limit;
  * @package   Phoundation\Scripts
  */
 
+declare(strict_types=1);
+
+use Phoundation\Accounts\Users\User;
+use Phoundation\Accounts\Users\Users;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Limit;
+
 CliDocumentation::setAutoComplete(User::getAutoComplete([
                                                             'positions' => [
                                                                 0 => [
@@ -28,7 +28,8 @@ CliDocumentation::setAutoComplete(User::getAutoComplete([
                                                             ],
                                                         ]));
 
-CliDocumentation::setUsage('./pho accounts users lock USER_EMAIL');
+CliDocumentation::setUsage('./pho accounts users lock USER_EMAIL
+./pho accounts users lock -A -F (DANGEROUS)');
 
 CliDocumentation::setHelp('This command will lock the specified user. Note that locked users will not be removed from
 the database, the status for the user will be updated to "locked"
@@ -41,9 +42,20 @@ USER_EMAIL                              The email address for the user to lock')
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('user')->isEmail()
+                     ->select('user')->isOptionalIfTrue(ALL, null)->isEmail()
                      ->validate();
 
 
-// Lock this user
-User::load($argv['user'])->lock();
+// Lock either all NULL users, or the specified user
+if (ALL) {
+    if (!FORCE) {
+        throw new OutOfBoundsException(tr('Cannot lock all users (due to --all option), this requires --force as well'));
+    }
+
+    // Lock all users
+    Users::new()->load($argv['user'])->lock();
+
+} else {
+    // Lock this user
+    User::load($argv['user'])->lock();
+}

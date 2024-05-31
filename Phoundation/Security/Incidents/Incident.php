@@ -63,9 +63,9 @@ class Incident extends DataEntry implements IncidentInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'security_incidents';
     }
@@ -132,8 +132,8 @@ class Incident extends DataEntry implements IncidentInterface
             // Ensure the source is not a string, at least an array
             $roles = Arrays::force($roles);
         }
-        $this->getNotifyRoles()
-             ->addSources($roles);
+
+        $this->getNotifyRoles()->addSources($roles);
 
         return $this;
     }
@@ -182,7 +182,7 @@ class Incident extends DataEntry implements IncidentInterface
             $severity = Severity::from($severity);
         }
 
-        return $this->set('severity', $severity->value);
+        return $this->set($severity->value, 'severity');
     }
 
 
@@ -197,6 +197,7 @@ class Incident extends DataEntry implements IncidentInterface
     public function save(bool $force = false, ?string $comments = null): static
     {
         $severity = strtolower($this->getSeverity());
+
         if ($this->log) {
             switch ($severity) {
                 case 'notice':
@@ -204,14 +205,17 @@ class Incident extends DataEntry implements IncidentInterface
                         ':message' => $this->getTitle(),
                     ]));
                     break;
+
                 case 'high':
                     // no break
+
                 case 'severe':
                     Log::error(tr('Security incident (:severity): :message', [
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
                     ]));
                     break;
+
                 default:
                     Log::warning(tr('Security incident (:severity): :message', [
                         ':severity' => $severity,
@@ -219,25 +223,32 @@ class Incident extends DataEntry implements IncidentInterface
                     ]));
             }
         }
+
         // Save the incident
         $incident = parent::save($force, $comments);
+
         // Notify anybody?
         if (isset($this->notify_roles)) {
             // Notify the specified roles
             $notification = Notification::new();
+
             switch ($severity) {
                 case 'notice':
                     // no break
+
                 case 'low':
                     $notification->setMode(EnumDisplayMode::notice);
                     break;
+
                 case 'medium':
                     $notification->setMode(EnumDisplayMode::warning);
                     break;
+
                 default:
                     $notification->setMode(EnumDisplayMode::danger);
                     break;
             }
+
             $notification->setUrl('security/incident+' . $this->getId() . '.html')
                          ->setRoles($this->notify_roles)
                          ->setTitle($this->getType())
@@ -274,6 +285,7 @@ class Incident extends DataEntry implements IncidentInterface
             throw $exception::new($this->getTitle())
                             ->addData(['details' => $this->getDetails()]);
         }
+
         throw IncidentsException::new($this->getTitle())
                                 ->addData(['details' => $this->getDetails()]);
     }
@@ -291,7 +303,8 @@ class Incident extends DataEntry implements IncidentInterface
                                     ->setDisabled(true)
                                     ->setDefault(tr('Unknown'))
                                     ->setSize(6)
-                                    ->setMaxlength(6))
+                                    ->setMaxlength(64))
+
                     ->add(Definition::new($this, 'severity')
                                     ->setElement(EnumElement::select)
                                     ->setLabel(tr('Severity'))
@@ -305,12 +318,14 @@ class Incident extends DataEntry implements IncidentInterface
                                         Severity::high->value   => tr('High'),
                                         Severity::severe->value => tr('Severe'),
                                     ]))
+
                     ->add(Definition::new($this, 'title')
                                     ->setLabel(tr('Title'))
                                     ->setDisabled(true)
                                     ->setSize(12)
                                     ->setMaxlength(4)
                                     ->setMaxlength(255))
+
                     ->add(Definition::new($this, 'details')
                                     ->setElement(EnumElement::textarea)
                                     ->setLabel(tr('Details'))

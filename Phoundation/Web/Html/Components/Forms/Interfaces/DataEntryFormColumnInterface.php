@@ -30,11 +30,11 @@ interface DataEntryFormColumnInterface extends ElementsBlockInterface
     /**
      * Sets the component
      *
-     * @param RenderInterface|string|null $component
+     * @param RenderInterface|string|null $column_component
      *
      * @return static
      */
-    public function setColumnComponent(RenderInterface|string|null $component): static;
+    public function setColumnComponent(RenderInterface|string|null $column_component): static;
 
 
     /**

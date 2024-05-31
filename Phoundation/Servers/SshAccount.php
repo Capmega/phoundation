@@ -38,14 +38,15 @@ class SshAccount extends DataEntry implements SshAccountInterface
     /**
      * SshAccount class constructor
      *
-     * @param int|string|DataEntryInterface|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      * @param string|null                        $column
      * @param bool|null                          $meta_enabled
+     * @param bool                               $init
      */
-    public function __construct(int|string|DataEntryInterface|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
         $this->config_path = 'ssh.accounts.';
-        parent::__construct($identifier, $column, $meta_enabled);
+        parent::__construct($identifier, $column, $meta_enabled, $init);
     }
 
 
@@ -54,7 +55,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'ssh_accounts';
     }
@@ -113,7 +114,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      */
     public function setSshKey(?string $ssh_key): static
     {
-        return $this->set('ssh_key', $ssh_key);
+        return $this->set($ssh_key, 'ssh_key');
     }
 
 

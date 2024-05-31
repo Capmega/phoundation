@@ -36,6 +36,6 @@ trait TraitDataEntryNumber
      */
     public function setNumber(?string $number): static
     {
-        return $this->setSourceValue('number', $number);
+        return $this->set($number, 'number');
     }
 }

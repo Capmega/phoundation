@@ -63,7 +63,7 @@ class Users extends DataList implements UsersInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'accounts_users';
     }
@@ -118,9 +118,9 @@ class Users extends DataList implements UsersInterface
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return User::class;
     }
@@ -145,7 +145,6 @@ class Users extends DataList implements UsersInterface
                 foreach ($value as $entry) {
                     $this->add($entry, $key, $skip_null);
                 }
-
             } else {
                 // Add single right. Since this is a User object, the entry already exists in the database
                 $value = User::load($value);
@@ -166,7 +165,6 @@ class Users extends DataList implements UsersInterface
                     ]);
                     // Add right to the internal list
                     $this->add($value);
-
                 } elseif ($this->parent instanceof RightInterface) {
                     Log::action(tr('Adding right ":right" to user ":user"', [
                         ':right' => $this->parent->getLogId(),
@@ -240,7 +238,6 @@ class Users extends DataList implements UsersInterface
             foreach ($keys as $key) {
                 $this->deleteKeys($key);
             }
-
         } else {
             // Add single user. Since this is a User object, the entry already exists in the database
             $user = User::load($keys);
@@ -255,7 +252,6 @@ class Users extends DataList implements UsersInterface
                 ]);
                 // Remove user from the internal list
                 $this::removeKeys($user->getId());
-
             } elseif ($this->parent instanceof RightInterface) {
                 Log::action(tr('Removing user ":user" from right ":right"', [
                     ':right' => $this->parent->getLogId(),
@@ -289,7 +285,6 @@ class Users extends DataList implements UsersInterface
             sql()->query('DELETE FROM `accounts_users_roles` WHERE `roles_id` = :roles_id', [
                 'roles_id' => $this->parent->getId(),
             ]);
-
         } elseif ($this->parent instanceof RightInterface) {
             Log::action(tr('Removing right ":right" from all users', [
                 ':right' => $this->parent->getLogId(),
@@ -452,13 +447,13 @@ class Users extends DataList implements UsersInterface
         }
 
         return InputSelect::new()
-                          ->setConnector(static::getDefaultConnectorName())
+                          ->setConnector(static::getConnector())
                           ->setSourceQuery('SELECT `' . $key_column . '`, ' . $value_column . ' 
                                          FROM  `accounts_users`
                                          WHERE `status` IS NULL ORDER BY ' . Strings::ensureSurroundedWith(Strings::fromReverse($value_column, ' '), '`'))
                           ->setName('users_id')
-                          ->setNone(tr('Select a user'))
-                          ->setObjectEmpty(tr('No users available'));
+                          ->setNotSelectedLabel(tr('Select a user'))
+                          ->setComponentEmptyLabel(tr('No users available'));
     }
 
 
@@ -505,7 +500,6 @@ class Users extends DataList implements UsersInterface
                 $this->execute = [
                     ':roles_id' => $this->parent->getId(),
                 ];
-
             } elseif ($this->parent instanceof RightInterface) {
                 $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
                                 FROM   `accounts_users_rights` 
@@ -516,7 +510,6 @@ class Users extends DataList implements UsersInterface
                     ':rights_id' => $this->parent->getId(),
                 ];
             }
-
         } else {
             $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*
                             FROM   `accounts_users`
@@ -525,5 +518,23 @@ class Users extends DataList implements UsersInterface
         }
 
         return parent::load();
+    }
+
+
+    /**
+     * Update the status of ALL users in this Users object
+     *
+     * @param string|null $current_status
+     * @return $this
+     */
+    public function lock(?string $current_status = null): static
+    {
+        foreach ($this->source as $user) {
+            if ($user->getStatus() === $current_status) {
+                $user->lock();
+            }
+        }
+
+        return $this;
     }
 }

@@ -36,6 +36,6 @@ trait TraitDataEntryVerifiedOn
      */
     public function setVerifiedOn(?string $verified_on): static
     {
-        return $this->set('verified_on', $verified_on);
+        return $this->set($verified_on, 'verified_on');
     }
 }

@@ -18,8 +18,11 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Security\Luks\Device;
+
+$restrictions = Restrictions::readonly('/', tr('security luks try'));
 
 CliDocumentation::setUsage('./pho security luks try -f FILE
 echo "SECTION SECTION SECTION" | ./pho security luks try -f FILE');
@@ -42,7 +45,10 @@ ARGUMENTS
 
 CliDocumentation::setAutoComplete([
                                       'arguments' => [
-                                          '-f,--file' => true,
+                                          '-f,--file' => [
+                                              'word'   => function ($word) use ($restrictions) { return Directory::new('/', $restrictions)->scan($word . '*'); },
+                                              'noword' => function ()      use ($restrictions) { return Directory::new('/', $restrictions)->scan('*'); },
+                                          ],
                                       ],
                                   ]);
 

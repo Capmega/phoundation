@@ -97,8 +97,8 @@ declare(strict_types=1);
 use Phoundation\Web\Routing\Map;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
-use Templates\Mdb\Mdb;
-use Templates\AdminLte\AdminLte;
+use Templates\Phoundation\Mdb\Mdb;
+
 
 require('../../../../vendor/autoload.php');
 
@@ -136,6 +136,7 @@ Route::try('/^(\w{2})\/ajax\/(.+?)\.json$/', 'ajax/$2.php', 'Q');               
 Route::try('/^(\w{2})\/timesheets\/(\d{4}\/\d{2}\/\d{2})\.html$/', 'pages/timesheets/day.php?date=$2');           // Timesheet page
 Route::try('/^(\w{2})\/?$/', '/index.html', 'R301');                                                              // Redirect to index page
 Route::try('/^$/', '/index.html', 'R301');         // Redirect to index page
+//Route::try('/^(\w{2})\/sso\/([a-z0-9-]+).html/', 'pages/sso/$1.php', 'Q'); // SAML SSO sign-on
 
 
 //// System files / downloadable files

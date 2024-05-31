@@ -51,14 +51,14 @@ trait TraitDataEntryHostnamePort
     {
         if ($this->definitions->valueExists('seo_hostname')) {
             if ($hostname === null) {
-                $this->set('seo_hostname', null);
+                $this->set(null, 'seo_hostname');
             } else {
                 $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getValueTypesafe('int', 'id'), static::getUniqueColumn());
-                $this->set('seo_hostname', $seo_hostname);
+                $this->set($seo_hostname, 'seo_hostname');
             }
         }
 
-        return $this->set('hostname', $hostname);
+        return $this->set($hostname, 'hostname');
     }
 
 
@@ -82,6 +82,6 @@ trait TraitDataEntryHostnamePort
      */
     public function setPort(?int $port): static
     {
-        return $this->set('port', $port);
+        return $this->set($port, 'port');
     }
 }

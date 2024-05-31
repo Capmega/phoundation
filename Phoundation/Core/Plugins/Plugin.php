@@ -46,7 +46,7 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'core_plugins';
     }
@@ -211,7 +211,7 @@ class Plugin extends DataEntry implements PluginInterface
             }
         }
 
-        return $this->set('status', $enabled ? null : 'disabled');
+        return $this->set($enabled ? null : 'disabled', 'status');
     }
 
 
@@ -235,7 +235,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setMenuEnabled(int|bool|null $menu_enabled): static
     {
-        return $this->set('menu_enabled', (bool) $menu_enabled);
+        return $this->set((bool) $menu_enabled, 'menu_enabled');
     }
 
 
@@ -265,7 +265,7 @@ class Plugin extends DataEntry implements PluginInterface
             ]));
         }
 
-        return $this->set('menu_priority', $menu_priority);
+        return $this->set($menu_priority, 'menu_priority');
     }
 
 
@@ -403,7 +403,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setClass(?string $class): static
     {
-        return $this->set('class', $class);
+        return $this->set($class, 'class');
     }
 
 
@@ -416,7 +416,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setVendor(?string $vendor): static
     {
-        return $this->set('vendor', $vendor);
+        return $this->set($vendor, 'vendor');
     }
 
 
@@ -456,7 +456,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setCommandsEnabled(int|bool|null $commands_enabled): static
     {
-        return $this->set('commands_enabled', (bool) $commands_enabled);
+        return $this->set((bool) $commands_enabled, 'commands_enabled');
     }
 
 
@@ -480,7 +480,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setWebEnabled(int|bool|null $web_enabled): static
     {
-        return $this->set('web_enabled', (bool) $web_enabled);
+        return $this->set((bool) $web_enabled, 'web_enabled');
     }
 
 

@@ -25,7 +25,7 @@ class Message extends DataEntry
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'messages';
     }

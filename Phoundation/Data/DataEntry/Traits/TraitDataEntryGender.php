@@ -60,6 +60,6 @@ trait TraitDataEntryGender
             ]));
         }
 
-        return $this->set('gender', get_null($gender));
+        return $this->set(get_null($gender), 'gender');
     }
 }

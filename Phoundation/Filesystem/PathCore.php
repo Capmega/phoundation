@@ -70,7 +70,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
-
 class PathCore implements Stringable, PathInterface
 {
     use TraitDataRestrictions;
@@ -79,6 +78,7 @@ class PathCore implements Stringable, PathInterface
     use TraitDataServer;
 
     const DIRECTORY_SEPARATOR = '/';
+
 
     /**
      * The target file name in case operations creates copies of this file
@@ -136,6 +136,20 @@ class PathCore implements Stringable, PathInterface
      */
     protected string $mime;
 
+    /**
+     * Tracks if any file access at all is enabled
+     *
+     * @var bool $read_enabled
+     */
+    protected static bool $read_enabled = true;
+
+    /**
+     * Tracks if any file access at all is enabled
+     *
+     * @var bool $write_enabled
+     */
+    protected static bool $write_enabled = true;
+
 
     /**
      * Returns a new File or Directory object with the specified restrictions
@@ -151,9 +165,11 @@ class PathCore implements Stringable, PathInterface
         if (is_dir($path)) {
             return Directory::new($path, $restrictions);
         }
+
         if (file_exists($path)) {
             return File::new($path, $restrictions);
         }
+
         throw new FileNotExistException(tr('The specified path ":path" does not exist', [
             ':path' => $path,
         ]));
@@ -172,6 +188,7 @@ class PathCore implements Stringable, PathInterface
         // Remove any file that might contain / in the path name
         $path  = str_replace('\\/', '_', $path);
         $count = substr_count($path, '/');
+
         if (!$count and $path) {
             return 1;
         }
@@ -193,14 +210,15 @@ class PathCore implements Stringable, PathInterface
         $prefix    = '';
         $version   = 97;
         $extension = Strings::ensureStartsWith($extension, '.');
-        $path = Path::new($path)
-                    ->appendPath($extension);
-        $path->getParentDirectory()
-             ->ensure();
+        $path      = Path::new($path)->appendPath($extension);
+
+        $path->getParentDirectory()->ensure();
+
         while ($path->exists()) {
             if (++$version >= 123) {
-                $prefix  .= 'z';
+                $prefix .= 'z';
                 $version = 97;
+
                 if (strlen($prefix) > 3) {
                     // WTF? Seriously? 26^3 versions available? Something is funky here...
                     throw new OutOfBoundsException(tr('Failed to find available version for file ":path"', [
@@ -208,6 +226,7 @@ class PathCore implements Stringable, PathInterface
                     ]));
                 }
             }
+
             $path->setPath(Strings::untilReverse($path->getPath(), $extension) . $prefix . chr($version));
         }
 
@@ -284,6 +303,7 @@ class PathCore implements Stringable, PathInterface
         if ($this->isOpen()) {
             $this->close();
         }
+
         if ($make_absolute) {
             // Ensure absolute paths are absolute
             $this->path = static::absolutePath($path, $prefix, $must_exist);
@@ -415,27 +435,32 @@ class PathCore implements Stringable, PathInterface
                         break;
 
                     case 'js':
-                        // no-break
+                        // no break
+
                     case 'javascript':
                         $prefix = DIRECTORY_CDN . LANGUAGE . '/js/';
                         break;
 
                     case 'img':
-                        // no-break
+                        // no break
+
                     case 'image':
-                        // no-break
+                        // no break
+
                     case 'images':
                         $prefix = DIRECTORY_CDN . LANGUAGE . '/img/';
                         break;
 
                     case 'font':
-                        // no-break
+                        // no break
+
                     case 'fonts':
                         $prefix = DIRECTORY_CDN . LANGUAGE . '/fonts/';
                         break;
 
                     case 'video':
-                        // no-break
+                        // no break
+
                     case 'videos':
                         $prefix = DIRECTORY_CDN . LANGUAGE . '/video/';
                         break;
@@ -481,10 +506,13 @@ class PathCore implements Stringable, PathInterface
         if ($file === null) {
             return;
         }
+
         $file = trim($file);
+
         if (!$file) {
             throw new OutOfBoundsException(tr('No file specified'));
         }
+
         if (strlen($file) > 4096) {
             throw new OutOfBoundsException(tr('The object filename is too large with ":size" bytes', [
                 ':size' => strlen($file),
@@ -600,6 +628,7 @@ class PathCore implements Stringable, PathInterface
                     ':file' => $this->path,
                 ]));
             }
+
             // Delete the file
             $this->delete();
         }
@@ -621,6 +650,7 @@ class PathCore implements Stringable, PathInterface
         if (file_exists($this->path)) {
             return true;
         }
+
         // Oh noes! This path doesn't exist!
         // Maybe the basename of the path is a dead symlink?
         if ($check_dead_symlink) {
@@ -631,6 +661,7 @@ class PathCore implements Stringable, PathInterface
 
             // Nope, the path basename really does not exist!
         }
+
         // Maybe a section of the path isn't mounted?
         if ($auto_mount) {
             if ($this->attemptAutoMount()) {
@@ -701,9 +732,11 @@ class PathCore implements Stringable, PathInterface
         if (Config::getBoolean('filesystem.automounts.enabled', false)) {
             return false;
         }
+
         try {
             // Check if this path has a mount somewhere. If so, see if it needs auto-mounting
             $mount = Mount::getForPath($this->path, $this->restrictions->getWritable());
+
             if ($mount) {
                 if ($mount->autoMount()) {
                     return true;
@@ -739,8 +772,10 @@ class PathCore implements Stringable, PathInterface
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
         Log::action(tr('Deleting file ":file"', [':file' => $this->path]), 2);
+
         // Check filesystem restrictions
-        $this->checkRestrictions(true);
+        $this->checkRestrictions(true)->checkWriteAccess();
+
         // Delete all specified patterns
         // Execute the rm command
         Process::new('rm', $this->restrictions)
@@ -750,12 +785,14 @@ class PathCore implements Stringable, PathInterface
                ->addArgument($this->path, $escape)
                ->addArgument('-rf')
                ->executeNoReturn();
+
         // If specified to do so, clear the path upwards from the specified pattern
         if ($clean_path) {
             if ($clean_path === true) {
                 // This will clean path until a non-empty directory is encountered.
                 $clean_path = null;
             }
+
             Directory::new(dirname($this->path), $this->restrictions->getParent())
                      ->clearDirectory($clean_path, $sudo, use_run_file: $use_run_file);
         }
@@ -780,8 +817,15 @@ class PathCore implements Stringable, PathInterface
             ]), 4);
             showbacktrace();
             showdie($this->path);
+
         } else {
             $this->restrictions->check($this->path, $write);
+
+            if ($write) {
+                return $this->checkWriteAccess();
+            }
+
+            return $this->checkReadAccess();
         }
 
         return $this;
@@ -809,6 +853,7 @@ class PathCore implements Stringable, PathInterface
     public function truncate(int $size): static
     {
         $result = ftruncate($this->stream, $size);
+
         if (!$result) {
             throw new FileTruncateException(tr('Failed to truncate file ":file" to ":size" bytes', [
                 ':file' => $this->path,
@@ -843,7 +888,7 @@ class PathCore implements Stringable, PathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(false);
 
-        return is_readable($this->path);
+        return is_readable($this->path) and static::$read_enabled;
     }
 
 
@@ -857,7 +902,7 @@ class PathCore implements Stringable, PathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(false);
 
-        return is_writable($this->path);
+        return is_writable($this->path) and static::$write_enabled;
     }
 
 
@@ -873,8 +918,8 @@ class PathCore implements Stringable, PathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(true);
         $this->exists();
-        $return = [];
-        $perms  = fileperms($this->path);
+
+        $perms     = fileperms($this->path);
         $socket    = (($perms & 0xC000) == 0xC000);
         $symlink   = (($perms & 0xA000) == 0xA000);
         $regular   = (($perms & 0x8000) == 0x8000);
@@ -882,6 +927,7 @@ class PathCore implements Stringable, PathInterface
         $cdevice   = (($perms & 0x2000) == 0x2000);
         $directory = (($perms & 0x4000) == 0x4000);
         $fifopipe  = (($perms & 0x1000) == 0x1000);
+
         if ($socket) {
             // This file is a socket
             $return = 'socket';
@@ -909,6 +955,7 @@ class PathCore implements Stringable, PathInterface
         } elseif ($fifopipe) {
             // This file is a FIFO pipe
             $return = 'fifo pipe';
+
         } else {
             // This file is an unknown type
             $return = 'unknown';
@@ -1479,15 +1526,17 @@ class PathCore implements Stringable, PathInterface
     {
         // Check filesystem restrictions
         $this->checkRestrictions(true);
+
         // If the object file exists and is writable, then we're done.
         if (is_writable($this->path)) {
             return true;
         }
+
         // From here, the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
         if (file_exists($this->path)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it writable.
             try {
-                Log::warning(tr('The file ":file" :realis not writable. Attempting to apply default file mode ":mode"', [
+                Log::warning(tr('The file ":file" :real is not writable. Attempting to apply default file mode ":mode"', [
                     ':file' => $this->path,
                     ':real' => $this->getRealPathLogString(),
                     ':mode' => $mode,
@@ -1495,12 +1544,13 @@ class PathCore implements Stringable, PathInterface
                 $this->chmod('u+w');
 
             } catch (ProcessesException) {
-                throw new FileNotWritableException(tr('The file ":file" :realis not writable, and could not be made writable', [
+                throw new FileNotWritableException(tr('The file ":file" :real is not writable, and could not be made writable', [
                     ':file' => $this->path,
                     ':real' => $this->getRealPathLogString(),
                 ]));
             }
         }
+
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
         Directory::new(dirname($this->path), $this->restrictions->getParent())
                  ->ensure();
@@ -1970,13 +2020,14 @@ class PathCore implements Stringable, PathInterface
     public function tell(): int
     {
         $this->checkOpen('tell');
+
         $result = ftell($this->stream);
+
         if ($result === false) {
             // ftell() failed
             throw new FileActionFailedException(tr('Failed to tell file pointer for file ":file"', [
                 ':file' => $this->path,
             ]));
-
         }
 
         return $result;
@@ -1999,6 +2050,7 @@ class PathCore implements Stringable, PathInterface
                 ':method' => $method,
             ]));
         }
+
         if ($mode) {
             return $this->checkWriteMode($this->open_mode);
         }
@@ -2062,7 +2114,9 @@ class PathCore implements Stringable, PathInterface
     public function rewind(): static
     {
         $this->checkOpen('rewind');
+
         $result = rewind($this->stream);
+
         if ($result === false) {
             // rewind() failed
             throw new FileActionFailedException(tr('Failed to rewind file ":file"', [
@@ -2085,10 +2139,13 @@ class PathCore implements Stringable, PathInterface
     public function readLine(?int $buffer = null): string|false
     {
         $this->checkOpen('readLine');
+
         if (!$buffer) {
             $buffer = $this->getBufferSize();
         }
+
         $data = fgets($this->stream, $buffer);
+
         if ($data === false) {
             return $this->processReadFailure('line', false);
         }
@@ -2112,6 +2169,7 @@ class PathCore implements Stringable, PathInterface
         if ($test_feof and $this->isEof()) {
             return $data;
         }
+
         throw new FileReadException(tr('Cannot read ":type" from file ":file", the file pointer is at the end of the file', [
             ':type' => $type,
             ':file' => $this->path,
@@ -2145,7 +2203,9 @@ class PathCore implements Stringable, PathInterface
     public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array|false
     {
         $this->checkOpen('readCsv');
+
         $data = fgetcsv($this->stream, $max_length, $separator, $enclosure, $escape);
+
         if ($data === false) {
             return $this->processReadFailure('CSV', false);
         }
@@ -2162,7 +2222,9 @@ class PathCore implements Stringable, PathInterface
     public function readCharacter(): string|false
     {
         $this->checkOpen('readCharacter');
+
         $data = fgetc($this->stream);
+
         if ($data === false) {
             return $this->processReadFailure('character', false);
         }
@@ -2183,13 +2245,16 @@ class PathCore implements Stringable, PathInterface
      */
     public function readBytes(int $length, int $start = 0): string|false
     {
-        $data = $this->mountIfNeeded()
+        $data = $this->checkRestrictions(false)
                      ->checkClosed('readBytes')
+                     ->mountIfNeeded()
                      ->open(EnumFileOpenMode::readOnly)
                      ->read($start + $length);
+
         if ($data === false) {
             return $this->processReadFailure('character', false);
         }
+
         $data = substr($data, $start);
         $this->close();
 
@@ -2208,11 +2273,14 @@ class PathCore implements Stringable, PathInterface
     public function read(?int $buffer = null, ?int $seek = null): string|false
     {
         $this->checkOpen('read');
+
         if ($seek) {
             $this->seek($seek);
         }
+
         $buffer = $this->getBufferSize($buffer);
         $data   = fread($this->stream, $buffer);
+
         if ($data === false) {
             return $this->processReadFailure('data', false);
         }
@@ -2233,7 +2301,9 @@ class PathCore implements Stringable, PathInterface
     public function seek(int $offset, int $whence = SEEK_SET): static
     {
         $this->checkOpen('seek');
+
         $result = fseek($this->stream, $offset, $whence);
+
         if ($result) {
             // The file seek failed
             if (empty(stream_get_meta_data($this->stream)['seekable'])) {
@@ -2243,6 +2313,7 @@ class PathCore implements Stringable, PathInterface
                     ':file' => $this->path,
                 ]));
             }
+
             // No idea why
             throw new FileActionFailedException(tr('Failed to seek in file ":file"', [
                 ':file' => $this->path,
@@ -2265,7 +2336,10 @@ class PathCore implements Stringable, PathInterface
     public function open(EnumFileOpenMode $mode, $context = null): static
     {
         // Check filesystem restrictions and open the file
-        $this->checkClosed('open')->restrictions->check($this->path, ($mode !== EnumFileOpenMode::readOnly));
+        $this->checkRestrictions(($mode !== EnumFileOpenMode::readOnly))
+             ->checkClosed('open')
+             ->mountIfNeeded();
+
         try {
             $stream = fopen($this->path, $mode->value, false, $context);
 
@@ -2273,6 +2347,7 @@ class PathCore implements Stringable, PathInterface
             // Failed to open the target file
             $this->checkReadable('target', $e);
         }
+
         if ($stream) {
             // All okay!
             $this->stream    = $stream;
@@ -2280,15 +2355,18 @@ class PathCore implements Stringable, PathInterface
 
             return $this;
         }
-        // File couldn't be opened. check if file is accessible.
+
+        // The file couldn't be opened. Check if the file is accessible.
         switch ($mode) {
             case EnumFileOpenMode::readOnly:
                 $this->checkReadable();
                 break;
+
             default:
                 $this->checkWritable();
                 break;
         }
+
         throw new FilesystemException(tr('Failed to open file ":file"', [':file' => $this->path]));
     }
 
@@ -2415,8 +2493,10 @@ class PathCore implements Stringable, PathInterface
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        $this->mountIfNeeded()
-             ->checkClosed('getContents');
+        $this->checkRestrictions(false)
+             ->checkClosed('getContents')
+            ->mountIfNeeded();
+
         try {
             $data = file_get_contents($this->path, $use_include_path, $context, $offset, $length);
 
@@ -2425,6 +2505,7 @@ class PathCore implements Stringable, PathInterface
                 ':file' => $this->path,
             ]), previous: $e));
         }
+
         if ($data === false) {
             return $this->processReadFailure('contents', '', false);
         }
@@ -2459,8 +2540,10 @@ class PathCore implements Stringable, PathInterface
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        $this->mountIfNeeded()
-             ->checkClosed('getContents');
+        $this->checkRestrictions(false)
+             ->checkClosed('getContents')
+             ->mountIfNeeded();
+
         try {
             $data = file($this->path, $flags, $context);
 
@@ -2469,6 +2552,7 @@ class PathCore implements Stringable, PathInterface
                 ':file' => $this->path,
             ]), previous: $e));
         }
+
         if ($data === false) {
             return $this->processReadFailure('contents', [], false);
         }
@@ -2490,10 +2574,12 @@ class PathCore implements Stringable, PathInterface
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        $this->checkClosed('putContents');
-        Directory::new(dirname($this->path), $this->restrictions->getParent()
-                                                                ->getParent())
-                 ->ensure();
+        $this->checkRestrictions(true)
+             ->checkClosed('putContents')
+             ->mountIfNeeded();
+
+        Directory::new(dirname($this->path), $this->restrictions->getParent()->getParent())->ensure();
+
         file_put_contents($this->path, $data, $flags, $context);
 
         return $this;
@@ -2536,6 +2622,7 @@ class PathCore implements Stringable, PathInterface
                 ]));
             }
         }
+
         if ($this->isOpen()) {
             // Yeah, so it exists anyway because we have it open. Perhaps the file was removed while open, so the inode
             // is still there?
@@ -2544,6 +2631,7 @@ class PathCore implements Stringable, PathInterface
                     ':file' => $this->path,
                 ]));
             }
+
             $this->close();
         }
 
@@ -2585,27 +2673,30 @@ class PathCore implements Stringable, PathInterface
     public function appendFiles(string|array $sources): static
     {
         // Check filesystem restrictions
-        $this->mountIfNeeded()
-             ->checkClosed('appendFiles')->restrictions->check($this->path, true);
+        $this->checkRestrictions(true)
+             ->checkClosed('appendFiles')
+             ->mountIfNeeded();
+
         // Ensure the target path exists
-        Directory::new(dirname($this->path), $this->restrictions)
-                 ->ensure();
+        Directory::new(dirname($this->path), $this->restrictions)->ensure();
+
         // Open target file
         $this->open(EnumFileOpenMode::writeOnlyAppend);
+
         // Open each source file
         foreach (Arrays::force($sources, null) as $source) {
             try {
-                $source = File::new($source, $this->restrictions)
-                              ->open(EnumFileOpenMode::readOnly);
+                $source = File::new($source, $this->restrictions)->open(EnumFileOpenMode::readOnly);
+
                 while (!$source->isEof()) {
                     $this->write($source->read(1048576));
                 }
+
                 $source->close();
 
             } catch (Throwable $e) {
                 // Failed to open one of the sources, get rid of the partial target file
-                $this->close()
-                     ->delete();
+                $this->close()->delete();
                 $source->checkReadable('source', $e);
             }
         }
@@ -2622,6 +2713,7 @@ class PathCore implements Stringable, PathInterface
     public function sync(): static
     {
         $this->checkOpen('sync');
+
         if (!fsync($this->stream)) {
             throw new FileSyncException(tr('Failed to sync file ":file"', [
                 ':file' => $this->path,
@@ -2640,6 +2732,7 @@ class PathCore implements Stringable, PathInterface
     public function syncData(): static
     {
         $this->checkOpen('syncData');
+
         if (!fdatasync($this->stream)) {
             throw new FileSyncException(tr('Failed to data sync file ":file"', [
                 ':file' => $this->path,
@@ -2664,15 +2757,19 @@ class PathCore implements Stringable, PathInterface
                 ':passes' => $passes,
             ]));
         }
+
         if ($this instanceof DirectoryInterface) {
             throw new UnderConstructionException();
         }
+
         $count = (int) ceil($this->getSize() / 4096);
+
         for ($pass = 1; $pass <= $passes; $pass++) {
             Log::action(tr('Shredding file ":file" with pass ":pass"', [
                 ':file' => $this->path,
                 ':pass' => $pass,
             ]), 4);
+
             Process::new('dd', $this->restrictions)
                    ->setSudo(true)
                    ->setAcceptedExitCodes([
@@ -2710,26 +2807,32 @@ class PathCore implements Stringable, PathInterface
 
             return 0;
         }
+
         // Return the number of all files in this directory
         $files = scandir($this->path);
         $size  = 0;
+
         foreach ($files as $file) {
             if (($file === '.') or ($file === '..')) {
                 // Skip crap
                 continue;
             }
+
             // Filename must have the complete absolute path
             $file = $this->path . $file;
+
             if (is_dir($file)) {
                 if ($recursive) {
                     // Get filesize of this entire directory
                     $size += Path::new($file, $this->restrictions)
                                  ->getSize($recursive);
                 }
+
             } else {
                 // Get file size of this file
                 try {
                     $size += filesize($file);
+
                 } catch (Throwable $e) {
                     if (file_exists($file)) {
                         throw $e;
@@ -2753,11 +2856,13 @@ class PathCore implements Stringable, PathInterface
     {
         $this->checkExists();
         $mounts = Mounts::listMountTargets();
+
         foreach ($mounts as $path => $mount) {
             if (str_starts_with($this->path, $path)) {
                 return $mount['source'];
             }
         }
+
         throw new MountLocationNotFoundException(tr('Failed to find a mount location for the path ":path"', [
             ':path' => $this->path,
         ]));
@@ -2781,9 +2886,9 @@ class PathCore implements Stringable, PathInterface
                     ':file' => $this->path,
                 ]));
             }
+
             // Force the file to exist
-            $this->getParentDirectory()
-                 ->ensure();
+            $this->getParentDirectory()->ensure();
             $this->touch();
         }
 
@@ -2799,8 +2904,7 @@ class PathCore implements Stringable, PathInterface
      */
     public function find(): FindInterface
     {
-        return Find::new($this->restrictions)
-                   ->setPath($this->path);
+        return Find::new($this->restrictions)->setPath($this->path);
     }
 
 
@@ -2815,6 +2919,7 @@ class PathCore implements Stringable, PathInterface
     public function replaceWithPath(PathInterface|string $target): PathInterface
     {
         $target = Path::new($target);
+
         // Move the old out of the way, push the new in, delete the current
         if ($this->exists()) {
             $new = clone $this;
@@ -2845,13 +2950,16 @@ class PathCore implements Stringable, PathInterface
     {
         $to     = (string) $to_filename;
         $result = rename($this->path, $to, $context);
+
         if (!$result) {
             throw new FileRenameException(tr('Failed to rename file or directory ":file" to ":to"', [
                 ':file' => $this->path,
                 ':to'   => $to,
             ]));
         }
+
         $this->path = $to;
+
         if ($to_filename instanceof PathInterface) {
             $this->setRestrictions($to_filename->getRestrictions());
         }
@@ -2873,6 +2981,7 @@ class PathCore implements Stringable, PathInterface
                 ':type' => $this->getTypeName(),
             ]));
         }
+
         if ($this->getLinkTarget() != $target) {
             throw new FileNotSymlinkException(tr('The path ":path" must be symlinked to ":target" but is symlinked to ":instead" instead', [
                 ':path'    => $this->path,
@@ -2931,6 +3040,7 @@ class PathCore implements Stringable, PathInterface
     {
         // Ensure target is a Path object with restrictions
         $target = Path::new($target, $restrictions ?? $this->restrictions);
+
         if (empty($alternate_path)) {
             // We'll create the symlinks in the same directory as where we're linking from. Use Target object
             $alternate_path = clone $target;
@@ -2940,21 +3050,24 @@ class PathCore implements Stringable, PathInterface
             // a Path object
             $alternate_path = Path::new($alternate_path, $target->restrictions);
         }
+
         if ($this->isDir()) {
             // Source is a directory, target must be a directory too, process all files in this directory
             $dir_target         = Directory::new($target);
-            $dir_alternate_path = Directory::new($alternate_path)
-                                           ->ensure();
+            $dir_alternate_path = Directory::new($alternate_path)->ensure();
+
             // Go over each file in this directory.
             // If the file is a directory then create it in the target, if it is a normal file, then create a symlink
             foreach ($this->getFilesObject() as $path) {
                 // Get the section that we'll be working with
                 $section = Strings::ensureStartsNotWith(Strings::from($path->getPath(), $this->path), '/');
+
                 if ($path->isDir()) {
                     $path->symlinkTreeToTarget($dir_target->addDirectory($section), $dir_alternate_path->addDirectory($section), rename: $rename);
 
                 } else {
                     $number = null;
+
                     while (true) {
                         try {
                             // Create symlink for only this file
@@ -2968,10 +3081,8 @@ class PathCore implements Stringable, PathInterface
                             if (!$rename) {
                                 throw $e;
                             }
-                            if (
-                                !$dir_alternate_path->addFile($section . $number)
-                                                    ->isLink()
-                            ) {
+
+                            if (!$dir_alternate_path->addFile($section . $number)->isLink()) {
                                 // Only retry if the existing target is a symlink too. If the existing target is a
                                 // normal file, then assume that this normal file was there to replace this link
                                 break;
@@ -2985,6 +3096,7 @@ class PathCore implements Stringable, PathInterface
 
             return $alternate_path;
         }
+
         // Source is a file, create symlink for only this file
         $link = $target->getRelativePathTo($this);
 
@@ -3002,17 +3114,17 @@ class PathCore implements Stringable, PathInterface
     public function getFilesObject(bool $reload = false): FilesInterface
     {
         $this->checkRestrictions(false);
+
         if (empty($this->source) or $reload) {
             $this->checkReadable('directory');
+
             if ($this->isDir()) {
                 // Load all files in this directory
-                $this->files = Files::new(scandir($this->path), $this->restrictions)
-                                    ->setParent($this);
+                $this->files = Files::new(scandir($this->path), $this->restrictions)->setParent($this);
 
             } else {
                 // This is a file, so there are no files beyond THIS file.
-                $this->files = Files::new([$this->path], $this->restrictions)
-                                    ->setParent($this);
+                $this->files = Files::new([$this->path], $this->restrictions)->setParent($this);
             }
         }
 
@@ -3033,6 +3145,7 @@ class PathCore implements Stringable, PathInterface
     public function symlinkThisToTarget(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface
     {
         $target = new Path($target, $this->restrictions);
+
         // Calculate absolute or relative path
         if ($make_relative and $target->isAbsolute()) {
             // Convert this symlink in a relative link
@@ -3041,17 +3154,16 @@ class PathCore implements Stringable, PathInterface
         } else {
             $calculated_target = $target;
         }
+
         // Check if target exists as a link
         if ($this->isLink()) {
             // The target itself exists and is a link. Whether that link target exists or not does not matter here, just
             // that its target matches our target
-            if (
-                Strings::ensureEndsNotWith($this->readLink(true)
-                                                ->getPath(), '/') === Strings::ensureEndsNotWith($target->getPath(), '/')
-            ) {
+            if (Strings::ensureEndsNotWith($this->readLink(true)->getPath(), '/') === Strings::ensureEndsNotWith($target->getPath(), '/')) {
                 // Symlink already exists and points to the same file. This is what we wanted to begin with, so all fine
                 return $target;
             }
+
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists and points to ":current" instead', [
                 ':target'  => $this->getNormalizedPath(),
                 ':link'    => $calculated_target->getPath(),
@@ -3059,6 +3171,7 @@ class PathCore implements Stringable, PathInterface
                                    ->getNormalizedPath(),
             ]));
         }
+
         // The target exists NOT as a link, but perhaps it might exist as a normal file or directory?
         if ($this->exists()) {
             throw new FileExistsException(tr('Cannot create symlink ":source" that points to ":target", the file already exists as a ":type"', [
@@ -3067,10 +3180,11 @@ class PathCore implements Stringable, PathInterface
                 ':type'   => $this->getTypeName(),
             ]));
         }
+
         // Ensure that we have restriction access and target parent directory exists
         $this->checkRestrictions(true);
-        $this->getParentDirectory()
-             ->ensure();
+        $this->getParentDirectory()->ensure();
+
         // Symlink!
         try {
             symlink(Strings::ensureEndsNotWith($calculated_target->getPath(), '/'), $this->getPath());
@@ -3084,6 +3198,7 @@ class PathCore implements Stringable, PathInterface
                     ':e'      => $e->getMessage(),
                 ]));
             }
+
             // Something else happened.
             throw $e;
         }
@@ -3109,6 +3224,7 @@ class PathCore implements Stringable, PathInterface
                                 ->delete(true);
                         })
                         ->getFiles();
+
             foreach ($list as $file) {
                 $file->delete(true);
             }
@@ -3128,13 +3244,11 @@ class PathCore implements Stringable, PathInterface
      */
     protected function save(string $data, EnumFileOpenMode $write_mode = EnumFileOpenMode::writeOnly): static
     {
-        $this->checkRestrictions(true)
-             ->checkWriteMode($write_mode);
+        $this->checkRestrictions(true);
+
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        Directory::new(dirname($this->path), $this->restrictions->getParent()
-                                                                ->getParent())
-                 ->ensure();
+        Directory::new(dirname($this->path), $this->restrictions->getParent()->getParent())->ensure();
 
         return $this->open($write_mode)
                     ->write($data)
@@ -3181,9 +3295,9 @@ class PathCore implements Stringable, PathInterface
     protected function checkRequirements(): void
     {
         if (empty($this->requirements)) {
-            $this->requirements = Requirements::new()
-                                              ->load();
+            $this->requirements = Requirements::new()->load();
         }
+
         $this->requirements->check($this->path);
     }
 
@@ -3200,6 +3314,7 @@ class PathCore implements Stringable, PathInterface
                          ->setPath($this->path)
                          ->executeNoReturn()
                          ->getResults();
+
         } catch (ProcessFailedException $e) {
             $this->checkReadable('block-file', $e);
             throw $e;
@@ -3209,5 +3324,154 @@ class PathCore implements Stringable, PathInterface
         $results = $results['filesystem'];
 
         return new Filesystem($results);
+    }
+
+
+    /**
+     * Enables file access
+     *
+     * @return void
+     */
+    public static function enable(): void
+    {
+        static::$read_enabled  = true;
+        static::$write_enabled = true;
+    }
+
+
+    /**
+     * Disables file access
+     *
+     * @return void
+     */
+    public static function disable(): void
+    {
+        static::$read_enabled  = false;
+        static::$write_enabled = false;
+    }
+
+
+    /**
+     * Enables file read access
+     *
+     * @return void
+     */
+    public static function enableRead(): void
+    {
+        static::$read_enabled = true;
+    }
+
+
+    /**
+     * Disables file read access
+     *
+     * @return void
+     */
+    public static function disableRead(): void
+    {
+        static::$read_enabled = false;
+    }
+
+
+    /**
+     * Enables file write access
+     *
+     * @return void
+     */
+    public static function enableWrite(): void
+    {
+        static::$write_enabled = true;
+    }
+
+
+    /**
+     * Disables file write access
+     *
+     * @return void
+     */
+    public static function disableWrite(): void
+    {
+        static::$write_enabled = false;
+    }
+
+
+    /**
+     * Returns true if file read access is available
+     *
+     * @return bool
+     */
+    public static function readIsEnabled(): bool
+    {
+        return static::$read_enabled;
+    }
+
+
+    /**
+     * Returns true if file write access is available
+     *
+     * @return bool
+     */
+    public static function writeIsEnabled(): bool
+    {
+        return static::$write_enabled;
+    }
+
+
+    /**
+     * Checks if write access is available
+     *
+     * @return static
+     */
+    public function checkWriteAccess(): static
+    {
+        if (!static::$write_enabled) {
+            throw new FileNotWritableException(tr('The file ":file" cannot be written because all write access has been disabled', [
+                ':file' => $this->path
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Checks if read access is available
+     *
+     * @return static
+     */
+    public function checkReadAccess(): static
+    {
+        if (!static::$read_enabled) {
+            throw new FileNotReadableException(tr('The file ":file" cannot be read because all read access has been disabled', [
+                ':file' => $this->path
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if the specified file open mode is a write mode
+     *
+     * @param EnumFileOpenMode $mode
+     *
+     * @return bool
+     */
+    public static function isWriteMode(EnumFileOpenMode $mode): bool
+    {
+        return match($mode) {
+            EnumFileOpenMode::closeOnExec,
+            EnumFileOpenMode::readOnly            => false,
+            EnumFileOpenMode::readWriteExisting,
+            EnumFileOpenMode::writeOnlyTruncate,
+            EnumFileOpenMode::readWriteTruncate,
+            EnumFileOpenMode::writeOnlyAppend,
+            EnumFileOpenMode::readWriteAppend,
+            EnumFileOpenMode::writeOnlyCreateOnly,
+            EnumFileOpenMode::readWriteCreateOnly,
+            EnumFileOpenMode::writeOnly,
+            EnumFileOpenMode::readWrite           => true
+        };
     }
 }

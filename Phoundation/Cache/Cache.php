@@ -96,7 +96,7 @@ class Cache
         $driver = Config::get('cache.driver', 'memcached');
         switch ($driver) {
             case 'memcache':
-                // no-break
+                // no break
             case 'memcached':
                 return mc();
             case 'mongo':

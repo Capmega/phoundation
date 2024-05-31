@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Class Notification
+ *
+ *
+ * @todo      Change the Notification::roles to a Data\Iterator class instead of a plain array
+ * @see       DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Notification
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Notifications;
@@ -41,17 +53,6 @@ use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Throwable;
 
-/**
- * Class Notification
- *
- *
- * @todo      Change the Notification::roles to a Data\Iterator class instead of a plain array
- * @see       DataEntry
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Notification
- */
 class Notification extends DataEntry implements NotificationInterface
 {
     use TraitDataEntryUrl;
@@ -102,17 +103,21 @@ class Notification extends DataEntry implements NotificationInterface
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null                        $column
      * @param bool|null                          $meta_enabled
+     * @param bool                               $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
         static::$auto_log = Config::getBoolean('notifications.auto-log', false);
+
         $this->source['mode']     = 'notice';
         $this->source['priority'] = 1;
+
 //                EnumDisplayMode::warning, EnumDisplayMode::danger => 'exclamation-circle',
 //                EnumDisplayMode::success                          => 'check-circle',
 //                EnumDisplayMode::info, EnumDisplayMode::notice    => 'info-circle',
 //                default                                           => 'question-circle',
-        parent::__construct($identifier, $column, $meta_enabled);
+
+        parent::__construct($identifier, $column, $meta_enabled, $init);
     }
 
 
@@ -121,7 +126,7 @@ class Notification extends DataEntry implements NotificationInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'notifications';
     }
@@ -170,7 +175,9 @@ class Notification extends DataEntry implements NotificationInterface
             $e    = new Exception($e);
             $mode = EnumDisplayMode::exception;
         }
+
         $details = $e->generateDetails();
+
         $this->setUrl('/development/incidents.html')
              ->setMode($mode)
              ->setFile($e->getFile())
@@ -192,7 +199,7 @@ Database version       : :version_database
 Environment            : :environment
 Platform               : :platform
 :request: :url
-Command line arguments : :argv
+Command line arguments : :ARGV
 Exception location     : :file@:line
 Exception class        : :class
 Exception code         : :code
@@ -211,16 +218,16 @@ User:
 :user
 
 Session:
-:session
+:SESSION
 
 Environment variables:
-:env
+:ENV
 
 GET variables:
-:get
+:GET
 
 POST variables:
-:post
+:POST
 </pre>
 </body>
 </html>', [
@@ -239,12 +246,12 @@ POST variables:
                  ':version_database' => $details['database_version'],
                  ':environment'      => $details['environment'],
                  ':platform'         => $details['platform'],
-                 ':session'          => $details['session'],
                  ':user'             => $details['user'],
-                 ':env'              => ($details['environment_variables'] ? print_r($details['environment_variables'], true) : '-'),
-                 ':argv'             => $details['argv'] ? Strings::force($details['argv'], ' ') : '-',
-                 ':get'              => $details['get'] ? print_r($details['get'], true) : '-',
-                 ':post'             => $details['post'] ? print_r($details['post'], true) : '-',
+                 ':SESSION'          => $details['session'],
+                 ':ENV'              => ($details['environment_variables'] ? print_r($details['environment_variables'], true) : '-'),
+                 ':ARGV'             => $details['argv'] ? Strings::force($details['argv'], ' ') : '-',
+                 ':GET'              => $details['get'] ? print_r($details['get'], true) : '-',
+                 ':POST'             => $details['post'] ? print_r($details['post'], true) : '-',
              ], clean: false))->e = $e;
 
         return $this;
@@ -261,6 +268,7 @@ POST variables:
     public function addRole(?string $role): static
     {
         $role = trim((string) $role);
+
         if ($role) {
             $this->roles[] = $role;
         }
@@ -292,38 +300,46 @@ POST variables:
     {
         try {
             static $sending = false;
+
             if ($sending) {
                 throw NotificationBusyException::new(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
                     ':title'   => $this->getTitle(),
                     ':message' => $this->getMessage(),
-                ]))
-                                               ->addData($this->source);
+                ]))->addData($this->source);
             }
+
             $sending = true;
+
             if ($log === null) {
                 $log = static::$auto_log;
             }
+
             if (!static::$logged and $log) {
                 // Automatically log this notification
                 static::log();
             }
+
             if (!$this->getTitle()) {
                 $sending = false;
                 throw new OutOfBoundsException(tr('Cannot send notification, no title specified'));
             }
+
             if (!$this->getMessage()) {
                 $sending = false;
                 throw new OutOfBoundsException(tr('Cannot send notification, no message specified'));
             }
+
             if (!$this->getRoles() and !$this->getUsersId()) {
                 $sending = false;
                 throw new OutOfBoundsException(tr('Cannot send notification, no roles or target users id specified'));
             }
+
             // Save and send this notification to the assigned user
             if ($this->getUsersId()) {
                 $this->saveFor($this->getUsersId())
                      ->sendTo($this->getUsersId());
             }
+
             // Save and send this notification to all users that are members of the specified roles
             foreach ($this->getRoles() as $role) {
                 $users = Role::load($role)
@@ -341,6 +357,7 @@ POST variables:
                     }
                 }
             }
+
             $sending = false;
 
         } catch (Throwable $e) {
@@ -349,6 +366,7 @@ POST variables:
             Log::write(tr('Title   : ":title"', [':title' => $this->getTitle()]), 'debug', 10, false);
             Log::write(tr('Message : ":message"', [':message' => $this->getMessage()]), 'debug', 10, false);
             Log::write(tr('Data :'), 'debug', 10, false);
+
             try {
                 Log::write(print_r($this->getDetails(), true), 'debug', 10, false);
 
@@ -357,6 +375,7 @@ POST variables:
                 Log::error($f);
                 Log::write(print_r($this->getValueTypesafe('string', 'details'), true), 'debug', 10, false);
             }
+
             Log::error(tr('Notification sending exception:'));
             Log::error($e);
         }
@@ -377,6 +396,7 @@ POST variables:
         $message = $this->getMessage();
         $message = strip_tags($message);
         $message = trim($message);
+
         switch ($this->getMode()) {
             case EnumDisplayMode::danger:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
@@ -384,24 +404,28 @@ POST variables:
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::error($message, use_prefix: false);
                 break;
+
             case EnumDisplayMode::warning:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::warning($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::warning($message, use_prefix: false);
                 break;
+
             case EnumDisplayMode::success:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::success($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::success($message, use_prefix: false);
                 break;
+
             case EnumDisplayMode::info:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::information($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::information($message, use_prefix: false);
                 break;
+
             default:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::notice($this->getTitle(), use_prefix: false);
@@ -409,9 +433,12 @@ POST variables:
                 Log::notice($message, use_prefix: false);
                 break;
         }
+
         $details = $this->getDetails();
+
         if ($details) {
             Log::write(Strings::size('Details', 12) . ': ', 'debug', clean: false);
+
             foreach (Arrays::force($details) as $key => $value) {
                 if (is_scalar($value)) {
                     Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false, newline: false);
@@ -423,6 +450,7 @@ POST variables:
                             Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false);
                             Log::backtrace(backtrace: $value);
                             break;
+
                         default:
                             Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false, newline: false);
                             Log::printr($value, use_prefix: false, echo_header: false);
@@ -430,6 +458,7 @@ POST variables:
                 }
             }
         }
+
         Log::information(tr('End notification'));
         static::$logged = true;
 
@@ -480,6 +509,7 @@ POST variables:
         if (!$roles) {
             throw new OutOfBoundsException('No roles specified for this notification');
         }
+
         foreach (Arrays::force($roles) as $role) {
             $this->addRole($role);
         }
@@ -514,7 +544,9 @@ POST variables:
             // No user specified, save nothing
             return $this;
         }
+
         $user = User::load($user);
+
         PhoCommand::new('email send')
                   ->addArgument('--no-audio')
                   ->addArgument('-h')
@@ -549,12 +581,15 @@ POST variables:
             // No user specified, save nothing
             return $this;
         }
+
         if (is_object($user)) {
             $user = $user->getId();
+
             if (!$user) {
                 throw new OutOfBoundsException(tr('Cannot save notification for specified user because the user has no users_id'));
             }
         }
+
         // Set the id to NULL so that the DataEntry will save a new record
         $this->set('id', null)
              ->setUsersId($user);
@@ -652,14 +687,17 @@ POST variables:
                                         if (!$value) {
                                             return null;
                                         }
+
                                         try {
                                             $return  = '';
                                             $details = Json::decode($value);
                                             $largest = Arrays::getLongestKeyLength($details);
+
                                             foreach ($details as $key => $value) {
                                                 if ($value and !is_scalar($value)) {
                                                     $value = print_r($value, true);
                                                 }
+
                                                 $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;
                                             }
 
@@ -698,7 +736,6 @@ POST variables:
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isJson();
                                     }))
-                    ->get('status')
-                    ->setDefault('UNREAD');
+                    ->get('status')->setDefault('UNREAD');
     }
 }

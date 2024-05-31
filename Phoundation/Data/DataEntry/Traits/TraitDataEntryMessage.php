@@ -44,6 +44,6 @@ trait TraitDataEntryMessage
             ]));
         }
 
-        return $this->set('message', $message);
+        return $this->set($message, 'message');
     }
 }

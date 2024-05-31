@@ -101,6 +101,18 @@ class Repository implements RepositoryInterface
 
 
     /**
+     * Returns true if this contains a git repository
+     *
+     * @return bool
+     */
+    public function hasGit(): bool
+    {
+        return $this->path->addDirectory('.git')
+                          ->exists();
+    }
+
+
+    /**
      * Returns true if this repository is a Phoundation repository
      *
      * @return static
@@ -124,11 +136,11 @@ class Repository implements RepositoryInterface
      */
     public function isPhoundationCore(): bool
     {
-        if (!$this->isReadable()) {
+        if (!$this->isReadable() or !$this->hasGit()) {
             return false;
         }
 
-        $path  = $this->path;
+        $path = $this->path;
 
         // The path basename must be "phoundation"
         if ($path->getBasename() !== 'phoundation') {
@@ -196,9 +208,8 @@ class Repository implements RepositoryInterface
             return false;
         }
 
-        $path  = $this->path;
-
         // All these files and directories must be available.
+        $path = $this->path->getAbsolutePath();
         $files = [
             'config',
             'data',
@@ -228,7 +239,7 @@ class Repository implements RepositoryInterface
      */
     public function isPhoundationPlugins(): bool
     {
-        if (!$this->isReadable() or $this->isPhoundationProject() or $this->isPhoundationCore()) {
+        if (!$this->isReadable() or !$this->hasGit() or $this->isPhoundationProject() or $this->isPhoundationCore()) {
             return false;
         }
 
@@ -240,6 +251,7 @@ class Repository implements RepositoryInterface
         }
 
         // All these files and directories must be available.
+        $path = $path->getAbsolutePath();
         $files = [
             'Plugins',
             'Templates',
@@ -281,7 +293,7 @@ class Repository implements RepositoryInterface
      */
     public function isPhoundationTemplates(): bool
     {
-        if (!$this->isReadable() or $this->isPhoundationProject() or $this->isPhoundationCore()) {
+        if (!$this->isReadable() or !$this->hasGit() or $this->isPhoundationProject() or $this->isPhoundationCore()) {
             return false;
         }
 
@@ -362,5 +374,15 @@ class Repository implements RepositoryInterface
     public function getLibraries(IteratorInterface|array|null $vendors = null): LibraryInterface
     {
         throw new UnderConstructionException();
+    }
+
+
+    /**
+     * Tries to apply patches from the project to this repository
+     *
+     * @return $this
+     */
+    public function patch(): static
+    {
     }
 }

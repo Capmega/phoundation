@@ -40,7 +40,7 @@ class Providers extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'business_providers';
     }
@@ -49,9 +49,9 @@ class Providers extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Provider::class;
     }
@@ -99,7 +99,7 @@ class Providers extends DataList
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('providers_id')
-                     ->setNone(tr('Select a provider'))
-                     ->setObjectEmpty(tr('No providers available'));
+                     ->setNotSelectedLabel(tr('Select a provider'))
+                     ->setComponentEmptyLabel(tr('No providers available'));
     }
 }

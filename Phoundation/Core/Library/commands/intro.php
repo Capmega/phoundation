@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Script intro
+ * Command intro
  *
  * This script will display detailed information about the current framework, project, database ,etc.
  *
@@ -17,7 +17,8 @@ use Phoundation\Cli\CliDocumentation;
 
 CliDocumentation::setUsage('./pho intro');
 
-CliDocumentation::setHelp('This introduction script will print a help text to help you familiarize yourself with Phoundation
+CliDocumentation::setHelp('This introduction script will print a help text to help you familiarize yourself with 
+Phoundation
 
 
 ARGUMENTS
@@ -60,7 +61,14 @@ printed on screen. The --quiet option will also remove startup and shutdown mess
 printing only the output. Output typically is colored, but the --no-color option will print all output in plain text.
 All these options can also be configured in the configuration files.
 
+If command line modifier arguments that match system command line modifier arguments need to be passed on internally to 
+the commands, then prefix them with an extra dash. So -W would become --W, and --warning would become ---warning. This 
+is used (for example) in the command "development composer ..." commands, where -W may be required to force requiring 
+packages.  
+
+
 USEFUL COMMANDS:
+
 
 ./pho intro                             Prints an introduction text to Phoundation
 

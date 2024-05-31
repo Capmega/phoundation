@@ -61,14 +61,15 @@ class Server extends DataEntry implements ServerInterface
     /**
      * Server class constructor
      *
-     * @param int|string|DataEntryInterface|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      * @param string|null                        $column
      * @param bool|null                          $meta_enabled
+     * @param bool                               $init
      */
-    public function __construct(int|string|DataEntryInterface|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
         $this->config_path = 'servers.';
-        parent::__construct($identifier, $column, $meta_enabled);
+        parent::__construct($identifier, $column, $meta_enabled, $init);
     }
 
 
@@ -77,7 +78,7 @@ class Server extends DataEntry implements ServerInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'servers';
     }
@@ -125,7 +126,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setCost(?float $cost): static
     {
-        return $this->set('cost', $cost);
+        return $this->set($cost, 'cost');
     }
 
 
@@ -149,7 +150,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setBillDueDate(?string $bill_due_date): static
     {
-        return $this->set('bill_due_date', $bill_due_date);
+        return $this->set($bill_due_date, 'bill_due_date');
     }
 
 
@@ -194,7 +195,7 @@ class Server extends DataEntry implements ServerInterface
         'annually',
     ])] ?string $interval): static
     {
-        return $this->set('interval', $interval);
+        return $this->set($interval, 'interval');
     }
 
 
@@ -243,7 +244,7 @@ class Server extends DataEntry implements ServerInterface
         'other',
     ])] ?string $os_name): static
     {
-        return $this->set('os_name', $os_name);
+        return $this->set($os_name, 'os_name');
     }
 
 
@@ -267,7 +268,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setOsVersion(?string $os_version): static
     {
-        return $this->set('os_version', $os_version);
+        return $this->set($os_version, 'os_version');
     }
 
 
@@ -291,7 +292,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setWebServices(?bool $web_services): static
     {
-        return $this->set('web_services', (bool) $web_services);
+        return $this->set((bool) $web_services, 'web_services');
     }
 
 
@@ -315,7 +316,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setMailServices(?bool $mail_services): static
     {
-        return $this->set('mail_services', (bool) $mail_services);
+        return $this->set((bool) $mail_services, 'mail_services');
     }
 
 
@@ -339,7 +340,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setDatabaseServices(?bool $database_services): static
     {
-        return $this->set('database_services', (bool) $database_services);
+        return $this->set((bool) $database_services, 'database_services');
     }
 
 
@@ -363,7 +364,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setAllowSshdModifications(?bool $allow_sshd_modifications): static
     {
-        return $this->set('allow_sshd_modifications', (bool) $allow_sshd_modifications);
+        return $this->set((bool) $allow_sshd_modifications, 'allow_sshd_modifications');
     }
 
 

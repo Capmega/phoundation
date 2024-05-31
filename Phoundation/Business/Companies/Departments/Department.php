@@ -28,7 +28,7 @@ class Department extends DataEntry
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'business_departments';
     }

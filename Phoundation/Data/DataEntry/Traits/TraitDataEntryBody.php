@@ -36,6 +36,6 @@ trait TraitDataEntryBody
      */
     public function setBody(?string $body): static
     {
-        return $this->setSourceValue('body', $body);
+        return $this->set($body, 'body');
     }
 }

@@ -36,7 +36,7 @@ class Connectors extends DataList implements ConnectorsInterface
     /**
      * @inheritDoc
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'databases_connectors';
     }
@@ -45,7 +45,7 @@ class Connectors extends DataList implements ConnectorsInterface
     /**
      * @inheritDoc
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Connector::class;
     }

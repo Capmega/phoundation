@@ -487,7 +487,7 @@ abstract class Updates implements UpdatesInterface
                 return false;
             case 0:
                 // The init version is the same as the current version, it has been executed
-                // no-break
+                // no break
             case -1:
                 // The file version is newer than the specified version
                 Log::warning(tr('Skipping init version ":version" for library ":library" because it already has been executed', [

@@ -65,9 +65,9 @@ class Resize extends File
     {
         switch ($method) {
             case 'resize':
-                // no-break
+                // no break
             case 'sample':
-                // no-break
+                // no break
             case 'scale':
                 break;
             default:

@@ -245,20 +245,25 @@ class Form extends Element implements FormInterface
         if (str_starts_with($target, '_')) {
             switch ($target) {
                 case '_parent':
-                    // no-break
+                    // no break
+
                 case '_blank':
-                    // no-break
+                    // no break
+
                 case '_self':
-                    // no-break
+                    // no break
+
                 case '_top':
                     // These are all fine
                     break;
+
                 default:
                     throw new OutOfBoundsException(tr('Unknown form target ":target" specified', [
                         ':target' => $target,
                     ]));
             }
         }
+
         $this->target = $target;
 
         return $this;

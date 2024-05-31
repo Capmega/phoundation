@@ -43,6 +43,6 @@ trait TraitDataEntryMode
         }
 
         // Ensure we have primary display mode
-        return $this->set('mode', $mode->getPrimary($mode)->value);
+        return $this->set($mode->getPrimary($mode)->value, 'mode');
     }
 }

@@ -29,7 +29,7 @@ class Timezone extends DataEntry implements TimezoneInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'geo_timezones';
     }

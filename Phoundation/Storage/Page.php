@@ -43,7 +43,7 @@ class Page extends DataEntry implements PageInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'storage_pages';
     }

@@ -54,7 +54,7 @@ if (Request::isPostRequestMethod()) {
                 // Delete selected requirements
                 $count = Requirements::directOperations()->deleteKeys($post['id']);
 
-                Response::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" requirements', [
+                Response::getFlashMessages()->addSuccess(tr('Deleted ":count" requirements', [
                     ':count' => $count
                 ]));
                 Response::redirect('this');
@@ -63,7 +63,7 @@ if (Request::isPostRequestMethod()) {
                 // Undelete selected requirements
                 $count = Requirements::directOperations()->undeleteKeys($post['id']);
 
-                Response::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" requirements', [
+                Response::getFlashMessages()->addSuccess(tr('Undeleted ":count" requirements', [
                     ':count' => $count
                 ]));
                 Response::redirect('this');

@@ -8,6 +8,7 @@ use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
+use ReturnTypeWillChange;
 use Stringable;
 
 /**
@@ -22,6 +23,15 @@ use Stringable;
  */
 interface DataListInterface
 {
+    /**
+     * Sets what SQL columns will be used in loading data
+     *
+     * @param string|null $columns
+     *
+     * @return static
+     */
+    public function setSqlColumns(?string $columns): static;
+
     /**
      * Returns if the specified data entry key exists in the data list
      *
@@ -289,4 +299,11 @@ interface DataListInterface
      * @return array
      */
     public function autoCompleteFind(?string $word = null): array;
+
+    /**
+     * Returns the random entry
+     *
+     * @return DataEntry|null
+     */
+    #[ReturnTypeWillChange] public function getRandom(): ?DataEntryInterface;
 }

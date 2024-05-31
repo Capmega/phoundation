@@ -28,7 +28,7 @@ class Feature extends DataEntry
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'geo_features';
     }

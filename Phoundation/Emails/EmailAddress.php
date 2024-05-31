@@ -25,7 +25,7 @@ class EmailAddress extends DataEntry
     /**
      * @inheritDoc
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'email_address';
     }

@@ -44,7 +44,7 @@ trait TraitDataEntrySqlQuery
      */
     public function setSqlQuery(SqlQueryInterface|string|null $sql_query): static
     {
-        return $this->setSourceValue('sql_query', SqlQuery::new($sql_query)
+        return $this->set('sql_query', SqlQuery::new($sql_query)
                                                           ->getQuery());
     }
 }

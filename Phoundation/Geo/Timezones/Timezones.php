@@ -41,7 +41,7 @@ class Timezones extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'geo_timezones';
     }
@@ -50,9 +50,9 @@ class Timezones extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Timezone::class;
     }
@@ -79,13 +79,13 @@ class Timezones extends DataList
     public static function getHtmlTimezonesSelect(string $name = 'timezones_id'): InputSelect
     {
         return InputSelect::new()
-                          ->setConnector(static::getDefaultConnectorName())
+                          ->setConnector(static::getConnector())
                           ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_timezones` 
                                           WHERE `status` IS NULL ORDER BY `name`')
                           ->setName($name)
-                          ->setNone(tr('Select a timezone'))
-                          ->setObjectEmpty(tr('No timezones available'));
+                          ->setNotSelectedLabel(tr('Select a timezone'))
+                          ->setComponentEmptyLabel(tr('No timezones available'));
     }
 
 
@@ -120,7 +120,7 @@ class Timezones extends DataList
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('timezones_id')
-                     ->setNone(tr('Select a timezone'))
-                     ->setObjectEmpty(tr('No timezones available'));
+                     ->setNotSelectedLabel(tr('Select a timezone'))
+                     ->setComponentEmptyLabel(tr('No timezones available'));
     }
 }

@@ -37,9 +37,9 @@ class StaticRoutes extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return StaticRoute::class;
     }
@@ -70,14 +70,14 @@ class StaticRoutes extends DataList
     public function getHtmlSelect(string $value_column = 'label', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
-                          ->setConnector(static::getDefaultConnectorName())
+                          ->setConnector(static::getConnector())
                           ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '`
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `created_on` ASC')
                           ->setName('routes_id')
-                          ->setNone(tr('Select a static route'))
-                          ->setObjectEmpty(tr('No static routes available'));
+                          ->setNotSelectedLabel(tr('Select a static route'))
+                          ->setComponentEmptyLabel(tr('No static routes available'));
     }
 
 
@@ -86,7 +86,7 @@ class StaticRoutes extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'static_routes';
     }

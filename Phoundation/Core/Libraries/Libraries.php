@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Libraries class
  *
@@ -245,13 +246,16 @@ class Libraries
         $post_libraries = $libraries;
         $library_count  = count($libraries);
         $update_count   = 0;
+
         // First, ensure all libraries have the correct structure
         static::verifyLibraries($libraries);
         Log::action(tr('Initializing libraries'));
+
         // Keep initializing libraries until none of them have inits available anymore
         while ($libraries) {
             // Order to have the nearest next init version first
             static::orderAndFilterLibraries($libraries, $filter_libraries);
+
             // Go over the list of libraries and try to update each one
             foreach ($libraries as $directory => $library) {
                 // Execute the update inits for this library and update the library information and start over
@@ -260,13 +264,16 @@ class Libraries
                     $update_count++;
                     break;
                 }
+
                 // This library has nothing more to initialize, remove it from the list
                 Log::success(tr('Finished updates for library ":library"', [
                     ':library' => $library->getName(),
                 ]));
+
                 unset($libraries[$directory]);
             }
         }
+
         // Post initialize all libraries
         // Go over the list of libraries and try to update each one
         if (TEST) {
@@ -274,6 +281,7 @@ class Libraries
 
         } else {
             Log::action(tr('Executing post init updates'));
+
             foreach ($post_libraries as $library) {
                 // Execute the update inits for this library and update the library information and start over
                 if ($library->initPost($comments)) {
@@ -285,11 +293,14 @@ class Libraries
                 }
             }
         }
+
         // Rebuild the command cache
         static::rebuildCommandCache();
+
         if (!$update_count) {
             // No libraries were updated
             Log::success(tr('Finished initialization, no libraries were updated'));
+
         } else {
             Log::success(tr('Finished initialization, executed ":count" updates in ":libraries" libraries', [
                 ':count'     => $update_count,
@@ -315,12 +326,16 @@ class Libraries
         if (!$system and !$plugins and !$templates) {
             throw new OutOfBoundsException(tr('All system, plugins, and templates library paths are filtered out'));
         }
+
         $return = [];
+
         Log::action(tr('Scanning libraries'), 3);
+
         // List system libraries
         if ($system) {
             $return = array_merge($return, static::listLibraryDirectories(static::CLASS_DIRECTORY_SYSTEM));
         }
+
         // List plugin libraries
         if ($plugins) {
             try {
@@ -331,6 +346,7 @@ class Libraries
                 mkdir(static::CLASS_DIRECTORY_PLUGINS, Config::get('filesystem.mode.default.directory', 0750));
             }
         }
+
         // List templates libraries
         if ($templates) {
             try {
@@ -357,36 +373,45 @@ class Libraries
     {
         $return    = [];
         $directory = Strings::ensureEndsWith($directory, '/');
+
         if (!file_exists($directory)) {
             throw new NotExistsException(tr('The specified library base directory ":directory" does not exist', [
                 ':directory' => $directory,
             ]));
         }
+
         if ($has_vendors) {
             // Return the libraries for each vendor
             $vendors   = scandir($directory);
             $libraries = [];
+
             foreach ($vendors as $vendor) {
                 if ($vendor[0] === '.') {
                     continue;
                 }
+
                 $libraries = array_merge($libraries, static::listLibraryDirectories($directory . $vendor . '/'));
             }
 
             return $libraries;
         }
+
         // Build library list and return it
         $libraries = scandir($directory);
+
         foreach ($libraries as $library) {
             // Skip hidden files, current and parent directory
             if ($library[0] === '.') {
                 continue;
             }
+
             // Skip the "disabled" directory
             if ($library === 'disabled') {
                 continue;
             }
+
             $file = $directory . $library . '/';
+
             // Library paths MUST be directories
             if (is_dir($file)) {
                 $return[$file] = new Library($file);
@@ -407,6 +432,7 @@ class Libraries
     protected static function verifyLibraries(array $libraries): void
     {
         Log::action(tr('Verifying libraries'));
+
         foreach ($libraries as $library) {
             $library->verify();
         }
@@ -428,6 +454,7 @@ class Libraries
             $filter_libraries = Arrays::lowercaseValues($filter_libraries);
             $filter_libraries = array_flip($filter_libraries);
         }
+
         // Remove libraries that have nothing to execute anymore
         foreach ($libraries as $directory => $library) {
             if ($filter_libraries) {
@@ -437,10 +464,12 @@ class Libraries
                     continue;
                 }
             }
+
             if ($library->getNextInitVersion() === null) {
                 unset($libraries[$directory]);
             }
         }
+
         // Order the libraries
         uasort($libraries, function ($a, $b) {
             return version_compare($a->getNextInitVersion(), $b->getNextInitVersion());
@@ -456,23 +485,30 @@ class Libraries
     public static function rebuildCommandCache(): void
     {
         static::clearCommandsCache();
+
         Log::action(tr('Rebuilding command cache'), 4);
+
         // Get temporary directory to build cache and the current cache directory
         $temporary = Directory::getTemporary();
         $cache     = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, tr('Commands cache rebuild')));
+
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
             $cache->copy($temporary);
         }
+
         foreach (static::listLibraries() as $library) {
             $library->rebuildCommandCache($cache, $temporary);
         }
+
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
               ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'commands', Restrictions::writable(DIRECTORY_ROOT . 'commands', tr('Commands cache rebuild')))
                                           ->delete());
+
         static::$cache_has_been_rebuilt = true;
+
         Log::success(tr('Finished rebuilding command cache'));
     }
 
@@ -485,12 +521,15 @@ class Libraries
     public static function clearCommandsCache(): void
     {
         Log::action(tr('Clearing commands caches'), 3);
+
         $cache = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))
                           ->clearTreeSymlinks(true);
+
         if (!$cache->exists()) {
             Path::new(DIRECTORY_ROOT . '/commands', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
                 ->delete();
         }
+
         static::$cache_has_been_cleared = true;
     }
 
@@ -523,22 +562,29 @@ class Libraries
     {
         $return      = null;
         $directories = [];
+
         if ($system) {
             $directories[] = static::CLASS_DIRECTORY_SYSTEM;
         }
+
         if ($plugin) {
             $directories[] = static::CLASS_DIRECTORY_PLUGINS;
         }
+
         if ($template) {
             $directories[] = static::CLASS_DIRECTORY_TEMPLATES;
         }
+
         if (empty($directories)) {
             throw new OutOfBoundsException(tr('Neither system not plugin nor template paths specified to search'));
         }
+
         $library = Strings::capitalize($library);
+
         // Library must exist in either SYSTEM or PLUGINS paths
         foreach ($directories as $directory) {
             $directory = Strings::slash($directory);
+
             // Library must exist and be a directory
             if (file_exists($directory . $library)) {
                 if (is_dir($directory . $library)) {
@@ -547,17 +593,19 @@ class Libraries
                             ':library' => $library,
                         ]));
                     }
+
                     $return = new Library($directory . $library);
                 }
             }
         }
+
         if ($return) {
             return $return;
         }
+
         throw NotExistsException::new(tr('The specified library ":library" does not exist', [
             ':library' => $library,
-        ]))
-                                ->makeWarning();
+        ]))->makeWarning();
     }
 
 
@@ -573,18 +621,21 @@ class Libraries
     public static function getPhpStatistics(bool $system = true, bool $plugin = true, bool $template = true): array
     {
         $return = ['totals' => []];
+
         if ($system) {
             // Get statistics for all system libraries
             $return['system'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, [LIBRARIES::CLASS_DIRECTORY_SYSTEM])
                                          ->getPhpStatistics(true);
             $return['totals'] = Arrays::addValues($return['totals'], $return['system']);
         }
+
         if ($plugin) {
             // Get statistics for all plugin libraries
             $return['plugins'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, [LIBRARIES::CLASS_DIRECTORY_PLUGINS])
                                           ->getPhpStatistics(true);
             $return['totals']  = Arrays::addValues($return['totals'], $return['plugins']);
         }
+
         if ($template) {
             // Get statistics for all template libraries
             $return['templates'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, [LIBRARIES::CLASS_DIRECTORY_TEMPLATES])
@@ -625,22 +676,28 @@ class Libraries
     public static function rebuildWebCache(): void
     {
         static::clearWebCache();
+
         Log::action(tr('Rebuilding web cache'), 4);
+
         // Get temporary directory to build cache and the current cache directory
         $temporary = Directory::getTemporary();
         $cache     = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, tr('Commands web rebuild')));
+
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
             $cache->copy($temporary);
         }
+
         foreach (static::listLibraries() as $library) {
             $library->rebuildWebCache($cache, $temporary);
         }
+
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
               ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'web', Restrictions::writable(DIRECTORY_ROOT . 'web', tr('Web cache rebuild')))
                                           ->delete());
+
         Log::success(tr('Finished rebuilding web cache'));
     }
 
@@ -653,8 +710,10 @@ class Libraries
     public static function clearWebCache(): void
     {
         Log::action(tr('Clearing web caches'), 3);
+
         $cache = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, 'Libraries::clearWebCache()'))
                           ->clearTreeSymlinks(true);
+
         if (!$cache->exists()) {
             Path::new(DIRECTORY_ROOT . 'web', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
                 ->delete();
@@ -670,22 +729,28 @@ class Libraries
     public static function rebuildTestsCache(): void
     {
         static::clearTestsCache();
+
         Log::action(tr('Rebuilding tests cache'), 4);
+
         // Get temporary directory to build cache and the current cache directory
         $temporary = Directory::getTemporary();
         $cache     = Directory::new(DIRECTORY_DATA . 'system/cache/tests', Restrictions::writable(DIRECTORY_DATA . 'system/cache/tests', tr('Commands tests rebuild')));
+
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
             $cache->copy($temporary);
         }
+
         foreach (static::listLibraries() as $library) {
             $library->rebuildTestsCache($cache, $temporary);
         }
+
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
               ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'tests', Restrictions::writable(DIRECTORY_ROOT . 'tests', tr('Tests cache rebuild')))
                                           ->delete());
+
         Log::success(tr('Finished rebuilding tests cache'));
     }
 
@@ -698,8 +763,10 @@ class Libraries
     public static function clearTestsCache(): void
     {
         Log::action(tr('Clearing test caches'), 3);
+
         $cache = Directory::new(DIRECTORY_DATA . 'system/cache/tests', Restrictions::writable(DIRECTORY_DATA . 'system/cache/tests', 'Libraries::clearTestsCache()'))
                           ->clearTreeSymlinks(true);
+
         if (!$cache->exists()) {
             Path::new(DIRECTORY_ROOT . '/tests', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
                 ->delete();
@@ -752,7 +819,9 @@ class Libraries
     public static function loadAllPhoundationClassesIntoMemory(): void
     {
         $path = DIRECTORY_ROOT . 'Phoundation/';
+
         Log::action(tr('Pre-loading all library classes into memory'));
+
         Find::new(Restrictions::readonly($path))
             ->setPath($path)
             ->setType('f')
@@ -762,18 +831,22 @@ class Libraries
                 $tests = [
                     'Tests/bootstrap.php',
                 ];
+
                 // Don't loads file in the LIBRARY/Library path
                 if (str_contains($test, '/library/')) {
                     return;
                 }
+
                 // Don't load the following specific files
                 if (str_ends_with($test, 'tests/bootstrap.php')) {
                     return;
                 }
+
                 try {
                     Log::action(tr('Attempting to pre-loading library file ":file"', [
                         ':file' => Strings::from($file, DIRECTORY_ROOT),
                     ]), 2);
+
                     require_once($file);
 
                 } catch (Throwable $e) {
@@ -798,10 +871,12 @@ class Libraries
             DIRECTORY_ROOT . 'Plugins/'   => tr('Plugins'),
             DIRECTORY_ROOT . 'Templates/' => tr('Templates'),
         ];
+
         foreach ($paths as $path => $type) {
             Log::action(tr('Pre-loading all ":type" classes into memory', [
                 ':type' => $type,
             ]));
+
             Find::new(Restrictions::readonly($path))
                 ->setPath($path)
                 ->setType('f')
@@ -811,18 +886,22 @@ class Libraries
                     $tests = [
                         'Tests/bootstrap.php',
                     ];
+
                     // Don't loads file in the LIBRARY/Library path
                     if (str_contains($test, '/library/')) {
                         return;
                     }
+
                     // Don't load the following specific files
                     if (str_ends_with($test, 'tests/bootstrap.php')) {
                         return;
                     }
+
                     try {
                         Log::action(tr('Attempting to pre-loading library file ":file"', [
                             ':file' => Strings::from($file, DIRECTORY_ROOT),
                         ]), 2);
+
                         require_once($file);
 
                     } catch (Throwable $e) {

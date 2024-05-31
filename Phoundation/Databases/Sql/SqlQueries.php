@@ -45,7 +45,7 @@ class SqlQueries
         foreach ($source as $key => $value) {
             switch ($key) {
                 case $id_column:
-                    // no-break
+                    // no break
                 case 'meta_id':
                     // NEVER update these!
                     break;

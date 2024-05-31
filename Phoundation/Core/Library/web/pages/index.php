@@ -4,7 +4,6 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Requests\Response;
 
-
 // Set page meta data
 Response::setPageTitle(tr('Dashboard'));
 Response::setHeaderTitle(tr('Dashboard'));

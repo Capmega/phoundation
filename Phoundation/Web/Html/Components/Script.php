@@ -335,7 +335,7 @@ class Script extends Element implements ScriptInterface
 //                $return            = substr($script['script'], 1);
 //                $script['to_file'] = false;
 //
-//                // no-break
+//                // no break
 //
 //            default:
 //                /*

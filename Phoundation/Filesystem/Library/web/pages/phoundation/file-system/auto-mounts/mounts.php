@@ -54,14 +54,14 @@ if (Request::isPostRequestMethod()) {
                 // Delete selected mounts
                 $count = Mounts::directOperations()->deleteKeys($post['id']);
 
-                Response::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" mounts', [':count' => $count]));
+                Response::getFlashMessages()->addSuccess(tr('Deleted ":count" mounts', [':count' => $count]));
                 Response::redirect('this');
 
             case tr('Undelete'):
                 // Undelete selected mounts
                 $count = Mounts::directOperations()->undeleteKeys($post['id']);
 
-                Response::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" mounts', [':count' => $count]));
+                Response::getFlashMessages()->addSuccess(tr('Undeleted ":count" mounts', [':count' => $count]));
                 Response::redirect('this');
         }
 

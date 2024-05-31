@@ -89,11 +89,11 @@ interface DirectoryInterface extends PathInterface
     /**
      * Ensures existence of the specified directory
      *
-     * @param string|null $mode  octal $mode If the specified $this->directory does not exist, it will be created with
-     *                           this directory mode. Defaults to $_CONFIG[fs][dir_mode]
-     * @param boolean     $clear If set to true, and the specified directory already exists, it will be deleted and
-     *                           then re-created
-     * @param bool        $sudo
+     * @param string|int|null $mode  octal $mode If the specified $this->directory does not exist, it will be created
+     *                               with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+     * @param boolean         $clear If set to true, and the specified directory already exists, it will be deleted and
+     *                               then re-created
+     * @param bool            $sudo
      *
      * @return static
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -102,9 +102,8 @@ interface DirectoryInterface extends PathInterface
      * @category  Function reference
      * @package   file
      * @version   2.4.16: Added documentation
-     *
      */
-    public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): static;
+    public function ensure(string|int|null $mode = null, ?bool $clear = false, bool $sudo = false): static;
 
 
     /**

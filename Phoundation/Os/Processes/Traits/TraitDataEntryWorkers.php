@@ -36,7 +36,7 @@ trait TraitDataEntryWorkers
      */
     public function setMinimumWorkers(?int $workers): static
     {
-        return $this->set('maximum_workers', $workers);
+        return $this->set($workers, 'maximum_workers');
     }
 
 
@@ -60,6 +60,6 @@ trait TraitDataEntryWorkers
      */
     public function setMaximumWorkers(?int $workers): static
     {
-        return $this->set('maximum_workers', $workers);
+        return $this->set($workers, 'maximum_workers');
     }
 }

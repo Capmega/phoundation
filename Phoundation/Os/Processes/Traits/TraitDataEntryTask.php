@@ -36,7 +36,7 @@ trait TraitDataEntryTask
     {
         unset($this->task);
 
-        return $this->set('tasks_id', $tasks_id);
+        return $this->set($tasks_id, 'tasks_id');
     }
 
 
@@ -79,7 +79,7 @@ trait TraitDataEntryTask
         if ($task) {
             $this->task = $task;
 
-            return $this->set('tasks_id', $task->getId());
+            return $this->set($task->getId(), 'tasks_id');
         }
 
         return $this->setTasksId(null);

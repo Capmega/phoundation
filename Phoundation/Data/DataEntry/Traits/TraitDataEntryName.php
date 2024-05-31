@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
-use Phoundation\Core\Core;
-use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
-use Phoundation\Seo\Seo;
-
 /**
  * Trait TraitDataEntryName
  *
@@ -18,6 +10,15 @@ use Phoundation\Seo\Seo;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Core\Core;
+use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
+use Phoundation\Seo\Seo;
+
 trait TraitDataEntryName
 {
     /**
@@ -54,15 +55,15 @@ trait TraitDataEntryName
     {
         if ($set_seo_name) {
             if ($name === null) {
-                $this->set('seo_name', null, true);
+                $this->set(null, 'seo_name', true);
 
             } else {
                 // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
                 // the entry if it does!
                 try {
-                    $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')
-                                                                               ->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_name');
-                    $this->set('seo_name', $seo_name, true);
+                    $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_name');
+                    $this->set($seo_name, 'seo_name', true);
+
                 } catch (SqlTableDoesNotExistException $e) {
                     // Crap, the table we're working on doesn't exist, WTF? No biggie, we're likely in init mode, and
                     // then we can ignore this issue as we're likely working from configuration instead
@@ -73,7 +74,7 @@ trait TraitDataEntryName
             }
         }
 
-        return $this->set('name', $name);
+        return $this->set($name, 'name');
     }
 
 
@@ -88,6 +89,6 @@ trait TraitDataEntryName
      */
     protected function setSeoName(?string $seo_name): static
     {
-        return $this->set('seo_name', $seo_name);
+        return $this->set($seo_name, 'seo_name');
     }
 }

@@ -122,7 +122,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      *
      * @return static
      */
-    public function setNone(?string $none): static
+    public function setNotSelectedLabel(?string $none): static
     {
         $this->none = $none;
 
@@ -148,7 +148,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      *
      * @return static
      */
-    public function setObjectEmpty(?string $empty): static
+    public function setComponentEmptyLabel(?string $empty): static
     {
         $this->empty = $empty;
 

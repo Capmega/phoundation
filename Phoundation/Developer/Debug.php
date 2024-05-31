@@ -216,20 +216,24 @@ class Debug
     public static function getEnabled(): bool
     {
         static $loop = false;
-        if (Core::inStartupState()) {
+
+        if (Core::inBootState()) {
             // Can't read config and as such neither the debug configuration
             return false;
         }
+
         if (!isset(static::$enabled)) {
             // Avoid endless loops
             if ($loop) {
                 // We're in a loop!
                 return false;
             }
+
             $loop            = true;
             static::$enabled = Config::getBoolean('debug.enabled', false);
             $loop            = false;
         }
+
         if (static::$switched) {
             // Return the opposite
             return !static::$enabled;
@@ -297,7 +301,7 @@ class Debug
                 if (empty($core->register['debug_plain'])) {
                     switch (Request::getRequestType()) {
                         case EnumRequestTypes::api:
-                            // no-break
+                            // no break
                         case EnumRequestTypes::ajax:
                             $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
                                     ':type' => gettype($value),
@@ -503,9 +507,9 @@ class Debug
                 } else {
                     $type = tr('string');
                 }
-            // no-break
+            // no break
             case 'integer':
-                // no-break
+                // no break
             case 'double':
                 return '<tr>
                             <td>' . htmlspecialchars((string) $key) . '</td>
@@ -535,7 +539,7 @@ class Debug
                             <td class="value">' . $value . '</td>
                         </tr>';
             case 'method':
-                // no-break
+                // no break
             case 'property':
                 return '<tr>
                             <td>' . htmlspecialchars((string) $key) . '</td>
@@ -770,9 +774,9 @@ class Debug
         $return   = static::currentFile($trace) . '@' . static::currentLine($trace);
         switch ($function) {
             case null:
-                // no-break
+                // no break
             case 'include':
-                // no-break
+                // no break
             case 'require':
                 // Just file@line
                 return 'File ' . $return;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Interfaces;
 
 use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
@@ -89,7 +90,7 @@ interface ProcessVariablesInterface
     /**
      * Increases the number of times quotes should be escaped
      *
-     * @return ProcessVariables
+     * @return static
      */
     public function increaseQuoteEscapes(): static;
 
@@ -133,9 +134,9 @@ interface ProcessVariablesInterface
     /**
      * Returns if the process will first CD to this directory before continuing
      *
-     * @return Directory
+     * @return DirectoryInterface
      */
-    public function getExecutionDirectory(): Directory;
+    public function getExecutionDirectory(): DirectoryInterface;
 
 
     /**
@@ -162,17 +163,17 @@ interface ProcessVariablesInterface
     /**
      * Sets the log path where the process output will be redirected to
      *
-     * @return string
+     * @return string|null
      */
-    public function getLogFile(): string;
+    public function getLogFile(): ?string;
 
 
     /**
      * Returns the run path where the process run file will be written
      *
-     * @return string
+     * @return string|null
      */
-    public function getRunFile(): string;
+    public function getRunFile(): ?string;
 
 
     /**

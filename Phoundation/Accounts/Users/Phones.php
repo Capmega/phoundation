@@ -57,7 +57,7 @@ class Phones extends DataList implements PhonesInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'accounts_phones';
     }
@@ -66,9 +66,9 @@ class Phones extends DataList implements PhonesInterface
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Phone::class;
     }
@@ -176,10 +176,8 @@ class Phones extends DataList implements PhonesInterface
             throw new OutOfBoundsException(tr('Cannot apply phones, no parent user specified'));
         }
         $phones = [];
-        $post   = Validator::get()
-                           ->select('phones')
-                           ->isOptional()
-                           ->sanitizeForceArray()
+        $post   = Validator::pick()
+                           ->select('phones')->isOptional()->sanitizeForceArray()
                            ->validate($clear_source);
         // Parse and sub validate
         if (isset($post['phones'])) {

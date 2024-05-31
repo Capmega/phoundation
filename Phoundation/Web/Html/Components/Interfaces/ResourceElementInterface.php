@@ -26,7 +26,7 @@ interface ResourceElementInterface extends ElementInterface
      *
      * @return static
      */
-    public function setNone(?string $none): static;
+    public function setNotSelectedLabel(?string $none): static;
 
 
     /**
@@ -52,7 +52,7 @@ interface ResourceElementInterface extends ElementInterface
      *
      * @return static
      */
-    public function setObjectEmpty(?string $empty): static;
+    public function setComponentEmptyLabel(?string $empty): static;
 
 
     /**

@@ -146,6 +146,7 @@ class Sql implements SqlInterface
     public function __construct(ConnectorInterface|string|null $connector = null, bool $use_database = true)
     {
         $this->uniqueid = Strings::getRandom();
+
         if ($connector instanceof ConnectorInterface) {
             // Connector specified directly. Take configuration from connector and connect
             $this->connector     = $connector->getName();
@@ -156,18 +157,23 @@ class Sql implements SqlInterface
             if ($connector === null) {
                 $connector = 'system';
             }
+
             // Read configuration and connect
             $this->connector     = $connector;
             $this->configuration = static::readConfiguration($connector);
         }
+
         if ($this->configuration['log'] === null) {
             $this->configuration['log'] = Config::getBoolean('databases.sql.log', false);
         }
+
         if ($this->configuration['statistics'] === null) {
             $this->configuration['statistics'] = Config::getBoolean('databases.sql.statistics', false);
         }
-        $this->debug = $this->configuration['log'] or Config::getBoolean('databases.sql.log', false);
+
+        $this->debug      = $this->configuration['log'] or Config::getBoolean('databases.sql.log', false);
         $this->statistics = $this->configuration['statistics'];
+
         $this->connect($use_database);
     }
 
@@ -183,14 +189,13 @@ class Sql implements SqlInterface
     {
         // Read in the entire SQL configuration for the specified instance
         $this->connector = $connector;
+
         if ($connector === 'system') {
             $configuration = Config::getArray('databases.connectors.' . $connector);
-
             return $this->applyConfigurationTemplate($configuration);
         }
 
-        return Connector::load($connector)
-                        ->getSource();
+        return Connector::load($connector)->getSource();
     }
 
 
@@ -479,7 +484,7 @@ class Sql implements SqlInterface
         // Check SQL state
         switch ($e->getSqlState()) {
             case 'denied':
-                // no-break
+                // no break
             case 'invalidforce':
                 // Some database operation has failed
                 foreach ($e->getMessages() as $message) {
@@ -541,9 +546,9 @@ class Sql implements SqlInterface
 //                        ]), $e);
 //
 //                    case 1005:
-//                        // no-break
+//                        // no break
 //                    case 1217:
-//                        // no-break
+//                        // no break
 //                    case 1452:
 //                        // Foreign key error, get the FK error data from mysql
 //                        try {
@@ -997,19 +1002,6 @@ class Sql implements SqlInterface
 
 
     /**
-     * Returns an SqlDataEntry object for this SQL class
-     *
-     * @param DataEntryInterface $data_entry
-     *
-     * @return SqlDataEntryInterface
-     */
-    public function getSqlDataEntryObject(DataEntryInterface $data_entry): SqlDataEntryInterface
-    {
-        return new SqlDataEntry($this, $data_entry);
-    }
-
-
-    /**
      * Returns if query printing is enabled for this instance or not
      *
      * @return bool
@@ -1421,6 +1413,7 @@ class Sql implements SqlInterface
     {
         $return    = [];
         $statement = $this->getPdoStatement($query, $execute);
+
         while ($row = $this->fetch($statement)) {
             $return[] = $row[array_key_first($row)];
         }
@@ -1461,6 +1454,7 @@ class Sql implements SqlInterface
     {
         $return    = [];
         $statement = $this->getPdoStatement($query, $execute);
+
         while ($row = $this->fetch($statement)) {
             $return[] = $row;
         }
@@ -1481,6 +1475,7 @@ class Sql implements SqlInterface
     {
         $return    = [];
         $statement = $this->getPdoStatement($query, $execute);
+
         while ($row = $this->fetch($statement)) {
             $return[$row[array_key_first($row)]] = $row[array_key_last($row)];
         }
@@ -1504,6 +1499,7 @@ class Sql implements SqlInterface
     {
         $return    = [];
         $statement = $this->getPdoStatement($query, $execute);
+
         while ($row = $this->fetch($statement)) {
             try {
                 if (!$column) {
@@ -1512,15 +1508,16 @@ class Sql implements SqlInterface
                 } else {
                     $key = $row[$column];
                 }
+
             } catch (Throwable $e) {
                 throw OutOfBoundsException::new(tr('Specified column ":column" does not exist in result row', [
                     ':column' => $column,
-                ]), $e)
-                                          ->addData([
-                                              'column' => $column,
-                                              'row'    => $row,
-                                          ]);
+                ]), $e)->addData([
+                    'column' => $column,
+                    'row'    => $row,
+                ]);
             }
+
             $return[$key] = $row;
         }
 
@@ -1543,6 +1540,7 @@ class Sql implements SqlInterface
     {
         $return    = [];
         $statement = $this->getPdoStatement($query, $execute);
+
         while ($row = $this->fetch($statement)) {
             $return[array_shift($row)] = $row;
         }

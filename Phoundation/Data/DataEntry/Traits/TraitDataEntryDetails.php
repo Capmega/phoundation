@@ -53,6 +53,6 @@ trait TraitDataEntryDetails
             $details = Json::encode($details);
         }
 
-        return $this->set('details', $details);
+        return $this->set($details, 'details');
     }
 }

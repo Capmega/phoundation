@@ -36,7 +36,7 @@ trait TraitDataEntryRole
     {
         unset($this->role);
 
-        return $this->set('roles_id', $roles_id);
+        return $this->set($roles_id, 'roles_id');
     }
 
 
@@ -79,7 +79,7 @@ trait TraitDataEntryRole
         if ($role) {
             $this->role = $role;
 
-            return $this->set('roles_id', $role->getId());
+            return $this->set($role->getId(), 'roles_id');
         }
 
         return $this->setRolesId(null);

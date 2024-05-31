@@ -47,19 +47,13 @@ class FilterForm extends DataEntryForm
      */
     public function apply(bool $clear_source = true): static
     {
-        $validator = Validator::get();
+        $validator = Validator::pick();
+
         // Go over each field and let the field definition do the validation since it knows the specs
         foreach ($this->definitions as $definition) {
-//            if ($definition->getReadonly() or $definition->getDisabled()) {
-//                // This field cannot be modified and should not be validated, unless its new or has a static value
-//                if (!$this->isNew() and !$definition->get()) {
-//                    $validator->removeSourceKey($definition->getField());
-//                    continue;
-//                }
-//            }
-//
             $definition->validate($validator, null);
         }
+
         try {
             // Execute the validate method to get the results of the validation
             $this->source = $validator->validate($clear_source);

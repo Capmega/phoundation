@@ -36,9 +36,9 @@ trait TraitDataEntryIpAddress
      */
     public function setIpAddress(?string $ip_address): static
     {
-        $this->set('net_len', strlen($ip_address));
-        $this->set('ip_address', $ip_address);
+        $this->set(strlen($ip_address), 'net_len');
+        $this->set($ip_address, 'ip_address');
 
-        return $this->set('ip_address_human', $ip_address);
+        return $this->set($ip_address, 'ip_address_human');
     }
 }

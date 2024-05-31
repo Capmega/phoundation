@@ -11,6 +11,7 @@ use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
@@ -342,11 +343,11 @@ trait ProcessVariables
     public function __construct(RestrictionsInterface|array|string|null $restrictions)
     {
         // Ensure that the run files directory is available
-        static::$run_directory = DIRECTORY_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/';
-        Directory::new(static::$run_directory, Restrictions::new(DIRECTORY_DATA . 'run', true, 'processes runfile'))
-                 ->ensure();
         // Set server filesystem restrictions
+        $this->setUseRunFile(Directory::writeIsEnabled());
+        $this->setRunDirectory(DIRECTORY_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/');
         $this->setRestrictions($restrictions);
+
         $this->packages = new Packages();
     }
 
@@ -504,9 +505,11 @@ trait ProcessVariables
         if (!$this->start) {
             throw new OutOfBoundsException(tr('Cannot measure execution time, the process has not yet started'));
         }
+
         if ($this->stop) {
             return $this->stop;
         }
+
         if ($require_stop) {
             throw new OutOfBoundsException(tr('Cannot measure execution time, the process is still running'));
         }
@@ -590,9 +593,12 @@ trait ProcessVariables
     {
         if (is_null($ionice_class)) {
             $ionice_class = EnumIoNiceClass::none;
+
         } elseif (is_int($ionice_class)) {
+
             $ionice_class = EnumIoNiceClass::from($ionice_class);
         }
+
         $this->ionice_class = $ionice_class;
 
         return $this;
@@ -625,6 +631,7 @@ trait ProcessVariables
                     // no break
                 case EnumIoNiceClass::best_effort:
                     break;
+
                 default:
                     throw new OutOfBoundsException(tr('Cannot set IO nice level ":level", the IO nice class ":class" is not one of "EnumIoNiceClass::realtime, EnumIoNiceClass::best_effort"', [
                         ':level' => $ionice_level,
@@ -632,6 +639,7 @@ trait ProcessVariables
                     ]));
             }
         }
+
         $this->ionice_level = (int) $ionice_level;
 
         return $this;
@@ -719,9 +727,9 @@ trait ProcessVariables
     /**
      * Returns if the process will first CD to this directory before continuing
      *
-     * @return Directory
+     * @return DirectoryInterface
      */
-    public function getExecutionDirectory(): Directory
+    public function getExecutionDirectory(): DirectoryInterface
     {
         return Directory::new($this->execution_directory);
     }
@@ -730,15 +738,16 @@ trait ProcessVariables
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param Directory|Stringable|string|null        $execution_directory
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param DirectoryInterface|Stringable|string|null $execution_directory
+     * @param RestrictionsInterface|array|string|null   $restrictions
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionDirectory(Directory|Stringable|string|null $execution_directory, RestrictionsInterface|array|string|null $restrictions = null): static
+    public function setExecutionDirectory(DirectoryInterface|Stringable|string|null $execution_directory, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         $this->cached_command_line = null;
         $this->execution_directory = (string) $execution_directory;
+
         if ($restrictions) {
             $this->restrictions = $restrictions;
         }
@@ -758,6 +767,7 @@ trait ProcessVariables
     {
         $directory          = Directory::getTemporary($public);
         $this->restrictions = $directory->getRestrictions();
+
         $this->setExecutionDirectory($directory, $directory->getRestrictions());
 
         return $this;
@@ -767,22 +777,52 @@ trait ProcessVariables
     /**
      * Sets the log path where the process output will be redirected to
      *
-     * @return string
+     * @return string|null
      */
-    public function getLogFile(): string
+    public function getLogFile(): ?string
     {
-        return $this->log_file;
+        if (Log::getFileEnabled()) {
+            return $this->log_file;
+        }
+
+        return null;
     }
 
 
     /**
-     * Returns the run path where the process run file will be written
+     * Returns the run directory where the process run files will be written
      *
-     * @return string
+     * @return string|null
      */
-    public function getRunDirectory(): string
+    public function getRunDirectory(): ?string
     {
-        return static::$run_directory;
+        if ($this->use_run_file) {
+            return static::$run_directory;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Sets the run directory where process run files will be written
+     *
+     * @param string|null $run_directory
+     *
+     * @return $this
+     */
+    protected function setRunDirectory(?string $run_directory): static
+    {
+        static::$run_directory = $run_directory;
+
+        if ($this->use_run_file) {
+            Directory::new(
+                static::$run_directory,
+                Restrictions::new(DIRECTORY_DATA . 'run', true, 'processes runfile')
+            )->ensure();
+        }
+
+        return $this;
     }
 
 
@@ -809,14 +849,19 @@ trait ProcessVariables
 //
 //        return $this;
 //    }
+
     /**
      * Returns the run file path
      *
-     * @return string
+     * @return string|null
      */
-    public function getRunFile(): string
+    public function getRunFile(): ?string
     {
-        return $this->run_file;
+        if ($this->use_run_file and File::writeIsEnabled()) {
+            return $this->run_file;
+        }
+
+        return null;
     }
 
 
@@ -828,7 +873,7 @@ trait ProcessVariables
     protected function setRunFile(): static
     {
         $this->cached_command_line = null;
-        $this->run_file            = static::$run_directory . $this->getIdentifier();
+        $this->run_file            = static::$run_directory ? static::$run_directory . $this->getIdentifier() : null;
 
         return $this;
     }
@@ -958,16 +1003,20 @@ trait ProcessVariables
     public function setSudo(string|bool|null $sudo, ?string $user = null): static
     {
         $this->cached_command_line = null;
+
         if (!$sudo) {
             $this->sudo = false;
+
         } else {
             if ($sudo === true) {
                 $sudo = 'sudo -Es';
+
                 if ($user) {
                     // Sudo specifically to a non root user
                     $sudo .= 'u ' . escapeshellarg($user);
                 }
             }
+
 // TODO Validate that $sudo contains ONLY alphanumeric characters!
             $this->sudo = $sudo;
         }
@@ -1034,6 +1083,7 @@ trait ProcessVariables
         if (($exit_code < 0) or ($exit_code > 255)) {
             throw new OutOfBoundsException(tr('The specified $exit_code ":code" is invalid. Please specify a values between 0 and 255', [':code' => $exit_code]));
         }
+
         $this->accepted_exit_codes[] = $exit_code;
 
         return $this;
@@ -1079,8 +1129,10 @@ trait ProcessVariables
             // Make sure we have a clean command
             $command = trim($command);
         }
+
         $real_command              = $command;
         $this->cached_command_line = null;
+
         if (!$command) {
             // Reset the command
             $this->command      = null;
@@ -1088,18 +1140,19 @@ trait ProcessVariables
 
             return $this;
         }
+
         if ($which_command) {
             // Get the real location for the command to ensure it exists. Do NOT use this for shell internal commands!
             try {
-                $real_command = Which::new($this->restrictions)
-                                     ->which($command);
+                $real_command = Which::new($this->restrictions)->which($command);
+
             } catch (CommandNotFoundException) {
                 // Check if the command exist on disk
                 if (($command !== 'which') and !file_exists($command)) {
                     // The specified command was not found, we'll have to look for it anyway!
                     try {
-                        $real_command = Which::new($this->restrictions)
-                                             ->which($command);
+                        $real_command = Which::new($this->restrictions)->which($command);
+
                     } catch (CommandsException) {
                         // The command does not exist, but maybe we can auto install?
                         if (!$this->failed) {
@@ -1108,20 +1161,25 @@ trait ProcessVariables
                                     ':command' => $command,
                                 ]));
                             }
+
                             if (!Command::sudoAvailable('apt-get', Restrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
                                 throw new ProcessesException(tr('Specified process command ":command" does not exist and this process does not have sudo access to apt-get', [
                                     ':command' => $command,
                                 ]));
                             }
                         }
+
                         $this->failed = true;
+
                         throw new CommandNotFoundException(tr('Specified process command ":command" does not exist', [
                             ':command' => $command,
                         ]));
+
                         // Proceed to install the packages and retry
                         Log::warning(tr('Failed to find the command ":command", installing required packages', [
                             ':command' => $command,
                         ]));
+
 // TODO Implement this! Have apt-file actually search for the command, match /s?bin/COMMAND or /usr/s?bin/COMMAND
 //                    AptGet::new()->install($this->packages);
 //                    return $this->setInternalCommand($command, $which_command);
@@ -1129,10 +1187,13 @@ trait ProcessVariables
                 }
             }
         }
+
         // Apply proper escaping and register the command
         $this->command      = escapeshellcmd($command);
         $this->real_command = escapeshellcmd($real_command);
+
         $this->setIdentifier();
+
         if ($clear_arguments) {
             $this->clearArguments();
         }
@@ -1150,9 +1211,11 @@ trait ProcessVariables
     protected function setIdentifier(): static
     {
         $identifier = $this->getIdentifier();
+
         $this->cached_command_line = null;
-        $this->log_file = DIRECTORY_DATA . 'log/' . $identifier;
-        $this->run_file = static::$run_directory . $identifier;
+        $this->log_file            = DIRECTORY_DATA . 'log/' . $identifier;
+        $this->run_file            = static::$run_directory . $identifier;
+
         Log::notice(tr('Set process identifier ":identifier"', [':identifier' => $identifier]), 2);
 
         return $this;
@@ -1215,15 +1278,24 @@ trait ProcessVariables
     public function addArguments(array|string|null $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
     {
         $this->cached_command_line = null;
+
         if ($arguments) {
-            foreach (Arrays::force($arguments, null) as $argument) {
-                if (!$argument) {
-                    if ($argument !== 0) {
-                        // Ignore empty arguments
-                        continue;
+            if (is_array($arguments)) {
+                foreach (Arrays::force($arguments, null) as $argument) {
+                    if (!$argument) {
+                        if ($argument !== 0) {
+                            // Ignore empty arguments
+                            continue;
+                        }
                     }
+
+                    // Add multiple arguments
+                    $this->addArguments($argument, $escape_arguments, $escape_quotes);
                 }
-                $this->addArgument($argument, $escape_arguments, $escape_quotes);
+
+            } else {
+                // Add a single argument
+                $this->addArgument($arguments, $escape_arguments, $escape_quotes);
             }
         }
 
@@ -1246,6 +1318,7 @@ trait ProcessVariables
             if (is_array($argument)) {
                 return $this->addArguments($argument, $escape_argument, $escape_quotes);
             }
+
             $this->cached_command_line = null;
             $this->arguments[]         = [
                 'escape_argument' => $escape_argument,
@@ -1354,14 +1427,17 @@ trait ProcessVariables
     {
         $key   = (string) $key;
         $value = (string) $value;
+
         // Do not escape variables!
         if (!preg_match('/^\$.+?\$$/', $key) and $escape) {
             $key = escapeshellarg($key);
         }
+
         // Do not escape variables!
         if (!preg_match('/^\$.+?\$$/', $value) and $escape) {
             $value = escapeshellarg($value);
         }
+
         $this->cached_command_line         = null;
         $this->environment_variables[$key] = $value;
 
@@ -1408,6 +1484,7 @@ trait ProcessVariables
     public function setVariables(?array $variables): static
     {
         $this->variables = [];
+
         if ($variables) {
             foreach ($variables as $key => $value) {
                 return $this->setVariable($key, $value);
@@ -1576,6 +1653,7 @@ trait ProcessVariables
     public function setOutputRedirect(?string $redirect, int $channel = 1, bool $append = false): static
     {
         $this->validateStream($channel, 'output');
+
         if ($redirect) {
             if ($redirect[0] === '&') {
                 // Redirect output to another channel
@@ -1584,15 +1662,18 @@ trait ProcessVariables
                         ':redirect' => $redirect,
                     ]));
                 }
+
             } else {
                 // Redirect output to a file
                 Directory::new(dirname($redirect), $this->restrictions->getParent())
                          ->ensure('output redirect file');
                 $this->output_redirect[$channel] = ($append ? '>>' : '> ') . $redirect;
             }
+
         } else {
             unset($this->output_redirect[$channel]);
         }
+
         $this->cached_command_line = null;
 
         return $this;
@@ -1653,9 +1734,9 @@ trait ProcessVariables
     {
         $redirect                  = get_null($redirect);
         $this->cached_command_line = null;
+
         if ($redirect) {
-            File::new($redirect, $this->restrictions)
-                ->checkReadable();
+            File::new($redirect, $this->restrictions)->checkReadable();
             $this->input_redirect[$channel] = $redirect;
         }
 
@@ -1704,8 +1785,10 @@ trait ProcessVariables
                     ':wait' => $wait,
                 ]));
             }
+
             $wait = 0;
         }
+
         $this->cached_command_line = null;
         $this->wait                = $wait;
 
@@ -1809,8 +1892,10 @@ trait ProcessVariables
                     ':timeout' => $timeout,
                 ]));
             }
+
             $timeout = 0;
         }
+
         $this->cached_command_line = null;
         $this->timeout             = $timeout;
 
@@ -1834,35 +1919,54 @@ trait ProcessVariables
     /**
      * Get the process PID file from the run_file and remove the file
      *
+     * @param string|null $output
+     *
      * @return void
      */
-    protected function setPid(): void
+    protected function setPid(?string $output = null): void
     {
         if (!$this->register_run_file) {
             // Don't register PID information
             return;
         }
+
         // Get PID info from run_file
         if (!$this->run_file) {
             throw new ProcessException(tr('Failed to set process PID, no PID specified and run_file has not been set'));
         }
+
         // Get the PID and remove the run file
-        $file = $this->run_file;
-        $pid  = file_get_contents($file);
-        $pid  = trim($pid);
-        // Delete the run file, don't clean up as that is not needed. When the process terminates, cleanup will happen
-        File::new($this->run_file, Restrictions::new(DIRECTORY_DATA . 'run/pids/', true))
-            ->delete(false);
+        if ($this->use_run_file) {
+            $file = $this->run_file;
+            $pid  = file_get_contents($file);
+            $pid  = trim($pid);
+
+            // Delete the run file but don't clean up as when the process terminates, cleanup will happen automatically
+            File::new($this->run_file, Restrictions::new(DIRECTORY_DATA . 'run/pids/', true))
+                ->delete(false);
+
+        } else {
+            if (!$output) {
+                throw new ProcessException(tr('Background executed command output returned no PID'));
+            }
+
+            // We have no run file so get the PID from the specified PID
+            $pid = $output;
+        }
+
         $this->run_file = null;
+
         if (!$pid) {
             throw new ProcessException(tr('Run file ":file" was empty', [':file' => $file]));
         }
+
         if (!is_numeric($pid)) {
             throw new ProcessException(tr('Run file ":file" contains invalid data ":data"', [
                 ':file' => $file,
                 ':data' => $pid,
             ]));
         }
+
         $this->pid = (int) $pid;
     }
 

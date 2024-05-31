@@ -58,23 +58,23 @@ if (Request::isPostRequestMethod()) {
             Response::redirect(UrlBuilder::getRedirect($redirect, $user->getDefaultPage()));
 
         } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-            Response::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+            Response::getFlashMessages()->addWarning(tr('Please specify at least ":count" characters for the password', [
                 ':count' => Config::getInteger('security.passwords.size.minimum', 10),
             ]));
 
             break;
 
         } catch (ValidationFailedException $e) {
-            Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
+            Response::getFlashMessages()->addWarning(tr('Please specify a valid email and password'));
             break;
 
         } catch (AuthenticationException $e) {
-            Response::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
+            Response::getFlashMessages()->addWarning(tr('The specified email and/or password were incorrect'));
         }
     }
 
     if (empty($get['email'])) {
-        $get['email'] = PostValidator::new()->getSourceKey('email');
+        $get['email'] = PostValidator::new()->get('email');
     }
 }
 
@@ -171,7 +171,7 @@ Response::setBuildBody(false);
                 }
                 ?>
                 <div class="login-footer text-center">
-                    <?= 'Copyright © ' . Config::getString('project.copyright', '2023') . ' <b><a href="' . Config::getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . Config::getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>
+                    <?= 'Copyright © ' . Config::getString('project.copyright', '2024') . ' <b><a href="' . Config::getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . Config::getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>
                     All rights reserved
                 </div>
             </div>

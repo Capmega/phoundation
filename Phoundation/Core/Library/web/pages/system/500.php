@@ -38,7 +38,7 @@ switch (Request::getRequestType()) {
 // Build the error page
 echo Template::new('system/http-error')->setSource([
                                                        ':h2'     => '500',
-                                                       ':h3'     => tr('500 Internal Server Error'),
+                                                       ':h3'     => tr('Internal Server Error'),
                                                        ':p'      => tr('The server encountered an internal error and could not fulfill your request. Please contact the system administrator'),
                                                        ':type'   => 'warning',
                                                        ':search' => tr('Search'),

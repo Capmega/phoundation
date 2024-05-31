@@ -280,13 +280,13 @@ class InstanceCache
      */
     public static function logStatistics(): void
     {
-        if (Debug::getEnabled()) {
+        if (Debug::getEnabled() and !QUIET) {
             Log::write(tr('InstanceCache object has ":count" cached object(s) with ":checks/:hits/:percent" effectiveness', [
                 ':count'   => InstanceCache::getCacheCount(),
                 ':checks'  => InstanceCache::getCacheChecks(),
                 ':hits'    => InstanceCache::getCacheHits(),
                 ':percent' => number_format(InstanceCache::getCacheEfficiency(), 2) . '%',
-            ]), 'debug');
+            ]), 'debug', 9);
         }
     }
 }

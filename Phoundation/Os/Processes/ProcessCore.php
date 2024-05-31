@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class ProcessCore
+ *
+ * This class embodies a process that will be executed
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Os
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
@@ -24,17 +35,6 @@ use Phoundation\Os\Processes\Interfaces\ProcessVariablesInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
-/**
- * Class ProcessCore
- *
- * This class embodies a process that will be executed
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Os
- * @uses      ProcessVariables
- */
 abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInterface
 {
     use ProcessVariables;
@@ -170,30 +170,38 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
     public function getFullCommandLine(bool $background = false): string
     {
         $this->failed = false;
+
         if ($this->cached_command_line) {
             return $this->cached_command_line;
         }
+
         if (!$this->command) {
             throw new OutOfBoundsException(tr('Cannot generate full command line, no command specified'));
         }
+
         if ($this->register_run_file) {
             // Make sure we have a Pid file
             $this->setRunFile();
         }
+
         // Build up the basic command line
         $this->cached_command_line = $this->getBasicCommandLine();
+
         // Add timeout
         if ($this->timeout) {
             $this->cached_command_line = 'timeout --signal ' . $this->signal . ' --foreground ' . escapeshellarg((string) $this->timeout) . ' ' . $this->cached_command_line;
         }
+
         // Add wait
         if ($this->wait) {
             $this->cached_command_line = 'sleep ' . ($this->wait / 1000) . '; ' . $this->cached_command_line;
         }
+
         // Execute the command in this directory
         if ($this->execution_directory) {
             $this->cached_command_line = 'cd ' . escapeshellarg($this->execution_directory) . '; ' . $this->cached_command_line;
         }
+
         // Execute on a server?
         if (!empty($this->server)) {
             // Execute on a server!
@@ -201,6 +209,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
                 // Add sudo
                 $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
             }
+
             $this->cached_command_line = $this->server->getSshCommandLine($this->cached_command_line);
         }
 
@@ -235,62 +244,76 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
                             ':redirect' => $file,
                         ]));
                     }
+
                     // Redirect to different channel
                     $redirect = ' ' . $channel . '>&' . $file[2] . ' ';
                     break;
+
                 case '>>':
                     // Redirect to file and append
                     $redirect = ' ' . $channel . '>> ' . substr($file, 2);
                     break;
+
                 default:
                     // Redirect to file and overwrite
                     $redirect = ' ' . $channel . '> ' . substr($file, 2);
             }
+
             $this->cached_command_line .= $redirect;
         }
+
         // Redirect command input from the specified files for the specified channels
         foreach ($this->input_redirect as $channel => $file) {
             $this->cached_command_line .= ' ' . (($channel > 1) ? $channel : '') . '< ' . $file;
         }
+
         // Background commands get some extra options around
         if ($this->use_run_file) {
             // Create command line with run file
             if ($background) {
-                $this->cached_command_line = "(nohup bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . $this->log_file . " 2>&1 & echo \$! >&3) 3> " . $this->run_file;
+                $this->cached_command_line = "(nohup bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$! >&3) 3> " . ($this->getRunFile() ?? '/dev/null');
 
             } elseif ($this->register_run_file) {
                 // Make sure the PID will be registered in the run file
-                $this->cached_command_line = "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . "; exit \$?'; EXIT=\$?; echo \$\$ > " . $this->run_file . "; exit \$EXIT;";
+                $this->cached_command_line = "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . "; exit \$?'; EXIT=\$?; echo \$\$ > " . ($this->getRunFile() ?? '/dev/null') . "; exit \$EXIT;";
             }
+
         } else {
             // Create command line without run file
             if ($background) {
-                $this->cached_command_line = "(nohup bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . $this->log_file . " 2>&1 & echo \$! >&3)";
+                $this->cached_command_line = "(nohup bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$!)";
 
             } elseif ($this->register_run_file) {
                 // Make sure the PID will be registered in the run file
                 $this->cached_command_line = "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . "; exit \$?';";
             }
         }
+
         // Add nice
         if ($this->nice) {
             $this->cached_command_line = 'nice -n ' . $this->nice . ' ' . $this->cached_command_line;
         }
+
         // Add ionice
         switch ($this->ionice_class) {
             case EnumIoNiceClass::none:
                 break;
+
             case EnumIoNiceClass::idle:
                 // no break
+
             case EnumIoNiceClass::realtime:
                 // no break
+
             case EnumIoNiceClass::best_effort:
                 $this->cached_command_line = 'ionice --class ' . $this->ionice_class->value . ' --classdata ' . $this->ionice_level . ' ' . $this->cached_command_line;
         }
+
         // Add nocache
         if ($this->nocache) {
             $this->cached_command_line = 'nocache' . (is_numeric($this->nocache) ? ' -n ' . $this->nocache . ' ' : ' ') . $this->cached_command_line;
         }
+
         // Add sudo
         if (!$this->server and $this->sudo) {
             $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
@@ -308,28 +331,35 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
     public function getBasicCommandLine(): string
     {
         $arguments = [];
+
         if (!$this->command) {
             throw new ProcessException(tr('Cannot execute process, no command specified'));
         }
+
         // Update the arguments with the variables and escape all of them
         foreach ($this->arguments as $argument) {
             $escape_quotes   = $argument['escape_quotes'];
             $escape_argument = $argument['escape_argument'];
             $argument        = $argument['argument'];
+
             // Apply variables
             foreach ($this->variables as $key => $variable) {
                 $argument = str_replace((string) $key, (string) $variable, $argument);
             }
+
             $escape_quotes = $this->escape_quotes - ($escape_quotes ? 0 : 1);
+
             // Escape quotes if required so for shell
             for ($i = 0; $i < $escape_quotes; $i++) {
                 $argument = str_replace('\\', '\\\\', $argument);
                 $argument = str_replace('\'', '\\\'', $argument);
                 $argument = str_replace('"', '\\"', $argument);
             }
+
             if ($escape_argument) {
                 $argument = escapeshellarg($argument);
             }
+
             $arguments[] = $argument;
         }
 
@@ -358,9 +388,11 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
                 }
             }
         }
+
         $this->stop      = microtime(true);
         $this->exit_code = $exit_code;
         $this->output    = $output;
+
         if (empty($this->accepted_exit_codes)) {
             // By default, always accept exit code 0
             $this->accepted_exit_codes = [0];
@@ -411,8 +443,10 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
     public function executeBackground(): int
     {
         $this->setExecutionMethod(EnumExecuteMethod::background);
+
         // Ensure that this background command uses a terminal,
         $this->setTerm('xterm', true);
+
         if ($this->debug) {
             Log::printr($this->getFullCommandLine());
 
@@ -421,8 +455,11 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
                 ':command' => $this->getFullCommandLine(true),
             ]), 3);
         }
+
         $this->start = microtime(true);
+
         exec($this->getFullCommandLine(true), $output, $exit_code);
+
         if ($exit_code) {
             // Something went wrong immediately while executing the command?
             throw new ProcessException(tr('Failed to start process ":command" (Full command ":full_command") in background. It caused exit code ":code" with output ":output"', [
@@ -432,9 +469,11 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
                 ':output'       => $output,
             ]));
         }
+
         // Set the process id and exit code for the nohup command
-        $this->setPid();
-        $exit_code = $this->setExitCode(0, $output);
+        $this->setPid(implode(PHP_EOL, $output));
+        $exit_code = $this->setExitCode(0);
+
         Log::success(tr('Executed background command ":command" with PID ":pid"', [
             ':command' => $this->real_command,
             ':pid'     => $this->pid,
@@ -452,10 +491,11 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
     public function executePassthru(): bool
     {
         $this->setExecutionMethod(EnumExecuteMethod::passthru);
-        $output_file = File::getTemporary(false)
-                           ->getPath();
+
+        $output_file = File::getTemporary(false)->getPath();
         $commands    = $this->getFullCommandLine();
         $commands    = Strings::ensureEndsNotWith($commands, ';');
+
         if ($this->debug) {
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
 
@@ -464,8 +504,10 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
                 ':commands' => $commands,
             ]), 2);
         }
+
         $this->start = microtime(true);
         $result      = passthru($this->getFullCommandLine(), $exit_code);
+
         // Output available in output file?
         if (file_exists($output_file)) {
             $output = file($output_file);
@@ -474,7 +516,9 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         } else {
             $output = null;
         }
+
         $this->setExitCode($exit_code, $output);
+
         // So according to the documentation, for some reason passthru() would return null on success and false on
         // failure. Makes sense, right? Just return true or false, please,
         if ($result === false) {

@@ -30,7 +30,7 @@ class OperatingSystem extends DataEntry implements OperatingSystemInterface
     /**
      * @inheritDoc
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'os_operating_systems';
     }

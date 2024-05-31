@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Button class
  *
@@ -36,6 +37,7 @@ class Button extends Input implements ButtonInterface
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
+
         $this->setName('submit');
         $this->setClasses('btn');
         $this->setElement('button');

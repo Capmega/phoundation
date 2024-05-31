@@ -792,14 +792,16 @@ class Response implements ResponseInterface
     public static function loadCss(UrlBuilder|array|string $urls, bool $prefix = false): void
     {
         $scripts = [];
+
         // Convert the given URL (parts) to real URLs
         foreach (Arrays::force($urls, '') as $url) {
-            $url = static::versionFile($url, 'css');
+            $url           = static::versionFile($url, 'css');
             $scripts[$url] = [
                 'rel'  => 'stylesheet',
                 'href' => UrlBuilder::getCss($url),
             ];
         }
+
         if ($prefix) {
             static::$page_headers['link'] = array_merge($scripts, static::$page_headers['link']);
 
@@ -1052,6 +1054,23 @@ class Response implements ResponseInterface
 
 
     /**
+     * Signs the user out of the session and optionally redirects
+     *
+     * @param UrlBuilder|string|null $redirect
+     *
+     * @return void
+     */
+    public static function signOut(UrlBuilder|string|null $redirect = 'signin'): void
+    {
+        Session::signOut();
+
+        if ($redirect) {
+            static::redirect($redirect);
+        }
+    }
+
+
+    /**
      * Return the specified URL with a redirect URL stored in $core->register['redirect']
      *
      * @note If no URL is specified, the current URL will be used
@@ -1111,11 +1130,11 @@ class Response implements ResponseInterface
          */
         switch ($http_code) {
             case 301:
-                // no-break
+                // no break
             case 302:
-                // no-break
+                // no break
             case 303:
-                // no-break
+                // no break
             case 307:
                 // All valid
             case 401:
@@ -1395,6 +1414,7 @@ class Response implements ResponseInterface
     /**
      * Builds and returns all the HTTP headers
      *
+     * @todo Rewrite this crap
      * @return array|null
      */
     protected static function generateHttpHeaders(): ?array
@@ -1438,7 +1458,7 @@ class Response implements ResponseInterface
                 ]));
                 break;
             case 'none':
-                // no-break
+                // no break
             case '':
                 break;
             default:
@@ -1485,9 +1505,9 @@ class Response implements ResponseInterface
                                 $value = '';
                             }
                         }
-                    // no-break
+                    // no break
                     case 'methods':
-                        // no-break
+                        // no break
                     case 'headers':
                         if ($value) {
                             $headers[] = 'Access-Control-Allow-' . Strings::capitalize($key) . ': ' . $value;
@@ -1565,9 +1585,9 @@ class Response implements ResponseInterface
                 // Send caching headers. Ajax, API, and admin calls do not have proxy caching
                 switch (Request::getRequestType()) {
                     case EnumRequestTypes::api:
-                        // no-break
+                        // no break
                     case EnumRequestTypes::ajax:
-                        // no-break
+                        // no break
                     case EnumRequestTypes::admin:
                         break;
                     default:

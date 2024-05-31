@@ -110,10 +110,10 @@ if (Request::isPostRequestMethod()) {
                              ])
                 ->save();
 
-        Response::getFlashMessages()->addSuccessMessage(tr('We sent a lost password email to the specified address if it exists'));
+        Response::getFlashMessages()->addSuccess(tr('We sent a lost password email to the specified address if it exists'));
 
     } catch (ValidationFailedException) {
-        Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email'));
+        Response::getFlashMessages()->addWarning(tr('Please specify a valid email'));
 
     } catch (DataEntryNotExistsException|AccessDeniedException $e) {
         // Specified email does not exist. Just ignore it because we don't want to give away if the email exists or

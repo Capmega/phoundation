@@ -23,7 +23,6 @@ class Devices
         Directory::new($path)->each(function ($file) {
             show($file);
         });
-showdie();
     }
 
 

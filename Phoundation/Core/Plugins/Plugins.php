@@ -59,7 +59,7 @@ class Plugins extends DataList implements PluginsInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'core_plugins';
     }
@@ -68,9 +68,9 @@ class Plugins extends DataList implements PluginsInterface
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Plugin::class;
     }
@@ -359,7 +359,7 @@ class Plugins extends DataList implements PluginsInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('plugins_id')
-                     ->setNone(tr('Select a plugin'))
-                     ->setObjectEmpty(tr('No plugins available'));
+                     ->setNotSelectedLabel(tr('Select a plugin'))
+                     ->setComponentEmptyLabel(tr('No plugins available'));
     }
 }

@@ -36,6 +36,6 @@ trait TraitDataEntryTimeout
      */
     public function setTimeout(?int $timeout): static
     {
-        return $this->set('timeout', $timeout);
+        return $this->set($timeout, 'timeout');
     }
 }

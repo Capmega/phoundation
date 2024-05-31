@@ -51,7 +51,7 @@ class Customer extends DataEntry
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'business_customers';
     }
@@ -99,7 +99,7 @@ class Customer extends DataEntry
      */
     public function setAddress2(?string $address2): static
     {
-        return $this->set('address2', $address2);
+        return $this->set($address2, 'address2');
     }
 
 
@@ -123,7 +123,7 @@ class Customer extends DataEntry
      */
     public function setAddress3(?string $address3): static
     {
-        return $this->set('address3', $address3);
+        return $this->set($address3, 'address3');
     }
 
 

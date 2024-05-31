@@ -25,9 +25,9 @@ class Translations extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Translation::class;
     }
@@ -82,14 +82,14 @@ class Translations extends DataList
     public function getHtmlSelect(string $value_column = 'translation', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
-                          ->setConnector(static::getDefaultConnectorName())
+                          ->setConnector(static::getConnector())
                           ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `' . $value_column . '` ASC')
                           ->setName('translations_id')
-                          ->setNone(tr('Select a translation'))
-                          ->setObjectEmpty(tr('No translations available'));
+                          ->setNotSelectedLabel(tr('Select a translation'))
+                          ->setComponentEmptyLabel(tr('No translations available'));
     }
 
 
@@ -98,7 +98,7 @@ class Translations extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'translations';
     }

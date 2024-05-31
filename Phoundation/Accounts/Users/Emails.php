@@ -56,7 +56,7 @@ class Emails extends DataList implements EmailsInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'accounts_emails';
     }
@@ -65,9 +65,9 @@ class Emails extends DataList implements EmailsInterface
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Email::class;
     }
@@ -171,15 +171,16 @@ class Emails extends DataList implements EmailsInterface
     public function apply(bool $clear_source = true): static
     {
         $this->checkReadonly('apply');
+
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot apply emails, no parent user specified'));
         }
+
         $emails = [];
-        $post   = Validator::get()
-                           ->select('emails')
-                           ->isOptional()
-                           ->sanitizeForceArray()
+        $post   = Validator::pick()
+                           ->select('emails')->isOptional()->sanitizeForceArray()
                            ->validate($clear_source);
+
         // Parse and sub validate
         if (isset($post['emails'])) {
             foreach ($post['emails'] as $email) {
@@ -188,6 +189,7 @@ class Emails extends DataList implements EmailsInterface
                     if (!is_string($email)) {
                         throw new ValidationFailedException(tr('Specified phone number has an invalid datatype'));
                     }
+
                     $email = trim($email);
                     $email = explode('|', $email);
                     $email = [
@@ -196,15 +198,19 @@ class Emails extends DataList implements EmailsInterface
                         'description'  => isset_get($email[2]),
                     ];
                 }
+
                 // Ignore empty entries
                 if (empty($email['email'])) {
                     continue;
                 }
+
                 $emails[isset_get($email['email'])] = $email;
             }
+
             // Get a list of what we should add and remove and apply this
             $diff = Arrays::valueDiff($this->getAllRowsSingleColumn('email'), array_keys($emails), true);
             $diff = Arrays::deleteDiff($diff, $emails);
+
             foreach ($diff['delete'] as $id => $email) {
                 Email::load($id, 'id')
                      ->setEmail(null)
@@ -212,6 +218,7 @@ class Emails extends DataList implements EmailsInterface
                      ->erase();
                 $this->removeKeys($id);
             }
+
             foreach ($diff['add'] as $email) {
                 if ($email) {
                     $this->add(Email::new()
@@ -220,6 +227,7 @@ class Emails extends DataList implements EmailsInterface
                                     ->save());
                 }
             }
+
             // Update all other email addresses
             foreach ($diff['keep'] as $id => $email) {
                 Email::load($id, 'id')
@@ -228,6 +236,7 @@ class Emails extends DataList implements EmailsInterface
                      ->save();
             }
         }
+
         // Clear source if required
         if ($clear_source) {
             PostValidator::new()

@@ -39,7 +39,7 @@ trait TraitDataEntryUser
      */
     public function setUsersId(?int $users_id): static
     {
-        return $this->set('users_id', $users_id);
+        return $this->set($users_id, 'users_id');
     }
 
 
@@ -79,6 +79,6 @@ trait TraitDataEntryUser
      */
     public function setUsersEmail(?string $users_email): static
     {
-        return $this->set('users_email', $users_email);
+        return $this->set($users_email, 'users_email');
     }
 }

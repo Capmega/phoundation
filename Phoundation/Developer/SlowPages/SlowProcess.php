@@ -23,7 +23,7 @@ class SlowProcess extends Incident
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'processes_slow';
     }

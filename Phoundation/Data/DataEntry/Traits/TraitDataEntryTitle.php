@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
 /**
  * Trait TraitDataEntryTitle
  *
@@ -14,6 +10,11 @@ namespace Phoundation\Data\DataEntry\Traits;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
 trait TraitDataEntryTitle
 {
     /**
@@ -36,6 +37,6 @@ trait TraitDataEntryTitle
      */
     public function setTitle(?string $title): static
     {
-        return $this->set('title', $title);
+        return $this->set($title, 'title');
     }
 }

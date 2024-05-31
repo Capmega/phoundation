@@ -17,13 +17,13 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Data\Traits\TraitDataInline;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Traits\TraitInputChecked;
-use Phoundation\Web\Html\Traits\TraitInputCheckRadioRender;
+use Phoundation\Web\Html\Traits\TraitInputCheckboxRadioRender;
 
 class InputCheckbox extends Input
 {
     use TraitDataInline;
     use TraitInputChecked;
-    use TraitInputCheckRadioRender;
+    use TraitInputCheckboxRadioRender;
 
     /**
      * CheckBox class constructor

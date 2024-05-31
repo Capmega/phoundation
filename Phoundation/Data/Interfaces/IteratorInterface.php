@@ -33,6 +33,7 @@ use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
+use ReturnTypeWillChange;
 use Stringable;
 
 interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
@@ -228,6 +229,28 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
 
 
     /**
+     * Will remove the entry with the specified key before the $before key
+     *
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $before
+     * @param bool                             $strict
+     *
+     * @return $this
+     */
+    public function moveBeforeKey(Stringable|string|float|int|null $key, Stringable|string|float|int|null $before, bool $strict = true): static;
+
+    /**
+     * Will remove the entry with the specified key after the $after key
+     *
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $after
+     * @param bool                             $strict
+     *
+     * @return $this
+     */
+    public function moveAfterKey(Stringable|string|float|int|null $key, Stringable|string|float|int|null $after, bool $strict = true): static;
+
+    /**
      * Adds the specified source(s) to the internal source
      *
      * @param IteratorInterface|array|string|null $source
@@ -298,7 +321,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @return mixed
      */
-    public function getKeys(): array;
+    public function getSourceKeys(): array;
 
 
     /**
@@ -701,10 +724,11 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *       OutOfBoundsException
      *
      * @param string $column
+     * @param bool   $allow_scalar
      *
      * @return IteratorInterface
      */
-    public function getAllRowsSingleColumn(string $column): IteratorInterface;
+    public function getAllRowsSingleColumn(string $column, bool $allow_scalar = false): IteratorInterface;
 
 
     /**
@@ -780,4 +804,20 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return $this
      */
     public function each(callable $callback): static;
+
+    /**
+     * Returns a random entry
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getRandom(): mixed;
+
+    /**
+     * Returns a static object with multiple random entries
+     *
+     * @param int $count
+     *
+     * @return static
+     */
+    public function getRandomList(int $count = 1): static;
 }

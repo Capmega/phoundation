@@ -60,7 +60,7 @@ class Roles extends DataList implements RolesInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'accounts_roles';
     }
@@ -88,20 +88,25 @@ class Roles extends DataList implements RolesInterface
     public function setRoles(?array $list, ?string $column = null): static
     {
         $this->ensureParent(tr('save entries'));
+
         if (is_array($list)) {
             // Convert the list with whatever is specified (id, seo_name, role object) to seo_names
             $roles_list = [];
+
             foreach ($list as $role) {
                 if ($role) {
                     $roles_list[] = static::getEntryClass()::get($role)
                                           ->getSeoName();
                 }
             }
+
             // Get a list of what we have to add and remove to get the same list, and apply
             $diff = Arrays::valueDiff(array_keys($this->source), $roles_list);
+
             foreach ($diff['add'] as $role) {
                 $this->add($role, $column);
             }
+
             foreach ($diff['delete'] as $role) {
                 $this->deleteKeys($role);
             }
@@ -114,9 +119,9 @@ class Roles extends DataList implements RolesInterface
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Role::class;
     }
@@ -509,7 +514,7 @@ class Roles extends DataList implements RolesInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('roles_id')
-                     ->setNone(tr('Select a role'))
-                     ->setObjectEmpty(tr('No roles available'));
+                     ->setNotSelectedLabel(tr('Select a role'))
+                     ->setComponentEmptyLabel(tr('No roles available'));
     }
 }

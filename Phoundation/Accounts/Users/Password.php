@@ -41,18 +41,21 @@ class Password extends DataEntry implements PasswordInterface
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null                        $column
      * @param bool|null                          $meta_enabled
+     * @param bool                               $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot instantiate Password object, a valid user ID is required'));
         }
+
         // TODO Should this constructor not pass all variables to the parent:: call?
         if (User::notExists($identifier, 'id')) {
             throw new OutOfBoundsException(tr('Cannot instantiate Password object, the specified user ID ":id" does not exist', [
                 ':id' => $identifier,
             ]));
         }
+
         parent::__construct();
     }
 
@@ -62,7 +65,7 @@ class Password extends DataEntry implements PasswordInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'accounts_users';
     }

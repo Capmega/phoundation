@@ -107,6 +107,7 @@ class Template implements TemplateInterface
     public function render(): ?string
     {
         $text = $this->text;
+
         foreach ($this->source as $search => $replace) {
             $text = str_replace($search, (string) $replace, $text);
         }
@@ -137,11 +138,10 @@ class Template implements TemplateInterface
     public function setPage(?string $page): static
     {
         $this->page = $page;
-        $renderer_class = Request::getTemplate()
-                                 ->getRendererClass($this);
+        $renderer_class = Request::getTemplate()->getRendererClass($this);
+
         if ($renderer_class) {
-            $this->text = $renderer_class::new($this)
-                                         ->render();
+            $this->text = $renderer_class::new($this)->render();
 
         } else {
             switch ($this->page) {
@@ -157,10 +157,8 @@ class Template implements TemplateInterface
                                                 <p>:p</p>
                                                 <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . UrlBuilder::getCurrentDomainRootUrl() . '">here</a>']) . '</p>
                                                 <p>' . tr('Click :here to sign out', [':here' => '<a href="' . UrlBuilder::getWww('sign-out') . '">here</a>']) . '</p>';
-                    if (
-                        !Session::getUser()
-                                ->isGuest()
-                    ) {
+
+                    if (!Session::getUser()->isGuest()) {
                         $this->text .= '        <form class="search-form" method="post" action=":action">
                                                 <div class="input-group">
                                                     <input type="text" name="search" class="form-control" placeholder=":search">
@@ -171,12 +169,14 @@ class Template implements TemplateInterface
                                                 </div>
                                             </form>';
                     }
+
                     $this->text .= '        </div>
                                 <!-- /.error-content -->
                                     </div>
                                 </div>
                             </body>';
                     break;
+
                 default:
                     throw new OutOfBoundsException(tr('Specified template page ":template" does not exist', [
                         ':template' => $page,

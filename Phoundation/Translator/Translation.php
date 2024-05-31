@@ -25,7 +25,7 @@ class Translation extends DataEntry
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'core_translations';
     }

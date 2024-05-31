@@ -50,7 +50,7 @@ class Email extends DataEntry implements EmailInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'accounts_emails';
     }
@@ -95,7 +95,7 @@ class Email extends DataEntry implements EmailInterface
             ]));
         }
 
-        return $this->set('users_id', $users_id);
+        return $this->set($users_id, 'users_id');
     }
 
 
@@ -116,7 +116,7 @@ class Email extends DataEntry implements EmailInterface
             ]));
         }
 
-        return $this->set('users_email', $users_email);
+        return $this->set($users_email, 'users_email');
     }
 
 

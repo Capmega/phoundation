@@ -38,7 +38,7 @@ switch (Request::getRequestType()) {
 // Build the error page
 echo Template::new('system/http-error')->setSource([
                                                        ':h2'     => '503',
-                                                       ':h3'     => tr('503 Service Unavailable'),
+                                                       ':h3'     => tr('Service Unavailable'),
                                                        ':p'      => tr('The server is under maintenance and will return momentarily. Please contact the system administrator for more information'),
                                                        ':type'   => 'warning',
                                                        ':search' => tr('Search'),

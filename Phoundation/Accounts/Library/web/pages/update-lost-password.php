@@ -65,11 +65,11 @@ if (Request::isPostRequestMethod()) {
                 ->save();
 
         // Add a flash message and redirect to the original target
-        Response::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
+        Response::getFlashMessages()->addSuccess(tr('Your password has been updated'));
         $updated = true;
 
     } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-        Response::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+        Response::getFlashMessages()->addWarning(tr('Please specify at least ":count" characters for the password', [
             ':count' => Config::getInteger('security.passwords.size.minimum', 10),
         ]));
 
@@ -77,7 +77,7 @@ if (Request::isPostRequestMethod()) {
         Response::getFlashMessages()->addMessage($e);
 
     } catch (PasswordNotChangedException $e) {
-        Response::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
+        Response::getFlashMessages()->addWarning(tr('You provided your current password. Please update your account to have a new and secure password'));
     }
 }
 

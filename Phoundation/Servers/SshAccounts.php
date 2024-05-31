@@ -43,7 +43,7 @@ class SshAccounts extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'ssh_accounts';
     }
@@ -52,9 +52,9 @@ class SshAccounts extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return SshAccount::class;
     }
@@ -102,8 +102,8 @@ class SshAccounts extends DataList
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('ssh_accounts_id')
-                     ->setNone(tr('Select an SSH account'))
-                     ->setObjectEmpty(tr('No SSH accounts available'));
+                     ->setNotSelectedLabel(tr('Select an SSH account'))
+                     ->setComponentEmptyLabel(tr('No SSH accounts available'));
     }
 
 

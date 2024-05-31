@@ -97,13 +97,13 @@ if (Request::isPostRequestMethod()) {
             // not
         }
 
-        Response::getFlashMessages()->addSuccessMessage(tr('We sent a lost password email to the specified address if it exists'));
+        Response::getFlashMessages()->addSuccess(tr('We sent a lost password email to the specified address if it exists'));
 
     } catch (ValidationFailedException) {
-        Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
+        Response::getFlashMessages()->addWarning(tr('Please specify a valid email and password'));
 
     } catch (AuthenticationException) {
-        Response::getFlashMessages()->addWarningMessage(tr('The specified email or password was incorrect'));
+        Response::getFlashMessages()->addWarning(tr('The specified email or password was incorrect'));
     }
 }
 

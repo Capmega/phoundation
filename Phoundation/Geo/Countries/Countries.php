@@ -41,7 +41,7 @@ class Countries extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'geo_countries';
     }
@@ -50,9 +50,9 @@ class Countries extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Country::class;
     }
@@ -79,13 +79,13 @@ class Countries extends DataList
     public static function getHtmlCountriesSelect(string $name = 'countries_id'): InputSelect
     {
         return InputSelect::new()
-                          ->setConnector(static::getDefaultConnectorName())
+                          ->setConnector(static::getConnector())
                           ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_countries` 
                                           WHERE `status` IS NULL ORDER BY `name`')
                           ->setName($name)
-                          ->setNone(tr('Select a country'))
-                          ->setObjectEmpty(tr('No countries available'));
+                          ->setNotSelectedLabel(tr('Select a country'))
+                          ->setComponentEmptyLabel(tr('No countries available'));
     }
 
 
@@ -120,7 +120,7 @@ class Countries extends DataList
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('countries_id')
-                     ->setNone(tr('Select a country'))
-                     ->setObjectEmpty(tr('No countries available'));
+                     ->setNotSelectedLabel(tr('Select a country'))
+                     ->setComponentEmptyLabel(tr('No countries available'));
     }
 }

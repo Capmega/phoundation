@@ -33,7 +33,7 @@ class Requirement extends DataEntry
     /**
      * @inheritDoc
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'filesystem_requirements';
     }

@@ -30,6 +30,15 @@ use Stringable;
 interface DefinitionInterface
 {
     /**
+     * Sets if this column should ignore validation
+     *
+     * @param bool $no_validation
+     *
+     * @return static
+     */
+    public function setNoValidation(bool $no_validation): static;
+
+    /**
      * Returns the query builder from the data entry
      *
      * @return QueryBuilderInterface
@@ -472,7 +481,7 @@ interface DefinitionInterface
 
 
     /**
-     * Returns the HTML client element to be used for this column
+     * Returns the HTML component to be used for this column
      *
      * @return RenderInterface|callable|string|null
      */
@@ -480,7 +489,7 @@ interface DefinitionInterface
 
 
     /**
-     * Sets the HTML client element to be used for this column
+     * Sets the HTML component to be used for this column
      *
      * @param RenderInterface|callable|string|null $value
      * @param bool                                 $make_safe

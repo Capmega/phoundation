@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Script libraries/info
+ *
+ * This script will display detailed information about the specified library
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Scripts
+ */
+
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
@@ -13,17 +24,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
-
-/**
- * Script libraries/info
- *
- * This script will display detailed information about the specified library
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Scripts
- */
 CliDocumentation::setUsage('./pho libraries info LIBRARY_NAME');
 
 CliDocumentation::setHelp('The libraries info script will show detailed information about the specified library');
@@ -56,6 +56,7 @@ if ($argv['library']) {
         Log::cli(CliColor::apply(Strings::size(tr('Statistics:'), 28), 'white'));
         Cli::displayForm($statistics['total_statistics']);
     }
+
 } elseif ($argv['type']) {
     // Show information for a type of libraries
     // Sanitize and validate
@@ -63,16 +64,17 @@ if ($argv['library']) {
 
     switch ($argv['type']) {
         case 'system':
-            // no-break
             break;
+
         case 'plugin':
-            // no-break
+            // no break
         case 'plugins':
             $argv['type'] = 'plugins';
             break;
 
         case 'template':
-            // no-break
+            // no break
+
         case 'templates':
             $argv['type'] = 'templates';
             break;
@@ -87,6 +89,7 @@ if ($argv['library']) {
     $statistics = Libraries::getPhpStatistics(($argv['type'] === 'system'), ($argv['type'] === 'plugins'), ($argv['type'] === 'templates'));
 
     Log::cli(CliColor::apply(tr('Statistics:'), 'white'));
+    Log::cli(' ');
     Log::cli(CliColor::apply(tr('Statistics for ":type" type libraries:', [':type' => Strings::capitalize($argv['type'])]), 'white'));
     Cli::displayForm($statistics[$argv['type']]['total_statistics']);
 
@@ -104,6 +107,7 @@ if ($argv['library']) {
     foreach ($types as $type) {
         $statistics[$type]['total_statistics']['size'] = Numbers::getHumanReadableBytes($statistics[$type]['total_statistics']['size']);
 
+        Log::cli(' ');
         Log::cli(CliColor::apply(tr('Statistics for ":type" libraries:', [':type' => $type]), 'white'));
         Cli::displayForm($statistics[$type]['total_statistics']);
         Log::cli();

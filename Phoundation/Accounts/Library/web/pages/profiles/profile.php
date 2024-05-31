@@ -55,7 +55,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
             switch (PostValidator::getSubmitButton()) {
                 case tr('Lock'):
                     $user->lock();
-                    Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
+                    Response::getFlashMessages()->addSuccess(tr('The account for user ":user" has been locked', [
                         ':user' => $user->getDisplayName(),
                     ]));
 
@@ -63,7 +63,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
 
                 case tr('Unlock'):
                     $user->unlock();
-                    Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
+                    Response::getFlashMessages()->addSuccess(tr('The account for user ":user" has been unlocked', [
                         ':user' => $user->getDisplayName(),
                     ]));
 
@@ -71,7 +71,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
 
                 case tr('Impersonate'):
                     $user->impersonate();
-                    Response::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
+                    Response::getFlashMessages()->addSuccess(tr('You are now impersonating ":user"', [
                         ':user' => $user->getDisplayName(),
                     ]));
 

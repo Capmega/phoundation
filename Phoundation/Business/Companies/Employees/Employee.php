@@ -28,7 +28,7 @@ class Employee extends DataEntry
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'business_employees';
     }

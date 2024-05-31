@@ -36,6 +36,6 @@ trait TraitDataEntryHttpCode
      */
     public function setHttpCode(?int $http_code): static
     {
-        return $this->set('http_code', $http_code);
+        return $this->set($http_code, 'http_code');
     }
 }

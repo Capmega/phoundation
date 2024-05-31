@@ -102,32 +102,38 @@ class SystemRequest
                 ':code' => $http_code,
             ]));
         }
+
         $method = 'execute' . $http_code;
+
         if (!method_exists($this, $method)) {
             Log::warning(tr('Specified HTTP code ":code" does not exist', [
                 ':code' => $http_code,
             ]));
+
             $http_code = 500;
         }
+
         Log::warning(tr('Executing system page ":page"', [':page' => $http_code]));
+
         if (Config::getBoolean('security.web.monitor.non-200-urls', true)) {
             Non200Url::new()
                      ->generate($http_code)
                      ->save();
             Log::warning('Registered request as non HTTP-200 URL');
         }
+
         Log::warning($message);
         Log::warning($e);
+
         // Remove all GET and POST data to prevent any of it being used from here on out
-        GetValidator::new()
-                    ->clear();
-        PostValidator::new()
-                     ->clear();
+        GetValidator::new()->clear();
+        PostValidator::new()->clear();
+
         // Clear flash messages
         // Clear the page buffer to ensure that whatever pages have echoed so far is gone
-        Session::getFlashMessages()
-               ->clear();
+        Session::getFlashMessages()->clear();
         Response::clean();
+
         // Wait a small random time before execution (Between 0mS and 100mS) to avoid timing attacks on system pages
         Numbers::getRandomInt(1, 100000);
         $this->$method();

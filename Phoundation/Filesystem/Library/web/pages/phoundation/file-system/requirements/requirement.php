@@ -52,7 +52,7 @@ if (Request::isPostRequestMethod()) {
                 // Update requirement, roles, emails, and phones
                 $requirement->apply(false)->save();
 
-                Response::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been saved', [
+                Response::getFlashMessages()->addSuccess(tr('The requirement ":requirement" has been saved', [
                     ':requirement' => $requirement->getDisplayName()
                 ]));
 
@@ -61,7 +61,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Delete'):
                 $requirement->delete();
-                Response::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been deleted', [
+                Response::getFlashMessages()->addSuccess(tr('The requirement ":requirement" has been deleted', [
                     ':requirement' => $requirement->getDisplayName()
                 ]));
 
@@ -69,7 +69,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Lock'):
                 $requirement->lock();
-                Response::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been locked', [
+                Response::getFlashMessages()->addSuccess(tr('The requirement ":requirement" has been locked', [
                     ':requirement' => $requirement->getDisplayName()
                 ]));
 
@@ -77,7 +77,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Unlock'):
                 $requirement->unlock();
-                Response::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been unlocked', [
+                Response::getFlashMessages()->addSuccess(tr('The requirement ":requirement" has been unlocked', [
                     ':requirement' => $requirement->getDisplayName()
                 ]));
 
@@ -85,7 +85,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Undelete'):
                 $requirement->undelete();
-                Response::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been undeleted', [
+                Response::getFlashMessages()->addSuccess(tr('The requirement ":requirement" has been undeleted', [
                     ':requirement' => $requirement->getDisplayName()
                 ]));
 

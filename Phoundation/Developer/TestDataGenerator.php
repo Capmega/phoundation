@@ -153,7 +153,7 @@ class TestDataGenerator
      */
     public static function getDomain(): string
     {
-        return Strings::getRandom(random_int(3, 24)) . pick_random('.com', '.org', '.net', '.ca', '.nl', '.mx', '.com.mx', '.info', '.local');
+        return Strings::getRandom(random_int(3, 24)) . pick_random_argument('.com', '.org', '.net', '.ca', '.nl', '.mx', '.com.mx', '.info', '.local');
     }
 
 

@@ -52,13 +52,15 @@ class Phone extends DataEntry implements PhoneInterface
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null                        $column
      * @param bool|null                          $meta_enabled
+     * @param bool                               $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
         $identifier = Sanitize::new($identifier)
                               ->phoneNumber()
                               ->getSource();
-        parent::__construct($identifier, $column, $meta_enabled);
+
+        parent::__construct($identifier, $column, $meta_enabled, $init);
     }
 
 
@@ -67,7 +69,7 @@ class Phone extends DataEntry implements PhoneInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'accounts_phones';
     }
@@ -182,7 +184,7 @@ class Phone extends DataEntry implements PhoneInterface
             ]));
         }
 
-        return $this->set('users_id', $users_id);
+        return $this->set($users_id, 'users_id');
     }
 
 
@@ -203,7 +205,7 @@ class Phone extends DataEntry implements PhoneInterface
             ]));
         }
 
-        return $this->set('users_email', $users_email);
+        return $this->set($users_email, 'users_email');
     }
 
 

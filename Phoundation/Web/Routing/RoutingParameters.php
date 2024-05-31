@@ -17,7 +17,8 @@ use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
-use Templates\AdminLte\AdminLte;
+use Templates\Phoundation\AdminLte\AdminLte;
+
 
 /**
  * Class RouteParameters

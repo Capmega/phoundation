@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Input\Interfaces;
-
-use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
-use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
-use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
-use Phoundation\Web\Html\Components\ResourceElement;
-
 /**
  * interface InputSelectInterface
  *
@@ -20,6 +10,17 @@ use Phoundation\Web\Html\Components\ResourceElement;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Input\Interfaces;
+
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
+use Phoundation\Web\Html\Components\ResourceElement;
+
 interface InputSelectInterface extends ResourceElementInterface
 {
     /**
@@ -80,7 +81,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Enables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
+     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
      */
     public function enableAutoSelect(): static;
 
@@ -89,7 +90,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Disables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
+     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
      */
     public function disableAutoSelect(): static;
 
@@ -194,8 +195,8 @@ interface InputSelectInterface extends ResourceElementInterface
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::render()
-     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
+     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -318,4 +319,20 @@ interface InputSelectInterface extends ResourceElementInterface
      * @return static
      */
     public function addBeforeButton(?ButtonInterface $button): static;
+
+    /**
+     * Returns if this object renders a list of checkboxes instead of a select drop-down
+     *
+     * @return bool
+     */
+    public function getRenderCheckboxes(): bool;
+
+    /**
+     * Sets if this object renders a list of checkboxes instead of a select drop-down
+     *
+     * @param bool $render_checkboxes
+     *
+     * @return static
+     */
+    public function setRenderCheckboxes(bool $render_checkboxes): static;
 }

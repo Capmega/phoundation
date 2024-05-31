@@ -50,9 +50,9 @@ class Notifications extends DataList implements NotificationsInterface
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Notification::class;
     }
@@ -124,14 +124,14 @@ class Notifications extends DataList implements NotificationsInterface
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
-                          ->setConnector(static::getDefaultConnectorName())
+                          ->setConnector(static::getConnector())
                           ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `title` ASC')
                           ->setName('notifications_id')
-                          ->setNone(tr('Select a notification'))
-                          ->setObjectEmpty(tr('No notifications available'));
+                          ->setNotSelectedLabel(tr('Select a notification'))
+                          ->setComponentEmptyLabel(tr('No notifications available'));
     }
 
 
@@ -199,7 +199,7 @@ class Notifications extends DataList implements NotificationsInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'notifications';
     }

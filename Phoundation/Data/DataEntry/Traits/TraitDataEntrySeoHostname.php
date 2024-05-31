@@ -23,6 +23,6 @@ trait TraitDataEntrySeoHostname
      */
     public function getSeoHostname(): ?string
     {
-        return $this->getSourceFieldValue('string', 'seo_hostname');
+        return $this->getValueTypesafe('string', 'seo_hostname');
     }
 }

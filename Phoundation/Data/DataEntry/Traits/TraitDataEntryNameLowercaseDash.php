@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Seo\Seo;
-
 /**
  * Trait TraitDataEntryNameLowercaseDash
  *
@@ -17,6 +10,14 @@ use Phoundation\Seo\Seo;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Seo\Seo;
+
 trait TraitDataEntryNameLowercaseDash
 {
     /**
@@ -51,7 +52,7 @@ trait TraitDataEntryNameLowercaseDash
     public function setName(?string $name): static
     {
         if ($name === null) {
-            $this->set('seo_name', null, true);
+            $this->set(null, 'seo_name', true);
 
         } else {
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
@@ -59,10 +60,10 @@ trait TraitDataEntryNameLowercaseDash
             $name     = static::convertToLowerCaseDash($name);
             $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')
                                                                        ->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_name');
-            $this->set('seo_name', $seo_name, true);
+            $this->set($seo_name, 'seo_name', true);
         }
 
-        return $this->set('name', $name);
+        return $this->set($name, 'name');
     }
 
 
@@ -71,7 +72,7 @@ trait TraitDataEntryNameLowercaseDash
      *
      * @param DataEntryInterface|string|int|null $source
      *
-     * @return DataEntryInterface|string|null
+     * @return DataEntryInterface|string|int|null
      */
     protected static function convertToLowerCaseDash(DataEntryInterface|string|int|null $source): DataEntryInterface|string|int|null
     {
@@ -79,19 +80,19 @@ trait TraitDataEntryNameLowercaseDash
             // NULL or "", return it
             return $source;
         }
+
         if (is_numeric($source)) {
             // This is a database id, return it
             return $source;
         }
+
         if ($source instanceof DataEntryInterface) {
             // This is a DataEntry object, return it
             return $source;
         }
+
         $source = strtolower($source);
-        $source = str_replace([
-            ' ',
-            '_',
-        ], '-', $source);
+        $source = str_replace([' ', '_'], '-', $source);
 
         return $source;
     }
@@ -108,6 +109,6 @@ trait TraitDataEntryNameLowercaseDash
      */
     protected function setSeoName(?string $seo_name): static
     {
-        return $this->set('seo_name', $seo_name);
+        return $this->set($seo_name, 'seo_name');
     }
 }

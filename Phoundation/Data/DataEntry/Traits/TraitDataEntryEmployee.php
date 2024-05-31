@@ -38,7 +38,7 @@ trait TraitDataEntryEmployee
      */
     public function setEmployeesId(?int $employees_id): static
     {
-        return $this->setSourceValue('employees_id', $employees_id);
+        return $this->set($employees_id, 'employees_id');
     }
 
 
@@ -78,6 +78,6 @@ trait TraitDataEntryEmployee
      */
     public function setEmployeesName(?string $employees_name): static
     {
-        return $this->setSourceValue('employees_name', $employees_name);
+        return $this->set($employees_name, 'employees_name');
     }
 }

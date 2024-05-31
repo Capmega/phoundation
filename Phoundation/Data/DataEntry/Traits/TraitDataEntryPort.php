@@ -23,7 +23,7 @@ trait TraitDataEntryPort
      */
     public function getPort(): ?int
     {
-        return $this->getSourceFieldValue('int', 'port');
+        return $this->getValueTypesafe('int', 'port');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryPort
      */
     public function setPort(?int $port): static
     {
-        return $this->setSourceValue('port', $port);
+        return $this->set($port, 'port');
     }
 }

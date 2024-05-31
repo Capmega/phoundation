@@ -36,6 +36,6 @@ trait TraitDataEntryUsersId
      */
     public function setUsersId(int|null $users_id): static
     {
-        return $this->setSourceValue('users_id', $users_id);
+        return $this->set($users_id, 'users_id');
     }
 }

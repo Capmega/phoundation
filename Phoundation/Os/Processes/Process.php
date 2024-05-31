@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Class Process
+ *
+ * This class embodies a process that will be executed
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Os
+ * @uses      ProcessVariables
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
@@ -13,17 +25,6 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Utils\Arrays;
 
-/**
- * Class Process
- *
- * This class embodies a process that will be executed
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Os
- * @uses      ProcessVariables
- */
 class Process extends ProcessCore implements ProcessInterface
 {
     /**
@@ -65,20 +66,24 @@ class Process extends ProcessCore implements ProcessInterface
             $first_line = strtolower($first_line);
             $last_line  = Arrays::lastValue($data);
             $last_line  = strtolower($last_line);
+
             // Process specified handlers
             if ($function) {
                 $function($first_line, $last_line, $e);
             }
+
             // Handlers were unable to make a clear exception out of this, show the standard command exception
             throw new CommandsException(tr('The command :command failed with ":output"', [
                 ':command' => $command,
                 ':output'  => $data,
             ]));
         }
+
         // The process generated no output. Process specified handlers
         if ($function) {
             $function(null, null, $e);
         }
+
         // Something else went wrong, no CLI output available
         throw new CommandsException(tr('The command :command failed for unknown reasons', [
             ':command' => $command,

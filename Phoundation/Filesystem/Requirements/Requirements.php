@@ -23,7 +23,7 @@ class Requirements extends DataList implements RequirementsInterface
     /**
      * @inheritDoc
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'filesystem_requirements';
     }
@@ -32,7 +32,7 @@ class Requirements extends DataList implements RequirementsInterface
     /**
      * @inheritDoc
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Requirement::class;
     }

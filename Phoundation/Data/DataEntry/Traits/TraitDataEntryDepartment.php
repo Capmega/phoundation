@@ -38,7 +38,7 @@ trait TraitDataEntryDepartment
      */
     public function setDepartmentsId(?int $departments_id): static
     {
-        return $this->setSourceValue('departments_id', $departments_id);
+        return $this->set($departments_id, 'departments_id');
     }
 
 
@@ -78,6 +78,6 @@ trait TraitDataEntryDepartment
      */
     public function setDepartmentsName(?string $departments_name): static
     {
-        return $this->setSourceValue('departments_name', $departments_name);
+        return $this->set($departments_name, 'departments_name');
     }
 }

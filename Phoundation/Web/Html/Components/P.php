@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class P
  *
@@ -17,7 +18,7 @@ namespace Phoundation\Web\Html\Components;
 class P extends Div
 {
     /**
-     * Form class constructor
+     * P class constructor
      *
      * @param string|null $content
      */

@@ -28,7 +28,7 @@ class Branch extends DataEntry
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'business_branches';
     }

@@ -568,7 +568,7 @@ trait TraitElementAttributes
     public function getClass(?string $prefix = null): ?string
     {
         if (empty($this->class)) {
-            $this->class = implode(' ', $this->classes->getKeys());
+            $this->class = implode(' ', $this->classes->getSourceKeys());
         }
 
         if ($this->class) {
@@ -990,6 +990,7 @@ trait TraitElementAttributes
     {
         $this->name      = $name;
         $this->real_name = Strings::until($name, '[');
+
         // By default, name and id should be equal
         if ($id_too) {
             $this->setId($name, false);
@@ -1102,6 +1103,19 @@ trait TraitElementAttributes
 
 
     /**
+     * Adds the specified class to the HTML element class attribute
+     *
+     * @param IteratorInterface|array|string|null $class
+     *
+     * @return static
+     */
+    public function addClass(IteratorInterface|array|string|null $class): static
+    {
+        return $this->addClasses($class);
+    }
+
+
+    /**
      * Adds the specified classes to the HTML element class attribute
      *
      * @param IteratorInterface|array|string|null $classes
@@ -1119,7 +1133,21 @@ trait TraitElementAttributes
 
 
     /**
-     * Adds the specified classes to the HTML element class attribute
+     * Removes the specified classes from the HTML element class attribute
+     *
+     * @note This is a wrapper method for Element::removeClass()
+     * @param IteratorInterface|array|string|null $class
+     *
+     * @return static
+     */
+    public function removeClass(IteratorInterface|array|string|null $class): static
+    {
+        return $this->removeClasses($class);
+    }
+
+
+    /**
+     * Removes the specified class from the HTML element class attribute
      *
      * @param IteratorInterface|array|string|null $classes
      *

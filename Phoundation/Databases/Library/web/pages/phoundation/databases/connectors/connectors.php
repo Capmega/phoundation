@@ -54,14 +54,14 @@ if (Request::isPostRequestMethod()) {
                 // Delete selected connectors
                 $count = Connectors::directOperations()->deleteKeys($post['id']);
 
-                Response::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" connectors', [':count' => $count]));
+                Response::getFlashMessages()->addSuccess(tr('Deleted ":count" connectors', [':count' => $count]));
                 Response::redirect('this');
 
             case tr('Undelete'):
                 // Undelete selected connectors
                 $count = Connectors::directOperations()->undeleteKeys($post['id']);
 
-                Response::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" connectors', [':count' => $count]));
+                Response::getFlashMessages()->addSuccess(tr('Undeleted ":count" connectors', [':count' => $count]));
                 Response::redirect('this');
         }
 

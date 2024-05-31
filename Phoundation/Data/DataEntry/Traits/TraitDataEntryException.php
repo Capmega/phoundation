@@ -47,6 +47,6 @@ trait TraitDataEntryException
             $exception = $exception->exportString();
         }
 
-        return $this->set('exception', $exception);
+        return $this->set($exception, 'exception');
     }
 }

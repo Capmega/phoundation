@@ -37,9 +37,9 @@ class Messages extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return Message::class;
     }
@@ -70,14 +70,14 @@ class Messages extends DataList
     public function getHtmlSelect(string $value_column = 'title', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
-                          ->setConnector(static::getDefaultConnectorName())
+                          ->setConnector(static::getConnector())
                           ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `title` ASC')
                           ->setName('messages_id')
-                          ->setNone(tr('Select a message'))
-                          ->setObjectEmpty(tr('No messages available'));
+                          ->setNotSelectedLabel(tr('Select a message'))
+                          ->setComponentEmptyLabel(tr('No messages available'));
     }
 
 
@@ -86,7 +86,7 @@ class Messages extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'messages';
     }

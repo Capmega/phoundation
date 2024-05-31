@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Non200Url
+ *
+ * This class represents a single non HTTP-200 URL
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Non200Urls;
@@ -22,16 +33,6 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Routing\Route;
 
-/**
- * Class Non200Url
- *
- * This class represents a single non HTTP-200 URL
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 class Non200Url extends DataEntry
 {
     use TraitDataEntryComments;
@@ -47,7 +48,7 @@ class Non200Url extends DataEntry
     /**
      * @inheritDoc
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'web_non200_urls';
     }
@@ -109,11 +110,13 @@ class Non200Url extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions->add(Definition::new($this, 'ip_address')
+                                    ->setIgnored(true)
                                     ->setRender(false))
                     ->add(Definition::new($this, 'net_len')
+                                    ->setIgnored(true)
                                     ->setRender(false))
                     ->add(DefinitionFactory::getIpAddress($this, 'ip_address_human')
-                                           ->setReadonly(true))
+                                    ->setReadonly(true))
                     ->add(Definition::new($this, 'method')
                                     ->setReadonly(true)
                                     ->setInputType(EnumInputType::variable)
@@ -152,16 +155,19 @@ class Non200Url extends DataEntry
                                            ->setSize(12)
                                            ->setHelpText(tr('Request URL that failed')))
                     ->add(DefinitionFactory::getData($this, 'headers')
+->setNoValidation(true)
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setLabel(tr('Request headers'))
                                            ->setHelpText(tr('The HTTP headers that were received from the client for this request')))
                     ->add(DefinitionFactory::getData($this, 'cookies')
+->setNoValidation(true)
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setLabel(tr('Request cookies'))
                                            ->setHelpText(tr('The cookies that were received from the client for this request')))
                     ->add(DefinitionFactory::getData($this, 'post')
+->setNoValidation(true)
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setLabel(tr('Request POST data'))

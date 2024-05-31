@@ -60,7 +60,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      *
      * @return $this
      */
-    public function addSuccessMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
+    public function addSuccess(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
     {
         return $this->addMessage($message, tr('Success!'), EnumDisplayMode::success, $icon, $auto_close);
     }
@@ -101,7 +101,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
                         continue;
                     }
                     $count++;
-                    $this->addValidationFailedMessage($message);
+                    $this->addValidationFailed($message);
                 }
                 if (!$count) {
                     throw new OutOfBoundsException(tr('The specified Validation exception ":e" has no or empty messages in the exception data', [
@@ -120,7 +120,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
                 $title = tr('Error');
             }
             foreach ($message->getMessages() as $message) {
-                $this->addErrorMessage($message, $title);
+                $this->addException($message, $title);
             }
 
             return $this;
@@ -162,7 +162,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      *
      * @return $this
      */
-    public function addValidationFailedMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
+    public function addValidationFailed(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
     {
         return $this->addMessage($message, tr('Validation failed'), EnumDisplayMode::warning, $icon, $auto_close);
     }
@@ -177,7 +177,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      *
      * @return $this
      */
-    public function addErrorMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static
+    public function addException(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static
     {
         return $this->addMessage($message, tr('Something went wrong'), EnumDisplayMode::error, $icon, $auto_close);
     }
@@ -192,7 +192,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      *
      * @return $this
      */
-    public function addWarningMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static
+    public function addWarning(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static
     {
         return $this->addMessage($message, tr('Warning'), EnumDisplayMode::warning, $icon, $auto_close);
     }

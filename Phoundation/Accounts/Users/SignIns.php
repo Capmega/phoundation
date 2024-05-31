@@ -55,7 +55,7 @@ class SignIns extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'accounts_signins';
     }
@@ -64,9 +64,9 @@ class SignIns extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return SignIn::class;
     }
@@ -113,7 +113,7 @@ class SignIns extends DataList
     public function getHtmlSelect(string $value_column = 'created_on', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
-                          ->setConnector(static::getDefaultConnectorName())
+                          ->setConnector(static::getConnector())
                           ->setSourceQuery('SELECT    `accounts_signins`.`' . $key_column . '`,
                                                    `accounts_signins`.`' . $value_column . '`,
                                          WHERE     `created_by` = :created_by 
@@ -122,7 +122,7 @@ class SignIns extends DataList
                                                       ->getId(),
                           ])
                           ->setName('sign_ins_id')
-                          ->setNone(tr('Select a sign-in'))
-                          ->setObjectEmpty(tr('No sign-ins available'));
+                          ->setNotSelectedLabel(tr('Select a sign-in'))
+                          ->setComponentEmptyLabel(tr('No sign-ins available'));
     }
 }

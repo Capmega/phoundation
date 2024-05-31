@@ -23,7 +23,7 @@ trait TraitDataEntryTargetString
      */
     public function getTargetString(): ?string
     {
-        return $this->getSourceFieldValue('string', 'target');
+        return $this->getValueTypesafe('string', 'target');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryTargetString
      */
     public function setTargetString(?string $target): static
     {
-        return $this->setSourceValue('target', $target);
+        return $this->set($target, 'target');
     }
 }

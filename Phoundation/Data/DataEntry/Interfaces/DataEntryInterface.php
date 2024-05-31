@@ -32,11 +32,22 @@ use Stringable;
 interface DataEntryInterface extends ArrayableInterface, Stringable
 {
     /**
+     * Initializes the DataEntry object
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null                        $column
+     * @param bool|null                          $meta_enabled
+     *
+     * @return $this
+     */
+    public function init(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null): static;
+
+    /**
      * Returns the default database connector to use for this table
      *
      * @return string
      */
-    public static function getDefaultConnectorName(): string;
+    public static function getConnector(): string;
 
 
     /**
@@ -60,9 +71,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
-    public static function getTable(): string;
+    public static function getTable(): ?string;
 
 
     /**

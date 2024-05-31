@@ -61,6 +61,6 @@ trait TraitDataEntryIcon
             ]));
         }
 
-        return $this->set('icon', $icon);
+        return $this->set($icon, 'icon');
     }
 }

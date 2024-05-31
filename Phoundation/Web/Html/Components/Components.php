@@ -1,7 +1,5 @@
 <?php
 
-namespace Phoundation\Web\Html\Components;
-
 /**
  * Class Components
  *
@@ -12,8 +10,26 @@ namespace Phoundation\Web\Html\Components;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components;
+
 class Components
 {
+    /**
+     * Returns a new <P> element object
+     *
+     * @param string|null $content
+     *
+     * @return P
+     */
+    public static function header(?string $content = null): Header
+    {
+        return new Header($content);
+    }
+
+
     /**
      * Returns a new <P> element object
      *

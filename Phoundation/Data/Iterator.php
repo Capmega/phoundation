@@ -28,7 +28,6 @@ namespace Phoundation\Data;
 
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Throwable;
 

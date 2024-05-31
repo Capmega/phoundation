@@ -41,6 +41,28 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
+     * Ensures that the value is a DefinitionInterface object and that the prefix is automatically added to the column
+     * name
+     *
+     * @param mixed $value
+     *
+     * @return void
+     */
+    protected function ensureValueAndPrefix(mixed $value): void
+    {
+        if (!($value instanceof DefinitionInterface)) {
+            throw new OutOfBoundsException(tr('Cannot add variable ":value" to the DataEntry definitions list, it is not a DefinitionInterface object', [
+                ':value' => $value,
+            ]));
+        }
+
+        if ($this->prefix) {
+            $value->setColumn($this->prefix . $value->getColumn());
+        }
+    }
+
+
+    /**
      * Adds the specified Definition object to the definitions list
      *
      * @param mixed                            $value
@@ -50,18 +72,117 @@ class Definitions extends Iterator implements DefinitionsInterface
      *
      * @return $this
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
-        if (!($value instanceof DefinitionInterface)) {
-            throw new OutOfBoundsException(tr('Cannot add variable ":value" to the DataEntry definitions list, it is not a DefinitionInterface object', [
-                ':value' => $value,
-            ]));
-        }
-        if ($this->prefix) {
-            $value->setColumn($this->prefix . $value->getColumn());
-        }
+        $this->ensureValueAndPrefix($value);
 
-        return parent::add($value, $key ?? $value->getColumn(), $skip_null, $exception);
+        return parent::append($value, $key ?? $value->getColumn(), $skip_null, $exception);
+    }
+
+
+    /**
+     * Add the specified definition to this definitions class
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
+     * @return static
+     */
+    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    {
+        $this->ensureValueAndPrefix($value);
+
+        return parent::prepend($value, $key ?? $value->getColumn(), $skip_null, $exception);
+    }
+
+
+    /**
+     * Add the specified value to the iterator array using an optional key BEFORE the specified $before_key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $before
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
+     * @return static
+     */
+    public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $before = null, bool $skip_null = true, bool $exception = true): static
+    {
+        $this->ensureValueAndPrefix($value);
+
+        return parent::prependBeforeKey($value, $key ?? $value->getColumn(), $before, $skip_null, $exception);
+    }
+
+
+    /**
+     * Add the specified value to the iterator array using an optional key BEFORE the specified $before_value
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     * @param mixed                            $before
+     * @param bool                             $strict
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
+     * @return static
+     */
+    public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static
+    {
+        $this->ensureValueAndPrefix($value);
+
+        return parent::prependBeforeValue($value, $key ?? $value->getColumn(), $before, $strict, $skip_null, $exception);
+    }
+
+
+    /**
+     * Add the specified value to the iterator array using an optional key AFTER the specified $after_key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $after
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
+     * @return static
+     */
+    public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $after = null, bool $skip_null = true, bool $exception = true): static
+    {
+        $this->ensureValueAndPrefix($value);
+
+        return parent::appendAfterKey($value, $key ?? $value->getColumn(), $after, $skip_null, $exception);
+    }
+
+
+    /**
+     * Add the specified value to the iterator array using an optional key AFTER the specified $after_value
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     * @param mixed                            $after
+     * @param bool                             $strict
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
+     * @return static
+     */
+    public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static
+    {
+        $this->ensureValueAndPrefix($value);
+
+        return parent::appendAfterValue($value, $key ?? $value->getColumn(), $after, $strict, $skip_null, $exception);
     }
 
 

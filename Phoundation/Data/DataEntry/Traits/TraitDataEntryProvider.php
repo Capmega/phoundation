@@ -38,7 +38,7 @@ trait TraitDataEntryProvider
      */
     public function setProvidersId(?int $providers_id): static
     {
-        return $this->set('providers_id', $providers_id);
+        return $this->set($providers_id, 'providers_id');
     }
 
 
@@ -78,6 +78,6 @@ trait TraitDataEntryProvider
      */
     public function setProvidersName(?string $providers_name): static
     {
-        return $this->set('providers_name', $providers_name);
+        return $this->set($providers_name, 'providers_name');
     }
 }

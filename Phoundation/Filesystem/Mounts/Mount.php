@@ -47,14 +47,14 @@ class Mount extends DataEntry implements MountInterface
     /**
      * Mount class constructor
      *
-     * @param int|string|DataEntryInterface|null $identifier
+     * @param DataEntryInterface|string|int|null $identifier
      * @param string|null                        $column
      * @param bool|null                          $meta_enabled
      * @param RestrictionsInterface|null         $restrictions
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, ?RestrictionsInterface $restrictions = null)
     {
-        parent::__construct($identifier, $column, $meta_enabled);
+        parent::__construct($identifier, $column, $meta_enabled, $init);
         $this->restrictions = $this->ensureRestrictions($restrictions);
     }
 
@@ -62,7 +62,7 @@ class Mount extends DataEntry implements MountInterface
     /**
      * @inheritDoc
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'filesystem_mounts';
     }
@@ -154,7 +154,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function setFilesystem(?string $filesystem): static
     {
-        return $this->set('filesystem', $filesystem);
+        return $this->set($filesystem, 'filesystem');
     }
 
 
@@ -167,7 +167,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function setAutoMount(int|bool|null $auto_mount): static
     {
-        return $this->set('auto_mount', (bool) $auto_mount);
+        return $this->set((bool) $auto_mount, 'auto_mount');
     }
 
 
@@ -180,7 +180,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function setAutoUnmount(int|bool|null $auto_unmount): static
     {
-        return $this->set('auto_unmount', (bool) $auto_unmount);
+        return $this->set((bool) $auto_unmount, 'auto_unmount');
     }
 
 
@@ -215,7 +215,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function setSourcePath(?string $source_path): static
     {
-        return $this->set('source_path', $source_path);
+        return $this->set($source_path, 'source_path');
     }
 
 
@@ -228,7 +228,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function setTargetPath(?string $target_path): static
     {
-        return $this->set('target_path', $target_path);
+        return $this->set($target_path, 'target_path');
     }
 
 

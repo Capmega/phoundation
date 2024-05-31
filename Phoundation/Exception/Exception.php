@@ -7,6 +7,7 @@ namespace Phoundation\Exception;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
@@ -143,7 +144,11 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         }
 
         parent::__construct($message, 0, $previous);
-        Log::warning('Exception: ' . $message, 2, echo_screen: !CliAutoComplete::isActive());
+
+        // Log all exceptions EXCEPT LogExceptions as those can cause endless loops
+        if ($this instanceof LogException) {
+            Log::warning('Exception: ' . $message, 2, echo_screen: !CliAutoComplete::isActive());
+        }
 
         if (Debug::getEnabled()) {
             if (Config::getBoolean('debug.exceptions.auto.full', true)) {
@@ -534,10 +539,12 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
             // No warnings allowed from the environment
             $warning = false;
         }
+
         if (!Config::getBoolean('debug.exceptions.warnings', true)) {
             // No warnings allowed from the configuration
             $warning = false;
         }
+
         $this->warning = $warning;
 
         return $this;
@@ -555,18 +562,23 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     public function getCompleteTrace(string $filters = 'args', bool $skip_own = true): array
     {
         $e = $this;
+
         while ($e->getPrevious()) {
             $e = $e->getPrevious();
         }
+
         $filters = Arrays::force($filters);
         $trace   = [];
+
         foreach ($e->getTrace() as $key => $value) {
             if ($skip_own and ($key <= 1)) {
                 continue;
             }
+
             foreach ($filters as $filter) {
                 unset($value[$filter]);
             }
+
             $trace[] = $value;
         }
 
@@ -651,17 +663,14 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
                 'environment'           => ENVIRONMENT,
                 'platform'              => PLATFORM,
                 'session'               => Session::getUUID(),
-                'user'                  => Session::getUser()
-                                                  ->getLogId(),
+                'user'                  => Session::getUser()->getLogId(),
                 'command'               => PLATFORM_CLI ? CliCommand::getCommandsString() : null,
                 'url'                   => PLATFORM_WEB ? Route::getRequest() : null,
                 'method'                => PLATFORM_WEB ? Route::getMethod() : null,
                 'environment_variables' => $_ENV,
                 'argv'                  => ArgvValidator::getBackupSource(),
-                'get'                   => GetValidator::new()
-                                                       ->getSource(),
-                'post'                  => PostValidator::new()
-                                                        ->getSource(),
+                'get'                   => GetValidator::new()->getSource(),
+                'post'                  => PostValidator::new()->getSource(),
             ];
 
         } catch (Throwable $e) {
@@ -707,10 +716,13 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         if ($e instanceof ExceptionInterface) {
             return $e;
         }
+
         $e = new $exception_class($e);
+
         if ($e instanceof ExceptionInterface) {
             return $e;
         }
+
         throw new OutOfBoundsException(tr('Cannot ensure exception is specified Phoundation exception class ":class" because the specified class should have the ExceptionInterface', [
             ':class' => $exception_class,
         ]), $e);
@@ -761,15 +773,18 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     {
         $trace = parent::getTrace();
         $next  = false;
+
         foreach ($trace as $key => $value) {
             if ($next) {
                 unset($trace[$key]);
 
                 return $trace;
             }
+
             if (isset_get($value['function']) === 'execute_page') {
                 $next = true;
             }
+
             unset($trace[$key]);
         }
 

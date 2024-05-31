@@ -48,14 +48,14 @@ if (Request::isPostRequestMethod()) {
                 try {
                     $connector->test();
 
-                    Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been tested successfully', [
+                    Response::getFlashMessages()->addSuccess(tr('The connector ":connector" has been tested successfully', [
                         ':connector' => $connector->getDisplayName(),
                     ]));
 
                 } catch (\Phoundation\Exception\Exception $e) {
                     Log::error($e);
 
-                    Response::getFlashMessages()->addWarningMessage(tr('The connector ":connector" test failed, please check the logs', [
+                    Response::getFlashMessages()->addWarning(tr('The connector ":connector" test failed, please check the logs', [
                         ':connector' => $connector->getDisplayName(),
                     ]));
                 }
@@ -67,7 +67,7 @@ if (Request::isPostRequestMethod()) {
                 // Update connector, roles, emails, and phones
                 $connector->apply(false)->save();
 
-                Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been saved', [
+                Response::getFlashMessages()->addSuccess(tr('The connector ":connector" has been saved', [
                     ':connector' => $connector->getDisplayName(),
                 ]));
 
@@ -76,7 +76,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Delete'):
                 $connector->delete();
-                Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been deleted', [
+                Response::getFlashMessages()->addSuccess(tr('The connector ":connector" has been deleted', [
                     ':connector' => $connector->getDisplayName(),
                 ]));
 
@@ -84,7 +84,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Lock'):
                 $connector->lock();
-                Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been locked', [
+                Response::getFlashMessages()->addSuccess(tr('The connector ":connector" has been locked', [
                     ':connector' => $connector->getDisplayName(),
                 ]));
 
@@ -92,7 +92,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Unlock'):
                 $connector->unlock();
-                Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been unlocked', [
+                Response::getFlashMessages()->addSuccess(tr('The connector ":connector" has been unlocked', [
                     ':connector' => $connector->getDisplayName(),
                 ]));
 
@@ -100,7 +100,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Undelete'):
                 $connector->undelete();
-                Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been undeleted', [
+                Response::getFlashMessages()->addSuccess(tr('The connector ":connector" has been undeleted', [
                     ':connector' => $connector->getDisplayName(),
                 ]));
 

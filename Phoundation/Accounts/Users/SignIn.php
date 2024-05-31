@@ -7,6 +7,7 @@ namespace Phoundation\Accounts\Users;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -46,10 +47,11 @@ class SignIn extends DataEntry
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null                        $column
      * @param bool|null                          $meta_enabled
+     * @param bool                               $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
-        parent::__construct($identifier, $column, $meta_enabled);
+        parent::__construct($identifier, $column, $meta_enabled, $init);
     }
 
 
@@ -58,7 +60,7 @@ class SignIn extends DataEntry
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'accounts_signins';
     }
@@ -116,14 +118,13 @@ class SignIn extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions->add(Definition::new($this, 'ip_address')
+                                    ->setIgnored(true)
                                     ->setRender(false))
                     ->add(Definition::new($this, 'net_len')
+                                    ->setIgnored(true)
                                     ->setRender(false))
-                    ->add(Definition::new($this, 'ip_address_human')
-                                    ->setReadonly(true)
-                                    ->setSize(6)
-                                    ->setMaxlength(48)
-                                    ->setLabel(tr('IP Address')))
+                    ->add(DefinitionFactory::getIpAddress($this, 'ip_address_human')
+                                    ->setReadonly(true))
                     ->add(Definition::new($this, 'user_agent')
                                     ->setOptional(true)
                                     ->setReadonly(true)

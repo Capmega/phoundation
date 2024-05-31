@@ -103,7 +103,7 @@ if (Request::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-            Response::getFlashMessages()->addSuccessMessage(tr('Your profile has been updated'));
+            Response::getFlashMessages()->addSuccess(tr('Your profile has been updated'));
             Response::redirect('referer');
 
         } catch (ValidationFailedException $e) {

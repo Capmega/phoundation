@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Template;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-use Phoundation\Web\Html\Interfaces\TemplateRendererInterface;
-
 /**
  * Class TemplateRenderer
  *
@@ -18,6 +10,15 @@ use Phoundation\Web\Html\Interfaces\TemplateRendererInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Template;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Interfaces\TemplateRendererInterface;
+
 class TemplateRenderer implements TemplateRendererInterface
 {
     /**
@@ -30,9 +31,9 @@ class TemplateRenderer implements TemplateRendererInterface
     /**
      * The object to render
      *
-     * @var RenderInterface $component
+     * @var RenderInterface|null $component
      */
-    protected RenderInterface $component;
+    protected RenderInterface|null $component;
 
     /**
      * The parent render function
@@ -45,9 +46,9 @@ class TemplateRenderer implements TemplateRendererInterface
     /**
      * Renderer class element
      *
-     * @param RenderInterface $component
+     * @param RenderInterface|null $component
      */
-    public function __construct(RenderInterface $component)
+    public function __construct(RenderInterface|null $component)
     {
         $this->component = $component;
     }
@@ -56,11 +57,11 @@ class TemplateRenderer implements TemplateRendererInterface
     /**
      * Returns a new renderer object
      *
-     * @param RenderInterface $component
+     * @param RenderInterface|null $component
      *
      * @return $this
      */
-    public static function new(RenderInterface $component): static
+    public static function new(RenderInterface|null $component): static
     {
         return new static($component);
     }
@@ -115,9 +116,9 @@ class TemplateRenderer implements TemplateRendererInterface
     /**
      * Returns the component to be rendered
      *
-     * @return RenderInterface
+     * @return RenderInterface|null
      */
-    public function getComponent(): RenderInterface
+    public function getComponent(): RenderInterface|null
     {
         return $this->component;
     }
@@ -126,11 +127,11 @@ class TemplateRenderer implements TemplateRendererInterface
     /**
      * Sets the component to be rendered
      *
-     * @param RenderInterface $component
+     * @param RenderInterface|null $component
      *
      * @return static
      */
-    public function setComponent(RenderInterface $component): static
+    public function setComponent(RenderInterface|null $component): static
     {
         $this->component = $component;
 

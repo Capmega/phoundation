@@ -27,7 +27,7 @@ CliDocumentation::setAutoComplete([
                                       'arguments' => [
                                           '-b,--branch'      => [
                                               'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->keepMatchingKeysStartingWith($word); },
-                                              'noword' => function () { return Phoundation::new()->getPhoundationBranches()->getKeys(); },
+                                              'noword' => function () { return Phoundation::new()->getPhoundationBranches()->getSourceKeys(); },
                                           ],
                                           '-p,--phoundation' => [
                                               'word'   => function ($word) { return Directory::new('/var/www/html', '/var/www/html')->scan($word . '*'); },
@@ -88,7 +88,7 @@ $argv = ArgvValidator::new()
                      ->select('-b,--branch', true)->isOptional()->isVariable()
                      ->select('-c,--check')->isOptional()->isBoolean()
                      ->select('-l,--local')->isOptional()->isBoolean()
-                     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
+                     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(8192)
                      ->select('--no-commit')->isOptional()->isBoolean()
                      ->select('-n,--no-plugins')->isOptional()->isBoolean()
                      ->select('--no-phoundation')->isOptional()->isBoolean()
@@ -114,6 +114,7 @@ if ($argv['local']) {
             Log::warning('Not updating phoundation core files');
         } else {
             Log::action(tr('Pulling updates from local Phoundation installation...'));
+
             Project::new()->updateLocalProject($argv['branch'], $argv['message'], $argv['signed'], $argv['phoundation'], !$argv['no_commit']);
         }
 

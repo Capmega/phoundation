@@ -36,6 +36,6 @@ trait TraitDataEntryPhone
      */
     public function setPhone(?string $phone): static
     {
-        return $this->set('phone', $phone);
+        return $this->set($phone, 'phone');
     }
 }

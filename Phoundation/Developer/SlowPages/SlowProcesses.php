@@ -36,7 +36,7 @@ class SlowProcesses extends Incidents
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'processes_slow';
     }
@@ -45,9 +45,9 @@ class SlowProcesses extends Incidents
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return SlowProcess::class;
     }

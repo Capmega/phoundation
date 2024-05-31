@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Exception\Interfaces;
-
 /**
  * Class AccessDeniedException
  *
@@ -11,22 +7,13 @@ namespace Phoundation\Exception\Interfaces;
  *
  * @package Phoundation\Exception
  */
-interface AccessDeniedExceptionInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Exception\Interfaces;
+
+use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
+
+interface AccessDeniedExceptionInterface extends IncidentsExceptionInterface
 {
-    /**
-     * Returns the new target
-     *
-     * @return string|int|null
-     */
-    public function getNewTarget(): string|int|null;
-
-
-    /**
-     * Sets the new target
-     *
-     * @param string|int|null $new_target
-     *
-     * @return static
-     */
-    public function setNewTarget(string|int|null $new_target): static;
 }

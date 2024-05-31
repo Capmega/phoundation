@@ -32,7 +32,7 @@ class Language extends DataEntry implements LanguageInterface
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'core_languages';
     }
@@ -80,7 +80,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function setCode_639_1(?string $code_639_1): static
     {
-        return $this->set('code_639_1', $code_639_1);
+        return $this->set($code_639_1, 'code_639_1');
     }
 
 
@@ -104,7 +104,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function setCode_639_2_b(?string $code_639_2_b): static
     {
-        return $this->set('code_639_2_b', $code_639_2_b);
+        return $this->set($code_639_2_b, 'code_639_2_b');
     }
 
 
@@ -128,7 +128,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function setCode_639_2_t(?string $code_639_2_t): static
     {
-        return $this->set('code_639_2_t', $code_639_2_t);
+        return $this->set($code_639_2_t, 'code_639_2_t');
     }
 
 
@@ -152,7 +152,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function setCode_639_3(?string $code_639_3): static
     {
-        return $this->set('code_639_3', $code_639_3);
+        return $this->set($code_639_3, 'code_639_3');
     }
 
 

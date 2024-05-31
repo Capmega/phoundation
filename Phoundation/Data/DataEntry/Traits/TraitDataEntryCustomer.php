@@ -38,7 +38,7 @@ trait TraitDataEntryCustomer
      */
     public function setCustomersId(?int $customers_id): static
     {
-        return $this->set('customers_id', $customers_id);
+        return $this->set($customers_id, 'customers_id');
     }
 
 
@@ -78,6 +78,6 @@ trait TraitDataEntryCustomer
      */
     public function setCustomersName(?string $customer_name): static
     {
-        return $this->set('customers_name', $customer_name);
+        return $this->set($customer_name, 'customers_name');
     }
 }

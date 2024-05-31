@@ -40,7 +40,7 @@ class Cities extends DataList
      *
      * @return string
      */
-    public static function getTable(): string
+    public static function getTable(): ?string
     {
         return 'geo_cities';
     }
@@ -49,9 +49,9 @@ class Cities extends DataList
     /**
      * Returns the name of this DataEntry class
      *
-     * @return string
+     * @return string|null
      */
-    public static function getEntryClass(): string
+    public static function getEntryClass(): ?string
     {
         return City::class;
     }
@@ -99,7 +99,7 @@ class Cities extends DataList
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
                      ->setName('cities_id')
-                     ->setNone(tr('Select a city'))
-                     ->setObjectEmpty(tr('No cities available'));
+                     ->setNotSelectedLabel(tr('Select a city'))
+                     ->setComponentEmptyLabel(tr('No cities available'));
     }
 }

@@ -1,17 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
-use Phoundation\Developer\Phoundation\Phoundation;
-use Phoundation\Developer\Phoundation\Plugins;
-use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
-use Phoundation\Utils\Arrays;
-
-
 /**
  * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
  *
@@ -24,6 +12,18 @@ use Phoundation\Utils\Arrays;
  * @category  Function reference
  * @package   Phoundation\Development
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
+use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Developer\Phoundation\Plugins;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
+use Phoundation\Utils\Arrays;
+
 // TODO Improve autocomplete, --branch should show branch options
 CliDocumentation::setAutoComplete([
                                       'arguments' => [

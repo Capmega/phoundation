@@ -39,7 +39,7 @@ trait TraitDataEntryTemplate
      */
     public function setTemplatesId(?int $templates_id): static
     {
-        return $this->setSourceValue('templates_id', $templates_id);
+        return $this->set($templates_id, 'templates_id');
     }
 
 
@@ -79,6 +79,6 @@ trait TraitDataEntryTemplate
      */
     public function setTemplatesName(?string $templates_name): static
     {
-        return $this->setSourceValue('templates_name', $templates_name);
+        return $this->set($templates_name, 'templates_name');
     }
 }

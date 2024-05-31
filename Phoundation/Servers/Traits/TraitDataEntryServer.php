@@ -36,7 +36,7 @@ trait TraitDataEntryServer
     {
         unset($this->server);
 
-        return $this->set('servers_id', $servers_id);
+        return $this->set($servers_id, 'servers_id');
     }
 
 
@@ -79,7 +79,7 @@ trait TraitDataEntryServer
         if ($server) {
             $this->server = $server;
 
-            return $this->set('servers_id', $server->getId());
+            return $this->set($server->getId(), 'servers_id');
         }
 
         return $this->setServersId(null);

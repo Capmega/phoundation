@@ -27,7 +27,7 @@ trait TraitDataEntryBranch
      */
     public function setBranchesId(?int $branches_id): static
     {
-        return $this->setSourceValue('branches_id', $branches_id);
+        return $this->set($branches_id, 'branches_id');
     }
 
 
@@ -79,6 +79,6 @@ trait TraitDataEntryBranch
      */
     public function setBranchesName(?string $branches_name): static
     {
-        return $this->setSourceValue('branches_name', $branches_name);
+        return $this->set($branches_name, 'branches_name');
     }
 }

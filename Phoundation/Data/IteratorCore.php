@@ -30,8 +30,10 @@ use PDOStatement;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Exception\IteratorException;
 use Phoundation\Data\Exception\IteratorKeyExistsException;
@@ -234,7 +236,7 @@ class IteratorCore implements IteratorInterface
      */
     public function set(mixed $value, Stringable|string|float|int $key): static
     {
-        return $this->add($value, $key, false, false);
+        return $this->append($value, $key, false, false);
     }
 
 
@@ -274,10 +276,13 @@ class IteratorCore implements IteratorInterface
                 return $this;
             }
         }
+
         $this->checkDataType($value);
+
         // NULL keys will be added as numerical "next" entries
         if ($key === null) {
             $this->source[] = $value;
+
         } else {
             if (array_key_exists($key, $this->source) and $exception) {
                 throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
@@ -285,6 +290,7 @@ class IteratorCore implements IteratorInterface
                     ':class' => get_class($this),
                 ]));
             }
+
             $this->source[$key] = $value;
         }
 
@@ -415,10 +421,13 @@ class IteratorCore implements IteratorInterface
                 return $this;
             }
         }
+
         $this->checkDataType($value);
+
         // NULL keys will be added as numerical "first" entries
         if ($key === null) {
             array_unshift($this->source, $value);
+
         } else {
             if (array_key_exists($key, $this->source) and $exception) {
                 throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
@@ -426,6 +435,7 @@ class IteratorCore implements IteratorInterface
                     ':class' => get_class($this),
                 ]));
             }
+
             $this->source = array_merge([$key => $value], $this->source);
         }
 
@@ -454,7 +464,9 @@ class IteratorCore implements IteratorInterface
                 return $this;
             }
         }
+
         $this->checkDataType($value);
+
         // Ensure the before key exists
         if (!array_key_exists($before, $this->source)) {
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the before key ":before" does not exist', [
@@ -463,6 +475,7 @@ class IteratorCore implements IteratorInterface
                 ':class'  => get_class($this),
             ]));
         }
+
         // NULL keys will be added as numerical "next" entries
         if (array_key_exists($key, $this->source) and $exception) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
@@ -471,6 +484,7 @@ class IteratorCore implements IteratorInterface
                 ':class'  => get_class($this),
             ]));
         }
+
         Arrays::spliceByKey($this->source, $before, 0, [$key => $value], false);
 
         return $this;
@@ -614,9 +628,12 @@ class IteratorCore implements IteratorInterface
                 return $this;
             }
         }
+
         $this->checkDataType($value);
+
         // Ensure the after value exists
         $after_key = array_search($after, $this->source, $strict);
+
         if ($after_key === false) {
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after value ":after" because the after value ":after" does not exist', [
                 ':key'   => $key,
@@ -624,6 +641,7 @@ class IteratorCore implements IteratorInterface
                 ':class' => get_class($this),
             ]));
         }
+
         // NULL keys will be added as numerical "next" entries
         if (array_key_exists($key, $this->source) and $exception) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
@@ -632,7 +650,80 @@ class IteratorCore implements IteratorInterface
                 ':class' => get_class($this),
             ]));
         }
+
         Arrays::spliceByKey($this->source, $after_key, 0, [$key => $value], true);
+
+        return $this;
+    }
+
+
+    /**
+     * Will remove the entry with the specified key before the $before key
+     *
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $before
+     * @param bool                             $strict
+     *
+     * @return $this
+     */
+    public function moveBeforeKey(Stringable|string|float|int|null $key, Stringable|string|float|int|null $before, bool $strict = true): static
+    {
+        $pos_key    = array_search($key   , array_keys($this->source), $strict);
+        $pos_before = array_search($before, array_keys($this->source), $strict);
+
+        if ($pos_key === false) {
+            throw new OutOfBoundsException(tr('Specified key ":key" does not exist in this ":class" list', [
+                ':key'   => $key,
+                ':class' => get_class($this),
+            ]));
+        }
+
+        if ($pos_before === false) {
+            throw new OutOfBoundsException(tr('Specified before key ":key" does not exist in this ":class" list', [
+                ':key'   => $before,
+                ':class' => get_class($this),
+            ]));
+        }
+
+        $part1 = array_splice($this->source, $pos_key, 1);
+        $part2 = array_splice($this->source, 0, $pos_before);
+        $this->source = array_merge($part2, $part1, $this->source);
+
+        return $this;
+    }
+
+
+    /**
+     * Will remove the entry with the specified key after the $after key
+     *
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $after
+     * @param bool                             $strict
+     *
+     * @return $this
+     */
+    public function moveAfterKey(Stringable|string|float|int|null $key, Stringable|string|float|int|null $after, bool $strict = true): static
+    {
+        $pos_key   = array_search($key  , array_keys($this->source), $strict);
+        $pos_after = array_search($after, array_keys($this->source), $strict);
+
+        if ($pos_key === false) {
+            throw new OutOfBoundsException(tr('Specified key ":key" does not exist in this ":class" list', [
+                ':key'   => $key,
+                ':class' => get_class($this),
+            ]));
+        }
+
+        if ($pos_after === false) {
+            throw new OutOfBoundsException(tr('Specified after key ":key" does not exist in this ":class" list', [
+                ':key'   => $after,
+                ':class' => get_class($this),
+            ]));
+        }
+
+        $part1 = array_splice($this->source, $pos_key, 1);
+        $part2 = array_splice($this->source, 0, $pos_after + 1);
+        $this->source = array_merge($part2, $part1, $this->source);
 
         return $this;
     }
@@ -1453,7 +1544,7 @@ class IteratorCore implements IteratorInterface
      *
      * @return mixed
      */
-    public function getKeys(): array
+    public function getSourceKeys(): array
     {
         return array_keys($this->source);
     }
@@ -1509,6 +1600,51 @@ class IteratorCore implements IteratorInterface
 
 
     /**
+     * Returns the random entry
+     *
+     * @return Stringable|string|float|int|null
+     */
+    #[ReturnTypeWillChange] public function getRandomKey(): Stringable|string|float|int|null
+    {
+        if (empty($this->source)) {
+            return null;
+        }
+
+        return array_rand($this->source, 1);
+    }
+
+
+    /**
+     * Returns a random entry
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getRandom(): mixed
+    {
+        if (empty($this->source)) {
+            return null;
+        }
+
+        return $this->source[array_rand($this->source)];
+    }
+
+
+    /**
+     * Returns a static object with multiple random entries
+     *
+     * @param int $count
+     *
+     * @return static
+     */
+    public function getRandomList(int $count = 1): static
+    {
+        $iterator = new static();
+
+        return $iterator->setSource(Arrays::getRandomValues($this->source, $count));
+    }
+
+
+    /**
      * Validate that the specified value has the requested columns
      *
      * @param mixed        $value
@@ -1525,8 +1661,10 @@ class IteratorCore implements IteratorInterface
                     ':this' => get_class($this),
                 ]));
             }
+
             $value = $value->__toArray();
         }
+
         foreach (Arrays::force($columns) as $column) {
             if (!array_key_exists($column, $value)) {
                 throw new OutOfBoundsException(tr('The requested column ":column" does not exist', [
@@ -1570,20 +1708,34 @@ class IteratorCore implements IteratorInterface
      *       OutOfBoundsException
      *
      * @param string $column
+     * @param bool   $allow_scalar
      *
      * @return IteratorInterface
      */
-    public function getAllRowsSingleColumn(string $column): IteratorInterface
+    public function getAllRowsSingleColumn(string $column, bool $allow_scalar = false): IteratorInterface
     {
         if (!$column) {
             throw new OutOfBoundsException(tr('Cannot return source column for ":this", no column specified', [
                 ':this' => get_class($this),
             ]));
         }
+
         $return = [];
+
         foreach ($this->source as $key => $value) {
-            $value        = $this->checkSourceValueHasColumns($value, $column);
-            $return[$key] = $value[$column];
+            if (is_scalar($value)) {
+                if (!$allow_scalar) {
+                    throw new OutOfBoundsException(tr('Encountered scalar value for key ":key" where either array or object is required', [
+                        ':key' => $key,
+                    ]));
+                }
+
+                $return[$key] = $value;
+
+            } else {
+                $value        = $this->checkSourceValueHasColumns($value, $column);
+                $return[$key] = $value[$column];
+            }
         }
 
         return new Iterator($return);

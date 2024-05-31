@@ -36,7 +36,7 @@ trait TraitDataEntryAddress
      */
     public function setAddress(?string $address): static
     {
-        return $this->set('address', $address);
+        return $this->set($address, 'address');
     }
 
 
@@ -60,6 +60,6 @@ trait TraitDataEntryAddress
      */
     public function setZipcode(?string $zipcode): static
     {
-        return $this->set('zipcode', $zipcode);
+        return $this->set($zipcode, 'zipcode');
     }
 }

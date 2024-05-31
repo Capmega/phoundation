@@ -399,19 +399,19 @@ class FileCore extends PathCore implements FileInterface
             default:
                 switch ($secondary) {
                     case 'json':
-                        // no-break
+                        // no break
                     case 'ld+json':
-                        // no-break
+                        // no break
                     case 'svg+xml':
-                        // no-break
+                        // no break
                     case 'x-csh':
-                        // no-break
+                        // no break
                     case 'x-sh':
-                        // no-break
+                        // no break
                     case 'xhtml+xml':
-                        // no-break
+                        // no break
                     case 'xml':
-                        // no-break
+                        // no break
                     case 'vnd.mozilla.xul+xml':
                         // This is all text
                         return false;
