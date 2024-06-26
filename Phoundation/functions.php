@@ -11,6 +11,7 @@
  * @category  Function reference
  * @package   functions
  */
+
 /**
  * Returns true if the specified string is a version, or false if it is not
  *
@@ -474,7 +475,6 @@ function ensure_variable(mixed &$variable, mixed $initialize): mixed
 {
     if (isset($variable)) {
         $variable = $initialize;
-
     } elseif ($variable === null) {
         $variable = $initialize;
     }
@@ -507,11 +507,11 @@ function force_natural(mixed $source, int $default = 1, int $start = 1): int
     }
     if (!is_int($source)) {
         // This is a nice integer
-        return (integer) $source;
+        return (int) $source;
     }
 
     // Natural numbers must be integer numbers. Round to the nearest integer
-    return (integer) round($source);
+    return (int) round($source);
 }
 
 
@@ -534,7 +534,7 @@ function is_natural(mixed $number, int $start = 1): bool
     if ($number < $start) {
         return false;
     }
-    if ($number != (integer) $number) {
+    if ($number != (int) $number) {
         return false;
     }
 
@@ -697,24 +697,24 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
  * @param bool  $sort
  * @param int   $trace_offset
  * @param bool  $quiet
+ * @param bool  $var_dump
  *
  * @return mixed
+ * @throws \Exception
  */
-function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false): mixed
+function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false, bool $var_dump = false): mixed
 {
     if (Debug::getEnabled()) {
-        if (Core::userScriptRunning()) {
-            return Debug::show($source, $sort, $trace_offset, $quiet);
-        }
-
-        if (Core::inShutdownState() and Config::getBoolean('debug.shutdown', false)) {
-            return Debug::show($source, $sort, $trace_offset, $quiet);
-        }
-
         if (Core::inStartupState() and Config::getBoolean('debug.startup', false)) {
             // Startup debugging may not have all libraries loaded required for Debug::show(), use show_system() instead
             return show_system($source, false);
         }
+
+        if (Core::inShutdownState() and Config::getBoolean('debug.shutdown', false)) {
+            return Debug::show($source, $sort, $trace_offset, $quiet, var_dump: $var_dump);
+        }
+
+        return Debug::show($source, $sort, $trace_offset, $quiet, var_dump: $var_dump);
     }
 
     return null;
@@ -774,24 +774,23 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
  * @param bool  $sort
  * @param int   $trace_offset
  * @param bool  $quiet
+ * @param bool  $var_dump
  *
  * @return void
  */
-#[NoReturn] function showdie(mixed $source = null, bool $sort = true, int $trace_offset = 2, bool $quiet = false): void
+#[NoReturn] function showdie(mixed $source = null, bool $sort = true, int $trace_offset = 2, bool $quiet = false, bool $var_dump = false): void
 {
     if (Debug::getEnabled()) {
-        if (Core::userScriptRunning()) {
-            Debug::showdie($source, $sort, $trace_offset, $quiet);
-        }
-
-        if (Core::inShutdownState() and Config::getBoolean('debug.shutdown', false)) {
-            Debug::showdie($source, $sort, $trace_offset, $quiet);
-        }
-
         if (Core::inStartupState() and Config::getBoolean('debug.startup', false)) {
             // Startup debugging may not have all libraries loaded required for Debug::show(), use show_system() instead
             show_system($source);
         }
+
+        if (Core::inShutdownState() and Config::getBoolean('debug.shutdown', false)) {
+            Debug::showdie($source, $sort, $trace_offset, $quiet, $var_dump);
+        }
+
+        Debug::showdie($source, $sort, $trace_offset, $quiet, $var_dump);
     }
 }
 
@@ -907,7 +906,6 @@ function get_integer(mixed $source, bool $allow_null = true): ?int
         }
 
         return 0;
-
     } else {
         $old_source = $source;
         $source     = (int) $source;
@@ -959,7 +957,7 @@ function ensure_value(string|int $value, array $array, mixed $default): mixed
 
 
 /**
- * Execute the specified callback function with the specified $params only if the callback has been set with an
+ * ExecuteExecuteInterface the specified callback function with the specified $params only if the callback has been set with an
  * executable function
  *
  * @param callable|null $callback
@@ -979,7 +977,7 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
 
 
 /**
- * Execute the current Request target and return the output (if any)
+ * ExecuteExecuteInterface the current Request target and return the output (if any)
  *
  * @note This function is used to execute commands and web pages to give them their own empty function scope
  * @note Any information echo-ed by the targets will be stored in nested buffers and returned by Request::execute() or
@@ -995,6 +993,20 @@ function execute(): ?string
 
     return get_null((string) ob_get_clean());
 }
+
+
+/**
+ * Executes the specified hook file
+ *
+ * @param string $__file
+ *
+ * @return void
+ */
+function execute_hook(string $__file): void
+{
+    include($__file);
+}
+
 
 
 /**
@@ -1021,12 +1033,10 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
         foreach ($variable as $key => &$value) {
             if ($key === 'object') {
                 $value = print_r($value, true);
-
             } else {
                 $value = variable_zts_safe($value, $level);
             }
         }
-
     } elseif (is_object($variable)) {
         $variable = print_r($variable, true);
     }
@@ -1140,10 +1150,8 @@ function has_trait(string $trait, object|string $class): bool
 
     if (!Core::userScriptRunning()) {
         $do = true;
-
     } elseif (Core::inShutdownState() and Config::getBoolean('debug.shutdown', false)) {
         $do = true;
-
     } elseif (Core::inStartupState() and Config::getBoolean('debug.startup', false)) {
         $do = true;
     }
@@ -1265,6 +1273,7 @@ function render(RenderInterface|callable|string|float|int|null $content): string
 function get_object_class_or_data_type(mixed $value): string
 {
     $type = gettype($value);
+
     if ($type === 'object') {
         return 'object[' . get_class($value) . ']';
     }
@@ -1286,6 +1295,54 @@ function array_key_index(int|string $needle, array $haystack, bool $strict = tru
 {
     return array_search($needle, array_keys($haystack), $strict);
 }
+
+
+/**
+ * Inverse version of strpos(), will return the position where the specified character does NOT occur
+ *
+ * @param string $source
+ * @param string $char
+ * @param int    $offset
+ *
+ * @todo Make no_strrpos(), no_stripos(), no_strripos() versions of this
+ *
+ * @return int|false
+ */
+function no_strpos(string $source, string $char, int $offset = 0): int|false
+{
+    for (; $offset < strlen($source); $offset++) {
+        if ($source[$offset] != $char) {
+            return $offset;
+        }
+    }
+
+    return false;
+}
+
+
+/**
+ * Returns the first value from the specified array
+ *
+ * @param array $source
+ * @return mixed
+ */
+function array_value_first(array $source): mixed
+{
+    return $source[array_key_first($source)];
+}
+
+
+/**
+ * Returns the last value from the specified array
+ *
+ * @param array $source
+ * @return mixed
+ */
+function array_value_last(array $source): mixed
+{
+    return $source[array_key_last($source)];
+}
+
 
 
 /**
