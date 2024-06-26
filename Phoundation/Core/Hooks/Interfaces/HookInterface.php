@@ -28,5 +28,5 @@ interface HookInterface
      *
      * @return $this
      */
-    public function execute(array|string $hooks, ?array $params = null): static;
+    public function execute(array|string $hooks, ?array $source = null): static;
 }

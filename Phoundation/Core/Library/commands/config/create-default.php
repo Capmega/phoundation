@@ -9,7 +9,7 @@ use Phoundation\Utils\Config;
 
 
 /**
- * Script config/create-default
+ * Command config/create-default
  *
  * This script will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration
  * paths and their default values

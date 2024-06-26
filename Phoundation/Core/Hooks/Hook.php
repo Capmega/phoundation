@@ -1,16 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core\Hooks;
-
-use Phoundation\Core\Hooks\Interfaces\HookInterface;
-use Phoundation\Core\Log\Log;
-use Phoundation\Filesystem\File;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
-use Throwable;
-
 /**
  * Hook class
  *
@@ -26,6 +15,23 @@ use Throwable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Core\Hooks;
+
+use Phoundation\Core\Core;
+use Phoundation\Core\Hooks\Interfaces\HookInterface;
+use Phoundation\Core\Log\Log;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
+use Throwable;
+
 class Hook implements HookInterface
 {
     /**
@@ -38,9 +44,16 @@ class Hook implements HookInterface
     /**
      * The place where all hook scripts live
      *
-     * @var string $directory
+     * @var FsDirectoryInterface $directory
      */
-    protected string $directory = DIRECTORY_DATA . 'system/hooks/';
+    protected FsDirectoryInterface $directory;
+
+    /**
+     * Parameters sent by the executing script
+     *
+     * @var array
+     */
+    protected static array $source;
 
 
     /**
@@ -50,10 +63,25 @@ class Hook implements HookInterface
      */
     public function __construct(?string $class = null)
     {
-        $this->class = Strings::ensureEndsNotWith(trim($class), '/') . '/';
+        $this->directory = new FsDirectory(DIRECTORY_DATA . 'hooks/', FsRestrictions::getReadonly(DIRECTORY_DATA . 'hooks/'));
+        $this->class     = Strings::ensureEndsNotWith(trim($class), '/') . '/';
+
         if ($this->class) {
-            $this->directory .= $this->class;
+            $this->directory = $this->directory->addDirectory($this->class);
         }
+    }
+
+
+    /**
+     * Returns a new Hook object
+     *
+     * @param string|null $class
+     *
+     * @return static
+     */
+    public static function new(?string $class = null): static
+    {
+        return new static($class);
     }
 
 
@@ -61,26 +89,57 @@ class Hook implements HookInterface
      * Attempts to execute the specified hooks
      *
      * @param array|string $hooks
+     * @param array|null   $source
      *
-     * @return $this
+     * @return static
      */
-    public function execute(array|string $hooks, ?array $params = null): static
+    public function execute(array|string $hooks, ?array $source = []): static
     {
+        if (Core::inInitState()) {
+            // Do not execute hooks during system initialization, too many unexpected side effects are possible!
+            Log::warning(tr('Not executing hooks ":hooks" due to system being in init state', [
+                ':hooks' => $hooks
+            ]), 5);
+
+            return $this;
+        }
+
         foreach (Arrays::force($hooks) as $hook) {
-            $file = $this->directory . $hook;
-            if (!file_exists($file)) {
+            $file = $this->directory->addFile($hook . '.php');
+
+            if (!$file->exists()) {
                 // Only execute existing files
                 continue;
             }
+
             // Ensure its readable, not a path, within the filesystem restrictions, etc...
-            File::new($file, $this->directory)
-                ->checkReadable();
+            try {
+                $file->checkReadable();
+
+            } catch (FilesystemException $e) {
+                Log::Warning(tr('Failed to execute hook ":hook". The file exists, but is not readable', [
+                    ':hook' => $hook,
+                ]));
+            }
+
             // Try executing it!
             try {
                 Log::action(tr('Executing hook ":hook"', [
                     ':hook' => $this->class . '/' . $hook,
                 ]));
-                include($file);
+
+                static::$source = $source;
+
+                try {
+                    execute_hook($file->getPath());
+
+                } catch (Throwable $e) {
+                    Log::error(tr('Execution of hook ":hook" failed with the following exception', [
+                        ':hook' => $file
+                    ]));
+
+                    Log::error($e);
+                }
 
             } catch (Throwable $e) {
                 Log::error(tr('Hook ":hook" failed to execute with the following exception', [
@@ -95,14 +154,31 @@ class Hook implements HookInterface
 
 
     /**
-     * Returns a new Hook object
+     * Returns the specified parameters key, or exception if it does not exist
      *
-     * @param string|null $class
+     * @param string $key
      *
-     * @return static
+     * @return mixed
      */
-    public static function new(?string $class = null): static
+    public static function get(string $key): mixed
     {
-        return new static($class);
+        if (array_key_exists($key, static::$source)) {
+            return static::$source[$key];
+        }
+
+        throw new OutOfBoundsException(tr('The specified hook parameter key ":key" does not exist', [
+            ':key' => $key
+        ]));
+    }
+
+
+    /**
+     * Returns all source parameters
+     *
+     * @return mixed
+     */
+    public static function getSource(): array
+    {
+        return static::$source;
     }
 }

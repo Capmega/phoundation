@@ -8,6 +8,7 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Config;
 
@@ -41,11 +42,12 @@ class Sessions
         if (!$age_in_minutes) {
             $age_in_minutes = Config::getInteger('tmp.clean.age', 1440);
         }
+
         Log::action(tr('Cleaning session files older than ":age" minutes', [
             ':age' => $age_in_minutes,
         ]));
-        Find::new()
-            ->setPath(DIRECTORY_DATA . 'tmp/')
+
+        Find::new(FsDirectory::getTemporary())
             ->setOlderThan($age_in_minutes)
             ->setExecute('rf {} -rf')
             ->executeNoReturn();

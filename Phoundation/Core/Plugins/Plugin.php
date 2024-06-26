@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Class Plugin
+ *
+ *
+ *
+ * @see       DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Core
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Plugins;
@@ -14,29 +26,23 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryDirectory;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryPath;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryPriority;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
-/**
- * Class Plugin
- *
- *
- *
- * @see       DataEntry
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Core
- */
 class Plugin extends DataEntry implements PluginInterface
 {
     use TraitDataEntryNameDescription;
-    use TraitDataEntryPath;
+    use TraitDataEntryDirectory;
     use TraitDataEntryPriority {
         setPriority as setTraitPriority;
     }
@@ -44,7 +50,7 @@ class Plugin extends DataEntry implements PluginInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {
@@ -75,7 +81,7 @@ class Plugin extends DataEntry implements PluginInterface
 
 
     /**
-     * Execute the required code to start the plugin
+     * ExecuteExecuteInterface the required code to start the plugin
      *
      * @return void
      */
@@ -114,7 +120,7 @@ class Plugin extends DataEntry implements PluginInterface
     public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
         $plugin = parent::load($identifier, $column, $meta_enabled, $force);
-        $file   = DIRECTORY_ROOT . $plugin->getPath() . 'Library/Plugin.php';
+        $file   = DIRECTORY_ROOT . $plugin->getDirectory() . 'Library/Plugin.php';
         $class  = Library::getClassPath($file);
         $class  = Library::includeClassFile($class);
 
@@ -123,26 +129,31 @@ class Plugin extends DataEntry implements PluginInterface
 
 
     /**
-     * Returns the plugin path for this plugin
+     * Returns the plugin directory for this plugin
      *
-     * @return string
+     * @return FsDirectoryInterface
      */
-    public function getPath(): string
+    public function getDirectory(): FsDirectoryInterface
     {
-        $path = $this->getValueTypesafe('string', 'path');
-        if (!$path) {
-            // Path hasn't been set yet? That is weird as it should always be set UNLESS its new.
-            if ($this->isNew()) {
-                // New object, detect the path automatically
-                return dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT)) . '/';
+        $directory = $this->getValueTypesafe(FsDirectoryInterface::class, 'directory');
+
+        if (!$directory) {
+            // Path hasn't been set yet? It should always be set UNLESS it's new.
+            if (!$this->isNew()) {
+                throw new PluginsException(tr('Plugin ":plugin" from vendor ":vendor" does not have a class directory set', [
+                    ':vendor' => get_class($this),
+                    ':plugin' => get_class($this),
+                ]));
             }
-            throw new PluginsException(tr('Plugin ":plugin" from vendor ":vendor" does not have a class path set', [
-                ':vendor' => get_class($this),
-                ':plugin' => get_class($this),
-            ]));
+
+            // New object, detect the directory automatically
+            $directory = dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT));
         }
 
-        return $path;
+        return new FsDirectory(
+            $directory,
+            FsRestrictions::getReadonly(DIRECTORY_ROOT . 'Plugins', 'Plugin::getDirectory()')
+        );
     }
 
 
@@ -319,6 +330,7 @@ class Plugin extends DataEntry implements PluginInterface
                 ':plugin' => $this->getName(),
             ]), 3);
         }
+
         if (static::exists($this->getName(), 'name')) {
             // This plugin is already registered
             Log::warning(tr('Not registering plugin ":vendor/:plugin", it is already registered', [
@@ -328,14 +340,17 @@ class Plugin extends DataEntry implements PluginInterface
 
             return;
         }
+
         // Only the Phoundation plugin is ALWAYS enabled
         $enabled = ($this->getName() === 'Phoundation');
+
         Log::action(tr('Registering new plugin ":vendor/:plugin"', [
             ':vendor' => $this->getVendor(),
             ':plugin' => $this->getName(),
         ]));
+
         // Register the plugin
-        $this->setPath($this->getPath())
+        $this->setDirectory($this->getDirectory())
              ->setVendor($this->getVendor())
              ->setClass($this->getClass())
              ->setEnabled($enabled)
@@ -353,8 +368,10 @@ class Plugin extends DataEntry implements PluginInterface
     public function getVendor(): ?string
     {
         $vendor = $this->getValueTypesafe('string', 'vendor');
+
         if ($vendor === null) {
-            $directory = $this->getPath();
+            $directory = $this->getDirectory();
+
             if ($directory) {
                 return Strings::cut($directory, 'Plugins/', '/');
             }
@@ -427,7 +444,8 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getClass(): ?string
     {
-        $directory = $this->getPath();
+        $directory = $this->getDirectory();
+
         if ($directory) {
             return Library::getClassPath(DIRECTORY_ROOT . $directory . 'Library/Plugin.php');
         }
@@ -511,17 +529,21 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setVirtual(true)
                                     ->setRender(false)
                                     ->setCliColumn('-d,--disable'))
+
                     ->add(Definition::new($this, 'vendor')
                                     ->setLabel(tr('Vendor'))
                                     ->setInputType(EnumInputType::text)
                                     ->setMaxlength(128)
                                     ->setSize(6)
                                     ->setHelpText(tr('The vendor that manages this plugin')))
+
                     ->add(DefinitionFactory::getName($this, 'seo_name')
                                            ->setRender(false))
+
                     ->add(DefinitionFactory::getName($this)
                                            ->setSize(6)
                                            ->setHelpText(tr('The name of this plugin')))
+
                     ->add(Definition::new($this, 'priority')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
@@ -536,6 +558,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isInteger();
                                     }))
+
                     ->add(Definition::new($this, 'menu_priority')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
@@ -550,6 +573,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isInteger();
                                     }))
+
                     ->add(Definition::new($this, 'menu_enabled')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
@@ -559,6 +583,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setCliAutoComplete(true)
                                     ->setLabel(tr('Menu enabled'))
                                     ->setHelpText(tr('Sets if the menu of this plugin will be available and visible, or not')))
+
                     ->add(Definition::new($this, 'commands_enabled')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
@@ -568,6 +593,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setCliAutoComplete(true)
                                     ->setLabel(tr('Commands enabled'))
                                     ->setHelpText(tr('Sets if the command line commands of this plugin will be available, or not')))
+
                     ->add(Definition::new($this, 'web_enabled')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
@@ -579,6 +605,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isBoolean();
                                     }))
+
                     ->add(Definition::new($this, 'class')
                                     ->setLabel(tr('Class'))
                                     ->setInputType(EnumInputType::text)
@@ -589,12 +616,14 @@ class Plugin extends DataEntry implements PluginInterface
                                         $validator->hasMaxCharacters(1024)
                                                   ->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
                                     }))
-                    ->add(Definition::new($this, 'path')
+
+                    ->add(Definition::new($this, 'directory')
                                     ->setLabel(tr('Directory'))
                                     ->setInputType(EnumInputType::path)
                                     ->setMaxlength(128)
                                     ->setSize(6)
-                                    ->setHelpText(tr('The filesystem path where this plugin is located')))
+                                    ->setHelpText(tr('The filesystem directory where this plugin is located')))
+
                     ->add(DefinitionFactory::getDescription($this));
     }
 }

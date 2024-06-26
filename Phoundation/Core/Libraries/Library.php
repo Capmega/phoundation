@@ -27,10 +27,10 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Interfaces\PluginInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\DirectoryInterface;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Cp;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -55,9 +55,9 @@ class Library implements LibraryInterface
     /**
      * The library path
      *
-     * @var string $directory
+     * @var FsDirectoryInterface $directory
      */
-    protected string $directory;
+    protected FsDirectoryInterface $directory;
 
     /**
      * The Updates object for this library
@@ -84,20 +84,26 @@ class Library implements LibraryInterface
     /**
      * Library constructor
      *
-     * @param string $directory
+     * @param FsDirectoryInterface $directory
      */
-    public function __construct(string $directory)
+    public function __construct(FsDirectoryInterface $directory)
     {
         // Extract vendor and library names
-        $directory       = Strings::slash($directory);
-        $this->directory = $directory;
-        $this->library   = Strings::fromReverse(Strings::unslash($directory), '/');
-        $this->library   = strtolower($this->library);
-        $this->vendor    = strtolower($directory);
-        $this->vendor    = Strings::from(Strings::unslash($directory), DIRECTORY_ROOT);
-        $this->vendor    = strtolower($this->vendor);
-        $this->vendor    = Strings::untilReverse($this->vendor, '/' . $this->library);
-        $this->vendor    = strtolower($this->vendor);
+        $this->directory = new FsDirectory($directory, FsRestrictions::new([
+            DIRECTORY_WEB,
+            LIBRARIES::CLASS_DIRECTORY_SYSTEM,
+            LIBRARIES::CLASS_DIRECTORY_PLUGINS,
+            LIBRARIES::CLASS_DIRECTORY_TEMPLATES,
+        ]));
+
+        $directory     = Strings::slash($directory);
+        $this->library = Strings::fromReverse(Strings::unslash($directory), '/');
+        $this->library = strtolower($this->library);
+        $this->vendor  = strtolower($directory);
+        $this->vendor  = Strings::from(Strings::unslash($directory), DIRECTORY_ROOT);
+        $this->vendor  = strtolower($this->vendor);
+        $this->vendor  = Strings::untilReverse($this->vendor, '/' . $this->library);
+        $this->vendor  = strtolower($this->vendor);
 
         if (str_starts_with($this->vendor, 'plugin')) {
             $this->vendor = Strings::from($this->vendor, 'plugins/');
@@ -139,6 +145,7 @@ class Library implements LibraryInterface
     {
         // Scan for the Updates.php file
         $file = Strings::slash($this->directory) . 'Library/' . $file . '.php';
+
         if (!file_exists($file)) {
             // There is no init class available
             return;
@@ -147,8 +154,10 @@ class Library implements LibraryInterface
         try {
             // Load the PHP file
             include_once($file);
+
             $class_path = static::getClassPath($file);
             $object     = new $class_path();
+
             $callback($object);
 
         } catch (Error $e) {
@@ -177,21 +186,23 @@ class Library implements LibraryInterface
      */
     public static function getClassPath(string $file): string
     {
-        if (!File::new($file, [DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates',])->isPhp()) {
+        $restrictions = FsRestrictions::getReadonly([
+            DIRECTORY_ROOT . 'Phoundation',
+            DIRECTORY_ROOT . 'Plugins',
+            DIRECTORY_ROOT . 'Templates'
+        ], 'Library::getClassPath()');
+
+        if (!FsFile::new($file, $restrictions)->isPhp()) {
             throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
         }
 
         // Scan for namespace and class lines
         $namespace = null;
         $class     = null;
-        $results   = File::new($file, [
-            DIRECTORY_ROOT . 'Phoundation',
-            DIRECTORY_ROOT . 'Plugins',
-            DIRECTORY_ROOT . 'Templates',
-        ])->grep([
-                             'namespace ',
-                             'class ',
-         ], 100);
+        $results   = FsFile::new($file, $restrictions)->grep([
+            'namespace ',
+            'class ',
+        ], 100);
 
         // Get the namespace
         foreach ($results['namespace '] as $line) {
@@ -311,7 +322,7 @@ class Library implements LibraryInterface
         $file = DIRECTORY_ROOT . $file . '.php';
 
         if ($check_php) {
-            if (!File::new($file, [DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates',])->isPhp()) {
+            if (!FsFile::new($file, FsRestrictions::getReadonly([DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates']))->isPhp()) {
                 throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
             }
         }
@@ -346,10 +357,10 @@ class Library implements LibraryInterface
 
         // Copy the library from the TemplateLibrary and run a search / replace
         Cp::new()
-          ->archive(DIRECTORY_ROOT . 'Phoundation/.TemplateLibrary', Restrictions::new(DIRECTORY_ROOT . 'Phoundation/'), DIRECTORY_ROOT . $type->value . $name, Restrictions::new(DIRECTORY_ROOT . $type->value, true));
+          ->archive(DIRECTORY_ROOT . 'Phoundation/.TemplateLibrary', FsRestrictions::new(DIRECTORY_ROOT . 'Phoundation/'), DIRECTORY_ROOT . $type->value . $name, FsRestrictions::new(DIRECTORY_ROOT . $type->value, true));
 
         foreach (['Updates.php'] as $file) {
-            File::new(DIRECTORY_ROOT . $type->value . $name . '/Library/' . $file, Restrictions::new(DIRECTORY_ROOT . $type->value, true))
+            FsFile::new(DIRECTORY_ROOT . $type->value . $name . '/Library/' . $file, FsRestrictions::new(DIRECTORY_ROOT . $type->value, true))
                 ->replace([
                     ':type' => $type,
                     ':name' => $name,
@@ -614,8 +625,7 @@ class Library implements LibraryInterface
      */
     public function getSize(): int
     {
-        return Directory::new($this->directory, DIRECTORY_ROOT)
-                        ->treeFileSize();
+        return $this->directory->treeFileSize();
     }
 
 
@@ -626,22 +636,16 @@ class Library implements LibraryInterface
      */
     public function getPhpStatistics(): array
     {
-        return Directory::new($this->getDirectory(), [
-            DIRECTORY_WEB,
-            LIBRARIES::CLASS_DIRECTORY_SYSTEM,
-            LIBRARIES::CLASS_DIRECTORY_PLUGINS,
-            LIBRARIES::CLASS_DIRECTORY_TEMPLATES,
-        ])
-                        ->getPhpStatistics(true);
+        return $this->directory->getPhpStatistics(true);
     }
 
 
     /**
      * Returns the library path
      *
-     * @return string
+     * @return FsDirectoryInterface
      */
-    public function getDirectory(): string
+    public function getDirectory(): FsDirectoryInterface
     {
         return $this->directory;
     }
@@ -699,7 +703,7 @@ class Library implements LibraryInterface
     public function verify(): static
     {
         if ($this->structure_ok === null) {
-            // Execute the structural check for this library
+            // ExecuteExecuteInterface the structural check for this library
             // TODO IMPLEMENT MORE
             $this->structure_ok = true;
         }
@@ -711,23 +715,24 @@ class Library implements LibraryInterface
     /**
      * Ensure that the Library/commands is symlinked
      *
-     * @param DirectoryInterface $cache
-     * @param DirectoryInterface $tmp
+     * @param FsDirectoryInterface $cache
+     * @param FsDirectoryInterface $tmp
      *
      * @return void
      * @todo Add support for command sharing!
      */
-    public function rebuildCommandCache(DirectoryInterface $cache, DirectoryInterface $tmp): void
+    public function rebuildCommandCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
     {
         Log::action(tr('Rebuilding command cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/commands/';
-        $restrictions = Restrictions::readonly($path, tr('Commands cache rebuild for ":library"', [
-            ':library' => $this->getName(),
-        ]));
-        $path         = Directory::new($path, $restrictions);
+        $restrictions = FsRestrictions::getWritable(
+            [$path, DIRECTORY_TMP],
+            'Core\\Library::rebuildCommandCache(' . $this->getName() . ')'
+        );
+        $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
             // This library does not have a web/ directory, we're fine
@@ -741,23 +746,24 @@ class Library implements LibraryInterface
     /**
      * Ensures that the Library/web directory contents are symlinked in DIRECTORY_WEB
      *
-     * @param DirectoryInterface $cache
-     * @param DirectoryInterface $tmp
+     * @param FsDirectoryInterface $cache
+     * @param FsDirectoryInterface $tmp
      *
      * @return void
      * @todo Add support for command sharing!
      */
-    public function rebuildWebCache(DirectoryInterface $cache, DirectoryInterface $tmp): void
+    public function rebuildWebCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
     {
         Log::action(tr('Rebuilding web page cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/web/';
-        $restrictions = Restrictions::readonly($path, tr('Web page cache rebuild for ":library"', [
-            ':library' => $this->getName(),
-        ]));
-        $path         = Directory::new($path, $restrictions);
+        $restrictions = FsRestrictions::getWritable(
+            [$path, DIRECTORY_TMP],
+            'Core\\Library::rebuildWebCache(' . $this->getName() . ')'
+        );
+        $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
             // This library does not have a web/ directory, we're fine
@@ -771,23 +777,24 @@ class Library implements LibraryInterface
     /**
      * Ensures that the Library/tests directory contents are symlinked in DIRECTORY_DATA/cache/system/tests
      *
-     * @param DirectoryInterface $cache
-     * @param DirectoryInterface $tmp
+     * @param FsDirectoryInterface $cache
+     * @param FsDirectoryInterface $tmp
      *
      * @return void
      * @todo Add support for command sharing!
      */
-    public function rebuildTestsCache(DirectoryInterface $cache, DirectoryInterface $tmp): void
+    public function rebuildTestsCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
     {
         Log::action(tr('Rebuilding web page cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/tests/';
-        $restrictions = Restrictions::readonly($path, tr('Web page cache rebuild for ":library"', [
-            ':library' => $this->getName(),
-        ]));
-        $path         = Directory::new($path, $restrictions);
+        $restrictions = FsRestrictions::getWritable(
+            [$path, DIRECTORY_TMP],
+            'Core\\Library::rebuildTestsCache(' . $this->getName() . ')'
+        );
+        $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
             // This library does not have a web/ directory, we're fine

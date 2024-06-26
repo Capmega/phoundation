@@ -1,16 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Plugins\Plugins;
-use Phoundation\Data\Validator\ArgvValidator;
-
-
 /**
- * Script system/plugins/list script
+ * Command plugins list
  *
- * This script allows you to view your registered plugins
+ * This command allows you to view your registered plugins
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -18,7 +11,14 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @category  Function reference
  * @package   Phoundation\Core
  */
-CliDocumentation::setUsage('./pho system plugins list [OPTIONS]
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Plugins\Plugins;
+use Phoundation\Data\Validator\ArgvValidator;
+
+CliDocumentation::setUsage('./pho plugins list [OPTIONS]
 ./pho system plugins list --all');
 
 CliDocumentation::setHelp('This command allows you to view your registered plugins
@@ -37,11 +37,11 @@ $argv = ArgvValidator::new()
 
 // What columns are we going to display?
 $columns = [
-    'vendor'   => tr('Vendor'),
-    'name'     => tr('Name'),
-    'status'   => tr('Status'),
-    'priority' => tr('Priority'),
-    'path'     => tr('Path'),
+    'vendor'    => tr('Vendor'),
+    'name'      => tr('Name'),
+    'status'    => tr('Status'),
+    'priority'  => tr('Priority'),
+    'directory' => tr('Directory'),
 ];
 
 

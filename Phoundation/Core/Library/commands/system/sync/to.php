@@ -9,7 +9,7 @@ use Phoundation\Developer\Sync;
 
 
 /**
- * Script system/sync
+ * Command system/sync
  *
  * This script will synchronize either the specified environment to your local environment or vice versa.
  *

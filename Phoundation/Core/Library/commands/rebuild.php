@@ -61,7 +61,7 @@ Libraries::rebuildCommandCache();
 // Commit the system web cache?
 $git = Git::new(DIRECTORY_DATA . 'system/cache/');
 
-if ($git->getStatus()->getCount()) {
+if ($git->getStatusFilesObject()->getCount()) {
     if (Config::getBoolean('cache.system.commit.auto', false) or $argv['commit']) {
         // Commit the system cache
         $git->add(DIRECTORY_DATA . 'system/cache/')

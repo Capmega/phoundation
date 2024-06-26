@@ -1,16 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Plugins\Plugins;
-use Phoundation\Data\Validator\ArgvValidator;
-
-
 /**
- * Script system/plugins/scan
+ * Command plugins scan
  *
- * This script allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new plugins and update the
+ * This command allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new plugins and update the
  * core_plugins database table accordingly
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -19,13 +12,20 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @category  Function reference
  * @package   Phoundation\Core
  */
-CliDocumentation::setAutoComplete([
-                                      'arguments' => [
-                                          '-c,--clear' => false,
-                                      ],
-                                  ]);
 
-CliDocumentation::setUsage('./pho system plugins scan');
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Plugins\Plugins;
+use Phoundation\Data\Validator\ArgvValidator;
+
+CliDocumentation::setAutoComplete([
+    'arguments' => [
+        '-c,--clear' => false,
+    ],
+]);
+
+CliDocumentation::setUsage('./pho plugins scan');
 
 CliDocumentation::setHelp('This command allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new
 plugins and update the core_plugins database table accordingly
@@ -54,11 +54,11 @@ if ($argv['clear']) {
 
 // What columns are we going to display?
 $columns = [
-    'vendor'   => tr('Vendor'),
-    'name'     => tr('Name'),
-    'status'   => tr('Status'),
-    'priority' => tr('Priority'),
-    'path'     => tr('Path'),
+    'vendor'    => tr('Vendor'),
+    'name'      => tr('Name'),
+    'status'    => tr('Status'),
+    'priority'  => tr('Priority'),
+    'directory' => tr('Directory'),
 ];
 
 

@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Command plugins enable
+ *
+ * This script allows you to enable registered plugins
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @category  Function reference
+ * @package   Phoundation\Core
+ */
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -10,17 +22,6 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Utils\Strings;
 
-/**
- * Script system/plugins/enable script
- *
- * This script allows you to enable registered plugins
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
- * @package   Phoundation\Core
- */
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
@@ -30,7 +31,7 @@ CliDocumentation::setAutoComplete([
     ],
 ]);
 
-CliDocumentation::setUsage('./pho system plugins enable PLUGIN [PLUGIN, PLUGIN, ...]
+CliDocumentation::setUsage('./pho plugins enable PLUGIN [PLUGIN, PLUGIN, ...]
 ./pho system plugins disable -a');
 
 CliDocumentation::setHelp('This command allows you to enable plugins

@@ -3,6 +3,7 @@
 use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Response;
@@ -56,6 +57,7 @@ Response::setBuildBody(false);
 
             <!-- lockscreen credentials (contains the form) -->
             <form class="lockscreen-credentials">
+                <?php Csrf::getHiddenElement() ?>
                 <div class="input-group">
                     <input type="password" class="form-control" placeholder="password">
 

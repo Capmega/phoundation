@@ -4,25 +4,25 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Hooks;
 
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 
 /**
  * Hooks class
  *
  *
  *
- * @see       \Phoundation\Data\DataEntry\DataList
+ * @see       \Phoundation\Data\DataEntry\DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
-class Hooks extends DataList
+class Hooks extends DataIterator
 {
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Plugins\Interfaces;
 
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
+
 /**
  * Class Plugin
  *
@@ -92,9 +95,9 @@ interface PluginInterface
     /**
      * Returns the plugin path for this plugin
      *
-     * @return string|null
+     * @return FsDirectoryInterface
      */
-    public function getPath(): ?string;
+    public function getDirectory(): FsDirectoryInterface;
 
 
     /**

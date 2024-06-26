@@ -7,12 +7,12 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Date\DateTime;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
 
 
 /**
- * Script meta/stats
+ * Command meta/stats
  *
  * This script can be used to display meta data statistics
  *
@@ -39,5 +39,5 @@ ArgvValidator::new()->validate();
 
 
 // Display the meta statistics
-Log::information(tr('Meta data statistics:'), use_prefix: false);
+Log::information(tr('Meta data statistics:'), echo_prefix: false);
 Meta::getStatistics()->displayCliKeyValueTable();

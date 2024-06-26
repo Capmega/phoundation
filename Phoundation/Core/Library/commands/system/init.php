@@ -11,7 +11,7 @@ use Phoundation\Utils\Strings;
 
 
 /**
- * Script system/init
+ * Command system/init
  *
  * This is the init script for the project. Run this script to ensure that the database is running with the same version
  * as the code

@@ -8,6 +8,7 @@ use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
@@ -94,6 +95,7 @@ Response::setBuildBody(false);
                     the form below and the system will initialize itself. To help you out, some of the fields have been
                     filled with default values.</p>
                 <form action="<?= Request::getUrl() ?>" method="post">
+                    <?php Csrf::getHiddenElement() ?>
                     <div class="mb-3">
                         <label for="admin_email">Administrator email address</label>
                         <input name="admin_email" type="email" class="form-control"

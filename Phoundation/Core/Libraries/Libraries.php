@@ -23,9 +23,10 @@ use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Path;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Arrays;
@@ -42,17 +43,18 @@ class Libraries
     /**
      * The constant indicating the path for Phoundation libraries
      */
-    const CLASS_DIRECTORY_SYSTEM = DIRECTORY_ROOT . 'Phoundation/';
+    public const CLASS_DIRECTORY_SYSTEM = DIRECTORY_ROOT . 'Phoundation/';
 
     /**
      * The constant indicating the path for Plugin libraries
      */
-    const CLASS_DIRECTORY_PLUGINS = DIRECTORY_ROOT . 'Plugins/';
+    public const CLASS_DIRECTORY_PLUGINS = DIRECTORY_ROOT . 'Plugins/';
 
     /**
      * The constant indicating the path for Template libraries
      */
-    const CLASS_DIRECTORY_TEMPLATES = DIRECTORY_ROOT . 'Templates/';
+    public const CLASS_DIRECTORY_TEMPLATES = DIRECTORY_ROOT . 'Templates/';
+
 
     /**
      * If true, this system is in initialization mode
@@ -84,7 +86,9 @@ class Libraries
     public static function reset(): void
     {
         Log::warning('Executing system reset, dropping all databases!');
+
         $connectors = Config::getArray('databases.connectors');
+
         foreach ($connectors as $connector => $configuration) {
             switch (isset_get($configuration['driver'])) {
                 case 'sql':
@@ -92,11 +96,13 @@ class Libraries
                 case 'mysql':
                     if (($connector === 'system') or isset_get($configuration['init'])) {
                         sql($connector, false)
-                            ->schema(false)
-                            ->database()
+                            ->getSchemaObject(false)
+                            ->getDatabaseObject()
                             ->drop();
                     }
+
                     break;
+
                 case 'memcached':
                     try {
                         mc($connector)->flush();
@@ -105,7 +111,9 @@ class Libraries
                         Log::warning(tr('Cannot flush memcached because the current driver is not properly configured, see exception information'));
                         Log::warning($e);
                     }
+
                     break;
+
                 case 'mongo':
                 case 'redis':
                 case 'elasticsearch':
@@ -113,11 +121,14 @@ class Libraries
                         ':driver'    => $configuration['driver'],
                         ':connector' => $connector,
                     ]));
+
                     break;
+
                 case '':
                     throw new DatabasesConnectorException(tr('No driver specified for connector ":connector"', [
                         ':connector' => $connector,
                     ]));
+
                 default:
                     throw new DatabasesConnectorException(tr('Unknown driver ":driver" specified for connector ":connector"', [
                         ':driver'    => $configuration['driver'],
@@ -129,7 +140,7 @@ class Libraries
 
 
     /**
-     * Execute a complete systems initialization
+     * ExecuteExecuteInterface a complete systems initialization
      *
      * @param bool        $system
      * @param bool        $plugins
@@ -145,9 +156,11 @@ class Libraries
         if (FORCE) {
             static::force();
         }
+
         // Wipe all temporary data and set the core in INIT mode
         Tmp::clear();
         Core::enableInitState();
+
         try {
             // Wipe all cache data
             Cache::clear();
@@ -155,12 +168,16 @@ class Libraries
         } catch (ConfigPathDoesNotExistsException $e) {
             Log::warning($e->getMessage());
         }
+
         // Ensure the system database exists
         static::ensureSystemsDatabaseAccessible();
+
         // Go over all system libraries and initialize them, then do the same for the plugins
         static::initializeLibraries($system, $plugins, $templates, $comments, $libraries);
+
         // Initialization done!
         static::$initializing = false;
+
         if (Core::isProductionEnvironment()) {
             // Notification developers
             Notification::new()
@@ -181,7 +198,7 @@ class Libraries
 
 
     /**
-     * Execute a forced initialization.
+     * ExecuteExecuteInterface a forced initialization.
      *
      * This will drop the system database and initialize the sytem from scratch
      *
@@ -192,14 +209,13 @@ class Libraries
         if (Core::isProductionEnvironment()) {
             throw new AccessDeniedException(tr('For safety reasons, init or setup force is NOT allowed on production environment!'));
         }
+
         sql()
-            ->schema()
-            ->database()
-            ->drop();
-        sql()
-            ->schema()
-            ->database()
+            ->getSchemaObject()
+            ->getDatabaseObject()
+            ->drop()
             ->create();
+
         sql()->use();
     }
 
@@ -211,17 +227,13 @@ class Libraries
      */
     protected static function ensureSystemsDatabaseAccessible(): void
     {
-        if (
-            !sql('system', false)
-                ->schema(false)
-                ->database()
-                ->exists()
-        ) {
+        if (!sql('system', false)->getSchemaObject(false)->getDatabaseObject()->exists()) {
             sql('system', false)
-                ->schema(false)
-                ->database()
+                ->getSchemaObject(false)
+                ->getDatabaseObject()
                 ->create();
         }
+
         // Use the new database, and reset the schema object
         sql('system')->use();
         sql('system', false)->resetSchema();
@@ -258,7 +270,7 @@ class Libraries
 
             // Go over the list of libraries and try to update each one
             foreach ($libraries as $directory => $library) {
-                // Execute the update inits for this library and update the library information and start over
+                // ExecuteExecuteInterface the update inits for this library and update the library information and start over
                 if ($library->init($comments)) {
                     // The library has been initialized. Break so that we can check which library should be updated next.
                     $update_count++;
@@ -283,7 +295,7 @@ class Libraries
             Log::action(tr('Executing post init updates'));
 
             foreach ($post_libraries as $library) {
-                // Execute the update inits for this library and update the library information and start over
+                // ExecuteExecuteInterface the update inits for this library and update the library information and start over
                 if ($library->initPost($comments)) {
                     // Library has been post initialized. Break so that we can check which library should be updated next.
                     $update_count++;
@@ -366,7 +378,9 @@ class Libraries
      * Returns a list with all libraries for the specified path
      *
      * @param string $directory
+     * @param bool   $has_vendors
      *
+     * @todo Should receive an FsDirectory object instead of a string
      * @return array
      */
     protected static function listLibraryDirectories(string $directory, bool $has_vendors = false): array
@@ -396,7 +410,7 @@ class Libraries
             return $libraries;
         }
 
-        // Build library list and return it
+        // Build a library list and return it
         $libraries = scandir($directory);
 
         foreach ($libraries as $library) {
@@ -414,7 +428,7 @@ class Libraries
 
             // Library paths MUST be directories
             if (is_dir($file)) {
-                $return[$file] = new Library($file);
+                $return[$file] = new Library(new FsDirectory($file, FsRestrictions::getReadonly(DIRECTORY_ROOT, 'Core\\Libraries::listLibraryDirectories()')));
             }
         }
 
@@ -489,8 +503,12 @@ class Libraries
         Log::action(tr('Rebuilding command cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
-        $temporary = Directory::getTemporary();
-        $cache     = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, tr('Commands cache rebuild')));
+        $temporary = FsDirectory::getTemporary();
+        $cache     = FsDirectory::new(DIRECTORY_COMMANDS, FsRestrictions::getWritable([
+                                                                      DIRECTORY_COMMANDS,
+                                                                      DIRECTORY_TMP,
+                                                                      DIRECTORY_ROOT . 'commands/'
+                                                                  ], 'Core\\Libraries::rebuildCommandCache() 1'));
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
@@ -504,8 +522,10 @@ class Libraries
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'commands', Restrictions::writable(DIRECTORY_ROOT . 'commands', tr('Commands cache rebuild')))
-                                          ->delete());
+              ->symlinkTargetFromThis(FsPath::new(DIRECTORY_ROOT . 'commands', FsRestrictions::getWritable(
+                  DIRECTORY_ROOT . 'commands',
+                  'Core\\Libraries::rebuildCommandCache() 2'
+              ))->delete());
 
         static::$cache_has_been_rebuilt = true;
 
@@ -522,11 +542,11 @@ class Libraries
     {
         Log::action(tr('Clearing commands caches'), 3);
 
-        $cache = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))
-                          ->clearTreeSymlinks(true);
+        $cache = FsDirectory::new(DIRECTORY_COMMANDS, FsRestrictions::getWritable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))
+                            ->clearTreeSymlinks(true);
 
         if (!$cache->exists()) {
-            Path::new(DIRECTORY_ROOT . '/commands', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
+            FsPath::new(DIRECTORY_ROOT . '/commands', FsRestrictions::getWritable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
                 ->delete();
         }
 
@@ -594,7 +614,7 @@ class Libraries
                         ]));
                     }
 
-                    $return = new Library($directory . $library);
+                    $return = new Library(new FsDirectory($directory . $library, FsRestrictions::getReadonly($directory)));
                 }
             }
         }
@@ -624,22 +644,22 @@ class Libraries
 
         if ($system) {
             // Get statistics for all system libraries
-            $return['system'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, [LIBRARIES::CLASS_DIRECTORY_SYSTEM])
-                                         ->getPhpStatistics(true);
+            $return['system'] = FsDirectory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, FsRestrictions::getReadonly([LIBRARIES::CLASS_DIRECTORY_SYSTEM]), 'Libraries::getPhpStatistics()')
+                                           ->getPhpStatistics(true);
             $return['totals'] = Arrays::addValues($return['totals'], $return['system']);
         }
 
         if ($plugin) {
             // Get statistics for all plugin libraries
-            $return['plugins'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, [LIBRARIES::CLASS_DIRECTORY_PLUGINS])
-                                          ->getPhpStatistics(true);
+            $return['plugins'] = FsDirectory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, FsRestrictions::getReadonly([LIBRARIES::CLASS_DIRECTORY_PLUGINS]), 'Libraries::getPhpStatistics()')
+                                            ->getPhpStatistics(true);
             $return['totals']  = Arrays::addValues($return['totals'], $return['plugins']);
         }
 
         if ($template) {
             // Get statistics for all template libraries
-            $return['templates'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, [LIBRARIES::CLASS_DIRECTORY_TEMPLATES])
-                                            ->getPhpStatistics(true);
+            $return['templates'] = FsDirectory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, FsRestrictions::getReadonly([LIBRARIES::CLASS_DIRECTORY_TEMPLATES]), 'Libraries::getPhpStatistics()')
+                                              ->getPhpStatistics(true);
             $return['totals']    = Arrays::addValues($return['totals'], $return['templates']);
         }
 
@@ -680,8 +700,12 @@ class Libraries
         Log::action(tr('Rebuilding web cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
-        $temporary = Directory::getTemporary();
-        $cache     = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, tr('Commands web rebuild')));
+        $temporary = FsDirectory::getTemporary();
+        $cache     = FsDirectory::new(DIRECTORY_WEB, FsRestrictions::getWritable([
+                                                                 DIRECTORY_WEB,
+                                                                 DIRECTORY_TMP,
+                                                                 DIRECTORY_ROOT . 'web/'
+                                                             ], 'Core\\Libraries::rebuildWebCache() 1'));
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
@@ -695,8 +719,10 @@ class Libraries
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'web', Restrictions::writable(DIRECTORY_ROOT . 'web', tr('Web cache rebuild')))
-                                          ->delete());
+              ->symlinkTargetFromThis(FsPath::new(DIRECTORY_ROOT . 'web', FsRestrictions::getWritable(
+                  DIRECTORY_ROOT . 'web',
+                  'Core\\Libraries::rebuildWebCache() 2'
+              ))->delete());
 
         Log::success(tr('Finished rebuilding web cache'));
     }
@@ -711,12 +737,16 @@ class Libraries
     {
         Log::action(tr('Clearing web caches'), 3);
 
-        $cache = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, 'Libraries::clearWebCache()'))
-                          ->clearTreeSymlinks(true);
+        $cache = FsDirectory::new(
+            DIRECTORY_WEB,
+            FsRestrictions::getWritable(DIRECTORY_WEB, 'Libraries::clearWebCache() 1')
+        )->clearTreeSymlinks(true);
 
         if (!$cache->exists()) {
-            Path::new(DIRECTORY_ROOT . 'web', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
-                ->delete();
+            FsPath::new(
+                DIRECTORY_ROOT . 'web',
+                FsRestrictions::getWritable(DIRECTORY_ROOT, 'Libraries::clearWebCache() 2')
+            )->delete();
         }
     }
 
@@ -733,8 +763,12 @@ class Libraries
         Log::action(tr('Rebuilding tests cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
-        $temporary = Directory::getTemporary();
-        $cache     = Directory::new(DIRECTORY_DATA . 'system/cache/tests', Restrictions::writable(DIRECTORY_DATA . 'system/cache/tests', tr('Commands tests rebuild')));
+        $temporary = FsDirectory::getTemporary();
+        $cache     = FsDirectory::new(DIRECTORY_DATA . 'system/cache/tests', FsRestrictions::getWritable([
+                                                                                         DIRECTORY_DATA . 'system/cache/tests',
+                                                                                         DIRECTORY_TMP,
+                                                                                         DIRECTORY_ROOT . 'tests/'
+                                                                                     ], 'Libraries::rebuildTestsCache() 1'));
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
@@ -748,8 +782,10 @@ class Libraries
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'tests', Restrictions::writable(DIRECTORY_ROOT . 'tests', tr('Tests cache rebuild')))
-                                          ->delete());
+              ->symlinkTargetFromThis(FsPath::new(
+                  DIRECTORY_ROOT . 'tests',
+                  FsRestrictions::getWritable(DIRECTORY_ROOT . 'tests', 'Libraries::rebuildTestsCache() 2')
+              )->delete());
 
         Log::success(tr('Finished rebuilding tests cache'));
     }
@@ -764,12 +800,16 @@ class Libraries
     {
         Log::action(tr('Clearing test caches'), 3);
 
-        $cache = Directory::new(DIRECTORY_DATA . 'system/cache/tests', Restrictions::writable(DIRECTORY_DATA . 'system/cache/tests', 'Libraries::clearTestsCache()'))
-                          ->clearTreeSymlinks(true);
+        $cache = FsDirectory::new(
+            DIRECTORY_DATA . 'system/cache/tests',
+            FsRestrictions::getWritable(DIRECTORY_DATA . 'system/cache/tests', 'Libraries::clearTestsCache() 1')
+        )->clearTreeSymlinks(true);
 
         if (!$cache->exists()) {
-            Path::new(DIRECTORY_ROOT . '/tests', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
-                ->delete();
+            FsPath::new(
+                DIRECTORY_ROOT . '/tests',
+                FsRestrictions::getWritable(DIRECTORY_ROOT . '/tests', 'Libraries::clearWebCache() 2')
+            )->delete();
         }
     }
 
@@ -822,11 +862,12 @@ class Libraries
 
         Log::action(tr('Pre-loading all library classes into memory'));
 
-        Find::new(Restrictions::readonly($path))
-            ->setPath($path)
-            ->setType('f')
-            ->setName('*.php')
-            ->setCallback(function ($file) {
+        Find::new(FsDirectory::new(
+            $path,
+            FsRestrictions::getReadonly($path, 'Libraries::loadAllPhoundationClassesIntoMemory()')
+        ))->setType('f')
+          ->setName('*.php')
+          ->setCallback(function ($file) {
                 $test  = strtolower($file);
                 $tests = [
                     'Tests/bootstrap.php',
@@ -877,11 +918,12 @@ class Libraries
                 ':type' => $type,
             ]));
 
-            Find::new(Restrictions::readonly($path))
-                ->setPath($path)
-                ->setType('f')
-                ->setName('*.php')
-                ->setCallback(function ($file) {
+            Find::new(FsDirectory::new(
+                $path,
+                FsRestrictions::getReadonly($path, 'Libraries::loadAllPluginClassesIntoMemory()')
+            ))->setType('f')
+              ->setName('*.php')
+              ->setCallback(function ($file) {
                     $test  = strtolower($file);
                     $tests = [
                         'Tests/bootstrap.php',

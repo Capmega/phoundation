@@ -8,7 +8,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script system/maintenance/disable
+ * Command system/maintenance/disable
  *
  * This script will disable maintenance mode
  *

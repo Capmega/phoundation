@@ -2,6 +2,7 @@
 
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Response;
@@ -189,6 +190,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                         to Charlie Sheen fans. </p>
 
                                     <form class="form-horizontal">
+                                        <?php Csrf::getHiddenElement() ?>
                                         <div class="input-group input-group-sm mb-0">
                                             <input class="form-control form-control-sm" placeholder="Response">
                                             <div class="input-group-append">
@@ -360,6 +362,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
                             <div class="tab-pane" id="settings">
                                 <form class="form-horizontal">
+                                    <?php Csrf::getHiddenElement() ?>
                                     <div class="form-group row">
                                         <label for="inputName" class="col-sm-2 col-form-label">Name</label>
                                         <div class="col-sm-10">

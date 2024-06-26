@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Libraries\Interfaces;
 
 use Phoundation\Core\Libraries\Updates;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 
 /**
  * Updates class
@@ -21,9 +22,9 @@ interface UpdatesInterface
     /**
      * Returns the file for this library
      *
-     * @return string
+     * @return FsFileInterface
      */
-    public function getFile(): string;
+    public function getFile(): FsFileInterface;
 
 
     /**
@@ -85,7 +86,7 @@ interface UpdatesInterface
 
 
     /**
-     * Execute the post init files
+     * ExecuteExecuteInterface the post init files
      *
      * @param string|null $comments
      *

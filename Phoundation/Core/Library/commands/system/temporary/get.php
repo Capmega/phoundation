@@ -5,11 +5,11 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\FsDirectory;
 
 
 /**
- * Script system/temporary/get
+ * Command system/temporary/get
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -39,4 +39,4 @@ $argv = ArgvValidator::new()
 
 
 // Get persistent temporary directory and we're done
-Log::cli(Directory::getTemporary($argv['public'], true)->getPath());
+Log::cli(FsDirectory::getTemporary($argv['public'], true)->getPath());

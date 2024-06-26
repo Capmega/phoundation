@@ -8,7 +8,7 @@ use Phoundation\Developer\Mtime;
 
 
 /**
- * Script system/touch
+ * Command system/touch
  *
  * This is the touch script for the project.
  *

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Core\Locale\Language\Interfaces\LanguagesInterface;
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 /**
@@ -13,13 +13,13 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  *
  *
  *
- * @see       \Phoundation\Data\DataEntry\DataList
+ * @see       \Phoundation\Data\DataEntry\DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
-class Languages extends DataList implements LanguagesInterface
+class Languages extends DataIterator implements LanguagesInterface
 {
     /**
      * Languages class constructor
@@ -37,7 +37,7 @@ class Languages extends DataList implements LanguagesInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

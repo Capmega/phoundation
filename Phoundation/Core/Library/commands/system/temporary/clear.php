@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Strings;
 
 
 /**
- * Script system/temporary/clear
+ * Command system/temporary/clear
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -45,4 +45,4 @@ $argv['path'] = Strings::from($argv['path'], ($argv['public'] ? DIRECTORY_PUBTMP
 
 
 // Clear the specified temporary directory and we're done
-File::new(($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $argv['path'], Restrictions::writable($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP))->delete();
+FsFile::new(($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $argv['path'], FsRestrictions::getWritable($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP))->delete();

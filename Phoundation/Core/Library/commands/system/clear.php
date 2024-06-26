@@ -7,12 +7,12 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 
 
 /**
- * Script system/clear
+ * Command system/clear
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -67,14 +67,14 @@ if ($argv['date']) {
 
 } else {
     if ($argv['shred']) {
-        File::new(DIRECTORY_DATA . 'tmp', Restrictions::new(DIRECTORY_DATA, true))->shred();
-        File::new(DIRECTORY_DATA . 'content/cdn/tmp', Restrictions::new(DIRECTORY_DATA, true))->shred();
-        File::new(DIRECTORY_DATA . 'cache', Restrictions::new(DIRECTORY_DATA, true))->shred();
+        FsFile::new(DIRECTORY_DATA . 'tmp', FsRestrictions::new(DIRECTORY_DATA, true))->shred();
+        FsFile::new(DIRECTORY_DATA . 'content/cdn/tmp', FsRestrictions::new(DIRECTORY_DATA, true))->shred();
+        FsFile::new(DIRECTORY_DATA . 'cache', FsRestrictions::new(DIRECTORY_DATA, true))->shred();
 
     } else {
-        File::new(DIRECTORY_DATA . 'tmp', Restrictions::new(DIRECTORY_DATA, true))->delete();
-        File::new(DIRECTORY_DATA . 'content/cdn/tmp', Restrictions::new(DIRECTORY_DATA, true))->delete();
-        File::new(DIRECTORY_DATA . 'cache', Restrictions::new(DIRECTORY_DATA, true))->delete();
+        FsFile::new(DIRECTORY_DATA . 'tmp', FsRestrictions::new(DIRECTORY_DATA, true))->delete();
+        FsFile::new(DIRECTORY_DATA . 'content/cdn/tmp', FsRestrictions::new(DIRECTORY_DATA, true))->delete();
+        FsFile::new(DIRECTORY_DATA . 'cache', FsRestrictions::new(DIRECTORY_DATA, true))->delete();
     }
 }
 

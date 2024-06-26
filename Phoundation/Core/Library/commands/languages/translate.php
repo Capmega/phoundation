@@ -8,7 +8,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script languages/translate
+ * Command languages/translate
  *
  * This script will translate your project into the various configured translations
  *

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Core;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Config;
 
@@ -31,11 +31,11 @@ class Tmp
     {
         Log::action(tr('Clearing all temporary files'), 3);
         // Delete all private temporary files
-        Directory::new(DIRECTORY_TMP, Restrictions::writable(DIRECTORY_TMP, tr('Clear tmp directories')))
+        FsDirectory::new(DIRECTORY_TMP, FsRestrictions::getWritable(DIRECTORY_TMP, tr('Clear tmp directories')))
                  ->delete()
                  ->ensure();
         // Delete all public temporary files
-        Directory::new(DIRECTORY_PUBTMP, Restrictions::writable(DIRECTORY_PUBTMP, tr('Clear tmp directories')))
+        FsDirectory::new(DIRECTORY_PUBTMP, FsRestrictions::getWritable(DIRECTORY_PUBTMP, tr('Clear tmp directories')))
                  ->delete()
                  ->ensure();
         Log::success(tr('Cleared all temporary files'));

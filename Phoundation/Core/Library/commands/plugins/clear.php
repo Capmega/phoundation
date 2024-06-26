@@ -8,7 +8,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script system/plugins/clear
+ * Command plugins clear
  *
  *
  *
@@ -18,7 +18,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @category  Function reference
  * @package   Phoundation\Core
  */
-CliDocumentation::setUsage('./pho system plugins clear');
+CliDocumentation::setUsage('./pho plugins clear');
 
 CliDocumentation::setHelp('This command clears all plugin registrations by deleting all entries in the core_plugins
 table

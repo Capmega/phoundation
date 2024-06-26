@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Language class
+ *
+ *
+ *
+ * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Core
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Locale\Language;
@@ -12,17 +24,6 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
-/**
- * Language class
- *
- *
- *
- * @see       \Phoundation\Data\DataEntry\DataEntry
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Core
- */
 class Language extends DataEntry implements LanguageInterface
 {
     use TraitDataEntryNameDescription;
@@ -30,7 +31,7 @@ class Language extends DataEntry implements LanguageInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

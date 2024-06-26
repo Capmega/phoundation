@@ -39,8 +39,8 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
@@ -150,15 +150,19 @@ class Session implements SessionInterface
         if (static::$startup) {
             return;
         }
+
         // Correctly detect the remote IP
         if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
+
         Log::action(tr('Starting session object'), 1);
+
         static::checkDomains();
         static::configureCookies();
         static::checkCookie();
         static::$startup = true;
+
         Http::setSslDefaultContext();
     }
 
@@ -174,15 +178,18 @@ class Session implements SessionInterface
         // :TODO: The next section may be included in the whitelabel domain check
         // Check if the requested domain is allowed
         static::$domain = $_SERVER['HTTP_HOST'];
+
         if (!static::$domain) {
             // No domain was requested at all, so probably instead of a domain name, an IP was requested. Redirect to
             // the domain name
             Response::redirect();
         }
+
         // Check the detected domain against the configured domain. If it doesn't match then check if it's a registered
         // whitelabel domain
         if (static::$domain === Request::getDomain()) {
             // This is the primary domain
+
         } else {
             // This is not the registered domain!
             switch (Config::getBoolean('web.domains.whitelabels', false)) {
@@ -192,10 +199,13 @@ class Session implements SessionInterface
                         ':source' => $_SERVER['HTTP_HOST'],
                         ':target' => Request::getDomain(),
                     ]));
+
                     Response::redirect(PROTOCOL . Request::getDomain());
+
                 case 'all':
                     // All domains are allowed
                     break;
+
                 case 'sub':
                     // White label domains are disabled, but subdomains from the primary domain are allowed
                     if (Strings::from(static::$domain, '.') !== Request::getDomain()) {
@@ -206,12 +216,14 @@ class Session implements SessionInterface
                         Response::redirect(PROTOCOL . Request::getDomain());
                     }
                     break;
+
                 case 'list':
                     // This domain must be registered in the whitelabels list
                     static::$domain = sql()->getColumn('SELECT `domain` 
-                                                          FROM   `whitelabels` 
-                                                          WHERE  `domain` = :domain 
-                                                          AND `status` IS NULL', [':domain' => $_SERVER['HTTP_HOST']]);
+                                                       FROM   `whitelabels` 
+                                                       WHERE  `domain` = :domain 
+                                                       AND `status` IS NULL', [':domain' => $_SERVER['HTTP_HOST']]);
+
                     if (empty(static::$domain)) {
                         Log::warning(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [
                             ':source' => $_SERVER['HTTP_HOST'],
@@ -220,6 +232,7 @@ class Session implements SessionInterface
                         Response::redirect(PROTOCOL . Request::getDomain());
                     }
                     break;
+
                 default:
                     if (is_array(Config::get('web.domains.whitelabels', false))) {
                         // Domain must be specified in one of the array entries
@@ -267,11 +280,13 @@ class Session implements SessionInterface
     {
         // Check what domains are accepted by the client (in order of importance) and see if we support any of those
         $supported_domains = Config::get('web.domains');
+
         if (array_key_exists($_SERVER['HTTP_HOST'], $supported_domains)) {
             static::$domain = $_SERVER['HTTP_HOST'];
 
             return static::$domain;
         }
+
         // No supported domain found, redirect to the primary domain
         Response::redirect(true);
     }
@@ -289,14 +304,17 @@ class Session implements SessionInterface
     {
         if ($sub_key) {
             $section = isset_get($_SESSION[$key]);
+
             if (is_array($section)) {
                 // Key exists and is an array, yay!
                 return isset_get($section[$sub_key]);
             }
+
             if ($section === null) {
                 // Key does not exist or was null, either way, nothing to return!
                 return null;
             }
+
             // Sub must either not exist or be an array. Here its neither
             throw new OutOfBoundsException(tr('Cannot read session key ":key" sub key ":sub-key" because session key is not an array', [
                 ':key'     => $key,
@@ -321,14 +339,17 @@ class Session implements SessionInterface
             case false:
                 // This domain has no cookies
                 break;
+
             case 'auto':
                 Config::set('sessions.cookies.domain', static::$domain);
                 ini_set('session.cookie_domain', static::$domain);
                 break;
+
             case '.auto':
                 Config::get('web.sessions.cookies.domain', '.' . static::$domain);
                 ini_set('session.cookie_domain', '.' . static::$domain);
                 break;
+
             default:
                 // Test cookie domain limitation
                 //
@@ -341,6 +362,7 @@ class Session implements SessionInterface
                 } else {
                     $test = Config::getBoolString('web.sessions.cookies.domain');
                 }
+
                 if (!str_contains(static::$domain, $test)) {
                     Notification::new()
                                 ->setUrl('security/incidents.html')
@@ -356,10 +378,13 @@ class Session implements SessionInterface
                                 ->send();
                     Response::redirect(PROTOCOL . Strings::ensureStartsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'));
                 }
+
                 ini_set('session.cookie_domain', Config::getBoolString('web.sessions.cookies.domain'));
+
                 unset($test);
                 unset($length);
         }
+
         // Set session and cookie parameters
         try {
             if (Config::getBoolean('web.sessions.enabled', true)) {
@@ -373,6 +398,7 @@ class Session implements SessionInterface
                 ini_set('session.cookie_samesite', Config::getBoolean('web.sessions.cookies.same-site', true));
                 ini_set('session.save_handler', Config::getString('sessions.handler', 'files'));
                 ini_set('session.save_path', Config::getString('sessions.path', DIRECTORY_DATA . 'data/sessions/'));
+
                 if (Config::getBoolean('web.sessions.check-referrer', true)) {
                     ini_set('session.referer_check', static::$domain);
                 }
@@ -420,16 +446,19 @@ class Session implements SessionInterface
             if (array_key_exists($key, $_SESSION)) {
                 $_SESSION[$key] = [];
             }
+
             if (!is_array($_SESSION[$key])) {
                 throw new OutOfBoundsException(tr('Cannot write session key ":key" sub key ":sub-key" because session key is not an array', [
                     ':key'     => $key,
                     ':sub-key' => $sub_key,
                 ]));
             }
+
             $_SESSION[$key][$sub_key] = $value;
 
             return;
         }
+
         $_SESSION[$key] = $value;
     }
 
@@ -452,6 +481,7 @@ class Session implements SessionInterface
                 // Failed to start an existing session, so we'll have to detect the client anyway
                 Client::detect();
             }
+
         } else {
             Client::detect();
         }
@@ -492,11 +522,11 @@ class Session implements SessionInterface
         // What handler to use?
         switch (Config::getString('web.sessions.handler', 'files')) {
             case 'files':
-                $directory = Directory::new(Config::getString('web.sessions.path', DIRECTORY_DATA . 'sessions/'), Restrictions::new([
+                $directory = FsDirectory::new(Config::getString('web.sessions.path', DIRECTORY_DATA . 'sessions/'), FsRestrictions::new([
                     DIRECTORY_DATA,
                     '/var/lib/php/sessions/',
-                ], true, 'system/sessions'))
-                                      ->ensure();
+                ],                                                                                                                      true, 'system/sessions'))
+                                        ->ensure();
                 session_save_path($directory->getPath());
                 break;
             case 'memcached':
@@ -525,11 +555,11 @@ class Session implements SessionInterface
             static::checkExtended();
             Log::success(tr('Resumed session ":session" for user ":user" from IP ":ip"', [
                 ':session' => session_id(),
-                ':user'    => static::getUser()
-                                    ->getLogId(),
+                ':user'    => static::getUser()->getLogId(),
                 ':ip'      => $_SERVER['REMOTE_ADDR'],
             ]));
         }
+
         // check and set last activity
         if (Config::getInteger('web.sessions.cookies.lifetime', 0)) {
             // Session cookie timed out?
@@ -542,7 +572,9 @@ class Session implements SessionInterface
                 session_regenerate_id(true);
             }
         }
+
         $_SESSION['last_activity'] = microtime(true);
+
         // Euro cookie check, can we do cookies at all?
         if (Config::getBoolean('web.sessions.cookies.europe', true) and !Config::getString('web.sessions.cookies.name', 'phoundation')) {
             if (
@@ -555,6 +587,7 @@ class Session implements SessionInterface
                 return false;
             }
         }
+
         if (Config::getBoolean('security.url-cloaking.enabled', false) and Config::getBoolean('security.url-cloaking.strict', false)) {
             /*
              * URL cloaking was enabled and requires strict checking.
@@ -566,6 +599,7 @@ class Session implements SessionInterface
                 if (empty($core->register['url_cloak_users_id'])) {
                     throw new SessionException(tr('Failed cloaked URL strict checking, no cloaked URL users_id registered'));
                 }
+
                 if ($core->register['url_cloak_users_id'] !== $_SESSION['user']['id']) {
                     throw new AccessDeniedException(tr('Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', [
                         ':session_users_id' => $_SESSION['user']['id'],
@@ -574,6 +608,7 @@ class Session implements SessionInterface
                 }
             }
         }
+
         if (Config::getBoolean('web.sessions.regenerate-id', false)) {
             // Regenerate session identifier
             if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > Config::getBoolean('web.sessions.regenerate_id', false))) {
@@ -583,6 +618,7 @@ class Session implements SessionInterface
                 $_SESSION['created'] = time();
             }
         }
+
         // Is this first visit?
         // TODO Fix this crap. We should be able to redirect on first visit, or show modal or flash messages. Do much more!
         if (isset($_SESSION['first_visit'])) {
@@ -593,19 +629,22 @@ class Session implements SessionInterface
         } else {
             $_SESSION['first_visit'] = 1;
         }
+
         if ($_SESSION['domain'] !== static::$domain) {
             // Domain mismatch? Okay if this is sub domain, but what if its a different domain? Check whitelist domains?
             // TODO Implement
         }
+
         $_SESSION['ip'] = isset_get($_SERVER['REMOTE_ADDR']);
+
         if ($_SESSION['ip'] !== $_SESSION['first_ip']) {
             // IP mismatch? What to do here? configurable actions!
             // TODO Implement
         }
+
         // If any flash messages were stored in the $_SESSION, import them into the flash messages object
         if (isset($_SESSION['flash_messages'])) {
-            static::getFlashMessages()
-                  ->import((array) $_SESSION['flash_messages']);
+            static::getFlashMessages()->import((array) $_SESSION['flash_messages']);
             unset($_SESSION['flash_messages']);
         }
 
@@ -620,10 +659,12 @@ class Session implements SessionInterface
      */
     protected static function create(): bool
     {
-        Log::success(tr('Created new session for user ":user"', [
-            ':user' => static::getUser()
-                             ->getLogId(),
+        Log::success(tr('Created new session ":session" for user ":user"', [
+            ':session' => session_id(),
+            ':user'    => static::getUser()
+                                ->getLogId(),
         ]));
+
         // Initialize the session
         $_SESSION['init']         = microtime(true);
         $_SESSION['first_domain'] = static::$domain;
@@ -633,6 +674,7 @@ class Session implements SessionInterface
 //                        $_SESSION['mobile']       = Core::readRegister('system', 'session', 'mobile');
 //                        $_SESSION['location']     = Core::readRegister('system', 'session', 'location');
 //                        $_SESSION['language']     = Core::readRegister('system', 'session', 'language');
+
         // Set users timezone
         if (empty($_SESSION['user']['timezone'])) {
             $_SESSION['user']['timezone'] = Config::get('timezone.display', 'UTC');
@@ -979,14 +1021,10 @@ class Session implements SessionInterface
      */
     public static function validateSignIn(ValidatorInterface $validator = null): array
     {
-        if (!$validator) {
-            $validator = PostValidator::new();
-        }
+        $validator = $validator ?? PostValidator::new();
 
-        return $validator->select('email')
-                         ->isEmail()
-                         ->select('password')
-                         ->isPassword()
+        return $validator->select('email')->isEmail()
+                         ->select('password')->isPassword()
                          ->validate();
     }
 

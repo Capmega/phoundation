@@ -1,3 +1,8 @@
+<?php
+
+use Phoundation\Web\Html\Csrf;
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,6 +37,7 @@
 
         <!-- lockscreen credentials (contains the form) -->
         <form class="lockscreen-credentials">
+            <?php Csrf::getHiddenElement() ?>
             <div class="input-group">
                 <input type="password" class="form-control" placeholder="password">
 

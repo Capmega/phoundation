@@ -6,10 +6,13 @@ namespace Phoundation\Core\Libraries;
 
 use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Developer\Debug;
 use Phoundation\Developer\Exception\DoubleVersionException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Utils\Strings;
 
 /**
@@ -41,9 +44,9 @@ abstract class Updates implements UpdatesInterface
     /**
      * The $file for this library
      *
-     * @var string|null $file
+     * @var FsFileInterface|null $file
      */
-    protected ?string $file = null;
+    protected ?FsFileInterface $file = null;
 
     /**
      * The code version for this library
@@ -76,33 +79,41 @@ abstract class Updates implements UpdatesInterface
         $library = strtolower(get_class($this));
         $vendor  = Strings::from($library, 'plugins\\');
         $vendor  = Strings::until($vendor, '\\');
+
         do {
             $library = Strings::untilReverse($library, '\\');
             $test    = Strings::fromReverse($library, '\\');
 
         } while ($test === 'library');
+
         $library = $test;
+
         // Load the updates and the code version
         $this->updates();
+
         $code_version = $this->version();
+
         if (!$code_version) {
             throw new OutOfBoundsException(tr('No code version specified for library ":library" init file', [
                 ':library' => $library,
             ]));
         }
+
         if (!strings::isVersion($code_version)) {
             throw new OutOfBoundsException(tr('Invalid code version ":version" specified for library ":library" init file', [
                 ':version' => $code_version,
                 ':library' => $library,
             ]));
         }
+
         if ($code_version === '0.0.0') {
             throw new OutOfBoundsException(tr('Invalid code version ":version" specified for library ":library" init file. The minimum version is "0.0.1"', [
                 ':version' => $code_version,
                 ':library' => $library,
             ]));
         }
-        $this->file         = DIRECTORY_ROOT . str_replace('\\', '/', get_class($this)) . '.php';
+
+        $this->file         = FsDirectory::getRoot()->addFile(str_replace('\\', '/', get_class($this)) . '.php');
         $this->vendor       = $vendor;
         $this->library      = $library;
         $this->code_version = $code_version;
@@ -128,9 +139,9 @@ abstract class Updates implements UpdatesInterface
     /**
      * Returns the file for this library
      *
-     * @return string
+     * @return FsFileInterface
      */
-    public function getFile(): string
+    public function getFile(): FsFileInterface
     {
         return $this->file;
     }
@@ -164,7 +175,9 @@ abstract class Updates implements UpdatesInterface
                 ':file'    => $this->file,
             ]));
         }
+
         $this->updates[$version] = $function;
+
         // Make sure the updates table is ordered by versions
         uksort($this->updates, function ($a, $b) {
             return version_compare($a, $b);
@@ -184,35 +197,32 @@ abstract class Updates implements UpdatesInterface
     public function init(?string $comments = null): ?string
     {
         $version = $this->getNextInitVersion();
-        // Execute this init, register the version as executed, and return the next version
+        // ExecuteExecuteInterface this init, register the version as executed, and return the next version
         switch ($version) {
             case 'post_once':
                 // no break
+
             case 'post_always':
                 Log::action(tr('Executing ":library" ":version" init', [
                     ':library' => $this->vendor . '/' . $this->library,
                     ':version' => $version,
                 ]));
                 break;
+
             default:
                 Log::action(tr('Updating ":library" library to version ":version"', [
                     ':library' => $this->vendor . '/' . $this->library,
                     ':version' => $version,
                 ]));
         }
-        // Execute the update and clear the versions_exists as after any update, the versions table should exist
+
+        // ExecuteExecuteInterface the update and clear the versions_exists as after any update, the versions table should exist
         try {
-            if (
-                !TEST or (in_array($this->library, [
-                    'accounts',
-                    'core',
-                    'meta',
-                    'geo',
-                ]))
-            ) {
+            if (!TEST or (in_array($this->library, ['accounts',  'core', 'meta', 'geo']))) {
                 // In TEST mode only execute Core, Geo, Accounts, and Meta libraries
                 $this->updates[$version]();
             }
+
             unset($this->versions_exists);
 
         } catch (Exception $e) {
@@ -220,6 +230,7 @@ abstract class Updates implements UpdatesInterface
             $e->setWarning(false);
             throw $e;
         }
+
         // Register the version update and return the next available init
         $this->addVersion($version, $comments);
 
@@ -238,18 +249,21 @@ abstract class Updates implements UpdatesInterface
     {
         // Get the current version for the database
         $version = $version ?? $this->getDatabaseVersion();
+
         if (($version === null) or ($version === '0.0.0')) {
             // There is no version registered in the database at all, so the first available init is it!
             if (!$this->updates) {
                 // Err, the update file contains no updates!
                 return null;
             }
+
             $next_version = array_key_first($this->updates);
 
         } else {
             // Get the next available update version in the updates file. NULL if there are no versions
             $next_version = $this->getNextVersion($this->updates, $version);
         }
+
 //Log::warning('Next version for ' . $this->library . ' after ' . ($version ?? 'N/A') . ' is ' . $next_version);
         if ($next_version) {
             if ($this->isFuture($next_version)) {
@@ -273,6 +287,7 @@ abstract class Updates implements UpdatesInterface
         if (!$this->versionsTableExists()) {
             return null;
         }
+
         $version = sql()->getColumn('SELECT MAX(`version`) 
                                            FROM   `core_versions` 
                                            WHERE  `library` = :library', [':library' => $this->library]);
@@ -356,23 +371,28 @@ abstract class Updates implements UpdatesInterface
                 // These are never future versions
                 return false;
         }
+
         $result = Version::compare($version, $this->code_version);
+
         switch ($result) {
             case -1:
                 // The init version is newer than the specified version and may be executed
                 return false;
+
             case 0:
                 // The init version is the same as the current version and may be executed
                 return false;
+
             case 1:
                 // The file version is later than the specified version
                 Log::warning(tr('Skipping init version ":version" for library ":library" because it is a future update', [
                     ':library' => $this->vendor . '/' . $this->library,
                     ':version' => $version,
-                ]), 9);
+                ]), Debug::getEnabled() ? 10 : 4);
 
                 return true;
         }
+
         throw new UnexpectedValueException(tr('Php version_compare() gave the unexpected output ":output"', [
             ':output' => $result,
         ]));
@@ -402,7 +422,7 @@ abstract class Updates implements UpdatesInterface
 
 
     /**
-     * Execute the post init files
+     * ExecuteExecuteInterface the post init files
      *
      * @param string|null $comments
      *
@@ -412,7 +432,7 @@ abstract class Updates implements UpdatesInterface
     {
         $result = false;
         // Only execute post_* files if we're not in TEST mode
-        // Execute the post_once
+        // ExecuteExecuteInterface the post_once
         if (array_key_exists('post_once', $this->updates)) {
             if (!$this->databaseVersionExists('post_once')) {
                 // This post_once has not yet been executed, do so now and register
@@ -424,7 +444,7 @@ abstract class Updates implements UpdatesInterface
                 $result = true;
             }
         }
-        // Execute the post_always
+        // ExecuteExecuteInterface the post_always
         if (array_key_exists('post_always', $this->updates)) {
             Log::action(tr('Executing "post_always" for library ":library"', [
                 ':library' => $this->vendor . '/' . $this->library,

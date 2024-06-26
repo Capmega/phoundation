@@ -9,11 +9,11 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Exception\PhoundationBranchNotExistException;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Project;
-use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\FsDirectory;
 
 
 /**
- * Script system/update
+ * Command system/update
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -30,8 +30,8 @@ CliDocumentation::setAutoComplete([
                                               'noword' => function () { return Phoundation::new()->getPhoundationBranches()->getSourceKeys(); },
                                           ],
                                           '-p,--phoundation' => [
-                                              'word'   => function ($word) { return Directory::new('/var/www/html', '/var/www/html')->scan($word . '*'); },
-                                              'noword' => function () { return Directory::new('/var/www/html', '/var/www/html')->scan(); },
+                                              'word'   => function ($word) { return FsDirectory::new('/var/www/html', '/var/www/html')->scan($word . '*'); },
+                                              'noword' => function () { return FsDirectory::new('/var/www/html', '/var/www/html')->scan(); },
                                           ],
                                           '-c,--check'       => false,
                                           '-l,--local'       => false,

@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core;
-
-use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Core\Log\Log;
-use Phoundation\Date\Time;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Numbers;
-
 /**
  * Class ProcessControlSignals
  *
@@ -20,6 +10,18 @@ use Phoundation\Utils\Numbers;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Core;
+
+use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Core\Log\Log;
+use Phoundation\Date\Time;
+use Phoundation\Developer\Debug;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Numbers;
+
 class ProcessControlSignals
 {
     /**
@@ -57,11 +59,13 @@ class ProcessControlSignals
         if (isset(static::$signals)) {
             return;
         }
+
         $default_handler = function (string $signal, mixed $info, int $exit_code) {
             // Reset error handling to be managed by Core, then terminate process
             Core::setErrorHandling(true);
             static::dumpTerminate($signal, $info, $exit_code);
         };
+
         static::$signals = [
             // The SIGKILL signal is sent to a process to cause it to terminate immediately (kill). In contrast to SIGTERM and SIGINT, this signal cannot be caught or ignored, and the receiving process cannot perform any clean-up upon receiving this signal. The following exceptions apply:,
             // Zombie processes cannot be killed since they are already dead and waiting for their parent processes to reap them.
@@ -277,11 +281,14 @@ class ProcessControlSignals
      */
     #[NoReturn] protected static function dumpTerminate(string $signal, mixed $info, int $exit_code): never
     {
-        // The SIGTERM signal is sent to a process to request its termination. Unlike the SIGKILL signal, it can be caught and interpreted or ignored by the process. This allows the process to perform nice termination releasing resources and saving state if appropriate. SIGINT is nearly identical to SIGTERM.
+        // The SIGTERM signal is sent to a process to request its termination. Unlike the SIGKILL signal, it can be
+        // caught and interpreted or ignored by the process. This allows the process to perform nice termination
+        // releasing resources and saving state if appropriate. SIGINT is nearly identical to SIGTERM.
         Log::warning(tr('Killing process because of process signal ":signal"', [':signal' => $signal]), 10);
-        Log::backtrace();
+        Log::backtrace(backtrace: Debug::backtrace(3));
         Log::warning(tr('Signal information:'), 10);
         Log::table($info);
+
         Core::exit($exit_code, tr('Command ":script" was terminated because of signal ":signal" with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
             ':signal'   => $signal,
             ':script'   => Core::getExecutedPath(),
@@ -357,12 +364,15 @@ class ProcessControlSignals
     public static function execute(int $signal, mixed $info = null): void
     {
         Log::warning(tr('Received process signal ":signal"', [':signal' => $signal]), 10);
+
         static::getInstance();
+
         if (!array_key_exists($signal, static::$signals)) {
             throw new OutOfBoundsException(tr('Unknown process signal ":signal" received', [
                 ':signal' => $signal,
             ], $info));
         }
+
         if (static::$signals[$signal]['callback']) {
             // Only execute callbacks if defined
             static::$signals[$signal]['callback'](static::$signals[$signal]['name'], $info, static::$signals[$signal]['exit_code']);

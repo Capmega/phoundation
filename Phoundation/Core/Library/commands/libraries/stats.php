@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Script libraries/info
+ * Command libraries/info
  *
  * This script will display detailed information about the specified library
  *

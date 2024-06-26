@@ -8,7 +8,7 @@ use Phoundation\Tests\Tests;
 
 
 /**
- * Script system/test
+ * Command system/test
  *
  * This is the test script for the project.
  *
@@ -31,7 +31,7 @@ This script can manage and start the PHP unit tests and others
 ARGUMENTS
 
 
-[--unit]                                Execute PHP Unit tests');
+[--unit]                                ExecuteExecuteInterface PHP Unit tests');
 
 
 // Get command line arguments
@@ -40,7 +40,7 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Execute unit tests?
+// ExecuteExecuteInterface unit tests?
 if ($argv['unit']) {
     Tests::startPhpUnitTests();
 }

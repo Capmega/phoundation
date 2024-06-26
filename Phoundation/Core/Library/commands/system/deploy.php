@@ -6,12 +6,12 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
 
 
 /**
- * Script project/check
+ * Command project/check
  *
  * This script will check for - and report - (and optionally fix) the project and its systems
  *
@@ -20,13 +20,13 @@ use Phoundation\Filesystem\Restrictions;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
-$restrictions = Restrictions::readonly([DIRECTORY_ROOT . 'config/deploy/'], tr('Deploy'));
+$restrictions = FsRestrictions::getReadonly([DIRECTORY_ROOT . 'config/deploy/'], tr('Deploy'));
 
 CliDocumentation::setAutoComplete([
                                       'positions' => [
                                           0 => [
-                                              'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan($word . '*.yaml'); },
-                                              'noword' => function ()      use ($restrictions) { return Directory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan('*.yaml'); },
+                                              'word'   => function ($word) use ($restrictions) { return FsDirectory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan($word . '*.yaml'); },
+                                              'noword' => function ()      use ($restrictions) { return FsDirectory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan('*.yaml'); },
                                           ],
                                       ],
                                       'arguments' => [
@@ -125,7 +125,7 @@ TARGET                                  - The target name to which to deploy
 [--no-backup]                           - Do NOT execute a site / database backup, even though per configuration, a
                                           backup should be done
 
-[--do-backup]                           - Execute a site / database backup, even if per configuration, a backup should
+[--do-backup]                           - ExecuteExecuteInterface a site / database backup, even if per configuration, a backup should
                                           not be done
 
 [--update-sitemap]                      - rsync the www/LANG/sitemap file as well (Normally always skipped)
@@ -188,7 +188,7 @@ if ($argv['targets']) {
     Project::new()->getDeploy()->listCategories()->getCliTable();
 
 } else {
-    // Execute deployment
+    // ExecuteExecuteInterface deployment
     Project::new()->getDeploy($argv['target'])
            ->setIgnoreChanges($argv['do_ignore_changes'], $argv['no_ignore_changes'])
            ->setExecuteHooks($argv['do_execute_hooks'], $argv['no_execute_hooks'])

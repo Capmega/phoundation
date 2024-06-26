@@ -6,12 +6,12 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Date\DateTime;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
 
 
 /**
- * Script system/clean
+ * Command system/clean
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -79,9 +79,9 @@ $paths = [
 
 foreach ($paths as $path) {
     // Configure find to find all files and directories older than $argv[date]
-    $find = Directory::new($path, Restrictions::new($path, true))
-                     ->find()
-                     ->olderThan($argv['date']);
+    $find = FsDirectory::new($path, FsRestrictions::new($path, true))
+                       ->find()
+                       ->olderThan($argv['date']);
 
     // Delete or shred?
     if ($argv['shred']) {

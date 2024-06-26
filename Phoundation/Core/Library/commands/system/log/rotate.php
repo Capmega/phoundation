@@ -9,7 +9,7 @@ use Phoundation\Filesystem\Exception\FileExistsException;
 
 
 /**
- * Script system/log/rotate
+ * Command system/log/rotate
  *
  * This script can be used to test the authentication for the specified user
  *

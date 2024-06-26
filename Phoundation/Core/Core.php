@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Core
+ *
+ * This is the core class for the entire system.
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Core
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Core;
@@ -41,9 +52,9 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
 use Phoundation\Os\Processes\Commands\Id;
@@ -60,21 +71,12 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Throwable;
 
-/**
- * Class Core
- *
- * This is the core class for the entire system.
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Core
- */
 class Core implements CoreInterface
 {
     use TraitGetInstance;
     use TraitDataStaticReadonly;
     use TraitDataStaticIsExecutedPath;
+
 
     /**
      * Framework version and minimum required PHP version
@@ -83,12 +85,13 @@ class Core implements CoreInterface
 
     public const PHP_MINIMUM_VERSION    = '8.2.0';
 
+
     /**
      * Singleton variable
      *
-     * @var Core|null $instance
+     * @var CoreInterface|null $instance
      */
-    protected static ?Core $instance = null;
+    protected static ?CoreInterface $instance = null;
 
     /**
      * A unique local code for this log entry
@@ -261,15 +264,15 @@ class Core implements CoreInterface
         // DIRECTORY_ROOT   is the root directory of this project, and should be used as the root for all other paths
         // DIRECTORY_TMP    is a private temporary directory
         // DIRECTORY_PUBTMP is a public (accessible by web server) temporary directory
-        define('REQUEST', substr(uniqid(), 7));
-        define('DIRECTORY_START', Strings::slash(getcwd()));
-        define('DIRECTORY_ROOT', realpath(__DIR__ . '/../..') . '/');
-        define('DIRECTORY_DATA', DIRECTORY_ROOT . 'data/');
-        define('DIRECTORY_CDN', DIRECTORY_DATA . 'content/cdn/');
+        define('REQUEST'           , substr(uniqid(), 7));
+        define('DIRECTORY_START'   , Strings::slash(getcwd()));
+        define('DIRECTORY_ROOT'    , realpath(__DIR__ . '/../..') . '/');
+        define('DIRECTORY_DATA'    , DIRECTORY_ROOT . 'data/');
+        define('DIRECTORY_CDN'     , DIRECTORY_DATA . 'content/cdn/');
         define('DIRECTORY_COMMANDS', DIRECTORY_DATA . 'system/cache/commands/');
-        define('DIRECTORY_PUBTMP', DIRECTORY_DATA . 'content/cdn/tmp/');
-        define('DIRECTORY_TMP', DIRECTORY_DATA . 'tmp/');
-        define('DIRECTORY_WEB', DIRECTORY_DATA . 'system/cache/web/');
+        define('DIRECTORY_PUBTMP'  , DIRECTORY_DATA . 'content/cdn/tmp/');
+        define('DIRECTORY_TMP'     , DIRECTORY_DATA . 'tmp/');
+        define('DIRECTORY_WEB'     , DIRECTORY_DATA . 'system/cache/web/');
 
         // Setup error handling, report ALL errors, setup shutdown functions
         static::setErrorHandling(true);
@@ -283,14 +286,17 @@ class Core implements CoreInterface
         // Catch and handle process control signals
         if (function_exists('pcntl_signal')) {
             pcntl_async_signals(true);
+
             pcntl_signal(SIGINT, [
                 '\Phoundation\Core\ProcessControlSignals',
                 'execute',
             ]);
+
             pcntl_signal(SIGTERM, [
                 '\Phoundation\Core\ProcessControlSignals',
                 'execute',
             ]);
+
             pcntl_signal(SIGHUP, [
                 '\Phoundation\Core\ProcessControlSignals',
                 'execute',
@@ -331,7 +337,6 @@ class Core implements CoreInterface
             static::setProject();
             static::setPlatform();
             static::startupPlatform();
-            static::setTimeout();
 
         } catch (Throwable $e) {
             if (defined('PLATFORM_WEB')) {
@@ -352,7 +357,7 @@ class Core implements CoreInterface
                 throw $e;
             }
 
-            throw new CoreStartupFailedException('Failed core startup because "' . $e->getMessage() . '"', $e);
+            throw new CoreStartupFailedException('Failed core startup because: ' . $e->getMessage(), $e);
         }
     }
 
@@ -383,14 +388,19 @@ class Core implements CoreInterface
             if (!$project) {
                 throw new OutOfBoundsException('No project defined in DIRECTORY_ROOT/config/project file');
             }
+
             define('PROJECT', $project);
+
         } catch (Throwable $e) {
             static::$failed = true;
+
             define('PROJECT', 'UNKNOWN');
             define('DIRECTORY_PROJECT', DIRECTORY_DATA . 'sources/' . PROJECT . '/');
+
             if ($e instanceof OutOfBoundsException) {
                 throw $e;
             }
+
             // Project file is not readable
             if (!is_readable(DIRECTORY_ROOT . 'config/project')) {
                 if (file_exists(DIRECTORY_ROOT . 'config/project')) {
@@ -399,11 +409,14 @@ class Core implements CoreInterface
                     // won't be able to work our way around this.
                     throw new CoreException(tr('Project file "config/project" does exist but is not readable. Please check the owner, group and mode for this file'));
                 }
+
                 // The file doesn't exist, that is good. Go to setup mode
                 error_log('Project file "config/project" does not exist, entering setup mode');
+
                 static::setPlatform();
                 static::startupPlatform();
                 static::$state = 'setup';
+
                 throw new NoProjectException('Project file "' . DIRECTORY_ROOT . 'config/project" cannot be read. Please ensure it exists');
             }
         }
@@ -493,16 +506,17 @@ class Core implements CoreInterface
         define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
         define('PAGE'      , $_GET['page'] ?? 1);
         define('QUIET'     , ((getenv('QUIET') or getenv('VERY_QUIET')) ? 'QUIET' : false));
-        define('ALL'       , (getenv('ALL')        ? 'ALL'        : false));
-        define('DELETED'   , (getenv('DELETED')    ? 'DELETED'    : false));
-        define('FORCE'     , (getenv('FORCE')      ? 'FORCE'      : false));
-        define('ORDERBY'   , (getenv('ORDERBY')    ? 'ORDERBY'    : ''));
-        define('STATUS'    , (getenv('STATUS')     ? 'STATUS'     : ''));
-        define('VERY_QUIET', (getenv('VERY_QUIET') ? 'VERY_QUIET' : false));
-        define('TEST'      , (getenv('TEST')       ? 'TEST'       : false));
-        define('VERBOSE'   , (getenv('VERBOSE')    ? 'VERBOSE'    : false));
-        define('NOAUDIO'   , (getenv('NOAUDIO')    ? 'NOAUDIO'    : false));
-        define('LIMIT'     , (getenv('LIMIT')      ? 'LIMIT'      : Config::getNatural('paging.limit', 50)));
+        define('ALL'       , (getenv('ALL')        ? getenv('ALL')        : false));
+        define('DELETED'   , (getenv('DELETED')    ? getenv('DELETED')    : false));
+        define('FORCE'     , (getenv('FORCE')      ? getenv('FORCE')      : false));
+        define('ORDERBY'   , (getenv('ORDERBY')    ? getenv('ORDERBY')    : ''));
+        define('STATUS'    , (getenv('STATUS')     ? getenv('STATUS')     : ''));
+        define('VERY_QUIET', (getenv('VERY_QUIET') ? getenv('VERY_QUIET') : false));
+        define('TEST'      , (getenv('TEST')       ? getenv('TEST')       : false));
+        define('VERBOSE'   , (getenv('VERBOSE')    ? getenv( 'VERBOSE')   : false));
+        define('NOAUDIO'   , (getenv('NOAUDIO')    ? getenv('NOAUDIO')    : false));
+        define('LIMIT'     , (getenv('LIMIT')      ? getenv('LIMIT')      : Config::getNatural('paging.limit', 50)));
+        define('NOWARNINGS', (getenv('NOWARNINGS') ? getenv('NOWARNINGS') : false));
 
         // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
@@ -521,6 +535,7 @@ class Core implements CoreInterface
         // Prepare for unicode usage
         if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
             mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
+
             if (function_exists('mb_internal_encoding')) {
                 mb_internal_encoding('UTF-8');
             }
@@ -538,7 +553,7 @@ class Core implements CoreInterface
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 //                        Html::untranslate();
 //                        Html::fixCheckboxValues();
-            if (Config::get('security.csrf.enabled', true) === 'force') {
+            if (Config::get('security.web.csrf.enabled', true) === 'force') {
                 // Force CSRF checks on every submit!
 //                            Http::checkCsrf();
             }
@@ -561,55 +576,51 @@ class Core implements CoreInterface
      * @param bool          $sig_kill     If true, the process is being terminated due to an external KILL signal
      * @param bool          $direct_exit  If true, will exit the process immediately without loging, cleaning, etc.
      *
-     * @return void
+     * @return never
      */
-    #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false, bool $direct_exit = false): void
+    #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false, bool $direct_exit = false): never
     {
         static $exit = false;
 
-        if ($exit) {
-            // In case somebody calls Core::exit(), the exit(); called at the end of this method would cause this method
-            // to be called again. Just don't.
-            return;
-        }
+        if (!$exit) {
+            $exit = true;
 
-        if (!static::$shutdown_handling) {
-            // Shutdown handling by Core has been disabled
-            return;
-        }
+            if (static::$shutdown_handling) {
+                static::setErrorHandling(true);
 
-        $exit = true;
-        static::setErrorHandling(true);
+                if ($direct_exit) {
+                    // Exit without logging, cleaning, etc.
+                    exit($exit_code);
+                }
 
-        if ($direct_exit) {
-            // Exit without logging, cleaning, etc.
-            exit($exit_code);
-        }
+                if ($sig_kill) {
+                    Log::warning(tr('Not cleaning up due to kill signal!'), 3);
 
-        if ($sig_kill) {
-            Log::warning(tr('Not cleaning up due to kill signal!'), 3);
+                } else {
+                    // Try shutdown with cleanup
+                    try {
+                        static::executeShutdownCallbacks($exit_code, $exit_message, $sig_kill);
+                        static::executePeriodicals($exit_code, $exit_message, $sig_kill);
+                        static::exitCleanup();
 
-        } else {
-            // Try shutdown with cleanup
-            try {
-                static::executeShutdownCallbacks($exit_code, $exit_message, $sig_kill);
-                static::executePeriodicals($exit_code, $exit_message, $sig_kill);
-                static::exitCleanup();
+                    } catch (Throwable $e) {
+                        // Uncaught exception handler for exit
+                        Core::uncaughtException($e);
+                    }
+                }
 
-            } catch (Throwable $e) {
-                // Uncaught exception handler for exit
-                Core::uncaughtException($e);
+                // ExecuteExecuteInterface platform specific exit
+                if (PLATFORM_WEB) {
+                    // Kill a web page
+                    Request::exit($exit_message, $sig_kill);
+                }
+
+                // Kill a CLI command
+                CliCommand::exit($exit_code, $exit_message, $sig_kill);
             }
         }
 
-        // Execute platform specific exit
-        if (PLATFORM_WEB) {
-            // Kill a web page
-            Request::exit($exit_message, $sig_kill);
-        }
-
-        // Kill a CLI command
-        CliCommand::exit($exit_code, $exit_message, $sig_kill);
+        exit();
     }
 
 
@@ -702,7 +713,7 @@ class Core implements CoreInterface
                     $data = [null];
                 }
 
-                // Execute this shutdown function for each data value
+                // ExecuteExecuteInterface this shutdown function for each data value
                 foreach ($data as $value) {
                     Log::action(tr('Executing shutdown function ":identifier" with data value ":value"', [
                         ':identifier' => $identifier,
@@ -710,7 +721,7 @@ class Core implements CoreInterface
                     ]), 1);
 
                     if (is_callable($function)) {
-                        // Execute this call directly
+                        // ExecuteExecuteInterface this call directly
                         $function($value);
                         continue;
                     }
@@ -726,7 +737,7 @@ class Core implements CoreInterface
                         }
                     }
 
-                    // Execute this shutdown function with the specified value
+                    // ExecuteExecuteInterface this shutdown function with the specified value
                     if (is_array($function)) {
                         // Decode the array contents. If anything is not correct, it will no-break fall through to the
                         // warning log
@@ -734,7 +745,7 @@ class Core implements CoreInterface
                             // The first entry can either be a class name string or an object
                             if (is_object($function[0])) {
                                 if (is_string($function[1])) {
-                                    // Execute the method in the specified object
+                                    // ExecuteExecuteInterface the method in the specified object
                                     $function[0]->$function[1]($value);
                                     continue;
                                 }
@@ -744,7 +755,7 @@ class Core implements CoreInterface
                                 if (is_string($function[1])) {
                                     // Ensure the class file is loaded
                                     Library::includeClassFile($function[0]);
-                                    // Execute this shutdown function with the specified value
+                                    // ExecuteExecuteInterface this shutdown function with the specified value
                                     $function[0]::{$function[1]}($value);
                                     continue;
                                 }
@@ -846,7 +857,7 @@ class Core implements CoreInterface
 
         // Cleanup
         Session::exit();
-        Directory::removeTemporary();
+        FsDirectory::removeTemporary();
     }
 
 
@@ -1060,9 +1071,9 @@ class Core implements CoreInterface
                                 }
                             } elseif ($e instanceof CliCommandNotFoundException) {
                                 if ($data = $e->getData()) {
-                                    Log::information('Available sub methods:', 9, use_prefix: false);
+                                    Log::information('Available sub methods:', 9, echo_prefix: false);
                                     foreach ($data['commands'] as $method) {
-                                        Log::notice($method, 10, use_prefix: false);
+                                        Log::notice($method, 10, echo_prefix: false);
                                     }
                                 }
                             }
@@ -1296,7 +1307,7 @@ class Core implements CoreInterface
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        ' . tr('File') . '
+                                                        ' . tr('FsFileFileInterface') . '
                                                     </td>
                                                     <td>
                                                         ' . $e->getFile() . '
@@ -1669,6 +1680,7 @@ class Core implements CoreInterface
                              ->select('-Q,--quiet')->isOptional(false)->isBoolean()
                              ->select('-R,--very-quiet')->isOptional(false)->isBoolean()
                              ->select('-G,--no-prefix')->isOptional(false)->isBoolean()
+                             ->select('-M,--timeout', true)->isOptional(false)->isInteger()
                              ->select('-N,--no-audio')->isOptional(false)->isBoolean()
                              ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
                              ->select('-T,--test')->isOptional(false)->isBoolean()
@@ -1761,7 +1773,7 @@ class Core implements CoreInterface
         define('ALL'       , $argv['all']);
         define('STATUS'    , $argv['status']);
         define('PAGE'      , $argv['page']);
-        define('NOAUDIO'   , $argv['no_audio']);
+        define('NOAUDIO'   , $argv['no_audio'] or $argv['auto_complete']); // auto complete mode disables audio
         define('LIMIT'     , get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
 
         // Set requested language
@@ -1806,7 +1818,7 @@ class Core implements CoreInterface
         }
 
         if ($argv['no_prefix']) {
-            Log::setUsePrefix(false);
+            Log::setEchoPrefix(false);
         }
 
         // Process command line system arguments if we have no exception so far
@@ -1837,6 +1849,8 @@ class Core implements CoreInterface
 
         if ($argv['no_warnings']) {
             define('NOWARNINGS', true);
+        } else {
+            define('NOWARNINGS', false);
         }
 
         if ($argv['show_passwords']) {
@@ -1855,7 +1869,14 @@ class Core implements CoreInterface
         array_shift($GLOBALS['argv']);
 
         // Set timeout
-        static::setTimeout();
+        if ($argv['timeout']) {
+            // User set timeout
+            static::setTimeout((int) $argv['timeout']);
+
+        } else {
+            // Use default timeout
+            static::setTimeout();
+        }
 
         // Something failed?
         if (isset($e)) {
@@ -2069,8 +2090,6 @@ class Core implements CoreInterface
                 $timeout = Config::get('cli.timeout', get_null(getenv('TIMEOUT')) ?? 30);
             }
         }
-
-        static::$register['system']['timeout'] = $timeout;
 
         return set_time_limit($timeout);
     }
@@ -2332,7 +2351,7 @@ class Core implements CoreInterface
                 return;
             }
 
-            Directory::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))
+            FsDirectory::new(DIRECTORY_DATA . 'system/maintenance', FsRestrictions::new(DIRECTORY_DATA, true))
                      ->ensure();
 
             touch(DIRECTORY_DATA . 'system/maintenance/' . (Session::getUser()
@@ -2349,7 +2368,7 @@ class Core implements CoreInterface
             return;
         }
 
-        File::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))
+        FsFile::new(DIRECTORY_DATA . 'system/maintenance', FsRestrictions::getData(true, 'Core\\Core::setMaintenanceMode()'))
             ->delete();
 
         Log::warning(tr('System has been relieved from maintenance mode. All web requests will now again be answered, all commands are available'), 10);
@@ -2376,7 +2395,7 @@ class Core implements CoreInterface
 
         if (file_exists(DIRECTORY_DATA . 'system/maintenance')) {
             // The system is in maintenance mode, show who put it there
-            $files = Directory::new(DIRECTORY_DATA . 'system/maintenance')->scan();
+            $files = FsDirectory::new(DIRECTORY_DATA . 'system/maintenance')->scan();
 
             if ($files->getCount()) {
                 $maintenance = $files->getFirstValue();
@@ -2415,10 +2434,13 @@ class Core implements CoreInterface
                 return;
             }
 
-            Directory::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))
-                     ->ensure();
-            touch(DIRECTORY_DATA . 'system/readonly/' . (Session::getUser()
-                                                                ->getEmail() ?? get_current_user()));
+            FsDirectory::new(
+                DIRECTORY_DATA . 'system/readonly',
+                FsRestrictions::new(DIRECTORY_DATA, true)
+            )->ensure();
+
+            touch(DIRECTORY_DATA . 'system/readonly/' . (Session::getUser()->getEmail() ?? get_current_user()));
+
             Log::warning(tr('System has been placed in readonly mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
 
             return;
@@ -2429,8 +2451,11 @@ class Core implements CoreInterface
             Log::warning(tr('Cannot disable readonly mode, the system is not in readonly mode'));
 
         } else {
-            File::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))
-                ->delete();
+            FsFile::new(
+                DIRECTORY_DATA . 'system/readonly',
+                FsRestrictions::getData(true, 'Core\\Core::setReadonlyMode()')
+            )->delete();
+
             Log::warning(tr('System has been relieved from readonly mode. All web POST requests will now again be processed, queries can write data again'), 10);
         }
     }
@@ -2450,7 +2475,7 @@ class Core implements CoreInterface
     {
         if (file_exists(DIRECTORY_DATA . 'system/readonly')) {
             // System is in maintenance mode, show who put it there
-            $files = Directory::new(DIRECTORY_DATA . 'system/readonly')->scan();
+            $files = FsDirectory::new(DIRECTORY_DATA . 'system/readonly')->scan();
 
             if ($files->getCount()) {
                 return $files->getFirstValue();
@@ -2471,8 +2496,10 @@ class Core implements CoreInterface
      */
     public static function resetModes(): void
     {
-        File::new(DIRECTORY_DATA . 'system/maintenace', Restrictions::new(DIRECTORY_DATA, true))->delete();
-        File::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))->delete();
+        $restrictions = FsRestrictions::getData(true, 'Core\\Core::resetModes()');
+
+        FsFile::new(DIRECTORY_DATA . 'system/maintenace', $restrictions)->delete();
+        FsFile::new(DIRECTORY_DATA . 'system/readonly'  , $restrictions)->delete();
 
         Log::warning(tr('System has been relieved from readonly mode. All web requests will now again be answered, all commands are available'), 10);
     }
@@ -2567,6 +2594,7 @@ class Core implements CoreInterface
         } else {
             $return = isset_get(static::$register[$key]);
         }
+
         if ($return === null) {
             // Specified key / subkey doesn't exist or is NULL, return default
             return $default;
@@ -2589,6 +2617,7 @@ class Core implements CoreInterface
         if ($key === 'system') {
             throw new AccessDeniedException('The "system" register cannot be written to');
         }
+
         if ($subkey) {
             // We want to write to a sub key. Ensure that the key exists and is an array
             if (array_key_exists($key, static::$register)) {
@@ -2599,12 +2628,15 @@ class Core implements CoreInterface
                         'subkey' => $subkey,
                     ]));
                 }
+
             } else {
                 // The key doesn't exist, so we don't have to worry about the sub key
                 return;
             }
+
             // Delete the key / subkey
             unset(static::$register[$key][$subkey]);
+
         } else {
             // Delete the key
             unset(static::$register[$key]);
@@ -2648,14 +2680,7 @@ class Core implements CoreInterface
      *
      * @return string|null
      */
-    #[ExpectedValues(values: [
-        null,
-        'setup',
-        'startup',
-        'script',
-        'shutdown',
-        'maintenance',
-    ])]
+    #[ExpectedValues(values: [null, 'setup', 'startup', 'script', 'shutdown', 'maintenance'])]
     public static function getState(): ?string
     {
         return static::$state;
@@ -2691,21 +2716,24 @@ class Core implements CoreInterface
      *
      * @return bool
      */
-    public static function isState(#[ExpectedValues(values: [
-        null,
-        'setup',
-        'boot',
-        'startup',
-        'script',
-        'shutdown',
-        'maintenance',
-    ])] ?string $state): bool
+    public static function isState(#[ExpectedValues(values: [null, 'setup', 'boot', 'startup', 'script', 'shutdown', 'maintenance'])] ?string $state): bool
     {
         return static::$state === $state;
     }
 
 
-//    /**
+    /**
+     * Returns true if the Core state is "shutdown"
+     *
+     * @return bool
+     */
+    public static function isShuttingDown(): bool
+    {
+        return static::isState('shutdown');
+    }
+
+
+    //    /**
 //     * ???
 //     *
 //     * @param string $section
@@ -2904,6 +2932,7 @@ class Core implements CoreInterface
                               ->setFile($errfile)
                               ->setLine($errline);
         }
+
         throw PhpException::new('PHP ERROR: ' . $errstr)
                           ->setCode($errno)
                           ->setFile($errfile)
@@ -2957,6 +2986,7 @@ class Core implements CoreInterface
         $limit     = static::getMemoryLimit();
         $used      = memory_get_usage();
         $available = $limit - $used;
+
         if ($available < 128) {
             Log::warning(tr('Failed to properly allocate memory, available memory reported as ":memory" with limit being ":limit" and ":used" being used. Trying default of 4096', [
                 ':limit'  => $limit,
@@ -2980,10 +3010,10 @@ class Core implements CoreInterface
     {
         $limit = ini_get('memory_limit');
         $limit = Numbers::fromBytes($limit, 'b');
+
         if ($limit === -1) {
             // No memory limit configured, just get how much memory we have available in total
-            $free  = Free::new()
-                         ->free();
+            $free  = Free::new()->free();
             $limit = ceil($free['memory']['available'] * .8);
         }
 
@@ -2999,7 +3029,7 @@ class Core implements CoreInterface
      *
      * @return void
      */
-    public static function ExecuteNotInTestMode(callable $function, string $task): void
+    public static function ExecuteIfNotInTestMode(callable $function, string $task): void
     {
         if (defined('TEST') and TEST) {
             Log::warning(tr('Not executing ":task" while running in test mode', [
@@ -3036,8 +3066,24 @@ class Core implements CoreInterface
             return posix_getuid();
         }
 
-        return Id::new()
-                 ->do('u');
+        return Id::new()->do('u');
+    }
+
+
+    /**
+     * Returns the username for the current process
+     *
+     * @return string|null The username for this process
+     */
+    public static function getProcessUsername(): ?string
+    {
+        $user = posix_getpwuid(Core::getProcessUid());
+
+        if ($user) {
+            return $user['user'];
+        }
+
+        return null;
     }
 
 
@@ -3049,6 +3095,7 @@ class Core implements CoreInterface
     public static function getProjectSeoName(): string
     {
         static $return;
+
         if (empty($return)) {
             $return = str_replace('_', '-', strtolower(PROJECT));
         }
@@ -3078,12 +3125,14 @@ class Core implements CoreInterface
     public static function setErrorHandling(bool $enabled): void
     {
         static::$error_handling = $enabled;
+
         if ($enabled) {
             error_reporting(E_ALL);
             set_error_handler([
                 '\Phoundation\Core\Core',
                 'phpErrorHandler',
             ]);
+
         } else {
             error_reporting(0);
             set_error_handler(null);
@@ -3112,6 +3161,7 @@ class Core implements CoreInterface
     public static function setExceptionHandling(bool $enabled): void
     {
         static::$exception_handling = $enabled;
+
         set_exception_handler($enabled ? [
             '\Phoundation\Core\Core',
             'uncaughtException',
@@ -3158,6 +3208,7 @@ class Core implements CoreInterface
         }
 
         $hash = crc32(serialize($secret_key . $input . $secret_key));
+
         // make it take a maximum of 0.1 milliseconds
         time_nanosleep(0, abs($hash % 100000));
     }

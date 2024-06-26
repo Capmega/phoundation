@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Command plugins modify
+ *
+ * This command allows you to modify your registered plugins
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @category  Function reference
+ * @package   Phoundation\Core
+ */
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -8,18 +20,6 @@ use Phoundation\Core\Plugins\Plugin;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
 
-
-/**
- * Script system/plugins/modify script
- *
- * This script allows you to modify your registered plugins
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
- * @package   Phoundation\Core
- */
 CliDocumentation::setAutoComplete([
                                       'positions' => [
                                           0 => [
@@ -32,7 +32,7 @@ CliDocumentation::setAutoComplete([
                                       ],
                                   ]);
 
-CliDocumentation::setUsage('./pho system plugins modify PLUGIN [OPTIONS]');
+CliDocumentation::setUsage('./pho plugins modify PLUGIN [OPTIONS]');
 
 CliDocumentation::setHelp('This command allows you to modify your registered plugins
 

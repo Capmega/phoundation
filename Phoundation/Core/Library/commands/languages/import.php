@@ -8,7 +8,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script languages/import
+ * Command languages/import
  *
  * This script will import data into the languages table from the data/sources/languages/languages file
  *

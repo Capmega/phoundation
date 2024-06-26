@@ -1,22 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core\Plugins;
-
-use Phoundation\Core\Libraries\Library;
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Plugins\Interfaces\PluginsInterface;
-use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\File;
-use Phoundation\Utils\Config;
-use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
-use Throwable;
-
 /**
  * Class Plugin
  *
@@ -27,7 +10,25 @@ use Throwable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
-class Plugins extends DataList implements PluginsInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Core\Plugins;
+
+use Phoundation\Core\Libraries\Library;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Plugins\Interfaces\PluginsInterface;
+use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Throwable;
+
+class Plugins extends DataIterator implements PluginsInterface
 {
     /**
      * A cached list of enabled plugins
@@ -50,6 +51,7 @@ class Plugins extends DataList implements PluginsInterface
                                         `description` 
                                FROM     `core_plugins` 
                                ORDER BY `name`');
+
         parent::__construct();
     }
 
@@ -57,7 +59,7 @@ class Plugins extends DataList implements PluginsInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {
@@ -111,6 +113,7 @@ class Plugins extends DataList implements PluginsInterface
         foreach (static::scanPluginsPath() as $name => $class) {
             try {
                 $plugin = $class::new($name, 'name');
+
                 if ($plugin->isNew()) {
                     $plugin->register();
                 }
@@ -123,13 +126,12 @@ class Plugins extends DataList implements PluginsInterface
             }
         }
 
-        return static::new()
-                     ->load();
+        return static::new()->load();
     }
 
 
     /**
-     * Returns all available plugins in the Plugins/ path
+     * Returns all available plugins in the Plugins/ directory
      *
      * @return array
      */
@@ -138,22 +140,28 @@ class Plugins extends DataList implements PluginsInterface
         $directory = DIRECTORY_ROOT . 'Plugins/';
         $return    = [];
         $vendors   = scandir($directory);
+
         foreach ($vendors as $vendor) {
             // Filter . .. and hidden files
             if (str_starts_with($vendor, '.')) {
                 continue;
             }
+
             $plugins = scandir($directory . $vendor);
+
             foreach ($plugins as $id => $plugin) {
                 // Filter . .. and hidden files
                 if (str_starts_with($plugin, '.')) {
                     continue;
                 }
+
                 $file = $directory . $vendor . '/' . $plugin . '/Library/Plugin.php';
+
                 if ($plugin === 'disabled') {
                     // The "disabled" directory is for disabled plugins, ignore it completely
                     continue;
                 }
+
                 // Are these valid plugins? Valid plugins must have name uppercase first letter and upper/lowercase rest,
                 // must have Plugin.php file available that is subclass of \Phoundation\Core\Plugin
                 if (!preg_match('/^[A-Z][a-zA-Z]+$/', $plugin)) {
@@ -163,6 +171,7 @@ class Plugins extends DataList implements PluginsInterface
                     ]), 9);
                     continue;
                 }
+
                 if (!file_exists($file)) {
                     Log::warning(tr('Ignoring plugin ":vendor/:plugin", it has no required Plugin.php file in the Library/ directory', [
                         ':vendor' => $vendor,
@@ -170,26 +179,32 @@ class Plugins extends DataList implements PluginsInterface
                     ]), 3);
                     continue;
                 }
+
                 $class = Library::getClassPath($file);
                 include_once($file);
-                // Ensure that the class path matches the file path
+
+                // Ensure that the class directory matches the file directory
                 if (!static::classPathMatchesFilePath($class, $file)) {
-                    Log::warning(tr('Ignoring plugin ":vendor/:plugin", the Plugin.php file has class path ":class" which does not match its file path ":file"', [
+                    Log::warning(tr('Ignoring plugin ":vendor/:plugin", the Plugin.php file has class directory ":class" which does not match its file directory ":file"', [
                         ':vendor' => $vendor,
                         ':plugin' => $plugin,
                         ':file'   => Strings::from($file, DIRECTORY_ROOT),
                         ':class'  => $class,
                     ]));
+
                     continue;
                 }
+
                 if (!is_subclass_of($class, Plugin::class)) {
                     Log::warning(tr('Ignoring plugin ":vendor/:plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
                         ':vendor' => $vendor,
                         ':plugin' => $plugin,
                         ':class'  => Plugin::class,
                     ]));
+
                     continue;
                 }
+
                 $return[$plugin] = $class;
             }
         }
@@ -199,7 +214,7 @@ class Plugins extends DataList implements PluginsInterface
 
 
     /**
-     * Returns true if the specified class path matches the file path
+     * Returns true if the specified class directory matches the file directory
      *
      * @param string $class
      * @param string $file
@@ -229,7 +244,7 @@ class Plugins extends DataList implements PluginsInterface
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
                     ]), 5);
-                    include_once(DIRECTORY_ROOT . $plugin['path'] . 'Library/Plugin.php');
+                    include_once(DIRECTORY_ROOT . $plugin['directory'] . 'Library/Plugin.php');
                     $plugin['class']::start();
                 }
             } catch (Throwable $e) {
@@ -264,7 +279,7 @@ class Plugins extends DataList implements PluginsInterface
                                               `priority`, 
                                               `vendor`, 
                                               `class`, 
-                                              `path`
+                                              `directory`
                                      FROM     `core_plugins` 
                                      WHERE    `name`    != "Phoundation"
                                      AND      `status`  IS NULL 
@@ -288,12 +303,12 @@ class Plugins extends DataList implements PluginsInterface
     protected static function getPhoundationPluginEntry(): array
     {
         return [
-            'vendor'   => 'Phoundation',
-            'name'     => 'Phoundation',
-            'status'   => null,
-            'priority' => 0,
-            'class'    => 'Plugins\Phoundation\Phoundation\Library\Plugin',
-            'path'     => 'Plugins/Phoundation/',
+            'vendor'    => 'Phoundation',
+            'name'      => 'Phoundation',
+            'status'    => null,
+            'priority'  => 0,
+            'class'     => 'Plugins\Phoundation\Phoundation\Library\Plugin',
+            'directory' => 'Plugins/Phoundation/',
         ];
     }
 
@@ -311,14 +326,16 @@ class Plugins extends DataList implements PluginsInterface
                                               `priority`, 
                                               `vendor`, 
                                               `class`, 
-                                              `path`
+                                              `directory`
                                      FROM     `core_plugins`
                                      WHERE    `name` != "Phoundation" 
                                      ORDER BY `priority` ASC');
+
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
             return new Iterator([static::getPhoundationPluginEntry()]);
         }
+
         // Push Phoundation plugin to the front of the list
         $return = array_replace([static::getPhoundationPluginEntry()], $return);
 
@@ -327,7 +344,7 @@ class Plugins extends DataList implements PluginsInterface
 
 
     /**
-     * Purges all plugins from the DIRECTORY_ROOT/Plugins path
+     * Purges all plugins from the DIRECTORY_ROOT/Plugins directory
      *
      * @return static
      */
@@ -335,10 +352,9 @@ class Plugins extends DataList implements PluginsInterface
     {
         // Delete all plugins from disk
         $directory = DIRECTORY_ROOT . 'Plugins/';
-        File::new($directory)
-            ->delete();
-        Directory::new($directory)
-                 ->ensure();
+
+        FsFile::new($directory)->delete();
+        FsDirectory::new($directory)->ensure();
 
         return $this;
     }

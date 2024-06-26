@@ -8,7 +8,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script system/modes/readonly/enable
+ * Command system/modes/readonly/enable
  *
  * This script will enable readonly mode
  *

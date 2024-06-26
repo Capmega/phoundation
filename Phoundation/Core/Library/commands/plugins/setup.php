@@ -1,14 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Plugins\Plugins;
-use Phoundation\Data\Validator\ArgvValidator;
-
-
 /**
- * Script system/plugins/scan script
+ * Command plugins scan
  *
  * This script allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new plugins and update the
  * core_plugins database table accordingly
@@ -19,7 +12,14 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @category  Function reference
  * @package   Phoundation\Core
  */
-CliDocumentation::setUsage('./pho system plugins scan');
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Plugins\Plugins;
+use Phoundation\Data\Validator\ArgvValidator;
+
+CliDocumentation::setUsage('./pho plugins scan');
 
 CliDocumentation::setHelp('This command allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new plugins and
 update the core_plugins database table accordingly

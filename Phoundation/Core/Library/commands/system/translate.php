@@ -10,7 +10,7 @@ use Phoundation\Translator\Translations;
 
 
 /**
- * Script system/translate
+ * Command system/translate
  *
  * This is the translation control script for the project.
  *
