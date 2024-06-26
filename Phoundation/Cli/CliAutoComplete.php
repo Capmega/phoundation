@@ -6,6 +6,7 @@ namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\CliAutoCompleteException;
+use Phoundation\Core\Core;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -13,14 +14,16 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Os\Processes\Commands\Grep;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Stringable;
 
 /**
  * Class AutoComplete
@@ -188,9 +191,8 @@ class CliAutoComplete
     public static function setPosition(int $position): void
     {
         if ($position < 0) {
-            throw new CliAutoCompleteException(tr('Invalid position ":position" specified, must be 0 or higher', [
-                ':position' => $position
-            ]));
+            // Minimum position is always 0
+            $position = 0;
         }
 
         static::$position = $position;
@@ -435,11 +437,11 @@ class CliAutoComplete
 
             if (str_starts_with($definition, 'SELECT ')) {
                 if ($word) {
-                    // Execute the query filtering on the specified word and limit the results
+                    // ExecuteExecuteInterface the query filtering on the specified word and limit the results
                     return static::limit(sql()->listScalar($definition, [':word' => '%' . $word . '%']));
                 }
 
-                // Execute the query completely and limit the results
+                // ExecuteExecuteInterface the query completely and limit the results
                 return static::limit(sql()->listScalar($definition));
             }
 
@@ -609,19 +611,21 @@ class CliAutoComplete
                     }
 
                     if (!is_scalar($result)) {
-                        if (!$result instanceof DataEntryInterface) {
+                        if ($result instanceof DataEntryInterface) {
+                            $result = $result->getAutoCompleteValue();
+
+                        } elseif ($result instanceof Stringable) {
+                            $result = (string) $result;
+
+                        } else {
                             throw OutOfBoundsException::new(tr('Invalid ":word" auto completion results ":result" specified (from results list ":results")', [
                                 ':word'    => $word ? 'word' : 'noword',
                                 ':result'  => $result,
                                 ':results' => $results,
-                            ]))
-                            ->addData([
+                            ]))->addData([
                                 'results' => $results,
-                            ])
-                            ->makeWarning();
+                            ])->makeWarning();
                         }
-
-                        $result = $result->getAutoCompleteValue();
                     }
 
                     echo ((string) $result) . PHP_EOL;
@@ -673,8 +677,8 @@ class CliAutoComplete
         $command          = explode('/', $command);
         static::$position = static::$position - count($command);
 
-        return !empty(File::new(static::$command . '.php', DIRECTORY_COMMANDS)
-                          ->grep(['Documentation::setAutoComplete('], 500));
+        return !empty(FsFile::new(static::$command . '.php', FsRestrictions::getCommands())
+                            ->grep(['Documentation::setAutoComplete('], 500));
     }
 
 
@@ -685,12 +689,26 @@ class CliAutoComplete
      */
     public static function ensureAvailable(): void
     {
-        $file = Path::absolutePath('~/.bash_completion', must_exist: false);
+        $file = FsFile::new('~/.bash_completion')
+                      ->setRestrictions('~/.bash_completion', true, 'CliAutoComplete::ensureAvailable()')
+                      ->makeAbsolute(must_exist: false);
 
-        if (file_exists($file)) {
+        if ($file->exists()) {
+            if (!$file->uidMatchesPuid()) {
+                Log::warning(tr('Not initializing bash completion file ":file" as its owner UID ":fuid (:fname)" does not match this process UID ":puid (:pname)"', [
+                    ':file'  => $file->getAbsolutePath(),
+                    ':fuid'  => $file->getOwnerUid(),
+                    ':fname' => $file->getOwnerName(),
+                    ':puid'  => Core::getProcessUid(),
+                    ':pname' => Core::getProcessUsername()
+                ]));
+
+                return;
+            }
+
             // Check if it contains the setup for Phoundation
             // TODO Check if this is an issue with huge bash_completion files, are there huge files out there?
-            $results = Grep::new(Restrictions::new($file, true))
+            $results = Grep::new($file->getParentDirectory())
                            ->setValue('complete -F _phoundation pho')
                            ->setFile($file)
                            ->grep(EnumExecuteMethod::returnArray);
@@ -702,12 +720,7 @@ class CliAutoComplete
         }
 
         // Phoundation command line auto complete has not yet been set up, do so now.
-        File::new('~/.bash_completion')
-            ->setRestrictions('~/.bash_completion', true)
-            ->append('#/usr/bin/env bash
-_phoundation()
-{
-PHO=$(./pho --auto-complete "${COMP_CWORD} ${COMP_LINE}");
+        $file->appendData('#/usr/bin/en}");
 COMPREPLY+=($(compgen -W "$PHO"));
 }
 

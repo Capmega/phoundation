@@ -18,6 +18,8 @@ use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Git\Git;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Config;
 
 CliDocumentation::setUsage('./pho commands cache rebuild [OPTIONS]
@@ -57,14 +59,21 @@ $argv = ArgvValidator::new()
 Libraries::rebuildCommandCache();
 
 
+// TODO Move this git commit code to a SystemCache::commit() like method
 // Commit the system web cache?
-$git = Git::new(DIRECTORY_DATA . 'system/cache/commands/');
+$git = Git::new(new FsDirectory(
+    DIRECTORY_DATA . 'system/cache/commands/',
+    FsRestrictions::getWritable(DIRECTORY_DATA . 'system/cache/commands/', 'command commands cache rebuild')
+));
 
-if ($git->getStatus()->getCount()) {
+if ($git->getStatusFilesObject()->getCount()) {
     if (Config::getBoolean('cache.system.commit.auto', false) or $argv['commit']) {
         // Commit the system commands cache
         $git->add(DIRECTORY_DATA . 'system/cache/commands/')
-            ->commit(tr('Rebuilt system commands cache'), Config::getBoolean('cache.system.commit.signed', false) or $argv['signed']);
+            ->commit(
+                tr('Rebuilt system commands cache'),
+                Config::getBoolean('cache.system.commit.signed', false) or $argv['signed']
+            );
 
         Log::success(tr('Committed system cache update to git'));
     }

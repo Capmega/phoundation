@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Cli\Interfaces;
 
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+
 /**
  * Class RunFile
  *
@@ -20,7 +23,7 @@ namespace Phoundation\Cli\Interfaces;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Cli
  */
-interface CliRunFileInterface
+interface CliRunFileInterface extends FsFileInterface
 {
     /**
      * Returns the command for this runfile
@@ -29,7 +32,6 @@ interface CliRunFileInterface
      */
     public function getCommand(): string;
 
-
     /**
      * Returns the pid for this runfile
      *
@@ -37,40 +39,26 @@ interface CliRunFileInterface
      */
     public function getPid(): int;
 
-
     /**
      * Returns the path where all run files are located
      *
-     * @return string
+     * @return FsDirectoryInterface
      */
-    public function getDirectory(): string;
-
+    public function getDirectory(): FsDirectoryInterface;
 
     /**
      * Returns the run file for this process
      *
-     * @return string
+     * @return FsFileInterface
      */
-    public function getFile(): string;
-
-
-    /**
-     * Returns true if this run file object still has a run file available
-     *
-     * @return bool
-     */
-    public function exists(): bool;
-
+    public function getFile(): FsFileInterface;
 
     /**
      * Returns the first found PID for the specified command, if it currently runs. NULL otherwise
      *
-     * @param string $command
-     *
      * @return int|null
      */
     public function getPidForCommand(): ?int;
-
 
     /**
      * Returns an array with all PIDs for the specified command, if it currently runs.
@@ -79,19 +67,10 @@ interface CliRunFileInterface
      */
     public function getPidsForCommand(): array;
 
-
     /**
      * Return the number of this command being run
      *
      * @return int
      */
     public function getCount(): int;
-
-
-    /**
-     * Delete the run file and clean up the run path
-     *
-     * @return static
-     */
-    public function delete(): static;
 }

@@ -70,8 +70,8 @@ class CliDocumentation
         global $argv;
 
         if (isset_get($argv['usage'])) {
-            Log::information(tr('Command usage:'), 9, use_prefix: false);
-            Log::notice(trim($usage) . PHP_EOL, 10, false, use_prefix: false);
+            Log::information(tr('Command usage:'), 9, echo_prefix: false);
+            Log::notice(trim($usage) . PHP_EOL, 10, false, echo_prefix: false);
 
             if ($exit) {
                 exit();
