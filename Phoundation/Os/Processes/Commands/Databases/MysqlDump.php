@@ -1,23 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands\Databases;
-
-use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataConnector;
-use Phoundation\Data\Traits\TraitDataDebug;
-use Phoundation\Date\DateTime;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
-use Phoundation\Os\Processes\Commands\Command;
-use Phoundation\Os\Processes\Commands\Interfaces\MysqlDumpInterface;
-use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
-
 /**
  * Class MysqlDump
  *
@@ -28,6 +10,25 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands\Databases;
+
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataConnector;
+use Phoundation\Data\Traits\TraitDataDebug;
+use Phoundation\Date\DateTime;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Os\Processes\Commands\Command;
+use Phoundation\Os\Processes\Commands\Interfaces\MysqlDumpInterface;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
+
 class MysqlDump extends Command implements MysqlDumpInterface
 {
     use TraitDataDebug;
@@ -390,34 +391,33 @@ class MysqlDump extends Command implements MysqlDumpInterface
 
 
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
      *
-     * @param string|null                $file
-     * @param EnumExecuteMethodInterface $method
+     * @param FsFileInterface|null       $file
+     * @param EnumExecuteMethod $method
      *
      * @return string
      */
-    public function dump(?string $file, EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string
+    public function dump(?FsFileInterface $file, EnumExecuteMethod $method = EnumExecuteMethod::passthru): string
     {
         if (!$file) {
             // Generate default file
-            $file = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName() . DateTime::new()
-                                                                                                ->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
+            $file  = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName();
+            $file .= DateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
+            $file  = new FsFile($file);
         }
-        $file = Path::absolutePath($file, DIRECTORY_DATA . 'sources/', false);
-        $file = File::new($file, $this->restrictions);
-        $file->getParentDirectory()
-             ->ensure();
+
+        // TODO Improve this, we make a file object a string and a file object again
+        $file = FsPath::absolutePath($file, DIRECTORY_DATA . 'sources/', false);
+        $file = FsFile::new($file, $this->restrictions)->ensureParentDirectory();
+
         // Build the process parameters, then execute
         $this->setCommand('mysqldump')
              ->clearArguments()
              ->addArguments([
-                 '-h',
-                 $this->connector->getHostname(),
-                 '-u',
-                 $this->connector->getUsername(),
-                 '-p' . $this->connector->getPassword(),
-             ])
+                 '-h', $this->connector->getHostname(),
+                 '-u', $this->connector->getUsername(),
+                 '-p' . $this->connector->getPassword()])
              ->addArgument($this->disable_keys ? '--disable-keys' : null)
              ->addArgument($this->events ? '--events' : null)
              ->addArgument($this->routines ? '--routines' : null)
@@ -426,26 +426,28 @@ class MysqlDump extends Command implements MysqlDumpInterface
              ->addArgument($this->extended_insert ? '--extended-insert' : null)
              ->addArgument($this->comments ? '--comments' : '--skip-comments')
              ->addArgument(($this->comments and $this->dump_date) ? '--dump-date' : null);
+
         if ($this->connector->getPort()) {
-            $this->addArguments([
-                '-p',
-                $this->connector->getPort(),
-            ]);
+            $this->addArguments(['-p', $this->connector->getPort()]);
         }
+
         // Add databases
         $this->addArgument('--databases')
              ->addArguments($this->databases);
+
         // Optionally add gzip
         if ($this->gzip) {
             $this->setPipe('gzip');
         }
+
         Log::action(tr('Creating MySQL dump file ":file" from databases ":databases", this may take a while...', [
             ':file'      => $file,
             ':databases' => Strings::force($this->databases, ', '),
         ]));
+
         // Add pipe to output and execute
-        $results = $this->setOutputRedirect((string) $file)
-                        ->executeReturnArray();
+        $results = $this->setOutputRedirect((string) $file)->executeReturnArray();
+
         if ($this->debug) {
             Log::information(tr('Output of the mysqldump command:'), 4);
             Log::debug($results, 4);

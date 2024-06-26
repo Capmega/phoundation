@@ -7,6 +7,9 @@ namespace Phoundation\Os\Processes\Interfaces;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 
 /**
  * Interface Task
@@ -415,19 +418,19 @@ interface TaskInterface extends DataEntryInterface
     /**
      * Returns access restrictions for this task
      *
-     * @return string|null
+     * @return FsRestrictions|null
      */
-    public function getRestrictions(): ?string;
+    public function getRestrictions(): ?FsRestrictions;
 
 
     /**
      * Sets access restrictions for this task
      *
-     * @param string|null $restrictions
+     * @param FsRestrictionsInterface|array|string|null $restrictions
      *
      * @return static
      */
-    public function setRestrictions(?string $restrictions): static;
+    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions): static;
 
 
     /**
@@ -513,19 +516,19 @@ interface TaskInterface extends DataEntryInterface
     /**
      * Returns execution_directory for this task
      *
-     * @return string|null
+     * @return FsDirectoryInterface|null
      */
-    public function getExecutionDirectory(): ?string;
+    public function getExecutionDirectory(): ?FsDirectoryInterface;
 
 
     /**
      * Sets execution_directory for this task
      *
-     * @param string|null $execution_directory
+     * @param FsDirectoryInterface|null $execution_directory
      *
      * @return static
      */
-    public function setExecutionDirectory(?string $execution_directory): static;
+    public function setExecutionDirectory(?FsDirectoryInterface $execution_directory): static;
 
 
     /**

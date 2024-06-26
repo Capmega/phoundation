@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Stringable;
 
 /**
@@ -23,23 +22,23 @@ use Stringable;
 class Cp extends Command
 {
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
      *
      * @param Stringable|string          $source
-     * @param Restrictions               $source_restrictions
+     * @param FsRestrictions             $source_restrictions
      * @param Stringable|string          $target
-     * @param Restrictions               $target_restrictions
-     * @param EnumExecuteMethodInterface $method
+     * @param FsRestrictions             $target_restrictions
+     * @param EnumExecuteMethod $method
      *
      * @return void
      */
-    public function archive(Stringable|string $source, Restrictions $source_restrictions, Stringable|string $target, Restrictions $target_restrictions, EnumExecuteMethodInterface $method = EnumExecuteMethod::noReturn): void
+    public function archive(Stringable|string $source, FsRestrictions $source_restrictions, Stringable|string $target, FsRestrictions $target_restrictions, EnumExecuteMethod $method = EnumExecuteMethod::noReturn): void
     {
         $source = (string) $source;
         $target = (string) $target;
         $source_restrictions->check($source, false);
         $target_restrictions->check($target, true);
-        Directory::new(dirname($target), $target_restrictions)
+        FsDirectory::new(dirname($target), $target_restrictions)
                  ->ensure();
         // Build the process parameters, then execute
         $this->setCommand('cp')

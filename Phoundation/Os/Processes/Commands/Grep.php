@@ -8,7 +8,7 @@ use Phoundation\Data\Traits\TraitDataDirectory;
 use Phoundation\Data\Traits\TraitDataFile;
 use Phoundation\Data\Traits\TraitDataValue;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
 /**
  * Class Grep
@@ -27,13 +27,13 @@ class Grep extends Command
     use TraitDataValue;
 
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
      *
-     * @param EnumExecuteMethodInterface $method
+     * @param EnumExecuteMethod $method
      *
      * @return array
      */
-    public function grep(EnumExecuteMethodInterface $method): array
+    public function grep(EnumExecuteMethod $method): array
     {
         if (!$this->directory and !$this->file) {
             throw new CommandsException(tr('Cannot execute grep, no file or path specified'));

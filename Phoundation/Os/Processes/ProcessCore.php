@@ -21,13 +21,13 @@ use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Kill;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
@@ -39,17 +39,29 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 {
     use ProcessVariables;
 
+
+    /**
+     * (string) casting will return the command line for this process
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getFullCommandLine();
+    }
+
+
     /**
      * Create a new CLI script process factory
      *
-     * @param string|null                             $command
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null                             $operating_system
-     * @param string|null                             $packages
+     * @param string|null                               $command
+     * @param FsRestrictionsInterface|array|string|null $restrictions
+     * @param string|null                               $operating_system
+     * @param string|null                               $packages
      *
      * @return static
      */
-    public static function newCliScript(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
+    public static function newCliScript(?string $command = null, FsRestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
     {
         $process = static::new('cli', $restrictions, $operating_system, $packages);
         $process->addArguments(Arrays::force($command, ' '));
@@ -75,20 +87,24 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             $first_line = strtolower($first_line);
             $last_line  = Arrays::lastValue($data);
             $last_line  = strtolower($last_line);
+
             // Process specified handlers
             if ($function) {
                 $function($first_line, $last_line, $e);
             }
+
             // Handlers were unable to make a clear exception out of this, show the standard command exception
             throw new CommandsException(tr('The command :command failed with ":output", see following exception', [
                 ':command' => $command,
                 ':output'  => $data,
             ]), $e);
         }
+
         // The process generated no output. Process specified handlers
         if ($function) {
             $function(null, null, $e);
         }
+
         // Something else went wrong, no CLI output available
         throw new CommandsException(tr('The command :command failed, see following exception', [
             ':command' => $command,
@@ -97,13 +113,13 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * Execute the command and depending on specified method, return or log output
+     * ExecuteExecuteInterface the command and depending on specified method, return or log output
      *
-     * @param EnumExecuteMethodInterface $method
+     * @param EnumExecuteMethod $method
      *
      * @return IteratorInterface|array|string|int|bool|null
      */
-    public function execute(EnumExecuteMethodInterface $method): IteratorInterface|array|string|int|bool|null
+    public function execute(EnumExecuteMethod $method): IteratorInterface|array|string|int|bool|null
     {
         switch ($method) {
             case EnumExecuteMethod::log:
@@ -113,14 +129,19 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
                 return null;
             case EnumExecuteMethod::background:
                 return $this->executeBackground();
+
             case EnumExecuteMethod::passthru:
                 return $this->executePassthru();
+
             case EnumExecuteMethod::returnString:
                 return $this->executeReturnString();
+
             case EnumExecuteMethod::returnArray:
                 return $this->executeReturnArray();
+
             case EnumExecuteMethod::returnIterator:
                 return $this->executeReturnIterator();
+
             case EnumExecuteMethod::noReturn:
                 $this->executeNoReturn();
 
@@ -134,13 +155,14 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * Execute the command using the PHP exec() call and return an array
+     * ExecuteExecuteInterface the command using the PHP exec() call and return an array
      *
      * @return array The output from the executed command
      */
     public function executeReturnArray(): array
     {
         $this->setExecutionMethod(EnumExecuteMethod::returnArray);
+
         if ($this->debug) {
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
 
@@ -149,14 +171,57 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
                 ':command' => $this->getFullCommandLine(),
             ]), 2);
         }
+
         $this->start = microtime(true);
-        exec($this->getFullCommandLine(), $output, $exit_code);
+
+        do {
+            exec($this->getFullCommandLine(), $output, $exit_code);
+        } while ($this->fixPermissionDenied($exit_code));
+
         $this->setExitCode($exit_code, $output);
+
         if ($this->debug) {
             Log::debug($output);
         }
 
         return $output;
+    }
+
+
+    /**
+     * Returns true if permission was denied and the
+     *
+     * @param int $exit_code
+     *
+     * @return bool
+     */
+    protected function fixPermissionDenied(int $exit_code): bool
+    {
+        if ($exit_code === 126) {
+            // Permission to execute was denied to the timeout command. Was this a ROOT/data/bin/ command? If so, these
+            // commands should all have 750. Check for this, and if not, make it 750 and retry.
+            $file = FsFile::new(
+                $this->command,
+                FsRestrictions::getWritable(dirname($this->command), 'ProcessCore::setExitCode()')
+            );
+
+            if ($file->getParentDirectory()->getPath() === DIRECTORY_DATA . 'bin/') {
+                // Yeah, this is a ROOT/data/bin executable
+                if ($file->getModePermissions() !== '750') {
+                    // Yeah, file permission is not what it should be. Fix and retry.
+                    Log::warning(tr('File mode ":mode" for executable ":file" is incorrect, should be "750". Fixing and retrying', [
+                        ':mode' => $file->getMode(),
+                        ':file' => $file->getPath(),
+                    ]));
+
+                    $file->chmod(0750);
+                    return true;
+                }
+            }
+        }
+
+        // Either permission wasn't denied or it could not be fixed
+        return false;
     }
 
 
@@ -169,14 +234,20 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
      */
     public function getFullCommandLine(bool $background = false): string
     {
+        if (!$this->command) {
+            throw new OutOfBoundsException(tr('Cannot generate full command line, no command specified'));
+        }
+
+//        if ($this->execution_directory->isNull()) {
+//            throw new OutOfBoundsException(tr('Cannot execute process command ":command", no execution directory specified', [
+//                ':command' => $this->command
+//            ]));
+//        }
+
         $this->failed = false;
 
         if ($this->cached_command_line) {
             return $this->cached_command_line;
-        }
-
-        if (!$this->command) {
-            throw new OutOfBoundsException(tr('Cannot generate full command line, no command specified'));
         }
 
         if ($this->register_run_file) {
@@ -197,14 +268,14 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             $this->cached_command_line = 'sleep ' . ($this->wait / 1000) . '; ' . $this->cached_command_line;
         }
 
-        // Execute the command in this directory
-        if ($this->execution_directory) {
-            $this->cached_command_line = 'cd ' . escapeshellarg($this->execution_directory) . '; ' . $this->cached_command_line;
+        // ExecuteExecuteInterface the command in this directory
+        if ($this->execution_directory?->isSet()) {
+            $this->cached_command_line = 'cd ' . escapeshellarg($this->execution_directory->getPath()) . '; ' . $this->cached_command_line;
         }
 
-        // Execute on a server?
+        // ExecuteExecuteInterface on a server?
         if (!empty($this->server)) {
-            // Execute on a server!
+            // ExecuteExecuteInterface on a server!
             if ($this->sudo) {
                 // Add sudo
                 $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
@@ -213,7 +284,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             $this->cached_command_line = $this->server->getSshCommandLine($this->cached_command_line);
         }
 
-        // Execute the command in the specified terminal
+        // ExecuteExecuteInterface the command in the specified terminal
         if ($this->term) {
             $this->cached_command_line = 'export TERM=' . $this->term . '; ' . $this->cached_command_line;
         }
@@ -397,37 +468,39 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             // By default, always accept exit code 0
             $this->accepted_exit_codes = [0];
         }
+
         if (!in_array($exit_code, $this->accepted_exit_codes)) {
             $cause = match ($exit_code) {
                 124     => 'timeout',
+                126     => 'permission-denied',
                 default => 'unknown, see exception for details',
             };
+
             // The command finished with an error
             throw ProcessFailedException::new(tr('The command ":command" failed with exit code ":code"', [
                 ':command' => $this->command,
                 ':code'    => $exit_code,
-            ]))
-                                        ->setCode($exit_code)
-                                        ->addData([
-                                            'command'              => $this->command,
-                                            'full_command'         => $this->getFullCommandLine(),
-                                            'pipe'                 => $this->getPipeCommandLine(),
-                                            'arguments'            => $this->arguments,
-                                            'variables'            => $this->variables,
-                                            'timeout'              => $this->timeout,
-                                            'pid'                  => $this->pid,
-                                            'term'                 => $this->term,
-                                            'sudo'                 => $this->sudo,
-                                            'log_file'             => $this->log_file,
-                                            'run_file'             => $this->run_file,
-                                            'exit_code'            => $exit_code,
-                                            'output'               => $output,
-                                            'probable_cause'       => $cause,
-                                            'execution_time'       => $this->getExecutionTime(),
-                                            'execution_stop_time'  => $this->getExecutionStopTime(),
-                                            'execution_start_time' => $this->getExecutionStartTime(),
-                                            'execution_method'     => $this->getExecutionMethod()?->name,
-                                        ]);
+            ]))->setCode($exit_code)
+               ->addData([
+                   'command'              => $this->command,
+                   'full_command'         => $this->getFullCommandLine(),
+                   'pipe'                 => $this->getPipeCommandLine(),
+                   'arguments'            => $this->arguments,
+                   'variables'            => $this->variables,
+                   'timeout'              => $this->timeout,
+                   'pid'                  => $this->pid,
+                   'term'                 => $this->term,
+                   'sudo'                 => $this->sudo,
+                   'log_file'             => $this->log_file,
+                   'run_file'             => $this->run_file,
+                   'exit_code'            => $exit_code,
+                   'output'               => $output,
+                   'probable_cause'       => $cause,
+                   'execution_time'       => $this->getExecutionTime(),
+                   'execution_stop_time'  => $this->getExecutionStopTime(),
+                   'execution_start_time' => $this->getExecutionStartTime(),
+                   'execution_method'     => $this->getExecutionMethod()?->name,
+               ]);
         }
 
         // All okay, yay!
@@ -451,9 +524,9 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             Log::printr($this->getFullCommandLine());
 
         } else {
-            Log::notice(tr('Executing background command ":command" using exec()', [
+            Log::action(tr('Executing background command ":command" using exec()', [
                 ':command' => $this->getFullCommandLine(true),
-            ]), 3);
+            ]), 2);
         }
 
         $this->start = microtime(true);
@@ -484,7 +557,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * Execute the command using passthru and send the output directly to the client
+     * ExecuteExecuteInterface the command using passthru and send the output directly to the client
      *
      * @return bool
      */
@@ -492,7 +565,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
     {
         $this->setExecutionMethod(EnumExecuteMethod::passthru);
 
-        $output_file = File::getTemporary(false)->getPath();
+        $output_file = FsFile::getTemporary(false)->getPath();
         $commands    = $this->getFullCommandLine();
         $commands    = Strings::ensureEndsNotWith($commands, ';');
 
@@ -506,7 +579,11 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         }
 
         $this->start = microtime(true);
-        $result      = passthru($this->getFullCommandLine(), $exit_code);
+
+        do {
+            $result = passthru($this->getFullCommandLine(), $exit_code);
+
+        } while ($this->fixPermissionDenied($exit_code));
 
         // Output available in output file?
         if (file_exists($output_file)) {
@@ -520,7 +597,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         $this->setExitCode($exit_code, $output);
 
         // So according to the documentation, for some reason passthru() would return null on success and false on
-        // failure. Makes sense, right? Just return true or false, please,
+        // failure. Makes sense, right? Return true or false, please,
         if ($result === false) {
             return false;
         }
@@ -530,13 +607,14 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * Execute the command using the PHP exec() call and return a string
+     * ExecuteExecuteInterface the command using the PHP exec() call and return a string
      *
      * @return string The output from the executed command
      */
     public function executeReturnString(): string
     {
         $this->setExecutionMethod(EnumExecuteMethod::returnString);
+
         $output = $this->executeReturnArray();
         $output = implode(PHP_EOL, $output);
 
@@ -545,7 +623,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * Execute the command using the PHP exec() call and return an IteratorInterface
+     * ExecuteExecuteInterface the command using the PHP exec() call and return an IteratorInterface
      *
      * @return IteratorInterface The output from the executed command
      */
@@ -558,7 +636,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * Execute the command using the PHP exec() call and return a string
+     * ExecuteExecuteInterface the command using the PHP exec() call and return a string
      *
      * @return static
      */

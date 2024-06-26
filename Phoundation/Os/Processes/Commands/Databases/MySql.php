@@ -13,14 +13,13 @@ use Phoundation\Data\Traits\TraitDataUserPass;
 use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Path;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Zcat;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Servers;
@@ -57,8 +56,8 @@ class MySql extends Command
         if ($database) {
             // Drop the requested database
             sql($this->connector, false)
-                ->schema(false)
-                ->database($database)
+                ->getSchemaObject(false)
+                ->getDatabaseObject($database)
                 ->drop();
         }
 
@@ -78,8 +77,8 @@ class MySql extends Command
         if ($database) {
             // Drop the requested database
             sql($this->connector, false)
-                ->schema(false)
-                ->database($database)
+                ->getSchemaObject(false)
+                ->getDatabaseObject($database)
                 ->create();
         }
 
@@ -90,16 +89,16 @@ class MySql extends Command
     /**
      * Imports the specified MySQL dump file into the specified database
      *
-     * @param string                $file
-     * @param RestrictionsInterface $restrictions
+     * @param string                  $file
+     * @param FsRestrictionsInterface $restrictions
      *
      * @throws Throwable
      */
-    public function import(string $file, RestrictionsInterface $restrictions): void
+    public function import(string $file, FsRestrictionsInterface $restrictions): void
     {
         // Get file and database information
-        $file         = Path::absolutePath($file, DIRECTORY_DATA . 'sources/');
-        $restrictions = Restrictions::default($restrictions, Restrictions::new(DIRECTORY_DATA . 'sources/', false, 'Mysql importer'));
+        $file         = FsPath::absolutePath($file, DIRECTORY_DATA . 'sources/');
+        $restrictions = FsRestrictions::getRestrictionsOrDefault($restrictions, FsRestrictions::new(DIRECTORY_DATA . 'sources/', false, 'Mysql importer'));
         $threshold    = Log::setThreshold(3);
         // If we're importing the system database, then switch to init mode!
         if ($this->connector->getDatabase() === sql()->getDatabase()) {
@@ -107,8 +106,8 @@ class MySql extends Command
         }
         // Check file restrictions and start the import
         Log::setThreshold($threshold);
-        $file = File::new($file, $restrictions)
-                    ->checkReadable();
+        $file = FsFile::new($file, $restrictions)
+                      ->checkReadable();
         switch ($file->getMimetype()) {
             case 'text/plain':
                 $this->setCommand('mysql')
@@ -153,13 +152,13 @@ class MySql extends Command
 
 
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
      *
-     * @param EnumExecuteMethodInterface $method
+     * @param EnumExecuteMethod $method
      *
      * @return int|null
      */
-    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): ?int
+    public function execute(EnumExecuteMethod $method = EnumExecuteMethod::passthru): ?int
     {
         $password_file = static::createPasswordFile();
         try {
@@ -218,7 +217,7 @@ class MySql extends Command
      */
     protected function deletePasswordFile(): static
     {
-        File::new('~/.my.cnf', '~/.my.cnf')
+        FsFile::new('~/.my.cnf', '~/.my.cnf')
             ->setServer($this->server)
             ->secureDelete();
 
@@ -227,7 +226,7 @@ class MySql extends Command
 
 
     /**
-     * Execute a query on a remote SSH server in a bash command
+     * ExecuteExecuteInterface a query on a remote SSH server in a bash command
      *
      * @note This does NOT support bound variables!
      *
@@ -304,7 +303,7 @@ class MySql extends Command
                             'root',
                             'mysql',
                         ]);
-        Process::new('mysql_tzinfo_to_sql', Restrictions::new('/usr/share/zoneinfo'))
+        Process::new('mysql_tzinfo_to_sql', FsRestrictions::new('/usr/share/zoneinfo'))
                ->setTimeout(10)
                ->addArgument('/usr/share/zoneinfo')
                ->setPipe($mysql)

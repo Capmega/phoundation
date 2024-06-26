@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Data\Traits\TraitDataBindAddress;
-use Phoundation\Data\Traits\TraitDataSourceString;
-use Phoundation\Data\Traits\TraitDataTarget;
-use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
-
 /**
  * Class Wget
  *
@@ -20,6 +10,16 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Data\Traits\TraitDataBindAddress;
+use Phoundation\Data\Traits\TraitDataSourceString;
+use Phoundation\Data\Traits\TraitDataTarget;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+
 class Wget extends Command
 {
     use TraitDataSourceString;
@@ -27,13 +27,13 @@ class Wget extends Command
     use TraitDataBindAddress;
 
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
      *
      * @param EnumExecuteMethod $method
      *
      * @return int|null
      */
-    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): ?int
+    public function execute(EnumExecuteMethod $method = EnumExecuteMethod::passthru): ?int
     {
         // Build the process parameters, then execute
         $this->clearArguments()

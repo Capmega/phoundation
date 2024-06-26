@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Enum;
-
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
-
 /**
  * Enum EnumExecuteMethod
  *
@@ -16,7 +10,12 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
-enum EnumExecuteMethod: string implements EnumExecuteMethodInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Enum;
+
+enum EnumExecuteMethod: string
 {
     case background     = 'background';
     case passthru       = 'passthru';

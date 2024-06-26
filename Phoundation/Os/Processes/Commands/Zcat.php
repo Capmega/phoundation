@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Data\Traits\TraitDataFile;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
-
 /**
  * Class Zcat
  *
@@ -19,6 +10,16 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Data\Traits\TraitDataFile;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+
 class Zcat extends Command
 {
     use TraitDataFile;
@@ -26,13 +27,13 @@ class Zcat extends Command
     /**
      * Zcat class constructor
      *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null                             $operating_system
-     * @param string|null                             $packages
+     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
+     * @param string|null                                       $operating_system
+     * @param string|null                                       $packages
      */
-    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
+    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null)
     {
-        parent::__construct($restrictions, $operating_system, $packages);
+        parent::__construct($execution_directory, $operating_system, $packages);
         $this->setCommand('zcat');
     }
 
@@ -58,11 +59,11 @@ class Zcat extends Command
     /**
      * Cats the output unzipped to the specified output
      *
-     * @param EnumExecuteMethodInterface $method
+     * @param EnumExecuteMethod $method
      *
      * @return string|int|bool|array|null
      */
-    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null
+    public function execute(EnumExecuteMethod $method = EnumExecuteMethod::passthru): string|int|bool|array|null
     {
         return parent::execute($method);
     }

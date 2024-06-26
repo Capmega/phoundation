@@ -1,21 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
-use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
-use Phoundation\Os\Processes\Commands\Interfaces\CommandInterface;
-use Phoundation\Os\Processes\Exception\ProcessFailedException;
-use Phoundation\Os\Processes\Process;
-use Phoundation\Os\Processes\ProcessCore;
-use Phoundation\Utils\Arrays;
-use Stringable;
-
 /**
  * Class Command
  *
@@ -26,24 +10,42 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
+use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
+use Phoundation\Os\Processes\Commands\Interfaces\CommandInterface;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Os\Processes\Process;
+use Phoundation\Os\Processes\ProcessCore;
+use Phoundation\Utils\Arrays;
+use Stringable;
+
 abstract class Command extends ProcessCore implements CommandInterface
 {
     /**
      * Command constructor.
      *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param Stringable|string|null                  $operating_system
-     * @param string|null                             $packages
+     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
+     * @param Stringable|string|null                            $operating_system
+     * @param string|null                                       $packages
      */
-    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, Stringable|string|null $operating_system = null, ?string $packages = null)
+    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null)
     {
-        parent::__construct($restrictions);
+        parent::__construct($execution_directory);
 
         // Ensure that the run files directory is available
-        Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run', true))
-                 ->ensure();
-
-        $this->setRestrictions($restrictions);
+        FsDirectory::new(
+            DIRECTORY_ROOT . 'data/run/',
+            FsRestrictions::new(DIRECTORY_DATA . 'run', true)
+        )->ensure();
 
         if ($operating_system or $packages) {
             $this->setPackages($operating_system, $packages);
@@ -54,30 +56,30 @@ abstract class Command extends ProcessCore implements CommandInterface
     /**
      * Create a new process factory for a specific command
      *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null                             $operating_system
-     * @param string|null                             $packages
+     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
+     * @param string|null                                       $operating_system
+     * @param string|null                                       $packages
      *
      * @return static
      */
-    public static function new(RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
+    public static function new(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null): static
     {
-        return new static($restrictions, $operating_system, $packages);
+        return new static($execution_directory, $operating_system, $packages);
     }
 
 
     /**
      * Returns true if the specified commands can be executed with sudo privileges
      *
-     * @param array|string $commands
-     * @param Restrictions $restrictions
-     * @param bool         $exception
+     * @param array|string   $commands
+     * @param FsRestrictions $restrictions
+     * @param bool           $exception
      *
      * @return bool
      * @todo Find a better option than "--version" which may not be available for everything. What about shell commands
      *       like "true", or "which", etc?
      */
-    public static function sudoAvailable(array|string $commands, Restrictions $restrictions, bool $exception = false): bool
+    public static function sudoAvailable(array|string $commands, FsRestrictions $restrictions, bool $exception = false): bool
     {
         try {
             $command = null;

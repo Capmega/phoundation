@@ -8,10 +8,13 @@ use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Data\Traits\TraitDataName;
 use Phoundation\Data\Traits\TraitDataPath;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Files;
-use Phoundation\Filesystem\Interfaces\FilesInterface;
-use Phoundation\Filesystem\Interfaces\PathInterface;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFiles;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsFilesInterface;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Arrays;
@@ -38,9 +41,9 @@ class Find extends Command implements FindInterface
     /**
      * Result files cache
      *
-     * @var FilesInterface|null
+     * @var FsFilesInterface|null
      */
-    protected ?FilesInterface $files;
+    protected ?FsFilesInterface $files;
 
     /**
      * Tracks to follow symlinks or not
@@ -176,32 +179,48 @@ class Find extends Command implements FindInterface
     /**
      * Find the specified path
      *
-     * @var string|null $find_path
+     * @var FsDirectoryInterface|null $find_path
      */
-    protected ?string $find_path = null;
+    protected ?FsDirectoryInterface $find_path = null;
+
+
+    /**
+     * Find class constructor
+     *
+     * @param FsDirectoryInterface|FsRestrictionsInterface|null $execution_directory
+     * @param \Stringable|string|null                           $operating_system
+     * @param string|null                                       $packages
+     */
+    public function __construct(FsDirectoryInterface|FsRestrictionsInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null) {
+        parent::__construct($execution_directory, $operating_system, $packages);
+
+        if ($execution_directory instanceof FsDirectoryInterface) {
+            $this->setPath($execution_directory);
+        }
+    }
 
 
     /**
      * Sets the path in which to find
      *
-     * @param PathInterface|string|null $path
+     * @param FsPathInterface|null $path
      *
      * @return $this
      */
-    public function setPath(PathInterface|string|null $path): static
+    public function setPath(FsPathInterface|null $path): static
     {
         $this->__setPath($path);
 
-        return $this->setExecutionDirectory($this->path);
+        return $this->setExecutionDirectory(new FsDirectory($this->path));
     }
 
 
     /**
      * Returns if find should find empty files
      *
-     * @return string|null
+     * @return FsDirectoryInterface|null
      */
-    public function getFindPath(): ?string
+    public function getFindPath(): ?FsDirectoryInterface
     {
         return $this->find_path;
     }
@@ -212,11 +231,11 @@ class Find extends Command implements FindInterface
      *
      * @note This is true by default for security to avoid searching on remote filesystems by accident
      *
-     * @param PathInterface|string|null $find_path
+     * @param FsPathInterface|null $find_path
      *
      * @return static
      */
-    public function setFindPath(PathInterface|string|null $find_path): static
+    public function setFindPath(FsPathInterface|null $find_path): static
     {
         $this->find_path = $find_path;
 
@@ -737,28 +756,25 @@ class Find extends Command implements FindInterface
 
 
     /**
-     * Returns a Files-object containing the found files
+     * Returns a FsFiles-object containing the found files
      *
-     * @return FilesInterface
+     * @return FsFilesInterface
      */
-    public function getFoundFiles(): FilesInterface
+    public function getFoundFiles(): FsFilesInterface
     {
-        $files = Files::new()
-                      ->setSource($this->output);
-
-        return $files;
+        return FsFiles::new($this->path, $this->output, $this->restrictions);
     }
 
 
     /**
-     * Returns a Files-object containing the found files
+     * Returns a FsFiles-object containing the found files
      *
-     * @return FilesInterface
+     * @return FsFilesInterface
      */
-    public function getFiles(): FilesInterface
+    public function getFiles(): FsFilesInterface
     {
         if (empty($this->files)) {
-            $this->files = Files::new($this->executeReturnArray(), $this->restrictions);
+            $this->files = FsFiles::new($this->path, $this->executeReturnArray(), $this->restrictions);
         }
 
         return $this->files;
@@ -778,77 +794,41 @@ class Find extends Command implements FindInterface
         try {
             $this->setCommand('find')
                  ->setTimeout($this->timeout)
-                 ->addArgument($this->path)
-                 ->addArguments($this->mount ? '-mount' : null)
-                 ->addArguments($this->empty ? '-empty' : null)
-                 ->addArguments($this->follow_symlinks ? '-L' : null)
-                 ->addArguments($this->name ? [
-                     '-name',
-                     $this->name,
-                 ] : null)
-                 ->addArguments($this->iname ? [
-                     '-iname',
-                     $this->iname,
-                 ] : null)
-                 ->addArguments($this->find_path ? [
-                     '-path',
-                     $this->find_path,
-                 ] : null)
-                 ->addArguments($this->atime ? [
-                     '-amin',
-                     $this->atime,
-                 ] : null)
-                 ->addArguments($this->ctime ? [
-                     '-cmin',
-                     $this->ctime,
-                 ] : null)
-                 ->addArguments($this->mtime ? [
-                     '-mmin',
-                     $this->mtime,
-                 ] : null)
-                 ->addArguments($this->type ? [
-                     '-type',
-                     $this->type,
-                 ] : null)
-                 ->addArguments($this->regex ? [
-                     '-regex',
-                     $this->regex,
-                 ] : null)
-                 ->addArguments($this->size ? [
-                     '-size',
-                     $this->size,
-                 ] : null)
-                 ->addArguments($this->depth ? [
-                     '-depth',
-                     $this->depth,
-                 ] : null)
-                 ->addArguments($this->max_depth ? [
-                     '-maxdepth',
-                     $this->max_depth,
-                 ] : null)
-                 ->addArguments($this->min_depth ? [
-                     '-mindepth',
-                     $this->min_depth,
-                 ] : null)
-                 ->addArguments($this->size ? [
-                     '-size',
-                     $this->size,
-                 ] : null)
-                 ->addArguments($this->exec ? [
-                     '-exec',
-                     $this->exec,
-                 ] : null);
+                 ->addArgument($this->path->getPath())
+                 ->addArguments($this->mount           ? '-mount'                                   : null)
+                 ->addArguments($this->empty           ? '-empty'                                   : null)
+                 ->addArguments($this->follow_symlinks ? '-L'                                       : null)
+                 ->addArguments($this->name            ? ['-name'    , $this->name]                 : null)
+                 ->addArguments($this->iname           ? ['-iname'   , $this->iname]                : null)
+                 ->addArguments($this->find_path       ? ['-path'    , $this->find_path->getPath()] : null)
+                 ->addArguments($this->atime           ? ['-amin'    , $this->atime]                : null)
+                 ->addArguments($this->ctime           ? ['-cmin'    , $this->ctime]                : null)
+                 ->addArguments($this->mtime           ? ['-mmin'    , $this->mtime]                : null)
+                 ->addArguments($this->type            ? ['-type'    , $this->type]                 : null)
+                 ->addArguments($this->regex           ? ['-regex'   , $this->regex]                : null)
+                 ->addArguments($this->size            ? ['-size'    , $this->size]                 : null)
+                 ->addArguments($this->depth           ? ['-depth'   , $this->depth]                : null)
+                 ->addArguments($this->max_depth       ? ['-maxdepth', $this->max_depth]            : null)
+                 ->addArguments($this->min_depth       ? ['-mindepth', $this->min_depth]            : null)
+                 ->addArguments($this->size            ? ['-size'    , $this->size]                 : null)
+                 ->addArguments($this->exec            ? ['-exec'    , $this->exec]                 : null);
 
         } catch (ProcessFailedException $e) {
-            Path::new($this->path)
+            FsPath::new($this->path)
                 ->checkReadable('find', $e);
         }
+
         // Clear files cache and execute the find command
         unset($this->files);
         parent::executeReturnArray();
-        // Execute callbacks?
+
+        // The output array should have keys the same as values
+        $this->output = Arrays::valueToKeys($this->output);
+
+        // ExecuteExecuteInterface callbacks?
         if ($this->callback) {
             $callback = $this->callback;
+
             foreach ($this->output as $file) {
                 $callback($file);
             }

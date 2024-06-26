@@ -8,7 +8,7 @@ use Phoundation\Os\Processes\Task;
 
 
 /**
- * Script tasks/execute
+ * Command tasks/execute
  *
  * This script will display detailed information about the current framework, project, database ,etc.
  *

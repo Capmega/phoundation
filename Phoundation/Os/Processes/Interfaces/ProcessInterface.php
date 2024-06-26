@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 
 /**
  * Interface ProcessCore
@@ -22,14 +23,14 @@ interface ProcessInterface extends ProcessCoreInterface
     /**
      * Create a new process factory
      *
-     * @param string|null                             $command
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null                             $operating_system
-     * @param string|null                             $packages
+     * @param string|null                                       $command
+     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory_or_restrictions
+     * @param string|null                                       $operating_system
+     * @param string|null                                       $packages
      *
      * @return static
      */
-    public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static;
+    public static function new(?string $command = null, FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null): static;
 
 
     /**
@@ -42,4 +43,16 @@ interface ProcessInterface extends ProcessCoreInterface
      * @return static This process so that multiple methods can be chained
      */
     public function setCommand(?string $command, bool $which_command = true, bool $clear_arguments = true): static;
+
+    /**
+     * Returns true if the process can execute the specified command with sudo privileges
+     *
+     * @param string $command
+     * @param bool   $exception
+     *
+     * @return bool
+     * @todo Find a better option than "--version" which may not be available for everything. What about shell commands
+     *       like "true", or "which", etc?
+     */
+    public function sudoAvailable(string $command, bool $exception = false): bool;
 }

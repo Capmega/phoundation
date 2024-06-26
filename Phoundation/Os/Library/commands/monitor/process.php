@@ -9,7 +9,7 @@ use Phoundation\Os\Processes\Exception\MonitorException;
 
 
 /**
- * Script monitor/process
+ * Command monitor/process
  *
  * This script will monitor the specified process (by name) and alert and restart when it stops
  *

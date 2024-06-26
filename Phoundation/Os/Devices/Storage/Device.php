@@ -1,21 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Devices\Storage;
-
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Os\Devices\Storage\Exception\StorageException;
-use Phoundation\Os\Devices\Storage\Interfaces\DeviceInterface;
-use Phoundation\Os\Processes\Commands\Cryptsetup;
-use Phoundation\Os\Processes\Commands\Lsblk;
-use Phoundation\Os\Processes\Commands\Mount;
-use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Process;
-use Phoundation\Utils\Strings;
-
 /**
  * Class Device
  *
@@ -26,18 +10,37 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
-class Device extends File implements DeviceInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Devices\Storage;
+
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsFileCore;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Os\Devices\Storage\Exception\StorageException;
+use Phoundation\Os\Devices\Storage\Interfaces\DeviceInterfaceFsFileInterface;
+use Phoundation\Os\Processes\Commands\Cryptsetup;
+use Phoundation\Os\Processes\Commands\Lsblk;
+use Phoundation\Os\Processes\Commands\Mount;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Strings;
+
+class Device extends FsFile implements DeviceInterfaceFsFileInterface
 {
     /**
      * Device class constructor
      *
      * @return void
      */
-    public function __construct(mixed $file = null, RestrictionsInterface|array|string|null $restrictions = null)
+    public function __construct(mixed $file = null, FsRestrictionsInterface|array|string|null $restrictions = null)
     {
         if (!$restrictions) {
-            $restrictions = Restrictions::new(Restrictions::new('/dev/'), false, 'default device');
+            $restrictions = FsRestrictions::new('/dev/', false, 'default device');
         }
+
         parent::__construct($file, $restrictions);
         $this->checkDeviceFile();
     }

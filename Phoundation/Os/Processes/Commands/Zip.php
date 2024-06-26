@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
 /**
@@ -22,17 +24,18 @@ class Zip extends Command
     /**
      * Unzips the specified file
      *
-     * @param string      $file The file to be unzipped.
-     * @param string|null $target_path
+     * @param FsFileInterface           $file The file to be unzipped.
+     * @param FsDirectoryInterface|null $target_path
      *
      * @return void
      */
-    public function unzip(string $file, ?string $target_path = null): void
+    public function unzip(FsFileInterface $file, ?FsDirectoryInterface $target_path = null): void
     {
         try {
             if (!$target_path) {
-                $target_path = dirname($file);
+                $target_path = $file->getParentDirectory();
             }
+
             $this->setExecutionDirectory($target_path)
                  ->setCommand('unzip')
                  ->addArguments($file)
@@ -42,7 +45,7 @@ class Zip extends Command
         } catch (ProcessFailedException $e) {
             // The command gunzip failed, most of the time either $file doesn't exist, or we don't have access
             static::handleException('unzip', $e, function () use ($file) {
-                File::new($file)
+                FsFile::new($file)
                     ->checkReadable();
             });
         }

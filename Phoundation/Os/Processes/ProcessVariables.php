@@ -1,38 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes;
-
-use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Date\Time;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\DirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Filesystem\Traits\TraitDataRestrictions;
-use Phoundation\Os\Packages\Interfaces\PackagesInterface;
-use Phoundation\Os\Packages\Packages;
-use Phoundation\Os\Processes\Commands\Command;
-use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
-use Phoundation\Os\Processes\Commands\Exception\CommandsException;
-use Phoundation\Os\Processes\Commands\Which;
-use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
-use Phoundation\Os\Processes\Exception\ProcessesException;
-use Phoundation\Os\Processes\Exception\ProcessException;
-use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
-use Phoundation\Servers\Traits\TraitDataServer;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
-use Stringable;
-
 /**
  * Trait ProcessVariables
  *
@@ -43,10 +10,47 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes;
+
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Date\Time;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Os\Packages\Interfaces\PackagesInterface;
+use Phoundation\Os\Packages\Packages;
+use Phoundation\Os\Processes\Commands\Command;
+use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
+use Phoundation\Os\Processes\Commands\Exception\CommandsException;
+use Phoundation\Os\Processes\Commands\Which;
+use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
+use Phoundation\Os\Processes\Exception\ProcessesException;
+use Phoundation\Os\Processes\Exception\ProcessException;
+use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
+use Phoundation\Servers\Traits\TraitDataServer;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
+use Stringable;
+
 trait ProcessVariables
 {
     use TraitDataServer;
-    use TraitDataRestrictions;
+    use TraitDataRestrictions {
+        setRestrictions as protected ___setRestrictions;
+    }
+
 
     /**
      * The run path where command output will be written to
@@ -203,16 +207,16 @@ trait ProcessVariables
     /**
      * If specified, output from this command will be piped to the next command
      *
-     * @var ProcessCoreInterface|FileInterface|string|null $pipe
+     * @var ProcessCoreInterface|FsFileInterface|string|null $pipe
      */
-    protected ProcessCoreInterface|FileInterface|string|null $pipe = null;
+    protected ProcessCoreInterface|FsFileInterface|string|null $pipe = null;
 
     /**
      * If specified, will pipe the string or process output into this command
      *
-     * @var ProcessCoreInterface|FileInterface|string|null $pipe
+     * @var ProcessCoreInterface|FsFileInterface|string|null $pipe
      */
-    protected ProcessCoreInterface|FileInterface|string|null $pipe_from = null;
+    protected ProcessCoreInterface|FsFileInterface|string|null $pipe_from = null;
 
     /**
      * Stores the data on where to redirect input channels
@@ -227,13 +231,6 @@ trait ProcessVariables
      * @var array $output_redirect
      */
     protected array $output_redirect = [2 => '>&1'];
-
-    /**
-     * Keeps track on which server this command should be executed. NULL means this local server
-     *
-     * @var RestrictionsInterface $restrictions
-     */
-    protected RestrictionsInterface $restrictions;
 
     /**
      * Registers where the exit code for this process will be stored
@@ -274,9 +271,9 @@ trait ProcessVariables
     /**
      * If set, the process will first CD to this directory before continuing
      *
-     * @var string|null $execution_directory
+     * @var FsDirectoryInterface|null $execution_directory
      */
-    protected ?string $execution_directory = null;
+    protected ?FsDirectoryInterface $execution_directory = null;
 
     /**
      * If true, commands will be printed and logged
@@ -323,9 +320,9 @@ trait ProcessVariables
     /**
      * The method used to execute this process
      *
-     * @var EnumExecuteMethodInterface|null $method
+     * @var EnumExecuteMethod|null $method
      */
-    protected ?EnumExecuteMethodInterface $method = null;
+    protected ?EnumExecuteMethod $method = null;
 
     /**
      * The output of the process
@@ -338,15 +335,23 @@ trait ProcessVariables
     /**
      * Process class constructor
      *
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory_or_restrictions
      */
-    public function __construct(RestrictionsInterface|array|string|null $restrictions)
+    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory_or_restrictions = null)
     {
         // Ensure that the run files directory is available
         // Set server filesystem restrictions
-        $this->setUseRunFile(Directory::writeIsEnabled());
+        $this->setUseRunFile(FsDirectory::writeIsEnabled());
         $this->setRunDirectory(DIRECTORY_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/');
-        $this->setRestrictions($restrictions);
+
+        if ($execution_directory_or_restrictions) {
+            if ($execution_directory_or_restrictions instanceof FsRestrictions) {
+                $this->setRestrictions($execution_directory_or_restrictions);
+
+            } else {
+                $this->setExecutionDirectory($execution_directory_or_restrictions);
+            }
+        }
 
         $this->packages = new Packages();
     }
@@ -357,18 +362,16 @@ trait ProcessVariables
      *
      * @note NULL means this local server
      *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param bool                                    $write
-     * @param string|null                             $label
+     * @param FsRestrictionsInterface|array|string|null $restrictions
+     * @param bool                                      $write
+     * @param string|null                               $label
      *
      * @return static
      */
-    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
+    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
     {
         $this->cached_command_line = null;
-        $this->restrictions        = Restrictions::ensure($restrictions, $write, $label);
-
-        return $this;
+        return $this->___setRestrictions($restrictions, $write, $label);
     }
 
 
@@ -387,9 +390,9 @@ trait ProcessVariables
     /**
      * Returns the execution method for this process
      *
-     * @return EnumExecuteMethodInterface|null
+     * @return EnumExecuteMethod|null
      */
-    public function getExecutionMethod(): ?EnumExecuteMethodInterface
+    public function getExecutionMethod(): ?EnumExecuteMethod
     {
         return $this->method;
     }
@@ -537,11 +540,30 @@ trait ProcessVariables
      *
      * If requested before process execution, will return NULL
      *
-     * @return array|string|null
+     * @return array|null
      */
-    public function getOutput(): array|string|null
+    public function getOutput(): array|null
     {
         return $this->output;
+    }
+
+
+    /**
+     * Returns the output of the process
+     *
+     * If requested before process execution, will return NULL
+     *
+     * @param string $separator
+     *
+     * @return string|null
+     */
+    public function getStringOutput(string $separator = PHP_EOL): string|null
+    {
+        if ($this->output) {
+            return implode($separator, $this->output);
+        }
+
+        return null;
     }
 
 
@@ -727,30 +749,26 @@ trait ProcessVariables
     /**
      * Returns if the process will first CD to this directory before continuing
      *
-     * @return DirectoryInterface
+     * @return FsDirectoryInterface
      */
-    public function getExecutionDirectory(): DirectoryInterface
+    public function getExecutionDirectory(): FsDirectoryInterface
     {
-        return Directory::new($this->execution_directory);
+        return $this->execution_directory;
     }
 
 
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param DirectoryInterface|Stringable|string|null $execution_directory
-     * @param RestrictionsInterface|array|string|null   $restrictions
+     * @param FsDirectoryInterface|null $execution_directory
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionDirectory(DirectoryInterface|Stringable|string|null $execution_directory, RestrictionsInterface|array|string|null $restrictions = null): static
+    public function setExecutionDirectory(FsDirectoryInterface|null $execution_directory): static
     {
         $this->cached_command_line = null;
-        $this->execution_directory = (string) $execution_directory;
-
-        if ($restrictions) {
-            $this->restrictions = $restrictions;
-        }
+        $this->execution_directory = $execution_directory;
+        $this->restrictions        = $execution_directory?->getRestrictions();
 
         return $this;
     }
@@ -765,12 +783,7 @@ trait ProcessVariables
      */
     public function setExecutionDirectoryToTemp(bool $public = false): static
     {
-        $directory          = Directory::getTemporary($public);
-        $this->restrictions = $directory->getRestrictions();
-
-        $this->setExecutionDirectory($directory, $directory->getRestrictions());
-
-        return $this;
+        return $this->setExecutionDirectory(FsDirectory::getTemporary($public));
     }
 
 
@@ -816,9 +829,9 @@ trait ProcessVariables
         static::$run_directory = $run_directory;
 
         if ($this->use_run_file) {
-            Directory::new(
+            FsDirectory::new(
                 static::$run_directory,
-                Restrictions::new(DIRECTORY_DATA . 'run', true, 'processes runfile')
+                FsRestrictions::new(DIRECTORY_DATA . 'run', true, 'processes runfile')
             )->ensure();
         }
 
@@ -844,7 +857,7 @@ trait ProcessVariables
 //
 //        // Ensure the path ends with a slash and that it is writable
 //        $directory = Strings::slash($directory);
-//        $directory = File::new($directory)->ensureWritable();
+//        $directory = FsFileFileInterface::new($directory)->ensureWritable();
 //        $this->log_file = $directory;
 //
 //        return $this;
@@ -857,7 +870,7 @@ trait ProcessVariables
      */
     public function getRunFile(): ?string
     {
-        if ($this->use_run_file and File::writeIsEnabled()) {
+        if ($this->use_run_file and FsFile::writeIsEnabled()) {
             return $this->run_file;
         }
 
@@ -970,7 +983,7 @@ trait ProcessVariables
 //
 //        // Ensure the path ends with a slash and that it is writable
 //        $directory = Strings::slash($directory);
-//        $directory = File::new($directory)->ensureWritable();
+//        $directory = FsFileFileInterface::new($directory)->ensureWritable();
 //        $this->run_file = $directory;
 //
 //        return $this;
@@ -1144,14 +1157,14 @@ trait ProcessVariables
         if ($which_command) {
             // Get the real location for the command to ensure it exists. Do NOT use this for shell internal commands!
             try {
-                $real_command = Which::new($this->restrictions)->which($command);
+                $real_command = Which::new($this->execution_directory)->which($command);
 
             } catch (CommandNotFoundException) {
                 // Check if the command exist on disk
                 if (($command !== 'which') and !file_exists($command)) {
                     // The specified command was not found, we'll have to look for it anyway!
                     try {
-                        $real_command = Which::new($this->restrictions)->which($command);
+                        $real_command = Which::new($this->execution_directory)->which($command);
 
                     } catch (CommandsException) {
                         // The command does not exist, but maybe we can auto install?
@@ -1162,7 +1175,7 @@ trait ProcessVariables
                                 ]));
                             }
 
-                            if (!Command::sudoAvailable('apt-get', Restrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
+                            if (!Command::sudoAvailable('apt-get', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
                                 throw new ProcessesException(tr('Specified process command ":command" does not exist and this process does not have sudo access to apt-get', [
                                     ':command' => $command,
                                 ]));
@@ -1269,13 +1282,13 @@ trait ProcessVariables
     /**
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
      *
-     * @param array|string|null $arguments
-     * @param bool              $escape_arguments
-     * @param bool              $escape_quotes
+     * @param Stringable|array|string|int|float|null $arguments
+     * @param bool                                   $escape_arguments
+     * @param bool                                   $escape_quotes
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function addArguments(array|string|null $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
+    public function addArguments(Stringable|array|string|int|float|null $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
     {
         $this->cached_command_line = null;
 
@@ -1524,10 +1537,10 @@ trait ProcessVariables
         }
 
         if (is_string($this->pipe)) {
-            return escapeshellarg($this->pipe);
+            return str_replace('"', '\\"', $this->pipe);
         }
 
-        return $this->pipe->getFullCommandLine();
+        return str_replace('"', '\\"', $this->pipe->getFullCommandLine());
     }
 
 
@@ -1546,7 +1559,7 @@ trait ProcessVariables
             return 'echo -n ' . escapeshellarg($this->pipe_from);
         }
 
-        if ($this->pipe_from instanceof FileInterface) {
+        if ($this->pipe_from instanceof FsFileInterface) {
             return 'cat ' . escapeshellarg($this->pipe_from);
         }
 
@@ -1557,9 +1570,9 @@ trait ProcessVariables
     /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
-     * @return ProcessCoreInterface|FileInterface|string|null
+     * @return ProcessCoreInterface|FsFileInterface|string|null
      */
-    public function getPipe(): ProcessCoreInterface|FileInterface|string|null
+    public function getPipe(): ProcessCoreInterface|FsFileInterface|string|null
     {
         return $this->pipe;
     }
@@ -1568,11 +1581,11 @@ trait ProcessVariables
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param ProcessCoreInterface|FileInterface|string|null $pipe
+     * @param ProcessCoreInterface|FsFileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipe(ProcessCoreInterface|FileInterface|string|null $pipe): static
+    public function setPipe(ProcessCoreInterface|FsFileInterface|string|null $pipe): static
     {
         $this->cached_command_line = null;
         $this->pipe                = $pipe;
@@ -1589,9 +1602,9 @@ trait ProcessVariables
     /**
      * Returns the process or string that will be piped into this process
      *
-     * @return ProcessCoreInterface|FileInterface|string|null
+     * @return ProcessCoreInterface|FsFileInterface|string|null
      */
-    public function getPipeFrom(): ProcessCoreInterface|FileInterface|string|null
+    public function getPipeFrom(): ProcessCoreInterface|FsFileInterface|string|null
     {
         return $this->pipe_from;
     }
@@ -1600,11 +1613,11 @@ trait ProcessVariables
     /**
      * Sets the process or string that will be piped into this process*
      *
-     * @param ProcessCoreInterface|FileInterface|string|null $pipe
+     * @param ProcessCoreInterface|FsFileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipeFrom(ProcessCoreInterface|FileInterface|string|null $pipe): static
+    public function setPipeFrom(ProcessCoreInterface|FsFileInterface|string|null $pipe): static
     {
         $this->cached_command_line = null;
         $this->pipe_from           = $pipe;
@@ -1665,7 +1678,7 @@ trait ProcessVariables
 
             } else {
                 // Redirect output to a file
-                Directory::new(dirname($redirect), $this->restrictions->getParent())
+                FsDirectory::new(dirname($redirect), $this->restrictions->getParent())
                          ->ensure('output redirect file');
                 $this->output_redirect[$channel] = ($append ? '>>' : '> ') . $redirect;
             }
@@ -1736,7 +1749,7 @@ trait ProcessVariables
         $this->cached_command_line = null;
 
         if ($redirect) {
-            File::new($redirect, $this->restrictions)->checkReadable();
+            FsFile::new($redirect, $this->restrictions)->checkReadable();
             $this->input_redirect[$channel] = $redirect;
         }
 
@@ -1825,6 +1838,7 @@ trait ProcessVariables
                 ':signal' => $signal,
             ]));
         }
+
         $this->cached_command_line = null;
         $this->signal              = Signals::check($signal);
 
@@ -1942,7 +1956,7 @@ trait ProcessVariables
             $pid  = trim($pid);
 
             // Delete the run file but don't clean up as when the process terminates, cleanup will happen automatically
-            File::new($this->run_file, Restrictions::new(DIRECTORY_DATA . 'run/pids/', true))
+            FsFile::new($this->run_file, FsRestrictions::new(DIRECTORY_DATA . 'run/pids/', true))
                 ->delete(false);
 
         } else {
@@ -2002,11 +2016,11 @@ trait ProcessVariables
      *
      * @note Will set the execution method only once. When already set, it will ignore the next specified method
      *
-     * @param EnumExecuteMethodInterface|null $method
+     * @param EnumExecuteMethod|null $method
      *
      * @return static
      */
-    protected function setExecutionMethod(?EnumExecuteMethodInterface $method): static
+    protected function setExecutionMethod(?EnumExecuteMethod $method): static
     {
         if ($this->method === null) {
             $this->method = $method;

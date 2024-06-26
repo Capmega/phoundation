@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Rsync
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Os
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -11,23 +22,13 @@ use Phoundation\Data\Traits\TraitDataSourceServer;
 use Phoundation\Data\Traits\TraitDataSourceString;
 use Phoundation\Data\Traits\TraitDataTarget;
 use Phoundation\Data\Traits\TraitDataTargetServer;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\RsyncInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Utils\Arrays;
 use Stringable;
 
-/**
- * Class Rsync
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Os
- */
 class Rsync extends Command implements RsyncInterface
 {
     use TraitDataDebug;
@@ -125,13 +126,13 @@ class Rsync extends Command implements RsyncInterface
     /**
      * Rsync class constructor
      *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param Stringable|string|null                  $operating_system
-     * @param string|null                             $packages
+     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
+     * @param Stringable|string|null                            $operating_system
+     * @param string|null                                       $packages
      */
-    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, Stringable|string|null $operating_system = null, ?string $packages = null)
+    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null)
     {
-        parent::__construct($restrictions, $operating_system, $packages);
+        parent::__construct($execution_directory, $operating_system, $packages);
         $this->setCommand('rsync');
     }
 
@@ -482,13 +483,13 @@ class Rsync extends Command implements RsyncInterface
 
 
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
      *
-     * @param EnumExecuteMethodInterface $method
+     * @param EnumExecuteMethod $method
      *
      * @return string|int|bool|array|null
      */
-    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null
+    public function execute(EnumExecuteMethod $method = EnumExecuteMethod::passthru): string|int|bool|array|null
     {
         $results = parent::execute($method);
         if ($this->debug) {

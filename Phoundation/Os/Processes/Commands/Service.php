@@ -23,7 +23,7 @@ class Service extends Command
     use TraitDataServiceName;
 
     /**
-     * Execute the service status command operation and return the specified service status
+     * ExecuteExecuteInterface the service status command operation and return the specified service status
      *
      * @return array
      */
@@ -50,7 +50,7 @@ class Service extends Command
 
 
     /**
-     * Execute the service command
+     * ExecuteExecuteInterface the service command
      *
      * @param string $action
      *
@@ -69,7 +69,7 @@ class Service extends Command
 
 
     /**
-     * Execute the service restart command operation and return the specified service status
+     * ExecuteExecuteInterface the service restart command operation and return the specified service status
      *
      * @return static
      */
@@ -87,7 +87,7 @@ class Service extends Command
 
 
     /**
-     * Execute the service restart command operation and return the specified service status
+     * ExecuteExecuteInterface the service restart command operation and return the specified service status
      *
      * @return static
      */
@@ -105,7 +105,7 @@ class Service extends Command
 
 
     /**
-     * Execute the service restart command operation and return the specified service status
+     * ExecuteExecuteInterface the service restart command operation and return the specified service status
      *
      * @return static
      */

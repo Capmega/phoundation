@@ -12,7 +12,7 @@ use Phoundation\Os\Processes\Tasks;
 
 
 /**
- * Script workers/execute
+ * Command workers/execute
  *
  * This script will execute a parent worker that will execute its task through multiple parallel child workers
  *
@@ -49,10 +49,10 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Execute the task(s)
+// ExecuteExecuteInterface the task(s)
 if ($argv['task']) {
     try {
-        // Execute a specific task
+        // ExecuteExecuteInterface a specific task
         $task = Task::load($argv['task'])->execute();
 
     } catch (TaskAlreadyExecutedException) {

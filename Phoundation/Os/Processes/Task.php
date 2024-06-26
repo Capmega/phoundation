@@ -23,7 +23,10 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Exception\TaskAlreadyExecutedException;
@@ -74,7 +77,7 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {
@@ -321,11 +324,11 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Sets access restrictions for this task
      *
-     * @param string|null $restrictions
+     * @param FsRestrictionsInterface|array|string|null $restrictions
      *
      * @return static
      */
-    public function setRestrictions(?string $restrictions): static
+    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions): static
     {
         return $this->set($restrictions, 'restrictions');
     }
@@ -585,15 +588,14 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function doExecute(): static
     {
-        // Execute hook
+        // ExecuteExecuteInterface hook
         Hook::new('tasks')
             ->execute('pre-execute', ['task' => $this]);
-        // Execute the command
-        $worker = ProcessWorker::new($this->getCommand(), $this->getRestrictions())
+        // ExecuteExecuteInterface the command
+        $worker = ProcessWorker::new($this->getCommand(), $this->getExecutionDirectory())
                                ->setServer($this->getServer())
                                ->setArguments($this->getArguments())
                                ->setVariables($this->getVariables())
-                               ->setExecutionDirectory($this->getExecutionDirectory())
                                ->setEnvironmentVariables($this->getEnvironmentVariables())
                                ->setAcceptedExitCodes($this->getAcceptedExitCodes())
                                ->setTimeout($this->getTimeout())
@@ -613,7 +615,7 @@ class Task extends DataEntry implements TaskInterface
              ->setStatus('executing')
              ->setExecutedCommand($worker->getFullCommandLine())
              ->save();
-        // Execute the task
+        // ExecuteExecuteInterface the task
         try {
             $results = $worker->executeReturnString();
             Log::success(tr('Task ":task" finished execution in ":time"', [
@@ -647,7 +649,7 @@ class Task extends DataEntry implements TaskInterface
                             ->send();
 
             }
-            // Execute hook
+            // ExecuteExecuteInterface hook
             Hook::new('tasks')
                 ->execute('post-execute', [
                     'task'   => $this,
@@ -691,7 +693,7 @@ class Task extends DataEntry implements TaskInterface
 
             }
 
-            // Execute hook
+            // ExecuteExecuteInterface hook
             Hook::new('tasks')
                 ->execute('execution-failed', [
                     'task'   => $this,
@@ -849,11 +851,11 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Sets execution_directory for this task
      *
-     * @param string|null $execution_directory
+     * @param FsDirectoryInterface|null $execution_directory
      *
      * @return static
      */
-    public function setExecutionDirectory(?string $execution_directory): static
+    public function setExecutionDirectory(?FsDirectoryInterface $execution_directory): static
     {
         return $this->set($execution_directory, 'execution_directory');
     }
@@ -943,11 +945,17 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns execution_directory for this task
      *
-     * @return string|null
+     * @return FsDirectoryInterface|null
      */
-    public function getExecutionDirectory(): ?string
+    public function getExecutionDirectory(): ?FsDirectoryInterface
     {
-        return $this->getValueTypesafe('string', 'execution_directory');
+        $directory = $this->getValueTypesafe('string', 'execution_directory');
+
+        if ($directory) {
+            return new FsDirectory($directory, $this->restrictions);
+        }
+
+        return null;
     }
 
 
@@ -1100,7 +1108,7 @@ class Task extends DataEntry implements TaskInterface
             }
 
             // Validate data, generate a new code, and write it to database
-            return $this->ensureValidation()
+            return $this->validate()
                         ->generateCode()
                         ->write($comments);
         }
@@ -1302,7 +1310,7 @@ class Task extends DataEntry implements TaskInterface
                     ->add(Definition::new($this, 'execute_after')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::datetime_local)
-                                    ->setLabel('Execute after')
+                                    ->setLabel('ExecuteExecuteInterface after')
                                     ->setCliColumn('[--execute-after DATETIME]')
                                     ->setSize(4)
                                     ->setMaxlength(17)
@@ -1362,7 +1370,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setMaxlength(255)
-                                    ->setLabel('Execute on server')
+                                    ->setLabel('ExecuteExecuteInterface on server')
                                     ->setCliColumn('[-s,--server HOSTNAME]')
                                     ->setSize(4)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -1398,7 +1406,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setCliColumn('[-d,--execution-directory PATH]')
                                     ->setSize(4)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDirectory('/', Restrictions::writable('/'));
+                                        $validator->isDirectory('/', FsRestrictions::getWritable('/'));
                                     }))
                     ->add(Definition::new($this, 'command')
                                     ->setInputType(EnumInputType::text)
@@ -1547,7 +1555,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setMaxlength(510))
                     ->add(Definition::new($this, 'restrictions')
                                     ->setOptional(true)
-                                    ->setLabel('Restrictions')
+                                    ->setLabel('FsRestrictions')
                                     ->setSize(6)
                                     ->setMaxlength(510))
                     ->add(Definition::new($this, 'packages')

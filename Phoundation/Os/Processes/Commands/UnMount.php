@@ -6,15 +6,16 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Data\Traits\TraitDataForce;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
 use Phoundation\Filesystem\Mounts\Exception\UnmountBusyException;
-use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Filesystem\Mounts\FsMounts;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Stringable;
 
 /**
- * Class Mount
+ * Class FsMount
  *
  *
  * @note      On Ubuntu requires packages nfs-utils cifs-utils psmisc
@@ -36,15 +37,15 @@ class UnMount extends Command
 
 
     /**
-     * Mount class constructor
+     * FsMount class constructor
      *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null                             $operating_system
-     * @param string|null                             $packages
+     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
+     * @param string|null                                       $operating_system
+     * @param string|null                                       $packages
      */
-    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
+    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null)
     {
-        parent::__construct($restrictions, $operating_system, $packages);
+        parent::__construct($execution_directory, $operating_system, $packages);
         $this->packages->addForOperatingSystem('debian', 'nfs-utils,cifs-utils,psmisc');
     }
 
@@ -87,7 +88,7 @@ class UnMount extends Command
     {
         if (Mount::isSource($target, false)) {
             // This is a mount source. Unmount all its targets
-            $targets = Mounts::listMountTargets($target);
+            $targets = FsMounts::listMountTargets($target);
             foreach ($targets as $target) {
                 static::unmount($target);
             }

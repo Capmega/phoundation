@@ -2,8 +2,9 @@
 
 namespace Phoundation\Os\Processes\Commands\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FilesInterface;
-use Phoundation\Filesystem\Interfaces\PathInterface;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsFilesInterface;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Stringable;
 
 /**
@@ -21,11 +22,11 @@ interface FindInterface extends CommandInterface
     /**
      * Sets the path in which to find
      *
-     * @param PathInterface|string|null $path
+     * @param FsPathInterface|null $path
      *
      * @return $this
      */
-    public function setPath(PathInterface|string|null $path): static;
+    public function setPath(FsPathInterface|null $path): static;
 
 
     /**
@@ -33,19 +34,19 @@ interface FindInterface extends CommandInterface
      *
      * @note This is true by default for security to avoid searching on remote filesystems by accident
      *
-     * @param PathInterface|string|null $find_path
+     * @param FsPathInterface|null $find_path
      *
      * @return static
      */
-    public function setFindPath(PathInterface|string|null $find_path): static;
+    public function setFindPath(FsPathInterface|null $find_path): static;
 
 
     /**
      * Returns if find should find empty files
      *
-     * @return string|null
+     * @return FsDirectoryInterface|null
      */
-    public function getFindPath(): ?string;
+    public function getFindPath(): ?FsDirectoryInterface;
 
 
     /**
@@ -352,11 +353,11 @@ interface FindInterface extends CommandInterface
 
 
     /**
-     * Returns a Files-object containing the found files
+     * Returns a FsFiles-object containing the found files
      *
-     * @return FilesInterface
+     * @return FsFilesInterface
      */
-    public function getFoundFiles(): FilesInterface;
+    public function getFoundFiles(): FsFilesInterface;
 
 
     /**
@@ -368,9 +369,9 @@ interface FindInterface extends CommandInterface
 
 
     /**
-     * Returns a Files-object containing the found files
+     * Returns a FsFiles-object containing the found files
      *
-     * @return FilesInterface
+     * @return FsFilesInterface
      */
-    public function getFiles(): FilesInterface;
+    public function getFiles(): FsFilesInterface;
 }

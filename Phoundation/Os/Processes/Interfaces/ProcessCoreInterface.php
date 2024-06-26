@@ -5,21 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Servers\Interfaces\ServerInterface;
+use Stringable;
 
-/**
- * Class ProcessCore
- *
- * This class embodies a process that will be executed
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Os
- * @uses      \Phoundation\Os\Processes\ProcessVariables
- */
-interface ProcessCoreInterface
+interface ProcessCoreInterface extends Stringable
 {
     /**
      * Sets the server on which this command should be executed
@@ -40,7 +30,7 @@ interface ProcessCoreInterface
 
 
     /**
-     * Execute the command using the PHP exec() call and return an array
+     * ExecuteExecuteInterface the command using the PHP exec() call and return an array
      *
      * @return array The output from the executed command
      */
@@ -48,7 +38,7 @@ interface ProcessCoreInterface
 
 
     /**
-     * Execute the command using the PHP exec() call and return an IteratorInterface
+     * ExecuteExecuteInterface the command using the PHP exec() call and return an IteratorInterface
      *
      * @return IteratorInterface The output from the executed command
      */
@@ -56,7 +46,7 @@ interface ProcessCoreInterface
 
 
     /**
-     * Execute the command using the PHP exec() call and return a string
+     * ExecuteExecuteInterface the command using the PHP exec() call and return a string
      *
      * @return string The output from the executed command
      */
@@ -64,7 +54,7 @@ interface ProcessCoreInterface
 
 
     /**
-     * Execute the command using the PHP exec() call and return a string
+     * ExecuteExecuteInterface the command using the PHP exec() call and return a string
      *
      * @return static
      */
@@ -72,17 +62,17 @@ interface ProcessCoreInterface
 
 
     /**
-     * Execute the command and depending on specified method, return or log output
+     * ExecuteExecuteInterface the command and depending on specified method, return or log output
      *
-     * @param EnumExecuteMethodInterface $method
+     * @param EnumExecuteMethod $method
      *
      * @return IteratorInterface|array|string|int|bool|null
      */
-    public function execute(EnumExecuteMethodInterface $method): IteratorInterface|array|string|int|bool|null;
+    public function execute(EnumExecuteMethod $method): IteratorInterface|array|string|int|bool|null;
 
 
     /**
-     * Execute the command using passthru and send the output directly to the client
+     * ExecuteExecuteInterface the command using passthru and send the output directly to the client
      *
      * @return bool
      */

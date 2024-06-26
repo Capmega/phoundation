@@ -6,7 +6,6 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 /**
  * Class Fprint
@@ -27,7 +26,7 @@ class Fprint extends Command
      *
      * @return int
      */
-    public function enroll(string|int $id, EnumExecuteMethodInterface $method = EnumExecuteMethod::background): ?int
+    public function enroll(string|int $id, EnumExecuteMethod $method = EnumExecuteMethod::background): ?int
     {
         // Build the process parameters, then execute
         $this->setCommand('fprint-enroll')

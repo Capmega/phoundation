@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 /**
@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
-interface TasksInterface extends DataListInterface
+interface TasksInterface extends DataIteratorInterface
 {
     /**
      * Returns an HTML <select> for the available object entries
@@ -34,7 +34,7 @@ interface TasksInterface extends DataListInterface
 
 
     /**
-     * Execute the tasks in this list
+     * ExecuteExecuteInterface the tasks in this list
      *
      * @return $this
      */

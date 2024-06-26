@@ -9,7 +9,6 @@ use Phoundation\Data\Traits\TraitDataBindAddress;
 use Phoundation\Data\Traits\TraitDataSourceString;
 use Phoundation\Data\Traits\TraitDataTarget;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 /**
  * Class Axel
@@ -28,13 +27,13 @@ class Axel extends Command
     use TraitDataBindAddress;
 
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
      *
-     * @param EnumExecuteMethodInterface $method
+     * @param EnumExecuteMethod $method
      *
      * @return string|int|bool|array|null
      */
-    public function download(EnumExecuteMethodInterface $method = EnumExecuteMethod::noReturn): string|int|bool|array|null
+    public function download(EnumExecuteMethod $method = EnumExecuteMethod::noReturn): string|int|bool|array|null
     {
         // Build the process parameters, then execute
         $this->clearArguments()

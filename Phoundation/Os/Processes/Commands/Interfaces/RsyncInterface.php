@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands\Interfaces;
-
-use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
-
 /**
  * Class Rsync
  *
@@ -17,6 +10,13 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands\Interfaces;
+
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+
 interface RsyncInterface
 {
     /**
@@ -228,11 +228,11 @@ interface RsyncInterface
 
 
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
      *
-     * @param EnumExecuteMethodInterface $method
+     * @param EnumExecuteMethod $method
      *
      * @return string|int|bool|array|null
      */
-    public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null;
+    public function execute(EnumExecuteMethod $method = EnumExecuteMethod::passthru): string|int|bool|array|null;
 }

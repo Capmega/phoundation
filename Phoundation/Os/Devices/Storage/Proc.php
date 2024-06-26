@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Os\Devices\Storage;
 
 use Phoundation\Data\Iterator;
-use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Strings;
 
 /**
@@ -27,8 +28,8 @@ class Proc
      */
     public static function getSupportedFiletypes(): Iterator
     {
-        $types = File::new('/proc/filesystems', '/proc/filesystems')
-                     ->getContentsAsArray();
+        $types = FsFile::new('/proc/filesystems', FsRestrictions::getReadonly('/proc/filesystems', 'Proc::getSupportedFiletypes()'))
+                       ->getContentsAsArray();
         foreach ($types as &$type) {
             $type = Strings::from($type, 'nodev');
             $type = trim($type);

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Pgrep;
@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
 
 /**
- * Script monitor/service
+ * Command monitor/service
  *
  * This script will monitor the specified service (by name) and alert and restart when it stops
  *
@@ -46,7 +46,7 @@ $argv = ArgvValidator::new()
 
 
 // Ensure that the process command has sudo privileges
-Command::sudoAvailable('service', Restrictions::new('/sbin,/usr/sbin'), true);
+Command::sudoAvailable('service', FsRestrictions::new('/sbin,/usr/sbin'), true);
 
 
 // Get process ids

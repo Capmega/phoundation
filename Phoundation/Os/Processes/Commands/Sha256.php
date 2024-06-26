@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\FsFile;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Strings;
 
@@ -40,8 +40,7 @@ class Sha256 extends Command
         } catch (ProcessFailedException $e) {
             // The command sha256sum failed, most of the time either $file doesn't exist, or we don't have access
             static::handleException('sha256sum', $e, function () use ($file) {
-                File::new($file)
-                    ->checkReadable();
+                FsFile::new($file, $this->restrictions)->checkReadable();
             });
         }
     }

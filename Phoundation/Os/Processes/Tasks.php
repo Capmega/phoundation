@@ -6,7 +6,7 @@ namespace Phoundation\Os\Processes;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Commands\PhoCommand;
@@ -27,7 +27,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
-class Tasks extends DataList implements TasksInterface
+class Tasks extends DataIterator implements TasksInterface
 {
     /**
      * Tracks the maximum number of tasks workers
@@ -126,7 +126,7 @@ class Tasks extends DataList implements TasksInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {
@@ -135,7 +135,7 @@ class Tasks extends DataList implements TasksInterface
 
 
     /**
-     * Execute the tasks in this list
+     * ExecuteExecuteInterface the tasks in this list
      *
      * @return $this
      */

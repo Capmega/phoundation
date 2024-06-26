@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Interfaces;
 
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Interfaces\DirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\ProcessVariables;
@@ -134,20 +134,19 @@ interface ProcessVariablesInterface
     /**
      * Returns if the process will first CD to this directory before continuing
      *
-     * @return DirectoryInterface
+     * @return FsDirectoryInterface
      */
-    public function getExecutionDirectory(): DirectoryInterface;
+    public function getExecutionDirectory(): FsDirectoryInterface;
 
 
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param Directory|Stringable|string|null        $execution_directory
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param FsDirectoryInterface|null $execution_directory
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionDirectory(Directory|Stringable|string|null $execution_directory, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function setExecutionDirectory(FsDirectoryInterface|null $execution_directory): static;
 
 
     /**
@@ -296,9 +295,9 @@ interface ProcessVariablesInterface
      * Returns the server on which the command should be executed for this process
      *
      * @note NULL means this local server
-     * @return RestrictionsInterface
+     * @return FsRestrictionsInterface
      */
-    public function getRestrictions(): RestrictionsInterface;
+    public function getRestrictions(): FsRestrictionsInterface;
 
 
     /**
@@ -306,13 +305,13 @@ interface ProcessVariablesInterface
      *
      * @note NULL means this local server
      *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param bool                                    $write
-     * @param string|null                             $label
+     * @param FsRestrictionsInterface|array|string|null $restrictions
+     * @param bool                                      $write
+     * @param string|null                               $label
      *
      * @return static
      */
-    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
 
 
     /**
@@ -355,12 +354,12 @@ interface ProcessVariablesInterface
     /**
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
      *
-     * @param array|null $arguments
-     * @param bool       $escape_arguments
+     * @param Stringable|array|string|int|float|null $arguments
+     * @param bool                                   $escape_arguments
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function addArguments(array|null $arguments, bool $escape_arguments = true): static;
+    public function addArguments(Stringable|array|string|int|float|null $arguments, bool $escape_arguments = true): static;
 
 
     /**
@@ -422,19 +421,19 @@ interface ProcessVariablesInterface
     /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
-     * @return ProcessCoreInterface|FileInterface|string|null
+     * @return ProcessCoreInterface|FsFileInterface|string|null
      */
-    public function getPipe(): ProcessCoreInterface|FileInterface|string|null;
+    public function getPipe(): ProcessCoreInterface|FsFileInterface|string|null;
 
 
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param ProcessCoreInterface|FileInterface|string|null $pipe
+     * @param ProcessCoreInterface|FsFileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipe(ProcessCoreInterface|FileInterface|string|null $pipe): static;
+    public function setPipe(ProcessCoreInterface|FsFileInterface|string|null $pipe): static;
 
 
     /**
@@ -464,6 +463,26 @@ interface ProcessVariablesInterface
      */
     public function getOutputRedirects(): array;
 
+
+    /**
+     * Returns the output of the process
+     *
+     * If requested before process execution, will return NULL
+     *
+     * @return array|null
+     */
+    public function getOutput(): array|null;
+
+    /**
+     * Returns the output of the process
+     *
+     * If requested before process execution, will return NULL
+     *
+     * @param string $separator
+     *
+     * @return string|null
+     */
+    public function getStringOutput(string $separator = PHP_EOL): string|null;
 
     /**
      * Sets the input redirection for this process

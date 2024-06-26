@@ -17,7 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes;
 
 use Phoundation\Exception\Exception;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
@@ -30,14 +32,14 @@ class Process extends ProcessCore implements ProcessInterface
     /**
      * Processes constructor.
      *
-     * @param string|null                             $command
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null                             $operating_system
-     * @param string|null                             $packages
+     * @param string|null                                       $command
+     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory_or_restrictions
+     * @param string|null                                       $operating_system
+     * @param string|null                                       $packages
      */
-    public function __construct(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
+    public function __construct(?string $command = null, FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null)
     {
-        parent::__construct($restrictions);
+        parent::__construct($execution_directory_or_restrictions);
 
         if ($operating_system or $packages) {
             $this->setPackages($operating_system, $packages);
@@ -46,6 +48,22 @@ class Process extends ProcessCore implements ProcessInterface
         if ($command) {
             $this->setCommand($command);
         }
+    }
+
+
+    /**
+     * Create a new process factory
+     *
+     * @param string|null                                       $command
+     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory_or_restrictions
+     * @param string|null                                       $operating_system
+     * @param string|null                                       $packages
+     *
+     * @return static
+     */
+    public static function new(?string $command = null, FsRestrictionsInterface|FsDirectoryInterface $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null): static
+    {
+        return new static($command, $execution_directory_or_restrictions, $operating_system, $packages);
     }
 
 
@@ -127,21 +145,5 @@ class Process extends ProcessCore implements ProcessInterface
         }
 
         return false;
-    }
-
-
-    /**
-     * Create a new process factory
-     *
-     * @param string|null                             $command
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null                             $operating_system
-     * @param string|null                             $packages
-     *
-     * @return static
-     */
-    public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
-    {
-        return new static($command, $restrictions, $operating_system, $packages);
     }
 }

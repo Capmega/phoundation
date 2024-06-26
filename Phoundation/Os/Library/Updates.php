@@ -38,11 +38,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.1.0', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('os_tasks')->drop();
-            sql()->schema()->table('processes_tasks')->drop();
+            sql()->getSchemaObject()->getTableObject('os_tasks')->drop();
+            sql()->getSchemaObject()->getTableObject('processes_tasks')->drop();
 
             // Create the users_roles table.
-            sql()->schema()->table('os_tasks')->define()
+            sql()->getSchemaObject()->getTableObject('os_tasks')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

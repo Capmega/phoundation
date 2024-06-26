@@ -19,7 +19,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Exception\ProcessesException;
@@ -82,14 +82,14 @@ class Packages extends Iterator implements PackagesInterface
         }
         switch ($manager) {
             case 'apt':
-                if (!Command::sudoAvailable('apt-get', Restrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
+                if (!Command::sudoAvailable('apt-get', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
                     throw new ProcessesException(tr('This process does not have sudo access to apt-get', [
                         ':command' => $command,
                     ]));
                 }
                 break;
             case 'yum':
-                if (!Command::sudoAvailable('yum', Restrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
+                if (!Command::sudoAvailable('yum', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
                     throw new ProcessesException(tr('This process does not have sudo access to yum', [
                         ':command' => $command,
                     ]));

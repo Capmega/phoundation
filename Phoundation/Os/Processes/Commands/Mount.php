@@ -6,20 +6,21 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\Exception\FilesystemDriverMissingException;
-use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
-use Phoundation\Filesystem\Mounts\Mounts;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\Mounts\FsMounts;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 use Stringable;
 
 /**
- * Class Mount
+ * Class FsMount
  *
  *
  * @note      On Ubuntu requires packages nfs-utils cifs-utils psmisc
@@ -31,15 +32,15 @@ use Stringable;
 class Mount extends Command
 {
     /**
-     * Mount class constructor
+     * FsMount class constructor
      *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null                             $operating_system
-     * @param string|null                             $packages
+     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
+     * @param string|null                                       $operating_system
+     * @param string|null                                       $packages
      */
-    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
+    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null)
     {
-        parent::__construct($restrictions, $operating_system, $packages);
+        parent::__construct($execution_directory, $operating_system, $packages);
         $this->packages->addForOperatingSystem('debian', 'nfs-utils,cifs-utils,psmisc');
     }
 
@@ -72,10 +73,10 @@ class Mount extends Command
      */
     public static function isSource(Stringable|string $path, bool $exception = true): ?bool
     {
-        $path      = Directory::new($path, Restrictions::new('/'))
-                              ->getPath(true);
-        $sources   = Mounts::listMountSources();
-        $targets   = Mounts::listMountTargets();
+        $path      = FsDirectory::new($path, FsRestrictions::new('/'))
+                                ->getPath(true);
+        $sources   = FsMounts::listMountSources();
+        $targets   = FsMounts::listMountTargets();
         $is_source = $sources->keyExists($path);
         $is_target = $targets->keyExists($path);
         if ($is_source) {
@@ -112,16 +113,16 @@ class Mount extends Command
      */
     public static function isMounted(Stringable|string $path): bool
     {
-        $path = Directory::new($path, Restrictions::new('/'))
-                         ->getPath(true);
+        $path = FsDirectory::new($path, FsRestrictions::new('/'))
+                           ->getPath(true);
 
-        return Mounts::listMountTargets()
+        return FsMounts::listMountTargets()
                      ->keyExists($path);
     }
 
 
     /**
-     * Mount the specified source to the specified target
+     * FsMount the specified source to the specified target
      *
      * @param Stringable|string            $source
      * @param Stringable|string            $target
@@ -133,7 +134,7 @@ class Mount extends Command
      */
     public function mount(Stringable|string $source, Stringable|string $target, ?string $filesystem = null, Stringable|array|string|null $options = null, ?int $timeout = null): void
     {
-        Directory::new($target, $this->restrictions)
+        FsDirectory::new($target, $this->restrictions)
                  ->ensure();
         Hook::new('phoundation')
             ->execute('file-system/mount', [
@@ -197,11 +198,11 @@ class Mount extends Command
     /**
      * Returns a list of all current mount points
      *
-     * @param FileInterface|string $device
+     * @param FsFileInterface|string $device
      *
      * @return bool
      */
-    public function deviceIsMounted(FileInterface|string $device): bool
+    public function deviceIsMounted(FsFileInterface|string $device): bool
     {
         return (bool) $this->deviceMountCount($device);
     }
@@ -210,11 +211,11 @@ class Mount extends Command
     /**
      * Returns the number of times this device is mounted
      *
-     * @param FileInterface|string $device
+     * @param FsFileInterface|string $device
      *
      * @return int
      */
-    public function deviceMountCount(FileInterface|string $device): int
+    public function deviceMountCount(FsFileInterface|string $device): int
     {
         return $this->deviceMountList($device)
                     ->getCount();
@@ -224,11 +225,11 @@ class Mount extends Command
     /**
      * Returns a list of all directories where the specified device is mounted
      *
-     * @param FileInterface|string $device
+     * @param FsFileInterface|string $device
      *
      * @return IteratorInterface
      */
-    public function deviceMountList(FileInterface|string $device): IteratorInterface
+    public function deviceMountList(FsFileInterface|string $device): IteratorInterface
     {
         return $this->clearArguments()
                     ->setCommand('mount')
