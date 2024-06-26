@@ -2,26 +2,19 @@
 
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
 
-/**
- * Class Branches
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Developer
- */
-interface BranchesInterface
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+
+interface BranchesInterface extends IteratorInterface
 {
     /**
      * Returns the directory for this ChangedFiles object
      *
-     * @param string $directory
+     * @param FsDirectoryInterface $directory
      *
      * @return static
      */
-    public function setDirectory(string $directory): static;
+    public function setDirectory(FsDirectoryInterface $directory): static;
 
 
     /**
@@ -29,5 +22,5 @@ interface BranchesInterface
      *
      * @return void
      */
-    public function CliDisplayTable(): void;
+    public function cliDisplayTable(): void;
 }

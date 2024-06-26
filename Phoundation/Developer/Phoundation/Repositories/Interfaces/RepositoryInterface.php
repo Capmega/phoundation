@@ -1,35 +1,12 @@
 <?php
+
 namespace Phoundation\Developer\Phoundation\Repositories\Interfaces;
 
-interface RepositoryInterface {
-    /**
-     * Returns the repository path
-     *
-     * @return string|null
-     */
-    public function getPath(): ?string;
+use Phoundation\Developer\Enums\EnumRepositoryType;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 
-    /**
-     * Returns true if this repository exist
-     *
-     * @return bool
-     */
-    public function exists(): bool;
-
-    /**
-     * Returns true if this repository can be read from
-     *
-     * @return bool
-     */
-    public function isReadable(): bool;
-
-    /**
-     * Returns true if this repository can be written to
-     *
-     * @return bool
-     */
-    public function isWritable(): bool;
-
+interface RepositoryInterface extends FsDirectoryInterface
+{
     /**
      * Returns true if this repository is a Phoundation repository
      *
@@ -37,12 +14,12 @@ interface RepositoryInterface {
      */
     public function isRepository(): bool;
 
-    /**
+   /**
      * Returns true if this repository is a phoundation project
      *
      * @return bool
      */
-    public function isPhoundationCore(): bool;
+    public function isCore(): bool;
 
     /**
      * Returns if this is a Phoundation project, so NOT a repository
@@ -56,14 +33,14 @@ interface RepositoryInterface {
      *
      * @return bool
      */
-    public function isPhoundationPlugins(): bool;
+    public function isPlugins(): bool;
 
     /**
      * Get the value of is_template
      *
      * @return bool
      */
-    public function isPhoundationTemplates(): bool;
+    public function isTemplates(): bool;
 
     /**
      * Returns an automatically generated name of the repository
@@ -71,4 +48,19 @@ interface RepositoryInterface {
      * @return string
      */
     public function getName(): string;
+
+    /**
+     * Returns the type of Phoundation repository
+     *
+     * @return EnumRepositoryType|null
+     */
+    public function getRepositoryType(): ?EnumRepositoryType;
+
+    /**
+     * Returns true if this repository is of the specified type
+     *
+     * @param EnumRepositoryType $repository_type
+     * @return bool
+     */
+    public function isRepositoryType(EnumRepositoryType $repository_type): bool;
 }

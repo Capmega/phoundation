@@ -19,6 +19,8 @@ use Phoundation\Data\IteratorCore;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemoteRepositoriesInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Exception\NotExistsException;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Os\Processes\Process;
 use ReturnTypeWillChange;
 use Stringable;
@@ -32,7 +34,7 @@ class RemoteRepositories extends IteratorCore implements RemoteRepositoriesInter
     /**
      * RemoteRepositories class constructor
      */
-    public function __construct(string $directory)
+    public function __construct(FsDirectoryInterface $directory)
     {
         $this->construct($directory);
         $this->source = Process::new('git')

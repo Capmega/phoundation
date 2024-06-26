@@ -14,14 +14,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Incidents;
 
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
-class Incidents extends DataList
+class Incidents extends DataIterator
 {
     /**
      * Users class constructor
@@ -103,7 +103,7 @@ class Incidents extends DataList
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

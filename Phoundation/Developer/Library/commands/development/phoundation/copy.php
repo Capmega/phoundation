@@ -6,7 +6,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Phoundation\Plugins;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsRestrictions;
 
 
 /**
@@ -43,7 +43,7 @@ FILE                                    The file to copy
 $argv = ArgvValidator::new()
                      ->select('-b,--branch', true)->isOptional()->isVariableName()
                      ->select('-c,--allow-changes')->isOptional(false)->isBoolean()
-                     ->selectAll('files')->each()->isPath(DIRECTORY_ROOT, Restrictions::readonly(DIRECTORY_ROOT, tr('Development copy script source path')))
+                     ->selectAll('files')->each()->isPath(DIRECTORY_ROOT, FsRestrictions::getReadonly(DIRECTORY_ROOT, tr('Development copy script source path')))
                      ->validate();
 
 

@@ -1,10 +1,12 @@
 <?php
+
 namespace Phoundation\Developer\Phoundation\Repositories\Interfaces;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Stringable;
 
-
-interface RepositoriesInterface {
+interface RepositoriesInterface extends IteratorInterface
+{
     /**
      * Adds the specified repository to this repositories list
      *

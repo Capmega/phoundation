@@ -169,14 +169,14 @@ class RemoteRepository extends IteratorCore
     /**
      * Returns a new Repository object
      *
-     * @param string $directory
+     * @param string $path
      * @param string $repository
      *
      * @return static
      */
-    public static function new(string $directory, string $repository): static
+    public static function new(string $path, string $repository): static
     {
-        return new static($directory, $repository);
+        return new static($path, $repository);
     }
 
 

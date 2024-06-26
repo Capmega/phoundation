@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command developer patch
+THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS * Command developer patch
  *
  * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
  *
@@ -27,20 +27,20 @@ use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Os\Processes\Commands\PhoCommand;
 use Phoundation\Utils\Arrays;
 
-// TODO Improve autocomplete, --branch should show branch options
 CliDocumentation::setAutoComplete([
                                       'arguments' => [
-                                          '-b,--branch'      => [
+                                          '-a,--allow-changes' => false,
+                                          '-b,--branch'        => [
                                               'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->keepMatchingKeysStartingWith($word); },
                                               'noword' => function ()      { return Phoundation::new()->getPhoundationBranches()->getSourceKeys(); },
                                           ],
-                                          '-m,--message'     => true,
-                                          '-c,--no-checkout' => false,
-                                          '--no-phoundation' => false,
-                                          '-n,--no-plugins'  => false,
-                                          '-u,--no-update'   => false,
-                                          '-p,--phoundation' => true,
-                                          '-s,--signed'      => false,
+                                          '-m,--message'       => true,
+                                          '-c,--no-checkout'   => false,
+                                          '--no-phoundation'   => false,
+                                          '-n,--no-plugins'    => false,
+                                          '-u,--no-update'     => false,
+                                          '-p,--phoundation'   => true,
+                                          '-s,--signed'        => false,
                                       ],
                                   ]);
 
@@ -60,6 +60,9 @@ ARGUMENTS
 
 [-m,--message MESSAGE]                  The git commit message for this update. If not specified, a default will be used
 
+-a, --allow-changes                     If specified will allow copies to repositories that contain uncommitted git 
+                                        changes, allowing for potential loss of work
+
 [-c,--no-checkout]                      If specified will not automatically checkout (and thus remove) the local changes
 
 [--no-phoundation]                      If specified will not patch the Phoundation core libraries
@@ -77,9 +80,10 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
+                     ->select('-a,--allow-changes')->isOptional(false)->isBoolean()
                      ->select('-b,--branch', true)->isOptional()->isPrintable()
                      ->select('-c,--no-checkout')->isOptional()->isBoolean()
-                     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
+                     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(4096)
                      ->select('-p,--phoundation', true)->isOptional()->isPrintable()
                      ->select('-s,--signed')->isOptional()->isBoolean()
                      ->select('-n,--no-plugins')->isOptional()->isBoolean()
@@ -96,17 +100,17 @@ Log::information(tr('Copying local changes in project ":project" back to your Ph
 
 
 // First update Phoundation, if allowed
-if (!$argv['no_checkout']) {
-    PhoCommand::new('system update')
-              ->addArguments([
-                                 $argv['no_phoundation'] ? '--no-phoundation'              : null,
-                                 $argv['no_plugins']     ? '--no-plugins'                  : null,
-                                 $argv['no_templates']   ? '--no-templates'                : null,
-                                 $argv['signed']         ? ['--signed' , $argv['signed']]  : null,
-                                 $argv['message']        ? ['--message', $argv['message']] : null,
-                                 $argv['branch']         ? ['--branch' , $argv['branch']]  : null,
-                             ])
-              ->executePassthru();
+if (!$argv['no_update']) {
+//    PhoCommand::new('system update')
+//              ->addArguments([
+//                                 $argv['no_phoundation'] ? '--no-phoundation'              : null,
+//                                 $argv['no_plugins']     ? '--no-plugins'                  : null,
+//                                 $argv['no_templates']   ? '--no-templates'                : null,
+//                                 $argv['signed']         ? ['--signed' , $argv['signed']]  : null,
+//                                 $argv['message']        ? ['--message', $argv['message']] : null,
+//                                 $argv['branch']         ? ['--branch' , $argv['branch']]  : null,
+//                             ])
+//              ->executePassthru();
 }
 
 
@@ -114,11 +118,11 @@ if (!$argv['no_checkout']) {
 try {
     Repositories::new()
                 ->scan()
+                ->setAllowChanges($argv['allow_changes'])
                 ->setBranch($argv['branch'])
-                ->setPatchCore(!$argv['no_phoundation'])
                 ->setPatchPlugins(!$argv['no_plugins'])
                 ->setPatchTemplates(!$argv['no_templates'])
-                ->setPatchForcedCopy(!$argv['no_forced_copy'])
+                ->setPatchCopy(!$argv['no_forced_copy'])
                 ->setPatchCheckout(!$argv['no_checkout'])
                 ->patch();
 

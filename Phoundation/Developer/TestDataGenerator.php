@@ -141,7 +141,7 @@ class TestDataGenerator
      */
     public static function getName(): string
     {
-        return Strings::getRandom(random_int(3, 10), characters: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ');
+        return Strings::getRandom(random_int(3, 10), source: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ');
     }
 
 

@@ -9,7 +9,7 @@ use Phoundation\Developer\Project\Project;
 
 
 /**
- * Script project/import
+ * Command project/import
  *
  * This script will import all data to get your system going. Currently this script will import:
  *

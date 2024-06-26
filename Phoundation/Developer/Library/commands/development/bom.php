@@ -7,11 +7,11 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Tests\BomFile;
 use Phoundation\Developer\Tests\Exception\BomException;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsRestrictions;
 
 
 /**
- * Script bom
+ * Command bom
  *
  * This script can check for - and remove Unicode Byte Order Marks from files
  * ./pho dev bom
@@ -50,7 +50,7 @@ $argv = ArgvValidator::new()
                      ->select('--test')->isOptional(false)->isBoolean()
                      ->select('--no-mtime')->isOptional(false)->isBoolean()
                      ->select('--cache-mtime', true)->isOptional()->isDateTime()
-                     ->select('file')->isFile(DIRECTORY_ROOT, Restrictions::writable(DIRECTORY_ROOT))
+                     ->select('file')->isFile(DIRECTORY_ROOT, FsRestrictions::getWritable(DIRECTORY_ROOT))
                      ->validate();
 
 

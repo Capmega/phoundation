@@ -6,15 +6,15 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Git\Git;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
 
 /**
- * Script development/mdb/repositories/sync
+ * Command development/mdb/repositories/sync
  *
  * This script can sync MDB repositories
  *
@@ -43,8 +43,8 @@ CliDocumentation::setUsage('./pho development mdb repositories sync
 
 
 // Setup restrictions
-$source_restrictions = Restrictions::new('data/sources', true);
-$target_restrictions = Restrictions::new('~', true);
+$source_restrictions = FsRestrictions::new('data/sources', true);
+$target_restrictions = FsRestrictions::new('~', true);
 
 
 // Get arguments
@@ -55,8 +55,8 @@ $argv = ArgvValidator::new()
 
 
 // Get repositories and target path
-$repositories = File::new($argv['source'], $source_restrictions);
-$target       = Directory::new($argv['target'], $target_restrictions);
+$repositories = FsFile::new($argv['source'], $source_restrictions);
+$target       = FsDirectory::new($argv['target'], $target_restrictions);
 $repositories = $repositories->getContentsAsIterator();
 
 Log::information(tr('About to sync ":count" repositories, this might take a while...', [
@@ -88,5 +88,5 @@ foreach ($repositories as $repository) {
 }
 
 Log::success(tr('Finished MDB repository sync, MDB repositories size is now ":size"', [
-    ':size' => Numbers::getHumanReadableBytes(Directory::new($argv['target'])->getSize()),
+    ':size' => Numbers::getHumanReadableBytes(FsDirectory::new($argv['target'])->getSize()),
 ]));

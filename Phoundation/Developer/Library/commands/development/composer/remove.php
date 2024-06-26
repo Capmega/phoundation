@@ -39,5 +39,5 @@ CliDocumentation::setUsage('
 $argv = ArgvValidator::getArguments();
 
 
-// Execute composer remove
+// ExecuteExecuteInterface composer remove
 Composer::new()->setArguments($argv)->remove();

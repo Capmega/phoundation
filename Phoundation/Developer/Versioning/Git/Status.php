@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Versioning\Git;
-
-use Phoundation\Developer\Versioning\Git\Exception\GitUnknownStatusException;
-use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
-
 /**
  * Class Status
  *
@@ -17,6 +10,14 @@ use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Versioning\Git;
+
+use Phoundation\Developer\Versioning\Git\Exception\GitUnknownStatusException;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
+
 class Status implements StatusInterface
 {
     /**
@@ -55,7 +56,7 @@ class Status implements StatusInterface
     protected bool $flag_indexed = false;
 
     /**
-     * If true, this file is tracked by git. If false, it's not
+     * If true, git tracks this file. If false, it does not
      *
      * @var bool $flag_tracked
      */
@@ -104,80 +105,103 @@ class Status implements StatusInterface
     protected function parseStatus(string $status): void
     {
         $this->status = $status;
+
         switch ($status) {
             case 'D ':
                 $this->flag_deleted = true;
                 $this->readable     = tr('Deleted indexed');
                 break;
+
             case ' D':
                 $this->flag_deleted = true;
                 $this->readable     = tr('Deleted');
                 break;
+
             case 'AD':
                 $this->flag_deleted = true;
                 $this->flag_indexed = true;
                 $this->readable     = tr('New file indexed but deleted');
                 break;
+
             case 'AM':
                 $this->flag_new      = true;
                 $this->flag_modified = true;
                 $this->readable      = tr('New file indexed and modified');
                 break;
+
             case 'A ':
                 $this->flag_new      = true;
                 $this->flag_modified = true;
                 $this->readable      = tr('New file indexed');
                 break;
+
             case ' M':
                 $this->flag_modified = true;
                 $this->readable      = tr('Modified');
                 break;
+
             case 'M ':
                 $this->flag_indexed  = true;
                 $this->flag_modified = true;
                 $this->readable      = tr('Modified and indexed');
                 break;
+
             case 'MM':
                 $this->flag_indexed  = true;
                 $this->flag_modified = true;
                 $this->readable      = tr('Modified and indexed and modified');
                 break;
+
             case 'R ':
                 $this->flag_renamed  = true;
                 $this->flag_modified = true;
                 $this->readable      = tr('Renamed indexed');
                 break;
+
             case 'RM':
                 $this->flag_renamed  = true;
                 $this->flag_modified = true;
                 $this->readable      = tr('Renamed indexed and modified');
                 break;
+
+            case 'RD':
+                $this->flag_renamed  = true;
+                $this->flag_deleted  = true;
+                $this->readable      = tr('Renamed indexed and deleted');
+                break;
+
             case 'T ':
                 $this->flag_modified = true;
                 $this->readable      = tr('Type changed');
                 break;
+
             case '??':
                 $this->flag_tracked = false;
                 $this->readable     = tr('Not tracked');
                 break;
+
             case '  ':
                 $this->readable = tr('No changes');
                 break;
+
             case 'both modified':
                 $this->readable      = tr('Both modified');
                 $this->is_conflict   = true;
                 $this->flag_modified = true;
                 break;
+
             case 'UD':
                 $this->readable      = tr('Deleted by them');
                 $this->is_conflict   = true;
                 $this->flag_modified = true;
                 break;
+
             case 'DU':
                 $this->readable      = tr('Deleted by us');
                 $this->is_conflict   = true;
                 $this->flag_modified = true;
                 break;
+
             default:
                 throw new GitUnknownStatusException(tr('Unknown git status ":status" specified', [
                     ':status' => $status,

@@ -8,7 +8,7 @@ use Phoundation\Data\Validator\Validator;
 
 
 /**
- * Script test
+ * Command test
  *
  * This is a test script where we can test various new systems
  *

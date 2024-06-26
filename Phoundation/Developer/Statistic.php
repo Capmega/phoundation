@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer;
 
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+
 class Statistic
 {
     /**
@@ -44,9 +49,9 @@ class Statistic
     /**
      * The file for this statistic
      *
-     * @var string|null $file
+     * @var FsFileInterface|null $file
      */
-    protected ?string $file = null;
+    protected ?FsFileInterface $file = null;
 
     /**
      * The line in the file for this statistic
@@ -61,10 +66,13 @@ class Statistic
      */
     public function __construct()
     {
-        $this->file     = Debug::currentFile(-1);
-        $this->line     = Debug::currentLine(-1);
-        $this->class    = Debug::currentClass(-1);
         $this->function = Debug::currentFunction(-1);
+        $this->class    = Debug::currentClass(-1);
+        $this->line     = Debug::currentLine(-1);
+        $this->file     = new FsFile(
+            Debug::currentFile(-1),
+            FsRestrictions::getRoot(false, 'Statistic::__construct()')
+        );
     }
 
 
@@ -145,9 +153,9 @@ class Statistic
     /**
      * Returns the file for this statistic
      *
-     * @return string $file
+     * @return FsFileInterface $file
      */
-    public function getFile(): string
+    public function getFile(): FsFileInterface
     {
         return $this->file;
     }

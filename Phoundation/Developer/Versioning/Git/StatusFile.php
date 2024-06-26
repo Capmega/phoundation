@@ -1,38 +1,43 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Versioning\Git;
-
-use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
-use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
-use Phoundation\Os\Processes\Exception\ProcessFailedException;
-
 /**
  * Class StatusFile
  *
- *
+ * FsFile extended object containing git status information about that file
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
-class StatusFile
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Versioning\Git;
+
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusFileInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
+use Phoundation\Filesystem\FsFileCore;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
+
+class StatusFile extends FsFileCore implements StatusFileInterface
 {
     /**
      * The file that has a change
      *
-     * @var string $file
+     * @var FsFileInterface $file
      */
-    protected string $file;
+    protected FsFileInterface $file;
 
     /**
      * The target in case a file was renamed
      *
-     * @var string|null $target
+     * @var FsFileInterface|null $git_target
      */
-    protected ?string $target = null;
+    protected ?FsFileInterface $git_target = null;
 
     /**
      * The status for this file
@@ -46,23 +51,38 @@ class StatusFile
      * ChangedFile class constructor
      *
      * @param StatusInterface|string $status
-     * @param string                 $file
-     * @param string                 $target
+     * @param FsFileInterface        $file
+     * @param FsFileInterface        $git_target
      */
-    public function __construct(StatusInterface|string $status, string $file, string $target)
+    public function __construct(StatusInterface|string $status, FsFileInterface $file, FsFileInterface $git_target)
     {
-        $this->file   = $file;
-        $this->target = $target;
-        $this->status = (is_string($status) ? new Status($status) : $status);
+        $this->file       = $file;
+        $this->git_target = $git_target;
+        $this->status     = (is_string($status) ? new Status($status) : $status);
+    }
+
+
+    /**
+     * Returns a new StatusFile object
+     *
+     * @param StatusInterface|string $status
+     * @param FsFileInterface        $file
+     * @param FsFileInterface        $git_target
+     *
+     * @return static
+     */
+    public static function new(StatusInterface|string $status, FsFileInterface $file, FsFileInterface $git_target): static
+    {
+        return new static($status, $file, $git_target);
     }
 
 
     /**
      * Returns the file name
      *
-     * @return string
+     * @return FsFileInterface
      */
-    public function getFile(): string
+    public function getFile(): FsFileInterface
     {
         return $this->file;
     }
@@ -71,11 +91,11 @@ class StatusFile
     /**
      * Returns the target file
      *
-     * @return string|null
+     * @return FsFileInterface|null
      */
-    public function getTarget(): ?string
+    public function getGitTarget(): ?FsFileInterface
     {
-        return $this->target;
+        return $this->git_target;
     }
 
 
@@ -84,7 +104,7 @@ class StatusFile
      *
      * @return StatusInterface
      */
-    public function getStatus(): StatusInterface
+    public function getStatusObject(): StatusInterface
     {
         return $this->status;
     }
@@ -104,19 +124,20 @@ class StatusFile
     /**
      * Applies the patch for this file on the specified target file
      *
-     * @param string $target_path
+     * @param FsPathInterface $target_path
      *
      * @return static
      */
-    public function patch(string $target_path): static
+    public function patch(FsPathInterface $target_path): static
     {
         try {
             // Create the patch file, apply it, delete it, done
             $patch_file = $this->getPatchFile();
+
             if ($patch_file) {
-                Git::new($target_path)
-                   ->apply($patch_file);
-//            File::new($patch_file, Restrictions::new(DIRECTORY_TMP, true))->delete();
+                Git::new($target_path)->apply($patch_file);
+
+                $patch_file->delete();
             }
 
             return $this;
@@ -124,15 +145,16 @@ class StatusFile
         } catch (ProcessFailedException $e) {
             $data = $e->getData();
             $data = array_pop($data);
+
             if (str_contains($data, 'patch does not apply')) {
                 throw GitPatchFailedException::new(tr('Failed to apply patch ":patch" to file ":file"', [
                     ':patch' => isset_get($patch_file),
                     ':file'  => $this->file,
-                ]))
-                                             ->addData([
-                                                 'file' => $this->file,
-                                             ]);
+                ]))->addData([
+                    'file' => $this->file,
+                ]);
             }
+
             throw $e;
         }
     }
@@ -141,31 +163,16 @@ class StatusFile
     /**
      * Generates a diff patch file for this file and returns the file name for the patch file
      *
-     * @return string|null
+     * @return FsFileInterface
      */
-    public function getPatchFile(): ?string
+    public function getPatchFile(): FsFileInterface
     {
-        if ($this->target) {
-            return Git::new(dirname($this->target))
-                      ->saveDiff(basename($this->target));
+        if ($this->git_target) {
+            return Git::new($this->git_target->getParentDirectory())
+                      ->saveDiff($this->git_target->getBasename());
         }
 
-        return Git::new(dirname($this->file))
-                  ->saveDiff(basename($this->file));
-    }
-
-
-    /**
-     * Returns a new Change object
-     *
-     * @param StatusInterface|string $status
-     * @param string                 $file
-     * @param string                 $target
-     *
-     * @return static
-     */
-    public static function new(StatusInterface|string $status, string $file, string $target): static
-    {
-        return new static($status, $file, $target);
+        return Git::new($this->file->getParentDirectory())
+                  ->saveDiff($this->file->getBasename());
     }
 }

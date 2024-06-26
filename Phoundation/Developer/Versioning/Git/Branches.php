@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Versioning\Git;
-
-use Phoundation\Cli\Cli;
-use Phoundation\Data\Iterator;
-use Phoundation\Developer\Versioning\Git\Interfaces\BranchesInterface;
-use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
-use Phoundation\Os\Processes\Process;
-
 /**
  * Class Branches
  *
@@ -20,28 +10,48 @@ use Phoundation\Os\Processes\Process;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
-class Branches extends Iterator implements BranchesInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Versioning\Git;
+
+use Phoundation\Cli\Cli;
+use Phoundation\Data\IteratorCore;
+use Phoundation\Developer\Versioning\Git\Interfaces\BranchesInterface;
+use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Os\Processes\Process;
+
+class Branches extends IteratorCore implements BranchesInterface
 {
     use TraitGitProcess {
         setDirectory as protected setGitDirectory;
     }
 
+
     /**
      * Returns the directory for this ChangedFiles object
      *
-     * @param string $directory
+     * @param FsDirectoryInterface $directory
      *
      * @return static
      */
-    public function setDirectory(string $directory): static
+    public function setDirectory(FsDirectoryInterface $directory): static
     {
         $this->setGitDirectory($directory);
+
         $results = Process::new('git')
-                          ->setExecutionDirectory($this->directory)
+                          ->setExecutionDirectory(new FsDirectory(
+                              $this->directory,
+                              FsRestrictions::getWritable($this->directory, 'Branches::setPath()')
+                          ))
                           ->addArgument('branch')
                           ->addArgument('--quiet')
                           ->addArgument('--no-color')
                           ->executeReturnArray();
+
         foreach ($results as $line) {
             if (str_starts_with($line, '*')) {
                 $this->source[substr($line, 2)] = true;
@@ -60,12 +70,14 @@ class Branches extends Iterator implements BranchesInterface
      *
      * @return void
      */
-    public function CliDisplayTable(): void
+    public function cliDisplayTable(): void
     {
         $list = [];
+
         foreach ($this->getSource() as $branch => $selected) {
             $list[$branch] = ['selected' => $selected ? '*' : ''];
         }
+
         Cli::displayTable($list, ['branch'   => tr('Branch'),
                                   'selected' => tr('Selected'),
         ], 'branch');

@@ -21,24 +21,31 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Developer\Enums\EnumRepositoryType;
 use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
 use Phoundation\Developer\Phoundation\Exception\PhoundationBranchNotExistException;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Phoundation\Plugins;
+use Phoundation\Developer\Phoundation\Repositories\Vendors\RepositoryVendors;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Developer\Project\Interfaces\DeployInterface;
 use Phoundation\Developer\Project\Interfaces\ProjectInterface;
+use Phoundation\Developer\Project\Vendors\Interfaces\ProjectVendorsInterface;
+use Phoundation\Developer\Project\Vendors\ProjectVendors;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGit;
+use Phoundation\Exception\NoLongerSupportedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Filesystem\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Rsync;
@@ -52,7 +59,7 @@ class Project implements ProjectInterface
 {
     use TraitDataRestrictions;
     use TraitGit {
-        __construct as protected construct;
+        __construct as protected ___construct;
     }
 
     /**
@@ -76,28 +83,20 @@ class Project implements ProjectInterface
      */
     protected ?string $phoundation_branch = null;
 
-//    /**
-//     * The Phoundation files
-//     *
-//     * @var array|string[] $phoundation_files
-//     */
-//    protected array $phoundation_files = [
-//        'Phoundation/',
-//        'pho'
-//    ];
+
     /**
      * Project constructor
      *
-     * @param string|null $directory
+     * @param FsDirectoryInterface|null $directory
      */
-    public function __construct(?string $directory = null)
+    public function __construct(FsDirectoryInterface|null $directory = null)
     {
         if (!$directory) {
-            // Default to this project
-            $directory = DIRECTORY_ROOT;
+            // Default to the directory of this project
+            $directory = new FsDirectory(DIRECTORY_ROOT, FsRestrictions::getWritable(DIRECTORY_ROOT));
         }
 
-        $this->construct($directory);
+        $this->___construct($directory);
     }
 
 
@@ -115,11 +114,13 @@ class Project implements ProjectInterface
             if (!$force) {
                 throw new OutOfBoundsException(tr('Project file "config/project" already exist'));
             }
-            File::new(DIRECTORY_ROOT . 'config/project')
-                ->delete();
+
+            FsFile::new(DIRECTORY_ROOT . 'config/project', FsRestrictions::getWritable(DIRECTORY_ROOT, 'Project::create()'))
+                  ->delete();
         }
+
         static::$name = $project;
-        static::save();
+        static::saveName();
     }
 
 
@@ -131,6 +132,28 @@ class Project implements ProjectInterface
     public static function projectFileExists(): bool
     {
         return file_exists(DIRECTORY_ROOT . 'config/project');
+    }
+
+
+    /**
+     * Returns if the version file exists
+     *
+     * @return bool
+     */
+    public static function versionFileExists(): bool
+    {
+        return file_exists(DIRECTORY_ROOT . 'config/file');
+    }
+
+
+    /**
+     * Returns if the production configuration file exists
+     *
+     * @return bool
+     */
+    public static function productionConfigurationFileExists(): bool
+    {
+        return file_exists(DIRECTORY_ROOT . 'config/production.yaml');
     }
 
 
@@ -152,7 +175,7 @@ class Project implements ProjectInterface
      *
      * @return void
      */
-    protected static function save(): void
+    protected static function saveName(): void
     {
         file_put_contents(DIRECTORY_ROOT . 'config/project', static::$name);
     }
@@ -227,8 +250,7 @@ class Project implements ProjectInterface
             if (!FORCE) {
                 throw EnvironmentExists::new(tr('Specified environment ":environment" has already been setup', [
                     ':environment' => $environment,
-                ]))
-                                       ->makeWarning();
+                ]))->makeWarning();
             }
 
             static::removeEnvironment($environment);
@@ -258,7 +280,7 @@ class Project implements ProjectInterface
 
         // Remove the project file
         Log::warning(tr('Removing project file "config/project"'));
-        File::new(DIRECTORY_ROOT . 'config/project', Restrictions::new(DIRECTORY_ROOT . 'config/project', true))
+        FsFile::new(DIRECTORY_ROOT . 'config/project', FsRestrictions::new(DIRECTORY_ROOT . 'config/project', true))
             ->delete();
     }
 
@@ -275,7 +297,7 @@ class Project implements ProjectInterface
 
         foreach ($files as $file) {
             if ($file[0] === '.') {
-                // No hidden files no . no ..
+                // No hidden files no "." and no ".."
                 continue;
             }
 
@@ -309,8 +331,7 @@ class Project implements ProjectInterface
         }
 
         // Get the environment and remove all environment specific data
-        return Environment::get(static::$name, $environment)
-                          ->remove();
+        return Environment::get(static::$name, $environment)->remove();
     }
 
 
@@ -335,15 +356,15 @@ class Project implements ProjectInterface
     protected static function sanitize(string $project): string
     {
         if (!$project) {
-            throw OutOfBoundsException::new(tr('No project name specified in the project file ":file"', [':file' => 'config/project']))
-                                      ->makeWarning();
+            throw OutOfBoundsException::new(tr('No project name specified in the project file ":file"', [
+                ':file' => 'config/project'
+            ]))->makeWarning();
         }
 
         if (strlen($project) > 32) {
             throw OutOfBoundsException::new(tr('Specified project name is ":size" characters long, please specify a project name equal or less than 32 characters', [
                 ':size' => strlen($project),
-            ]))
-                                      ->makeWarning();
+            ]))->makeWarning();
         }
 
         $project = strtoupper($project);
@@ -351,8 +372,7 @@ class Project implements ProjectInterface
         if (!preg_match('/[A-Z0-9_]+/', $project)) {
             throw OutOfBoundsException::new(tr('Specified project ":project" contains invalid characters, please ensure it has only A-Z, 0-9 or _', [
                 ':project' => $project,
-            ]))
-                                      ->makeWarning();
+            ]))->makeWarning();
         }
 
         return $project;
@@ -407,12 +427,15 @@ class Project implements ProjectInterface
      * @param int               $max
      * @param array|string|null $libraries
      *
+     * @todo Find a better solution for this
+     *
      * @return void
      */
     public static function import(bool $demo, int $min, int $max, array|string|null $libraries = null): void
     {
         Log::information(tr('Starting import for all libraries that support it'));
-
+return;
+throw new NoLongerSupportedException('Project::import() is no longer supported as it was mostly a bad idea. Find a better solution');
         $libraries = Arrays::force(strtolower(Strings::force($libraries)));
         $sections  = [
             'Phoundation/' => tr('Phoundation'),
@@ -420,7 +443,7 @@ class Project implements ProjectInterface
         ];
 
         foreach ($sections as $directory => $section) {
-            // Find all import object and execute them
+            // Find all import commands and execute them
             $files = Process::new('find')
                             ->addArgument(DIRECTORY_ROOT . $directory)
                             ->addArgument('-name')
@@ -432,7 +455,7 @@ class Project implements ProjectInterface
                 ':section' => $section,
             ]), 5);
 
-            // Execute all Import objects if they are valid
+            // ExecuteExecuteInterface all Import objects if they are valid
             foreach ($files as $file) {
                 $library = null;
 
@@ -484,45 +507,43 @@ class Project implements ProjectInterface
      */
     public static function fixFileModes(): void
     {
-        // Don't check for root user, check if we have sudo access to these commands individually, perhaps the user has
-        // it?
-        Command::sudoAvailable('chown,chmod,mkdir,touch,rm', Restrictions::new('/bin,/usr/bin'), true);
+        $directory = FsDirectory::getRoot(true, 'Project::fixFileModes');
+
+        // Don't check for root user, check sudo access to these commands individually, perhaps the user has it?
+        Command::sudoAvailable('chown,chmod,mkdir,touch,rm', FsRestrictions::new('/bin,/usr/bin'), true);
+
         // Fix file modes, first make everything readonly
         Process::new('chmod')
-               ->setExecutionDirectory(DIRECTORY_ROOT)
+               ->setExecutionDirectory($directory)
                ->setSudo(true)
-               ->addArguments([
-                   '-x,ug+r,g-w,o-rwx',
-                   '.',
-                   '-R',
-               ])
+               ->addArguments(['-x,ug+r,g-w,o-rwx', '.', '-R'])
                ->executePassthru();
 
         // TODO Use the Find command that has all these parameters implemented as clear methods
         // All directories must have the "execute" bit for users and groups
         Process::new('find')
-               ->setExecutionDirectory(DIRECTORY_ROOT)
+               ->setExecutionDirectory($directory)
                ->setSudo(true)
                ->addArguments(['.', '-type', 'd', '-exec', 'chmod', 'ug+x', '{}','\\;',])
                ->executePassthru();
 
         // No file should be executable
         Process::new('find')
-               ->setExecutionDirectory(DIRECTORY_ROOT)
+               ->setExecutionDirectory($directory)
                ->setSudo(true)
                ->addArguments(['.', '-type', 'f', '-exec', 'chmod', 'ug-x', '{}', '\\;', ])
                ->executePassthru();
 
         // ./cli is the only file that can be executed
         Process::new('chmod')
-               ->setExecutionDirectory(DIRECTORY_ROOT)
+               ->setExecutionDirectory($directory)
                ->setSudo(true)
                ->addArguments(['ug+w', './pho', ])
                ->executePassthru();
 
         // Writable directories: data/tmp, data/log, data/run, data/cookies, data/content,
         Process::new('chmod')
-               ->setExecutionDirectory(DIRECTORY_ROOT)
+               ->setExecutionDirectory($directory)
                ->setSudo(true)
                ->addArguments([
                    '-x,ug+r,g-w,o-rwx',
@@ -534,9 +555,10 @@ class Project implements ProjectInterface
                    '-R',
                ])
                ->executePassthru();
+
         // Fix file ownership
         Process::new('chown')
-               ->setExecutionDirectory(DIRECTORY_ROOT)
+               ->setExecutionDirectory($directory)
                ->setSudo(true)
                ->addArguments(['www-data:www-data', '.', '-R', ])
                ->executePassthru();
@@ -544,7 +566,7 @@ class Project implements ProjectInterface
 
 
     /**
-     * Checks if there are updates availabe for Phoundation
+     * Checks if there are updates available for Phoundation
      */
     public static function checkUpdates(): void
     {
@@ -595,9 +617,9 @@ class Project implements ProjectInterface
     public function isPhoundationProject(string $directory): bool
     {
         // Is the path readable?
-        $directory = Directory::new($directory, $this->restrictions)
-                              ->checkReadable()
-                              ->getPath();
+        $directory = FsDirectory::new($directory, $this->restrictions)
+                                ->checkReadable()
+                                ->getPath();
 
         // All these files and directories must be available.
         $files = [
@@ -658,10 +680,10 @@ class Project implements ProjectInterface
                    ->ensureNoChanges();
         try {
             // Add all files to index to ensure everything will be stashed
-            if ($this->git->getStatus()->getCount()) {
+            if ($this->git->getStatusFilesObject()->getCount()) {
                 $this->git->add(DIRECTORY_ROOT);
-                $this->git->getStashObject()
-                          ->stash();
+                $this->git->getStashObject()->stash();
+
                 $stash = true;
             }
 
@@ -669,7 +691,7 @@ class Project implements ProjectInterface
             $this->cacheLibraries($skip_caching)->copyPhoundationFilesLocal($phoundation_path, $branch);
 
             // If there are changes, then add and commit
-            if ($this->git->getStatus()->getCount()) {
+            if ($this->git->getStatusFilesObject()->getCount()) {
                 if (!$message) {
                     $message = tr('Phoundation update');
                 }
@@ -710,22 +732,205 @@ class Project implements ProjectInterface
     /**
      * Returns either the specified branch or the current project branch as default
      *
-     * @param string|null $branch
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function hasBranch(string $branch): bool
+    {
+        if (!$branch) {
+            throw new OutOfBoundsException(tr('No branch specified'));
+        }
+
+        // Select the current branch
+        return $this->git->hasBranch($branch);
+    }
+
+
+    /**
+     * Returns either the specified branch or the current project branch as default
+     *
+     * @param string|null $default
      *
      * @return string
      */
-    protected function getBranch(?string $branch): string
+    public function getBranch(?string $default = null): string
     {
-        if (!$branch) {
+        if (!$default) {
             // Select the current branch
-            $branch = $this->git->getBranch();
+            $default = $this->git->getBranch();
 
             Log::notice(tr('Using project branch ":branch"', [
-                ':branch' => $branch,
+                ':branch' => $default,
             ]));
         }
 
-        return $branch;
+        return $default;
+    }
+
+
+    /**
+     * Sets the current project git branch to the specified branch
+     *
+     * @param string $branch
+     *
+     * @return static
+     */
+    public function setBranch(string $branch): static
+    {
+        if (!$branch) {
+            throw new OutOfBoundsException(tr('No branch specified'));
+        }
+
+        // Select the current branch
+        $this->git->setBranch($branch);
+
+        Log::notice(tr('Set project branch to ":branch"', [
+            ':branch' => $branch,
+        ]));
+
+        return $this;
+    }
+
+
+    /**
+     * Returns a list with Phoundation core files that (according to git) were modified
+     *
+     * @return IteratorInterface
+     */
+    public function getCoreChanges(): IteratorInterface
+    {
+        return $this->git->getStatusFilesObject($this->directory->addDirectory('Phoundation'));
+    }
+
+
+    /**
+     * Returns true if the project has changes in the Phoundation core files
+     *
+     * @return bool
+     */
+    public function hasCoreChanges(): bool
+    {
+        return $this->getCoreChanges()->isNotEmpty();
+    }
+
+
+    /**
+     * Returns a list with Phoundation plugins files that (according to git) were modified
+     *
+     * @return IteratorInterface
+     */
+    public function getPluginsChanges(): IteratorInterface
+    {
+        // Ensure that all the plugin directories exist
+        foreach (['Plugins', 'Templates', 'data/vendors'] as $directory) {
+            $this->directory->addDirectory($directory)->ensure();
+        }
+
+        // Get and return all changes
+        return $this->git
+                    ->getStatusFilesObject($this->directory->addDirectory('Plugins'))
+                        ->addSources($this->git->getStatusFilesObject(
+                            $this->directory->addDirectory('Templates')
+                        ))
+                        ->addSources($this->git->getStatusFilesObject(
+                            $this->directory->addDirectory('data/vendors')
+                        ));
+    }
+
+
+    /**
+     * Returns a list of vendors that have changes, with each vendor key containing an StatusFiles object as value
+     * containing the files that have changes
+     *
+     * @param bool $changed If true will only return vendors that have changed files
+     *
+     * @return ProjectVendorsInterface
+     */
+    public function getVendors(bool $changed = false): ProjectVendorsInterface
+    {
+        return ProjectVendors::new($this, EnumRepositoryType::data, $changed)
+                             ->addSources(ProjectVendors::new($this, EnumRepositoryType::plugins, $changed))
+                             ->addSources(ProjectVendors::new($this, EnumRepositoryType::templates, $changed));
+    }
+
+
+    /**
+     * Returns true if the project has changes in the Phoundation plugins files
+     *
+     * @return bool
+     */
+    public function hasPluginsChanges(): bool
+    {
+        return $this->getPluginsChanges()->isNotEmpty();
+    }
+
+
+    /**
+     * Returns a list with Phoundation templates files that (according to git) were modified
+     *
+     * @return IteratorInterface
+     */
+    public function getTemplatesChanges(): IteratorInterface
+    {
+        return $this->git->getStatusFilesObject($this->directory->addDirectory('data/templates'));
+    }
+
+
+    /**
+     * Returns a list of vendors that have changes, with each vendor key containing an StatusFiles object as value
+     * containing the files that have changes
+     *
+     * @return ProjectVendorsInterface
+     */
+    public function getChangedTemplatesVendors(): ProjectVendorsInterface
+    {
+        return ProjectVendors::new($this, EnumRepositoryType::templates, true);
+    }
+
+
+    /**
+     * Returns true if the project has changes in the Phoundation templates files
+     *
+     * @return bool
+     */
+    public function hasTemplatesChanges(): bool
+    {
+        return $this->getTemplatesChanges()->isNotEmpty();
+    }
+
+
+    /**
+     * Returns a list with Phoundation templates files that (according to git) were modified
+     *
+     * @return IteratorInterface
+     */
+    public function getDataChanges(): IteratorInterface
+    {
+        return $this->git->getStatusFilesObject($this->directory->addDirectory('data/vendors'));
+    }
+
+
+    /**
+     * Returns a list of vendors that have changes, with each vendor key containing an StatusFiles object as value
+     * containing the files that have changes
+     *
+     * @return ProjectVendorsInterface
+     */
+    public function getChangedDataVendors(): ProjectVendorsInterface
+    {
+        return ProjectVendors::new($this, EnumRepositoryType::data, true);
+    }
+
+
+    /**
+     * Returns true if the project has changes in the Phoundation data vendor files
+     *
+     * @return bool
+     */
+    public function hasDataChanges(): bool
+    {
+        return $this->getDataChanges()->isNotEmpty();
     }
 
 
@@ -763,7 +968,7 @@ class Project implements ProjectInterface
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Enum/EnumExecuteMethod.php');
 
         // Move /Phoundation and /scripts out of the way
-        Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))
+        FsDirectory::new(DIRECTORY_ROOT . 'data/garbage/', FsRestrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))
                  ->delete();
         // Copy new core library versions
         Log::action('Updating Phoundation core libraries');
@@ -873,7 +1078,7 @@ class Project implements ProjectInterface
 
         try {
             // Add all files to index to ensure everything will be stashed
-            if ($this->git->getStatus()->getCount()) {
+            if ($this->git->getStatusFilesObject()->getCount()) {
                 $this->git->add(DIRECTORY_ROOT);
                 $this->git->getStashObject()
                           ->stash();
@@ -886,7 +1091,7 @@ class Project implements ProjectInterface
 
             // If there are changes, then add and commit
             if (
-                $this->git->getStatus()
+                $this->git->getStatusFilesObject()
                           ->getCount()
             ) {
                 if (!$message) {
@@ -962,6 +1167,7 @@ class Project implements ProjectInterface
 
         // Copy new plugin libraries
         Log::action('Updating Phoundation plugins');
+
         Rsync::new()
              ->setSource($plugins->getDirectory())
              ->setTarget(DIRECTORY_ROOT)
@@ -1058,7 +1264,7 @@ class Project implements ProjectInterface
                         $stash->add($file);
 
                         // Deleted files cannot be stashed after being added, un-add, and then stash
-                        if (File::new($file)->exists()) {
+                        if (FsFile::new($file)->exists()) {
                             $git->add($file);
 
                         } else {

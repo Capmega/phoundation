@@ -8,8 +8,8 @@ use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Project\Exception\EnvironmentException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Config;
 use Throwable;
 
@@ -189,8 +189,8 @@ class Environment
         // Drop core database
         try {
             sql('system', false)
-                ->schema()
-                ->database()
+                ->getSchemaObject()
+                ->getDatabaseObject()
                 ->drop();
         } catch (Throwable $e) {
             Log::warning(tr('Failed to drop system database for environment ":env" because ":message", continuing...', [
@@ -204,7 +204,7 @@ class Environment
             Config::setEnvironment('');
         }
         // delete the environment configuration file
-        File::new(static::getConfigurationFile($this->name), Restrictions::new(DIRECTORY_ROOT . 'config/', true))
+        FsFile::new(static::getConfigurationFile($this->name), FsRestrictions::new(DIRECTORY_ROOT . 'config/', true))
             ->delete();
 
         return true;
@@ -242,8 +242,8 @@ class Environment
         }
         Log::action(tr('Ensuring system database is gone'));
         sql(null, false)
-            ->schema()
-            ->database()
+            ->getSchemaObject()
+            ->getDatabaseObject()
             ->drop();
         Log::action(tr('Initializing system...'));
         Libraries::initialize(true, true, true, 'System setup');

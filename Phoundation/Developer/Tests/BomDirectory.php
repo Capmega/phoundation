@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Tests;
 
-use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\FsDirectory;
 
 /**
  * Class BomDirectory
@@ -17,7 +17,7 @@ use Phoundation\Filesystem\Directory;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
-class BomDirectory extends Directory
+class BomDirectory extends FsDirectory
 {
     /**
      * Checks for BOM bytes from all files in this path and returns the number of files that have it

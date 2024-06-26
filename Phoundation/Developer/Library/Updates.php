@@ -1,10 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Library;
-
-
 /**
  * Updates class
  *
@@ -16,6 +11,11 @@ namespace Phoundation\Developer\Library;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Library;
+
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -38,10 +38,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.10', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('developer_incidents')->drop();
+            sql()->getSchemaObject()->getTableObject('developer_incidents')->drop();
 
             // Create the users table.
-            sql()->schema()->table('developer_incidents')->define()
+            sql()->getSchemaObject()->getTableObject('developer_incidents')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -68,8 +68,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.20', function () {
-            sql()->schema()->table('developer_incidents')->alter()
-                 ->renameColumn('details', 'data');
+            sql()->getSchemaObject()->getTableObject('developer_incidents')->alter()
+                 ->changeColumn('details', 'data mediumtext DEFAULT NULL');
         });
     }
 }

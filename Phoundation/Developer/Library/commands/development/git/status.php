@@ -31,4 +31,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(DIRECTORY_ROOT)->getStatus($argv['path'])->CliDisplayTable();
+Git::new(DIRECTORY_ROOT)->getStatusFilesObject($argv['path'])->cliDisplayTable();

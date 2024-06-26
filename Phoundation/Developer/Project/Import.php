@@ -74,7 +74,7 @@ abstract class Import
 
 
     /**
-     * Execute the import function
+     * ExecuteExecuteInterface the import function
      *
      * @return int
      */
@@ -92,7 +92,7 @@ abstract class Import
     }
 
 //    /**
-//     * Execute the data import
+//     * ExecuteExecuteInterface the data import
 //     *
 //     * @param bool $demo
 //     * @param int $min
@@ -106,7 +106,7 @@ abstract class Import
 //        // Find all Import classes
 //        $imports = static::findImports();
 //
-//        // Execute each import class
+//        // ExecuteExecuteInterface each import class
 //        foreach ($imports as $import) {
 //            $import::execute($demo, $min, $max);
 //        }

@@ -9,7 +9,7 @@ use Phoundation\Developer\Project\Project;
 
 
 /**
- * Script project/fix
+ * Command project/fix
  *
  * This script will fix project issues.
  *

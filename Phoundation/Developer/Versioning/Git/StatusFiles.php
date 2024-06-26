@@ -1,25 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Versioning\Git;
-
-use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliColor;
-use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Iterator;
-use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
-use Phoundation\Developer\Versioning\Git\Exception\GitStatusException;
-use Phoundation\Developer\Versioning\Git\Exception\GitUnknownStatusException;
-use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
-use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
-use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Os\Processes\Exception\ProcessFailedException;
-use Phoundation\Utils\Strings;
-
 /**
  * Class StatusFiles
  *
@@ -30,9 +10,36 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
-class StatusFiles extends Iterator implements StatusFilesInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Versioning\Git;
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliColor;
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
+use Phoundation\Developer\Versioning\Git\Exception\GitStatusException;
+use Phoundation\Developer\Versioning\Git\Exception\GitUnknownStatusException;
+use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
+use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsFilesCore;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Utils\Strings;
+
+class StatusFiles extends FsFilesCore implements StatusFilesInterface
 {
-    use TraitGitProcess;
+    use TraitGitProcess {
+        __construct as protected ___construct;
+    }
+
 
     /**
      * A git object specifically for this path
@@ -43,6 +50,21 @@ class StatusFiles extends Iterator implements StatusFilesInterface
 
 
     /**
+     * StatusFiles class constructor
+     *
+     * @param FsDirectoryInterface $directory
+     */
+    public function __construct(FsDirectoryInterface $directory)
+    {
+        $this->parent       = $directory;
+        $this->accepted_data_types   = [FsPathInterface::class];
+        $this->restrictions = $directory->getRestrictions();
+
+        $this->___construct($directory);
+    }
+
+
+    /**
      * Scans for changes
      *
      * @return static
@@ -50,43 +72,45 @@ class StatusFiles extends Iterator implements StatusFilesInterface
     public function scanChanges(): static
     {
         $this->source = [];
+
         $files = $this->git_process->clearArguments()
                                    ->addArgument('status')
                                    ->addArgument($this->directory)
                                    ->addArgument('--porcelain')
                                    ->executeReturnArray();
+
         // Parse output
         foreach ($files as $file) {
-            $file = trim($file);
             if (str_starts_with(strtolower($file), 'warning:')) {
                 throw GitStatusException::new(tr('Failed to fetch git status for file ":file", it failed with ":error"', [
                     ':file'  => Strings::cut($file, "'", "'"),
                     ':error' => Strings::fromReverse($file, ': '),
-                ]))
-                                        ->setData([
-                                            ':file'  => Strings::cut($file, "'", "'"),
-                                            ':error' => Strings::fromReverse($file, ': '),
-                                        ]);
+                ]))->setData([
+                    ':file'  => Strings::cut($file, "'", "'"),
+                    ':error' => Strings::fromReverse($file, ': '),
+                ]);
             }
+
             $status = substr($file, 0, 2);
             $file   = substr($file, 3);
-            $target = '';
+            $target = null;
+
             if (str_contains($file, ' -> ')) {
                 $target = Strings::from($file, ' -> ');
                 $file   = Strings::until($file, ' -> ');
             }
+
             try {
-                $this->source[$file] = StatusFile::new($status, $file, $target);
+                $this->source[$file] = StatusFile::new($status, new FsFile($file), new FsFile($target));
 
             } catch (GitUnknownStatusException $e) {
                 throw GitUnknownStatusException::new(tr('Unknown git status ":status" encountered for file ":file"', [
                     ':file'   => $file,
                     ':status' => $status,
-                ]), $e)
-                                               ->setData([
-                                                   'file'   => $file,
-                                                   'status' => $status,
-                                               ]);
+                ]), $e)->setData([
+                    'file'   => $file,
+                    'status' => $status,
+                ]);
             }
         }
 
@@ -99,20 +123,22 @@ class StatusFiles extends Iterator implements StatusFilesInterface
      *
      * @return void
      */
-    public function CliDisplayTable(): void
+    public function cliDisplayTable(): void
     {
         $list = [];
+
         foreach ($this->getSource() as $file => $status) {
             if (trim(substr($status->getStatus(), 0, 1))) {
-                $status = CliColor::apply($status->getStatus()
-                                                 ->getReadable(), 'green');
+                $status = CliColor::apply($status->getStatus()->getReadable(), 'green');
+
             } else {
-                $status = CliColor::apply($status->getStatus()
-                                                 ->getReadable(), 'red');
+                $status = CliColor::apply($status->getStatus()->getReadable(), 'red');
             }
+
             $list[$file] = ['status' => $status];
         }
-        Cli::displayTable($list, ['file'   => tr('File'),
+
+        Cli::displayTable($list, ['file'   => tr('FsFileFileInterface'),
                                   'status' => tr('Status'),
         ], 'file');
     }
@@ -125,20 +151,19 @@ class StatusFiles extends Iterator implements StatusFilesInterface
      *
      * @return static
      */
-    public function patch(string $target_path): static
+    public function patch(FsDirectoryInterface $target_path): static
     {
         try {
             // Add all paths to index, create the patch file, apply it, delete it, done
-            $this->getGit()
-                 ->add();
+            $this->getGit()->add();
+
             $patch_file = $this->getPatchFile(true);
-            $this->getGit()
-                 ->reset('HEAD');
+
+            $this->getGit()->reset('HEAD');
+
             if ($patch_file) {
-                Git::new($target_path)
-                   ->apply($patch_file);
-                File::new($patch_file, Restrictions::new(DIRECTORY_TMP, true))
-                    ->delete();
+                Git::new($target_path)->apply($patch_file);
+                FsFile::new($patch_file, FsRestrictions::getTmp(true, 'StatusFiles::patch()'))->delete();
             }
 
             return $this;
@@ -149,31 +174,34 @@ class StatusFiles extends Iterator implements StatusFilesInterface
             ]));
             Log::warning($e->getMessages());
             Log::warning($e->getDataKey('output'));
+
             if (isset($patch_file)) {
                 // Delete the temporary patch file
-                Core::ExecuteNotInTestMode(function () use ($patch_file) {
-                    File::new($patch_file, Restrictions::new(DIRECTORY_TMP, true))
-                        ->delete();
+                Core::ExecuteIfNotInTestMode(function () use ($patch_file) {
+                    FsFile::new($patch_file, FsRestrictions::new(DIRECTORY_TMP, true))->delete();
                 }, tr('Removing git patch files'));
             }
+
             foreach ($e->getDataKey('output') as $line) {
                 if (str_contains($line, 'patch does not apply')) {
                     $files[] = Strings::cut($line, 'error: ', ': patch does not apply');
                 }
+
                 if (str_ends_with($line, ': No such file or directory')) {
                     $files[] = Strings::cut($line, 'error: ', ': No such file or directory');
                 }
             }
+
             if (isset($files)) {
                 // Specific files failed to apply
                 throw GitPatchFailedException::new(tr('Failed to apply patch ":patch" to directory ":directory"', [
                     ':patch'     => isset_get($patch_file),
                     ':directory' => $target_path,
-                ]), $e)
-                                             ->addData([
-                                                 'files' => $files,
-                                             ]);
+                ]), $e)->addData([
+                    'files' => $files,
+                ]);
             }
+
             // We have a different git failure
             throw $e;
         }
@@ -200,11 +228,10 @@ class StatusFiles extends Iterator implements StatusFilesInterface
      *
      * @param bool $cached
      *
-     * @return string|null
+     * @return FsFileInterface
      */
-    public function getPatchFile(bool $cached = false): ?string
+    public function getPatchFile(bool $cached = false): FsFileInterface
     {
-        return Git::new(dirname($this->directory))
-                  ->saveDiff(basename($this->directory), $cached);
+        return Git::new($this->directory->getParentDirectory())->saveDiff($this->directory->getBasename(), $cached);
     }
 }

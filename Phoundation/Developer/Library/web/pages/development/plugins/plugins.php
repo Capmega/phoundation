@@ -11,6 +11,7 @@ use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
@@ -20,7 +21,7 @@ use Phoundation\Web\Requests\Response;
 if (Request::isPostRequestMethod()) {
     try {
         // Process buttons
-        switch (PostValidator::getSubmitButton()) {
+        switch (PostValidator::new()->getSubmitButton()) {
             case tr('Scan'):
                 $count = Plugins::scan();
                 Response::getFlashMessages()->addSuccess(tr('Finished scanning for libraries, found and registered ":count" new libraries', [':count' => $count]));
@@ -60,7 +61,7 @@ $plugins = Card::new()
 
 $plugins->getForm()
         ->setAction(UrlBuilder::getCurrent())
-        ->setMethod('POST');
+        ->setMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links
@@ -81,7 +82,7 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
             ->addColumn($filters->render() . $plugins->render(), EnumDisplaySize::nine)
-            ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

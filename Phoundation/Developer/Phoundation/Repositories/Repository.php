@@ -15,88 +15,57 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Phoundation\Repositories;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Interfaces\LibraryInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Developer\Enums\EnumRepositoryType;
+use Phoundation\Developer\Interfaces\VendorInterface;
 use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
 use Phoundation\Developer\Phoundation\Repositories\Interfaces\RepositoryInterface;
+use Phoundation\Developer\Phoundation\Repositories\Vendors\Interfaces\RepositoryVendorsInterface;
+use Phoundation\Developer\Phoundation\Repositories\Vendors\RepositoryVendors;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
+use Phoundation\Developer\Versioning\Git\Git;
+use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Interfaces\DirectoryInterface;
-use Phoundation\Filesystem\Interfaces\PathInterface;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Utils\Strings;
+use Stringable;
 
-
-class Repository implements RepositoryInterface
+class Repository extends FsDirectory implements RepositoryInterface
 {
     /**
-     * The directory of this repository
+     * Git command object
      *
-     * @var DirectoryInterface
+     * @var GitInterface $git
      */
-    protected DirectoryInterface $path;
+    public GitInterface $git;
+
+    /**
+     * Tracks the type of this repository
+     *
+     * @var EnumRepositoryType|null
+     */
+    protected ?EnumRepositoryType $repository_type;
 
 
     /**
      * Repository class constructor
-     */
-    public function __construct(PathInterface|string $path, ?RestrictionsInterface $restrictions = null)
-    {
-        $this->path = Directory::new($path, $restrictions);
-    }
-
-
-    /**
-     * Returns the repository path
      *
-     * @return string|null
+     * @param mixed|null                   $source
+     * @param FsRestrictionsInterface|null $restrictions
+     * @param Stringable|string|bool|null  $absolute_prefix
      */
-    public function getPath(): ?string
+    public function __construct(FsDirectoryInterface|Stringable|string $source, ?FsRestrictionsInterface $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
     {
-        return $this->path->getPath();
-    }
-
-
-    /**
-     * Returns true if this repository exist
-     *
-     * @return bool
-     */
-    public function exists(): bool
-    {
-        return $this->path->exists();
-    }
-
-
-    /**
-     * Returns true if this repository can be read from
-     *
-     * @return bool
-     */
-    public function isReadable(): bool
-    {
-        return $this->path->isReadable();
-    }
-
-
-    /**
-     * Returns true if this repository can be written to
-     *
-     * @return bool
-     */
-    public function isWritable(): bool
-    {
-        return $this->path->isWritable();
-    }
-
-
-    /**
-     * Returns true if this repository is a Phoundation repository
-     *
-     * @return bool
-     */
-    public function isRepository(): bool
-    {
-        return $this->isPhoundationCore() or $this->isPhoundationPlugins() or $this->isPhoundationTemplates();
+        parent::__construct($source, $restrictions, $absolute_prefix);
+        $this->detectType();
     }
 
 
@@ -107,8 +76,7 @@ class Repository implements RepositoryInterface
      */
     public function hasGit(): bool
     {
-        return $this->path->addDirectory('.git')
-                          ->exists();
+        return $this->addDirectory('.git')->exists();
     }
 
 
@@ -124,7 +92,7 @@ class Repository implements RepositoryInterface
         }
 
         throw new NotARepositoryException(tr('The path ":path" is not a Phoundation repository', [
-            ':path' => $this->path->getPath()
+            ':path' => $this->getPath()
         ]));
     }
 
@@ -134,16 +102,14 @@ class Repository implements RepositoryInterface
      *
      * @return bool
      */
-    public function isPhoundationCore(): bool
+    public function isCore(): bool
     {
         if (!$this->isReadable() or !$this->hasGit()) {
             return false;
         }
 
-        $path = $this->path;
-
         // The path basename must be "phoundation"
-        if ($path->getBasename() !== 'phoundation') {
+        if ($this->getBasename() !== 'phoundation') {
             return false;
         }
 
@@ -158,7 +124,7 @@ class Repository implements RepositoryInterface
         ];
 
         foreach ($files as $file) {
-            if (!file_exists($path . $file)) {
+            if (!file_exists($this . $file)) {
                 return false;
             }
         }
@@ -166,17 +132,24 @@ class Repository implements RepositoryInterface
         // All these files and directories must NOT be available.
         $files = [
             'Templates',
-            'config/project',
             'config/version',
         ];
 
         foreach ($files as $file) {
-            if (file_exists($path . $file)) {
+            if (file_exists($this . $file)) {
                 return false;
             }
         }
 
-        return true;
+        // The project file must contain "phoundation"
+        $project = FsFile::new($this . 'config/project', $this->getRestrictions())->getContentsAsString();
+        $project = trim($project);
+
+        if ($project === 'phoundation') {
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -185,14 +158,14 @@ class Repository implements RepositoryInterface
      *
      * @return static
      */
-    public function checkPhoundationCore(): static
+    public function checkCoreRepository(): static
     {
-        if ($this->isPhoundationCore()) {
+        if ($this->isCore()) {
             return $this;
         }
 
         throw new NotARepositoryException(tr('The path ":path" is not a Phoundation core repository', [
-            ':path' => $this->path->getPath()
+            ':path' => $this->getPath()
         ]));
     }
 
@@ -209,7 +182,7 @@ class Repository implements RepositoryInterface
         }
 
         // All these files and directories must be available.
-        $path = $this->path->getAbsolutePath();
+        $path = $this->getAbsolutePath();
         $files = [
             'config',
             'data',
@@ -237,13 +210,13 @@ class Repository implements RepositoryInterface
      *
      * @return bool
      */
-    public function isPhoundationPlugins(): bool
+    public function isPlugins(): bool
     {
-        if (!$this->isReadable() or !$this->hasGit() or $this->isPhoundationProject() or $this->isPhoundationCore()) {
+        if (!$this->isReadable() or !$this->hasGit() or $this->isPhoundationProject() or $this->isCore()) {
             return false;
         }
 
-        $path = $this->path;
+        $path = $this;
 
         // The path basename must be "phoundation-plugins"
         if ($path->getBasename() !== 'phoundation-plugins') {
@@ -251,13 +224,8 @@ class Repository implements RepositoryInterface
         }
 
         // All these files and directories must be available.
-        $path = $path->getAbsolutePath();
-        $files = [
-            'Plugins',
-            'Templates',
-            'Phoundation',
-            'README.md',
-        ];
+        $path  = $path->getAbsolutePath();
+        $files = ['README.md'];
 
         foreach ($files as $file) {
             if (!file_exists($path . $file)) {
@@ -274,14 +242,14 @@ class Repository implements RepositoryInterface
      *
      * @return static
      */
-    public function checkPhoundationPlugins(): static
+    public function checkPluginsRepository(): static
     {
-        if ($this->isPhoundationPlugins()) {
+        if ($this->isPlugins()) {
             return $this;
         }
 
         throw new NotARepositoryException(tr('The path ":path" is not a Phoundation plugins repository', [
-            ':path' => $this->path->getPath()
+            ':path' => $this->getPath()
         ]));
     }
 
@@ -291,16 +259,34 @@ class Repository implements RepositoryInterface
      *
      * @return bool
      */
-    public function isPhoundationTemplates(): bool
+    public function isTemplates(): bool
     {
-        if (!$this->isReadable() or !$this->hasGit() or $this->isPhoundationProject() or $this->isPhoundationCore()) {
+        if (!$this->isReadable() or !$this->hasGit() or $this->isPhoundationProject() or $this->isCore()) {
             return false;
         }
 
-        $path = $this->path;
+        // The path basename must be "phoundation-templates"
+        if ($this->getBasename() !== 'phoundation-templates') {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Get the value of is_template
+     *
+     * @return bool
+     */
+    public function isData(): bool
+    {
+        if (!$this->isReadable() or !$this->hasGit() or $this->isPhoundationProject() or $this->isCore()) {
+            return false;
+        }
 
         // The path basename must be "phoundation-templates"
-        if ($path->getBasename() !== 'phoundation-templates') {
+        if ($this->getBasename() !== 'phoundation-data') {
             return false;
         }
 
@@ -313,35 +299,38 @@ class Repository implements RepositoryInterface
      *
      * @return static
      */
-    public function checkPhoundationTemplates(): static
+    public function checkDataRepository(): static
     {
-        if ($this->isPhoundationTemplates()) {
+        if ($this->isData()) {
             return $this;
         }
 
-        throw new NotARepositoryException(tr('The path ":path" is not a Phoundation templates repository', [
-            ':path' => $this->path->getPath()
+        throw new NotARepositoryException(tr('The path ":path" is not a Phoundation data repository', [
+            ':path' => $this->getPath()
         ]));
     }
 
 
     /**
-     * Get the value of is_template
+     * Returns true if the repository should have vendors
      *
      * @return bool
      */
-    public function isPhoundationPluginsOrTemplates(): bool
+    public function isVendorsRepository(): bool
     {
-        if (!$this->isReadable() or !$this->hasGit() or $this->isPhoundationProject() or $this->isPhoundationCore()) {
+        if (!$this->isReadable() or !$this->hasGit() or $this->isPhoundationProject() or $this->isCore()) {
             return false;
         }
 
-        $path = $this->path;
+        $path = $this;
 
         // The path basename must be "phoundation-templates"
-        if ($path->getBasename() !== 'phoundation-templates') {
-            // Not a templates repository, maybe a plugins reporitory?
-            return $this->isPhoundationPlugins();
+        if (!$this->isTemplates()) {
+            // Not a templates repository, maybe a plugins repository?
+            if (!$this->isPlugins()) {
+                // Not a templates repository, not a plugins repository, maybe a data repository?
+                return $this->isData();
+            }
         }
 
         return true;
@@ -353,14 +342,14 @@ class Repository implements RepositoryInterface
      *
      * @return static
      */
-    public function checkPhoundationPluginsOrTemplates(): static
+    public function checkVendorRepository(): static
     {
-        if ($this->isPhoundationPluginsOrTemplates()) {
+        if ($this->isVendorsRepository()) {
             return $this;
         }
 
-        throw new NotARepositoryException(tr('The path ":path" is neither a Phoundation templates or plugins repository', [
-            ':path' => $this->path->getPath()
+        throw new NotARepositoryException(tr('The path ":path" is not a vendor type repository', [
+            ':path' => $this->getPath()
         ]));
     }
 
@@ -374,33 +363,131 @@ class Repository implements RepositoryInterface
     {
         $this->checkRepository();
 
-        $name = basename(dirname($this->path->getPath()));
+        return basename(dirname($this->getPath()));
+    }
 
-        if ($this->isPhoundationCore()) {
-            return $name . '-core';
+
+    /**
+     * Returns the type of Phoundation repository
+     *
+     * @return EnumRepositoryType|null
+     */
+    public function getRepositoryType(): ?EnumRepositoryType
+    {
+        return $this->repository_type;
+    }
+
+
+    /**
+     * Returns true if this repository is of the specified type
+     *
+     * @param EnumRepositoryType $repository_type
+     * @return bool
+     */
+    public function isRepositoryType(EnumRepositoryType $repository_type): bool
+    {
+        return $this->repository_type === $repository_type;
+    }
+
+
+    /**
+     * Detects and returns the type of this repository
+     *
+     * @return EnumRepositoryType|null
+     */
+    protected function detectType(): ?EnumRepositoryType
+    {
+        if ($this->exists()) {
+            $this->git = new Git($this);
+
+            if ($this->isCore()) {
+                $this->repository_type = EnumRepositoryType::core;
+
+            } elseif ($this->isData()) {
+                $this->repository_type = EnumRepositoryType::data;
+
+            } elseif ($this->isPlugins()) {
+                $this->repository_type = EnumRepositoryType::plugins;
+
+            } elseif ($this->isTemplates()) {
+                $this->repository_type = EnumRepositoryType::templates;
+
+            } else {
+                $this->repository_type = null;
+            }
+
+        } else {
+            $this->repository_type = null;
         }
 
-        if ($this->isPhoundationPlugins()) {
-            return $name . '-plugins';
-        }
+        return $this->getRepositoryType();
+    }
 
-        if ($this->isPhoundationTemplates()) {
-            return $name . '-templates';
-        }
 
-        return $name . '-unknown';
+    /**
+     * Returns true if this repository is a Phoundation repository
+     *
+     * @return bool
+     */
+    public function isRepository(): bool
+    {
+        return $this->repository_type !== null;
     }
 
 
     /**
      * If this repository is a Plugins repository, this method will return the found vendors
      *
-     * @return IteratorInterface
+     * @return RepositoryVendorsInterface
      */
-    public function getVendors(): IteratorInterface
+    public function getVendors(): RepositoryVendorsInterface
     {
-        $this->checkPhoundationPluginsOrTemplates();
-        return $this->path->scan();
+        // Only Plugins or Templates repositories have vendors
+        $this->checkVendorRepository();
+
+        // Return Plugin vendors, can be either "Templates" or "Plugins" or "data"
+        return new RepositoryVendors($this);
+    }
+
+
+    /**
+     * Returns the vendor with the specified identifier
+     *
+     * @param string $identifier
+     * @param bool   $exception
+     *
+     * @return VendorInterface
+     */
+    public function getVendor(string $identifier, bool $exception = true): VendorInterface
+    {
+        // Only Plugins or Templates repositories have vendors
+        $this->checkVendorRepository();
+
+        // Return the requested vendor
+        return $this->getVendors()->get($identifier, $exception);
+    }
+
+
+    /**
+     * Returns true if this repository has the specified vendor
+     *
+     * @param string $identifier
+     *
+     * @return bool
+     */
+    public function hasVendor(string $identifier): bool
+    {
+        // Only Plugins or Templates repositories have vendors
+        $this->checkVendorRepository();
+
+        // Return Plugin vendors, can be either "Templates" or "Plugins" or "data"
+        foreach ($this->getVendors() as $o_vendor) {
+            if ($o_vendor->getIdentifier() === $identifier) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
@@ -418,11 +505,114 @@ class Repository implements RepositoryInterface
 
 
     /**
-     * Tries to apply patches from the project to this repository
+     * Returns true if this repository has the specified branch
+     *
+     * @param string $branch
+     * @return bool
+     */
+    public function hasBranch(string $branch): bool
+    {
+        return $this->git->hasBranch($branch);
+    }
+
+
+    /**
+     * Sets the branch for this repository to the specified branch name
+     *
+     * @param string $branch
+     * @return static
+     */
+    public function setBranch(string $branch): static
+    {
+        $this->git->setBranch($branch);
+        return $this;
+    }
+
+
+    /**
+     * Tries to apply relevant repository patches to this repository
+     *
+     * @param VendorInterface   $o_vendor
+     * @param IteratorInterface $stash
      *
      * @return $this
      */
-    public function patch(): static
+    public function patch(VendorInterface $o_vendor, IteratorInterface $stash): static
     {
+        try {
+            // Add all paths to index to ensure all will be patched correctly, then create the patch file, then apply
+            // it, then delete it, then we're done!
+            $o_git        = Git::new($this)->add();
+            $o_patch_file = $o_vendor->getChangedFiles()->getPatchFile();
+
+            $o_git->reset('HEAD')
+                  ->apply($o_patch_file);
+
+            $o_patch_file->delete();
+
+            return $this;
+
+        } catch (ProcessFailedException $e) {
+            Log::warning(tr('Patch failed to apply for repository ":directory" with following exception', [
+                ':directory' => $this,
+            ]));
+
+            Log::warning($e->getMessages());
+            Log::warning($e->getDataKey('output'));
+
+            if (isset($o_git) and isset($o_patch_file)) {
+                // There is a patch file, so we have a git process
+                // Delete the temporary patch file
+                Core::ExecuteIfNotInTestMode(function () use ($o_patch_file) {
+                    Log::action(tr('Removing patch file ":file"', [':file' => $o_patch_file]));
+                    $o_patch_file->delete();
+                }, tr('Removing git patch file'));
+
+                foreach ($e->getDataKey('output') as $line) {
+                    if (str_contains($line, 'patch does not apply')) {
+                        $files[] = Strings::cut($line, 'error: ', ': patch does not apply');
+                    }
+
+                    if (str_ends_with($line, ': No such file or directory')) {
+                        $files[] = Strings::cut($line, 'error: ', ': No such file or directory');
+                    }
+                }
+
+                if (isset($files)) {
+                    // Specific files failed to apply
+                    Log::warning(tr('Trying to fix by stashing ":count" problematic file(s) ":files"', [
+                        ':count' => count($files),
+                        ':files' => $files,
+                    ]));
+
+                    // Add all files to index before stashing, except deleted files.
+                    foreach ($files as $file) {
+                        $stash->add($file);
+
+                        // Deleted files cannot be stashed after being added, un-add, and then stash
+                        if (FsFile::new($file)->exists()) {
+                            $o_git->add($file);
+
+                        } else {
+                            // Ensure it's not added yet
+                            $o_git->reset('HEAD', $file);
+                        }
+                    }
+
+                    // Stash all problematic files (auto un-stash later)
+                    $o_git->getStashObject()->stash($files);
+
+                    throw GitPatchFailedException::new(tr('Failed to apply patch ":patch" to directory ":directory"', [
+                        ':patch'     => isset_get($o_patch_file),
+                        ':directory' => $this,
+                    ]), $e)->addData([
+                        'files' => $files,
+                    ]);
+                }
+            }
+
+            // We have a different git failure
+            throw $e;
+        }
     }
 }

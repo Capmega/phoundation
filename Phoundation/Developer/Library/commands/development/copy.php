@@ -1,18 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Phoundation\Phoundation;
-use Phoundation\Developer\Phoundation\Plugins;
-use Phoundation\Filesystem\Restrictions;
-
-
 /**
- * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
- *
- * This script will copy the specified file back to your phoundation development installation
+ * This script will copy the specified files back to the various phoundation repositories found on your system
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -21,7 +10,27 @@ use Phoundation\Filesystem\Restrictions;
  * @package   Phoundation\Development
  */
 
-CliDocumentation::setUsage('./pho project copy FILE');
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Developer\Phoundation\Repositories\Repositories;
+use Phoundation\Filesystem\FsRestrictions;
+
+CliDocumentation::setAutoComplete([
+                                      'arguments' => [
+                                          '-a,--allow-changes' => false,
+                                          '-b,--branch'        => [
+                                              'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->keepMatchingKeysStartingWith($word); },
+                                              'noword' => function ()      { return Phoundation::new()->getPhoundationBranches()->getSourceKeys(); },
+                                          ],
+                                      ],
+                                  ]);
+
+CliDocumentation::setUsage('./pho project copy 
+./pho project copy --allow-changes FILE FILE FILE FILE
+./pho project copy --branch 4.9-test FILE FILE');
 
 CliDocumentation::setHelp('This command will copy the specified library file directly to your Phoundation installation
 
@@ -32,21 +41,25 @@ installation in the exact same location
 ARGUMENTS
 
 
-FILE                                    The file to copy
+[FILE ... FILE FILE]                    A space separated list of files to copy. If left out, will try to copy all 
+                                        files that have changes and have counterparts in the found repositories
 
--b, --branch BRANCH                     Change the Phoundation to the specified branch
-
--c, --allow-changes                     The file to copy');
+-a, --allow-changes                     If specified will allow copies to repositories that contain uncommitted git 
+                                        changes, allowing for potential loss of work
+                                        
+-b, --branch BRANCH                     Change the Phoundation to the specified branch');
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
+                     ->select('-a,--allow-changes')->isOptional(false)->isBoolean()
                      ->select('-b,--branch', true)->isOptional()->isVariableName()
-                     ->select('-c,--allow-changes')->isOptional(false)->isBoolean()
-                     ->selectAll('files')->each()->isPath(DIRECTORY_ROOT, Restrictions::readonly(DIRECTORY_ROOT, tr('Development copy script source path')))
+                     ->selectAll('files')->isOptional()->each()->isPath(DIRECTORY_ROOT, FsRestrictions::getReadonly(DIRECTORY_ROOT, tr('Development copy script source path')))
                      ->validate();
 
 
-// Copy the file to either Phoundation install or Phoundation plugins install
-Phoundation::new()->copy($argv['files'], $argv['branch'], !$argv['allow_changes']);
-Plugins::new()->copy($argv['files'], $argv['branch'], !$argv['allow_changes']);
+// Copy the file to the correct remote repositories
+Repositories::new()
+            ->setBranch($argv['branch'])
+            ->setAllowChanges($argv['allow_changes'])
+            ->copy($argv['files']);

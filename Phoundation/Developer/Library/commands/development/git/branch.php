@@ -30,4 +30,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(DIRECTORY_ROOT)->getBranchesObject()->CliDisplayTable();
+Git::new(DIRECTORY_ROOT)->getBranchesObject()->cliDisplayTable();

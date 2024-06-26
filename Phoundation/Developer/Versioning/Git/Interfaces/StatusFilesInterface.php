@@ -4,17 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
 
-/**
- * Class StatusFiles
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Developer
- */
-interface StatusFilesInterface
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsFilesInterface;
+
+interface StatusFilesInterface extends FsFilesInterface
 {
     /**
      * Scans for changes
@@ -29,17 +23,17 @@ interface StatusFilesInterface
      *
      * @return void
      */
-    public function CliDisplayTable(): void;
+    public function cliDisplayTable(): void;
 
 
     /**
      * Applies the patch for this file on the specified target file
      *
-     * @param string $target_path
+     * @param FsDirectoryInterface $target_path
      *
      * @return static
      */
-    public function patch(string $target_path): static;
+    public function patch(FsDirectoryInterface $target_path): static;
 
 
     /**
@@ -47,9 +41,9 @@ interface StatusFilesInterface
      *
      * @param bool $cached
      *
-     * @return string|null
+     * @return FsFileInterface
      */
-    public function getPatchFile(bool $cached = false): ?string;
+    public function getPatchFile(bool $cached = false): FsFileInterface;
 
 
     /**

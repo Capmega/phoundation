@@ -38,11 +38,11 @@ interface RepositoryInterface {
     public function isRepository(): bool;
 
     /**
-     * Returns true if this repository is a phoundation project
+     * Returns true if this repository is a phoundation core repository
      *
      * @return bool
      */
-    public function isPhoundationCore(): bool;
+    public function isCoreRepository(): bool;
 
     /**
      * Returns if this is a Phoundation project, so NOT a repository

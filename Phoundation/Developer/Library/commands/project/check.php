@@ -9,7 +9,7 @@ use Phoundation\Developer\Project\Project;
 
 
 /**
- * Script project/check
+ * Command project/check
  *
  * This script will check for - and report - (and optionally fix) the project and its systems
  *

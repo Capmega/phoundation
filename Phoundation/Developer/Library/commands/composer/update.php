@@ -9,7 +9,7 @@ use Phoundation\Utils\Strings;
 
 
 /**
- * Script developer/composer/update
+ * Command developer/composer/update
  *
  * This command will execute "composer update"
  *
@@ -41,5 +41,5 @@ CliDocumentation::setUsage('./pho composer update
 $argv = ArgvValidator::getArguments();
 
 
-// Execute composer update
+// ExecuteExecuteInterface composer update
 Composer::new()->setArguments($argv)->update();

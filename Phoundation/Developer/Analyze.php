@@ -14,7 +14,9 @@
 namespace Phoundation\Developer;
 
 use Phoundation\Data\Traits\TraitDataPathInterface;
-use Phoundation\Filesystem\Interfaces\PathInterface;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
 
 class Analyze
 {
@@ -26,7 +28,7 @@ class Analyze
     /**
      * Analyze class constructor
      */
-    public function __construct(PathInterface|string|null $path = null)
+    public function __construct(FsPathInterface|string|null $path = null)
     {
         $this->setPath($path);
     }
@@ -35,15 +37,15 @@ class Analyze
     /**
      * Sets the path
      *
-     * @param PathInterface|string|null $path
+     * @param FsPathInterface|null $path
      *
      * @return static
      */
-    public function setPath(PathInterface|string|null $path = null): static
+    public function setPath(FsPathInterface|null $path = null): static
     {
         if (!$path) {
             // Default to the root directory of this project
-            $path = DIRECTORY_ROOT;
+            $path = new FsPath(DIRECTORY_ROOT, FsRestrictions::getReadonly(DIRECTORY_ROOT));
         }
 
         return $this->__setPath($path);

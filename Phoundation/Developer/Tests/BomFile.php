@@ -7,9 +7,9 @@ namespace Phoundation\Developer\Tests;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Mtime;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\FsPath;
 use Stringable;
 
 /**
@@ -23,9 +23,9 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
-class BomFile extends File
+class BomFile extends FsFile
 {
-    public function __construct(Path|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions = null)
+    public function __construct(FsPath|Stringable|string|null $file = null, FsRestrictionsInterface|array|string|null $restrictions = null)
     {
         parent::__construct($file, $restrictions);
         // Only allow PHP files

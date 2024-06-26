@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Versioning\Git\Traits;
-
-use Phoundation\Data\Traits\TraitNewSource;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Path;
-use Phoundation\Os\Processes\Interfaces\ProcessInterface;
-use Phoundation\Os\Processes\Process;
-
 /**
  * Trait TraitGitProcess
  *
@@ -20,16 +10,23 @@ use Phoundation\Os\Processes\Process;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Versioning\Git\Traits;
+
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Os\Processes\Interfaces\ProcessInterface;
+use Phoundation\Os\Processes\Process;
+
 trait TraitGitProcess
 {
-    use TraitNewSource;
-
     /**
      * The directory that will be checked
      *
-     * @var string $directory
+     * @var FsDirectoryInterface $directory
      */
-    protected string $directory;
+    protected FsDirectoryInterface $directory;
 
     /**
      * The git process
@@ -40,11 +37,35 @@ trait TraitGitProcess
 
 
     /**
+     * TraitGitProcess trait constructor
+     *
+     * @param FsDirectoryInterface $directory
+     */
+    public function __construct(FsDirectoryInterface $directory)
+    {
+        $this->setDirectory($directory);
+    }
+
+
+    /**
+     * Returns a new static object that accepts $directory in the constructor
+     *
+     * @param FsDirectoryInterface $path
+     *
+     * @return static
+     */
+    public static function new(FsDirectoryInterface $path): static
+    {
+        return new static($path);
+    }
+
+
+    /**
      * Returns the directory for this ChangedFiles object
      *
-     * @return string
+     * @return FsDirectoryInterface
      */
-    public function getDirectory(): string
+    public function getDirectory(): FsDirectoryInterface
     {
         return $this->directory;
     }
@@ -53,22 +74,15 @@ trait TraitGitProcess
     /**
      * Returns the directory for this ChangedFiles object
      *
-     * @param string $directory
+     * @param FsDirectoryInterface $directory
      *
      * @return static
      */
-    public function setDirectory(string $directory): static
+    public function setDirectory(FsDirectoryInterface $directory): static
     {
-        $this->directory   = Path::absolutePath($directory);
+        $this->directory   = $directory->makeAbsolute()->checkWritable();
         $this->git_process = Process::new('git')
                                     ->setExecutionDirectory($this->directory);
-        if (!$this->directory) {
-            if (!file_exists($directory)) {
-                throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [
-                    ':directory' => $directory,
-                ]));
-            }
-        }
 
         return $this;
     }

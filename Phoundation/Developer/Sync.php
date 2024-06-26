@@ -13,7 +13,7 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Developer\Exception\SyncConfigurationException;
 use Phoundation\Developer\Exception\SyncEnvironmentDoesNotExistsException;
 use Phoundation\Developer\Exception\SyncException;
-use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Os\Processes\Commands\Rsync;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
@@ -248,7 +248,7 @@ class Sync
 
 
     /**
-     * Execute the specified hook(s)
+     * ExecuteExecuteInterface the specified hook(s)
      *
      * @param array|string $hooks
      *
@@ -381,7 +381,7 @@ class Sync
             ':environment' => $this->getEnvironmentForServer($server),
             ':connector'   => $connector->getDisplayName(),
         ]));
-        // Execute the dump on the specified server
+        // ExecuteExecuteInterface the dump on the specified server
         $this->executeHook('pre-import-connector')
              ->getPhoCommand($server)
              ->addArguments([
@@ -477,8 +477,8 @@ class Sync
         ]));
         $this->executeHook('pre-copy-connectors');
         if (empty($this->target_temp_path)) {
-            $this->target_temp_path = Directory::getTemporary()
-                                               ->getPath();
+            $this->target_temp_path = FsDirectory::getTemporary()
+                                                 ->getPath();
         }
         foreach ($this->dump_files as $file) {
             // Build source / target strings
@@ -492,7 +492,7 @@ class Sync
                 $source = $this->target_temp_path . $file;
                 $target = $from->getHostname() . ':' . $this->source_temp_path . $file;
             }
-            // Execute rsync
+            // ExecuteExecuteInterface rsync
             Rsync::new()
                  ->setSource($source)
                  ->setTarget($target)
@@ -660,7 +660,7 @@ class Sync
         ]));
         // Create a temporary dump filename
         $file = $this->addDumpFile($connector->getName(), $connector->getDatabase() . '.' . $connector->getType() . '.gz');
-        // Execute the dump on the specified server
+        // ExecuteExecuteInterface the dump on the specified server
         $this->executeHook('pre-dump-connector')
              ->getPhoCommand($server)
              ->addArguments([

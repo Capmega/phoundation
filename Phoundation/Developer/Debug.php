@@ -180,19 +180,21 @@ class Debug
      *
      * @return void
      */
-    #[NoReturn] public static function showDie(mixed $value = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false): void
+    #[NoReturn] public static function showDie(mixed $value = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false, bool $var_dump = false): void
     {
         if (static::getEnabled()) {
             try {
-                static::show($value, $sort, $trace_offset, $quiet);
+                static::show($value, $sort, $trace_offset, $quiet, var_dump: $var_dump);
+
                 // Don't log within Log::write() or tr() to avoid endless loops
                 if (!function_called('Log::write()') and !function_called('tr()')) {
                     Core::setShutdownState();
+
                     Log::warning(tr('Reached showdie() call at :location', [
                         ':location' => static::currentLocation($trace_offset),
                     ]));
-                    Audio::new('showdie.mp3')
-                         ->playLocal(true);
+
+                    Audio::new('showdie.mp3')->playLocal(true);
                 }
 
             } catch (Throwable $e) {
@@ -200,9 +202,11 @@ class Debug
                     // Only add this on browsers
                     echo '<pre>' . PHP_EOL . '"';
                 }
+
                 echo 'Debug::showDie() call failed with following exception';
                 print_r($e);
             }
+
             Core::exit(sig_kill: true);
         }
     }
@@ -269,20 +273,26 @@ class Debug
      * @param bool|null $full_backtrace If true will dump full backtraces. If false, will dump limited backtraces
      *                                  starting from the executed command. If NULL, will determine true or false from
      *                                  config path "debug.backtrace.full"
+     * @param bool      $var_dump
      *
      * @return mixed
      */
-    public static function show(mixed $value = null, bool $sort = true, int $trace_offset = 0, bool $quiet = false, ?bool $full_backtrace = null): mixed
+    public static function show(mixed $value = null, bool $sort = true, int $trace_offset = 0, bool $quiet = false, ?bool $full_backtrace = null, bool $var_dump = false): mixed
     {
         if (!static::getEnabled()) {
             return null;
         }
+
+        $display = $var_dump ? 'var_dump' : 'print_r';
+
         if ($full_backtrace === null) {
             // Show debug backtraces starting from commands or full?
             $full_backtrace = Config::getBoolean('debug.backtrace.full', false);
         }
+
         try {
             Core::removeShutdownCallback('route[postprocess]');
+
             if (Core::isProductionEnvironment()) {
                 // This is not usually something you want to happen!
                 Notification::new()
@@ -293,11 +303,13 @@ class Debug
                             ->setRoles('developer')
                             ->send();
             }
+
             // Filter secure data
             if (is_array($value)) {
                 $value = Arrays::hide($value, 'GLOBALS,%pass,ssh_key');
             }
-            if (Core::readyState() and PLATFORM_WEB) {
+
+            if (PLATFORM_WEB) {
                 if (empty($core->register['debug_plain'])) {
                     switch (Request::getRequestType()) {
                         case EnumRequestTypes::api:
@@ -308,15 +320,18 @@ class Debug
                                     ':file' => static::currentFile($trace_offset - 1),
                                     ':line' => static::currentLine($trace_offset - 1),
                                     ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value))),
-                                ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
+                                ]) . PHP_EOL . $display($value, true) . PHP_EOL;
+
                             Response::setContentType('text/html');
                             Response::addOutput($output);
                             Response::send(false);
                             break;
+
                         default:
                             // Force HTML content type, and show HTML data
                             $output = static::showHtml($value, tr('Unknown'), $sort, $trace_offset, $full_backtrace);
                     }
+
                     // Show output on web
                     Response::setContentType('text/html');
                     Response::addOutput($output);
@@ -329,6 +344,7 @@ class Debug
                             ':line' => static::currentLine($trace_offset),
                             ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value))),
                         ]) . PHP_EOL;
+
                     // Show output on web
                     Response::setContentType('text/html');
                     Response::send(false);
@@ -336,10 +352,12 @@ class Debug
 
             } else {
                 $return = '';
+
                 if (PLATFORM_WEB) {
                     // We're displaying plain text to a browser platform. Send "<pre>" to force readable display
                     echo '<pre>';
                 }
+
                 // Show output on CLI console
                 if (is_scalar($value)) {
                     $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:type :size] ', [
@@ -356,6 +374,7 @@ class Debug
                             ksort($value);
                         }
                     }
+
                     if (!$quiet) {
                         $return .= tr('DEBUG SHOW (:file@:line) [:type :size]', [
                                 ':type' => gettype($value),
@@ -364,9 +383,11 @@ class Debug
                                 ':size' => ($value === null ? 'NULL' : count((array) $value)),
                             ]) . PHP_EOL;
                     }
-                    $return .= print_r($value, true);
+
+                    $return .= $display($value, true);
                     $return .= PHP_EOL;
                 }
+
                 echo $return;
             }
 
@@ -779,7 +800,7 @@ class Debug
                 // no break
             case 'require':
                 // Just file@line
-                return 'File ' . $return;
+                return 'FsFileFileInterface ' . $return;
             default:
                 if ($class) {
                     $function = $class . '::' . $function;
@@ -1104,7 +1125,7 @@ class Debug
                         <thead>
                             <tr>
                                 <th>' . tr('Number') . '</th>
-                                <th>' . tr('File') . '</th>
+                                <th>' . tr('FsFileFileInterface') . '</th>
                             </tr>
                         </thead>
                         <tbody>';

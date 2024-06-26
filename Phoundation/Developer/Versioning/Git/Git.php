@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Git
  *
@@ -23,10 +24,11 @@ use Phoundation\Developer\Versioning\Git\Interfaces\StashInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\TagInterface;
 use Phoundation\Developer\Versioning\Versioning;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\DirectoryInterface;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Config;
@@ -38,9 +40,9 @@ class Git extends Versioning implements GitInterface
     /**
      * The directory that will be checked
      *
-     * @var string $directory
+     * @var FsDirectoryInterface $directory
      */
-    protected string $directory;
+    protected FsDirectoryInterface $directory;
 
     /**
      * The git process
@@ -53,9 +55,9 @@ class Git extends Versioning implements GitInterface
     /**
      * Git class constructor
      *
-     * @param DirectoryInterface|string $directory
+     * @param FsDirectoryInterface $directory
      */
-    public function __construct(DirectoryInterface|string $directory)
+    public function __construct(FsDirectoryInterface $directory)
     {
         $this->setDirectory($directory);
     }
@@ -64,9 +66,9 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns the directory for this ChangedFiles object
      *
-     * @return string
+     * @return FsDirectoryInterface
      */
-    public function getDirectory(): string
+    public function getDirectory(): FsDirectoryInterface
     {
         return $this->directory;
     }
@@ -75,23 +77,16 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns the directory for this ChangedFiles object
      *
-     * @param DirectoryInterface|string $directory
+     * @param FsDirectoryInterface $directory
      *
      * @return static
      */
-    public function setDirectory(DirectoryInterface|string $directory): static
+    public function setDirectory(FsDirectoryInterface $directory): static
     {
-        $this->directory = Path::absolutePath($directory);
+        $this->directory = $directory->makeAbsolute()->checkWritable();
         $this->git       = Process::new('git')
                                   ->setExecutionDirectory($this->directory)
                                   ->setTimeout(300);
-        if (!$this->directory) {
-            if (!file_exists($directory)) {
-                throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [
-                    ':directory' => $directory,
-                ]));
-            }
-        }
 
         return $this;
     }
@@ -108,9 +103,23 @@ class Git extends Versioning implements GitInterface
                             ->addArgument('clone')
                             ->addArgument($url)
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
+    }
+
+
+    /**
+     * Returns the current git branch for this directory
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function hasBranch(string $branch): bool
+    {
+        return $this->getBranchesObject()->keyExists($branch);
     }
 
 
@@ -124,11 +133,13 @@ class Git extends Versioning implements GitInterface
         $output = $this->git->clearArguments()
                             ->addArgument('branch')
                             ->executeReturnArray();
+
         foreach ($output as $line) {
             if (str_starts_with(trim($line), '*')) {
                 return trim(Strings::from($line, '*'));
             }
         }
+
         throw new GitException(tr('No branch selected for directory ":directory"', [
             ':directory' => $this->directory,
         ]));
@@ -148,7 +159,8 @@ class Git extends Versioning implements GitInterface
                             ->addArgument('checkout')
                             ->addArgument($branch)
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
     }
@@ -161,19 +173,18 @@ class Git extends Versioning implements GitInterface
      */
     public function getRepositoriesObject(): RemoteRepositoriesInterface
     {
-        return RemoteRepositories::new()
-                                 ->setDirectory($this->directory);
+        return RemoteRepositories::new()->setDirectory($this->directory);
     }
 
 
     /**
      * Generates and returns a new Git object
      *
-     * @param DirectoryInterface|string $directory
+     * @param FsPathInterface $directory
      *
      * @return static
      */
-    public static function new(DirectoryInterface|string $directory): static
+    public static function new(FsPathInterface $directory): static
     {
         return new static($directory);
     }
@@ -186,8 +197,7 @@ class Git extends Versioning implements GitInterface
      */
     public function getBranchesObject(): BranchesInterface
     {
-        return Branches::new()
-                       ->setDirectory($this->directory);
+        return new Branches($this->directory);
     }
 
 
@@ -198,8 +208,7 @@ class Git extends Versioning implements GitInterface
      */
     public function getStashObject(): StashInterface
     {
-        return Stash::new()
-                    ->setDirectory($this->directory);
+        return Stash::new()->setDirectory($this->directory);
     }
 
 
@@ -216,7 +225,8 @@ class Git extends Versioning implements GitInterface
                             ->addArgument('checkout')
                             ->addArguments($branches_or_directories)
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
     }
@@ -239,7 +249,8 @@ class Git extends Versioning implements GitInterface
                             ->addArgument($directories ? '-d' : null)
                             ->addArguments($branches_or_directories)
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
     }
@@ -260,7 +271,8 @@ class Git extends Versioning implements GitInterface
                             ->addArgument($revision)
                             ->addArgument($files)
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
     }
@@ -282,7 +294,8 @@ class Git extends Versioning implements GitInterface
                             ->addArgument('add')
                             ->addArgument($files)
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
     }
@@ -305,7 +318,8 @@ class Git extends Versioning implements GitInterface
                             ->addArgument($message)
                             ->addArgument($signed ? '-s' : null)
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
     }
@@ -328,27 +342,26 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns if this git directory has any changes
      *
+     * @param FsDirectoryInterface|null $directory
+     *
      * @return bool
      */
-    public function hasChanges(): bool
+    public function hasChanges(?FsDirectoryInterface $directory = null): bool
     {
-        return (bool) $this->getStatus()
-                           ->getCount();
+        return (bool) $this->getStatusFilesObject($directory ?? $this->directory)->getCount();
     }
 
 
     /**
      * Returns a ChangedFiles object containing all the files that have changes according to git
      *
-     * @param string|null $directory
+     * @param FsDirectoryInterface|null $directory
      *
      * @return StatusFilesInterface
      */
-    public function getStatus(?string $directory = null): StatusFilesInterface
+    public function getStatusFilesObject(?FsDirectoryInterface $directory = null): StatusFilesInterface
     {
-        return StatusFiles::new()
-                          ->setDirectory($directory ?? $this->directory)
-                          ->scanChanges();
+        return StatusFiles::new($directory ?? $this->directory)->scanChanges();
     }
 
 
@@ -361,18 +374,18 @@ class Git extends Versioning implements GitInterface
      * @param array|string $files
      * @param bool         $cached
      *
-     * @return string|null
+     * @return FsFileInterface|null
      */
-    public function saveDiff(array|string $files, bool $cached = false): ?string
+    public function saveDiff(array|string $files, bool $cached = false): ?FsFileInterface
     {
         $diff = $this->getDiff($files, $cached);
-        if ($diff) {
-            return File::getTemporary(false, sha1(Strings::force($files, '-')) . '.patch', false)
-                       ->putContents($diff . PHP_EOL)
-                       ->getPath();
 
+        if ($diff) {
+            return FsFile::getTemporary(false, sha1(Strings::force($files, '-')) . '.patch', false)
+                         ->putContents($diff . PHP_EOL);
         }
-        Log::warning(tr('Files ":files" has / have no diff', [':files' => $files]));
+
+        Log::warning(tr('Files ":files" have no diff', [':files' => $files]));
 
         return null;
     }
@@ -401,14 +414,15 @@ class Git extends Versioning implements GitInterface
     /**
      * Apply the specified patch to the specified target file
      *
-     * @param string|null $patch_file
+     * @param FsFileInterface|null $patch_file
      *
      * @return static
      */
-    public function apply(?string $patch_file): static
+    public function apply(?FsFileInterface $patch_file): static
     {
         if (!$patch_file) {
             Log::warning(tr('Ignoring empty patch filename'));
+
         } else {
             $output = $this->git->clearArguments()
                                 ->addArgument('apply')
@@ -416,9 +430,10 @@ class Git extends Versioning implements GitInterface
                                 ->addArgument('--ignore-whitespace')
                                 ->addArgument('--ignore-space-change')
                                 ->addArgument('--whitespace=nowarn')
-                                ->addArgument($patch_file)
+                                ->addArgument($patch_file->getPath())
                                 ->executeReturnArray();
-            Log::notice($output, 4, false);
+
+            Log::notice($output, 1, false);
         }
 
         return $this;
@@ -442,7 +457,8 @@ class Git extends Versioning implements GitInterface
                                 $branch,
                             ])
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
     }
@@ -463,7 +479,8 @@ class Git extends Versioning implements GitInterface
                             ->addArgument($repository)
                             ->addArgument($branch)
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
     }
@@ -482,7 +499,8 @@ class Git extends Versioning implements GitInterface
                             ->addArgument('fetch')
                             ->addArgument($repository)
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
     }
@@ -501,7 +519,8 @@ class Git extends Versioning implements GitInterface
                                 '--all',
                             ])
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
     }
@@ -520,7 +539,8 @@ class Git extends Versioning implements GitInterface
                             ->addArgument('merge')
                             ->addArgument($branch)
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
     }
@@ -539,7 +559,8 @@ class Git extends Versioning implements GitInterface
                             ->addArgument('rebase')
                             ->addArgument($branch)
                             ->executeReturnArray();
-        Log::notice($output, 4, false);
+
+        Log::notice($output, 1, false);
 
         return $this;
     }
