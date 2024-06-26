@@ -3,7 +3,7 @@
 /**
  * Class FileEofException
  *
- * This exception is thrown when a read action on a file was performed while the file pointer is at the End Of File
+ * This exception is thrown when a read action on a file was performed while the file pointer is at the End Of FsFileFileInterface
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

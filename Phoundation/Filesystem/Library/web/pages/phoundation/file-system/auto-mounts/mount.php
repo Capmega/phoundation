@@ -16,7 +16,7 @@ declare(strict_types=1);
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Filesystem\Mounts\Mount;
+use Phoundation\Filesystem\Mounts\FsMount;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
@@ -36,13 +36,13 @@ $get = GetValidator::new()
     ->select('id')->isOptional()->isDbId()
     ->validate();
 
-$mount = Mount::new($get['id']);
+$mount = FsMount::new($get['id']);
 
 
 // Validate POST and submit
 if (Request::isPostRequestMethod()) {
     try {
-        switch (PostValidator::getSubmitButton()) {
+        switch (PostValidator::new()->getSubmitButton()) {
             case tr('Save'):
                 // Validate roles
                 $post = PostValidator::new()
@@ -138,7 +138,7 @@ $mount_card = Card::new()
 
 // Build profile picture card
 $picture = Card::new()
-    ->setTitle(tr('Mount profile picture'))
+    ->setTitle(tr('FsMount profile picture'))
     ->setContent(Img::new()
         ->addClasses('w100')
         ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
@@ -169,19 +169,19 @@ $grid = Grid::new()
         ->addContent($mount_card->render())
         ->setSize(9)
         ->useForm(true))
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);
+    ->addColumn($picture->render() . '<br>' . $relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 
 
 // Set page meta data
-Response::setPageTitle(tr('Mount :mount', [':mount' => $mount->getDisplayName()]));
-Response::setHeaderTitle(tr('Mount'));
+Response::setPageTitle(tr('FsMount :mount', [':mount' => $mount->getDisplayName()]));
+Response::setHeaderTitle(tr('FsMount'));
 Response::setHeaderSubTitle($mount->getDisplayName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                               => tr('Home'),
     '/system-administration.html'                     => tr('System administration'),
     '/phoundation/file-systems.html'        => tr('Filesystems'),
-    '/phoundation/file-systems/mounts.html' => tr('Mounts'),
+    '/phoundation/file-systems/mounts.html' => tr('FsMounts'),
     ''                                                => $mount->getDisplayName()
 ]));

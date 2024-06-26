@@ -7,12 +7,12 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
 use Phoundation\Filesystem\Mounts\Exception\UnmountBusyException;
-use Phoundation\Filesystem\Mounts\Mount;
-use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Filesystem\Mounts\FsMount;
+use Phoundation\Filesystem\Mounts\FsMounts;
 
 
 /**
- * Script file-system/mount/unmount
+ * Command file-system/mount/unmount
  *
  * Unmounts the specified mount
  *
@@ -26,8 +26,8 @@ use Phoundation\Filesystem\Mounts\Mounts;
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
-            'word'   => function ($word) { return Mounts::new()->load()->keepMatchingValuesStartingWith($word)->limitAutoComplete(); },
-            'noword' => function ()      { return Mounts::new()->load()->limitAutoComplete(); }
+            'word'   => function ($word) { return FsMounts::new()->load()->keepMatchingValuesStartingWith($word)->limitAutoComplete(); },
+            'noword' => function ()      { return FsMounts::new()->load()->limitAutoComplete(); }
         ]
     ]
 ]);
@@ -45,7 +45,7 @@ $argv = ArgvValidator::new()
 
 // Unmount the specified mount
 try {
-    Mount::new($argv['mount'])->unmount();
+    FsMount::new($argv['mount'])->unmount();
 
 } catch (NotMountedException) {
     Log::warning(tr('Cannot unmount ":path", it is not mounted', [

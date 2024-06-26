@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Filesystem\Mounts\FsMounts;
 
 
 /**
- * Script file-system/mount/list/active
+ * Command file-system/mount/list/active
  *
  * This command lists all active mounts
  *
@@ -24,4 +24,4 @@ CliDocumentation::setHelp('This command will list all configured mount points th
 
 
 // Display the current mounts
-Mounts::listMountTargets()->displayCliTable('source,target,filesystem');
+FsMounts::listMountTargets()->displayCliTable('source,target,filesystem');

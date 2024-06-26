@@ -16,13 +16,14 @@ declare(strict_types=1);
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Filesystem\Mounts\FilterForm;
-use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Filesystem\Mounts\FsMounts;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
@@ -52,14 +53,14 @@ if (Request::isPostRequestMethod()) {
         switch ($post['submit']) {
             case tr('Delete'):
                 // Delete selected mounts
-                $count = Mounts::directOperations()->deleteKeys($post['id']);
+                $count = FsMounts::directOperations()->deleteKeys($post['id']);
 
                 Response::getFlashMessages()->addSuccess(tr('Deleted ":count" mounts', [':count' => $count]));
                 Response::redirect('this');
 
             case tr('Undelete'):
                 // Undelete selected mounts
-                $count = Mounts::directOperations()->undeleteKeys($post['id']);
+                $count = FsMounts::directOperations()->undeleteKeys($post['id']);
 
                 Response::getFlashMessages()->addSuccess(tr('Undeleted ":count" mounts', [':count' => $count]));
                 Response::redirect('this');
@@ -73,7 +74,7 @@ if (Request::isPostRequestMethod()) {
 
 
 // Get the mounts list and apply filters
-$mounts   = Mounts::new();
+$mounts   = FsMounts::new();
 $builder = $mounts->getQueryBuilder()
     ->addSelect('`filesystem_mounts`.`id`, 
                  `filesystem_mounts`.`name`, 
@@ -115,8 +116,8 @@ $mounts_card = Card::new()
     ->setButtons($buttons);
 
 $mounts_card->getForm()
-        ->setAction(UrlBuilder::getCurrent())
-        ->setMethod('POST');
+            ->setAction(UrlBuilder::getCurrent())
+            ->setMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links
@@ -136,7 +137,7 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
     ->addColumn($filters_card->render() . $mounts_card->render(), EnumDisplaySize::nine)
-    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+    ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 
@@ -147,5 +148,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                           => tr('Home'),
     '/system-administration.html' => tr('System administration'),
     '/filesystem.html'            => tr('Filesystem'),
-    ''                            => tr('Mounts')
+    ''                            => tr('FsMounts')
 ]));

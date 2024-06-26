@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Mounts\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 
 /**
- * Class Mounts
+ * Class FsMounts
  *
  *
  *
@@ -16,6 +16,6 @@ use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Filesystem
  */
-interface MountsInterface extends DataListInterface
+interface MountsInterface extends DataIteratorInterface
 {
 }

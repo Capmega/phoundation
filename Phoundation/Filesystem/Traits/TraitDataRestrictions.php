@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Filesystem\Traits;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Restrictions;
-
 /**
  * Trait TraitRestrictions
  *
@@ -18,48 +10,58 @@ use Phoundation\Filesystem\Restrictions;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   \Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Filesystem\Traits;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\FsRestrictions;
+
 trait TraitDataRestrictions
 {
     /**
      * Server object where the image conversion commands will be executed
      *
-     * @var RestrictionsInterface $restrictions
+     * @var FsRestrictionsInterface $restrictions
      */
-    protected RestrictionsInterface $restrictions;
+    protected FsRestrictionsInterface $restrictions;
 
 
     /**
      * Returns the server restrictions
      *
-     * @return RestrictionsInterface
+     * @return FsRestrictionsInterface
      */
-    public function getRestrictions(): RestrictionsInterface
+    public function getRestrictions(): FsRestrictionsInterface
     {
         if (isset($this->restrictions)) {
             return $this->restrictions;
         }
+
         throw new OutOfBoundsException(tr('Cannot return file restrictions, restrictions have not yet been set'));
     }
 
 
     /**
-     * Sets the server and filesystem restrictions for this File object
+     * Sets the server and filesystem restrictions for this FsFileFileInterface object
      *
-     * @param RestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
-     * @param bool                                    $write        If $restrictions is not specified as a Restrictions
-     *                                                              class, but as a path string, or array of path
-     *                                                              strings, then this method will convert that into a
-     *                                                              Restrictions object and this is the $write modifier
-     *                                                              for that object
-     * @param string|null                             $label        If $restrictions is not specified as a Restrictions
-     *                                                              class, but as a path string, or array of path
-     *                                                              strings, then this method will convert that into a
-     *                                                              Restrictions object and this is the $label modifier
-     *                                                              for that object
+     * @param FsRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
+     * @param bool                                      $write        If $restrictions is not specified as a
+     *                                                                FsRestrictions class, but as a path string, or
+     *                                                                array of path strings, then this method will
+     *                                                                convert that into a FsRestrictions object and this
+     *                                                                is the $write modifier for that object
+     * @param string|null                               $label        If $restrictions is not specified as a
+     *                                                                FsRestrictions class, but as a path string, or
+     *                                                                array of path strings, then this method will
+     *                                                                convert that into a FsRestrictions object and this
+     *                                                                is the $label modifier for that object
      */
-    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
+    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
     {
-        $this->restrictions = Restrictions::ensure($restrictions, $write, $label);
+        $this->restrictions = FsRestrictions::ensure($restrictions, $write, $label);
 
         return $this;
     }
@@ -68,16 +70,16 @@ trait TraitDataRestrictions
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param RestrictionsInterface|null $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      *
-     * @return RestrictionsInterface
+     * @return FsRestrictionsInterface
      */
-    public function ensureRestrictions(?RestrictionsInterface $restrictions): RestrictionsInterface
+    public function ensureRestrictions(?FsRestrictionsInterface $restrictions): FsRestrictionsInterface
     {
         if (isset($this->restrictions)) {
-            return Restrictions::default($restrictions, $this->restrictions);
+            return FsRestrictions::getRestrictionsOrDefault($restrictions, $this->restrictions);
         }
 
-        return Restrictions::default($restrictions);
+        return FsRestrictions::getRestrictionsOrDefault($restrictions);
     }
 }

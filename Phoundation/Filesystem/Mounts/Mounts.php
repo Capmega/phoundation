@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Mounts;
 
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Exception\NotExistsException;
-use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Interfaces\MountsInterface;
+use Phoundation\Os\Processes\Commands\Mount;
 use Phoundation\Os\Processes\Commands\UnMount;
 use Stringable;
 
@@ -24,7 +26,7 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Filesystem
  */
-class Mounts extends DataList implements MountsInterface
+class Mounts extends DataIterator implements MountsInterface
 {
     /**
      * @inheritDoc
@@ -40,7 +42,7 @@ class Mounts extends DataList implements MountsInterface
      */
     public static function getEntryClass(): ?string
     {
-        return Mount::class;
+        return FsMount::class;
     }
 
 
@@ -65,8 +67,7 @@ class Mounts extends DataList implements MountsInterface
      */
     public static function mount(Stringable|string $source, Stringable|string $target, ?string $filesystem = null, ?array $options = null): void
     {
-        \Phoundation\Os\Processes\Commands\Mount::new()
-                                                ->mount($source, $target, $filesystem, $options);
+        Mount::new()->mount($source, $target, $filesystem, $options);
     }
 
 
@@ -79,8 +80,7 @@ class Mounts extends DataList implements MountsInterface
      */
     public static function unmount(Stringable|string $target): void
     {
-        UnMount::new()
-               ->unmount($target);
+        UnMount::new()->unmount($target);
     }
 
 
@@ -94,9 +94,11 @@ class Mounts extends DataList implements MountsInterface
     public static function getDirectoryMountInformation(Stringable|string $directory): array
     {
         $mounts = static::listMountTargets();
+
         if (array_key_exists($directory, $mounts)) {
             return $mounts[$directory];
         }
+
         throw new DirectoryNotMountedException(tr('The specified directory ":directory" is not mounted', [
             ':directory' => $directory,
         ]));
@@ -125,8 +127,9 @@ class Mounts extends DataList implements MountsInterface
     protected static function listMounts(string $key): static
     {
         $return = static::new();
-        $mounts = File::new('/proc/mounts')
-                      ->getContentsAsArray();
+        $mounts = FsFile::new('/proc/mounts', FsRestrictions::getReadonly('/proc/', 'FsMounts::ListMounts()'))
+                        ->getContentsAsArray();
+
         foreach ($mounts as $mount) {
             $mount = explode(' ', $mount);
             $mount = [
@@ -137,7 +140,8 @@ class Mounts extends DataList implements MountsInterface
                 'fs_freq'     => $mount[4],
                 'fs_passno'   => $mount[5],
             ];
-            $return->add(Mount::newFromSource($mount), $mount[$key]);
+
+            $return->add(FsMount::newFromSource($mount), $mount[$key]);
         }
 
         return $return;
@@ -158,22 +162,23 @@ class Mounts extends DataList implements MountsInterface
     /**
      * Returns a list of all source devices / paths as keys for the specified target path and with what options
      *
-     * @param Stringable|string     $target
-     * @param RestrictionsInterface $restrictions
+     * @param Stringable|string       $target
+     * @param FsRestrictionsInterface $restrictions
      *
      * @return static
      */
-    public static function getMountSources(Stringable|string $target, RestrictionsInterface $restrictions): static
+    public static function getMountSources(Stringable|string $target, FsRestrictionsInterface $restrictions): static
     {
-        $target = Directory::new($target, $restrictions)
-                           ->getPath(true);
+        $target = FsDirectory::new($target, $restrictions)->getPath(true);
         $mounts = static::listMounts('target_path');
         $return = static::new();
+
         foreach ($mounts as $path => $source) {
             if ($path === $target) {
                 $return->add($source, $path);
             }
         }
+
         if ($return->isEmpty()) {
             throw new NotExistsException(tr('The specified mount target ":target" does not exist', [
                 ':target' => $target,
@@ -188,20 +193,21 @@ class Mounts extends DataList implements MountsInterface
      * Returns a list of all target directories as keys with value information about where they are mounted from and
      * with what options
      *
-     * @param string                $source
-     * @param RestrictionsInterface $restrictions
+     * @param string $source
      *
      * @return static
      */
-    public static function getMountTargets(string $source, RestrictionsInterface $restrictions): static
+    public static function getMountTargets(string $source): static
     {
         $mounts = static::listMounts('source_path');
         $return = static::new();
+
         foreach ($mounts as $path => $target) {
             if ($path === $source) {
                 $return->add($target, $path);
             }
         }
+
         if ($return->isEmpty()) {
             throw new NotExistsException(tr('The specified mount source ":source" does not exist', [
                 ':source' => $source,

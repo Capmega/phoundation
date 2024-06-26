@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Filesystem\Mounts\FsMounts;
 
 
 /**
- * Script file-system/mount/list
+ * Command file-system/mount/list
  *
  * This command lists all mounts
  *
@@ -29,4 +29,4 @@ $argv = ArgvValidator::new()->validate();
 
 
 // Display the available mounts
-Mounts::new()->load()->displayCliTable('name,source_path,target_path,filesystem');
+FsMounts::new()->load()->displayCliTable('name,source_path,target_path,filesystem');

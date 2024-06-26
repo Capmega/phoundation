@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Filesystem\Mounts\FsMounts;
 
 
 /**
- * Script file-system/mount/all
+ * Command file-system/mount/all
  *
  * This command mounts all configured filesystem mounts
  *
@@ -23,7 +23,7 @@ CliDocumentation::setUsage('./pho filesystem mount all');
 CliDocumentation::setHelp('This command will attempt to mount all configured mount points');
 
 
-// Mount all configured mount points
-foreach (Mounts::new()->load() as $mount) {
+// FsMount all configured mount points
+foreach (FsMounts::new()->load() as $mount) {
     $mount->mount();
 }

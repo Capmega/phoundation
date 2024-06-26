@@ -18,7 +18,8 @@ namespace Phoundation\Filesystem\Commands;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataPath;
-use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Utils\Arrays;
 
@@ -116,7 +117,9 @@ class Df extends Command
 
         foreach ($results as $filesystem => $result) {
             if (str_starts_with($filesystem, '/dev/')) {
-                $filesystem = File::new($filesystem)->followLink(true)->getPath();
+                $filesystem = FsFile::new($filesystem, FsRestrictions::getReadonly('/dev/', 'Df::getResults()'))
+                                    ->followLink(true)
+                                    ->getPath();
             }
 
             $return[$filesystem] =  $result;

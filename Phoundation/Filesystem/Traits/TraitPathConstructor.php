@@ -1,18 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Filesystem\Traits;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\PathInterface;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Stringable;
-
 /**
  * Trait TraitPathConstructor
  *
- * This trait contains the ::__constructor() and ::new() methods for Path, Directory, and File classes
+ *
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -20,38 +11,47 @@ use Stringable;
  * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Filesystem\Traits;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Stringable;
+
 trait TraitPathConstructor
 {
     /**
-     * Path class constructor
+     * TraitPathConstructor class constructor
      *
-     * @param mixed                                   $source
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param bool                                    $make_absolute
+     * @param Stringable|string|null            $source
+     * @param FsRestrictionsInterface|bool|null $restrictions
+     * @param Stringable|string|bool|null       $absolute_prefix
      */
-    public function __construct(mixed $source = null, RestrictionsInterface|array|string|null $restrictions = null, bool $make_absolute = false)
+    public function __construct(Stringable|string|null $source = null, FsRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
     {
-        if (is_null($source) or is_string($source) or ($source instanceof Stringable)) {
-            // The Specified file was actually a File or Directory object, get the file from there
-            if ($source instanceof PathInterface) {
-                $this->setPath($source, make_absolute: $make_absolute);
-                $this->setTarget($source->getTarget());
-                $this->setRestrictions($source->getRestrictions() ?? $restrictions);
-
-            } else {
-                $this->setPath($source, make_absolute: $make_absolute);
-                $this->setRestrictions($restrictions);
-            }
-
-        } elseif (is_resource($source)) {
-            // This is an input stream resource
-            $this->stream = $source;
-            $this->path   = '?';
+        if ($source instanceof FsPathInterface) {
+            // The Specified file was actually a FsFileFileInterface or Directory object, get the file from there
+            $this->setPath($source, $absolute_prefix)
+                 ->setTarget($source->getTarget())
+                 ->setRestrictions($restrictions ?? $source->getRestrictions());
 
         } else {
-            throw new OutOfBoundsException(tr('Invalid path ":path" specified. Must be one if PathInterface, Stringable, string, null, or resource', [
-                ':path' => $source,
-            ]));
+            $source = (string) $source;
+
+            // The Specified file was actually a FsFileFileInterface or Directory object, get the file from there
+            if (strlen($source) > 2048) {
+                throw new OutOfBoundsException(
+                    tr('Specified path ":path" is invalid, the path string should be no longer than 2048 characters', [
+                        ':file' => $source,
+                    ])
+                );
+            }
+
+            $this->setPath($source, $absolute_prefix)
+                 ->setRestrictions($restrictions);
         }
     }
 }

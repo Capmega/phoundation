@@ -38,10 +38,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.20', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('filesystem_mounts')->drop();
+            sql()->getSchemaObject()->getTableObject('filesystem_mounts')->drop();
 
             // Create the filesystem_mounts table.
-            sql()->schema()->table('filesystem_mounts')->define()
+            sql()->getSchemaObject()->getTableObject('filesystem_mounts')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -74,10 +74,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.21', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('filesystem_requirements')->drop();
+            sql()->getSchemaObject()->getTableObject('filesystem_requirements')->drop();
 
             // Create the filesystem_mounts table.
-            sql()->schema()->table('filesystem_requirements')->define()
+            sql()->getSchemaObject()->getTableObject('filesystem_requirements')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -104,7 +104,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.24', function () {
-            sql()->schema()->table('filesystem_mounts')->alter()
+            sql()->getSchemaObject()->getTableObject('filesystem_mounts')->alter()
                 ->addColumn('`timeout` int NULL DEFAULT NULL', 'AFTER `auto_unmount`');
         });
     }

@@ -9,7 +9,7 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 /**
  * Class MountsException
  *
- * Default Mount exception
+ * Default FsMount exception
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

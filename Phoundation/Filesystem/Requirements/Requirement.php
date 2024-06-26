@@ -82,7 +82,7 @@ class Requirement extends DataEntry
                                            ->setLabel(tr('Name'))
                                            ->setHelpText(tr('The unique identifier name for this requirement'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
+                                               $validator->isUnique();
                                            }))
                     ->add(DefinitionFactory::getSeoName($this))
                     ->add(Definition::new($this, 'path')
@@ -137,7 +137,7 @@ class Requirement extends DataEntry
                                     ])
                                     ->setSize(3)
                                     ->setMaxlength(16)
-                                    ->setLabel(tr('File type'))
+                                    ->setLabel(tr('FsFileFileInterface type'))
                                     ->setHelpText(tr('The type of file this should be')))
                     ->add(DefinitionFactory::getDescription($this)
                                            ->setHelpText(tr('The description for this mount')));

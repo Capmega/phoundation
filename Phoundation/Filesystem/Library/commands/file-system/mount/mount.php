@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Mounts\Mount;
-use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Filesystem\Mounts\FsMount;
+use Phoundation\Filesystem\Mounts\FsMounts;
 
 
 /**
- * Script file-system/mount/mount
+ * Command file-system/mount/mount
  *
- * Mounts the specified mount
+ * FsMounts the specified mount
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -23,8 +23,8 @@ use Phoundation\Filesystem\Mounts\Mounts;
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
-            'word'   => function ($word) { return Mounts::new()->load()->keepMatchingValuesStartingWith($word)->limitAutoComplete(); },
-            'noword' => function ()      { return Mounts::new()->load()->limitAutoComplete(); }
+            'word'   => function ($word) { return FsMounts::new()->load()->keepMatchingValuesStartingWith($word)->limitAutoComplete(); },
+            'noword' => function ()      { return FsMounts::new()->load()->limitAutoComplete(); }
         ]
     ]
 ]);
@@ -40,5 +40,5 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-// Mount the specified mount
-Mount::new($argv['mount'])->mount();
+// FsMount the specified mount
+FsMount::new($argv['mount'])->mount();

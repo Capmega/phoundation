@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Filesystem\Mounts\FsMounts;
 
 
 /**
- * Script file-system/mount/all
+ * Command file-system/mount/all
  *
  * This command mounts all configured filesystem mounts
  *
@@ -28,7 +28,7 @@ CliDocumentation::setHelp('This command will try to mount all configured filesys
 $argv = ArgvValidator::new()->validate();
 
 
-// Mount all filesystems
-foreach (Mounts::new()->load() as $mount) {
+// FsMount all filesystems
+foreach (FsMounts::new()->load() as $mount) {
     $mount->mount();
 }

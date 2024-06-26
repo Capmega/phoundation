@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Requirements;
 
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
 use Stringable;
 
@@ -18,7 +18,7 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Filesystem
  */
-class Requirements extends DataList implements RequirementsInterface
+class Requirements extends DataIterator implements RequirementsInterface
 {
     /**
      * @inheritDoc
