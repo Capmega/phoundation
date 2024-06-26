@@ -1,22 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Utils;
-
-use Phoundation\Cli\CliColor;
-use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\PhpModuleNotAvailableException;
-use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Notifications\Notification;
-use StephenHill\Base58;
-use Stringable;
-use Throwable;
-
 /**
  * Class Strings
  *
@@ -28,6 +11,24 @@ use Throwable;
  * @category  Class reference
  * @package   Phoundation\Utils
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Utils;
+
+use Phoundation\Cli\CliColor;
+use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpModuleNotAvailableException;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Notifications\Notification;
+use StephenHill\Base58;
+use Stringable;
+use Throwable;
+
 class Strings extends Utils
 {
     /**
@@ -41,6 +42,7 @@ class Strings extends Utils
     public static function ensureProtocol(Stringable|string $source, string $protocol = 'https://'): string
     {
         $source = (string) $source;
+
         if (substr($source, 0, mb_strlen($protocol)) != $protocol) {
             return $protocol . $source;
 
@@ -98,6 +100,7 @@ class Strings extends Utils
     public static function ensureUtf8(Stringable|string $source): string
     {
         $source = (string) $source;
+
         if (strings::isUtf8($source)) {
             return $source;
         }
@@ -131,60 +134,6 @@ class Strings extends Utils
 
 
     /**
-     * Return string will not contain HTML codes for Spanish characters
-     *
-     * @param Stringable|string $source The source text on which the operation will be executed
-     *
-     * @return string
-     */
-    public static function fixSpanishChars(Stringable|string $source): string
-    {
-        $from = [
-            '&Aacute;',
-            '&aacute;',
-            '&Eacute;',
-            '&eacute;',
-            '&Iacute;',
-            '&iacute;',
-            '&Oacute;',
-            '&oacute;',
-            '&Ntilde;',
-            '&ntilde;',
-            '&Uacute;',
-            '&uacute;',
-            '&Uuml;',
-            '&uuml;',
-            '&iexcl;',
-            '&ordf;',
-            '&iquest;',
-            '&ordm;',
-        ];
-        $to   = [
-            'Á',
-            'á',
-            'É',
-            'é',
-            'Í',
-            'í',
-            'Ó',
-            'ó',
-            'Ñ',
-            'ñ',
-            'Ú',
-            'ú',
-            'Ü',
-            'ü',
-            '¡',
-            'ª',
-            '¿',
-            'º',
-        ];
-
-        return str_replace($from, $to, (string) $source);
-    }
-
-
-    /**
      * Return a lowercase version of the $source string with the first letter capitalized
      *
      * @param Stringable|string $source
@@ -195,6 +144,7 @@ class Strings extends Utils
     public static function capitalize(Stringable|string $source, int $position = 0): string
     {
         $source = (string) $source;
+
         if (!$position) {
             return mb_strtoupper(mb_substr($source, 0, 1)) . mb_strtolower(mb_substr($source, 1));
         }
@@ -316,6 +266,7 @@ class Strings extends Utils
 
         } catch (Throwable $e) {
             $message = strtolower($e->getMessage());
+
             if (str_contains($message, 'bc math') or str_contains($message, 'gmp')) {
                 throw PhpModuleNotAvailableException::new('The PHP BC Math and / or GMP modules are not installed or available');
             }
@@ -369,9 +320,11 @@ class Strings extends Utils
     public static function camelCase(Stringable|string $source, Stringable|string $separator = ' '): string
     {
         $source = explode($separator, mb_strtolower((string) $source));
+
         foreach ($source as &$value) {
             $value = mb_ucfirst($value);
         }
+
         unset($value);
 
         return implode((string) $separator, $source);
@@ -413,14 +366,18 @@ class Strings extends Utils
         if (!$source) {
             throw new OutOfBoundsException(tr('Empty source specified'));
         }
+
         if (!$interleave) {
             throw new OutOfBoundsException(tr('Empty interleave specified'));
         }
+
         if ($chunk_size < 1) {
             throw new OutOfBoundsException(tr('Specified chunksize ":chunksize" is invalid, it must be 1 or greater', [':chunksize' => $chunk_size]));
         }
+
         $source     = (string) $source;
         $interleave = (string) $interleave;
+
         if ($end) {
             $begin = mb_substr($source, 0, $end);
             $end   = mb_substr($source, $end);
@@ -429,8 +386,10 @@ class Strings extends Utils
             $begin = $source;
             $end   = '';
         }
+
         $begin  = mb_str_split($begin, $chunk_size);
         $return = '';
+
         foreach ($begin as $chunk) {
             $return .= $chunk . $interleave;
         }
@@ -448,76 +407,8 @@ class Strings extends Utils
      */
     public static function convertAccents(Stringable|string $source): string
     {
-        $from = [
-            'ç',
-            'æ',
-            'œ',
-            'á',
-            'é',
-            'í',
-            'ó',
-            'ú',
-            'à',
-            'è',
-            'ì',
-            'ò',
-            'ù',
-            'ä',
-            'ë',
-            'ï',
-            'ö',
-            'ü',
-            'ÿ',
-            'â',
-            'ê',
-            'î',
-            'ô',
-            'û',
-            'å',
-            'e',
-            'i',
-            'ø',
-            'u',
-            'Ú',
-            'ñ',
-            'Ñ',
-            'º',
-        ];
-        $to   = [
-            'c',
-            'ae',
-            'oe',
-            'a',
-            'e',
-            'i',
-            'o',
-            'u',
-            'a',
-            'e',
-            'i',
-            'o',
-            'u',
-            'a',
-            'e',
-            'i',
-            'o',
-            'u',
-            'y',
-            'a',
-            'e',
-            'i',
-            'o',
-            'u',
-            'a',
-            'e',
-            'i',
-            'o',
-            'u',
-            'U',
-            'n',
-            'n',
-            'o',
-        ];
+        $from = ['ç', 'æ' , 'œ' , 'á', 'é', 'í', 'ó', 'ú', 'à', 'è', 'ì', 'ò', 'ù', 'ä', 'ë', 'ï', 'ö', 'ü', 'ÿ', 'â', 'ê', 'î', 'ô', 'û', 'å', 'e', 'i', 'ø', 'u', 'Ú', 'ñ', 'Ñ', 'º'];
+        $to   = ['c', 'ae', 'oe', 'a', 'e', 'i', 'o', 'u', 'a', 'e', 'i', 'o', 'u', 'a', 'e', 'i', 'o', 'u', 'y', 'a', 'e', 'i', 'o', 'u', 'a', 'e', 'i', 'o', 'u', 'U', 'n', 'n', 'o'];
 
         return str_replace($from, $to, (string) $source);
     }
@@ -548,6 +439,7 @@ class Strings extends Utils
     public static function quote(Stringable|string|null $source, string $quote = "'", bool $force = false): string
     {
         $source = (string) $source;
+
         if (is_numeric($source) and !$force) {
             return $source;
         }
@@ -567,6 +459,7 @@ class Strings extends Utils
     public static function isVersion(Stringable|string $source): bool
     {
         $result = preg_match('/^\d{1,4}\.\d{1,4}\.\d{1,4}$/', (string) $source);
+
         if ($result === false) {
             throw new CoreException(tr('Failed version detection for specified source ":source"', [
                 ':source' => $source,
@@ -587,6 +480,7 @@ class Strings extends Utils
     public static function containsHtml(Stringable|string $source): bool
     {
         $result = preg_match('/<[^<]+>/', (string) $source);
+
         if ($result === false) {
             throw new CoreException(tr('Failed HTML detection for specified source ":source"', [
                 ':source' => $source,
@@ -624,12 +518,14 @@ class Strings extends Utils
     public static function hasKeyword(Stringable|string $source, array $keywords, bool $regex = false, bool $unicode = true): ?string
     {
         $source = (string) $source;
+
         foreach ($keywords as $keyword) {
             if (!is_scalar($keyword)) {
                 throw new OutOfBoundsException(tr('Specified keyword ":keyword" is invalid, it should be a scalar', [
                     ':source' => $keyword,
                 ]));
             }
+
             if (static::searchKeyword($source, $keyword, $regex, $unicode)) {
                 return $keyword;
             }
@@ -654,9 +550,11 @@ class Strings extends Utils
         // Ensure keywords are trimmed, and don't search for empty keywords
         $source  = (string) $source;
         $keyword = trim((string) $keyword);
+
         if (!$keyword) {
             return false;
         }
+
         if ($regex) {
             // Do a regex search instead
             return preg_match('/' . $keyword . '/ims' . ($unicode ? 'u' : ''), $source, $matches) !== false;
@@ -679,6 +577,7 @@ class Strings extends Utils
     public static function hasAllKeywords(Stringable|string $source, array $keywords, bool $regex = false, bool $unicode = true): bool
     {
         $source = (string) $source;
+
         foreach ($keywords as $keyword) {
             if (!static::searchKeyword($source, $keyword, $regex, $unicode)) {
                 return false;
@@ -716,45 +615,72 @@ class Strings extends Utils
     {
         // First find all words
         preg_match_all('/\b(?:\w|\s)+\b/umsi', (string) $string, $results);
+
         if ($type == 'random') {
-            $type = pick_random_argument(1, 'lowercase', 'uppercase', 'capitalize', 'doublecapitalize', 'invertcapitalize', 'invertdoublecapitalize', 'interleave', 'invertinterleave', 'consonantcaps', 'vowelcaps', 'lowercentercaps', 'capscenterlower');
+            $type = pick_random_argument(
+                1,
+                'lowercase',
+                'uppercase',
+                'capitalize',
+                'doublecapitalize',
+                'invertcapitalize',
+                'invertdoublecapitalize',
+                'interleave',
+                'invertinterleave',
+                'consonantcaps',
+                'vowelcaps',
+                'lowercentercaps',
+                'capscenterlower'
+            );
         }
+
         // Now apply the specified type to all words
         foreach ($results as $words) {
             foreach ($words as $word) {
-                /*
-                 * Create the $replace string
-                 */
+                // Create the $replace string
                 switch ($type) {
                     case 'lowercase':
                         $replace = strtolower($word);
                         break;
+
                     case 'uppercase':
                         $replace = strtoupper($word);
                         break;
+
                     case 'capitalize':
                         $replace = strtoupper(substr($word, 0, 1)) . strtolower(substr($word, 1));
                         break;
+
                     case 'doublecapitalize':
                         $replace = strtoupper(substr($word, 0, 1)) . strtolower(substr($word, 1, -1)) . strtoupper(substr($word, -1, 1));
                         break;
+
                     case 'invertcapitalize':
                         $replace = strtolower(substr($word, 0, 1)) . strtoupper(substr($word, 1));
                         break;
+
                     case 'invertdoublecapitalize':
                         $replace = strtolower(substr($word, 0, 1)) . strtoupper(substr($word, 1, -1)) . strtolower(substr($word, -1, 1));
                         break;
+
                     case 'interleave':
+                        // No break
                     case 'invertinterleave':
+                        // No break
                     case 'consonantcaps':
+                        // No break
                     case 'vowelcaps':
+                        // No break
                     case 'lowercentercaps':
+                        // No break
                     case 'capscenterlower':
                         $replace = $word;
                         break;
+
                     default:
                         throw new OutOfBoundsException(tr('Unknown type ":type" specified', [':type' => $type]));
                 }
+
                 str_replace($word, $replace, $string);
             }
         }
@@ -787,6 +713,7 @@ class Strings extends Utils
      */
     public static function capsGuess(Stringable|string $string): string
     {
+throw new UnderConstructionException();
         $return       = '';
         $posibilities = [
             'lowercase',
@@ -802,6 +729,7 @@ class Strings extends Utils
             'lowercentercaps',
             'capscenterlower',
         ];
+
         // Now, find all words
         preg_match_all('/\b(?:\w\s)+\b/umsi', (string) $string, $words);
         // Now apply the specified type to all words
@@ -822,10 +750,12 @@ class Strings extends Utils
      */
     public static function xor(Stringable|string $first, Stringable|string $second): string
     {
+throw new UnderConstructionException();
         $first  = (string) $first;
         $second = (string) $second;
         $diff   = $first ^ $second;
         $return = '';
+
         for ($i = 0, $len = mb_strlen($diff); $i != $len; ++$i) {
             ($return[$i] === "\0") ? ' ' : '#';
         }
@@ -870,6 +800,7 @@ class Strings extends Utils
                 }
             }
         }
+
         unset($value);
 
         return $source;
@@ -882,25 +813,27 @@ class Strings extends Utils
      * @note: Taken from https://coderwall.com/p/3j2hxq/find-and-format-difference-between-two-strings-in-php. Cleaned
      *         up for use in base by Sven Oostenbrink*
      *
-     * @param string $first
-     * @param string $second
+     * @param Stringable|string $first
+     * @param Stringable|string $second
      *
-     * @return string
+     * @return array
      */
     public static function diff(Stringable|string $first, Stringable|string $second): array
     {
-        $first  = (string) $first;
-        $second = (string) $second;
+        $first      = (string) $first;
+        $second     = (string) $second;
+
         $from_start = strspn($first ^ $second, "\0");
         $from_end   = strspn(strrev($first) ^ strrev($second), "\0");
-        $old_end = strlen($first) - $from_end;
-        $new_end = strlen($second) - $from_end;
-        $start = substr($second, 0, $from_start);
-        $end   = substr($second, $new_end);
-        $new_diff = substr($second, $from_start, $new_end - $from_start);
-        $old_diff = substr($first, $from_start, $old_end - $from_start);
-        $second = $start . '<ins style="background-color:#ccffcc">' . $new_diff . '</ins>' . $end;
-        $first  = $start . '<del style="background-color:#ffcccc">' . $old_diff . '</del>' . $end;
+        $old_end    = strlen($first) - $from_end;
+        $new_end    = strlen($second) - $from_end;
+        $start      = substr($second, 0, $from_start);
+        $end        = substr($second, $new_end);
+        $new_diff   = substr($second, $from_start, $new_end - $from_start);
+        $old_diff   = substr($first, $from_start, $old_end - $from_start);
+
+        $second     = $start . '<ins style="background-color:#ccffcc">' . $new_diff . '</ins>' . $end;
+        $first      = $start . '<del style="background-color:#ffcccc">' . $old_diff . '</del>' . $end;
 
         return [
             'old' => $first,
@@ -938,8 +871,10 @@ class Strings extends Utils
     public static function underscoreToCamelcase(Stringable|string $source, bool $first_uppercase = false): string
     {
         $source = (string) $source;
+
         while (($pos = strpos($source, '_')) !== false) {
             $character = $source[$pos + 1];
+
             if (!$pos) {
                 // This is the first character
                 if ($first_uppercase) {
@@ -952,6 +887,7 @@ class Strings extends Utils
             } else {
                 $character = strtoupper($character);
             }
+
             $source = substr($source, 0, $pos) . $character . substr($source, $pos + 2);
         }
 
@@ -983,11 +919,13 @@ class Strings extends Utils
      */
     public static function trimHtml(Stringable|string $source): string
     {
+throw new UnderConstructionException();
         $source = (string) $source;
+
         if (!$source) {
             return '';
         }
-        throw new UnderConstructionException();
+
         load_libs('simple-dom');
         $source        = str_get_html($source);
         $element_types = [
@@ -1001,13 +939,16 @@ class Strings extends Utils
             'p',
             'span',
         ];
+
         foreach ($element_types as $element_type) {
             $elements = $source->find($element_type);
+
             foreach ($elements as $element) {
                 $plaintext = trim($element->plaintext);
                 $plaintext = trim($plaintext, '<br>');
                 $plaintext = trim($plaintext, '<br/>');
                 $plaintext = trim($plaintext, '<br />');
+
                 if ($plaintext == '') {
                     // Remove an element, set it's outertext as an empty string
                     $element->outertext = '';
@@ -1073,9 +1014,11 @@ class Strings extends Utils
         if (!$needle or !$source) {
             return (string) $source;
         }
+
         $pos    = $offset ?? -1;
         $needle = (string) $needle;
         $source = (string) $source;
+
         for ($count = 1; $count <= $instance; $count++) {
             $pos = mb_strpos($source, $needle, $pos + 1);
             if ($pos === false) {
@@ -1083,6 +1026,7 @@ class Strings extends Utils
                 break;
             }
         }
+
         if ($pos === false) {
             if ($needle_required) {
                 return '';
@@ -1112,9 +1056,11 @@ class Strings extends Utils
         if (!$needle or !$source) {
             return (string) $source;
         }
+
         $pos    = $offset ?? -1;
         $needle = (string) $needle;
         $source = (string) $source;
+
         for ($count = 1; $count <= $instance; $count++) {
             $pos = mb_strpos($source, $needle, $pos + 1);
             if ($pos === false) {
@@ -1122,6 +1068,7 @@ class Strings extends Utils
                 break;
             }
         }
+
         if ($pos === false) {
             if ($needle_required) {
                 return '';
@@ -1173,11 +1120,14 @@ class Strings extends Utils
         if (!$needle) {
             return $source;
         }
+
         if ($count < 1) {
             throw new OutOfBoundsException(tr('Invalid count ":count" specified', [':count' => $count]));
         }
+
         $needle = (string) $needle;
         $source = (string) $source;
+
         for ($i = 0; $i < $count; $i++) {
             $source = Strings::from($source, $needle, needle_required: $required);
         }
@@ -1202,16 +1152,20 @@ class Strings extends Utils
         if (!$needle) {
             return $source;
         }
+
         if ($count < 1) {
             throw new OutOfBoundsException(tr('Invalid count ":count" specified', [':count' => $count]));
         }
+
         $needle = (string) $needle;
         $source = (string) $source;
         $result = [];
+
         for ($i = 0; $i <= $count; $i++) {
             $result[] = Strings::fromReverse($source, $needle, more: $more);
             $source   = Strings::untilReverse($source, $needle, more: $more);
         }
+
         $result = array_reverse($result);
 
         return implode($needle, $result);
@@ -1235,10 +1189,12 @@ class Strings extends Utils
         if (!$needle or !$source) {
             return (string) $source;
         }
+
         $len    = mb_strlen($source);
         $pos    = $offset ?? $len;
         $needle = (string) $needle;
         $source = (string) $source;
+
         for ($count = 1; $count <= $instance; $count++) {
             $pos = mb_strrpos($source, $needle, -($len - ($pos - 1)));
             if ($pos === false) {
@@ -1246,6 +1202,7 @@ class Strings extends Utils
                 break;
             }
         }
+
         if ($pos === false) {
             if ($needle_required) {
                 return '';
@@ -1275,10 +1232,12 @@ class Strings extends Utils
         if (!$needle or !$source) {
             return (string) $source;
         }
+
         $len    = mb_strlen($source);
         $pos    = $offset ?? $len;
         $needle = (string) $needle;
         $source = (string) $source;
+
         for ($count = 1; $count <= $instance; $count++) {
             $pos = mb_strrpos($source, $needle, -($len - ($pos - 1)));
             if ($pos === false) {
@@ -1286,6 +1245,7 @@ class Strings extends Utils
                 break;
             }
         }
+
         if ($pos === false) {
             if ($needle_required) {
                 return '';
@@ -1310,9 +1270,11 @@ class Strings extends Utils
     {
         $source = (string) $source;
         $string = (string) $string;
+
         if (!$string) {
             throw new OutOfBoundsException(tr('Cannot ensure source starts with string, empty string specified'));
         }
+
         if (mb_substr($source, 0, mb_strlen($string)) == $string) {
             return $source;
         }
@@ -1333,9 +1295,11 @@ class Strings extends Utils
     {
         $source = (string) $source;
         $string = (string) $string;
+
         if (!$string) {
             throw new OutOfBoundsException(tr('Cannot ensure source starts not with string, empty string specified'));
         }
+
         while (mb_substr($source, 0, mb_strlen($string)) == $string) {
             $source = mb_substr($source, mb_strlen($string));
         }
@@ -1413,14 +1377,18 @@ class Strings extends Utils
         if (is_array($strings)) {
             // For array test, we always loop
             $redo = true;
+
             while ($redo) {
                 $redo = false;
+
                 foreach ($strings as $string) {
                     $strings = (string) $strings;
                     $new     = Strings::ensureEndsNotWith($source, $string, true);
+
                     if (!$string) {
                         throw new OutOfBoundsException(tr('Cannot ensure source not ends with string, empty string specified'));
                     }
+
                     if ($new != $source) {
                         // A change was made, we have to rerun over it.
                         $redo = true;
@@ -1433,6 +1401,7 @@ class Strings extends Utils
             // Check for only one character
             $strings = (string) $strings;
             $length  = mb_strlen($strings);
+
             while (mb_substr($source, -$length, $length) == $strings) {
                 $source = mb_substr($source, 0, -$length);
                 if (!$loop) {
@@ -1492,12 +1461,14 @@ class Strings extends Utils
             if (is_numeric($source)) {
                 return '0';
             }
+
             if (is_bool($source)) {
                 return 'false';
             }
 
             return '';
         }
+
         if (is_scalar($source)) {
             if (is_bool($source)) {
                 return 'true';
@@ -1508,6 +1479,7 @@ class Strings extends Utils
                 'password',
                 'ssh_key',
             ]);
+
             $source = 'array: ' . trim(Json::encode($source));
 
         } elseif (is_enum($source)) {
@@ -1522,6 +1494,7 @@ class Strings extends Utils
 
         } elseif (is_object($source)) {
             $source = 'object: ' . get_class($source);
+
         } else {
             $source = trim(Json::encode($source));
         }
@@ -1544,6 +1517,7 @@ class Strings extends Utils
     public static function hide(Stringable|string|null $source, Stringable|string $hide = '*** HIDDEN ***', Stringable|string|null $empty = '*** HIDDEN ***'): string
     {
         $source = (string) $source;
+
         if ($source) {
             // Hide the string with this value
             return (string) $hide;
@@ -1557,10 +1531,10 @@ class Strings extends Utils
     /**
      * Remove double "replace" chars
      *
-     * @param Stringable|string|null                               $source
-     * @param Stringable|string|null                               $replace
-     * @param ArrayableInterface|array|\Stringable|string|int|null $characters
-     * @param bool                                                 $case_insensitive
+     * @param Stringable|string|null                              $source
+     * @param Stringable|string|null                              $replace
+     * @param ArrayableInterface|array|Stringable|string|int|null $characters
+     * @param bool                                                $case_insensitive
      *
      * @return string
      */
@@ -1624,21 +1598,26 @@ class Strings extends Utils
     {
         $source = (string) $source;
         $fill   = (string) $fill;
+
         if (!$length) {
             return $source;
         }
+
         if ($length < (mb_strlen($fill) + 1)) {
             throw new OutOfBoundsException(tr('Specified length ":length" is invalid. You must specify a length of minimal $fill length + 1, so at least ":fill"', [
                 ':length' => $length,
                 ':fill'   => mb_strlen($fill) + 1,
             ]), [':length' => $length]);
         }
+
         if ($length >= mb_strlen($source)) {
             // No need to truncate, the string is short enough
             return $source;
         }
+
         // Correct length
         $length -= mb_strlen($fill);
+
         switch ($method) {
             case 'right':
                 $return = mb_substr($source, 0, $length);
@@ -1651,6 +1630,7 @@ class Strings extends Utils
                 return trim($return) . $fill;
             case 'center':
                 return mb_substr($source, 0, (int) floor($length / 2)) . $fill . mb_substr($source, (int) -ceil($length / 2));
+
             case 'left':
                 $return = mb_substr($source, -$length, $length);
                 if ($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
@@ -1660,6 +1640,7 @@ class Strings extends Utils
                 }
 
                 return $fill . trim($return);
+
             default:
                 throw new OutOfBoundsException(tr('Unknown method ":method" specified, please use "left", "center", or "right" or undefined which will default to "right"', [
                     ':method' => $method,
@@ -1697,6 +1678,7 @@ class Strings extends Utils
     public static function escape(Stringable|string|null $source, string $escape = '"'): string
     {
         $source = (string) $source;
+
         // Escape all individual characters
         for ($i = (mb_strlen($escape) - 1); $i >= 0; $i--) {
             $source = str_replace($escape[$i], '\\' . $escape[$i], $source);
@@ -1768,6 +1750,7 @@ class Strings extends Utils
                 // no break
             case '1':
                 return true;
+
             case 'off':
                 // no break
             case 'no':
@@ -1778,6 +1761,7 @@ class Strings extends Utils
                 // no break
             case '0':
                 return false;
+
             default:
                 if ($exception) {
                     throw new OutOfBoundsException(tr('Unknown value ":value" specified', [':value' => $source]));
@@ -1816,14 +1800,17 @@ class Strings extends Utils
     public static function randomWord(int $count = 1, bool $nospaces = false): string
     {
         throw new UnderConstructionException();
+
         if ($nospaces) {
             if (!is_string($nospaces)) {
                 $nospaces = '';
             }
         }
+
         if (!$data = sql()->list('SELECT `word` FROM `synonyms` ORDER BY RAND() LIMIT ' . cfi($count))) {
             throw new CoreException(tr('Synonyms table is empty. Please run DIRECTORY_ROOT/cli system strings init'));
         }
+
         if ($count == 1) {
             if ($nospaces !== false) {
                 return str_replace(' ', $nospaces, array_pop($data));
@@ -1831,10 +1818,12 @@ class Strings extends Utils
 
             return array_pop($data);
         }
+
         if ($nospaces) {
             foreach ($data as $key => &$value) {
                 $value = str_replace(' ', $nospaces, $value);
             }
+
             unset($value);
         }
 
@@ -1854,6 +1843,7 @@ class Strings extends Utils
     public static function fromOctal(Stringable|string|int $source): string
     {
         $source = (string) $source;
+
         if (is_numeric($source)) {
             return sprintf('0%o', $source);
         }
@@ -1877,10 +1867,13 @@ class Strings extends Utils
         switch ($count) {
             case 1:
                 return tr('1st');
-            case 3:
+
+            case 2:
                 return tr('2nd');
+
             case 3:
                 return tr('3rd');
+
             default:
                 return tr(':count th', [':count' => $count]);
         }
@@ -1899,11 +1892,13 @@ class Strings extends Utils
         $return = [];
         $source = (string) $source;
         $length = strlen($source);
+
         for ($i = 0; $i < $length; $i++) {
             if (empty($return[$source[$i]])) {
                 $return[$source[$i]] = substr_count($source, $source[$i]);
             }
         }
+
         sort($return);
 
         return $return;
@@ -1925,11 +1920,14 @@ class Strings extends Utils
         $source = preg_replace('/[\W]/', '', $source);
         $source = strtolower($source);
         $length = strlen($source);
+
         for ($i = 0; $i < $length; $i++) {
             $ord = ord($source[$i]);
+
             if (($ord === ($prev - 1)) or ($ord === ($prev + 1))) {
                 $return++;
             }
+
             $prev = $ord;
         }
 
@@ -1955,8 +1953,10 @@ class Strings extends Utils
                         ->setTitle(tr('Failed to generate 16 random bytes required for the UUID, attempting Strings::random() instead'))
                         ->setException($e)
                         ->send(true);
+
             $data = static::getRandom(16);
         }
+
         // Set version to 0100, set bits 6-7 to 10
         $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
@@ -1971,71 +1971,99 @@ class Strings extends Utils
      *
      * @param int               $length
      * @param bool              $unique
-     * @param Stringable|string $characters
+     * @param Stringable|string $source
      *
      * @return string
      * @throws OutOfBoundsException
      */
-    public static function getRandom(int $length = 8, bool $unique = false, Stringable|string $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
+    public static function getRandom(int $length = 8, bool $unique = false, Stringable|string $source = 'alphanumeric'): string
     {
-        $characters = (string) $characters;
+        $source = (string) $source;
+
         // Predefined character sets
-        switch ($characters) {
+        switch ($source) {
             case 'alnum':
                 // no break
             case 'alphanumeric':
-                $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                $source = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
                 break;
+
             case 'alnumup':
                 // no break
             case 'alphanumericup':
-                $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                $source = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                 break;
+
             case 'alnumdown':
                 // no break
             case 'alphanumericdown':
-                $characters = '0123456789abcdefghijklmnopqrstuvwxyz';
+                $source = '0123456789abcdefghijklmnopqrstuvwxyz';
                 break;
+
             case 'alpha':
                 // no break
             case 'letters':
-                $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                $source = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
                 break;
+
             case 'lowercase':
                 // no break
             case 'alphalow':
                 // no break
             case 'letterslow':
-                $characters = 'abcdefghijklmnopqrstuvwxyz';
+                $source = 'abcdefghijklmnopqrstuvwxyz';
                 break;
+
             case 'uppercase':
                 // no break
             case 'alphaup':
                 // no break
             case 'lettersup':
-                $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                $source = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                 break;
+
             case 'numeric':
                 // no break
             case 'numbers':
-                $characters = '0123456789';
+                $source = '0123456789';
                 break;
+
+            case 'binary':
+                $source = '';
+
+                for ($i = 1; $i < 256; $i++) {
+                    $source .= chr($i);
+                }
+
+                break;
+
+            case 'binary_with_null':
+                $source = '';
+
+                for ($i = 0; $i < 256; $i++) {
+                    $source .= chr($i);
+                }
         }
+
         $string      = '';
-        $char_length = mb_strlen($characters);
+        $char_length = mb_strlen($source);
+
         if ($unique and ($length > $char_length)) {
             throw new OutOfBoundsException(tr('Can not create unique character random string with size ":length". When $unique is requested, the string length can not be larger than ":char_length" because there are no more then that number of unique characters', [
                 'length'      => $length,
                 'char_length' => $char_length,
             ]));
         }
+
         for ($i = 0; $i < $length; $i++) {
-            $char = $characters[Numbers::getRandomInt(0, $char_length - 1)];
+            $char = $source[Numbers::getRandomInt(0, $char_length - 1)];
+
             if ($unique and (mb_strpos($string, $char) !== false)) {
                 // We want all characters to be unique, do not read this character again
                 $i--;
                 continue;
             }
+
             $string .= $char;
         }
 
@@ -2073,28 +2101,34 @@ class Strings extends Utils
         if (!$source) {
             return '';
         }
+
         if (is_scalar($source)) {
             return (string) $source;
         }
+
         if (is_object($source)) {
             $source = (array) $source;
         }
+
         if (!is_array($source)) {
             // Is it a resource? What else is there left?
             throw new OutOfBoundsException(tr('Specified source has unknown datatype ":type"', [
                 ':type' => gettype($source),
             ]));
         }
+
         $return  = '';
         $longest = Arrays::getLongestKeyLength($source) + 1;
+
         // format and write the lines
         foreach ($source as $key => $value) {
             if (!is_string($value)) {
                 // Recurse
                 $value = static::getKeyValueTable($value, $eol, $separator, $indent + $indent_increase, $indent_increase);
             }
+
             // Resize the call lines to all have the same size for easier reading
-            $key    = Strings::size((string) $key, $longest);
+            $key     = Strings::size((string) $key, $longest);
             $return .= str_repeat(' ', $indent) . trim($key . $separator . $value) . $eol;
         }
 
@@ -2107,33 +2141,44 @@ class Strings extends Utils
      *
      * @param Stringable|string|float|int|null $source
      * @param int                              $size
-     * @param string                           $add
+     * @param string                           $fill_string
      * @param bool                             $prefix
      *
      * @return string
      */
-    public static function size(Stringable|string|float|int|null $source, int $size, string $add = ' ', bool $prefix = false): string
+    public static function size(Stringable|string|float|int|null $source, int $size, string $fill_string = ' ', bool $prefix = false): string
     {
         if ($size < 0) {
             throw new OutOfBoundsException(tr('Specified size ":size" is invalid, it must be 0 or higher', [
                 ':size' => $size,
             ]));
         }
+
         $source = (string) $source;
         $strlen = mb_strlen(CliColor::strip($source));
+
         if ($strlen == $size) {
             return $source;
         }
+
         if ($strlen > $size) {
             // The specified size is smaller than the source string, cut it
             return substr($source, 0, $size);
         }
-        // The specified size is larger than the source string, enlarge it
+
+        // The specified size is larger than the source string, enlarge it. First calculate the amount of filler blocks
+        // and the fraction block
+        $fill_size   = $size - $strlen;
+        $block_size  = strlen($fill_string);
+        $blocks      = floor($fill_size / $block_size);
+        $extra       = $fill_size - ($block_size * $blocks);
+        $fill_string = str_repeat($fill_string, (int) $blocks) . substr($fill_string, 0, (int) $extra);
+
         if ($prefix) {
-            return str_repeat($add, $size - $strlen) . $source;
+            return $fill_string . $source;
         }
 
-        return $source . str_repeat($add, $size - $strlen);
+        return $source . $fill_string;
     }
 
 
@@ -2142,6 +2187,7 @@ class Strings extends Utils
      *
      * @param string $string
      * @param string $delimiters
+     * @param string $skip_symbols
      *
      * @return string
      */
@@ -2196,6 +2242,7 @@ class Strings extends Utils
                 ':source' => $source,
             ]));
         }
+
         if ((str_contains($source, '-')) or (str_contains($source, '_'))) {
             return false;
         }
@@ -2218,9 +2265,11 @@ class Strings extends Utils
         $sizes    = Arrays::force($sizes, null);
         $return   = [];
         $position = 0;
+
         if (!$source) {
             return [];
         }
+
         foreach ($sizes as $column => $size) {
             $return[$column] = substr($source, $position, $size);
             $position        += $size;
@@ -2245,11 +2294,12 @@ class Strings extends Utils
                 if (!$source) {
                     return '';
                 }
+
                 if (is_object($source)) {
                     if ($source instanceof Stringable) {
                         return (string) $source;
-
                     }
+
                     if (method_exists($source, '__serialize')) {
                         return $source->__serialize();
                     }
@@ -2259,6 +2309,7 @@ class Strings extends Utils
 
                 return gettype($source);
             }
+
             // Encoding?
             if ($separator === 'json') {
                 $source = Json::encode($source);
@@ -2287,9 +2338,11 @@ class Strings extends Utils
         $source = Strings::replaceDouble($source, ' ', ' ');
         $source = explode($character, $source);
         $return = [];
+
         if (!$source) {
             return [];
         }
+
         foreach ($source as $position => $value) {
             $return[$headers[$position]] = $value;
         }
@@ -2401,9 +2454,9 @@ class Strings extends Utils
     /**
      * Returns true if the given haystack matches the given needles with the specified match flags
      *
-     * @param Stringable|string                   $haystack
-     * @param DataListInterface|array|string|null $needles
-     * @param int                                 $flags Flags that will modify this functions behavior.
+     * @param Stringable|string                       $haystack
+     * @param DataIteratorInterface|array|string|null $needles
+     * @param int                                     $flags Flags that will modify this functions behavior.
      *
      * Supported match flags are:
      *
@@ -2438,7 +2491,7 @@ class Strings extends Utils
      *
      * @return bool
      */
-    public static function matches(Stringable|string $haystack, DataListInterface|array|string|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): bool
+    public static function matches(Stringable|string $haystack, DataIteratorInterface|array|string|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): bool
     {
         return (bool) static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, $flags);
     }

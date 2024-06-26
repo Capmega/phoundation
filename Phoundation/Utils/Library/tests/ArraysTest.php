@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Core;
+namespace tests;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;

@@ -14,9 +14,9 @@ use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\Project\Configuration;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigFailedException;
 use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
@@ -285,7 +285,11 @@ class Config implements ConfigInterface
      */
     public static function get(string|array $path = '', mixed $default = null, mixed $specified = null): mixed
     {
-        if (!static::$environment) {
+        if (!$path) {
+            throw new OutOfBoundsException(tr('Cannot return configuration data, no path specified'));
+        }
+
+        if (empty(static::$environment)) {
             // We don't really have an environment, don't check configuration
             // NOTE: DO NOT USE TR() HERE AS THE FUNCTIONS FILE MAY NOT YET BE LOADED
             throw new ConfigException('Cannot access configuration, environment has not been determined yet');
@@ -667,8 +671,9 @@ class Config implements ConfigInterface
     {
         $count = 0;
         $store = [];
+
         // Scan all files for Config::get() and Config::set() calls
-        Directory::new(DIRECTORY_ROOT, DIRECTORY_ROOT)
+        FsDirectory::new(DIRECTORY_ROOT, FsRestrictions::getWritable(DIRECTORY_ROOT, 'Config::generateDefaultYaml()'))
                  ->execute()
                  ->addSkipDirectories([
                      DIRECTORY_DATA,
@@ -676,13 +681,14 @@ class Config implements ConfigInterface
                      DIRECTORY_ROOT . 'garbage',
                  ])
                  ->setRecurse(true)
-                 ->setRestrictions(new Restrictions(DIRECTORY_ROOT))
+                 ->setRestrictions(new FsRestrictions(DIRECTORY_ROOT))
                  ->onFiles(function (string $file) use (&$store) {
-                     $files = File::new($file, DIRECTORY_ROOT)
-                                  ->grep([
+                     $files = FsFile::new($file, FsRestrictions::getReadonly(DIRECTORY_ROOT, 'Config::generateDefaultYaml()'))
+                                    ->grep([
                                       'Config::get(\'',
                                       'Config::set(\'',
                                   ]);
+
                      foreach ($files as $file) {
                          foreach ($file as $lines) {
                              foreach ($lines as $line) {
@@ -696,16 +702,12 @@ class Config implements ConfigInterface
                                          continue;
                                      }
                                  }
+
                                  // Pass over all matches
                                  foreach ($matches[0] as $match => $value) {
-                                     $path    = str_replace([
-                                         '"',
-                                         "'",
-                                     ], '', trim($matches[1][$match]));
-                                     $default = str_replace([
-                                         '"',
-                                         "'",
-                                     ], '', trim($matches[2][$match]));
+                                     $path    = str_replace(['"', "'"], '', trim($matches[1][$match]));
+                                     $default = str_replace(['"', "'"], '', trim($matches[2][$match]));
+
                                      // Log all Config::get() and Config::set() calls that have the same configuration path but different
                                      // default values
                                      if (array_key_exists($path, $store)) {
@@ -717,6 +719,7 @@ class Config implements ConfigInterface
                                              ]));
                                          }
                                      }
+
                                      // Store the configuration path
                                      $store[$path] = $default;
                                  }
@@ -724,49 +727,61 @@ class Config implements ConfigInterface
                          }
                      }
                  });
-        // Convert all entries ending in . to array values (these typically have variable subkeys following)
+
+        // Convert all entries ending in "." to array values (these typically have variable sub-keys following)
         foreach ($store as $path => $default) {
             if (str_ends_with($path, '.')) {
                 $store[substr($path, 0, -1)] = [];
                 unset($store[$path]);
             }
         }
+
         // Fix all entries that have variables or weird values
         foreach ($store as $path => $default) {
             if (!is_scalar($default)) {
                 continue;
             }
+
             if (str_starts_with($default, '$')) {
                 $store[$path] = null;
             }
+
             if (str_contains($default, '::')) {
                 $store[$path] = null;
             }
+
             if (str_contains($default, ',')) {
                 $store[$path] = Strings::from($store[$path], ',');
                 $store[$path] = trim($store[$path]);
             }
         }
+
         // Sort so that we have a nice alphabetically ordered list
         asort($store);
+
         // Great, we have all used configuration paths and their default values! Now construct the config/default.yaml
         // file
         $data = [];
+
         // Convert the store to an array map
         foreach ($store as $path => $default) {
             $path    = explode('.', $path);
             $section = &$data;
             $count++;
+
             foreach ($path as $key) {
                 if (!array_key_exists($key, $section)) {
                     // Initialize with subarray and jump in
                     $section[$key] = [];
                 }
+
                 $section = &$section[$key];
             }
+
             $section = $default;
             unset($section);
         }
+
         // Save and return count
         static::save();
 
@@ -787,11 +802,13 @@ class Config implements ConfigInterface
             // Save the data from this Config object
             $data = static::$data;
         }
+
         // Convert the data into yaml and store the data in the default file
         $data = yaml_emit($data);
         $data = Strings::from($data, "\n");
         $data = Strings::untilReverse($data, "\n");
         $data = Strings::untilReverse($data, "\n") . "\n";
+
         Log::action(tr('Saving environment ":env"', [':env' => static::$environment]));
         file_put_contents(DIRECTORY_ROOT . 'config/' . static::$environment . '.yaml', $data);
     }
@@ -943,7 +960,7 @@ class Config implements ConfigInterface
             // Read the section for each environment
             foreach ($environments as $environment) {
                 $file = DIRECTORY_ROOT . 'config/' . self::$section . $environment . '.yaml';
-                Restrictions::new(DIRECTORY_ROOT . 'config/')
+                FsRestrictions::new(DIRECTORY_ROOT . 'config/')
                             ->check($file, false);
                 // Check if a configuration file exists for this environment
                 if (!file_exists($file)) {

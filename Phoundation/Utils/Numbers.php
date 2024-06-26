@@ -51,6 +51,23 @@ class Numbers
 
 
     /**
+     * Returns human readable AND precise bytes
+     *
+     * @param string|float|int $amount
+     * @param string           $unit
+     * @param int              $precision
+     * @param bool             $add_suffix
+     *
+     * @return string
+     * @throws OutOfBoundsException
+     */
+    public static function getHumanReadableAndPreciseBytes(string|float|int $amount, string $unit = 'AUTO', int $precision = 2, bool $add_suffix = true): string
+    {
+        return static::getHumanReadableBytes($amount, $unit, $precision, $add_suffix) . ' / ' . $amount . ' bytes';
+    }
+
+
+    /**
      * Convert specified amount explicitly to specified multiplier
      *
      * @param string|float|int $amount
@@ -61,16 +78,16 @@ class Numbers
      * @return string
      * @throws OutOfBoundsException
      */
-    public static function getHumanReadableBytes(string|float|int $amount, string $unit = 'AUTO', int $precision = 2, bool $add_suffix = true): string
+    public static function getHumanReadableBytes(string|float|int $amount, string $unit = 'auto', int $precision = 2, bool $add_suffix = true): string
     {
         // We can only have an integer number of bytes
         $amount = Numbers::fromBytes($amount);
 
         if ($unit === 'auto') {
             // Auto determine what unit to use in 10^N bytes
-            if ($amount > 1000000) {
-                if ($amount > (1000000 * 1000)) {
-                    if ($amount > (1000000 * 1000000)) {
+            if ($amount > 1_000_000) {
+                if ($amount > (1_000_000 * 1_000)) {
+                    if ($amount > (1_000_000 * 1_000_000)) {
                         $unit = 'tib';
 
                     } else {
@@ -81,7 +98,7 @@ class Numbers
                     $unit = 'mib';
                 }
 
-            } elseif ($amount < 1000) {
+            } elseif ($amount < 1_000) {
                 if (!$amount) {
                     return '0b';
                 }
@@ -95,9 +112,9 @@ class Numbers
 
         } elseif ($unit === 'AUTO') {
             // Auto determine what unit to use in 2^N bytes
-            if ($amount > 1048576) {
-                if ($amount > (1048576 * 1024)) {
-                    if ($amount > (1048576 * 1048576)) {
+            if ($amount > 1_048_576) {
+                if ($amount > (1_048_576 * 1_024)) {
+                    if ($amount > (1_048_576 * 1_048_576)) {
                         $unit = 'tb';
 
                     } else {
@@ -108,7 +125,7 @@ class Numbers
                     $unit = 'mb';
                 }
 
-            } elseif ($amount < 1000) {
+            } elseif ($amount < 1_000) {
                 if (!$amount) {
                     return '0b';
                 }
@@ -130,42 +147,42 @@ class Numbers
 
             case 'kb':
                 // Kilobytes
-                $amount = $amount / 1000;
+                $amount = $amount / 1_000;
                 break;
 
             case 'kib':
                 // Kibibytes
-                $amount = $amount / 1024;
+                $amount = $amount / 1_024;
                 break;
 
             case 'mb':
                 // Megabytes
-                $amount = $amount / 1000000;
+                $amount = $amount / 1_000_000;
                 break;
 
             case 'mib':
                 // Mibibytes
-                $amount = $amount / 1048576;
+                $amount = $amount / 1_048_576;
                 break;
 
             case 'gb':
                 // Gigabytes
-                $amount = $amount / 1000000 / 1000;
+                $amount = $amount / 1_000_000 / 1_000;
                 break;
 
             case 'gib':
                 // Gibibytes
-                $amount = $amount / 1048576 / 1024;
+                $amount = $amount / 1_048_576 / 1_024;
                 break;
 
             case 'tb':
                 // Terabytes
-                $amount = $amount / 1000000 / 1000000;
+                $amount = $amount / 1_000_000 / 1_000_000;
                 break;
 
             case 'tib':
                 // Tibibytes
-                $amount = $amount / 1048576 / 1048576;
+                $amount = $amount / 1_048_576 / 1_048_576;
                 break;
 
             default:
@@ -201,18 +218,19 @@ class Numbers
     /**
      * Reads a byte string like "4MB" and returns the number of bytes
      *
-     * @param string|float|int $amount
+     * @param string|float|int $bytes
      *
      * @return int
      * @throws OutOfBoundsException
      */
-    public static function fromBytes(string|float|int $amount): int
+    public static function fromBytes(string|float|int $bytes): int
     {
-        if (!$amount) {
-            $amount = 0;
-        }
+        if (!$bytes) {
+            $amount = '0';
 
-        $amount = str_replace(',', '', (string) $amount);
+        } else {
+            $amount = str_replace(',', '', (string) $bytes);
+        }
 
         if (!is_numeric($amount)) {
             // Calculate back to bytes
@@ -224,14 +242,14 @@ class Numbers
 
             $amount = match (strtolower($matches[2])) {
                 'b'        => (float) $matches[1],
-                'kb'       => (float) $matches[1] * 1000,
-                'k', 'kib' => (float) $matches[1] * 1024,
-                'mb'       => (float) $matches[1] * 1000000,
-                'm', 'mib' => (float) $matches[1] * 1048576,
-                'gb'       => (float) $matches[1] * 1000000 * 1000,
-                'g', 'gib' => (float) $matches[1] * 1048576 * 1024,
-                'tb'       => (float) $matches[1] * 1000000 * 1000000,
-                't', 'tib' => (float) $matches[1] * 1048576 * 1048576,
+                'kb'       => (float) $matches[1] * 1_000,
+                'k', 'kib' => (float) $matches[1] * 1_024,
+                'mb'       => (float) $matches[1] * 1_000_000,
+                'm', 'mib' => (float) $matches[1] * 1_048_576,
+                'gb'       => (float) $matches[1] * 1_000_000 * 1_000,
+                'g', 'gib' => (float) $matches[1] * 1_048_576 * 1_024,
+                'tb'       => (float) $matches[1] * 1_000_000 * 1_000_000,
+                't', 'tib' => (float) $matches[1] * 1_048_576 * 1_048_576,
                 default    => throw new OutOfBoundsException(tr('Specified suffix ":suffix" on amount ":amount" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc', [
                     ':suffix' => strtolower($matches[2]),
                     ':amount' => $amount,
@@ -240,8 +258,15 @@ class Numbers
         }
 
         // We can only have an integer number of bytes
-        // We can only have an integer number of bytes
-        return (int) ceil((float) $amount);
+        $amount = (int) ceil((float) $amount);
+
+        if ($amount < 0) {
+            throw new OutOfBoundsException(tr('Specified amount of bytes ":bytes" is negative, must be positive', [
+                ':bytes' => $bytes
+            ]));
+        }
+
+        return $amount;
     }
 
 

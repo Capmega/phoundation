@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Utils;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 
 /**
@@ -214,12 +214,12 @@ class Utils
     /**
      * Checks specified needles that they have content and will ensure they are specified as an array
      *
-     * @param DataListInterface|array|string|null $needles
-     * @param array                               $flags
+     * @param DataIteratorInterface|array|string|null $needles
+     * @param array                                   $flags
      *
      * @return array
      */
-    protected static function prepareNeedles(DataListInterface|array|string|null $needles, array $flags): array
+    protected static function prepareNeedles(DataIteratorInterface|array|string|null $needles, array $flags): array
     {
         if (!$needles) {
             throw new OutOfBoundsException(tr('No needles specified'));
@@ -245,23 +245,23 @@ class Utils
     /**
      * Process the given array and matches the specified needles with the source key and return the requested result
      *
-     * @param int                                 $action
-     * @param DataListInterface|array             $source
-     * @param DataListInterface|array|string|null $needles
-     * @param int                                 $flags
+     * @param int                                     $action
+     * @param DataIteratorInterface|array             $source
+     * @param DataIteratorInterface|array|string|null $needles
+     * @param int                                     $flags
      *
      * @return array
      */
-    protected static function matchKeys(int $action, DataListInterface|array $source, DataListInterface|array|string|null $needles, int $flags): array
+    protected static function matchKeys(int $action, DataIteratorInterface|array $source, DataIteratorInterface|array|string|null $needles, int $flags): array
     {
         $flags   = static::decodeMatchFlags($flags, true);
         $needles = static::prepareNeedles($needles, $flags);
 
-        if ($source instanceof DataListInterface) {
+        if ($source instanceof DataIteratorInterface) {
             $source = $source->getSource();
         }
 
-        // Execute matching
+        // ExecuteExecuteInterface matching
         switch ($flags['match_mode']) {
             case 'full':
                 return static::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
@@ -298,24 +298,24 @@ class Utils
     /**
      * Process the given array and matches the specified needles with the source values and return the requested result
      *
-     * @param int                                 $action
-     * @param DataListInterface|array             $source
-     * @param DataListInterface|array|string|null $needles
-     * @param int                                 $flags
-     * @param string|null $column
+     * @param int                                     $action
+     * @param DataIteratorInterface|array             $source
+     * @param DataIteratorInterface|array|string|null $needles
+     * @param int                                     $flags
+     * @param string|null                             $column
      *
      * @return array
      */
-    protected static function matchValues(int $action, DataListInterface|array $source, DataListInterface|array|string|null $needles, int $flags, ?string $column = null): array
+    protected static function matchValues(int $action, DataIteratorInterface|array $source, DataIteratorInterface|array|string|null $needles, int $flags, ?string $column = null): array
     {
         $flags   = static::decodeMatchFlags($flags, true);
         $needles = static::prepareNeedles($needles, $flags);
 
-        if ($source instanceof DataListInterface) {
+        if ($source instanceof DataIteratorInterface) {
             $source = $source->getSource();
         }
 
-        // Execute matching
+        // ExecuteExecuteInterface matching
         switch ($flags['match_mode']) {
             case 'full':
                 return static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {

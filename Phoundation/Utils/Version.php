@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Utils\Traits\TraitVersion;
 
 /**
  * Class Version
  *
- * This class is a File class specifically for version files
+ * This class is a FsFileFileInterface class specifically for version files
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -29,9 +29,9 @@ class Version
     /**
      * The file containing the version
      *
-     * @var FileInterface $file
+     * @var FsFileInterface $file
      */
-    protected FileInterface $file;
+    protected FsFileInterface $file;
 
     /**
      * The version from the version file
@@ -44,12 +44,12 @@ class Version
     /**
      * Version class constructor
      *
-     * @param FileInterface|string       $file
-     * @param RestrictionsInterface|null $restrictions
+     * @param FsFileInterface|string       $file
+     * @param FsRestrictionsInterface|null $restrictions
      */
-    public function __construct(FileInterface|string $file, ?RestrictionsInterface $restrictions = null)
+    public function __construct(FsFileInterface|string $file, ?FsRestrictionsInterface $restrictions = null)
     {
-        $this->file    = new File($file, $restrictions);
+        $this->file    = new FsFile($file, $restrictions);
         $this->version = $this->file->getContentsAsString();
         $this->___construct($this->version);
     }
