@@ -11,7 +11,7 @@ use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
 
 
 /**
- * Script databases/connectors/test
+ * Command databases/connectors/test
  *
  * General database connector test script
  *

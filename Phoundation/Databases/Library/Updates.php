@@ -38,10 +38,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.20', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('databases_connectors')->drop();
+            sql()->getSchemaObject()->getTableObject('databases_connectors')->drop();
 
             // Create the database_mounts table.
-            sql()->schema()->table('databases_connectors')->define()
+            sql()->getSchemaObject()->getTableObject('databases_connectors')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -91,11 +91,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.24', function () {
-            sql()->schema()->table('databases_connectors')->alter()
+            sql()->getSchemaObject()->getTableObject('databases_connectors')->alter()
                  ->addColumn('`sync` tinyint DEFAULT 0 NOT NULL', 'AFTER `statistics`');
 
         })->addUpdate('0.0.25', function () {
-            sql()->schema()->table('databases_connectors')->alter()
+            sql()->getSchemaObject()->getTableObject('databases_connectors')->alter()
                  ->addColumn('`environment` varchar(32) NULL DEFAULT NULL', 'AFTER `seo_name`')
                  ->addIndex('KEY `environment` (`environment`)');
         });

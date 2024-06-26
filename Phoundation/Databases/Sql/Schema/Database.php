@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases\Sql\Schema;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Databases\Sql\Exception\SqlException;
-use Phoundation\Exception\UnderConstructionException;
-
 /**
  * class Database
  *
@@ -18,7 +10,23 @@ use Phoundation\Exception\UnderConstructionException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
-class Database extends SchemaAbstract
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases\Sql\Schema;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Databases\Export;
+use Phoundation\Databases\Import;
+use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Databases\Sql\Schema\Interfaces\DatabaseInterface;
+use Phoundation\Databases\Sql\Sql;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Web\Html\Components\P;
+
+class Database extends SchemaAbstract implements DatabaseInterface
 {
     /**
      * The columns for this database
@@ -59,6 +67,8 @@ class Database extends SchemaAbstract
      * This will effectively rename the database. Since MySQL does not support renaming operations, this requires
      * dumping the entire database and importing it under the new name and dropping the original. Depending on your
      * database size, this may take a while!
+     *
+     * @param string $name
      *
      * @return static
      */
@@ -177,14 +187,91 @@ class Database extends SchemaAbstract
     /**
      * Renames this database
      *
+     * @param string $database_name
+     * @return static
+     *
      * @see https://www.atlassian.com/data/admin/how-to-rename-a-database-in-mysql
-     * @return $this
      */
-    public function rename(): static
+    public function rename(string $database_name): static
     {
         $tables = $this->tables();
+        $target = Database::new($database_name, $this->sql, $this->parent);
 
-        //$ mysql -u dbUsername -p"dbPassword" oldDatabase -sNe 'show tables' | while read table; do mysql -u dbUsername -p"dbPassword" -sNe "RENAME TABLE oldDatabase.$table TO newDatabase.$table"; done
+        if ($target->exists()) {
+            // Target already exists
+            if (!FORCE) {
+                throw new OutOfBoundsException(tr('Cannot rename database ":from" to ":to", the target database ":database" already exists', [
+                    ':from'     => $this->getName(),
+                    ':to'       => $database_name,
+                    ':database' => $database_name,
+                ]));
+            }
+
+            $target->drop();
+        }
+
+        $target->create();
+
+        foreach ($tables as $table) {
+            sql()->query('RENAME TABLE `' . $this->getName() . '`.`' . $table . '` 
+                                TO           `' . $database_name . '`.`' . $table . '`');
+        }
+
+        // Drop the current database
+        $this->drop();
+
+        // Return link to the new target
+        return $target;
+    }
+
+
+    /**
+     * Will copy the current database to the new name
+     *
+     * Database will be copied by making a complete dump of the current database, which is then imported into the new
+     * database
+     *
+     * @param string $database_name
+     * @param int $timeout
+     *
+     * @return static
+     */
+    public function copy(string $database_name, int $timeout = 3600): static
+    {
+        // Export current database
+        $file   = FsFile::getTemporary();
+        $target = Database::new($database_name, $this->sql, $this->parent);
+
+        if ($target->exists()) {
+            // Target already exists
+            if (!FORCE) {
+                throw new OutOfBoundsException(tr('Cannot copy database ":from" to ":to", the target database ":database" already exists', [
+                    ':from'     => $this->getName(),
+                    ':to'       => $database_name,
+                    ':database' => $database_name,
+                ]));
+            }
+
+            $target->drop();
+        }
+
+        $target->create();
+
+        // Export the current database
+        Export::new()
+              ->setConnector($this->sql->getConnector())
+              ->setDatabase($this->getName())
+              ->setTimeout($timeout)
+              ->dump($file);
+
+        // Import dump into new database
+        Import::new()
+              ->setConnector($this->sql->getConnector())
+              ->setDatabase($database_name)
+              ->setFile($file)
+              ->setTimeout($timeout)
+              ->import();
+
         return $this;
     }
 }

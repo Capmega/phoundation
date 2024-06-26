@@ -42,7 +42,7 @@ $connector = Connector::new($get['id']);
 // Validate POST and submit
 if (Request::isPostRequestMethod()) {
     try {
-        switch (PostValidator::getSubmitButton()) {
+        switch (PostValidator::new()->getSubmitButton()) {
             case tr('Test'):
                 // Test the connector
                 try {
@@ -215,7 +215,7 @@ $grid = Grid::new()
                                   ->addContent($connector_card->render())
                                   ->setSize(9)
                                   ->useForm(true))
-            ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

@@ -6,9 +6,10 @@ use PDO;
 use PDOStatement;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
 use Phoundation\Databases\Sql\Schema\Schema;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 
 /**
  * Class Sql
@@ -87,9 +88,9 @@ interface SqlInterface
      *
      * @param bool $use_database
      *
-     * @return Schema
+     * @return SchemaInterface
      */
-    public function schema(bool $use_database = true): Schema;
+    public function getSchemaObject(bool $use_database = true): SchemaInterface;
 
 
     /**
@@ -97,9 +98,9 @@ interface SqlInterface
      *
      * @param bool $use_database
      *
-     * @return Schema
+     * @return SchemaInterface
      */
-    public function resetSchema(bool $use_database = true): Schema;
+    public function resetSchema(bool $use_database = true): SchemaInterface;
 
 
     /**
@@ -223,7 +224,7 @@ interface SqlInterface
 
 
     /**
-     * Execute query and return only the first row
+     * ExecuteExecuteInterface query and return only the first row
      *
      * @param string|PDOStatement $query
      * @param array|null          $execute
@@ -370,12 +371,12 @@ interface SqlInterface
     /**
      * Import data from specified file
      *
-     * @param string                                  $file
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param string                                    $file
+     * @param FsRestrictionsInterface|array|string|null $restrictions
      *
      * @return void
      */
-    public function import(string $file, RestrictionsInterface|array|string|null $restrictions): void;
+    public function import(string $file, FsRestrictionsInterface|array|string|null $restrictions): void;
 
 
     /**

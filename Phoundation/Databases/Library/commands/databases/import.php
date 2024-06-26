@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Script system/databases/import
+ * Command databases import
  *
  * This script will import the specified database file into the specified database
  *
@@ -19,17 +19,18 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Import;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Utils;
 
-$restrictions = Restrictions::readonly([
+$restrictions = FsRestrictions::getReadonly( [
                                            DIRECTORY_DATA . 'sources/',
                                            DIRECTORY_TMP,
                                        ], tr('Import'));
 
-CliDocumentation::setUsage('./pho system databases import -d mysql -b system -f system.sql');
+CliDocumentation::setUsage('./pho databases import -d mysql -b system -f system.sql');
 
 CliDocumentation::setHelp('This command will import the specified database file into the specified database
 
@@ -59,8 +60,8 @@ ARGUMENTS
 CliDocumentation::setAutoComplete([
                                       'arguments' => [
                                           '-f,--file'      => [
-                                              'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan($word . '*.{sql,sql.gz}'); },
-                                              'noword' => function () use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.{sql,sql.gz}'); },
+                                              'word'   => function ($word) use ($restrictions) { return FsDirectory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan($word . '*.{sql,sql.gz}'); },
+                                              'noword' => function ()      use ($restrictions) { return FsDirectory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.{sql,sql.gz}'); },
                                           ],
                                           '-c,--connector' => [
                                               'word'   => function ($word) { return Arrays::keepValues(Connectors::new()->load(true, true)->keepMatchingValues('sys', Utils::MATCH_STARTS_WITH, 'name')->getAllRowsSingleColumn('name'), $word); },
@@ -92,17 +93,17 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Execute the import for the specified driver
+// ExecuteExecuteInterface the import for the specified driver
 Import::new()
       ->setConnector($argv['connector'], true)
       ->setDatabase($argv['database'])
       ->setDrop(!$argv['no_drop'])
-      ->setFile($argv['file'])
+      ->setFile(FsFile::new($argv['file'], $restrictions))
       ->setTimeout($argv['timeout'])
       ->import();
 
 
-// Execute init?
+// ExecuteExecuteInterface init?
 if ($argv['no_init']) {
     Log::warning(tr('Not executing database init due to "--no-init" argument but this may leave the database in an incompatible state!'));
 

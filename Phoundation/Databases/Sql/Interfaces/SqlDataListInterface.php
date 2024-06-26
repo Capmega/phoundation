@@ -2,10 +2,10 @@
 
 namespace Phoundation\Databases\Sql\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 
 /**
- * Class SqlDataList
+ * Class SqlDataIterator
  *
  *
  *
@@ -14,10 +14,10 @@ use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
-interface SqlDataListInterface
+interface SqlDataIteratorInterface
 {
     /**
-     * Returns the Sql object used by this SqlDataList object
+     * Returns the Sql object used by this SqlDataIterator object
      *
      * @return SqlInterface
      */
@@ -25,7 +25,7 @@ interface SqlDataListInterface
 
 
     /**
-     * Sets the Sql object used by this SqlDataList object
+     * Sets the Sql object used by this SqlDataIterator object
      *
      * @param SqlInterface $sql
      *
@@ -37,11 +37,11 @@ interface SqlDataListInterface
     /**
      * Sets the data list
      *
-     * @param DataListInterface $data_list
+     * @param DataIteratorInterface $data_list
      *
      * @return static
      */
-    public function setDataList(DataListInterface $data_list): static;
+    public function setDataIterator(DataIteratorInterface $data_list): static;
 
 
     /**
@@ -63,13 +63,13 @@ interface SqlDataListInterface
     /**
      * Update the status for the data row in the specified table to the specified status
      *
-     * @param string|null             $status
-     * @param DataListInterface|array $list
-     * @param string|null             $comments
+     * @param string|null                 $status
+     * @param DataIteratorInterface|array $list
+     * @param string|null                 $comments
      *
      * @return int
      */
-    public function setStatus(?string $status, DataListInterface|array $list, ?string $comments = null): int;
+    public function setStatus(?string $status, DataIteratorInterface|array $list, ?string $comments = null): int;
 
 
     /**

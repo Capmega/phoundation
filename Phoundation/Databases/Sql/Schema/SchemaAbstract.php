@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases\Sql\Schema;
-
-use Phoundation\Databases\Sql\Sql;
-
 /**
  * SchemaAbstract class
  *
@@ -16,7 +10,15 @@ use Phoundation\Databases\Sql\Sql;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
-abstract class SchemaAbstract
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases\Sql\Schema;
+
+use Phoundation\Databases\Sql\Schema\Interfaces\SchemaAbstractInterface;
+use Phoundation\Databases\Sql\Sql;
+
+abstract class SchemaAbstract implements SchemaAbstractInterface
 {
     /**
      * The database interface for this schema
@@ -60,6 +62,21 @@ abstract class SchemaAbstract
         $this->name          = $name;
         $this->parent        = $parent;
         $this->configuration = $sql->getConfiguration();
+    }
+
+
+    /**
+     * Returns a new SchemaAbstract type object
+     *
+     * @param string                $name
+     * @param Sql                   $sql
+     * @param SchemaAbstract|Schema $parent
+     *
+     * @return static
+     */
+    public static function new(string $name, Sql $sql, SchemaAbstract|Schema $parent): static
+    {
+        return new static($name, $sql, $parent);
     }
 
 

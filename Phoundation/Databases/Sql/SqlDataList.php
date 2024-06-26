@@ -6,21 +6,21 @@ namespace Phoundation\Databases\Sql;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Meta\Meta;
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Data\Traits\TraitDataDataList;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\Traits\TraitDataDataIterator;
 use Phoundation\Data\Traits\TraitDataIdColumn;
 use Phoundation\Data\Traits\TraitDataInsertUpdate;
 use Phoundation\Data\Traits\TraitDataMaxIdRetries;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataRandomId;
 use Phoundation\Data\Traits\TraitDataTable;
-use Phoundation\Databases\Sql\Interfaces\SqlDataListInterface;
+use Phoundation\Databases\Sql\Interfaces\SqlDataIteratorInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 
 /**
- * Class SqlDataList
+ * Class SqlDataIterator
  *
  *
  *
@@ -29,10 +29,10 @@ use Phoundation\Utils\Json;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
-class SqlDataList implements SqlDataListInterface
+class SqlDataIterator implements SqlDataIteratorInterface
 {
-    use TraitDataDataList {
-        setDataList as protected __setDataList;
+    use TraitDataDataIterator {
+        setDataIterator as protected __setDataIterator;
     }
     use TraitDataIdColumn;
     use TraitDataInsertUpdate;
@@ -57,50 +57,50 @@ class SqlDataList implements SqlDataListInterface
 
 
     /**
-     * SqlDataList class constructor
+     * SqlDataIterator class constructor
      *
-     * @param SqlInterface      $sql
-     * @param DataListInterface $data_list
+     * @param SqlInterface          $sql
+     * @param DataIteratorInterface $data_list
      */
-    public function __construct(SqlInterface $sql, DataListInterface $data_list)
+    public function __construct(SqlInterface $sql, DataIteratorInterface $data_list)
     {
         $this->setSql($sql)
-             ->setDataList($data_list);
+             ->setDataIterator($data_list);
     }
 
 
     /**
      * Sets the data list
      *
-     * @param DataListInterface $data_list
+     * @param DataIteratorInterface $data_list
      *
      * @return static
      */
-    public function setDataList(DataListInterface $data_list): static
+    public function setDataIterator(DataIteratorInterface $data_list): static
     {
         $this->setTable($data_list->getTable())
-             ->setIdColumn($data_list->getIdColumn());
+             ->setIdColumn($data_list->getIndexColumn());
 
-        return $this->__setDataList($data_list);
+        return $this->__setDataIterator($data_list);
     }
 
 
     /**
-     * Returns a new SqlDataList object
+     * Returns a new SqlDataIterator object
      *
-     * @param SqlInterface      $sql
-     * @param DataListInterface $data_list
+     * @param SqlInterface          $sql
+     * @param DataIteratorInterface $data_list
      *
      * @return static
      */
-    public static function new(SqlInterface $sql, DataListInterface $data_list): static
+    public static function new(SqlInterface $sql, DataIteratorInterface $data_list): static
     {
         return new static($sql, $data_list);
     }
 
 
     /**
-     * Returns the Sql object used by this SqlDataList object
+     * Returns the Sql object used by this SqlDataIterator object
      *
      * @return SqlInterface
      */
@@ -111,7 +111,7 @@ class SqlDataList implements SqlDataListInterface
 
 
     /**
-     * Sets the Sql object used by this SqlDataList object
+     * Sets the Sql object used by this SqlDataIterator object
      *
      * @param SqlInterface $sql
      *
@@ -141,12 +141,12 @@ class SqlDataList implements SqlDataListInterface
     public function delete(array $row, ?string $comments = null): int
     {
         Core::checkReadonly('sql data-list-delete');
-        // DataList table?
+        // DataIterator table?
         if (array_key_exists('meta_id', $row)) {
             return $this->setStatus('deleted', $row, $comments);
         }
 
-        // This table is not a DataList table, delete the list
+        // This table is not a DataIterator table, delete the list
         return $this->sql->delete($this->table, $row);
     }
 
@@ -154,13 +154,13 @@ class SqlDataList implements SqlDataListInterface
     /**
      * Update the status for the data row in the specified table to the specified status
      *
-     * @param string|null             $status
-     * @param DataListInterface|array $list
-     * @param string|null             $comments
+     * @param string|null                 $status
+     * @param DataIteratorInterface|array $list
+     * @param string|null                 $comments
      *
      * @return int
      */
-    public function setStatus(?string $status, DataListInterface|array $list, ?string $comments = null): int
+    public function setStatus(?string $status, DataIteratorInterface|array $list, ?string $comments = null): int
     {
         Core::checkReadonly('sql set-status');
         if (is_object($list)) {

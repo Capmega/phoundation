@@ -223,12 +223,11 @@ interface SqlDataEntryInterface
      * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
      *
-     * @param array       $row
      * @param string|null $comments
      *
      * @return int
      */
-    public function delete(array $row, ?string $comments = null): int;
+    public function delete(?string $comments = null): int;
 
 
     /**

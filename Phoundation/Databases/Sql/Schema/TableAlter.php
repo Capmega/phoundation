@@ -168,13 +168,16 @@ class TableAlter extends SchemaAbstract
         if (!$from_column) {
             throw new OutOfBoundsException(tr('No column specified'));
         }
+
         if (!$to_column) {
             throw new OutOfBoundsException(tr('No new column definition specified'));
         }
+
         $from_column = Strings::ensureStartsNotWith($from_column, '`');
         $from_column = Strings::ensureEndsNotWith($from_column, '`');
-        $to_column = Strings::ensureStartsNotWith($to_column, '`');
-        $to_column = Strings::ensureEndsNotWith($to_column, '`');
+        $to_column   = Strings::ensureStartsNotWith($to_column, '`');
+        $to_column   = Strings::ensureEndsNotWith($to_column, '`');
+
         $this->sql->query('ALTER TABLE `' . $this->name . '` RENAME COLUMN `' . $from_column . '` TO `' . $to_column . '`');
 
         return $this;

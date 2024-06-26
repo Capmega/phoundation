@@ -16,8 +16,8 @@ CliDocumentation::setUsage('./pho databases mysql method [OPTIONS]
 CliDocumentation::setHelp('This command contains various methods to assist with various mysql operations
 
 
+ARGUMENTS
 
-METHODS
 
 list databases                   - List the available databases for the used
                                    connector

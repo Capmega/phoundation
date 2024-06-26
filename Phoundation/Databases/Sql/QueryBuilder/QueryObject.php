@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\QueryBuilder;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryObjectInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -115,17 +115,17 @@ class QueryObject implements QueryObjectInterface
     /**
      * If specified, the query builder will attempt to update the internal loading query for this object
      *
-     * @var DataEntryInterface|DataListInterface|null $parent
+     * @var DataEntryInterface|DataIteratorInterface|null $parent
      */
-    protected DataEntryInterface|DataListInterface|null $parent;
+    protected DataEntryInterface|DataIteratorInterface|null $parent;
 
 
     /**
      * QueryObject class constructor
      *
-     * @param DataEntryInterface|DataListInterface|null $parent
+     * @param DataEntryInterface|DataIteratorInterface|null $parent
      */
-    public function __construct(DataEntryInterface|DataListInterface|null $parent = null)
+    public function __construct(DataEntryInterface|DataIteratorInterface|null $parent = null)
     {
         $this->parent = $parent;
         if ($this->parent) {
@@ -192,11 +192,11 @@ class QueryObject implements QueryObjectInterface
     /**
      * QueryObject class constructor
      *
-     * @param DataEntryInterface|DataListInterface|null $parent
+     * @param DataEntryInterface|DataIteratorInterface|null $parent
      *
      * @return static
      */
-    public static function new(DataEntryInterface|DataListInterface|null $parent = null): static
+    public static function new(DataEntryInterface|DataIteratorInterface|null $parent = null): static
     {
         return new static($parent);
     }

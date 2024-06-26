@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases\Sql\Schema;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
-use Phoundation\Databases\Sql\Sql;
-use Phoundation\Utils\Arrays;
-
 /**
  * Table class
  *
@@ -20,7 +10,19 @@ use Phoundation\Utils\Arrays;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
-class Table extends SchemaAbstract
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases\Sql\Schema;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
+use Phoundation\Databases\Sql\Schema\Interfaces\TableInterface;
+use Phoundation\Databases\Sql\Sql;
+use Phoundation\Utils\Arrays;
+
+class Table extends SchemaAbstract implements TableInterface
 {
     /**
      * The SQL interface
@@ -54,6 +56,7 @@ class Table extends SchemaAbstract
     public function __construct(string $name, Sql $sql, SchemaAbstract|Schema $parent)
     {
         parent::__construct($name, $sql, $parent);
+
         if ($name) {
             // Load this table
             $this->load($name);
@@ -132,6 +135,7 @@ class Table extends SchemaAbstract
             ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase(),
         ]), 3);
+
         sql()->query('DROP TABLES IF EXISTS `' . $this->name . '`');
 
         return $this;
@@ -173,6 +177,19 @@ class Table extends SchemaAbstract
 
 
     /**
+     * Returns true if the specified column exists in this table
+     *
+     * @param string $column
+     *
+     * @return bool
+     */
+    public function columnExists(string $column): bool
+    {
+        return $this->getColumns()->keyExists($column);
+    }
+
+
+    /**
      * Returns the table columns
      *
      * @param bool $cache
@@ -184,12 +201,15 @@ class Table extends SchemaAbstract
         if (!$cache) {
             unset($this->columns);
         }
+
         if (empty($this->columns)) {
             $columns = [];
             $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
+
             foreach ($results as $result) {
                 $columns[$result['field']] = Arrays::lowercaseKeys($result);
             }
+
             $this->columns = $columns;
         }
 

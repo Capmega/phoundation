@@ -23,6 +23,7 @@ use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
@@ -117,7 +118,7 @@ $connectors_card = Card::new()
 
 $connectors_card->getForm()
                 ->setAction(UrlBuilder::getCurrent())
-                ->setMethod('POST');
+                ->setMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links
@@ -138,7 +139,7 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
             ->addColumn($filters_card->render() . $connectors_card->render(), EnumDisplaySize::nine)
-            ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

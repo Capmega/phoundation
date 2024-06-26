@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Script system/databases/export
+ * Command databases export
  *
  * This script will export the specified database to the specified database file
  *
@@ -18,17 +18,13 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Export;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Utils\Utils;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 
+$restrictions = FsRestrictions::getWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP], tr('command databases mysql export'));
 
-$restrictions = Restrictions::writable([
-                                           DIRECTORY_DATA . 'sources/',
-                                           DIRECTORY_TMP,
-                                       ], tr('Export'));
-
-CliDocumentation::setUsage('./pho system databases export -d mysql -b system -f system.sql');
+CliDocumentation::setUsage('./pho databases export -d mysql -b system -f system.sql');
 
 CliDocumentation::setHelp('This command will export the specified database to the specified database dump file
 
@@ -50,33 +46,53 @@ ARGUMENTS
                                         (defaults to 3600)');
 
 CliDocumentation::setAutoComplete([
-                                      'arguments' => [
-                                          '-t,--timeout'   => true,
-                                          '-g,--gzip'      => false,
-                                          '--file'         => [
-                                              'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan($word . '*.sql'); },
-                                              'noword' => function () use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.sql'); },
-                                          ],
-                                          '-c,--connector' => [
-                                              'word'   => function ($word) { return Connectors::new()->load(true, true)->keepMatchingValuesStartingWith('sys', column: 'name')->getAllRowsSingleColumn('name'); },
-                                              'noword' => function () { return Connectors::new()->load(true, true)->getAllRowsSingleColumn('name'); },
-                                          ],
-                                          '-b,--database'  => [
-                                              'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },
-                                              'noword' => function () { return sql()->listScalar('SHOW DATABASES'); },
-                                          ],
-                                      ],
-                                  ]);
+      'arguments' => [
+          '-t,--timeout'   => true,
+          '-g,--gzip'      => false,
+          '--file'         => [
+              'word'   => function ($word) use ($restrictions) {
+                  return FsDirectory::new(
+                      DIRECTORY_DATA . 'sources/',
+                      $restrictions
+                  )->scan($word . '*.sql');
+              },
+              'noword' => function () use ($restrictions) {
+                  return FsDirectory::new(
+                      DIRECTORY_DATA . 'sources/',
+                      $restrictions
+                  )->scan('*.sql');
+              },
+          ],
+          '-c,--connector' => [
+              'word'   => function ($word) {
+                  return Connectors::new()
+                                   ->load(true, true)
+                                   ->keepMatchingValuesStartingWith($word, column: 'name')
+                                   ->getAllRowsSingleColumn('name');
+              },
+              'noword' => function () {
+                  return Connectors::new()
+                                   ->load(true, true)
+                                   ->getAllRowsSingleColumn('name');
+              },
+          ],
+          '-b,--database'  => [
+              'word'   => function ($word) {
+                  return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']);
+              },
+              'noword' => function () {
+                  return sql()->listScalar('SHOW DATABASES');
+              },
+          ],
+      ],
+  ]);
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('-g,--gzip')->isOptional(false)->isBoolean()
-                     ->select('-t,--timeout', true)->isOptional(3600)->isInteger()->isMoreThan(0)
-                     ->select('-f,--file', true)->isOptional()->isFile([
-                                                                           DIRECTORY_DATA . 'sources/',
-                                                                           DIRECTORY_TMP,
-                                                                       ], $restrictions, false)
+                     ->select('--timeout', true)->isOptional(3600)->isInteger()->isMoreThan(0)
+                     ->select('-f,--file', true)->isOptional()->isFile([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP], $restrictions, false)
                      ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getAllRowsSingleColumn('name'))
                      ->select('-b,--database', true)->isVariable()
                      ->validate();
@@ -88,7 +104,7 @@ Export::new()
       ->setDatabase($argv['database'])
       ->setTimeout($argv['timeout'])
       ->setGzip($argv['gzip'])
-      ->dump($argv['file']);
+      ->dump(FsFile::new($argv['file'], $restrictions));
 
 
 // Done!

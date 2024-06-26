@@ -348,6 +348,7 @@ class SqlDataEntry implements SqlDataEntryInterface
     {
         // Filter out non modified rows
         $row = Arrays::keepKeys($row, array_merge($this->data_entry->getChanges(), $this->data_entry->getMetaColumns()));
+
         // Log meta_id action
         if ($this->data_entry->isMetaColumn('meta_id')) {
             if ($this->meta_enabled) {
@@ -355,15 +356,18 @@ class SqlDataEntry implements SqlDataEntryInterface
                     ->action($meta_action, $comments, $diff);
             }
         }
+
         if ($this->data_entry->isMetaColumn('meta_state')) {
             $row['meta_state'] = Strings::getRandom(16);
         }
+
         // Never update the other meta-information
         foreach ($this->data_entry->getMetaColumns() as $column) {
             if ($column === $this->id_column) {
                 // We DO need the ID column for update, though!
                 continue;
             }
+
             unset($row[$column]);
         }
 
@@ -384,10 +388,10 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @param string|null $comments
      * @param string|null $diff
      *
-     * @return int|null
+     * @return int
      * @throws Exception
      */
-    public function insert(array $row, ?string $comments = null, ?string $diff = null): ?int
+    public function insert(array $row, ?string $comments = null, ?string $diff = null): int
     {
         Core::checkReadonly('sql data-entry-insert');
 
@@ -425,9 +429,9 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @param string|null $diff
      * @param string      $meta_action
      *
-     * @return int|null
+     * @return int
      */
-    public function update(array $row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): ?int
+    public function update(array $row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): int
     {
         Core::checkReadonly('sql data-entry-update');
 
@@ -449,26 +453,53 @@ class SqlDataEntry implements SqlDataEntryInterface
     /**
      * Update the status for the data row in the specified table to "deleted"
      *
-     * This is a simplified insert method to speed up writing basic insert queries
+     * This is a simplified insert method to speed up writing basic status update queries
      *
-     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
-     *       to this table are in the $row value, the query will automatically fail with an exception!
-     *
-     * @param array       $row
      * @param string|null $comments
      *
      * @return int
      */
-    public function delete(array $row, ?string $comments = null): int
+    public function delete(?string $comments = null): int
     {
         Core::checkReadonly('sql data-entry-delete');
-        // DataEntry table?
-        if (array_key_exists('meta_id', $row)) {
-            return $this->setStatus('deleted', $row, $comments);
-        }
+        return $this->setStatus('deleted', $comments);
+    }
 
-        // This table is not a DataEntry table, delete the entry
-        return $this->sql->delete($this->table, $row);
+
+    /**
+     * Update the status for the data row in the specified table to NULL
+     *
+     * This is a simplified insert method to speed up writing basic status update queries
+     *
+     * @param string|null $comments
+     *
+     * @return int
+     */
+    public function undelete(?string $comments = null): int
+    {
+        Core::checkReadonly('sql data-entry-undelete');
+        return $this->setStatus(null, $comments);
+    }
+
+
+    /**
+     * Actually erases the data entry record
+     *
+     * This method will erase both the data entry record and its meta data history
+     *
+     * @return int
+     */
+    public function erase(): int
+    {
+        Core::checkReadonly('sql data-entry-erase');
+
+        // Erase the meta-history and entries
+        Meta::get($this->data_entry->getMetaId())->erase();
+
+        // Erase the record
+        return sql()->query('DELETE FROM `' . $this->table . '` WHERE `' . $this->getIdColumn() . '` = :id', [
+            ':id' => $this->data_entry->get($this->getIdColumn()),
+        ])->rowCount();
     }
 
 
@@ -483,10 +514,13 @@ class SqlDataEntry implements SqlDataEntryInterface
     public function setStatus(?string $status, ?string $comments = null): int
     {
         Core::checkReadonly('sql set-status');
+
         $entry = $this->data_entry;
+
         if ($entry->isNew()) {
             throw new OutOfBoundsException(tr('Cannot set status, the specified data entry is new'));
         }
+
         // Update the meta data
         if ($this->meta_enabled) {
             Meta::get($entry->getMetaId(), false)
@@ -497,12 +531,11 @@ class SqlDataEntry implements SqlDataEntryInterface
 
         // Update the row status
         return $this->sql->query('UPDATE `' . $this->table . '`
-                                   SET     `status`             = :status
-                                   WHERE   `' . $this->id_column . '` = :' . $this->id_column, [
+                                  SET     `status`             = :status
+                                  WHERE   `' . $this->id_column . '` = :' . $this->id_column, [
             ':status'              => $status,
             ':' . $this->id_column => $entry->getId(),
-        ])
-                         ->rowCount();
+        ])->rowCount();
     }
 
 

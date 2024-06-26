@@ -16,12 +16,11 @@ use Phoundation\Data\Traits\TraitDataUserPass;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Filesystem\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
 /**
  * Class Import
@@ -65,11 +64,11 @@ class Import
     /**
      * Exporter class constructor
      *
-     * @param RestrictionsInterface|null $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      */
-    public function __construct(?RestrictionsInterface $restrictions = null)
+    public function __construct(?FsRestrictionsInterface $restrictions = null)
     {
-        $this->restrictions = Restrictions::default($restrictions, Restrictions::writable('/', 'Mysql exporter'));
+        $this->restrictions = FsRestrictions::getRestrictionsOrDefault($restrictions, FsRestrictions::getWritable('/', 'Mysql exporter'));
     }
 
 
@@ -154,13 +153,13 @@ class Import
 
 
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
      *
-     * @param EnumExecuteMethodInterface $method
+     * @param EnumExecuteMethod $method
      *
      * @return static
      */
-    public function import(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static
+    public function import(EnumExecuteMethod $method = EnumExecuteMethod::passthru): static
     {
         switch ($this->driver) {
             case 'mysql':
@@ -173,7 +172,7 @@ class Import
                      ->setConnector($this->connector)
                      ->drop($this->drop ? $this->database : null)
                      ->create($this->drop ? $this->database : null)
-                     ->import($this->file, Restrictions::new('/'));
+                     ->import($this->file, FsRestrictions::new('/'));
                 Log::success(tr('Finished importing MySQL dump file ":file" to database ":database"', [
                     ':file'     => $this->file,
                     ':database' => $this->database,
@@ -227,11 +226,11 @@ class Import
     /**
      * Returns a new Export object
      *
-     * @param RestrictionsInterface|null $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      *
      * @return static
      */
-    public static function new(?RestrictionsInterface $restrictions = null): static
+    public static function new(?FsRestrictionsInterface $restrictions = null): static
     {
         return new static($restrictions);
     }

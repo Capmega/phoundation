@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Mc
+ *
+ * This is the default MemCached object
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Databases
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases;
@@ -19,16 +30,6 @@ use Phoundation\Utils\Exception\ConfigurationInvalidException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Throwable;
 
-/**
- * Class Mc
- *
- * This is the default MemCached object
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Databases
- */
 class Mc implements DatabaseInterface
 {
     /**
@@ -80,17 +81,27 @@ class Mc implements DatabaseInterface
         if (!class_exists('Memcached')) {
             throw new PhpModuleNotAvailableException(tr('The PHP module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
         }
+
         // Get the configuration for the specified instance. Always default to "system"
         if (!$connector) {
-            $connector = 'mc_system';
+            $connector = 'mc-system';
         }
+
         // Get instance information and connect to memcached servers
         $this->instance_name = $connector;
         $this->memcached     = new Memcached();
         $this->namespace     = new MemcachedNamespace($this);
-        $this->readConfiguration();
-        $this->setConnections($this->configuration['connections']);
-        $this->connect();
+
+        try {
+            $this->readConfiguration();
+            $this->setConnections($this->configuration['connections']);
+            $this->connect();
+
+        } catch (ConfigPathDoesNotExistsException) {
+            Log::warning(tr('Disabling memcached connector ":connector", no configuration found', [
+                ':connector' => $connector,
+            ]), 3);
+        }
     }
 
 
@@ -103,23 +114,26 @@ class Mc implements DatabaseInterface
     {
         // Read the configuration
         $this->configuration = Config::getArray('databases.connectors.' . $this->instance_name);
+
         // Ensure that all required keys are available
         Arrays::ensure($this->configuration, 'connections');
         Arrays::default($this->configuration, 'expires', 86400);
         Arrays::default($this->configuration, 'prefix', gethostname());
+
         // Default connections to localhost if nothing was defined
         if (empty($this->configuration['connections'])) {
             throw ConfigPathDoesNotExistsException::new(tr('No memcached connections configured for instance ":instance"', [
                 ':instance' => $this->instance_name,
-            ]))
-                                                  ->makeWarning();
+            ]))->makeWarning();
         }
+
         if (!is_array($this->configuration['connections'])) {
             throw new OutOfBoundsException(tr('Invalid memcached connections configured for instance ":instance", it should be an array but is an ":type"', [
                 ':instance' => $this->instance_name,
                 ':type'     => gettype($this->configuration['connections']),
             ]));
         }
+
         // Ensure all connections are valid
         foreach ($this->configuration['connections'] as $weight => &$connection) {
             if (!is_array($connection)) {
@@ -128,9 +142,11 @@ class Mc implements DatabaseInterface
                         ':path' => 'databases.connectors.' . $this->instance_name . '.connections.' . $weight,
                     ]));
                 }
+
                 // Empty connector information, default to empty array and fill up below
                 $connection = [];
             }
+
             Arrays::default($connection, 'host', '127.0.0.1');
             Arrays::default($connection, 'port', 11211);
         }
@@ -148,12 +164,14 @@ class Mc implements DatabaseInterface
             // This is wonky, how did we get here without memcached being loaded?
             throw new OutOfBoundsException(tr('Cannot connect to memcached servers, memcached driver has not been loaded'));
         }
+
         // Memcached disabled?
         if (!Config::get('databases.memcached.enabled', true)) {
             Log::warning('Not using memcached, its disabled by configuration "memcached.enabled"', 4);
 
         } else {
             $failed = 0;
+
             // Connect to all memcached servers, but only if no servers were added yet (this should normally be the case)
             foreach ($this->configuration['connections'] as $weight => $connection) {
                 try {
@@ -170,6 +188,7 @@ class Mc implements DatabaseInterface
                     $failed++;
                 }
             }
+
             if ($failed) {
                 if (!$this->memcached->getServerList()) {
                     // We haven't been able to connect to any memcached server at all!
@@ -201,7 +220,9 @@ class Mc implements DatabaseInterface
         if (!$this->connections) {
             return;
         }
+
         $data = $this->memcached->get($this->namespace->getKey($key, $namespace));
+
         if ($data) {
             Log::success(tr('Returned data for key ":key"', [':key' => $this->namespace->getKey($key, $namespace)]), 3);
 
@@ -331,7 +352,9 @@ class Mc implements DatabaseInterface
     {
         $key     = $this->namespace->getKey($key);
         $expires = $expires ?? $this->configuration['expires'];
+
         $this->memcached->set($key, $value, $expires);
+
         Log::success(tr('Wrote ":bytes" bytes for key ":key"', [
             ':key'   => $key,
             ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value)),
@@ -356,9 +379,10 @@ class Mc implements DatabaseInterface
         if (!$this->connections) {
             return $value;
         }
-        $key     = $this->namespace()
-                        ->getKey($key, $namespace);
+
+        $key     = $this->namespace()->getKey($key, $namespace);
         $expires = $expires ?? $this->configuration['expires'];
+
         if (!$this->memcached->add($value, $key, $expires)) {
             Log::warning(tr('Failed to add ":bytes" bytes value to key ":key"', [
                 ':key'   => $key,
@@ -396,9 +420,10 @@ class Mc implements DatabaseInterface
         if (!$this->connections) {
             return $value;
         }
-        $key     = $this->namespace()
-                        ->getKey($key, $namespace);
+
+        $key     = $this->namespace()->getKey($key, $namespace);
         $expires = $expires ?? $this->configuration['expires'];
+
         if (!$this->memcached->replace($key, $value, $expires)) {
             Log::warning(tr('Failed to replace key ":key" with ":bytes" bytes value', [
                 ':key'   => $key,
@@ -423,19 +448,20 @@ class Mc implements DatabaseInterface
         if (!$this->connections) {
             return;
         }
+
         if (!$key) {
             if (!$namespace) {
                 // Delete what, exactly?
                 throw new OutOfBoundsException('Cannot delete memcached entry, no key specified');
             }
+
             // Delete the entire namespace
-            $this->namespace()
-                 ->delete($namespace);
+            $this->namespace()->delete($namespace);
+
         } else {
             // Delete the key only
             $this->memcached->delete($this->namespace->getKey($key));
         }
-
     }
 
 
@@ -481,6 +507,7 @@ class Mc implements DatabaseInterface
         if (!$this->connections) {
             return;
         }
+
         $this->memcached->increment($this->namespace->getKey($key, $namespace));
     }
 
@@ -493,6 +520,7 @@ class Mc implements DatabaseInterface
     public function stats(): array
     {
         $stats = $this->memcached->getStats();
+
         if (!$stats) {
             // No stats data available, but this might be FALSE, return [] to ensure proper datatype for return
             return [];

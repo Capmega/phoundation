@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Sql
  *
@@ -43,14 +44,15 @@ use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Interfaces\SqlDataEntryInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
+use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
 use Phoundation\Databases\Sql\Schema\Schema;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Servers\Servers;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -210,6 +212,7 @@ class Sql implements SqlInterface
     {
         // Copy the configuration options over the template
         $configuration = Arrays::mergeFull(static::getConfigurationTemplate(), $configuration);
+
         switch ($configuration['driver']) {
             case 'mysql':
                 // Do we have a MySQL driver available?
@@ -217,17 +220,20 @@ class Sql implements SqlInterface
                     // Whelp, MySQL library is not available
                     throw new PhpModuleNotAvailableException('Could not find the "MySQL" library for PDO. To install this on Ubuntu derivatives, please type "sudo apt install php-mysql');
                 }
+
                 // Build up ATTR_INIT_COMMAND
                 $command = 'SET @@SESSION.TIME_ZONE="+00:00"; ';
                 if ($configuration['charset']) {
                     // Set the default character set to use
                     $command .= 'SET NAMES ' . strtoupper($configuration['charset'] . '; ');
                 }
+
                 // Apply MySQL specific requirements that always apply
                 $configuration['pdo_attributes'][PDO::ATTR_ERRMODE]                  = PDO::ERRMODE_EXCEPTION;
                 $configuration['pdo_attributes'][PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = !$configuration['buffered'];
                 $configuration['pdo_attributes'][PDO::MYSQL_ATTR_INIT_COMMAND]       = $command;
                 break;
+
             default:
                 // Here be dragons!
                 Log::warning(static::getConnectorLogPrefix() . tr('WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED', [
@@ -299,7 +305,7 @@ class Sql implements SqlInterface
 
 
     /**
-     * Execute query and return only the first row
+     * ExecuteExecuteInterface query and return only the first row
      *
      * @param string|PDOStatement $query
      * @param array|null          $execute
@@ -310,6 +316,7 @@ class Sql implements SqlInterface
     public function get(string|PDOStatement $query, array $execute = null, bool $meta_enabled = true): ?array
     {
         $result = $this->query($query, $execute);
+
         switch ($result->rowCount()) {
             case 0:
                 // No results. This is probably okay, but do check if the query was a select or show query, just to
@@ -317,29 +324,30 @@ class Sql implements SqlInterface
                 SqlQueries::checkShowSelect($query, $execute);
 
                 return null;
+
             case 1:
                 $return = $this->fetch($result);
+
                 if ($meta_enabled) {
                     // Register this user reading the entry
                     if (isset($return['meta_id'])) {
                         if ($return['meta_id']) {
-                            Meta::get($return['meta_id'])
-                                ->action('read');
+                            Meta::get($return['meta_id'])->action('read');
                         }
                     }
                 }
 
                 return $return;
+
             default:
                 // Multiple results, this is always bad for a function that should only return one result!
                 SqlQueries::checkShowSelect($query, $execute);
                 throw SqlMultipleResultsException::new(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [
                     ':count' => $result->rowCount(),
                     ':query' => SqlQueries::renderQueryString($result->queryString, $execute),
-                ]))
-                                                 ->setData([
-                                                     'connector' => $this->connector,
-                                                 ]);
+                ]))->setData([
+                    'connector' => $this->connector,
+                ]);
         }
     }
 
@@ -357,17 +365,22 @@ class Sql implements SqlInterface
     {
         static $retry = 0;
         $log = false;
+
         try {
             if (!$query) {
                 throw new SqlException(tr('No query specified'));
             }
+
             $this->counter++;
+
             // PDO statement can be specified instead of a query?
             if (is_object($query)) {
                 if ($this->debug or ($query->queryString[0] === ' ')) {
                     $log = true;
                 }
+
                 $timer = Timers::new('sql', static::getConnectorLogPrefix() . $query->queryString);
+
                 // Are we going to write?
                 SqlQueries::checkWriteAllowed($query->queryString);
                 $query->execute($execute);
@@ -377,26 +390,32 @@ class Sql implements SqlInterface
                 if ($this->debug or ($query[0] === ' ')) {
                     $log = true;
                 }
+
                 $timer = Timers::new('sql', static::getConnectorLogPrefix() . $query);
+
                 // Are we going to write?
                 SqlQueries::checkWriteAllowed($query);
+
                 if (empty($execute)) {
-                    // Execute plain SQL query string. Only return ASSOC data.
+                    // ExecuteExecuteInterface plain SQL query string. Only return ASSOC data.
                     $query = $this->pdo->query($query);
                     $query->setFetchMode(PDO::FETCH_ASSOC);
 
                 } else {
-                    // Execute the query with the specified $execute variables. Only return ASSOC data.
+                    // ExecuteExecuteInterface the query with the specified $execute variables. Only return ASSOC data.
                     $query = $this->pdo->prepare($query);
                     $query->setFetchMode(PDO::FETCH_ASSOC);
                     $query->execute($execute);
                 }
             }
+
             $timer->stop();
+
             // Log query
             if ($log) {
                 Log::sql(static::getConnectorLogPrefix() . '[' . number_format($timer->getTotal() * 1000, 4) . ' ms] ' . $query->queryString, $execute);
             }
+
             if ($this->statistics) {
                 // Get current function / file@line. If current function is actually an include then assume this is the
                 // actual script that was executed by route()
@@ -412,15 +431,18 @@ class Sql implements SqlInterface
             if (isset($timer)) {
                 $timer->stop(true);
             }
+
             // Get exception message and SQL state
             if (str_starts_with($e->getMessage(), 'SQLSTATE')) {
                 $state   = Strings::cut($e->getMessage(), 'SQLSTATE[', ']');
                 $message = Strings::from($e->getMessage(), ':');
                 $message = trim($message);
+
             } else {
                 $state   = null;
                 $message = $e->getMessage();
             }
+
             $this->processQueryException(SqlException::new($e)
                                                      ->setQuery($query)
                                                      ->setExecute($execute)
@@ -455,6 +477,7 @@ class Sql implements SqlInterface
     {
         $query   = $e->getQuery();
         $execute = $e->getExecute();
+
         // Check the execution array for issues
         if ($query) {
             if ($execute) {
@@ -469,6 +492,7 @@ class Sql implements SqlInterface
                     }
                 }
             }
+
             if ($query instanceof PDOStatement) {
                 $query = $query->queryString;
             }
@@ -479,22 +503,28 @@ class Sql implements SqlInterface
 //                ':query'    => $query,
 //                ':e'        => $e->getMessage()
 //            ]), $e);
+
         // Get error data from PDO
         $error = $this->pdo->errorInfo();
+
         // Check SQL state
         switch ($e->getSqlState()) {
             case 'denied':
                 // no break
+
             case 'invalidforce':
                 // Some database operation has failed
                 foreach ($e->getMessages() as $message) {
                     Log::error(static::getConnectorLogPrefix() . $message);
                 }
                 exit(1);
+
             case '42S02':
                 throw new SqlTableDoesNotExistException(Strings::from($e->getMessage(), '1146'), $e);
+
             case '3D000':
                 throw new SqlDatabaseDoesNotExistException(Strings::from($e->getMessage(), '1146'), $e);
+
             case 'HY093':
                 // Invalid parameter number: number of bound variables does not match number of tokens
                 // Get tokens from query
@@ -504,6 +534,7 @@ class Sql implements SqlInterface
                     'add'    => 'variables missing in query',
                     'delete' => 'variables missing in execute',
                 ]));
+
             default:
                 throw $e->setCode($e->getSqlState());
 //                switch (isset_get($error[1])) {
@@ -621,6 +652,7 @@ class Sql implements SqlInterface
     public function fetch(PDOStatement $resource, int $fetch_style = PDO::FETCH_ASSOC): ?array
     {
         $result = $resource->fetch($fetch_style);
+
         if ($result === false) {
             // There are no entries
             return null;
@@ -643,6 +675,7 @@ class Sql implements SqlInterface
     public function getBoolean(string|PDOStatement $query, array $execute = null, ?string $column = null): bool|null
     {
         $result = static::getColumn($query, $execute, $column);
+
         if ($result === null) {
             // Not found
             return null;
@@ -664,20 +697,24 @@ class Sql implements SqlInterface
     public function getColumn(string|PDOStatement $query, array $execute = null, ?string $column = null): string|float|int|bool|null
     {
         $result = $this->get($query, $execute);
+
         if (!$result) {
             // No results
             return null;
         }
+
         if ($column) {
             // Column was specified, so we can process multiple columns in the results
             if (array_key_exists($column, $result)) {
                 return $result[$column];
             }
+
             // Specified column doesn't exist
             throw new SqlColumnDoesNotExistsException(tr('Cannot return column ":column", it does not exist in the result set for query ":query"', [
                 ':query'  => $query,
                 ':column' => $column,
             ]));
+
         } else {
             // No column was specified, so we MUST have received only one column!
             if (count($result) > 1) {
@@ -685,8 +722,7 @@ class Sql implements SqlInterface
                 throw SqlException::new(tr('The query ":query" returned ":count" columns while Sql::\getColumn() without $column specification can only select and return one single column', [
                     ':query' => $query,
                     ':count' => count($result),
-                ]))
-                                  ->addData($result);
+                ]))->addData($result);
             }
 
             return Arrays::firstValue($result);
@@ -710,17 +746,21 @@ class Sql implements SqlInterface
                 // Already connected to requested DB
                 return $this;
             }
+
             // Does this connector require an SSH tunnel?
             if (isset_get($this->configuration['ssh_tunnel']['required'])) {
                 $this->sshTunnel();
             }
+
             // Connect!
             $retries = 7;
+
             while (--$retries >= 0) {
                 try {
                     $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['hostname'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['database']) ? ';dbname=' . $this->configuration['database'] : '');
                     $this->pdo      = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], Arrays::force($this->configuration['pdo_attributes']));
                     $this->pdo->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+
                     Log::success(static::getConnectorLogPrefix() . tr('Connected to instance ":connector" with PDO connect string ":string"', [
                             ':connector' => $this->connector,
                             ':string'    => $connect_string,
@@ -735,6 +775,7 @@ class Sql implements SqlInterface
                                 ':user'      => $this->configuration['username'],
                             ]));
                     }
+
                     switch ($e->getCode()) {
                         case 1045:
                             // Access  denied!
@@ -742,8 +783,8 @@ class Sql implements SqlInterface
                                     ':connector' => $this->connector,
                                     ':string'    => isset_get($connect_string),
                                     ':user'      => $this->configuration['username'],
-                                ]))
-                                                          ->makeWarning();
+                                ]))->makeWarning();
+
                         case 1049:
                             // Database doesn't exist!
                             throw SqlDatabaseDoesNotExistException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the database ":database" does not exist', [
@@ -751,16 +792,16 @@ class Sql implements SqlInterface
                                     ':string'    => isset_get($connect_string),
                                     ':database'  => $this->configuration['database'],
                                     ':user'      => $this->configuration['username'],
-                                ]))
-                                                                  ->makeWarning();
+                                ]))->makeWarning();
+
                         case 2002:
                             // Database service not available, connection refused!
                             throw SqlServerNotAvailableException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the connection was refused. The database server may be down, or the configuration may be incorrect', [
                                     ':connector' => $this->connector,
                                     ':string'    => isset_get($connect_string),
                                     ':user'      => $this->configuration['username'],
-                                ]))
-                                                                ->makeWarning();
+                                ]))->makeWarning();
+
                     }
                     if ($e->getMessage() == 'could not find driver') {
                         if ($this->configuration['driver']) {
@@ -769,16 +810,21 @@ class Sql implements SqlInterface
                                 ':driver'    => $this->configuration['driver'],
                             ]));
                         }
+
                         throw new PhpModuleNotAvailableException(tr('Failed to connect connector ":connector", it has no SQL driver specified', [
                             ':connector' => $this->connector,
                         ]));
                     }
+
                     Log::error(static::getConnectorLogPrefix() . tr('Failed to connect to instance ":connector" with PDO connect string ":string", error follows below', [
                             ':connector' => $this->connector,
                             ':string'    => isset_get($connect_string),
-                        ]));
+                    ]));
+
                     Log::error($e);
+
                     $message = $e->getMessage();
+
                     if (!str_contains($message, 'errno=32')) {
                         if ($e->getMessage() == 'ERROR 2013 (HY000): Lost connection to MySQL server at \'reading initial communication packet\', system error: 0') {
                             if (isset_get($this->configuration['ssh_tunnel']['required'])) {
@@ -789,11 +835,13 @@ class Sql implements SqlInterface
                                 continue;
                             }
                         }
+
                         // Continue throwing the exception as normal, we'll retry to connect!
                         throw new SqlConnectException(tr('Failed to connect to SQL connector ":connector"', [
                             ':connector' => $this->connector,
                         ]), $e);
                     }
+
                     /*
                      * This is a workaround for the weird PHP MySQL error "PDO::__construct(): send of 5 bytes failed
                      * with errno=32 Broken pipe". So far we have not been able to find a fix for this, but we have
@@ -810,8 +858,10 @@ class Sql implements SqlInterface
                     usleep(100000);
                 }
             }
+
             // Yay, we're using the database!
             $this->using_database = $this->configuration['database'];
+
             if ($this->configuration['timezones_name']) {
                 // Try to set MySQL timezone
                 try {
@@ -823,21 +873,23 @@ class Sql implements SqlInterface
                             ':connector' => $this->connector,
                             ':e'         => $e->getMessage(),
                         ]));
+
                     if (!Core::readRegister('no_time_zone') and (Core::isExecutedPath('system/init'))) {
                         throw $e;
                     }
+
                     // Indicate that time_zone settings failed (this will subsequently be used by the init system to
                     // automatically initialize that as well)
                     // TODO Write somewhere else than Core "system" register as that will be readonly
                     throw SqlNoTimezonesException::new(tr('Failed to set timezone ":timezone" on connector ":connector", MySQL has not yet loaded any timezones', [
                         ':connector' => $this->connector,
                         ':timezone'  => $this->configuration['timezones_name'],
-                    ]), $e)
-                                                 ->addData([
-                                                     'connector' => $this->connector,
-                                                 ]);
+                    ]), $e)->addData([
+                        'connector' => $this->connector,
+                    ]);
                 }
             }
+
             if (!empty($this->configuration['mode'])) {
                 $this->pdo->query('SET sql_mode="' . $this->configuration['mode'] . '";');
             }
@@ -850,6 +902,7 @@ class Sql implements SqlInterface
                 switch (CliCommand::getExecutedPath()) {
                     case 'system/init/drop':
                         // no break
+
                     case 'system/init/init':
                         // This is not an issue, we're either dropping DB or initializing it.
                         $this->connect(false);
@@ -857,6 +910,7 @@ class Sql implements SqlInterface
                         return $this;
                 }
             }
+
             // We failed to use the specified database, oh noes!
             switch ($e->getCode()) {
                 case 1044:
@@ -864,10 +918,12 @@ class Sql implements SqlInterface
                     throw new SqlException(tr('Cannot access database ":db", this user has no access to it', [
                         ':db' => $this->configuration['database'],
                     ]), $e);
+
                 case 1049:
                     throw new SqlException(tr('Cannot use database ":db", it does not exist', [
                         ':db' => $this->configuration['database'],
                     ]), $e);
+
                 case 2002:
                     // Connection refused
                     if (empty($this->configuration['ssh_tunnel']['required'])) {
@@ -876,6 +932,7 @@ class Sql implements SqlInterface
                             ':port'     => $this->configuration['port'],
                         ]), $e);
                     }
+
                     // This connection requires an SSH tunnel. Check if the tunnel process still exists
                     if (!Cli::PidGrep($tunnel['pid'])) {
                         $restrictions = servers_get($this->configuration['ssh_tunnel']['domain']);
@@ -885,23 +942,27 @@ class Sql implements SqlInterface
                                 ':hostname' => $this->configuration['ssh_tunnel']['domain'],
                             ]), $e);
                         }
+
                         if ($registered === true) {
                             throw new SqlException(tr('Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the DIRECTORY_ROOT/data/ssh/known_hosts file.', [
                                 ':hostname' => $this->configuration['ssh_tunnel']['domain'],
                                 ':port'     => $this->configuration['port'],
                             ]), $e);
                         }
+
                         // The server was not registerd in the DIRECTORY_ROOT/data/ssh/known_hosts file, but was registered in the
                         // ssh_fingerprints table, and automatically updated. Retry to connect
                         $this->connect();
 
                         return $this;
                     }
+
 //:TODO: SSH to the server and check if the msyql process is up!
                     throw new SqlException(tr('sql_connect(): Connection refused for SSH tunnel requiring host ":hostname::port". The tunnel process is available, maybe the MySQL on the target server is down?', [
                         ':hostname' => $this->configuration['hostname'],
                         ':port'     => $this->configuration['port'],
                     ]), $e);
+
                 case 2006:
                     /*
                      * MySQL server went away
@@ -915,6 +976,7 @@ class Sql implements SqlInterface
                      */
                     throw $e;
                 }
+
                     $restrictions = Servers::get($this->configuration['ssh_tunnel']['domain']);
                     $allowed      = Cli::getSshTcpForwarding($restrictions);
                     if (!$allowed) {
@@ -925,16 +987,21 @@ class Sql implements SqlInterface
                         if (!$restrictions['allow_sshd_modification']) {
                             throw new SqlException(tr('Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', [':connector' => $this->configuration]));
                         }
+
                         Log::warning(static::getConnectorLogPrefix() . tr('Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', [':server' => $this->configuration['ssh_tunnel']['domain']]));
+
                         // Now enable TCP forwarding on the server, and retry connection
                         linux_set_ssh_tcp_forwarding($restrictions, true);
                         Log::warning(static::getConnectorLogPrefix() . tr('Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', [':server' => $this->configuration['ssh_tunnel']['domain']]));
+
                         if ($this->configuration['ssh_tunnel']['pid']) {
                             Log::warning(static::getConnectorLogPrefix() . tr('Closing previously opened SSH tunnel to server ":server"', [':server' => $this->configuration['ssh_tunnel']['domain']]));
                             Ssh::closeTunnel($this->configuration['ssh_tunnel']['pid']);
                         }
+
                         $this->connect();
                     }
+
                     // Check if the tunnel process is still up and about
                     if (!Cli::Pid($this->configuration['ssh_tunnel']['pid'])) {
                         throw new SqlException(tr('SSH tunnel process ":pid" is gone', [':pid' => $this->configuration['ssh_tunnel']['pid']]));
@@ -1069,13 +1136,13 @@ class Sql implements SqlInterface
      *
      * @param bool $use_database
      *
-     * @return Schema
+     * @return SchemaInterface
      */
-    public function resetSchema(bool $use_database = true): Schema
+    public function resetSchema(bool $use_database = true): SchemaInterface
     {
         unset($this->schema);
 
-        return $this->schema($use_database);
+        return $this->getSchemaObject($use_database);
     }
 
 
@@ -1084,9 +1151,9 @@ class Sql implements SqlInterface
      *
      * @param bool $use_database
      *
-     * @return Schema
+     * @return SchemaInterface
      */
-    public function schema(bool $use_database = true): Schema
+    public function getSchemaObject(bool $use_database = true): SchemaInterface
     {
         if (empty($this->schema)) {
             $this->schema = new Schema($this->connector, $use_database);
@@ -1112,11 +1179,14 @@ class Sql implements SqlInterface
 
             return $this;
         }
+
         $database = $this->getDatabaseName($database);
+
         Log::action(tr('(:uniqueid) Using database ":database"', [
             ':uniqueid' => $this->uniqueid,
             ':database' => $database,
         ]));
+
         try {
             $this->pdo->query('USE `' . $database . '`');
             $this->using_database = $database;
@@ -1131,11 +1201,13 @@ class Sql implements SqlInterface
                     throw new SqlException(tr('Cannot access database ":db", this user has no access to it', [
                         ':db' => $database,
                     ]), $e);
+
                 case 1049:
                     throw new SqlException(tr('Cannot use database ":db", it does not exist', [
                         ':db' => $this->configuration['database'],
                     ]), $e);
             }
+
             throw new SqlException($e);
         }
     }
@@ -1176,15 +1248,19 @@ class Sql implements SqlInterface
     public function insert(string $table, array $data, array|string|null $update = null): int
     {
         Core::checkReadonly('sql insert');
+
         $columns = SqlQueries::getPrefixedColumns($data);
         $values  = SqlQueries::getBoundValues($data);
+
         if ($update) {
             // Build bound variables for the query
             if (is_array($update)) {
                 $data = array_merge($data, $update);
             }
+
             $keys   = SqlQueries::getBoundKeys($data);
             $update = SqlQueries::getUpdateKeyValues($update);
+
             $this->query('INSERT INTO            `' . $table . '` (' . $columns . ') 
                                 VALUES                                  (' . $keys . ') 
                                 ON DUPLICATE KEY UPDATE ' . $update, $values);
@@ -1234,6 +1310,7 @@ class Sql implements SqlInterface
     public function update(string $table, array $set, array|null $where = null): int
     {
         Core::checkReadonly('sql update');
+
         // Build bound variables for the query
         $values    = SqlQueries::getBoundValues(array_merge($set, Arrays::force($where)));
         $update    = SqlQueries::getUpdateKeyValues($set);
@@ -1303,6 +1380,7 @@ class Sql implements SqlInterface
     public function erase(string $table, array $where, string $separator = 'AND'): int
     {
         Core::checkReadonly('sql erase');
+
         // Build bound variables for the query
         $variables = SqlQueries::getBoundValues($where);
         $update    = SqlQueries::filterColumns($where, ' ' . $separator . ' ');
@@ -1339,13 +1417,16 @@ class Sql implements SqlInterface
     public function getInteger(string|PDOStatement $query, array $execute = null, ?string $column = null): int|null
     {
         $result = static::getNumeric($query, $execute, $column);
+
         if ($result === null) {
             // Not found
             return null;
         }
+
         if (is_integer($result)) {
             return $result;
         }
+
         throw new OutOfBoundsException(tr('Query ":query" produced non-integer result ":result"', [
             ':query'  => $query,
             ':result' => $result,
@@ -1366,16 +1447,19 @@ class Sql implements SqlInterface
     public function getNumeric(string|PDOStatement $query, array $execute = null, ?string $column = null): float|int|null
     {
         $result = static::getColumn($query, $execute, $column);
+
         if ($result === null) {
             // Not found
             return null;
         }
+
         if (!is_numeric($result)) {
             throw new OutOfBoundsException(tr('Query ":query" produced non-numeric result ":result"', [
                 ':query'  => $query,
                 ':result' => $result,
             ]));
         }
+
         if (is_numeric_integer($result)) {
             return (int) $result;
         }
@@ -1552,19 +1636,22 @@ class Sql implements SqlInterface
     /**
      * Import data from specified file
      *
-     * @param string                                  $file
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param string                                    $file
+     * @param FsRestrictionsInterface|array|string|null $restrictions
      *
      * @return void
      */
-    public function import(string $file, RestrictionsInterface|array|string|null $restrictions): void
+    public function import(string $file, FsRestrictionsInterface|array|string|null $restrictions): void
     {
         throw new UnderConstructionException();
+
         $tel  = 0;
-        $file = File::new($file, $restrictions)
-                    ->open(EnumFileOpenMode::readOnly);
+        $file = FsFile::new($file, $restrictions)
+                      ->open(EnumFileOpenMode::readOnly);
+
         while (($line = $file->readLine()) !== false) {
             $line = trim($line);
+
             if (!empty($line)) {
                 $this->pdo->query($line);
                 $tel++;
@@ -1574,10 +1661,13 @@ class Sql implements SqlInterface
                 echo "\033[1A";
             }
         }
+
         echo "\nDone\n";
+
         if (!$file->isEof()) {
             throw new SqlException(tr('Import of file ":file" unexpectedly halted', [':file' => $file]));
         }
+
         $file->close();
     }
 
@@ -1601,6 +1691,7 @@ class Sql implements SqlInterface
     public function getInsertId(): ?int
     {
         $insert_id = $this->pdo->lastInsertId();
+
         if ($insert_id) {
             return (int) $insert_id;
         }
@@ -1647,16 +1738,20 @@ class Sql implements SqlInterface
     public function count(string $table, string $where = '', ?array $execute = null, string $column = '`id`'): int
     {
         throw new UnderConstructionException();
+
         $expires = Config::get('databases.cache.expires');
         $hash    = hash('sha1', $table . $where . $column . json_encode($execute));
         $count   = $this->getColumn('SELECT `count` FROM `counts` WHERE `hash` = :hash AND `until` > NOW()', 'count', [
             ':hash' => $hash,
         ]);
+
         if ($count) {
             return $count;
         }
+
         // Count value was not found cached, count it directly
         $count = $this->get('SELECT COUNT(' . $column . ') AS `count` FROM `' . $table . '` ' . $where, 'count', $execute);
+
         // TODO Use a query cache class
         $this->query('INSERT INTO `counts` (`created_by`, `count`, `hash`, `until`)
                             VALUES               (:created_by , :count , :hash , NOW() + INTERVAL :expires SECOND)
@@ -1721,6 +1816,7 @@ class Sql implements SqlInterface
        
                                   WHERE     `databases`.`id`         = :name
                                   OR        `databases`.`name`       = :name', [':name' => $database]);
+
         if (!$return) {
             throw new SqlException(tr('Specified database ":database" does not exist', [':database' => $database]));
         }
@@ -1739,6 +1835,7 @@ class Sql implements SqlInterface
     public function getValidLimit(int $limit): int
     {
         $limit = force_natural($limit);
+
         if ($limit > $this->configuration['limit_max']) {
             return $this->configuration['limit_max'];
         }
@@ -1756,14 +1853,17 @@ class Sql implements SqlInterface
     {
         $result = $this->connect(true)
                        ->getColumn('SELECT 1');
+
         if ($result === 1) {
             return $this;
         }
+
         throw new DatabaseTestException(tr('Database test for connector ":connector" should return "1" but returned ":result" instead', [
             ':connector' => $this->connector,
             ':result'    => $result,
         ]));
     }
+
 //    /**
 //     * Try to get single data entry from memcached. If not available, get it from
 //     * MySQL and store results in memcached for future use

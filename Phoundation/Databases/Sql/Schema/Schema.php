@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
+use Phoundation\Databases\Sql\Schema\Interfaces\DatabaseInterface;
+use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
+use Phoundation\Databases\Sql\Schema\Interfaces\TableInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Config;
@@ -19,7 +22,7 @@ use Phoundation\Utils\Config;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
-class Schema
+class Schema implements SchemaInterface
 {
     /**
      * The instance configuration for this schema
@@ -45,7 +48,7 @@ class Schema
     /**
      * The SQL engine
      *
-     * @var SqlInterface|Sql $sql
+     * @var SqlInterface $sql
      */
     protected SqlInterface $sql;
 
@@ -59,6 +62,7 @@ class Schema
         if (!$instance_name) {
             throw new OutOfBoundsException(tr('No instance name specified'));
         }
+
         $this->instance_name = $instance_name;
         $this->sql           = new Sql($instance_name, $use_database);
     }
@@ -67,17 +71,18 @@ class Schema
     /**
      * Access a new Table object for the currently selected database
      *
-     * @param string $name
+     * @param string      $name
+     * @param string|null $database_name
      *
-     * @return Table
+     * @return TableInterface
      */
-    public function table(string $name): Table
+    public function getTableObject(string $name, ?string $database_name = null): TableInterface
     {
         if (!$name) {
             throw new OutOfBoundsException(tr('No table specified'));
         }
 
-        return $this->database()
+        return $this->getDatabaseObject($database_name)
                     ->table($name);
     }
 
@@ -87,18 +92,20 @@ class Schema
      *
      * @param string|null $name
      *
-     * @return Database
+     * @return DatabaseInterface
      */
-    public function database(?string $name = null): Database
+    public function getDatabaseObject(?string $name = null): DatabaseInterface
     {
         if (!$name) {
             // Default to system database
             $name = Config::get('databases.sql.connectors.system.name', 'phoundation');
         }
+
         // If we don't have this database yet, create it now
         if (!array_key_exists($name, $this->databases)) {
             $this->databases[$name] = new Database($name, $this->sql, $this);
         }
+
         // Set current database and return a database object
         $this->current_database = $name;
 

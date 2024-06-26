@@ -17,12 +17,12 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Filesystem\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MysqlDump;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Utils\Strings;
 
 /**
@@ -127,11 +127,11 @@ class Export
     /**
      * Exporter class constructor
      *
-     * @param RestrictionsInterface|null $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      */
-    public function __construct(?RestrictionsInterface $restrictions = null)
+    public function __construct(?FsRestrictionsInterface $restrictions = null)
     {
-        $this->restrictions = Restrictions::default($restrictions, Restrictions::writable('/', 'Mysql exporter'));
+        $this->restrictions = FsRestrictions::getRestrictionsOrDefault($restrictions, FsRestrictions::getWritable('/', 'Mysql exporter'));
     }
 
 
@@ -384,25 +384,27 @@ class Export
 
 
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
      *
-     * @param string|null                $file
-     * @param EnumExecuteMethodInterface $method
+     * @param FsFileInterface|null       $file
+     * @param EnumExecuteMethod $method
      *
      * @return string
      * @throws SqlExceptionInterface
      */
-    public function dump(?string $file, EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string
+    public function dump(?FsFileInterface $file, EnumExecuteMethod $method = EnumExecuteMethod::passthru): string
     {
         switch ($this->driver ?? $this->connector->getDriver()) {
             case null:
                 throw new OutOfBoundsException(tr('No export driver specified'));
+
             case 'mysql':
                 $file = MysqlDump::new($this->restrictions)
                                  ->setConnector($this->connector)
                                  ->setTimeout($this->timeout)
                                  ->setDatabases($this->database)
                                  ->dump($file, $method);
+
                 Log::success(tr('Exported to MySQL dump file ":file" from databases ":database", this may take a while...', [
                     ':file'     => $file,
                     ':database' => Strings::force($this->database, ', '),
@@ -426,6 +428,7 @@ class Export
     public function setConnector(ConnectorInterface|string|null $connector, bool $ignore_sql_exceptions = false): static
     {
         $this->__setConnector($connector, $ignore_sql_exceptions);
+
         if ($this->getDriver()) {
             // Driver was specified separately, must match driver for this connector
             if ($this->getDriver() !== $this->connector->getDriver()) {
@@ -463,6 +466,7 @@ class Export
                 ]));
             }
         }
+
         $this->driver = get_null($driver);
 
         return $this;
@@ -472,11 +476,11 @@ class Export
     /**
      * Returns a new Export object
      *
-     * @param RestrictionsInterface|null $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      *
      * @return static
      */
-    public static function new(?RestrictionsInterface $restrictions = null): static
+    public static function new(?FsRestrictionsInterface $restrictions = null): static
     {
         return new static($restrictions);
     }

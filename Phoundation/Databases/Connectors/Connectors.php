@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors;
 
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
 use Phoundation\Databases\Sql\Exception\SqlException;
@@ -21,10 +21,10 @@ use Phoundation\Utils\Config;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
-class Connectors extends DataList implements ConnectorsInterface
+class Connectors extends DataIterator implements ConnectorsInterface
 {
     /**
-     * DataList class constructor
+     * DataIterator class constructor
      */
     public function __construct(?array $ids = null)
     {
