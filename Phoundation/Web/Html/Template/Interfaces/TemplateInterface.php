@@ -1,9 +1,5 @@
 <?php
 
-namespace Phoundation\Web\Html\Template\Interfaces;
-
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-
 /**
  * Interface TemplateInterface
  *
@@ -14,6 +10,12 @@ use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+namespace Phoundation\Web\Html\Template\Interfaces;
+
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+
 interface TemplateInterface
 {
     /**
@@ -65,7 +67,7 @@ interface TemplateInterface
     /**
      * Returns the root path for this template
      *
-     * @return string
+     * @return FsDirectoryInterface
      */
-    public function getDirectory(): string;
+    public function getDirectory(): FsDirectoryInterface;
 }

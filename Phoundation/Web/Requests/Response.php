@@ -29,8 +29,8 @@ use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Date\Date;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\Traits\TraitDataStaticRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
@@ -457,14 +457,18 @@ class Response implements ResponseInterface
      * Sets the page header title
      *
      * @param Stringable|string|float|int|null $header_title
+     * @param bool                             $force
      *
      * @return void
      */
-    public static function setHeaderTitle(Stringable|string|float|int|null $header_title): void
+    public static function setHeaderTitle(Stringable|string|float|int|null $header_title, bool $force = true): void
     {
-        static::$header_title = (string) $header_title;
-        if (!static::$page_title) {
-            static::$page_title = Config::get('project.name', 'Phoundation') . ' - ' . $header_title;
+        if (empty(static::$header_title) or $force) {
+            static::$header_title = get_null((string) $header_title);
+
+            if (!static::$page_title) {
+                static::$page_title = Config::get('project.name', 'Phoundation') . ' - ' . $header_title;
+            }
         }
     }
 
@@ -484,12 +488,15 @@ class Response implements ResponseInterface
      * Sets the page header subtitle
      *
      * @param Stringable|string|float|int|null $header_sub_title
+     * @param bool                             $force
      *
      * @return void
      */
-    public static function setHeaderSubTitle(Stringable|string|float|int|null $header_sub_title): void
+    public static function setHeaderSubTitle(Stringable|string|float|int|null $header_sub_title, bool $force = true): void
     {
-        static::$header_sub_title = get_null((string) $header_sub_title);
+        if (empty(static::$header_title) or $force) {
+            static::$header_sub_title = get_null((string) $header_sub_title);
+        }
     }
 
 
@@ -579,12 +586,12 @@ class Response implements ResponseInterface
             if (!$url) {
                 $url  = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
                 $url  = static::versionFile($url, 'img');
-                $file = Path::absolutePath(LANGUAGE . '/' . $url, DIRECTORY_CDN);
+                $file = FsPath::absolutePath(LANGUAGE . '/' . $url, DIRECTORY_CDN);
                 static::$page_headers['link'][$url] = [
                     'rel'  => 'icon',
                     'href' => UrlBuilder::getImg($url),
-                    'type' => File::new($file)
-                                  ->getMimetype(),
+                    'type' => FsFile::new($file)
+                                    ->getMimetype(),
                 ];
             } else {
                 $url = static::versionFile($url, 'img');
@@ -908,12 +915,15 @@ class Response implements ResponseInterface
      * Sets the browser page title
      *
      * @param Stringable|string|float|int|null $page_title
+     * @param bool                             $force
      *
      * @return void
      */
-    public static function setPageTitle(Stringable|string|float|int|null $page_title): void
+    public static function setPageTitle(Stringable|string|float|int|null $page_title, bool $force = true): void
     {
-        static::$page_title = strip_tags((string) $page_title);
+        if (empty(static::$page_title) or $force) {
+            static::$page_title = get_null(strip_tags((string) $page_title));
+        }
     }
 
 

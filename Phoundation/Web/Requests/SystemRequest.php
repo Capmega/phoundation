@@ -57,7 +57,7 @@ class SystemRequest
 
 
     /**
-     * Execute the specified system page
+     * ExecuteExecuteInterface the specified system page
      *
      * @param array $variables
      *
@@ -76,7 +76,7 @@ class SystemRequest
             default                => DIRECTORY_WEB . 'pages/', // HTML plus anything we don't know gets an HTML page
         };
         try {
-            // Execute the system page request
+            // ExecuteExecuteInterface the system page request
             Request::setSystem(true);
             Request::executeAndFlush($request_path . 'system/' . $variables['code'] . '.php', true);
             exit();

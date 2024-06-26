@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\Panels;
 
 use Phoundation\Web\Html\Components\Widgets\Modals\SignInModal;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 
@@ -42,7 +43,7 @@ class SidePanel extends Panel
         $sign_in->useForm(true)
                 ->getForm()
                 ->setId('form-sign-in')
-                ->setMethod('post')
+                ->setMethod(EnumHttpRequestMethod::post)
                 ->setAction(UrlBuilder::getAjax('sign-in'));
         $this->setMenu(Request::getMenusObject()
                               ->getPrimaryMenu())

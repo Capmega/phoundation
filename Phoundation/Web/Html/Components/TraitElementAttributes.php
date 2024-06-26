@@ -392,7 +392,7 @@ trait TraitElementAttributes
     public function addData(string|float|int|null $value, string $key): static
     {
         $this->getData()
-             ->add($value, $key, skip_null: false);
+             ->add($value, $key, skip_null_values: false);
 
         return $this;
     }

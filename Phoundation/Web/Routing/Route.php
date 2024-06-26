@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Route
  *
@@ -30,8 +31,8 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\RegexException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
@@ -164,7 +165,7 @@ class Route
 
 
     /**
-     * Execute the specified target
+     * ExecuteExecuteInterface the specified target
      *
      * @param string $target
      * @param bool   $attachment
@@ -178,7 +179,7 @@ class Route
 
         // Get routing parameters and find the correct target page
         $parameters = static::getParameters()->select(static::$uri);
-        $target     = new File($target);
+        $target     = new FsFile($target);
 
         Request::setRoutingParameters($parameters);
         Request::setAttachment($attachment);
@@ -228,6 +229,7 @@ class Route
         if (empty(static::$instance)) {
             static::$instance = new static();
         }
+
         // We should execute the initialization only once
         if (!static::$init) {
             // Only initialize when a parameter list has been set, since init may cause this list to be needed
@@ -248,13 +250,19 @@ class Route
      */
     protected static function init(): void
     {
-        Request::setRestrictions(Restrictions::readonly(DIRECTORY_WEB));
+        Request::setRestrictions(FsRestrictions::getReadonly(DIRECTORY_WEB));
         Response::initialize();
 
         if (Core::getMaintenanceMode()) {
             // We're running in maintenance mode, show the maintenance page
             Log::warning('WARNING: Not processing routes, system is in maintenance mode');
             Request::executeSystem(503);
+        }
+
+        // Domain should NOT end with a .
+        if (str_ends_with($_SERVER['HTTP_HOST'], '.')) {
+            // Redirect to the same URL, but the host without .
+            Response::redirect($_SERVER['REQUEST_SCHEME'] . '://' . substr($_SERVER['HTTP_HOST'], 0, -1) . $_SERVER['REQUEST_URI']);
         }
 
         // URI may not be more than 2048 bytes
@@ -574,19 +582,23 @@ class Route
     public static function try(string $url_regex, string $target, string $flags = ''): void
     {
         static $count = 1;
+
         static::getInstance();
         static::validateHost();
+
         try {
             if (!$url_regex) {
                 // Match an empty string
                 $url_regex = '/^$/';
             }
+
             // Apply pre-matching flags. Depending on individual flags we may do different things
             $uri    = static::$uri;
             $flags  = explode(',', $flags);
             $until  = false; // By default, do not store this rule
             $block  = false; // By default, do not block this request
             $static = true;  // By default, do check for rules, if configured so
+
             foreach ($flags as $flag) {
                 if (!$flag) {
                     continue;
@@ -1069,7 +1081,7 @@ class Route
                     }
                 }
                 // We are going to show the matched page so we no longer need to default to 404
-                // Execute the page specified in $target (from here, $route)
+                // ExecuteExecuteInterface the page specified in $target (from here, $route)
                 // Update the current running script name
                 // Flip the routemap keys <=> values foreach language so that its
                 // now english keys. This way, the routemap can be easily used to

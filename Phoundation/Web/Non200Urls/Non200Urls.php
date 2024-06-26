@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Non200Urls;
 
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Exception\OutOfBoundsException;
 
 /**
@@ -17,7 +17,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
-class Non200Urls extends DataList
+class Non200Urls extends DataIterator
 {
     /**
      * @inheritDoc

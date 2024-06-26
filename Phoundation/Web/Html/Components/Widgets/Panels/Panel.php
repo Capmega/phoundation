@@ -149,7 +149,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->logos)) {
             $this->logos = Iterator::new()
-                                   ->setDataTypes('object:' . Logo::class);
+                                   ->setAcceptedDataTypes('object:' . Logo::class);
         }
 
         return $this->logos;
@@ -165,7 +165,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->menus)) {
             $this->menus = Iterator::new()
-                                   ->setDataTypes('object:' . Menu::class);
+                                   ->setAcceptedDataTypes('object:' . Menu::class);
         }
 
         return $this->menus;
@@ -181,7 +181,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->buttons)) {
             $this->buttons = Iterator::new()
-                                     ->setDataTypes('object:' . Button::class);
+                                     ->setAcceptedDataTypes('object:' . Button::class);
         }
 
         return $this->buttons;
@@ -197,7 +197,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->breadcrumbs)) {
             $this->breadcrumbs = Iterator::new()
-                                         ->setDataTypes('object:' . BreadCrumbs::class);
+                                         ->setAcceptedDataTypes('object:' . BreadCrumbs::class);
         }
 
         return $this->breadcrumbs;
@@ -213,7 +213,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->texts)) {
             $this->texts = Iterator::new()
-                                   ->setDataTypes('string');
+                                   ->setAcceptedDataTypes('string');
         }
 
         return $this->texts;
@@ -229,7 +229,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->avatars)) {
             $this->avatars = Iterator::new()
-                                     ->setDataTypes('object:' . Avatar::class);
+                                     ->setAcceptedDataTypes('object:' . Avatar::class);
         }
 
         return $this->avatars;
@@ -245,7 +245,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->icons)) {
             $this->icons = Iterator::new()
-                                   ->setDataTypes('object:' . Icon::class);
+                                   ->setAcceptedDataTypes('object:' . Icon::class);
         }
 
         return $this->icons;

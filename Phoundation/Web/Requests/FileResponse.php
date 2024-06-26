@@ -11,12 +11,13 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\Traits\TraitPathConstructor;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Http\Exception;
+use Stringable;
 
 /**
  * Class FileResponse
@@ -30,9 +31,10 @@ use Phoundation\Web\Http\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
 throw new UnderConstructionException(tr('Rebuild the Web\Http\File class, now extending Filesystem\File'));
 
-class FileResponse extends File
+class FileResponse extends FsFile
 {
     use TraitPathConstructor {
         __construct as protected ___construct;
@@ -62,9 +64,9 @@ class FileResponse extends File
     /**
      * The file (locally on this server)
      *
-     * @var string|null
+     * @var FsFileInterface|null
      */
-    protected ?string $file = null;
+    protected ?FsFileInterface $file = null;
 
     /**
      * The name of the file so that the client knows with what name to save it
@@ -97,9 +99,16 @@ class FileResponse extends File
     protected ?int $size = null;
 
 
-    public function __construct(mixed $source = null, RestrictionsInterface|array|string|null $restrictions = null, bool $make_absolute = false)
+    /**
+     * FileResponse class constructor
+     *
+     * @param Stringable|string|null $source            $source
+     * @param FsRestrictionsInterface|array|string|null $restrictions
+     * @param Stringable|string|bool|null               $absolute_prefix
+     */
+    public function __construct(Stringable|string|null $source = null, FsRestrictionsInterface|array|string|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
     {
-        parent::__construct($source, $restrictions, $make_absolute);
+        parent::__construct($source, $restrictions, $absolute_prefix);
         $this->compression = Config::get('web.http.download.compression', 'auto');
     }
 
@@ -192,9 +201,9 @@ class FileResponse extends File
     /**
      * Returns the file (locally on this server)
      *
-     * @return string
+     * @return FsFileInterface
      */
-    public function getFile(): string
+    public function getFile(): FsFileInterface
     {
         return $this->file;
     }
@@ -203,22 +212,24 @@ class FileResponse extends File
     /**
      * Sets the file (locally on this server)
      *
-     * @param string $file
+     * @param FsFileInterface $file
      *
      * @return static
      */
-    public function setFile(string $file): static
+    public function setFile(FsFileInterface $file): static
     {
         if ($this->data) {
             throw new OutOfBoundsException(tr('Cannot set the file property, file data has already been specified'));
         }
+
         // Ensure the specified file is valid and readable
-        File::new($file, $this->restrictions)
-            ->checkReadable();
+        FsFile::new($file, $this->restrictions)->checkReadable();
+
         $this->restrictions->check($file, false);
+
         $this->file     = $file;
-        $this->size     = filesize($file);
-        $this->filename = basename($file);
+        $this->size     = $file->getSize();
+        $this->filename = $file->getBasename();
 
         return $this;
     }
@@ -311,19 +322,17 @@ class FileResponse extends File
         ]));
         if ($this->data) {
             // Send data directly from memory
-            $this->mimetype = (new finfo)->buffer($this->data);
+            $this->mimetype = (new finfo())->buffer($this->data);
             // Configure compression, send headers and transfer contents
             $this->configureCompression();
             $this->sendHeaders();
             echo $this->data;
-
         } else {
             // Send a file from disk
             $this->mimetype = mime_content_type($this->file);
             // What file mode will we use?
             if ($this->isBinary()) {
                 $mode = 'rb';
-
             } else {
                 $mode = 'r';
             }
@@ -372,7 +381,6 @@ class FileResponse extends File
                 apache_setenv('no-gzip', 0);
             }
             ini_set('zlib.output_compression', 'On');
-
         } else {
             // Do NOT use compression
             if (is_executable('apache_setenv')) {
@@ -413,23 +421,25 @@ class FileResponse extends File
      * @param callable|null $callback If specified, download will execute this callback with either the filename or file
      *                                contents (depending on $section)
      *
-     * @return FileInterface|null     The path to the downloaded file or NULL if a callback was specified
+     * @return FsFileInterface|null     The path to the downloaded file or NULL if a callback was specified
      */
-    public function download(string $url, callable $callback = null): FileInterface|null
+    public function download(string $url, callable $callback = null): FsFileInterface|null
     {
         // Set temp file and download data
-        $file = FileResponse::getTemporary()
-                            ->getPath();
+        $file = FileResponse::getTemporary()->getPath();
         $data = file_get_contents($url);
+
         // Write data to the temp file
         file_put_contents($file, $data);
+
         if (!$callback) {
-            return File::new($file, $this->restrictions);
+            return FsFile::new($file, $this->restrictions);
         }
-        // Execute the callbacks before returning the data, delete the temporary file after
+
+        // ExecuteExecuteInterface the callbacks before returning the data, delete the temporary file after
         $file = $callback($file);
-        File::new($file, $this->restrictions)
-            ->delete();
+
+        FsFile::new($file, $this->restrictions)->delete();
 
         return $file;
     }
@@ -477,7 +487,6 @@ class FileResponse extends File
             file_put_contents(file_get_contents($url, false, $context));
 
             return $this->files;
-
         } catch (Exception $e) {
             $message = $e->getMessage();
             $message = strtolower($message);

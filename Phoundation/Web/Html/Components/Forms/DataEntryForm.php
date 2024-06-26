@@ -327,7 +327,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 }
 
                 if ($definition->getDisplayCallback()) {
-                    // Execute the specified callback on the data before displaying it
+                    // ExecuteExecuteInterface the specified callback on the data before displaying it
                     $source[$column] = $definition->getDisplayCallback()(isset_get($source[$column]), $source);
                 }
 
@@ -381,7 +381,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                     if (!is_string($definition->getDataSource())) {
                                         if ($definition->getDataSource() instanceof Stringable) {
                                             // This is a Stringable object
-                                            $definition->setDataSource((string)$definition->getDataSource());
+                                            $definition->setDataSource((string) $definition->getDataSource());
 
                                         } else {
                                             // The Only possibility left is instanceof PDOStatement
@@ -581,7 +581,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 ]));
                             }
 
-                            // Execute this to get the element
+                            // ExecuteExecuteInterface this to get the element
                             $this->rows->add($definition, $definition->getElement()($column, $definition, $source));
                     }
 

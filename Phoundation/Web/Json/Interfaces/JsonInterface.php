@@ -15,7 +15,7 @@ namespace Phoundation\Web\Json\Interfaces;
 interface JsonInterface
 {
     /**
-     * Execute the specified JSON page
+     * ExecuteExecuteInterface the specified JSON page
      *
      * @return string|null
      */

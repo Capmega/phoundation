@@ -16,6 +16,7 @@ namespace Phoundation\Web\Html\Components\Forms;
 
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\UrlBuilder;
 use ReturnTypeWillChange;
 use Stringable;
@@ -33,7 +34,7 @@ class FilterForm extends DataEntryForm
         $this->setId('filters');
         $this->useForm(true)
              ->getForm()
-             ->setMethod('GET')
+             ->setMethod(EnumHttpRequestMethod::get)
              ->setAction(UrlBuilder::getWww());
     }
 
@@ -55,7 +56,7 @@ class FilterForm extends DataEntryForm
         }
 
         try {
-            // Execute the validate method to get the results of the validation
+            // ExecuteExecuteInterface the validate method to get the results of the validation
             $this->source = $validator->validate($clear_source);
 
         } catch (ValidationFailedException $e) {

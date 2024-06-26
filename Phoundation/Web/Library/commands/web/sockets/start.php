@@ -7,7 +7,7 @@ use Ratchet\Server\IoServer;
 
 
 /**
- * Script web sockets start
+ * Command web sockets start
  *
  * Starts PHP sockets server
  *

@@ -93,22 +93,27 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
         if ($this->render_contents_only) {
             return $this->content;
         }
+
         $renderer_class = Request::getTemplate()
                                  ->getRendererClass($this);
+
         Log::write(tr('Using renderer class ":class" for ":this"', [
             ':class' => $renderer_class,
             ':this'  => get_class($this),
         ]), 'debug', 2);
+
         $render_function = function (?string $render = null) {
             if ($this->form) {
-                $this->form->setContent($render);
-
-                return $this->form->render();
+                return $this->form
+                            ->setContent($render)
+                            ->render();
             }
+
             $this->render = null;
 
             return $render;
         };
+
         if ($renderer_class) {
             TemplateRenderer::ensureClass($renderer_class, $this);
 
@@ -116,10 +121,12 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
                                   ->setParentRenderFunction($render_function)
                                   ->render();
         }
+
         if (method_exists($this, 'defaultRender')) {
             // Use the default render for this object
             return $this->defaultRender();
         }
+
         // The template component does not exist, return the basic Phoundation version
         Log::warning(tr('No template render class found for block component ":component", rendering basic HTML', [
             ':component' => get_class($this),

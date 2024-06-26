@@ -266,9 +266,9 @@ interface InputSelectInterface extends ResourceElementInterface
     /**
      * Returns the modal after_buttons
      *
-     * @return ButtonsInterface
+     * @return ButtonsInterface|null
      */
-    public function getAfterButtons(): ButtonsInterface;
+    public function getAfterButtons(): ?ButtonsInterface;
 
     /**
      * Sets the modal after_buttons
@@ -298,9 +298,9 @@ interface InputSelectInterface extends ResourceElementInterface
     /**
      * Returns the modal before_buttons
      *
-     * @return ButtonsInterface
+     * @return ButtonsInterface|null
      */
-    public function getBeforeButtons(): ButtonsInterface;
+    public function getBeforeButtons(): ?ButtonsInterface;
 
     /**
      * Sets the modal before_buttons

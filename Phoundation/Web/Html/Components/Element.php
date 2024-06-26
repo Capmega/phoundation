@@ -88,46 +88,59 @@ abstract class Element implements ElementInterface
             if ($this->tooltip->getUseIcon()) {
                 if ($this->tooltip->getRenderBefore()) {
                     $this->classes->add(true, 'has-tooltip-icon-left');
+
                 } else {
                     $this->classes->add(true, 'has-tooltip-icon-right');
                 }
             }
         }
+
         if (!$this->element) {
             if ($this->element === null) {
                 // This is a NULL element, only return the contents
                 return $this->content . $this->extra;
             }
+
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
+
         $postfix = null;
+
         if ($this->attributes->get('auto_submit', false)) {
             // Add javascript to automatically submit on change
             $this->attributes->removeKeys('auto_submit');
+
             $postfix .= Script::new()
                               ->setContent('$("[name=' . $this->name . ']").change(function (e){ e.target.closest("form").submit(); });')
                               ->setJavascriptWrapper(EnumJavascriptWrappers::window);
         }
-        $renderer_class = Request::getTemplate()
-                                 ->getRendererClass($this);
+
+        $renderer_class = Request::getTemplate()->getRendererClass($this);
+
         $render_function = function () use ($postfix) {
             $attributes = $this->renderAttributes();
             $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
+
             if ($attributes) {
                 $attributes = ' ' . $attributes;
             }
+
             $this->render = '<' . $this->element . $attributes;
+
             if ($this->requires_closing_tag) {
                 return $this->render . '>' . $this->content . '</' . $this->element . '>';
 
             }
+
             $render       = $this->render . ' />';
             $this->render = null;
 
             return $render . $postfix;
         };
+
         if ($renderer_class) {
             TemplateRenderer::ensureClass($renderer_class, $this);
+
             $render = $renderer_class::new($this)
                                      ->setParentRenderFunction($render_function)
                                      ->render() . $postfix;
@@ -137,11 +150,14 @@ abstract class Element implements ElementInterface
             Log::warning(tr('No template render class found for element component ":component", rendering basic HTML', [
                 ':component' => get_class($this),
             ]), 3);
+
             $render = $render_function() . $postfix;
         }
+
         if (isset($this->tooltip)) {
             $render = $this->tooltip->render($render);
         }
+
         if ($this->anchor) {
             // This element has an anchor. Render the anchor -which will render this element to be its contents- instead
             return $this->anchor->setContent($render)

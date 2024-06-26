@@ -18,6 +18,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataIteratorSource;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Pages\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
@@ -159,7 +160,8 @@ class Template implements TemplateInterface
                                                 <p>' . tr('Click :here to sign out', [':here' => '<a href="' . UrlBuilder::getWww('sign-out') . '">here</a>']) . '</p>';
 
                     if (!Session::getUser()->isGuest()) {
-                        $this->text .= '        <form class="search-form" method="post" action=":action">
+                        $this->text .= '    <form class="search-form" method="post" action=":action">
+                                                ' . Csrf::getHiddenElement() . '
                                                 <div class="input-group">
                                                     <input type="text" name="search" class="form-control" placeholder=":search">
                                                     <div class="input-group-append">

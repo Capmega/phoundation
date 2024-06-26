@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web;
-
-use Phoundation\Core\Libraries\Libraries;
-
 /**
  * Class Web
  *
@@ -16,6 +10,14 @@ use Phoundation\Core\Libraries\Libraries;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web;
+
+use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Sessions\Session;
+
 class Web
 {
     /**
@@ -40,8 +42,7 @@ class Web
     }
 
 
-
-//    /**
+    //    /**
 //     * Return complete domain with HTTP and all
 //     *
 //     * @param string|null $url

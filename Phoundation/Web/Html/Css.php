@@ -124,8 +124,8 @@ class Css
 //        $arguments       = array('--css', $css_file, '--content', $html, '--out', DIRECTORY_TMP);
 //
 //        // Ensure that any previous version is deleted
-//        File::new($purged_css_file)->delete();
-//        File::new(DIRECTORY_WEB . LANGUAGE . '/pub/css')->delete();
+//        FsFileFileInterface::new($purged_css_file)->delete();
+//        FsFileFileInterface::new(DIRECTORY_WEB . LANGUAGE . '/pub/css')->delete();
 //
 //        // Add list of selectors that should be whitelisted
 //        if (!empty($_CONFIG['css']['whitelist'][$core->register['script']])) {

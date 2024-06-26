@@ -416,14 +416,14 @@ class Script extends Element implements ScriptInterface
 //                    } elseif (($_CONFIG['cdn']['cache_max_age'] > 60) and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())) {
 //                        // External cached file is too old
 //                        Log::warning(tr('Deleting externally cached javascript file ":file" because the file cache time expired', [':file' => $file.'.js']));
-//                        File::new([$file.'.js', $file.'.min.js'], Restrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->delete();
+//                        FsFileFileInterface::new([$file.'.js', $file.'.min.js'], FsRestrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->delete();
 //                    }
 //                }
 //
 //                // If file does not exist, create it now. Check again if it exist, because the previous function may
 //                // have possibly deleted it
 //                if (!file_exists($file.'.js')) {
-//                    Directory::new(dirname($file), Restrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->execute()
+//                    Directory::new(dirname($file), FsRestrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->execute()
 //                        ->setMode(0770)
 //                        ->onDirectoryOnly(function() use ($file, $return) {
 //                            Log::action(tr('Writing internal javascript to externally cached file ":file"', [':file' => $file.'.js']));

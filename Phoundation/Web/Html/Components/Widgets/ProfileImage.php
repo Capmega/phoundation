@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Widgets;
-
-use Phoundation\Content\Images\Interfaces\ImageInterface;
-use Phoundation\Core\Sessions\Session;
-use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
-use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
-use Phoundation\Web\Requests\Request;
-
 /**
  * ProfileImage class
  *
@@ -20,6 +10,17 @@ use Phoundation\Web\Requests\Request;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Widgets;
+
+use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
+use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
+use Phoundation\Web\Requests\Request;
+
 class ProfileImage extends ImageMenu
 {
     /**
@@ -63,6 +64,7 @@ class ProfileImage extends ImageMenu
                 // Default to default profile image
                 $image = 'img/profiles/default.png';
             }
+
         } elseif (!$image->getPath()) {
             $image->setPath('img/profiles/default.png');
         }

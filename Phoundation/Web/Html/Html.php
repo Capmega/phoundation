@@ -8,7 +8,7 @@ use PDOStatement;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Core;
 use Phoundation\Developer\Debug;
-use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\FsFile;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
@@ -267,7 +267,7 @@ class Html
         }
         if ($params['onchange']) {
             /*
-             * Execute the JS code for an onchange
+             * ExecuteExecuteInterface the JS code for an onchange
              */
             $return .= html_script('$("#' . $params['id'] . '").change(function() { ' . $params['onchange'] . ' });');
 
@@ -1346,11 +1346,11 @@ class Html
                     if (!filesize($file . '.js')) {
                         // The javascript file is empty
                         log_file(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', [':file' => $file . '.js']), 'html-script', 'yellow');
-                        File::new(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')
-                            ->executeMode(0770, function () use ($file) {
-                                File::new($file . '.js,' . $file . '.min.js', 'ug+w', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')
+                        FsFile::new(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')
+                              ->executeMode(0770, function () use ($file) {
+                                FsFile::new($file . '.js,' . $file . '.min.js', 'ug+w', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')
                                     ->chmod();
-                                File::new($file . '.js,' . $file . '.min.js', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')
+                                FsFile::new($file . '.js,' . $file . '.min.js', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')
                                     ->delete();
                             });
 
@@ -1359,7 +1359,7 @@ class Html
                          * External cached file is too old
                          */
                         log_file(tr('Deleting externally cached javascript file ":file" because the file cache time expired', [':file' => $file . '.js']), 'html-script', 'yellow');
-                        File::new()
+                        FsFile::new()
                             ->executeMode(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js', 0770, function () use ($file) {
                                 file_delete([
                                     'patterns'       => $file . '.js,' . $file . '.min.js',
@@ -1375,7 +1375,7 @@ class Html
                  * deleted it
                  */
                 if (!file_exists($file . '.js')) {
-                    File::new()
+                    FsFile::new()
                         ->executeMode(dirname($file), 0770, function () use ($file, $return) {
                             log_file(tr('Writing internal javascript to externally cached file ":file"', [':file' => $file . '.js']), 'html-script', 'cyan');
                             file_put_contents($file . '.js', $return);
@@ -1676,9 +1676,9 @@ class Html
             if (!file_exists($target)) {
                 log_file(tr('Modified format target ":target" does not exist, converting original source', [':target' => $target]), 'html', 'VERYVERBOSE/warning');
                 load_libs('image');
-                File::new()
-                    ->executeMode(dirname($file_src), 0770, function () use ($file_src, $target, $format) {
-                        File::new()
+                FsFile::new()
+                      ->executeMode(dirname($file_src), 0770, function () use ($file_src, $target, $format) {
+                        FsFile::new()
                             ->executeMode($file_src, 0660, function () use ($file_src, $target, $format) {
                                 global $_CONFIG;
                                 image_convert([
@@ -2048,7 +2048,7 @@ class Html
                         if (!file_exists($file_target)) {
                             log_file(tr('Resized version of ":src" does not yet exist, converting', [':src' => $params['src']]), 'html', 'VERBOSE/cyan');
                             load_libs('image');
-                            File::new()
+                            FsFile::new()
                                 ->executeMode(dirname($file_src), 0770, function () use ($file_src, $file_target, $params) {
                                     global $_CONFIG;
                                     Image::convert([
@@ -2111,11 +2111,11 @@ class Html
                 try {
                     if (!file_exists(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/jquery.lazy/jquery.lazy.js')) {
                         // jquery.lazy is not available, auto install it.
-                        $file      = File::download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
+                        $file      = FsFile::download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
                         $directory = cli_unzip($file);
-                        File::new()
-                            ->executeMode(DIRECTORY_ROOT . 'www/en/pub/js', 0770, function () use ($directory) {
-                                File::delete(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/jquery.lazy/', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/');
+                        FsFile::new()
+                              ->executeMode(DIRECTORY_ROOT . 'www/en/pub/js', 0770, function () use ($directory) {
+                                FsFile::delete(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/jquery.lazy/', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/');
                                 rename($directory . 'jquery.lazy-master/', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/jquery.lazy');
                             });
                         file_delete($directory);
@@ -2375,96 +2375,96 @@ class Html
     }
 
 
-    /*
-     * Returns an HTML <form> tag with (if configured so) a hidden CSRF variable
-     * attached
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     *
-     * @param params $param The form parameters
-     * @param string $param[action] The URL where the post should be sent to
-     * @param string $param[method] The HTTP method to be used. Should be either get or post.
-     * @param string $param[id] The id attribute of the form
-     * @param string $param[name] The name attribute of the form
-     * @param string $param[class] Any class data to be added to the form
-     * @param string $param[extra] Any extra attributes to be added. Can be a complete string like 'data="blah" foo="bar"'
-     * @param boolean $param[csrf] If set to true, the form will include a hidden Cross Site Request Forgery protection input. Defaults to $_CONFIG[security][csrf][enabled]
-     * @return string the HTML <form> tag
-     */
-    function form($params = null)
-    {
-        global $_CONFIG;
-        Arrays::ensure($params, 'extra');
-        Arrays::default($params, 'id', 'form');
-        Arrays::default($params, 'name', $params['id']);
-        Arrays::default($params, 'method', 'post');
-        Arrays::default($params, 'action', domain(true));
-        Arrays::default($params, 'class', 'form-horizontal');
-        Arrays::default($params, 'csrf', $_CONFIG['security']['csrf']['enabled']);
-        foreach ([
-            'id',
-            'name',
-            'method',
-            'action',
-            'class',
-            'extra',
-        ] as $key) {
-            if (!$params[$key]) {
-                continue;
-            }
-            if ($params[$key] == 'extra') {
-                $attributes[] = $params[$key];
-
-            } else {
-                $attributes[] = $key . '="' . $params[$key] . '"';
-            }
-        }
-        $form = '<form ' . implode(' ', $attributes) . '>';
-        if ($params['csrf']) {
-            $csrf = set_csrf();
-            $form .= '<input type="hidden" name="csrf" value="' . $csrf . '">';
-        }
-
-        return $form;
-    }
-
-
-    /*
-     * Returns the current global tabindex and automatically increases it
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     *
-     * @return natural The current tab index
-     */
-    function tabindex()
-    {
-        return ++$core->register['tabindex'];
-    }
+//    /*
+//     * Returns an HTML <form> tag with (if configured so) a hidden CSRF variable
+//     * attached
+//     *
+//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @category Function reference
+//     * @package html
+//     *
+//     * @param params $param The form parameters
+//     * @param string $param[action] The URL where the post should be sent to
+//     * @param string $param[method] The HTTP method to be used. Should be either get or post.
+//     * @param string $param[id] The id attribute of the form
+//     * @param string $param[name] The name attribute of the form
+//     * @param string $param[class] Any class data to be added to the form
+//     * @param string $param[extra] Any extra attributes to be added. Can be a complete string like 'data="blah" foo="bar"'
+//     * @param boolean $param[csrf] If set to true, the form will include a hidden Cross Site Request Forgery protection input. Defaults to $_CONFIG[security][csrf][enabled]
+//     * @return string the HTML <form> tag
+//     */
+//    function form($params = null)
+//    {
+//        global $_CONFIG;
+//        Arrays::ensure($params, 'extra');
+//        Arrays::default($params, 'id', 'form');
+//        Arrays::default($params, 'name', $params['id']);
+//        Arrays::default($params, 'method', 'post');
+//        Arrays::default($params, 'action', domain(true));
+//        Arrays::default($params, 'class', 'form-horizontal');
+//        Arrays::default($params, 'csrf', $_CONFIG['security']['csrf']['enabled']);
+//        foreach ([
+//            'id',
+//            'name',
+//            'method',
+//            'action',
+//            'class',
+//            'extra',
+//        ] as $key) {
+//            if (!$params[$key]) {
+//                continue;
+//            }
+//            if ($params[$key] == 'extra') {
+//                $attributes[] = $params[$key];
+//
+//            } else {``
+//                $attributes[] = $key . '="' . $params[$key] . '"';
+//            }
+//        }
+//        $form = '<form ' . implode(' ', $attributes) . '>';
+//        if ($params['csrf']) {
+//            $csrf  = set_csrf();
+//            $form .= '<input type="hidden" name="csrf" value="' . $csrf . '">';
+//        }
+//
+//        return $form;
+//    }
 
 
-    /*
-     * Set the base URL for CDN requests from javascript
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     *
-     * @return void()
-     */
-    function set_js_cdn_url()
-    {
-        $core->register['header'] = html_script('var cdnprefix="' . cdn_domain() . '"; var site_prefix="' . domain() . '";', false);
-    }
+//    /*
+//     * Returns the current global tabindex and automatically increases it
+//     *
+//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @category Function reference
+//     * @package html
+//     *
+//     * @return natural The current tab index
+//     */
+//    function tabindex()
+//    {
+//        return ++$core->register['tabindex'];
+//    }
+//
+//
+//    /*
+//     * Set the base URL for CDN requests from javascript
+//     *
+//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @category Function reference
+//     * @package html
+//     *
+//     * @return void()
+//     */
+//    function set_js_cdn_url()
+//    {
+//        $core->register['header'] = html_script('var cdnprefix="' . cdn_domain() . '"; var site_prefix="' . domain() . '";', false);
+//    }
 
 
     /*

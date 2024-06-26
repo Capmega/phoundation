@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Domains
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
@@ -16,16 +27,6 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
-/**
- * Class Domains
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 class Domains
 {
     /**
@@ -69,9 +70,11 @@ class Domains
     {
         if (!$domain) {
             $domain = Request::getDomain();
+
         } else {
             $domain = UrlBuilder::getDomainFromUrl($domain);
         }
+
         $this->domain = strtolower($domain);
     }
 
@@ -100,7 +103,8 @@ class Domains
         if (PLATFORM_WEB) {
             return $_SERVER['HTTP_HOST'];
         }
-        // Ensure $domain doesn't end with . (which IS valid, but would mess up
+
+        // Ensure $domain doesn't end with . (Which IS valid, but would mess up
         $domain = Strings::from(Config::getString('web.domains.primary.web'), '//');
         $domain = Strings::until($domain, '/');
         $domain = Strings::ensureEndsNotWith($domain, '.');
@@ -163,6 +167,7 @@ class Domains
             // Build cache
             static::loadConfiguration();
             static::$primary_domain = (string) UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['web']));
+
             if (!static::$primary_domain) {
                 // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
                 // Assume the current domain is the primary domain instead
@@ -187,12 +192,14 @@ class Domains
     {
         if (!isset(static::$domains_configuration)) {
             $configuration = Config::get('web.domains');
+
             if ($configuration === null) {
                 if (!Core::isState('setup')) {
                     // In set up we won't have configuration and that is fine. If we're not in set up, then it is not
                     // so fine
                     throw new ConfigPathDoesNotExistsException(tr('The configuration path "web.domains" does not exist'));
                 }
+
                 // Core has already failed, yet we are here, likely this is the setup page
                 Log::warning(tr('The configuration path "web.domains" does not exist'));
                 static::$domains_configuration = [];
@@ -200,6 +207,7 @@ class Domains
             } else {
                 static::$domains_configuration = &$configuration;
             }
+
             static::$whitelist_domains = [];
         }
     }
@@ -228,10 +236,12 @@ class Domains
         if (!isset(static::$whitelist_domains)) {
             // Build cache
             static::loadConfiguration();
+
             foreach (static::$domains_configuration as $domain => $configuration) {
                 if ($domain === 'primary') {
                     continue;
                 }
+
                 static::$whitelist_domains[] = $domain;
             }
         }
@@ -279,8 +289,10 @@ class Domains
                 $empty  = true;
                 $domain = static::getCurrent();
             }
+
             $language = $language ?? Session::getLanguage();
             $url      = static::getConfigurationKey($domain, $type);
+
             if (!$url) {
                 throw new OutOfBoundsException(tr('No configured URL found for ":type" type domain ":domain"', [
                     ':type'   => $type,
@@ -298,8 +310,10 @@ class Domains
                 Log::warning(tr('The current domain ":domain" is not configured. Redirecting', [
                     ':domain' => $domain,
                 ]));
+
                 Response::redirect(UrlBuilder::getRootDomainUrl());
             }
+
             // The specified domain isn't configured
             throw new ConfigPathDoesNotExistsException(tr('Cannot get root URL for domain ":domain", there is no configuration for that domain', [
                 ':domain' => $domain,
@@ -340,15 +354,19 @@ class Domains
                     ':domain' => $domain,
                 ]));
             }
+
         } else {
             $domain = 'primary';
         }
+
         $domain_config = &static::$domains_configuration[$domain];
+
         // Validate configuration
         try {
             Arrays::requiredKeys($domain_config, 'web,cdn', ConfigPathDoesNotExistsException::class);
-            Arrays::default($domain_config, 'index', '/');
+            Arrays::default($domain_config, 'index'  , '/');
             Arrays::default($domain_config, 'cloaked', false);
+
         } catch (ConfigPathDoesNotExistsException $e) {
             if (!Core::isState('setup')) {
                 // In setup mode, we won't have any configuration, but we will be able to continue
@@ -382,6 +400,7 @@ class Domains
     public function getParent(): string
     {
         $return = Strings::from($this->domain, '.');
+
         if (!filter_var($return, FILTER_VALIDATE_DOMAIN)) {
             // We probably were at the parent domain, return the domain itself.
             return $this->domain;

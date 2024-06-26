@@ -8,9 +8,9 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Path;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
@@ -49,9 +49,9 @@ class RoutingParameters implements RoutingParametersInterface
     /**
      * Server restrictions indicating what the router can access
      *
-     * @var Restrictions|array|string|null $restrictions
+     * @var FsRestrictions|array|string|null $restrictions
      */
-    protected Restrictions|array|string|null $restrictions = null;
+    protected FsRestrictions|array|string|null $restrictions = null;
 
     /**
      * Sets the default base URL for all links generated
@@ -176,6 +176,7 @@ class RoutingParameters implements RoutingParametersInterface
                 ':interface' => TemplateInterface::class,
             ]));
         }
+
         $this->template = $template;
 
         return $this;
@@ -195,13 +196,16 @@ class RoutingParameters implements RoutingParametersInterface
         if ($this->rights_exceptions and in_array(basename($target), $this->rights_exceptions)) {
             return [];
         }
+
         // Check defined rights and directory rights, both have to pass
         if ($this->require_directory_rights) {
             if (substr_count($this->require_directory_rights, '/') > 1) {
                 $dirname = dirname($this->require_directory_rights);
+
             } else {
                 $dirname = $this->require_directory_rights;
             }
+
             // First cut to WWW directory
             // Then the rest, as the directory may be partial
             // Then remove the file name to only have the directory parts
@@ -211,11 +215,13 @@ class RoutingParameters implements RoutingParametersInterface
             $directory = Strings::from($directory, $dirname);
             $directory = Strings::ensureStartsNotWith($directory, '/');
             $directory = dirname($directory);
+
             if ($directory === '.') {
                 // Current directory, there is no directory
                 $directory = [];
+
             } else {
-                $directory = explode(Path::DIRECTORY_SEPARATOR, $directory);
+                $directory = explode(FsPath::DIRECTORY_SEPARATOR, $directory);
             }
 
             // Merge with the already specified rights
@@ -257,6 +263,7 @@ class RoutingParameters implements RoutingParametersInterface
     public function setRequireDirectoryRights(string $require_directory_rights, array|string|null $rights_exceptions = null): static
     {
         $this->require_directory_rights = Strings::slash($require_directory_rights);
+
         if ($rights_exceptions) {
             $this->rights_exceptions = Arrays::force($rights_exceptions, null);
         }
@@ -353,7 +360,9 @@ class RoutingParameters implements RoutingParametersInterface
         if (!isset($this->root_directory)) {
             $this->root_directory = '';
         }
+
         $directory = $this->root_directory;
+
         if ($this->matches) {
             // Apply matches for this parameters pattern
             foreach ($this->matches as $key => $value) {
@@ -383,24 +392,24 @@ class RoutingParameters implements RoutingParametersInterface
     /**
      * Returns the server restrictions
      *
-     * @return RestrictionsInterface
+     * @return FsRestrictionsInterface
      */
-    public function getRestrictions(): RestrictionsInterface
+    public function getRestrictions(): FsRestrictionsInterface
     {
-        return Restrictions::default($this->restrictions, Restrictions::new(DIRECTORY_WEB, false, 'Routing parameter'));
+        return $this->restrictions ?? FsRestrictions::getWeb(false, 'RoutingParameter::setRestrictions()');
     }
 
 
     /**
      * Sets the server restrictions
      *
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param FsRestrictionsInterface|array|string|null $restrictions
      *
      * @return static
      */
-    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions): static
+    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions): static
     {
-        $this->restrictions = Restrictions::default($restrictions, Restrictions::new(DIRECTORY_WEB, false, 'Routing parameter'));
+        $this->restrictions = $restrictions ?? FsRestrictions::getWeb(false, 'RoutingParameter::setRestrictions()');
 
         return $this;
     }
@@ -417,6 +426,7 @@ class RoutingParameters implements RoutingParametersInterface
             // If not specified, use the default configured root uri for this domain
             return Domains::getRootUrl();
         }
+
         $root_url = $this->root_url;
         $root_url = str_replace(':LANGUAGE', Session::getLanguage(), $root_url);
 
@@ -535,6 +545,7 @@ class RoutingParameters implements RoutingParametersInterface
     public function addRights(Rights|Right|array|string|null $rights): static
     {
         $this->rights = [];
+
         foreach ($this->getRightsArray($rights) as $right) {
             $this->add($right);
         }
@@ -558,9 +569,11 @@ class RoutingParameters implements RoutingParametersInterface
         if (is_object($rights)) {
             if ($rights instanceof Rights) {
                 $rights = $rights->getSource();
+
             } else {
                 $rights = $rights->getSeoName();
             }
+
         } else {
             $rights = Arrays::force($rights);
         }
@@ -582,6 +595,7 @@ class RoutingParameters implements RoutingParametersInterface
             if (is_object($right)) {
                 $right = $right->getSeoName();
             }
+
             $this->rights[] = $right;
         }
 

@@ -43,7 +43,7 @@ class Tab extends ElementsBlock implements TabInterface
     public function getId(): ?string
     {
         if (empty($this->id)) {
-            $this->id = Strings::getRandom(16, characters: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+            $this->id = Strings::getRandom(16, source: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
         }
 
         return $this->id;

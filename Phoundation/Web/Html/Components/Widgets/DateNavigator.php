@@ -12,6 +12,7 @@ use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\InputDate;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Stringable;
@@ -212,7 +213,7 @@ class DateNavigator extends ElementsBlock
                                          ->setSize(8)
                                          ->addClasses('mb-3')
                                          ->setContent(Form::new()
-                                                          ->setMethod('get')
+                                                          ->setMethod(EnumHttpRequestMethod::get)
                                                           ->setAction($this->selector_link)
                                                           ->setContent(InputDate::new()
                                                                                 ->setId('date')

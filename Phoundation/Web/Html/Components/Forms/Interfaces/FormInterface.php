@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms\Interfaces;
 
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Stringable;
 
 /**
@@ -41,19 +42,19 @@ interface FormInterface
     /**
      * Sets the form method
      *
-     * @return string|null
+     * @return EnumHttpRequestMethod
      */
-    public function getMethod(): ?string;
+    public function getMethod(): EnumHttpRequestMethod;
 
 
     /**
      * Sets the form method
      *
-     * @param string $method
+     * @param EnumHttpRequestMethod $method
      *
      * @return static
      */
-    public function setMethod(string $method): static;
+    public function setMethod(EnumHttpRequestMethod $method): static;
 
 
     /**
@@ -77,19 +78,19 @@ interface FormInterface
     /**
      * Sets the form auto_complete
      *
-     * @return string|null
+     * @return bool
      */
-    public function getAutoComplete(): ?string;
+    public function getAutoComplete(): bool;
 
 
     /**
      * Sets the form auto_complete
      *
-     * @param string $auto_complete
+     * @param bool $auto_complete
      *
      * @return static
      */
-    public function setAutoComplete(string $auto_complete): static;
+    public function setAutoComplete(bool $auto_complete): static;
 
 
     /**

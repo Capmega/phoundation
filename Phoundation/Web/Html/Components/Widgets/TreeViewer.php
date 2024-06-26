@@ -42,6 +42,7 @@ class TreeViewer extends Widget
     public function __construct(?string $content = null)
     {
         parent::__construct();
+
         if ($content) {
             $this->setSource($content);
         }
@@ -59,11 +60,13 @@ class TreeViewer extends Widget
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
         $source = get_null($source);
+
         if ($source) {
             if (is_string($source)) {
                 // This must be a JSON source, try to decode it.
                 $source = Json::decode($source);
             }
+
             if (!is_array($source) and !($source instanceof TreeInterface)) {
                 // This is not a valid source
                 throw OutOfBoundsException::new(tr('Cannot use specified source for TreeViewer object, source must be an array or a TreeInterface object'))
@@ -83,7 +86,9 @@ class TreeViewer extends Widget
         if (!$this->getId()) {
             throw new OutOfBoundsException(tr('Cannot render tree viewer, no HTML id specified'));
         }
-        Response::loadJavascript('mdb/js/plugins/treeview.min');
+
+        Response::loadJavascript('Phoundation/mdb/js/plugins/treeview.min');
+
         if ($this->render_method === EnumWebRenderMethods::html) {
             // Render the tree-view using pure HTML
             return Div::new()
@@ -122,6 +127,7 @@ class TreeViewer extends Widget
     protected function renderHtml(array $source, bool $child = false): string
     {
         $return = '<ul' . ($child ? ' class="collapse"' : '') . '>';
+
         foreach ($source as $key => $value) {
             if (is_array($value)) {
                 $return .= '<li><a class="not-a-link">' . $key . '</a>' . $this->renderHtml($value, true) . '</li>';
@@ -130,6 +136,7 @@ class TreeViewer extends Widget
                 if ($this->url) {
                     $url    = str_replace(':ID', (string) $key, $this->url);
                     $return .= '<li><a href="' . $url . '">' . Html::safe($value) . '</a></li>';
+
                 } else {
                     $return .= '<li>' . $value . '</li>';
                 }

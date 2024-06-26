@@ -37,8 +37,8 @@ use Phoundation\Date\Time;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\FileInterface;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Traits\TraitDataStaticRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
@@ -56,6 +56,7 @@ use Phoundation\Web\Html\Components\Widgets\Menus\Menus;
 use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelsInterface;
 use Phoundation\Web\Html\Components\Widgets\Panels\Panels;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
 use Phoundation\Web\Http\Domains;
@@ -100,16 +101,16 @@ abstract class Request implements RequestInterface
     /**
      * The file that is currently executed for this request
      *
-     * @var FileInterface $target
+     * @var FsFileInterface $target
      */
-    protected static FileInterface $target;
+    protected static FsFileInterface $target;
 
     /**
      * The real / initial target that was executed for this request
      *
-     * @var FileInterface $main_target
+     * @var FsFileInterface $main_target
      */
-    protected static FileInterface $main_target;
+    protected static FsFileInterface $main_target;
 
     /**
      * The file that is currently executed for this request
@@ -915,9 +916,9 @@ abstract class Request implements RequestInterface
     /**
      * Returns the file executed for this request
      *
-     * @return FileInterface
+     * @return FsFileInterface
      */
-    public static function getTarget(): FileInterface
+    public static function getTarget(): FsFileInterface
     {
         return static::$target;
     }
@@ -926,17 +927,17 @@ abstract class Request implements RequestInterface
     /**
      * Sets the target for this request
      *
-     * @param FileInterface|string $target
+     * @param FsFileInterface|string $target
      *
      * @return void
      */
-    protected static function setTarget(FileInterface|string $target): void
+    protected static function setTarget(FsFileInterface|string $target): void
     {
         // Determine the target request type
         static::detectRequestType($target);
 
         $target         = static::ensureRequestPathPrefix($target);
-        static::$target = File::new($target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
+        static::$target = FsFile::new($target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
         static::$target->checkRestrictions(false);
         static::getTargets()->add(static::$target);
         static::addExecutedPath($target); // TODO We should get this from targets
@@ -1025,52 +1026,31 @@ abstract class Request implements RequestInterface
      */
     public static function isPostRequestMethod(): bool
     {
-        return static::isRequestMethod('POST');
+        return static::isRequestMethod(EnumHttpRequestMethod::post);
     }
 
 
     /**
      * Returns if this request is the specified method
      *
-     * @param string $method
+     * @param EnumHttpRequestMethod $method
      *
      * @return bool
      */
-    public static function isRequestMethod(#[ExpectedValues(values: [
-        'GET',
-        'HEAD',
-        'POST',
-        'PUT',
-        'DELETE',
-        'CONNECT',
-        'OPTIONS',
-        'TRACE',
-        'PATCH',
-    ])] string $method): bool
+    public static function isRequestMethod(EnumHttpRequestMethod $method): bool
     {
-        return static::getRequestMethod() === strtoupper($method);
+        return static::getRequestMethod() === $method;
     }
 
 
     /**
      * Returns the request method for this page
      *
-     * @return string
+     * @return EnumHttpRequestMethod
      */
-    #[ExpectedValues(values: [
-        'GET',
-        'HEAD',
-        'POST',
-        'PUT',
-        'DELETE',
-        'CONNECT',
-        'OPTIONS',
-        'TRACE',
-        'PATCH',
-    ])]
-    public static function getRequestMethod(): string
+    public static function getRequestMethod(): EnumHttpRequestMethod
     {
-        return strtoupper($_SERVER['REQUEST_METHOD']);
+        return EnumHttpRequestMethod::from(strtolower($_SERVER['REQUEST_METHOD']));
     }
 
 
@@ -1175,7 +1155,8 @@ abstract class Request implements RequestInterface
             Incident::new()
                     ->setType('401 - Unauthorized')
                     ->setSeverity(Severity::low)
-                    ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to ":redirect"', [
+                    ->setTitle(tr('Guest user has no access to target page'))
+                    ->setBody(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to ":redirect"', [
                         ':target'      => static::$target->getPath('web'),
                         ':real_target' => static::$target->getPath('web'),
                         ':redirect'    => $guest_redirect,
@@ -1225,15 +1206,17 @@ abstract class Request implements RequestInterface
                     ->setType('Non existing rights')
                     ->setSeverity(in_array('admin', Session::getUser()
                                                            ->getMissingRights($rights)) ? Severity::high : Severity::medium)
-                    ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
+                    ->setTitle(tr('Requested rights ":rights" do not exist on this system and was not automatically created', [
+                        ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
+                    ]))
+                    ->setBody(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
                         ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
                         ':target'      => static::$target->getPath('web'),
                         ':real_target' => static::$main_target->getPath('web'),
                         ':redirect'    => $rights_redirect,
                     ]))
                     ->setDetails([
-                        'user'           => Session::getUser()
-                                                   ->getLogId(),
+                        'user'           => Session::getUser()->getLogId(),
                         'uri'            => static::getUri(),
                         'target'         => static::$target->getPath('web'),
                         'real_target'    => static::$main_target->getPath('web'),
@@ -1247,25 +1230,24 @@ abstract class Request implements RequestInterface
             // Registered user does not have the required rights
             Incident::new()
                     ->setType('403 - Forbidden')
-                    ->setSeverity(in_array('admin', Session::getUser()
-                                                           ->getMissingRights($rights)) ? Severity::high : Severity::medium)
-                    ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
-                        ':user'        => Session::getUser()
-                                                 ->getLogId(),
-                        ':rights'      => Session::getUser()
-                                                 ->getMissingRights($rights),
+                    ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
+                    ->setTitle(tr('User ":user" does not have the required rights ":rights"', [
+                        ':user'        => Session::getUser()->getLogId(),
+                        ':rights'      => Session::getUser()->getMissingRights($rights),
+                    ]))
+                    ->setBody(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
+                        ':user'        => Session::getUser()->getLogId(),
+                        ':rights'      => Session::getUser()->getMissingRights($rights),
                         ':target'      => static::$target->getPath('web'),
                         ':real_target' => static::$main_target->getPath('web'),
                         ':redirect'    => $rights_redirect,
                     ]))
                     ->setDetails([
-                        'user'        => Session::getUser()
-                                                ->getLogId(),
+                        'user'        => Session::getUser()->getLogId(),
                         'uri'         => static::getUri(),
                         'target'      => static::$target->getPath('web'),
                         'real_target' => static::$main_target->getPath('web'),
-                        'rights'      => Session::getUser()
-                                                ->getMissingRights($rights),
+                        'rights'      => Session::getUser()->getMissingRights($rights),
                     ])
                     ->notifyRoles('accounts')
                     ->save();
@@ -1295,8 +1277,7 @@ abstract class Request implements RequestInterface
                         ':type' => static::getRequestType(),
                     ]))
                     ->setDetails([
-                        'user'         => $key->getUser()
-                                              ->getLogId(),
+                        'user'         => $key->getUser()->getLogId(),
                         'uri'          => static::getUri(),
                         'target'       => static::$target->getPath('web'),
                         'real_target'  => Strings::from($target, DIRECTORY_ROOT),
@@ -1431,42 +1412,42 @@ abstract class Request implements RequestInterface
 
 
     /**
-     * Execute the specified target for this request and returns the output
+     * ExecuteExecuteInterface the specified target for this request and returns the output
      *
-     * @param FileInterface|string $target
+     * @param FsFileInterface|string $target
      *
      * @return string|null
      */
-    public static function execute(FileInterface|string $target): ?string
+    public static function execute(FsFileInterface|string $target): ?string
     {
         return static::doExecute($target, false, false);
     }
 
 
     /**
-     * Execute the specified target for this request and returns the output
+     * ExecuteExecuteInterface the specified target for this request and returns the output
      *
-     * @param FileInterface|string $target
-     * @param bool                 $die
+     * @param FsFileInterface|string $target
+     * @param bool                   $die
      *
      * @return string|null
      */
-    public static function executeAndFlush(FileInterface|string $target, bool $die = false): ?string
+    public static function executeAndFlush(FsFileInterface|string $target, bool $die = false): ?string
     {
         return static::doExecute($target, true, $die);
     }
 
 
     /**
-     * Execute the specified target for this request and returns the output
+     * ExecuteExecuteInterface the specified target for this request and returns the output
      *
-     * @param FileInterface|string $target
-     * @param bool                 $flush
-     * @param bool                 $die
+     * @param FsFileInterface|string $target
+     * @param bool                   $flush
+     * @param bool                   $die
      *
      * @return string|null
      */
-    public static function doExecute(FileInterface|string $target, bool $flush, bool $die): ?string
+    public static function doExecute(FsFileInterface|string $target, bool $flush, bool $die): ?string
     {
         // Set target and check if we have this target in the cache
         try {
@@ -1518,13 +1499,13 @@ abstract class Request implements RequestInterface
     /**
      * Process a FileNotFoundException
      *
-     * @param FileNotExistException $e
-     * @param FileInterface|string  $target
+     * @param FileNotExistException  $e
+     * @param FsFileInterface|string $target
      *
      * @return never
      * @throws FileNotExistException
      */
-    #[NoReturn] protected static function processFileNotFound(FileNotExistException $e, FileInterface|string $target): never
+    #[NoReturn] protected static function processFileNotFound(FileNotExistException $e, FsFileInterface|string $target): never
     {
         if (static::$stack_level >= 0) {
             Log::warning(tr('Sub target ":target" does not exist, displaying 500 page instead', [
@@ -1604,7 +1585,7 @@ abstract class Request implements RequestInterface
      */
     public static function getSubmitButton(string $post_key = 'submit', bool $prefix = false, bool $return_key = false): string|true|null
     {
-        return PostValidator::getSubmitButton($post_key, $prefix, $return_key);
+        return PostValidator::new()->getSubmitButton($post_key, $prefix, $return_key);
     }
 
 
@@ -1707,15 +1688,15 @@ abstract class Request implements RequestInterface
      */
     protected static function executeWebTarget(bool $flush): ?string
     {
-        // Execute the specified target file
+        // ExecuteExecuteInterface the specified target file
         try {
             // Prepare page, increase the stack counter, and execute the target
             if (!$flush and static::$stack_level) {
-                // Execute only the file and return the output
+                // ExecuteExecuteInterface only the file and return the output
                 return execute();
             }
 
-            // Execute the entire page and return the output
+            // ExecuteExecuteInterface the entire page and return the output
             return static::$page->execute();
 
         } catch (ValidationFailedExceptionInterface $e) {
@@ -1755,11 +1736,11 @@ abstract class Request implements RequestInterface
     /**
      * Ensures that this request target path is absolute, or has the correct prefix
      *
-     * @param FileInterface|string $target
+     * @param FsFileInterface|string $target
      *
-     * @return FileInterface|string
+     * @return FsFileInterface|string
      */
-    protected static function ensureRequestPathPrefix(FileInterface|string $target): FileInterface|string
+    protected static function ensureRequestPathPrefix(FsFileInterface|string $target): FsFileInterface|string
     {
         if (is_string($target)) {
             if (is_absolute_path($target)) {

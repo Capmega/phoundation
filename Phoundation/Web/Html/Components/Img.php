@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\ImgInterface;
@@ -30,9 +30,9 @@ class Img extends Span implements ImgInterface
     /**
      * Server object where the image conversion commands will be executed
      *
-     * @var Restrictions $restrictions
+     * @var FsRestrictions $restrictions
      */
-    protected Restrictions $restrictions;
+    protected FsRestrictions $restrictions;
 
     /**
      * Sets whether the image will be lazily loaded as-needed or directly
@@ -181,7 +181,7 @@ class Img extends Span implements ImgInterface
 //
 //        if ($this->external) {
 //            // Download external images local so that we can perform tests, changes, upgrades, etc.
-//            $file_src = \Phoundation\Web\Http\File::new($this->restrictions)->download($src);
+//            $file_src = \Phoundation\Web\Http\FsFileFileInterface::new($this->restrictions)->download($src);
 //        } else {
 //            // This is a local image (either with or without domain specified) Locate the file
 //            $file_src = Strings::from($src     , $domain . '/');
@@ -565,7 +565,7 @@ class Img extends Span implements ImgInterface
 //                            log_file(tr('Resized version of ":src" does not yet exist, converting', array(':src' => $params['src'])), 'html', 'VERBOSE/cyan');
 //                            load_libs('image');
 //
-//                            File::new()->executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
+//                            FsFileFileInterface::new()->executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
 //                                global $_CONFIG;
 //
 //                                image_convert(array('method' => 'resize',
@@ -652,7 +652,7 @@ class Img extends Span implements ImgInterface
 //                        $file = download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
 //                        $directory = cli_unzip($file);
 //
-//                        File::new()->executeMode(DIRECTORY_ROOT.'www/en/pub/js', 0770, function() use ($directory) {
+//                        FsFileFileInterface::new()->executeMode(DIRECTORY_ROOT.'www/en/pub/js', 0770, function() use ($directory) {
 //                            file_delete(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/');
 //                            rename($directory.'jquery.lazy-master/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
 //                        });

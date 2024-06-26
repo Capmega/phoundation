@@ -1,18 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Forms;
-
-use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Config;
-use Phoundation\Web\Html\Components\Element;
-use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
-use Phoundation\Web\Http\UrlBuilder;
-use Stringable;
-
 /**
  * Form class
  *
@@ -23,18 +10,31 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Forms;
+
+use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Components\Element;
+use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
+use Phoundation\Web\Html\Components\Input\InputCheckbox;
+use Phoundation\Web\Html\Csrf;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
+use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
+
 class Form extends Element implements FormInterface
 {
     /**
      * The submit method
      *
-     * @var string $method
+     * @var EnumHttpRequestMethod $method
      */
-    #[ExpectedValues(values: [
-        "get",
-        "post",
-    ])]
-    protected string $method = 'post';
+    protected EnumHttpRequestMethod $method = EnumHttpRequestMethod::post;
 
     /**
      * The submit page target
@@ -95,9 +95,9 @@ class Form extends Element implements FormInterface
     /**
      * Sets the form method
      *
-     * @return string|null
+     * @return EnumHttpRequestMethod
      */
-    public function getMethod(): ?string
+    public function getMethod(): EnumHttpRequestMethod
     {
         return $this->method;
     }
@@ -106,11 +106,11 @@ class Form extends Element implements FormInterface
     /**
      * Sets the form method
      *
-     * @param string $method
+     * @param EnumHttpRequestMethod $method
      *
      * @return static
      */
-    public function setMethod(string $method): static
+    public function setMethod(EnumHttpRequestMethod $method): static
     {
         $this->method = $method;
 
@@ -147,9 +147,9 @@ class Form extends Element implements FormInterface
     /**
      * Sets the form auto_complete
      *
-     * @return string|null
+     * @return bool
      */
-    public function getAutoComplete(): ?string
+    public function getAutoComplete(): bool
     {
         return $this->auto_complete;
     }
@@ -158,11 +158,11 @@ class Form extends Element implements FormInterface
     /**
      * Sets the form auto_complete
      *
-     * @param string $auto_complete
+     * @param bool $auto_complete
      *
      * @return static
      */
-    public function setAutoComplete(string $auto_complete): static
+    public function setAutoComplete(bool $auto_complete): static
     {
         $this->auto_complete = $auto_complete;
 
@@ -282,15 +282,18 @@ class Form extends Element implements FormInterface
         // These are obligatory
         $return = [
             'action'       => $this->getAction(),
-            'method'       => strtolower($this->method) ?? 'post',
+            'method'       => $this->method->value,
             'autocomplete' => $this->auto_complete ? 'on' : 'off',
         ];
+
         if ($this->no_validate) {
             $return['novalidate'] = null;
         }
+
         if ($this->accept_charset) {
             $return['accept-charset'] = $this->accept_charset;
         }
+
         if ($this->rel) {
             $return['rel'] = $this->rel;
         }
@@ -325,10 +328,21 @@ class Form extends Element implements FormInterface
     {
         if ($action) {
             $this->action = (string) UrlBuilder::getWww($action);
+
         } else {
             $this->action = null;
         }
 
         return $this;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function render(): ?string
+    {
+        // Ensure the CSRF variable is injected before rendering.
+        return Csrf::addHiddenElement(parent::render());
     }
 }

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class UrlBuilder
+ *
+ *
+ * @todo      Add language mapping, see the protected method language_map() at the bottom of this class for more info
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
@@ -23,16 +34,6 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Stringable;
 
-/**
- * Class UrlBuilder
- *
- *
- * @todo      Add language mapping, see the protected method language_map() at the bottom of this class for more info
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 class UrlBuilder implements UrlBuilderInterface
 {
     /**
@@ -58,10 +59,12 @@ class UrlBuilder implements UrlBuilderInterface
     protected function __construct(Stringable|string|null $url = null)
     {
         $url = trim((string) $url);
+
         // This is either part of a URL or a complete URL
         if (!Url::isValid($url)) {
             // This is a section
             $this->url = Strings::ensureStartsNotWith($url, '/');
+
         } else {
             // This is a valid URL, continue.
             $this->url = $url;
@@ -82,13 +85,13 @@ class UrlBuilder implements UrlBuilderInterface
             if (!$url) {
                 continue;
             }
+
             $url = UrlBuilder::getWww($url);
-            if (
-                $url->getUrl(true) === static::getCurrent()
-                                             ->getUrl(true)
-            ) {
+
+            if ($url->getUrl(true) === static::getCurrent()->getUrl(true)) {
                 continue;
             }
+
             if ((string) $url === (string) static::getWww('index')) {
                 continue;
             }
@@ -134,11 +137,13 @@ class UrlBuilder implements UrlBuilderInterface
     public static function getCurrent(string|int|null $id = null, bool $strip_queries = false): static
     {
         $url = static::getCurrentDomainUrl();
+
         if ($id) {
             // Inject the ID in the URL
             $url = substr((string) $url, 0, -5) . '+' . $id . '.html';
             $url = new static($url);
         }
+
         if ($strip_queries) {
             return UrlBuilder::getWww(Strings::until((string) $url, '?'));
         }
@@ -169,6 +174,7 @@ class UrlBuilder implements UrlBuilderInterface
     {
         // Auto cloak URL's?
         $domain = static::getDomainFromUrl($this->url);
+
         try {
             if (Domains::getConfigurationKey($domain, 'cloaked')) {
                 $this->cloak();
@@ -177,6 +183,7 @@ class UrlBuilder implements UrlBuilderInterface
         } catch (ConfigPathDoesNotExistsException) {
             // This domain is not configured, ignore it
         }
+
         if ($strip_queries) {
             return Strings::until($this->url, '?');
         }
@@ -195,12 +202,15 @@ class UrlBuilder implements UrlBuilderInterface
     public static function getDomainFromUrl(string $url): ?string
     {
         $data = parse_url($url);
+
         if (!$data) {
             throw new OutOfBoundsException(tr('Failed to parse url ":url" to fetch domain', [
                 ':url' => $url,
             ]));
         }
+
         $domain = isset_get($data['host']);
+
         if ($domain === null) {
             // Since there is no domain, assume we need the current domain
             return Domains::getCurrent();
@@ -227,6 +237,7 @@ class UrlBuilder implements UrlBuilderInterface
             ':url'        => $this->url,
             ':created_by' => isset_get($_SESSION['user']['id']),
         ]);
+
         if ($cloak) {
             // Found cloaking URL, update the created_on time so that it won't expire too soon
             sql()->query('UPDATE `url_cloaks` 
@@ -234,6 +245,7 @@ class UrlBuilder implements UrlBuilderInterface
                                 WHERE  `url`        = :url', [
                 ':url' => $this->url,
             ]);
+
         } else {
             $cloak = Strings::getRandom(32);
             sql()->insert('url_cloaks', [
@@ -243,6 +255,7 @@ class UrlBuilder implements UrlBuilderInterface
                 'url'        => $this->url,
             ]);
         }
+
         $this->url = $cloak;
 
         return $this;
@@ -263,20 +276,22 @@ class UrlBuilder implements UrlBuilderInterface
     {
         $url = static::applyPredefined($url);
         $url = static::applyVariables($url);
+
         if (Url::isValid($url)) {
             return new static($url);
         }
+
         // Get the base URL configuration for the domain
         if ($use_configured_root) {
             $base = Domains::getRootUrl();
 
         } elseif (PLATFORM_WEB) {
-            $base = Request::getRoutingParameters()
-                           ->getRootUrl();
+            $base = Request::getRoutingParameters()->getRootUrl();
 
         } else {
             $base = Domains::getRootUrl();
         }
+
         // Build the URL
         $base = Strings::ensureEndsWith($base, '/');
         $url  = Strings::ensureStartsNotWith($url, '/');
@@ -303,9 +318,11 @@ class UrlBuilder implements UrlBuilderInterface
             'prev', 'previous', 'referer' => static::getPrevious(),
             default                       => null,
         };
+
         if ($return) {
             return (string) $return;
         }
+
         try {
             return (string) static::getConfigured($url);
 
@@ -333,13 +350,13 @@ class UrlBuilder implements UrlBuilderInterface
      * This will return either the $_GET[previous], $_GET[redirect], or $_SERVER[referer] URL. If none of these exist,
      * or if they are the current page, then the specified URL will be sent instead.
      *
-     * @param UrlBuilder|string|null $url                 The URL to build if no valid previous page is available
+     * @param UrlBuilder|string|null $or_else_url         The URL to build if no valid previous page is available
      * @param bool                   $use_configured_root If true, the builder will not use the root URI from the
      *                                                    routing parameters but from the static configuration
      *
      * @return static
      */
-    public static function getPrevious(UrlBuilder|string|null $url = null, bool $use_configured_root = false): static
+    public static function getPrevious(UrlBuilder|string|null $or_else_url = null, bool $use_configured_root = false): static
     {
         if (empty($_SERVER['HTTP_REFERER'])) {
             if (empty($_GET['previous'])) {
@@ -354,10 +371,12 @@ class UrlBuilder implements UrlBuilderInterface
         } else {
             $option = $_SERVER['HTTP_REFERER'];
         }
+
         if (!empty($option)) {
             // We found an option, yay!
             $option  = static::getWww($option, $use_configured_root);
             $current = static::getWww(null, $use_configured_root);
+
             if ((string) $current !== (string) $option) {
                 // Option is not current page, return it!
                 return $option;
@@ -365,7 +384,7 @@ class UrlBuilder implements UrlBuilderInterface
         }
 
         // No URL found in any of the options, or option was current page. Use the specified URL
-        return static::getWww($url, $use_configured_root);
+        return static::getWww($or_else_url, $use_configured_root);
     }
 
 
@@ -379,17 +398,19 @@ class UrlBuilder implements UrlBuilderInterface
     public static function getConfigured(Stringable|string $url): UrlBuilderInterface
     {
         $url = (string) $url;
+
         // Configured page?
         $configured = match (Strings::until($url, '.html')) {
-            'dashboard', 'index'  => Config::getString('web.pages.index', '/index.html'),
-            'sign-in', 'signin'   => Config::getString('web.pages.sign-in', '/sign-in.html'),
-            'sign-up', 'signup'   => Config::getString('web.pages.sign-up', '/sign-up.html'),
-            'sign-out', 'signout' => Config::getString('web.pages.sign-out', '/sign-out.html'),
-            'sign-key', 'signkey' => Config::getString('web.pages.sign-key', '/sign-key/:key.html'),
-            'profile'             => Config::getString('web.pages.profile', '/my/profile.html'),
-            'settings'            => Config::getString('web.pages.settings', '/my/settings.html'),
-            default               => Config::getString('web.pages.' . $url, '')
+            'dashboard', 'index'   => Config::getString('web.pages.index'   , '/index.html'),
+            'sign-in'  , 'signin'  => Config::getString('web.pages.sign-in' , '/sign-in.html'),
+            'sign-up'  , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up.html'),
+            'sign-out' , 'signout' => Config::getString('web.pages.sign-out', '/sign-out.html'),
+            'sign-key' , 'signkey' => Config::getString('web.pages.sign-key', '/sign-key/:key.html'),
+            'profile'              => Config::getString('web.pages.profile' , '/my/profile.html'),
+            'settings'             => Config::getString('web.pages.settings', '/my/settings.html'),
+            default                => Config::getString('web.pages.' . $url , '')
         };
+
         if ($configured) {
             return new static($configured);
         }
@@ -409,8 +430,8 @@ class UrlBuilder implements UrlBuilderInterface
     {
         $url = (string) $url;
         $url = str_replace(':PROTOCOL', Request::getProtocol(), $url);
-        $url = str_replace(':DOMAIN', Domains::getCurrent(), $url);
-        $url = str_replace(':PORT', (string) Request::getPort(), $url);
+        $url = str_replace(':DOMAIN'  , Domains::getCurrent(), $url);
+        $url = str_replace(':PORT'    , (string) Request::getPort(), $url);
         $url = str_replace(':LANGUAGE', Response::getLanguageCode(), $url);
 
         return $url;
@@ -442,6 +463,7 @@ class UrlBuilder implements UrlBuilderInterface
     public static function getCdn(Stringable|string $url, ?string $extension = null): static
     {
         $url = (string) $url;
+
         if (Url::isValid($url)) {
             return new static($url);
         }
@@ -465,12 +487,15 @@ class UrlBuilder implements UrlBuilderInterface
     {
         $url = static::applyPredefined($url);
         $url = static::applyVariables($url);
+
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
         }
+
         if (Url::isValid($url)) {
             return new static($url);
         }
+
         $url  = Strings::from($url, 'data/content/cdn/');
         $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/');
         $base = Strings::ensureEndsWith($base, '/');
@@ -494,6 +519,7 @@ class UrlBuilder implements UrlBuilderInterface
         if (!$extension) {
             return $extension;
         }
+
         if (Config::get('web.minify', true)) {
             return '.min.' . $extension;
         }
@@ -509,8 +535,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getParentDomainRootUrl(): static
     {
-        return new static(Domains::from()
-                                 ->getParent() . Request::getRootUri());
+        return new static(Domains::from()->getParent() . Request::getRootUri());
     }
 
 
@@ -521,8 +546,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getParentDomainUrl(): static
     {
-        return new static(Domains::from()
-                                 ->getParent() . Request::getUri());
+        return new static(Domains::from()->getParent() . Request::getUri());
     }
 
 
@@ -533,8 +557,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getRootDomainRootUrl(): static
     {
-        return new static(Domains::from()
-                                 ->getRoot() . Request::getRootUri());
+        return new static(Domains::from()->getRoot() . Request::getRootUri());
     }
 
 
@@ -545,8 +568,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getRootDomainUrl(): static
     {
-        return new static(Domains::from()
-                                 ->getRoot() . Request::getUri());
+        return new static(Domains::from()->getRoot() . Request::getUri());
     }
 
 
@@ -595,6 +617,7 @@ class UrlBuilder implements UrlBuilderInterface
     public static function getReferer(Stringable|string|null $url = null): static
     {
         $url = (string) $url;
+
         // Try to get a "redirect" via GET
         try {
             $get = GetValidator::new()
@@ -678,6 +701,7 @@ class UrlBuilder implements UrlBuilderInterface
     public static function getApi(UrlBuilderInterface|string|int|null $url, bool $use_configured_root = false): static
     {
         $url = (string) $url;
+
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
 
@@ -699,6 +723,7 @@ class UrlBuilder implements UrlBuilderInterface
     public static function getCss(Stringable|string $url): static
     {
         $url = (string) $url;
+
         if (Url::isValid($url)) {
             return new static($url);
         }
@@ -717,6 +742,7 @@ class UrlBuilder implements UrlBuilderInterface
     public static function getJs(Stringable|string $url): static
     {
         $url = (string) $url;
+
         if (Url::isValid($url)) {
             return new static($url);
         }
@@ -735,9 +761,11 @@ class UrlBuilder implements UrlBuilderInterface
     public static function getImg(Stringable|string $url): static
     {
         $url = (string) $url;
+
         if (Url::isValid($url)) {
             return new static($url);
         }
+
 //        if ($directory) {
 //            throw new UnderConstructionException();
 //            // Return the local filesystem path instead of a public URL
@@ -770,8 +798,10 @@ class UrlBuilder implements UrlBuilderInterface
     public static function cleanupCloak(): int
     {
         Log::notice(tr('Cleaning up `url_cloaks` table'));
+
         $r = sql()->query('DELETE FROM `url_cloaks` 
                                  WHERE `created_on` < DATE_SUB(NOW(), INTERVAL ' . Config::get('web.url.cloaking.expires', 86400) . ' SECOND);');
+
         Log::success(tr('Removed ":count" expired entries from the `url_cloaks` table', [
             ':count' => $r->rowCount(),
         ]));
@@ -795,14 +825,14 @@ class UrlBuilder implements UrlBuilderInterface
         $queries     = Strings::from($url, '?', needle_required: true);
         $queries     = Arrays::force($queries, '&');
         $remove_keys = Arrays::force($remove_keys);
+
         foreach ($queries as $query) {
-            [
-                $key,
-                $value,
-            ] = explode('=', $query);
+            [$key, $value] = explode('=', $query);
+
             if ($remove_keys and array_key_exists($key, $remove_keys)) {
                 continue;
             }
+
             if ($unescape) {
                 $return[$key] = urldecode($value);
 
@@ -849,11 +879,13 @@ class UrlBuilder implements UrlBuilderInterface
         $url = sql()->getColumn('SELECT `created_by`, `url` 
                                        FROM   `url_cloaks` 
                                        WHERE  `cloak` = :cloak', [':cloak' => $this->url]);
+
         if (!$url) {
             throw new NotExistsException(tr('The specified cloaked URL ":url" does not exist', [
                 ':url' => $this->url,
             ]));
         }
+
         sql()->delete('url_cloaks', [':cloak' => $this->url]);
 
         return $this;
@@ -962,14 +994,17 @@ class UrlBuilder implements UrlBuilderInterface
         if (!$queries) {
             return $this;
         }
+
         foreach ($queries as $query) {
             if (!$query) {
                 continue;
             }
+
             // Break the query up in multiple entries, if specified
             if (is_string($query) and str_contains($query, '&')) {
                 $query = explode('&', $query);
             }
+
             // If the specified query is an array, then add each element individually
             if (is_array($query)) {
                 foreach ($query as $key => $value) {
@@ -983,20 +1018,25 @@ class UrlBuilder implements UrlBuilderInterface
                 }
                 continue;
             }
+
             if ($query === true) {
                 // Add the original query string
                 $query = $_SERVER['QUERY_STRING'];
             }
+
             $this->url = Strings::ensureEndsNotWith($this->url, '?');
+
             if (!preg_match('/^[a-z0-9-_]+?=.*?$/i', $query)) {
                 throw new OutOfBoundsException(tr('Invalid query ":query" specified. Please ensure it has the "key=value" format', [
                     ':query' => $query,
                 ]));
             }
+
             $key   = Strings::until($query, '=');
             $value = Strings::from($query, '=');
             $key   = urlencode($key);
             $value = urlencode($value);
+
             if (!str_contains($this->url, '?')) {
                 // This URL has no query yet, begin one
                 $this->url .= '?' . $key . '=' . $value;

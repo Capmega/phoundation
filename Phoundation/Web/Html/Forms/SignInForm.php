@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SignIn form class
+ * Class SignInForm
  *
  *
  *
@@ -17,6 +17,8 @@ namespace Phoundation\Web\Html\Forms;
 
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Forms\Form;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
+use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
@@ -25,44 +27,45 @@ class SignInForm extends Form
     /**
      * The sign in URL
      *
-     * @var Stringable|string|null $sign_in_url
+     * @var UrlBuilderInterface|null $sign_in_url
      */
-    protected Stringable|string|null $sign_in_url = null;
+    protected UrlBuilderInterface|null $sign_in_url = null;
 
     /**
      * The register page URL
      *
-     * @var Stringable|string|null $register_url
+     * @var UrlBuilderInterface|null $register_url
      */
-    protected Stringable|string|null $register_url = null;
+    protected UrlBuilderInterface|null $register_url = null;
 
     /**
      * The forgot password page URL
      *
-     * @var Stringable|string|null $forgot_password_url
+     * @var UrlBuilderInterface|null $forgot_password_url
      */
-    protected Stringable|string|null $forgot_password_url = null;
+    protected UrlBuilderInterface|null $forgot_password_url = null;
 
 
     /**
-     * Signin class constructor
+     * SignInForm class constructor
      */
     public function __construct()
     {
         parent::__construct();
-        $this->setRegisterUrl(Config::get('web.defaults.urls.register', 'register'));
-        $this->setForgotPasswordUrl(Config::get('web.defaults.urls.forgot-password', 'forgot-password'));
-        $this->setAction(Config::get('web.defaults.urls.signin', 'signin'));
-        $this->setMethod('post');
+
+        $this->setRegisterUrl(Config::get('web.defaults.urls.register', 'register'))
+             ->setForgotPasswordUrl(Config::get('web.defaults.urls.forgot-password', 'forgot-password'))
+             ->setAction(Config::get('web.defaults.urls.signin', 'signin'))
+             ->setMethod(EnumHttpRequestMethod::post);
     }
 
 
     /**
      * Returns the sign in URL
      *
-     * @return Stringable|string
+     * @return UrlBuilderInterface
      */
-    public function getSignInUrl(): Stringable|string
+    public function getSignInUrl(): UrlBuilderInterface
     {
         return $this->sign_in_url;
     }
@@ -77,7 +80,7 @@ class SignInForm extends Form
      */
     public function setSignInUrl(Stringable|string $sign_in_url): static
     {
-        $this->sign_in_url = UrlBuilder::getWww($sign_in_url);
+        $this->sign_in_url = ((string) $sign_in_url) ? UrlBuilder::getWww($sign_in_url) : null;
 
         return $this;
     }
@@ -86,9 +89,9 @@ class SignInForm extends Form
     /**
      * Returns the register URL
      *
-     * @return Stringable|string
+     * @return UrlBuilderInterface
      */
-    public function getRegisterUrl(): Stringable|string
+    public function getRegisterUrl(): UrlBuilderInterface
     {
         return $this->register_url;
     }
@@ -103,7 +106,7 @@ class SignInForm extends Form
      */
     public function setRegisterUrl(Stringable|string $register_url): static
     {
-        $this->register_url = UrlBuilder::getWww($register_url);
+        $this->register_url = ((string) $register_url) ? UrlBuilder::getWww($register_url) : null;
 
         return $this;
     }
@@ -112,9 +115,9 @@ class SignInForm extends Form
     /**
      * Returns the register URL
      *
-     * @return string
+     * @return UrlBuilderInterface
      */
-    public function getForgotPasswordUrl(): Stringable|string
+    public function getForgotPasswordUrl(): UrlBuilderInterface
     {
         return $this->forgot_password_url;
     }
@@ -129,7 +132,7 @@ class SignInForm extends Form
      */
     public function setForgotPasswordUrl(Stringable|string $forgot_password_url): static
     {
-        $this->forgot_password_url = UrlBuilder::getWww($forgot_password_url);
+        $this->forgot_password_url = ((string) $forgot_password_url) ? UrlBuilder::getWww($forgot_password_url) : null;
 
         return $this;
     }

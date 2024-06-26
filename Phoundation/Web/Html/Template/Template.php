@@ -1,17 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Template;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-use Phoundation\Web\Html\Template\Exception\TemplateException;
-use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
-use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
-use Plugins\Phoundation\Phoundation\Components\Menu;
-
 /**
  * Class Template
  *
@@ -22,6 +10,20 @@ use Plugins\Phoundation\Phoundation\Components\Menu;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Template;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Template\Exception\TemplateException;
+use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
+use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
+use Plugins\Phoundation\Phoundation\Components\Menu;
+
 abstract class Template implements TemplateInterface
 {
     /**
@@ -149,8 +151,10 @@ abstract class Template implements TemplateInterface
             if (is_object($class)) {
                 $class = get_class($class);
             }
+
             $class      = Strings::ensureStartsNotWith($class, '\\');
             $class_path = Strings::from($class, 'Html\\', needle_required: true);
+
             if (str_starts_with($class, 'Plugins\\')) {
                 // First search for a template driver in the library itself
                 $class_path    = Strings::until($class, 'Html\\', needle_required: true) . 'Templates\\' . static::getName() . '\\Html\\' . $class_path;
@@ -168,36 +172,44 @@ abstract class Template implements TemplateInterface
                             ':class' => $class,
                         ]));
                     }
+
                     $class = $parent;
                     continue;
                 }
+
                 if (($class_path === 'Components\\Element') or ($class_path === 'Components\\ElementsBlock')) {
                     // These are the lowest element types, from here there are no renderers available
                     return null;
                 }
+
                 // Find the template class path and the template file to include
                 $class_path   = Strings::untilReverse($class_path, '\\') . '\\Template' . Strings::fromReverse($class_path, '\\');
                 $include_file = str_replace('\\', '/', $class_path);
                 $include_file = $this->getDirectory() . 'Html/' . $include_file . '.php';
+
                 // Find the class path in the file, we will return this as the class that should be used for
                 // rendering
                 $include_class = Strings::untilReverse(get_class($this), '\\');
                 $include_class .= '\\Html\\' . $class_path;
             }
+
             if (str_ends_with($include_class, 'TemplateTemplate')) {
                 // "Template" class will be named just "Template"
                 $include_class = str_replace('TemplateTemplate', 'Template', $include_class);
                 $include_file  = str_replace('TemplateTemplate', 'Template', $include_file);
             }
+
             if (file_exists($include_file)) {
                 // Include the file and return the class path
                 include_once($include_file);
 
                 return $include_class;
             }
+
             // So at this point, we did not find a file. Try the parent of this class, see if that one perhaps has a
             // renderer available?
             $class = get_parent_class($class);
+
             if (!$class) {
                 // There was no parent
                 break;
@@ -211,9 +223,9 @@ abstract class Template implements TemplateInterface
     /**
      * Returns the root path for this template
      *
-     * @return string
+     * @return FsDirectoryInterface
      */
-    abstract public function getDirectory(): string;
+    abstract public function getDirectory(): FsDirectoryInterface;
 
 
     /**

@@ -72,7 +72,7 @@ class Js
                                 ->setCode('not-exists')
                                 ->setRoles('developer')
                                 ->setTitle(tr('html_load_js() issue detected'))
-                                ->setMessage(tr('File ":file" was specified with ".js"', [':file' => $file]))
+                                ->setMessage(tr('FsFileFileInterface ":file" was specified with ".js"', [':file' => $file]))
                                 ->send();
 
                 } elseif (str_ends_with($file, '.min.js')) {
@@ -83,7 +83,7 @@ class Js
                                 ->setCode('not-exists')
                                 ->setRoles('developer')
                                 ->setTitle(tr('html_load_js() issue detected'))
-                                ->setMessage(tr('File ":file" was specified with ".min.js', [':file' => $file]))
+                                ->setMessage(tr('FsFileFileInterface ":file" was specified with ".min.js', [':file' => $file]))
                                 ->send();
                 }
             }

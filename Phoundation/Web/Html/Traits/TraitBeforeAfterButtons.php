@@ -22,16 +22,16 @@ trait TraitBeforeAfterButtons
     /**
      * The buttons added after the input element
      *
-     * @var ButtonsInterface
+     * @var ButtonsInterface|null
      */
-    protected ButtonsInterface $after_buttons;
+    protected ?ButtonsInterface $after_buttons = null;
 
     /**
      * The buttons added before the input element
      *
-     * @var ButtonsInterface
+     * @var ButtonsInterface|null
      */
-    protected ButtonsInterface $before_buttons;
+    protected ?ButtonsInterface $before_buttons = null;
 
 
     /**
@@ -48,14 +48,10 @@ trait TraitBeforeAfterButtons
     /**
      * Returns the modal after_buttons
      *
-     * @return ButtonsInterface
+     * @return ButtonsInterface|null
      */
-    public function getAfterButtons(): ButtonsInterface
+    public function getAfterButtons(): ?ButtonsInterface
     {
-        if (empty($this->after_buttons)) {
-            $this->after_buttons = new Buttons();
-        }
-
         return $this->after_buttons;
     }
 
@@ -93,7 +89,7 @@ trait TraitBeforeAfterButtons
             return $this;
         }
 
-        $this->getAfterButtons()->addButton($button);
+        $this->ensureAfterButtons()->addButton($button);
         return $this;
     }
 
@@ -112,15 +108,41 @@ trait TraitBeforeAfterButtons
     /**
      * Returns the modal before_buttons
      *
-     * @return ButtonsInterface
+     * @return ButtonsInterface|null
      */
-    public function getBeforeButtons(): ButtonsInterface
+    public function getBeforeButtons(): ?ButtonsInterface
+    {
+        return $this->before_buttons;
+    }
+
+
+    /**
+     * Returns the modal before_buttons
+     *
+     * @return ButtonsInterface|null
+     */
+    protected function ensureBeforeButtons(): ?ButtonsInterface
     {
         if (empty($this->before_buttons)) {
             $this->before_buttons = new Buttons();
         }
 
         return $this->before_buttons;
+    }
+
+
+    /**
+     * Returns the modal after_buttons
+     *
+     * @return ButtonsInterface|null
+     */
+    protected function ensureAfterButtons(): ?ButtonsInterface
+    {
+        if (empty($this->after_buttons)) {
+            $this->after_buttons = new Buttons();
+        }
+
+        return $this->after_buttons;
     }
 
 
@@ -157,7 +179,7 @@ trait TraitBeforeAfterButtons
             return $this;
         }
 
-        $this->getBeforeButtons()->addButton($button);
+        $this->ensureBeforeButtons()->addButton($button);
         return $this;
     }
 }

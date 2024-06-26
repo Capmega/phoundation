@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Web\Html\Enums\EnumAudioPreload;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
@@ -59,24 +61,30 @@ class Audio extends Element
     /**
      * Returns how audio should be preloaded
      *
-     * @return ?string
+     * @return ?FsFileInterface
      */
-    public function getFile(): ?string
+    public function getFile(): ?FsFileInterface
     {
-        return $this->attributes->get('src', false);
+        $file = $this->attributes->get('src', false);
+
+        if ($file) {
+            $file = new FsFile($file);
+        }
+
+        return $file;
     }
 
 
     /**
      * Sets how audio should be preloaded
      *
-     * @param Stringable|string|null $file
+     * @param FsFileInterface $file
      *
      * @return static
      */
-    public function setFile(Stringable|string|null $file): static
+    public function setFile(FsFileInterface $file): static
     {
-        return $this->setAttribute((string) $file, 'src');
+        return $this->setAttribute($file, 'src');
     }
 
 

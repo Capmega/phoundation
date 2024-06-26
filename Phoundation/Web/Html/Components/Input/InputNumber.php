@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Input;
-
-use Phoundation\Web\Html\Enums\EnumInputType;
-
 /**
  * Class InputNumber
  *
@@ -16,6 +10,13 @@ use Phoundation\Web\Html\Enums\EnumInputType;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Input;
+
+use Phoundation\Web\Html\Enums\EnumInputType;
+
 class InputNumber extends Input
 {
     /**
@@ -33,9 +34,9 @@ class InputNumber extends Input
     /**
      * Returns the maximum numeric value for this numeric input
      *
-     * @return int|null
+     * @return float|int|null
      */
-    public function getMax(): ?int
+    public function getMax(): float|int|null
     {
         return $this->attributes->get('max', false);
     }
@@ -44,11 +45,11 @@ class InputNumber extends Input
     /**
      * Sets the maximum numeric value for this numeric input
      *
-     * @param int|null $max
+     * @param float|int|null $max
      *
      * @return $this
      */
-    public function setMax(?int $max): static
+    public function setMax(float|int|null $max): static
     {
         return $this->setAttribute($max, 'max');
     }
@@ -57,9 +58,9 @@ class InputNumber extends Input
     /**
      * Returns the minimum numeric value for this numeric input
      *
-     * @return int|null
+     * @return float|int|null
      */
-    public function getMin(): ?int
+    public function getMin(): float|int|null
     {
         return $this->attributes->get('min', false);
     }
@@ -68,11 +69,11 @@ class InputNumber extends Input
     /**
      * Sets the minimum numeric value for this numeric input
      *
-     * @param int|null $min
+     * @param float|int|null $min
      *
      * @return $this
      */
-    public function setMin(?int $min): static
+    public function setMin(float|int|null $min): static
     {
         return $this->setAttribute($min, 'min');
     }
@@ -81,9 +82,9 @@ class InputNumber extends Input
     /**
      * Returns the step value for this numeric input
      *
-     * @return int|null
+     * @return float|int|null
      */
-    public function getStep(): ?int
+    public function getStep(): float|int|null
     {
         return $this->attributes->get('step', false);
     }
@@ -92,11 +93,11 @@ class InputNumber extends Input
     /**
      * Sets the step value for this numeric input
      *
-     * @param int|null $step
+     * @param float|int|null $step
      *
      * @return $this
      */
-    public function setStep(?int $step): static
+    public function setStep(float|int|null $step): static
     {
         return $this->setAttribute($step, 'step');
     }
