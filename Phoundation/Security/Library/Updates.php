@@ -25,7 +25,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.15';
+        return '0.0.20';
     }
 
 
@@ -38,7 +38,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.5', function () {
             // Add security incidents table
-            sql()->schema()->table('security_incidents')->define()
+            sql()->getSchemaObject()->getTableObject('security_incidents')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -63,10 +63,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.6', function () {
-            sql()->schema()->table('security_puks_keys')->drop();
+            sql()->getSchemaObject()->getTableObject('security_puks_keys')->drop();
 
             // Add PUKS keys table
-            sql()->schema()->table('security_puks_keys')->define()
+            sql()->getSchemaObject()->getTableObject('security_puks_keys')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -88,9 +88,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.15', function () {
-            sql()->schema()
-                 ->table('security_incidents')->alter()
+            sql()->getSchemaObject()
+                 ->getTableObject('security_incidents')->alter()
                  ->changeColumn('`severity`', '`severity` ENUM("notice", "low", "medium", "high", "severe") NULL');
+
+        })->addUpdate('0.0.20', function () {
+            sql()->getSchemaObject()
+                 ->getTableObject('security_incidents')->alter()
+                 ->addColumn('`body` text NOT NULL', 'AFTER `title`');
         });
     }
 }

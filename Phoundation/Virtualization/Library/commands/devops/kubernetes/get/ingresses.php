@@ -10,7 +10,7 @@ use Phoundation\Virtualization\Kubernetes\Ingresses\Ingresses;
 
 
 /**
- * Script devops/kubernetes/get/ingresses
+ * Command devops/kubernetes/get/ingresses
  *
  *
  *

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
-use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
-use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
+use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
+use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -20,6 +20,7 @@ use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+
 
 // Validate GET and get requested user and password
 $get = GetValidator::new()
@@ -108,7 +109,7 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
             ->addColumn($column)
-            ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

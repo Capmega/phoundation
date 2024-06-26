@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Security;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 
 /**
  * Class Crypt
@@ -30,21 +31,21 @@ class Crypt
      */
     public static function createCryptString(int $size = 32): string
     {
-        return File::new('/dev/urandom')
-                   ->readBytes($size);
+        return FsFile::new('/dev/urandom', FsRestrictions::getReadonly('/dev/', 'Crypt::createCryptString()'))
+                     ->readBytes($size);
     }
 
 
     /**
      * Returns a file containing random bytes directly from /dev/urandom
      *
-     * @param string                $filename
-     * @param RestrictionsInterface $restrictions
-     * @param int                   $size
+     * @param string                  $filename
+     * @param FsRestrictionsInterface $restrictions
+     * @param int                     $size
      *
-     * @return FileInterface
+     * @return FsFileInterface
      */
-    public static function createCryptFile(string $filename, RestrictionsInterface $restrictions, int $size = 4_096): FileInterface
+    public static function createCryptFile(string $filename, FsRestrictionsInterface $restrictions, int $size = 4_096): FsFileInterface
     {
         if ($size > 16_777_216) {
             // Yeah, 16M keys is not enough? Really?
@@ -52,11 +53,11 @@ class Crypt
                 ':size' => $size,
             ]));
         }
-        $bytes = File::new('/dev/urandom', '/dev/')
-                     ->readBytes($size);
+        $bytes = FsFile::new('/dev/urandom', FsRestrictions::getReadonly('/dev/', 'Crypt::createCryptFile()'))
+                       ->readBytes($size);
 
-        return File::new($filename, $restrictions)
-                   ->putContents($bytes);
+        return FsFile::new($filename, $restrictions)
+                     ->putContents($bytes);
     }
 
 }

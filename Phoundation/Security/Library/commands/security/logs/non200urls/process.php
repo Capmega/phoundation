@@ -8,7 +8,7 @@ use Phoundation\Web\Non200Urls\Non200Urls;
 
 
 /**
- * Script security/non200urls/process
+ * Command security/non200urls/process
  *
  * This script will process Non HTTP-200 URL's and check for any illicit activities
  *

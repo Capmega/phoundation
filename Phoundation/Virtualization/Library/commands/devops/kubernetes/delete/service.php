@@ -8,7 +8,7 @@ use Phoundation\Virtualization\Kubernetes\Services\Service;
 
 
 /**
- * Script devops/kubernetes/delete/service
+ * Command devops/kubernetes/delete/service
  *
  *
  *

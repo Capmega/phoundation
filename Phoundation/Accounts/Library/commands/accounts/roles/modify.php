@@ -10,7 +10,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script accounts/roles/create
+ * Command accounts/roles/create
  *
  * This script will create a new role with the specified properties
  *

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Script accounts/users/lock
+ * Command accounts/users/lock
  *
  * This script can lock users
  *

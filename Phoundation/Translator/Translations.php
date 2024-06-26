@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Translator;
 
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Input\InputSelect;
@@ -20,7 +20,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Translator
  */
-class Translations extends DataList
+class Translations extends DataIterator
 {
     /**
      * Returns the name of this DataEntry class
@@ -96,7 +96,7 @@ class Translations extends DataList
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

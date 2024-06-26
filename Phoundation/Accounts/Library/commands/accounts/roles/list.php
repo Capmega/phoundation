@@ -9,7 +9,7 @@ use Phoundation\Databases\Sql\SqlQueries;
 
 
 /**
- * Script accounts/roles/list
+ * Command accounts/roles/list
  *
  * This script will list the available roles on this system
  *

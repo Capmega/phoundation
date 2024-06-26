@@ -8,7 +8,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script servers/delete
+ * Command servers/delete
  *
  * This script can delete servers
  *

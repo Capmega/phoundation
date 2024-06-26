@@ -9,7 +9,7 @@ use Phoundation\Databases\Sql\SqlQueries;
 
 
 /**
- * Script accounts/users/list
+ * Command accounts/users/list
  *
  * This script will list the available users on this system
  *

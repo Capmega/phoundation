@@ -48,7 +48,7 @@ class Email extends DataEntry implements EmailInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {
@@ -139,10 +139,12 @@ class Email extends DataEntry implements EmailInterface
                                            ->setHelpText(tr('The extra email address for the user'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                // Email cannot exist in accounts_users or accounts_emails!
-                                               $validator->isUnique(tr('value ":email" already exists as an additional email address', [':email' => $validator->getSelectedValue()]));
+                                               $validator->isUnique(tr('it already exists as an additional email address'));
+
                                                $exists = sql()->get('SELECT `id` FROM `accounts_users` WHERE `email` = :email', [
                                                    ':email' => $validator->getSelectedValue(),
                                                ]);
+
                                                if ($exists) {
                                                    $validator->addFailure(tr('value ":email" already exists as a primary email address', [':email' => $validator->getSelectedValue()]));
                                                }

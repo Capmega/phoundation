@@ -10,7 +10,7 @@ use Phoundation\Virtualization\Kubernetes\MiniKube;
 
 
 /**
- * Script devops/kubernetes/service/status
+ * Command devops/kubernetes/service/status
  *
  *
  *

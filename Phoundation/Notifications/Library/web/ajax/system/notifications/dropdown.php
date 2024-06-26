@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Ajax system/notifications/dropdown.php
  *
@@ -18,9 +19,12 @@ $dropdown = NotificationsDropDown::new()
                                  ->setStatus('UNREAD')
                                  ->setNotificationsUrl('/notifications/notification-:ID.html')
                                  ->setAllNotificationsUrl('/notifications/unread.html');
+
+
 // Link the users notifications hash and see if we need to ping
 $ping = $dropdown->getNotifications()
                  ->linkHash();
+
 // Reply
 $reply = [
     'html'  => '<li class="nav-item dropdown notifications">' . $dropdown->render() . '</li>',
@@ -28,4 +32,5 @@ $reply = [
                         ->getCount(),
     'ping'  => $ping,
 ];
+
 Json::reply($reply);

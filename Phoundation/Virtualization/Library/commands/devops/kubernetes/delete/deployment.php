@@ -8,7 +8,7 @@ use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
 
 
 /**
- * Script devops/kubernetes/delete/deployment
+ * Command devops/kubernetes/delete/deployment
  *
  *
  *

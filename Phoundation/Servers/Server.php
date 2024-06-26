@@ -76,7 +76,7 @@ class Server extends DataEntry implements ServerInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {
@@ -382,17 +382,32 @@ class Server extends DataEntry implements ServerInterface
                 ':server' => $this->getLogId(),
             ]));
         }
+
         if (empty($this->ssh_account)) {
-            throw new SshException(tr('Cannot generate SSH command line, no account specified for hostname ":hostname"', [
-                ':hostname' => $this->getHostname(),
-            ]));
+            throw new SshException(
+                tr('Cannot generate SSH command line, no account specified for hostname ":hostname"', [
+                    ':hostname' => $this->getHostname(),
+                ])
+            );
         }
+
         if (!$this->ssh_account->getFile()) {
-            throw new SshException(tr('Cannot generate SSH command line, the SSH account ":account" has no private key specified', [
+            throw new SshException(
+                tr('Cannot generate SSH command line, the SSH account ":account" has no private key specified', [
+                    ':account' => $this->ssh_account->getLogId(),
+                ])
+            );
+        }
+
+        if (!$this->ssh_account->getFile()->exists()) {
+            throw new SshException(tr('Cannot generate SSH command line, the private key file ":file" specified for SSH account ":account" does not exist', [
                 ':account' => $this->ssh_account->getLogId(),
+                ':file'    => $this->ssh_account->getFile()
             ]));
         }
+
         $username = $this->getUsername();
+
         if ($username) {
             $username .= '@';
         }
@@ -557,7 +572,7 @@ class Server extends DataEntry implements ServerInterface
                                            ->setMaxlength(64)
                                            ->setHelpText(tr('The name for this role'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
+                                               $validator->isUnique();
                                            }))
                     ->add(DefinitionFactory::getSeoName($this))
                     ->add(Definition::new($this, 'hostname')

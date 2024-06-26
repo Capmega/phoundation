@@ -11,7 +11,7 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
 
 /**
- * Script email/send
+ * Command email/send
  *
  * This script can send out emails
  *

@@ -12,7 +12,7 @@ use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -448,8 +448,8 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     /**
      * Returns true if the exception message matches the specified needle(s)
      *
-     * @param DataListInterface|array|string|null $needles
-     * @param int                                 $flags Flags that will modify this functions behavior.
+     * @param DataIteratorInterface|array|string|null $needles
+     * @param int                                     $flags Flags that will modify this functions behavior.
      *
      * Supported match flags are:
      *
@@ -484,7 +484,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @return bool
      */
-    public function messageMatches(DataListInterface|array|string|null $needles, int $flags = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE): bool
+    public function messageMatches(DataIteratorInterface|array|string|null $needles, int $flags = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE): bool
     {
         return Strings::matches($this->message, $needles, $flags);
     }

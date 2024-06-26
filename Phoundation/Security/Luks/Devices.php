@@ -4,23 +4,23 @@ namespace Phoundation\Security\Luks;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Interfaces\PathInterface;
-use Phoundation\Filesystem\MountedStorageDevices;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\FsMountedStorageDevices;
 
 class Devices
 {
     /**
      * Scans for LUKS devices in the specified path and returns all found devices
      *
-     * @param PathInterface $path
-     * @param int|bool      $recurse
+     * @param FsPathInterface $path
+     * @param int|bool        $recurse
      *
      * @return IteratorInterface
      */
-    public static function scan(PathInterface $path, int|bool $recurse = false): IteratorInterface
+    public static function scan(FsPathInterface $path, int|bool $recurse = false): IteratorInterface
     {
-        Directory::new($path)->each(function ($file) {
+        FsDirectory::new($path)->each(function ($file) {
             show($file);
         });
     }
@@ -34,7 +34,7 @@ class Devices
     public static function getMounted(): IteratorInterface
     {
         $return  = [];
-        $devices = MountedStorageDevices::new()->scan();
+        $devices = FsMountedStorageDevices::new()->scan();
 
         foreach ($devices as $device) {
             if (str_starts_with($device, 'dm-uuid-CRYPT-LUKS2-')) {

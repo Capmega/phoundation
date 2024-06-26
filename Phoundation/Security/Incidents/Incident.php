@@ -1,5 +1,20 @@
 <?php
 
+/**
+ * Class Incident
+ *
+ *
+ *
+ * @see       DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Security
+ * @todo      Incidents should be able to throw exceptions depending on type. AuthenticationFailureExceptions, for
+ *            example, should be thrown from here so that it is no longer required for the developer to both register
+ *            the incident AND throw the exception
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Security\Incidents;
@@ -9,6 +24,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryBody;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryType;
@@ -25,24 +41,11 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 
-/**
- * Class Incident
- *
- *
- *
- * @see       DataEntry
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Security
- * @todo      Incidents should be able to throw exceptions depending on type. AuthenticationFailureExceptions, for
- *            example, should be thrown from here so that it is no longer required for the developer to both register
- *            the incident AND throw the exception
- */
 class Incident extends DataEntry implements IncidentInterface
 {
     use TraitDataEntryType;
     use TraitDataEntryTitle;
+    use TraitDataEntryBody;
     use TraitDataEntryDetails;
 
     /**
@@ -323,8 +326,15 @@ class Incident extends DataEntry implements IncidentInterface
                                     ->setLabel(tr('Title'))
                                     ->setDisabled(true)
                                     ->setSize(12)
-                                    ->setMaxlength(4)
+                                    ->setMinlength(4)
                                     ->setMaxlength(255))
+
+                    ->add(Definition::new($this, 'body')
+                                    ->setLabel(tr('Body'))
+                                    ->setDisabled(true)
+                                    ->setOptional(true)
+                                    ->setSize(12)
+                                    ->setMaxlength(65_535))
 
                     ->add(Definition::new($this, 'details')
                                     ->setElement(EnumElement::textarea)
@@ -333,11 +343,12 @@ class Incident extends DataEntry implements IncidentInterface
                                     ->setSize(12)
                                     ->setMaxlength(65_535)
                                     ->setDisplayCallback(function (mixed $value, array $source) {
-                                        // Since the details almost always have an array encoded in JSON, decode it and display it using
-                                        // print_r
+                                        // Since the details almost always have an array encoded in JSON, decode it and
+                                        // display it using print_r
                                         if (!$value) {
                                             return null;
                                         }
+
                                         try {
                                             $return  = '';
                                             $details = Json::decode($value);
@@ -349,7 +360,7 @@ class Incident extends DataEntry implements IncidentInterface
                                             return $return;
 
                                         } catch (JsonException $e) {
-                                            // We couldn't decode it! Why? No idea, but lets just move on, its not THAT important.. yet.
+                                            // We couldn't decode it! Why? Lets move on, its not THAT important.. yet.
                                             Log::warning($e);
 
                                             return $value;

@@ -26,7 +26,7 @@ class Employee extends DataEntry
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

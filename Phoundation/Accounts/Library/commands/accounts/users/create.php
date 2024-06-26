@@ -3,17 +3,17 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Role;
-use Phoundation\Accounts\Users\Exception\PasswordFailedException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Security\Passwords\Exception\PasswordFailedException;
 
 
 /**
- * Script accounts/users/create
+ * Command accounts/users/create
  *
  * This command will create a new user with the specified properties
  *

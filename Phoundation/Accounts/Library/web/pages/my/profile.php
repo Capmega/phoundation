@@ -34,7 +34,25 @@ $definitions->get('locked_until')
             ->setRender(false);
 
 $definitions->get('username')
-            ->setReadonly(true);
+            ->setRender(false);
+
+$definitions->get('nickname')
+            ->setRender(false);
+
+$definitions->get('latitude')
+            ->setRender(false);
+
+$definitions->get('longitude')
+            ->setRender(false);
+
+$definitions->get('keywords')
+            ->setRender(false);
+
+$definitions->get('url')
+            ->setRender(false);
+
+$definitions->get('accuracy')
+            ->setRender(false);
 
 $definitions->get('comments')
             ->setReadonly(true)
@@ -86,15 +104,20 @@ $definitions->get('redirect')
             ->setReadonly(true);
 
 $definitions->get('url')
-            ->setSize(9);
+            ->setSize(6);
 
 $definitions->get('description')
-            ->setSize(12);
+            ->setRender(false);
+
+$definitions->get('data')
+            ->setRender(false);
+
+$definitions->moveBeforeKey('zipcode', 'address');
 
 
 // Validate POST and submit
 if (Request::isPostRequestMethod()) {
-    if (PostValidator::getSubmitButton() === tr('Submit')) {
+    if (PostValidator::new()->getSubmitButton() === tr('Submit')) {
         try {
             // Update user
             $user->apply()->save();
@@ -136,7 +159,6 @@ $column = GridColumn::new()
 
 
 // Build profile picture card
-//showdie($user->getPicture());
 $picture = Card::new()
                ->setTitle(tr('My profile picture'))
                ->setContent(Img::new()
@@ -168,14 +190,15 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
             ->addColumn($column)
-            ->addColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($picture->render() . '<br>' . $relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
+
 
 // Set page meta data
 Response::setHeaderTitle(tr('My profile'));
 Response::setHeaderSubTitle($user->getName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/' => tr('Home'),
-                                                           ''  => tr('My profile'),
-                                                       ]));
+    '/' => tr('Home'),
+    ''  => tr('My profile'),
+]));

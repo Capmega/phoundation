@@ -8,7 +8,7 @@ use Phoundation\Virtualization\Docker\DockerFile;
 
 
 /**
- * Script devops/docker/build
+ * Command devops/docker/build
  *
  *
  *

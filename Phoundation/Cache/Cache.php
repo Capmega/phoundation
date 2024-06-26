@@ -12,8 +12,8 @@ use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
-use Phoundation\Filesystem\Path;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
@@ -57,7 +57,7 @@ class Cache
         Web::clearCache();
         CliCommand::rebuildCache();
         Log::action(tr('Clearing file caches'), 3);
-        Path::new(DIRECTORY_DATA . 'cache/', Restrictions::writable(DIRECTORY_DATA . 'cache/'))
+        FsPath::new(DIRECTORY_DATA . 'cache/', FsRestrictions::getWritable(DIRECTORY_DATA . 'cache/'))
             ->delete();
         static::driver()
               ?->clear();

@@ -9,7 +9,7 @@ use Phoundation\Servers\SshAccount;
 
 
 /**
- * Script servers/accounts/delete
+ * Command servers/accounts/delete
  *
  * This script can delete accounts
  *

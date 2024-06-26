@@ -42,7 +42,7 @@ $notification->setStatus('READ');
 // Validate POST and submit
 if (Request::isPostRequestMethod()) {
     try {
-        switch (PostValidator::getSubmitButton()) {
+        switch (PostValidator::new()->getSubmitButton()) {
             case tr('Mark unread'):
                 $notification->setStatus('UNREAD');
                 Response::getFlashMessages()->addSuccess(tr('The notification ":notification" has been marked as unread', [
@@ -99,7 +99,7 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
     ->addColumn($notification_card, EnumDisplaySize::nine, true)
-    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+    ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

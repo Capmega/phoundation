@@ -9,7 +9,7 @@ use Phoundation\Databases\Sql\Limit;
 
 
 /**
- * Script accounts/users/undelete
+ * Command accounts/users/undelete
  *
  * This script can undelete users
  *

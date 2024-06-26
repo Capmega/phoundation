@@ -39,15 +39,15 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.8', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('business_employees')->drop();
-            sql()->schema()->table('business_departments')->drop();
-            sql()->schema()->table('business_branches')->drop();
-            sql()->schema()->table('business_companies')->drop();
-            sql()->schema()->table('business_providers')->drop();
-            sql()->schema()->table('business_customers')->drop();
+            sql()->getSchemaObject()->getTableObject('business_employees')->drop();
+            sql()->getSchemaObject()->getTableObject('business_departments')->drop();
+            sql()->getSchemaObject()->getTableObject('business_branches')->drop();
+            sql()->getSchemaObject()->getTableObject('business_companies')->drop();
+            sql()->getSchemaObject()->getTableObject('business_providers')->drop();
+            sql()->getSchemaObject()->getTableObject('business_customers')->drop();
 
             // Add table for customers
-            sql()->schema()->table('business_customers')->define()
+            sql()->getSchemaObject()->getTableObject('business_customers')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -97,7 +97,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for providers
-            sql()->schema()->table('business_providers')->define()
+            sql()->getSchemaObject()->getTableObject('business_providers')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -139,7 +139,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for companies
-            sql()->schema()->table('business_companies')->define()
+            sql()->getSchemaObject()->getTableObject('business_companies')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -173,7 +173,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for branches
-            sql()->schema()->table('business_branches')->define()
+            sql()->getSchemaObject()->getTableObject('business_branches')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -201,7 +201,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for departments
-            sql()->schema()->table('business_departments')->define()
+            sql()->getSchemaObject()->getTableObject('business_departments')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -232,7 +232,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for employees
-            sql()->schema()->table('business_employees')->define()
+            sql()->getSchemaObject()->getTableObject('business_employees')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -266,11 +266,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
         })->addUpdate('0.0.9', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('business_invoices_items')->drop();
-            sql()->schema()->table('business_invoices')->drop();
+            sql()->getSchemaObject()->getTableObject('business_invoices_items')->drop();
+            sql()->getSchemaObject()->getTableObject('business_invoices')->drop();
 
             // Add table for invoices
-            sql()->schema()->table('business_invoices')->define()
+            sql()->getSchemaObject()->getTableObject('business_invoices')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -307,7 +307,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_business_invoices_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')->create();
             // Add table for invoices
-            sql()->schema()->table('business_invoices_items')->define()
+            sql()->getSchemaObject()->getTableObject('business_invoices_items')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

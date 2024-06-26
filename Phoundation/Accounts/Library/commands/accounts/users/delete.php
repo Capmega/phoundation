@@ -9,7 +9,7 @@ use Phoundation\Databases\Sql\Limit;
 
 
 /**
- * Script accounts/users/delete
+ * Command accounts/users/delete
  *
  * This script can delete users
  *

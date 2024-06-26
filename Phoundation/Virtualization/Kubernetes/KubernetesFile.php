@@ -6,7 +6,7 @@ namespace Phoundation\Virtualization\Kubernetes;
 
 use Phoundation\Data\Traits\TraitDataFile;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\FsFile;
 
 /**
  * Class KubernetesFile
@@ -50,7 +50,7 @@ abstract class KubernetesFile
         $data = yaml_emit($data);
 //        $data = Strings::from($data, PHP_EOL);
 //        $data = Strings::untilReverse($data, PHP_EOL);
-        File::new($this->file)
+        FsFile::new($this->file)
             ->setRestrictions(DIRECTORY_ROOT . 'config/kubernetes/' . $this->kind . '/', true, 'kubernetes')
             ->create($data);
 

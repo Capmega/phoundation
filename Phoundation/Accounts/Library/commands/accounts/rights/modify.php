@@ -9,7 +9,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script accounts/rights/create
+ * Command accounts/rights/create
  *
  * This script will create a new right with the specified properties
  *

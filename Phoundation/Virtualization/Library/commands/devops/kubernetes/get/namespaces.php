@@ -10,7 +10,7 @@ use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespa
 
 
 /**
- * Script devops/kubernetes/namespaces/get
+ * Command devops/kubernetes/namespaces/get
  *
  *
  *

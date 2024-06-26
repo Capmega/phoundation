@@ -10,7 +10,7 @@ use Phoundation\Virtualization\Kubernetes\Services\Service;
 
 
 /**
- * Script devops/kubernetes/create/service
+ * Command devops/kubernetes/create/service
  *
  *
  *

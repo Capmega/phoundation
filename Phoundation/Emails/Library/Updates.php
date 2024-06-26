@@ -39,16 +39,16 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.16', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('emails_attachments')->drop();
-            sql()->schema()->table('emails_addresses_linked')->drop();
-            sql()->schema()->table('emails_addresses')->drop();
-            sql()->schema()->table('emails_accounts')->drop();
-            sql()->schema()->table('emails_labels_links')->drop();
-            sql()->schema()->table('emails_labels')->drop();
-            sql()->schema()->table('emails')->drop();
+            sql()->getSchemaObject()->getTableObject('emails_attachments')->drop();
+            sql()->getSchemaObject()->getTableObject('emails_addresses_linked')->drop();
+            sql()->getSchemaObject()->getTableObject('emails_addresses')->drop();
+            sql()->getSchemaObject()->getTableObject('emails_accounts')->drop();
+            sql()->getSchemaObject()->getTableObject('emails_labels_links')->drop();
+            sql()->getSchemaObject()->getTableObject('emails_labels')->drop();
+            sql()->getSchemaObject()->getTableObject('emails')->drop();
 
             // Add table for emails
-            sql()->schema()->table('emails')->define()
+            sql()->getSchemaObject()->getTableObject('emails')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -84,7 +84,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for emails
-            sql()->schema()->table('emails_labels')->define()
+            sql()->getSchemaObject()->getTableObject('emails_labels')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -115,7 +115,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for emails
-            sql()->schema()->table('emails_labels_links')->define()
+            sql()->getSchemaObject()->getTableObject('emails_labels_links')->define()
                  ->setColumns('
                     `emails_id` bigint NOT NULL,    /* Email */
                     `labels_id` bigint DEFAULT NULL /* Label */
@@ -129,7 +129,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for email accounts
-            sql()->schema()->table('emails_accounts')->define()
+            sql()->getSchemaObject()->getTableObject('emails_accounts')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -161,7 +161,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for to, cc, bcc, from
-            sql()->schema()->table('emails_addresses')->define()
+            sql()->getSchemaObject()->getTableObject('emails_addresses')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `users_id` bigint DEFAULT NULL,     /* Optionally, the local user to which this address belongs */
@@ -185,7 +185,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for to, cc, bcc, from
-            sql()->schema()->table('emails_addresses_linked')->define()
+            sql()->getSchemaObject()->getTableObject('emails_addresses_linked')->define()
                  ->setColumns('
                     `emails_id` bigint NOT NULL AUTO_INCREMENT,
                     `address_id` bigint DEFAULT NULL,                /* The email to which this TO / CC / BCC, FROM entry belongs */
@@ -204,7 +204,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for attachments
-            sql()->schema()->table('emails_attachments')->define()
+            sql()->getSchemaObject()->getTableObject('emails_attachments')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -235,7 +235,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.17', function () {
-            sql()->schema()->table('emails_attachments')
+            sql()->getSchemaObject()->getTableObject('emails_attachments')
                  ->alter()
                  ->changeColumn('local_path', '`local_directory` varchar(128) NOT NULL')
                  ->dropIndex('local_path')

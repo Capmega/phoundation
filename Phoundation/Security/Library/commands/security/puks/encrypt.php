@@ -7,7 +7,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Security\Puks\Puks;
 
 /**
- * Script puks/encrypt
+ * Command puks/encrypt
  *
  * This script will encrypt the specified data using the PUKS system
  *

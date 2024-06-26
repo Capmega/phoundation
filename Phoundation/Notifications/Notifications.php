@@ -6,7 +6,7 @@ namespace Phoundation\Notifications;
 
 use Phoundation\Audio\Audio;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;
 use Phoundation\Utils\Config;
@@ -22,13 +22,13 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  *
  *
- * @see       \Phoundation\Data\DataEntry\DataList
+ * @see       \Phoundation\Data\DataEntry\DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundations\Notifications
  */
-class Notifications extends DataList implements NotificationsInterface
+class Notifications extends DataIterator implements NotificationsInterface
 {
     /**
      * Notifications class constructor
@@ -197,7 +197,7 @@ class Notifications extends DataList implements NotificationsInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

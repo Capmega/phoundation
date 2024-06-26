@@ -16,11 +16,11 @@ declare(strict_types=1);
 namespace Phoundation\Geo\GeoIp;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Path;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Wget;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
@@ -114,45 +114,45 @@ class MaxMindImport extends GeoIpImport
     /**
      * Process downloaded GeoIP files
      *
-     * @param Stringable|string                       $source_path
-     * @param Stringable|string|null                  $target_path
-     * @param RestrictionsInterface|array|string|null $restrictions = null
+     * @param Stringable|string                         $source_path
+     * @param Stringable|string|null                    $target_path
+     * @param FsRestrictionsInterface|array|string|null $restrictions = null
      *
      * @return string
      */
-    public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, RestrictionsInterface|array|string|null $restrictions = null): string
+    public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, FsRestrictionsInterface|array|string|null $restrictions = null): string
     {
         // Determine what target path to use
-        $restrictions = $restrictions ?? Restrictions::new(DIRECTORY_DATA, true);
+        $restrictions = $restrictions ?? FsRestrictions::new(DIRECTORY_DATA, true);
         $target_path  = Config::getString('geo.ip.max-mind.path', DIRECTORY_DATA . 'sources/geoip/maxmind/', $target_path);
-        $target_path  = Path::absolutePath($target_path, DIRECTORY_ROOT, false);
+        $target_path  = FsPath::absolutePath($target_path, DIRECTORY_ROOT, false);
 
-        Directory::new($target_path, $restrictions)->ensure();
+        FsDirectory::new($target_path, $restrictions)->ensure();
 
         Log::action(tr('Processing GeoIP files and moving to directory ":directory"', [':directory' => $target_path]));
 
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            File::new(
+            FsFile::new(
                 DIRECTORY_DATA . 'garbage/maxmind',
                 $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/')
             )->delete();
 
-            File::new(
+            FsFile::new(
                 $source_path . 'GeoLite2-*',
                 $restrictions
             )->delete(false, false, false);
 
-            $previous = Directory::new($target_path, $restrictions)->movePath(DIRECTORY_DATA . 'garbage/');
+            $previous = FsDirectory::new($target_path, $restrictions)->movePath(DIRECTORY_DATA . 'garbage/');
             $shas     = [];
 
             // Perform sha256 check on all files
             foreach (static::getMaxMindFiles(true) as $file => $url) {
                 if (str_ends_with($file, 'sha256')) {
                     // Get the required sha256 code for the following file
-                    $sha = File::new($source_path . $file, $restrictions)
-                               ->checkReadable()
-                               ->getContentsAsString();
+                    $sha = FsFile::new($source_path . $file, $restrictions)
+                                 ->checkReadable()
+                                 ->getContentsAsString();
 
                     $sha = Strings::until($sha, ' ');
                     $shas[Strings::until($file, '.sha256')] = $sha;
@@ -163,11 +163,11 @@ class MaxMindImport extends GeoIpImport
 
                 // Take the downloaded file, check sha256, untar it, and move the datafile from the resulting directory
                 // to the target
-                $directory = File::new($source_path . $file, $restrictions)
-                                 ->checkReadable()
-                                 ->checkSha256($shas[$file])
-                                 ->untar()
-                                 ->getSingleDirectory('/GeoLite2.+?/i');
+                $directory = FsFile::new($source_path . $file, $restrictions)
+                                   ->checkReadable()
+                                   ->checkSha256($shas[$file])
+                                   ->untar()
+                                   ->getSingleDirectory('/GeoLite2.+?/i');
                 // Move the file to the target path and delete the source path
                 $directory->getSingleFile('/.+?.mmdb/i')
                           ->movePath($target_path);

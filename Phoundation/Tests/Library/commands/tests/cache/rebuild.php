@@ -7,7 +7,7 @@ use Phoundation\Tests\Tests;
 
 
 /**
- * Script tests/cache/rebuild
+ * Command tests/cache/rebuild
  *
  * This script will rebuild the test cache
  *

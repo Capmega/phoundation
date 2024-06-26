@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Phoundation\Accounts\Users\Exception\PasswordFailedException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
@@ -11,10 +10,11 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
+use Phoundation\Security\Passwords\Exception\PasswordFailedException;
 
 
 /**
- * Script accounts/users/authenticate
+ * Command accounts/users/authenticate
  *
  * This script can be used to test the authentication for the specified user
  *

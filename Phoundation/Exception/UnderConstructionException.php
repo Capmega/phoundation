@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Exception;
-
-use Phoundation\Developer\Debug;
-use Throwable;
-
 /**
  * Class UnderConstructionException
  *
@@ -14,6 +7,14 @@ use Throwable;
  *
  * @package Phoundation\Exception
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Exception;
+
+use Phoundation\Developer\Debug;
+use Throwable;
+
 class UnderConstructionException extends Exception
 {
     public function __construct(Throwable|array|string|null $messages = null, ?Throwable $previous = null)

@@ -11,7 +11,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script accounts/roles/remove-right
+ * Command accounts/roles/remove-right
  *
  * This script will create a new role with the specified properties
  *

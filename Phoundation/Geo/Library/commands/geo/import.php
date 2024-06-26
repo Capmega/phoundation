@@ -5,12 +5,12 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Geo\Import;
 
 
 /**
- * Script geo/ip/import
+ * Command geo/ip/import
  *
  *
  *
@@ -77,7 +77,7 @@ if (!$argv['no_import']) {
 
     // Process the files
     Log::action(tr('Processing geonames files'));
-    Import::process($argv['target_path'], $argv['target_path'] . '_processed', Restrictions::new(DIRECTORY_DATA, true, 'import'));
+    Import::process($argv['target_path'], $argv['target_path'] . '_processed', FsRestrictions::new(DIRECTORY_DATA, true, 'import'));
 
     // Load the datafiles into a geonames database
     Log::action(tr('Loading geonames files into temporary database'));

@@ -38,16 +38,16 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.3', function () {
             // Cleanup all
-            sql()->schema()->table('geo_timezones')->drop();
-            sql()->schema()->table('geo_continents')->drop();
-            sql()->schema()->table('geo_countries')->drop();
-            sql()->schema()->table('geo_states')->drop();
-            sql()->schema()->table('geo_counties')->drop();
-            sql()->schema()->table('geo_features')->drop();
-            sql()->schema()->table('geo_cities')->drop();
+            sql()->getSchemaObject()->getTableObject('geo_timezones')->drop();
+            sql()->getSchemaObject()->getTableObject('geo_continents')->drop();
+            sql()->getSchemaObject()->getTableObject('geo_countries')->drop();
+            sql()->getSchemaObject()->getTableObject('geo_states')->drop();
+            sql()->getSchemaObject()->getTableObject('geo_counties')->drop();
+            sql()->getSchemaObject()->getTableObject('geo_features')->drop();
+            sql()->getSchemaObject()->getTableObject('geo_cities')->drop();
 
             // Create the geo_timezones table.
-            sql()->schema()->table('geo_timezones')->define()
+            sql()->getSchemaObject()->getTableObject('geo_timezones')->define()
                  ->setColumns('  
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -80,7 +80,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the geo_continents table.
-            sql()->schema()->table('geo_continents')->define()
+            sql()->getSchemaObject()->getTableObject('geo_continents')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -115,7 +115,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the geo_countries table.
-            sql()->schema()->table('geo_countries')->define()
+            sql()->getSchemaObject()->getTableObject('geo_countries')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -185,7 +185,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the geo_states table.
-            sql()->schema()->table('geo_states')->define()
+            sql()->getSchemaObject()->getTableObject('geo_states')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -238,7 +238,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the geo_counties table.
-            sql()->schema()->table('geo_counties')->define()
+            sql()->getSchemaObject()->getTableObject('geo_counties')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -288,7 +288,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the geo_features table.
-            sql()->schema()->table('geo_features')->define()
+            sql()->getSchemaObject()->getTableObject('geo_features')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -312,7 +312,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the geo_cities table.
-            sql()->schema()->table('geo_cities')->define()
+            sql()->getSchemaObject()->getTableObject('geo_cities')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -389,7 +389,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             ];
 
             foreach ($tables as $table) {
-                sql()->schema()->table($table)->alter()->addForeignKey('
+                sql()->getSchemaObject()->getTableObject($table)->alter()->addForeignKey('
                     CONSTRAINT `fk_' . $table . '_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ');
             }

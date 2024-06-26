@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
-use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
-use Phoundation\Accounts\Users\Exception\PasswordWeakException;
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
@@ -18,10 +15,14 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
+use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
+use Phoundation\Security\Passwords\Exception\PasswordWeakException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
+
 
 /**
  * Class Passwords
@@ -63,7 +64,7 @@ class Password extends DataEntry implements PasswordInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

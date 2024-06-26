@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Servers;
 
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
@@ -18,13 +18,13 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
  *
  *
  *
- * @see       \Phoundation\Data\DataEntry\DataList
+ * @see       \Phoundation\Data\DataEntry\DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Business
  */
-class Servers extends DataList
+class Servers extends DataIterator
 {
     /**
      * Servers class constructor
@@ -42,7 +42,7 @@ class Servers extends DataList
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

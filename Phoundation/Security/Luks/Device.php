@@ -19,15 +19,12 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileWriteAccessDeniedException;
-use Phoundation\Filesystem\Exception\NotEnoughStorageSpaceAvailableException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\PathInterface;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Os\Processes\Commands\Lsof;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Security\Luks\Exception\DeviceAlreadyExistsException;
@@ -39,12 +36,12 @@ use Phoundation\Security\Luks\Exception\LuksNoOpenDeviceException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
-class Device extends File
+class Device extends FsFile
 {
     /**
-     * @var PathInterface|null $device_name
+     * @var FsPathInterface|null $device_name
      */
-    protected ?PathInterface $device_name = null;
+    protected ?FsPathInterface $device_name = null;
 
     /**
      * The code used to open this LUKS file
@@ -52,19 +49,6 @@ class Device extends File
      * @var string|null
      */
     protected ?string $code = null;
-
-
-    /**
-     * Returns a new LUKS Device object for the specified device name
-     *
-     * @param string $device
-     *
-     * @return void
-     */
-    public static function newFromDevice(string $device) {
-        $device = new static();
-        return $device->setDevice($device);
-    }
 
 
     /**
@@ -139,21 +123,26 @@ class Device extends File
     /**
      * Returns the header information from this LUKS file
      *
-     * @param string $password
+     * @param string            $password
+     * @param EnumExecuteMethod $method
      *
      * @return static
      */
-    public function luksFormat(string $password): static
+    public function luksFormat(string $password, EnumExecuteMethod $method = EnumExecuteMethod::noReturn): static
     {
         Password::checkStrong($password);
 
         $this->luksCheckPath();
 
+        Log::action(tr('Formatting LUKS device file ":file"', [
+            ':file' => $this->path,
+        ]));
+
         Process::new('cryptsetup', $this->restrictions)
                ->addArguments(['luksFormat', '--batch-mode', $this->path])
                ->setSudo(true)
                ->setPipeFrom($password)
-               ->executeReturnIterator();
+               ->execute($method);
 
         return $this;
     }
@@ -164,44 +153,23 @@ class Device extends File
      *
      * @param string|int $size
      * @param string     $password
-     * @param bool       $force
+     * @param bool       $initialize
      *
      * @return static
      */
-    public function luksCreate(string|int $size, string $password, bool $force = false): static
+    public function luksCreate(string|int $size, string $password, bool $initialize = true): static
     {
         Password::checkStrong($password);
 
         $this->luksCheckPath();
 
-        if ($this->exists()) {
-            if (!$force) {
-                throw new FileExistsException(tr('Cannot create LUKS file ":file", the file already exists', [
-                    ':file' => $this->path
-                ]));
-            }
+        // Allocate, initialize, and format
+        $this->allocate($size);
 
-            // FORCE mode, delete the file
-            $this->delete();
+        if ($initialize) {
+            $this->initialize('random');
         }
 
-        // Check the filesystem for the directory in which this crypt file will be created. Is there enough space?
-        $filesystem = $this->getParentDirectory()->getFilesystem();
-
-        if ($filesystem->getAvailableSpace() < $size) {
-            throw new NotEnoughStorageSpaceAvailableException(tr('Cannot create LUKS file ":file" with size ":size", the filesystem does not have enough space available', [
-                ':file' => $this->path,
-                ':size' => $size
-            ]));
-        }
-
-        // fallocate the file
-        Process::new('fallocate', $this->restrictions)
-               ->addArguments(['-l', $size, $this->path])
-               ->setSudo(true)
-               ->executeReturnIterator();
-
-        // Format, and we're done!
         return $this->luksFormat($password);
     }
 
@@ -287,12 +255,12 @@ class Device extends File
      * Opens the luks device file with the specified code and generates the specified device name in /dev/mapper/
      *
      * @param string                     $passphrase
-     * @param PathInterface|string       $device_name
-     * @param EnumExecuteMethodInterface $method
+     * @param FsPathInterface|string     $device_name
+     * @param EnumExecuteMethod $method
      *
      * @return static
      */
-    public function luksOpen(string $passphrase, PathInterface|string $device_name, EnumExecuteMethodInterface $method = EnumExecuteMethod::noReturn): static
+    public function luksOpen(string $passphrase, FsPathInterface|string $device_name, EnumExecuteMethod $method = EnumExecuteMethod::noReturn): static
     {
         try {
             $this->luksCheckPath();
@@ -347,7 +315,7 @@ class Device extends File
         }
 
         $this->code        = $passphrase;
-        $this->device_name = new File('/dev/mapper/' . $device_name);
+        $this->device_name = new FsFile('/dev/mapper/' . $device_name);
 
         Log::success(tr('Opened LUKS file ":file" and mapped it to device ":device"', [
             ':file'   => $this->path,
@@ -456,17 +424,17 @@ class Device extends File
 
         foreach ($combinations as $id => $combination) {
             try {
-                Log::action(tr('Trying key ":id"', [':id' => $id]), 3, newline: false);
+                Log::action(tr('Trying key ":id"', [':id' => $id]), 3, echo_newline: false);
                 $this->luksOpen($combination, $device)
                      ->luksClose();
 
                 // Yay, this key worked!
                 $return[] = $combination;
-                Log::success(' ' . tr('[ Ok ]'), 3, use_prefix: false);
+                Log::success(' ' . tr('[ Ok ]'), 3, echo_prefix: false);
 
             } catch (DeviceNoKeyAvailableWithPassphraseException) {
                 // This key doesn't work, next!
-                Log::error(' ' . tr('[ Failed ]'), 3, use_prefix: false);
+                Log::error(' ' . tr('[ Failed ]'), 3, echo_prefix: false);
             }
         }
 

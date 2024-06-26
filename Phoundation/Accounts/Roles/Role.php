@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Class Role
+ *
+ *
+ *
+ * @see       DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Accounts
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Roles;
@@ -27,17 +39,6 @@ use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
-/**
- * Class Role
- *
- *
- *
- * @see       DataEntry
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Accounts
- */
 class Role extends DataEntry implements RoleInterface
 {
     use TraitDataEntryNameLowercaseDash;
@@ -60,7 +61,7 @@ class Role extends DataEntry implements RoleInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {
@@ -129,6 +130,7 @@ class Role extends DataEntry implements RoleInterface
                 ':role' => $this->getLogId(),
             ]));
         }
+
         if (!$this->list) {
             $this->list = Rights::new()
                                 ->setParent($this)
@@ -232,7 +234,7 @@ class Role extends DataEntry implements RoleInterface
                                            ->setMaxlength(64)
                                            ->setHelpText(tr('The name for this role'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
+                                               $validator->isUnique();
                                            }))
                     ->add(DefinitionFactory::getSeoName($this))
                     ->add(DefinitionFactory::getDescription($this)

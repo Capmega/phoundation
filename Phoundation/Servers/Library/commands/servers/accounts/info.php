@@ -8,7 +8,7 @@ use Phoundation\Servers\SshAccount;
 
 
 /**
- * Script servers/accounts/info
+ * Command servers/accounts/info
  *
  * This script displays information about the specified account.
  *

@@ -10,7 +10,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script servers/info
+ * Command servers/info
  *
  * This script displays information about the specified server.
  *

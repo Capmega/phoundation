@@ -45,7 +45,7 @@ $user = User::new($get['id']);
 // Validate POST and submit
 if (Request::isPostRequestMethod()) {
     try {
-        switch (PostValidator::getSubmitButton()) {
+        switch (PostValidator::new()->getSubmitButton()) {
             case tr('Save'):
                 // Validate roles
                 $post = PostValidator::new()
@@ -289,7 +289,7 @@ $grid = Grid::new()
                                                isset_get($phones_card)?->render())
                                   ->setSize(9)
                                   ->useForm(true))
-            ->addColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($picture->render() . '<br>' . $relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

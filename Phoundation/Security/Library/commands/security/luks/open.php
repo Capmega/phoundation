@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Script security/luks/open
+ * Command security luks open
  *
  * Allows the user to open a LUKS file and map it to the specified device
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Scripts
+ * @package Phoundation\Security
  */
 
 declare(strict_types=1);
@@ -17,7 +17,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Security\Luks\Device;
 
 CliDocumentation::setUsage('./pho security luks open -f FILE -d DEVICE
@@ -34,39 +34,33 @@ ARGUMENTS
 
 -d, --device DEVICE                     The LUKS device to which this file should be mapped
 
--f, --file FILE                         The LUKS file to test the password sections against
+-k, --key-file FILE                     The LUKS file to test the password sections against
 
--F, --force                             If specified, the command will 
-');
+-F, --force                             If specified, the command will ?????????');
 
 CliDocumentation::setAutoComplete([
-                                      'arguments' => [
-                                          '-f,--file' => true,
-                                          '-d,--device' => true,
-                                          '-k,--key-file' => true,
-                                      ],
-                                  ]);
+    'arguments' => [
+        '-f,--file'     => true,
+        '-d,--device'   => true,
+        '-k,--key-file' => true,
+    ],
+]);
 
 
 // Get arguments
 $argv = ArgvValidator::new()
-            ->select('-f,--file', true)->isFile('/', Restrictions::readonly('/'))
+            ->select('-f,--file', true)->isFile('/', FsRestrictions::getReadonly('/'))
             ->select('-d,--device', true)->isVariable()
             ->select('-k,--key-file', true)->isOptional()->or('password')->isFile()
             ->validate();
 
 
 // Get the LUKS file password
-if (CliCommand::getStdInStream()) {
-    $argv['password'] = CliCommand::getStdInStream();
-
-} else {
-    $argv['password'] = Cli::readPassword(tr('Enter the LUKS device password:'));
-}
+$argv['password'] = CliCommand::getStdInStreamOrPassword(tr('Enter the LUKS device password:'));
 
 
 // Open the LUKS file
-$device = Device::new($argv['file'], Restrictions::writable($argv['file']));
+$device = Device::new($argv['file'], FsRestrictions::getWritable($argv['file']));
 
 if (FORCE) {
     $device->luksClose(true);

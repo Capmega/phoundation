@@ -8,7 +8,7 @@ use Phoundation\Virtualization\Kubernetes\Secrets\Secret;
 
 
 /**
- * Script devops/kubernetes/secrets/create
+ * Command devops/kubernetes/secrets/create
  *
  *
  *

@@ -1,13 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Core\Libraries\Libraries;
-use Phoundation\Data\Validator\ArgvValidator;
-
-
 /**
- * Script cache/rebuild/system
+ * Command cache/rebuild/system
  *
  * This command will rebuild all system caches
  *
@@ -17,6 +11,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @package   Phoundation\Scripts
  */
 
+declare(strict_types=1);
+
+use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Data\Validator\ArgvValidator;
 
 ArgvValidator::new()->validate();
 
@@ -24,3 +22,5 @@ ArgvValidator::new()->validate();
 Libraries::rebuildCommandCache();
 Libraries::rebuildWebCache();
 Libraries::rebuildTestsCache();
+
+// TODO Add a SystemCache::commit() like method to commit all system cache updates

@@ -9,7 +9,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script business/companies/create
+ * Command business/companies/create
  *
  * This script will create a new company with the specified properties
  *

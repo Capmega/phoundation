@@ -9,7 +9,7 @@ use Phoundation\Virtualization\Kubernetes\ConfigMaps\ConfigMap;
 
 
 /**
- * Script devops/kubernetes/create/deployments
+ * Command devops/kubernetes/create/deployments
  *
  *
  *

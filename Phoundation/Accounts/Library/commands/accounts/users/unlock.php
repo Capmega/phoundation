@@ -9,7 +9,7 @@ use Phoundation\Databases\Sql\Limit;
 
 
 /**
- * Script accounts/users/unlock
+ * Command accounts/users/unlock
  *
  * This script can unlock users
  *

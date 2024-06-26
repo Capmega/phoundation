@@ -9,7 +9,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script image/convert
+ * Command image/convert
  *
  * This script can apply various conversions to the specified image
  *

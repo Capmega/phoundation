@@ -6,11 +6,11 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsRestrictions;
 
 
 /**
- * Script image/convert
+ * Command image/convert
  *
  * This script can apply various conversions to the specified image
  *
@@ -32,7 +32,7 @@ $argv = ArgvValidator::new()
 
 
 // Get image and crop it
-$image = Image::new($argv['file'], Restrictions::new(DIRECTORY_DATA, true));
+$image = Image::new($argv['file'], FsRestrictions::new(DIRECTORY_DATA, true));
 $image->convert()->crop();
 
 

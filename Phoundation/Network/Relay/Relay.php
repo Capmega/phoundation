@@ -10,6 +10,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Network\Curl\Interfaces\CurlInterface;
 use Phoundation\Network\Curl\Post;
 use Phoundation\Utils\Arrays;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Requests\Response;
 use Stringable;
 use Throwable;
@@ -47,7 +48,7 @@ class Relay
     public function __construct(Stringable|string $url)
     {
         $this->curl = Post::new($url)
-                          ->setMethod('GET');
+                          ->setMethod(EnumHttpRequestMethod::get);
     }
 
 

@@ -31,7 +31,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.2.3';
+        return '0.3.0';
     }
 
 
@@ -44,16 +44,16 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.4', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('accounts_roles_rights')->drop();
-            sql()->schema()->table('accounts_users_roles')->drop();
-            sql()->schema()->table('accounts_users_rights')->drop();
-            sql()->schema()->table('accounts_groups')->drop();
-            sql()->schema()->table('accounts_roles')->drop();
-            sql()->schema()->table('accounts_rights')->drop();
-            sql()->schema()->table('accounts_users')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_roles_rights')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_users_roles')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_users_rights')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_groups')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_roles')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_rights')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_users')->drop();
 
             // Create the users table.
-            sql()->schema()->table('accounts_users')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_users')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -139,7 +139,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the users_rights table.
-            sql()->schema()->table('accounts_rights')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_rights')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -164,7 +164,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the users_roles table.
-            sql()->schema()->table('accounts_roles')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_roles')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -189,7 +189,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the users_groups table.
-            sql()->schema()->table('accounts_groups')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_groups')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -214,7 +214,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the users_rights_links table.
-            sql()->schema()->table('accounts_users_rights')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_users_rights')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -239,7 +239,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the users_roles_links table.
-            sql()->schema()->table('accounts_users_roles')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_users_roles')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -260,7 +260,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the users_roles_rights_links table.
-            sql()->schema()->table('accounts_roles_rights')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_roles_rights')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -282,13 +282,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.5', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('accounts_compromised_passwords')->drop();
-            sql()->schema()->table('accounts_old_passwords')->drop();
-            sql()->schema()->table('accounts_password_resets')->drop();
-            sql()->schema()->table('accounts_authentications')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_compromised_passwords')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_old_passwords')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_password_resets')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_authentications')->drop();
 
             // Create additional user tables.
-            sql()->schema()->table('accounts_authentications')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_authentications')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -319,7 +319,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_authentications_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
                 ')->create();
 
-            sql()->schema()->table('accounts_password_resets')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_password_resets')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -336,7 +336,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_users_password_resets_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')->create();
 
-            sql()->schema()->table('accounts_old_passwords')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_old_passwords')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -350,7 +350,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_old_passwords_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')->create();
 
-            sql()->schema()->table('accounts_compromised_passwords')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_compromised_passwords')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -366,9 +366,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.6', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('accounts_signins')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_signins')->drop();
 
-            sql()->schema()->table('accounts_signins')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_signins')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -408,9 +408,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.7', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('accounts_authentication_failures')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_authentication_failures')->drop();
 
-            sql()->schema()->table('accounts_authentication_failures')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_authentication_failures')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -450,7 +450,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.12', function () {
             // Add "password_update" column
-            sql()->schema()->table('accounts_users')->alter()->addColumn('`update_password` datetime DEFAULT NULL', 'AFTER `password`');
+            sql()->getSchemaObject()->getTableObject('accounts_users')->alter()->addColumn('`update_password` datetime DEFAULT NULL', 'AFTER `password`');
 
         })->addUpdate('0.0.13', function () {
             // Fix minor db issues
@@ -463,14 +463,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.17', function () {
             // Add support for notifications_hash
-            sql()->schema()->table('accounts_users')->alter()->addColumn('`notifications_hash` varchar(40) DEFAULT NULL', 'AFTER `fingerprint`');
+            sql()->getSchemaObject()->getTableObject('accounts_users')->alter()->addColumn('`notifications_hash` varchar(40) DEFAULT NULL', 'AFTER `fingerprint`');
 
         })->addUpdate('0.0.18', function () {
             // Add support for multiple emails and phones per account
-            sql()->schema()->table('accounts_emails')->drop();
-            sql()->schema()->table('accounts_phones')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_emails')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_phones')->drop();
 
-            sql()->schema()->table('accounts_emails')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_emails')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -499,7 +499,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_emails_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                 ')->create();
 
-            sql()->schema()->table('accounts_phones')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_phones')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -529,13 +529,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.19', function () {
-            sql()->schema()->table('accounts_users')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
                  ->changeColumn('phones', '`phone` varchar(15) CHARACTER SET latin1 DEFAULT NULL')
                  ->dropIndex('phones')
                  ->addIndex('KEY `phone` (`phone`)');
 
         })->addUpdate('0.0.20', function () {
-            sql()->schema()->table('accounts_phones')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_phones')->alter()
                  ->dropForeignKey('fk_accounts_phones_users_id')
                  ->changeColumn('phone', '`phone` varchar(24) CHARACTER SET latin1 DEFAULT NULL')
                  ->changeColumn('users_id', '`users_id` BIGINT NOT NULL')
@@ -543,7 +543,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->dropIndex('phone')
                  ->addIndex('KEY `phone` (`phone`)');
 
-            sql()->schema()->table('accounts_emails')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_emails')->alter()
                  ->dropForeignKey('fk_accounts_emails_users_id')
                  ->changeColumn('users_id', '`users_id` BIGINT NOT NULL')
                  ->addForeignKey('CONSTRAINT `fk_accounts_emails_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
@@ -557,9 +557,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                                 SET    `name` = LOWER(REPLACE(REPLACE(`name`, "_", "-"), " ", "-"))');
 
         })->addUpdate('0.0.24', function () {
-            sql()->schema()->table('accounts_settings')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_settings')->drop();
 
-            sql()->schema()->table('accounts_settings')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_settings')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -587,9 +587,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.1.0', function () {
-            sql()->schema()->table('accounts_signin_keys')->drop();
+            sql()->getSchemaObject()->getTableObject('accounts_signin_keys')->drop();
 
-            sql()->schema()->table('accounts_signin_keys')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_signin_keys')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -617,7 +617,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.1.1', function () {
-            sql()->schema()->table('accounts_signin_keys')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_signin_keys')->alter()
                  ->addColumn('`once` tinyint(1) NULL DEFAULT NULL', 'AFTER `allow_navigation`')
                  ->changeColumn('force_redirect', 'redirect VARCHAR(2048) NULL DEFAULT NULL');
 
@@ -626,11 +626,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->query('UPDATE `accounts_users` SET `sign_in_count` = 0, `last_sign_in` = NULL');
 
         })->addUpdate('0.1.3', function () {
-            sql()->schema()->table('accounts_rights')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_rights')->alter()
                  ->dropIndex('name')
                  ->addIndex('UNIQUE KEY `name` (`name`)');
 
-            sql()->schema()->table('accounts_roles')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_roles')->alter()
                  ->dropIndex('name')
                  ->addIndex('UNIQUE KEY `name` (`name`)');
 
@@ -673,7 +673,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.2.0', function () {
             // Add parents_id to roles table
-            sql()->schema()->table('accounts_roles')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_roles')->alter()
                  ->addColumn('`parents_id` bigint NULL DEFAULT NULL', 'AFTER `status`')
                  ->addIndex('KEY `parents_id` (`parents_id`)')
                  ->addForeignKey('CONSTRAINT `fk_accounts_roles_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `accounts_roles` (`id`) ON DELETE RESTRICT');
@@ -843,28 +843,57 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.2.2', function () {
             // Data is a general storage of JSON data
-            if (!sql()->schema()->table('accounts_users')->getColumns()->keyExists('data')) {
-                sql()->schema()->table('accounts_users')->alter()
+            if (!sql()->getSchemaObject()->getTableObject('accounts_users')->getColumns()->keyExists('data')) {
+                sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
                      ->addColumn('`data` mediumtext NULL DEFAULT NULL', 'AFTER `description`');
             }
 
             // Remote id is the ID of the user in a different table and or database
-            if (!sql()->schema()->table('accounts_users')->getColumns()->keyExists('remote_id')) {
-                sql()->schema()->table('accounts_users')->alter()
+            if (!sql()->getSchemaObject()->getTableObject('accounts_users')->getColumns()->keyExists('remote_id')) {
+                sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
                      ->addColumn('`remote_id` bigint NULL DEFAULT NULL', 'AFTER `meta_state`')
                      ->addIndex('UNIQUE KEY `remote_id` (`remote_id`)');
             }
 
         })->addUpdate('0.2.3', function () {
             // Codes can be UUID (36 characters) or much larger, so make it 64 characters
-            sql()->schema()->table('accounts_users')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
                  ->modifyColumn('`code`', ' varchar(64) CHARACTER SET latin1 DEFAULT NULL');
 
             // The default page will send the user to that page right after signing in
-            if (!sql()->schema()->table('accounts_users')->getColumns()->keyExists('default_page')) {
-                sql()->schema()->table('accounts_users')->alter()
+            if (!sql()->getSchemaObject()->getTableObject('accounts_users')->getColumns()->keyExists('default_page')) {
+                sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
                      ->addColumn('`default_page` varchar(2048) DEFAULT NULL', 'AFTER `url`');
             }
+
+        })->addUpdate('0.3.0', function () {
+            // Create the accounts_push_notifications table.
+            sql()->getSchemaObject()->getTableObject('accounts_push_notifications')->define()
+                 ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `users_id` bigint NOT NULL,
+                    `driver` varchar(32) NOT NULL,
+                    `device` varchar(32) NOT NULL,
+                    `token` varchar(255) DEFAULT NULL
+                ')->setIndices('                
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `users_id` (`users_id`),
+                    KEY `driver` (`driver`),
+                    KEY `device` (`device`),
+                ')->setForeignKeys('
+                    CONSTRAINT `fk_accounts_push_notifications_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_accounts_push_notifications_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_push_notifications_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+                ')->create();
         });
     }
 }

@@ -7,7 +7,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Security\Puks\Puks;
 
 /**
- * Script puks/decrypt
+ * Command puks/decrypt
  *
  * This script will decrypt the specified data using the PUKS system
  *

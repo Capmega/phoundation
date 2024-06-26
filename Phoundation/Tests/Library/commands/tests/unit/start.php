@@ -7,7 +7,7 @@ use Phoundation\Tests\Tests;
 
 
 /**
- * Script tests/unit/start
+ * Command tests/unit/start
  *
  * This script will start PHP unit testing
  *
@@ -22,5 +22,5 @@ use Phoundation\Tests\Tests;
 ArgvValidator::new()->validate();
 
 
-// Execute the PHP unit tests
+// ExecuteExecuteInterface the PHP unit tests
 Tests::startPhpUnitTests();

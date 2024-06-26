@@ -1,20 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Network\Curl;
-
-use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Data\Traits\TraitDataUrl;
-use Phoundation\Developer\Debug;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Network\Browsers\UserAgents;
-use Phoundation\Network\Curl\Interfaces\CurlInterface;
-use Phoundation\Web\Exception\WebException;
-use Stringable;
-
 /**
  * Class Curl
  *
@@ -25,6 +10,23 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Network
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Network\Curl;
+
+use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Data\Traits\TraitDataUrl;
+use Phoundation\Developer\Debug;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Network\Browsers\UserAgents;
+use Phoundation\Network\Curl\Interfaces\CurlInterface;
+use Phoundation\Web\Exception\WebException;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
+use Stringable;
+
 abstract class Curl implements CurlInterface
 {
     use TraitDataUrl;
@@ -39,20 +41,9 @@ abstract class Curl implements CurlInterface
     /**
      * The HTTP method for the cURL request
      *
-     * @var string $method
+     * @var EnumHttpRequestMethod $method
      */
-    #[ExpectedValues(values: [
-        'GET',
-        'POST',
-        'PUT',
-        'PATCH',
-        'DELETE',
-        'HEAD',
-        'CONNECT',
-        'OPTIONS',
-        'TRACE',
-    ])]
-    protected string $method;
+    protected EnumHttpRequestMethod $method;
 
     /**
      * If true, page redirects are followed. NOT recommended true for POST requests!
@@ -90,18 +81,18 @@ abstract class Curl implements CurlInterface
     protected ?string $result_data = null;
 
     /**
-     * The path where the cURL requests will be logged
+     * The path where the cURL requests are logged
      *
      * @var string|null $log_directory
      */
     protected ?string $log_directory = null;
 
     /**
-     * File access restrictions for logging
+     * FsFileFileInterface access restrictions for logging
      *
-     * @var Restrictions|null $log_restrictions
+     * @var FsRestrictions|null $log_restrictions
      */
-    protected ?Restrictions $log_restrictions = null;
+    protected ?FsRestrictions $log_restrictions = null;
 
     /**
      * The maximum number of retries executed for this request
@@ -153,14 +144,14 @@ abstract class Curl implements CurlInterface
     protected bool $verbose = false;
 
     /**
-     * The file where cookies will be written to
+     * The file where cookies are written to
      *
      * @var string|null $cookie_file
      */
     protected ?string $cookie_file = null;
 
     /**
-     * The cookies that will be sent for this request
+     * The cookies that are sent for this request
      *
      * @var array|null $cookies
      */
@@ -181,14 +172,14 @@ abstract class Curl implements CurlInterface
     protected ?array $result_status = null;
 
     /**
-     * Sets if the connection will be closed after the request has been completed
+     * Sets if the connection is closed after the request has been completed
      *
      * @var bool $close
      */
     protected bool $close = true;
 
     /**
-     * The file to which the result will be saved
+     * The file to which the result is saved
      *
      * @var string|null $save_to_file
      */
@@ -347,20 +338,9 @@ abstract class Curl implements CurlInterface
     /**
      * Returns the request method
      *
-     * @return string
+     * @return EnumHttpRequestMethod
      */
-    #[ExpectedValues(values: [
-        'GET',
-        'POST',
-        'PUT',
-        'PATCH',
-        'DELETE',
-        'HEAD',
-        'CONNECT',
-        'OPTIONS',
-        'TRACE',
-    ])]
-    public function getMethod(): string
+    public function getMethod(): EnumHttpRequestMethod
     {
         return $this->method;
     }
@@ -369,24 +349,15 @@ abstract class Curl implements CurlInterface
     /**
      * Sets the request method
      *
-     * @param string $method
+     * @param EnumHttpRequestMethod $method
      *
      * @return static
      */
-    public function setMethod(#[ExpectedValues(values: [
-        'GET',
-        'POST',
-        'PUT',
-        'PATCH',
-        'DELETE',
-        'HEAD',
-        'CONNECT',
-        'OPTIONS',
-        'TRACE',
-    ])] string $method): static
+    public function setMethod(EnumHttpRequestMethod $method): static
     {
         $this->method = $method;
-        if ($method === 'POST') {
+
+        if ($method === EnumHttpRequestMethod::post) {
             // Disable cache on POST requests, disable follow location too as it would convert POST into GET requests
             $this->cache_timeout   = 0;
             $this->follow_location = false;
@@ -413,7 +384,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns if cURL will be verbose or not
+     * Returns if cURL is verbose or not
      *
      * @return bool
      */
@@ -424,7 +395,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Sets if cURL will be verbose or not
+     * Sets if cURL is verbose or not
      *
      * @param bool $verbose
      *
@@ -458,7 +429,7 @@ abstract class Curl implements CurlInterface
      */
     public function setFollowLocation(bool $follow_location): static
     {
-        if ($follow_location and ($this->method === 'POST')) {
+        if ($follow_location and ($this->method === EnumHttpRequestMethod::post)) {
             throw new OutOfBoundsException(tr('Cannot follow location for POST method requests'));
         }
         $this->follow_location = $follow_location;
@@ -501,9 +472,9 @@ abstract class Curl implements CurlInterface
     /**
      * Returns the restrictions for curl output logging
      *
-     * @return Restrictions|null
+     * @return FsRestrictions|null
      */
-    public function getLogRestrictions(): ?Restrictions
+    public function getLogRestrictions(): ?FsRestrictions
     {
         return $this->log_restrictions;
     }
@@ -531,8 +502,8 @@ abstract class Curl implements CurlInterface
     public function setLogDirectory(string $log_directory, string $restrictions = DIRECTORY_DATA . 'log/'): static
     {
         if ($log_directory) {
-            $this->log_restrictions = Restrictions::new($restrictions, true);
-            Directory::new($log_directory, $this->log_restrictions)
+            $this->log_restrictions = FsRestrictions::new($restrictions, true);
+            FsDirectory::new($log_directory, $this->log_restrictions)
                      ->ensure();
         }
         $this->log_directory = $log_directory;
@@ -694,7 +665,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns if the connection will be closed once the request has been completed
+     * Returns if the connection is closed once the request has been completed
      *
      * @return bool
      */
@@ -705,7 +676,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns if the connection will be closed once the request has been completed
+     * Returns if the connection is closed once the request has been completed
      *
      * @param bool $close
      *
@@ -835,7 +806,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the cookies that will be sent for this request
+     * Returns the cookies that are sent for this request
      *
      * @return array
      */
@@ -846,7 +817,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Sets the cookies that will be sent for this request
+     * Sets the cookies that are sent for this request
      *
      * @param array $cookies
      *
@@ -861,7 +832,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Adds the specified cookies that will be sent for this request
+     * Adds the specified cookies that are sent for this request
      *
      * @param array $cookies
      *
@@ -878,7 +849,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Adds the specified cookie that will be sent for this request
+     * Adds the specified cookie that are sent for this request
      *
      * @param string $cookie
      *
@@ -893,7 +864,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Clears the cookies that will be sent for this request
+     * Clears the cookies that are sent for this request
      *
      * @return static
      */
@@ -958,7 +929,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the file to which the result will be saved
+     * Returns the file to which the result is saved
      *
      * @return string
      */

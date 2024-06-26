@@ -14,7 +14,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 
 /**
- * Script email/send
+ * Command email/send
  *
  * This script can send out emails
  *

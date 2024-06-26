@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 
 /**
@@ -13,13 +13,13 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
  *
  *
  *
- * @see       \Phoundation\Data\DataEntry\DataList
+ * @see       \Phoundation\Data\DataEntry\DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
-interface PhonesInterface extends DataListInterface
+interface PhonesInterface extends DataIteratorInterface
 {
     /**
      * Sets the parent

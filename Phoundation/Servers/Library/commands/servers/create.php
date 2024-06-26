@@ -8,7 +8,7 @@ use Phoundation\Servers\Server;
 
 
 /**
- * Script servers/create
+ * Command servers/create
  *
  * This script will create a new server with the specified properties
  *

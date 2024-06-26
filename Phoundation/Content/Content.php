@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Content;
 
 use Phoundation\Content\Exception\ContentException;
-use Phoundation\Content\Interfaces\ContentInterface;
-use Phoundation\Filesystem\File;
+use Phoundation\Content\Interfaces\ContentInterfaceFsFileInterface;
+use Phoundation\Filesystem\FsFile;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 
@@ -20,7 +20,7 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Content
  */
-class Content extends File implements ContentInterface
+class Content extends FsFile implements ContentInterfaceFsFileInterface
 {
     /**
      * View the object file
@@ -29,10 +29,10 @@ class Content extends File implements ContentInterface
      */
     public function view(): void
     {
-        $file     = File::new($this->path)
-                        ->checkReadable('image');
+        $file     = FsFile::new($this->path)->checkReadable('image');
         $mimetype = $file->getMimetype();
         $primary  = Strings::until($mimetype, '/');
+
         match ($primary) {
             'image'     => static::viewImage(),
             'video'     => static::viewVideo(),
@@ -64,7 +64,9 @@ class Content extends File implements ContentInterface
      *
      * @return void
      */
-    protected function viewVideo(): void {}
+    protected function viewVideo(): void {
+
+    }
 
 
     /**
@@ -72,7 +74,9 @@ class Content extends File implements ContentInterface
      *
      * @return void
      */
-    protected function viewPdf(): void {}
+    protected function viewPdf(): void {
+
+    }
 
 
     /**
@@ -80,5 +84,7 @@ class Content extends File implements ContentInterface
      *
      * @return void
      */
-    protected function viewDirectory(): void {}
+    protected function viewDirectory(): void {
+
+    }
 }

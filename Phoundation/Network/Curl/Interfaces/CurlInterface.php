@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Network\Curl\Interfaces;
 
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Stringable;
 
 /**
@@ -58,23 +59,23 @@ interface CurlInterface
     /**
      * Returns the request method
      *
-     * @return string
+     * @return EnumHttpRequestMethod
      */
-    public function getMethod(): string;
+    public function getMethod(): EnumHttpRequestMethod;
 
 
     /**
      * Sets the request method
      *
-     * @param string $method
+     * @param EnumHttpRequestMethod $method
      *
      * @return static
      */
-    public function setMethod(string $method): static;
+    public function setMethod(EnumHttpRequestMethod $method): static;
 
 
     /**
-     * Returns if cURL will be verbose or not
+     * Returns if cURL is verbose or not
      *
      * @return bool
      */
@@ -138,9 +139,9 @@ interface CurlInterface
     /**
      * Returns the restrictions for curl output logging
      *
-     * @return Restrictions|null
+     * @return FsRestrictions|null
      */
-    public function getLogRestrictions(): ?Restrictions;
+    public function getLogRestrictions(): ?FsRestrictions;
 
 
     /**

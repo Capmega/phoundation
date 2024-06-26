@@ -1,13 +1,13 @@
 <?php
 
-use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
-use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
-use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
+use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
+use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
+use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\LostPasswordUpdatedPage;
 use Phoundation\Web\Html\Pages\UpdateLostPasswordPage;

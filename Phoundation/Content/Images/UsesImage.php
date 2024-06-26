@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Content\Images;
 
 use Phoundation\Content\Images\Interfaces\ImageInterface;
-use Phoundation\Filesystem\Traits\TraitDataRestrictions;
+use Phoundation\Data\Traits\TraitDataRestrictions;
 
 /**
  * Phoundation UsesImage trait
@@ -31,7 +31,7 @@ trait UsesImage
 
 
     /**
-     * Returns the image for this File object
+     * Returns the image for this FsFileFileInterface object
      *
      * @return ImageInterface
      */
@@ -42,7 +42,7 @@ trait UsesImage
 
 
     /**
-     * Sets the image for this File object
+     * Sets the image for this FsFileFileInterface object
      *
      * @param ImageInterface|string|null $image
      *

@@ -14,7 +14,7 @@ use Phoundation\Utils\Arrays;
 
 
 /**
- * Script accounts/roles/info
+ * Command accounts/roles/info
  *
  * This script displays information about the specified role.
  *

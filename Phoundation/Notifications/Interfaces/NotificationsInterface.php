@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 /**
@@ -12,13 +12,13 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  *
  *
  *
- * @see       \Phoundation\Data\DataEntry\DataList
+ * @see       \Phoundation\Data\DataEntry\DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundations\Notifications
  */
-interface NotificationsInterface extends DataListInterface
+interface NotificationsInterface extends DataIteratorInterface
 {
     /**
      * Returns the most important notification mode

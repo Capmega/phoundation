@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
-use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
-use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
-use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
+use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
+use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -21,6 +21,7 @@ use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+
 
 // Get current user and password objects
 $user     = User::load(Session::getUser()->getId());
@@ -37,7 +38,7 @@ if (Request::isPostRequestMethod()) {
                                  ->select('passwordv')->isPassword()
                                  ->validate();
 
-            // First ensure the current password is correct
+            // First, ensure the current password is correct
             User::authenticate($user->getEmail(), $post['current']);
 
             // Update user password
@@ -46,7 +47,7 @@ if (Request::isPostRequestMethod()) {
             Response::getFlashMessages()->addSuccess(tr('Your password has been updated'));
             Response::redirect(UrlBuilder::getWww(UrlBuilder::getPrevious('/my/profile.html')));
 
-        } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
+        } catch (PasswordTooShortException | NoPasswordSpecifiedException) {
             Response::getFlashMessages()->addWarning(tr('Please specify at least 10 characters for the password'));
 
         } catch (AuthenticationException $e) {
@@ -109,15 +110,16 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
             ->addColumn($column)
-            ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
+
 
 // Set page meta data
 Response::setHeaderTitle(tr('Change your password'));
 Response::setHeaderSubTitle($user->getName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'                  => tr('Home'),
-                                                           '/your/profile.html' => tr('Your profile'),
-                                                           ''                   => tr('Change your password'),
-                                                       ]));
+    '/'                  => tr('Home'),
+    '/your/profile.html' => tr('Your profile'),
+    ''                   => tr('Change your password'),
+]));

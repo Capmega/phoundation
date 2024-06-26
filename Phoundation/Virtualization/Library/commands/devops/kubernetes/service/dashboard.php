@@ -9,7 +9,7 @@ use Phoundation\Virtualization\Kubernetes\MiniKube;
 
 
 /**
- * Script devops/kubernetes/service/stop
+ * Command devops/kubernetes/service/stop
  *
  *
  *

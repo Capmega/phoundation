@@ -38,7 +38,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.8', function () {
             // Add network_curl_cache table
-            sql()->schema()->table('network_curl_cache')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('network_curl_cache')->drop()->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

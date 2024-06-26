@@ -12,15 +12,16 @@
  */
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
-use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
-use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
+use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
@@ -97,6 +98,7 @@ Response::setBuildBody(false);
                 <p class="login-box-msg"><?= tr('Please sign in to start your session') ?></p>
 
                 <form action="<?= UrlBuilder::getWww() ?>" method="post">
+                    <?php Csrf::getHiddenElement() ?>
                     <?php
                     if (Session::supports('email')) {
                         ?>

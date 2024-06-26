@@ -21,6 +21,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
@@ -126,6 +127,7 @@ Response::setBuildBody(false);
                 <p class="login-box-msg"><?= tr('Please provide your email address and we will send you a link where you can re-establish your password') ?></p>
 
                 <form action="<?= UrlBuilder::getWww() ?>" method="post">
+                    <?php Csrf::getHiddenElement() ?>
                     <?php
                     if (Session::supports('email')) {
                         ?>

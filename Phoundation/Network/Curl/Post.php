@@ -1,17 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Network\Curl;
-
-use CURLFile;
-use Exception;
-use Phoundation\Core\Log\Log;
-use Phoundation\Network\Curl\Exception\CurlPostException;
-use Stringable;
-
 /**
- * Class Curl
+ * Class Post
  *
  * This class manages Curl POST request functionality
  *
@@ -20,6 +10,18 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Network
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Network\Curl;
+
+use CURLFile;
+use Exception;
+use Phoundation\Core\Log\Log;
+use Phoundation\Network\Curl\Exception\CurlPostException;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
+use Stringable;
+
 class Post extends Get
 {
     /**
@@ -58,9 +60,10 @@ class Post extends Get
      */
     public function __construct(Stringable|string|null $url = null)
     {
-        parent::__construct($url);
+        parent::__construct($url)
+        ;
         // Disable 301 302 location header following since this would cause the POST to go to GET
-        $this->method          = 'POST';
+        $this->method          = EnumHttpRequestMethod::post;
         $this->follow_location = false;
     }
 

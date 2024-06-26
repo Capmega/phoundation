@@ -8,7 +8,7 @@ use Phoundation\Servers\SshAccounts;
 
 
 /**
- * Script servers/accounts/list
+ * Command servers/accounts/list
  *
  * This script will list the available accounts on this system
  *

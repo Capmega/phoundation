@@ -8,7 +8,7 @@ use Phoundation\Servers\Servers;
 
 
 /**
- * Script servers/list
+ * Command servers/list
  *
  * This script will list the available servers on this system
  *

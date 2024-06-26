@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Class Right
+ *
+ *
+ *
+ * @see       DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Accounts
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Rights;
@@ -20,17 +32,6 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
-/**
- * Class Right
- *
- *
- *
- * @see       DataEntry
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Accounts
- */
 class Right extends DataEntry implements RightInterface
 {
     use TraitDataEntryNameLowercaseDash;
@@ -53,7 +54,7 @@ class Right extends DataEntry implements RightInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {
@@ -140,7 +141,7 @@ class Right extends DataEntry implements RightInterface
                                            ->setMaxlength(64)
                                            ->setHelpText(tr('The name for this right'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
+                                               $validator->isUnique();
                                            }))
                     ->add(DefinitionFactory::getSeoName($this))
                     ->add(DefinitionFactory::getDescription($this)

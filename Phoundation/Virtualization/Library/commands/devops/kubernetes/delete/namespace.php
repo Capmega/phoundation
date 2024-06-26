@@ -8,7 +8,7 @@ use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespa
 
 
 /**
- * Script devops/kubernetes/delete/namespace
+ * Command devops/kubernetes/delete/namespace
  *
  *
  *

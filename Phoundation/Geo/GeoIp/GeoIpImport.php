@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;
 
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Stringable;
 
 /**
@@ -36,11 +36,11 @@ abstract class GeoIpImport extends Import
     /**
      * Process downloaded GeoIP files
      *
-     * @param Stringable|string                       $source_path
-     * @param Stringable|string|null                  $target_path
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param Stringable|string                         $source_path
+     * @param Stringable|string|null                    $target_path
+     * @param FsRestrictionsInterface|array|string|null $restrictions
      *
      * @return string
      */
-    abstract public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, RestrictionsInterface|array|string|null $restrictions = null): string;
+    abstract public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, FsRestrictionsInterface|array|string|null $restrictions = null): string;
 }

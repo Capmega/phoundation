@@ -10,7 +10,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script servers/authenticate
+ * Command servers/authenticate
  *
  * This script can be used to test the authentication for the specified server
  *

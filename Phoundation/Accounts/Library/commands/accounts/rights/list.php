@@ -9,7 +9,7 @@ use Phoundation\Databases\Sql\SqlQueries;
 
 
 /**
- * Script accounts/rights/list
+ * Command accounts/rights/list
  *
  * This script will list the available rights on this system
  *

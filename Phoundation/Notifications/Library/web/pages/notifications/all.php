@@ -22,6 +22,7 @@ use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
@@ -39,7 +40,7 @@ $notifications->getQueryBuilder()
 
 // Process POST requests
 if (Request::isPostRequestMethod()) {
-    if (PostValidator::getSubmitButton() === tr('Mark all as read')) {
+    if (PostValidator::new()->getSubmitButton() === tr('Mark all as read')) {
 //        $notifications->setStatus('READ');
         sql()->query('UPDATE `notifications` SET `status` = "READ" WHERE `users_id` = :users_id', [':users_id' => Session::getUser()->getId()]);
         Response::getFlashMessages()->addSuccess(tr('All your notifications have been marked as read'));
@@ -80,8 +81,8 @@ $notifications = Card::new()
                         ->addButton(tr('Mark all as read')));
 
 $notifications->getForm()
-        ->setAction(UrlBuilder::getCurrent())
-        ->setMethod('POST');
+              ->setAction(UrlBuilder::getCurrent())
+              ->setMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links
@@ -102,7 +103,7 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
     ->addColumn($filters->render() . $notifications->render(), EnumDisplaySize::nine)
-    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+    ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

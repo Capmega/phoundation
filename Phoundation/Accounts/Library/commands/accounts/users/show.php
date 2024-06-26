@@ -10,7 +10,7 @@ use Phoundation\Databases\Sql\Limit;
 
 
 /**
- * Script accounts/users/show
+ * Command accounts/users/show
  *
  * This script displays information about the specified user.
  *
@@ -52,7 +52,7 @@ User::load($argv['user'])->displayCliForm();
 
 // Display extra email addresses
 Log::cli();
-Log::information('Extra email addresses:', use_prefix: false);
+Log::information('Extra email addresses:', echo_prefix: false);
 Log::cli();
 
 User::load($argv['user'])->getEmails()->displayCliTable([
@@ -63,7 +63,7 @@ User::load($argv['user'])->getEmails()->displayCliTable([
 
 // Display extra phone numbers
 Log::cli();
-Log::information('Extra phone numbers:', use_prefix: false);
+Log::information('Extra phone numbers:', echo_prefix: false);
 Log::cli();
 
 User::load($argv['user'])->getPhones()->displayCliTable([

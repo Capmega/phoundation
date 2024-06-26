@@ -8,7 +8,7 @@ use Phoundation\Virtualization\Kubernetes\Ingresses\Ingress;
 
 
 /**
- * Script devops/kubernetes/delete/ingress
+ * Command devops/kubernetes/delete/ingress
  *
  *
  *

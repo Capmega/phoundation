@@ -22,6 +22,7 @@ use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
@@ -52,7 +53,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
 // Validate POST and submit
     if (Request::isPostRequestMethod()) {
         try {
-            switch (PostValidator::getSubmitButton()) {
+            switch (PostValidator::new()->getSubmitButton()) {
                 case tr('Lock'):
                     $user->lock();
                     Response::getFlashMessages()->addSuccess(tr('The account for user ":user" has been locked', [
@@ -234,7 +235,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
                             <div class="tab-pane" id="actions">
                                 <?=
                                 Form::new()
-                                    ->setMethod('post')
+                                    ->setMethod(EnumHttpRequestMethod::post)
                                     ->setContent('   <div class="form-group row">' .
                                                  Buttons::new()
                                                         ->addButton(isset_get($edit))

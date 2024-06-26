@@ -12,7 +12,7 @@ use Phoundation\Databases\Sql\Limit;
 
 
 /**
- * Script accounts/roles/add-email
+ * Command accounts/roles/add-email
  *
  * This script will create a new role with the specified properties
  *

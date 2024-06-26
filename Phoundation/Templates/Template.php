@@ -7,6 +7,7 @@ namespace Phoundation\Templates;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Storage\Page;
 use Phoundation\Templates\Interfaces\TemplateInterface;
+use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -126,6 +127,7 @@ class Template extends Page implements TemplateInterface
 
                 if (!Session::getUser()->isGuest()) {
                     $html .= '              <form class="search-form" method="post" action=":action">
+                                                ' . Csrf::getHiddenElement() . '
                                                 <div class="input-group">
                                                     <input type="text" name="search" class="form-control" placeholder=":search">                        
                                                     <div class="input-group-append">

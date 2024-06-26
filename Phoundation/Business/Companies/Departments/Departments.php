@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies\Departments;
 
 use Phoundation\Business\Companies\Departments\Interfaces\DepartmentsInterface;
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 /**
@@ -13,13 +13,13 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  *
  *
  *
- * @see       \Phoundation\Data\DataEntry\DataList
+ * @see       \Phoundation\Data\DataEntry\DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Companies
  */
-class Departments extends DataList implements DepartmentsInterface
+class Departments extends DataIterator implements DepartmentsInterface
 {
     /**
      * Departments class constructor
@@ -37,7 +37,7 @@ class Departments extends DataList implements DepartmentsInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

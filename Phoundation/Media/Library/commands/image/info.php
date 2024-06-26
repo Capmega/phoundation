@@ -10,7 +10,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script image/info
+ * Command image/info
  *
  *
  *

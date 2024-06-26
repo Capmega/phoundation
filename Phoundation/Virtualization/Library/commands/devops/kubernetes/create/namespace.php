@@ -8,7 +8,7 @@ use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespa
 
 
 /**
- * Script devops/kubernetes/create/namespaces
+ * Command devops/kubernetes/create/namespaces
  *
  *
  *

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Script security/luks/try
+ * Command security luks try
  *
  * Allows the user to try various LUKS password sections on the specified LUKS file to see what password(s) work
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Scripts
+ * @package Phoundation\Security
  */
 
 declare(strict_types=1);
@@ -18,11 +18,11 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Security\Luks\Device;
 
-$restrictions = Restrictions::readonly('/', tr('security luks try'));
+$restrictions = FsRestrictions::getReadonly('/', tr('security luks try'));
 
 CliDocumentation::setUsage('./pho security luks try -f FILE
 echo "SECTION SECTION SECTION" | ./pho security luks try -f FILE');
@@ -44,33 +44,32 @@ ARGUMENTS
 -f, --file FILE                         The LUKS file to test the password sections against');
 
 CliDocumentation::setAutoComplete([
-                                      'arguments' => [
-                                          '-f,--file' => [
-                                              'word'   => function ($word) use ($restrictions) { return Directory::new('/', $restrictions)->scan($word . '*'); },
-                                              'noword' => function ()      use ($restrictions) { return Directory::new('/', $restrictions)->scan('*'); },
-                                          ],
-                                      ],
-                                  ]);
+      '-f,--file' => [
+          'arguments' => [
+              'word'   => function ($word) use ($restrictions) {
+                 return FsDirectory::new('/', $restrictions)->scan($word . '*');
+              },
+              'noword' => function () use ($restrictions) {
+                  return FsDirectory::new('/', $restrictions)->scan('*');
+              },
+          ],
+      ],
+]);
 
 
 // Get arguments
 $argv = ArgvValidator::new()
-            ->select('-f,--file', true)->isFile('/', Restrictions::readonly('/'))
+            ->select('-f,--file', true)->isFile('/', FsRestrictions::getReadonly('/'))
             ->validate();
 
 
 // Get the LUKS file password sections
-if (CliCommand::getStdInStream()) {
-    $argv['sections'] = CliCommand::getStdInStream();
-} else {
-    $argv['sections'] = Cli::readPassword(tr('Enter the known LUKS device password sections (space separated):'));
-}
-
+$argv['sections'] = CliCommand::getStdInStreamOrPassword(tr('Enter the known LUKS device password sections (space separated):'));
 $argv['sections'] = explode(' ', $argv['sections']);
 
 
 // Open the LUKS file
-$device = Device::new($argv['file'], Restrictions::writable($argv['file']));
+$device = Device::new($argv['file'], FsRestrictions::getWritable($argv['file']));
 
 if (FORCE) {
     $device->luksClose(true);

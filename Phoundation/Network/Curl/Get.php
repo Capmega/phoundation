@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Get
+ *
+ * This class manages Curl GET request functionality
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Network
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Network\Curl;
@@ -9,28 +20,20 @@ use Phoundation\Cli\CliColor;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
-use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Network\Curl\Exception\Curl404Exception;
 use Phoundation\Network\Curl\Exception\CurlGetException;
 use Phoundation\Network\Curl\Exception\CurlNon200Exception;
 use Phoundation\Network\Interfaces;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Stringable;
 use Throwable;
 
-/**
- * Class Curl
- *
- * This class manages Curl GET request functionality
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Network
- */
 class Get extends Curl
 {
     /**
@@ -40,8 +43,9 @@ class Get extends Curl
      */
     public function __construct(Stringable|string|null $url = null)
     {
-        $this->method          = 'GET';
+        $this->method          = EnumHttpRequestMethod::get;
         $this->follow_location = true;
+
         parent::__construct($url);
     }
 
@@ -124,8 +128,8 @@ class Get extends Curl
         if ($this->close) {
             // Close this cURL session
             if (!empty($this->cookie_file)) {
-                File::new($this->cookie_file, DIRECTORY_DATA . 'curl/')
-                    ->delete();
+                FsFile::new($this->cookie_file, FsRestrictions::getWritable(DIRECTORY_DATA . 'curl/', 'Network\\Curl\\Get::execute()'))
+                      ->delete();
             }
             unset($this->cookie_file);
             curl_close($this->curl);
@@ -193,26 +197,26 @@ class Get extends Curl
         }
         // Set general options
         curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($this->curl, CURLOPT_URL, $this->url);
-        curl_setopt($this->curl, CURLOPT_REFERER, $this->referer);
-        curl_setopt($this->curl, CURLOPT_USERAGENT, $this->getUserAgent());
-        curl_setopt($this->curl, CURLOPT_INTERFACE, Interfaces::getRandomInterfaceIp());
-        curl_setopt($this->curl, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($this->curl, CURLOPT_URL           , $this->url);
+        curl_setopt($this->curl, CURLOPT_REFERER       , $this->referer);
+        curl_setopt($this->curl, CURLOPT_USERAGENT     , $this->getUserAgent());
+        curl_setopt($this->curl, CURLOPT_INTERFACE     , Interfaces::getRandomInterfaceIp());
+        curl_setopt($this->curl, CURLOPT_TIMEOUT       , $this->timeout);
         curl_setopt($this->curl, CURLOPT_CONNECTTIMEOUT, $this->connect_timeout);
         curl_setopt($this->curl, CURLOPT_SSL_VERIFYHOST, ($this->verify_ssl ? 2 : 0));
         curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, $this->verify_ssl);
-        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $this->method);
-        curl_setopt($this->curl, CURLOPT_VERBOSE, $this->verbose);
-        curl_setopt($this->curl, CURLOPT_HEADER, true);
+        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST , $this->method);
+        curl_setopt($this->curl, CURLOPT_VERBOSE       , $this->verbose);
+        curl_setopt($this->curl, CURLOPT_HEADER        , true);
         curl_setopt($this->curl, CURLOPT_FOLLOWLOCATION, ($this->follow_location));
-        curl_setopt($this->curl, CURLOPT_MAXREDIRS, ($this->follow_location ? 50 : null));
-        curl_setopt($this->curl, CURLOPT_POST, false);
+        curl_setopt($this->curl, CURLOPT_MAXREDIRS     , ($this->follow_location ? 50 : null));
+        curl_setopt($this->curl, CURLOPT_POST          , false);
         //curl_setopt($this->curl, CURLOPT_HTTPHEADER    , true);
         // Log cURL request?
         if ($this->log_directory) {
-            curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_directory . getmypid(), $this->log_restrictions)
-                                                         ->open(EnumFileOpenMode::writeOnlyAppend)
-                                                         ->getStream());
+            curl_setopt($this->curl, CURLOPT_STDERR, FsFile::new($this->log_directory . getmypid(), $this->log_restrictions)
+                                                           ->open(EnumFileOpenMode::writeOnlyAppend)
+                                                           ->getStream());
             Log::action(tr('Preparing ":method" cURL request to ":url"', [
                 ':method' => $this->method,
                 ':url'    => $this->url,
@@ -224,15 +228,15 @@ class Get extends Curl
         // Use cookies?
         if (isset_get($this->cookies)) {
             if (!isset_get($this->cookie_file)) {
-                $this->cookie_file = File::getTemporary()
-                                         ->getPath();
+                $this->cookie_file = FsFile::getTemporary()
+                                           ->getPath();
             }
             // Make sure the specified cookie path exists
-            Directory::new(dirname($this->cookie_file))
+            FsDirectory::new(dirname($this->cookie_file))
                      ->ensure();
             // Set cookie options
-            curl_setopt($this->curl, CURLOPT_COOKIEJAR, $this->cookie_file);
-            curl_setopt($this->curl, CURLOPT_COOKIEFILE, $this->cookie_file);
+            curl_setopt($this->curl, CURLOPT_COOKIEJAR    , $this->cookie_file);
+            curl_setopt($this->curl, CURLOPT_COOKIEFILE   , $this->cookie_file);
             curl_setopt($this->curl, CURLOPT_COOKIESESSION, true);
         }
 //            if ($params['utf8']) {

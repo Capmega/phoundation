@@ -9,7 +9,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script business/providers/create
+ * Command business/providers/create
  *
  * This script will create a new provider with the specified properties
  *

@@ -7,7 +7,7 @@ namespace Phoundation\Accounts\Users;
 use Phoundation\Accounts\Users\Interfaces\EmailInterface;
 use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -25,13 +25,13 @@ use Stringable;
  *
  *
  *
- * @see       DataList
+ * @see       DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
-class Emails extends DataList implements EmailsInterface
+class Emails extends DataIterator implements EmailsInterface
 {
     use TraitDataParent {
         setParent as __setParent;
@@ -54,7 +54,7 @@ class Emails extends DataList implements EmailsInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {
@@ -136,16 +136,15 @@ class Emails extends DataList implements EmailsInterface
                             ->setColumnPrefix($name)
                             ->getHtmlDataEntryFormObject()
                             ->setMetaVisible($meta_visible);
+
         $definitions = $email->getDefinitionsObject();
-        $definitions->get('email')
-                    ->setSize(6);
-        $definitions->get('account_type')
-                    ->setSize(6);
-        $definitions->get('verified_on')
-                    ->setRender(false);
-        $definitions->get('delete')
-                    ->setRender(false);
+        $definitions->get('email')->setSize(6);
+        $definitions->get('account_type')->setSize(6);
+        $definitions->get('verified_on')->setRender(false);
+        $definitions->get('delete')->setRender(false);
+
         $content[] = $email->render();
+
         foreach ($this->ensureDataEntries() as $email) {
             $content[] = $email->setColumnPrefix($name)
                                ->getHtmlDataEntryFormObject()
@@ -258,9 +257,11 @@ class Emails extends DataList implements EmailsInterface
     public function save(bool $force = false, ?string $comments = null): static
     {
         $this->checkReadonly('save');
+
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot apply emails, no parent user specified'));
         }
+
         foreach ($this->ensureDataEntries() as $email) {
             $email->save($force, $comments);
         }
@@ -287,15 +288,18 @@ class Emails extends DataList implements EmailsInterface
                     ':value' => $value,
                 ]));
             }
+
             $value = Email::new($value, 'email')
                           ->setAccountType('other');
         }
+
         // Ensure that the email list has a parent
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot add email ":email" to this emails list, the list has no parent specified', [
                 ':email' => $value->getLogId(),
             ]));
         }
+
         // Ensure that the email has a users id and that the users id matches the id of the users parent
         if ($value->getUsersId()) {
             if ($value->getUsersId() !== $this->parent->getId()) {

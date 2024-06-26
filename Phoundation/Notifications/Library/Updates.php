@@ -37,10 +37,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     public function updates(): void
     {
         $this->addUpdate('0.0.6', function () {
-            sql()->schema()->table('notifications')->drop();
+            sql()->getSchemaObject()->getTableObject('notifications')->drop();
 
             // Add initial tables for the Notification library
-            sql()->schema()->table('notifications')->define()
+            sql()->getSchemaObject()->getTableObject('notifications')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

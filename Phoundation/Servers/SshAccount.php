@@ -13,7 +13,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryFile;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Filesystem\Traits\TraitDataRestrictions;
+use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Servers\Interfaces\SshAccountInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -53,7 +53,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

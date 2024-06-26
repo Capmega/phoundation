@@ -5,12 +5,12 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Geo\GeoIp\Import;
 
 
 /**
- * Script geo/ip/import
+ * Command geo/ip/import
  *
  *
  *
@@ -68,7 +68,7 @@ if ($argv['source_path']) {
 
 
 // Process the files
-$provider::process($directory, $argv['target_path'], Restrictions::new([
+$provider::process($directory, $argv['target_path'], FsRestrictions::new([
                                                                            $directory->getRestrictions(),
                                                                            DIRECTORY_DATA,
                                                                        ], true));

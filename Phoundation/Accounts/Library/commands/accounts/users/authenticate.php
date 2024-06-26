@@ -11,7 +11,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script accounts/users/authenticate
+ * Command accounts/users/authenticate
  *
  * This script can be used to test the authentication for the specified user
  *

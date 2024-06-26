@@ -5,12 +5,12 @@ declare(strict_types=1);
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\FsFile;
 use Phoundation\Servers\SshAccount;
 
 
 /**
- * Script servers/accounts/create
+ * Command servers/accounts/create
  *
  * This script will create a new account with the specified properties
  *
@@ -34,7 +34,7 @@ SshAccount::notExists($argv['name'], 'name', null, true);
 
 // Add password for this account
 if ($argv['ssh_key_file']) {
-    File::new($argv['ssh_key_file'], $argv['ssh_key_file'])->ensureReadable();
+    FsFile::new($argv['ssh_key_file'], $argv['ssh_key_file'])->ensureReadable();
     $argv['ssh_key'] = file_get_contents($argv['ssh_key_file']);
 } else {
     $argv['ssh_key'] = Cli::readPassword(tr('Please paste the private key here:'));

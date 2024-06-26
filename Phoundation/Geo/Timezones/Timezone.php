@@ -27,7 +27,7 @@ class Timezone extends DataEntry implements TimezoneInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

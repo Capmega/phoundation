@@ -10,7 +10,7 @@ use Phoundation\Virtualization\Kubernetes\Pods\Pods;
 
 
 /**
- * Script devops/kubernetes/get/pods
+ * Command devops/kubernetes/get/pods
  *
  *
  *

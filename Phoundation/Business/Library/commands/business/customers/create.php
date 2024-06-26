@@ -9,7 +9,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script business/customers/create
+ * Command business/customers/create
  *
  * This script will create a new customer with the specified properties
  *

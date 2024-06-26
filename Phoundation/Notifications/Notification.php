@@ -124,7 +124,7 @@ class Notification extends DataEntry implements NotificationInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {
@@ -399,38 +399,38 @@ POST variables:
 
         switch ($this->getMode()) {
             case EnumDisplayMode::danger:
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::error($this->getTitle(), use_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::error($message, use_prefix: false);
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
+                Log::error($this->getTitle(), echo_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
+                Log::error($message, echo_prefix: false);
                 break;
 
             case EnumDisplayMode::warning:
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::warning($this->getTitle(), use_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::warning($message, use_prefix: false);
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
+                Log::warning($this->getTitle(), echo_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
+                Log::warning($message, echo_prefix: false);
                 break;
 
             case EnumDisplayMode::success:
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::success($this->getTitle(), use_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::success($message, use_prefix: false);
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
+                Log::success($this->getTitle(), echo_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
+                Log::success($message, echo_prefix: false);
                 break;
 
             case EnumDisplayMode::info:
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::information($this->getTitle(), use_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::information($message, use_prefix: false);
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
+                Log::information($this->getTitle(), echo_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
+                Log::information($message, echo_prefix: false);
                 break;
 
             default:
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::notice($this->getTitle(), use_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::notice($message, use_prefix: false);
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
+                Log::notice($this->getTitle(), echo_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
+                Log::notice($message, echo_prefix: false);
                 break;
         }
 
@@ -441,8 +441,8 @@ POST variables:
 
             foreach (Arrays::force($details) as $key => $value) {
                 if (is_scalar($value)) {
-                    Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false, newline: false);
-                    Log::write(Strings::log($value), use_prefix: false);
+                    Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false, echo_newline: false);
+                    Log::write(Strings::log($value), echo_prefix: false);
 
                 } else {
                     switch ($key) {
@@ -452,8 +452,8 @@ POST variables:
                             break;
 
                         default:
-                            Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false, newline: false);
-                            Log::printr($value, use_prefix: false, echo_header: false);
+                            Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false, echo_newline: false);
+                            Log::printr($value, echo_prefix: false, echo_header: false);
                     }
                 }
             }
@@ -713,7 +713,7 @@ POST variables:
                                     ->setOptional(true)
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::text)
-                                    ->setLabel(tr('File'))
+                                    ->setLabel(tr('FsFileFileInterface'))
                                     ->setMaxlength(255)
                                     ->setSize(8))
                     ->add(Definition::new($this, 'line')

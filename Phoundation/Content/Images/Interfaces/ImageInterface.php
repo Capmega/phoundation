@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Content\Images\Interfaces;
 
 use Phoundation\Content\Images\Convert;
-use Phoundation\Content\Interfaces\ContentInterface;
+use Phoundation\Content\Interfaces\ContentInterfaceFsFileInterface;
 use Phoundation\Web\Html\Components\Img;
 
 /**
@@ -18,7 +18,7 @@ use Phoundation\Web\Html\Components\Img;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Content
  */
-interface ImageInterface extends ContentInterface
+interface ImageInterface extends ContentInterfaceFsFileInterface
 {
     /**
      * Returns a Convert class to convert the specified image

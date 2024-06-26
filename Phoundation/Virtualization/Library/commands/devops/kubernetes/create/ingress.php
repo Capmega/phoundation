@@ -8,7 +8,7 @@ use Phoundation\Virtualization\Kubernetes\Ingresses\Ingress;
 
 
 /**
- * Script devops/kubernetes/create/ingress
+ * Command devops/kubernetes/create/ingress
  *
  *
  *

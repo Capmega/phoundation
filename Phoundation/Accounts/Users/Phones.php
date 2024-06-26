@@ -8,7 +8,7 @@ use Exception;
 use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
 use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Validator\ArrayValidator;
@@ -26,13 +26,13 @@ use Stringable;
  *
  *
  *
- * @see       DataList
+ * @see       DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
-class Phones extends DataList implements PhonesInterface
+class Phones extends DataIterator implements PhonesInterface
 {
     use TraitDataParent {
         setParent as __setParent;
@@ -55,7 +55,7 @@ class Phones extends DataList implements PhonesInterface
     /**
      * Returns the table name used by this object
      *
-     * @return string
+     * @return string|null
      */
     public static function getTable(): ?string
     {

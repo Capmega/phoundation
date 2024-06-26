@@ -20,12 +20,10 @@ use DateTimeInterface;
 use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\Rights;
-use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
-use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
 use Phoundation\Accounts\Users\Exception\UsersException;
 use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
@@ -71,12 +69,13 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
+use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -111,6 +110,7 @@ class User extends DataEntry implements UserInterface
     use TraitDataEntryUrl;
     use TraitDataEntryVerificationCode;
     use TraitDataEntryVerifiedOn;
+
 
     /**
      * The extra email addresses for this user
@@ -149,14 +149,6 @@ class User extends DataEntry implements UserInterface
         'id',
         'password',
     ];
-
-    /**
-     * Saml authenticator
-     *
-     * @var SamlAuth $saml
-     */
-    protected SamlAuth $saml;
-
 
     /**
      * User from a different authentication system
@@ -239,13 +231,14 @@ class User extends DataEntry implements UserInterface
     {
         $role = Role::load($role, null);
         $id   = sql()->getColumn('SELECT `accounts_users`.`id` 
-                                    FROM   `accounts_users`
-                                    JOIN   `accounts_users_roles`  
-                                    ON     `accounts_users_roles`.`users_id` = `accounts_users`.`id`
-                                    WHERE  `accounts_users_roles`.`roles_id` = :roles_id 
-                                      AND  `accounts_users_roles`.`status`   IS NULL', [
+                                 FROM   `accounts_users`
+                                 JOIN   `accounts_users_roles`  
+                                   ON   `accounts_users_roles`.`users_id` = `accounts_users`.`id`
+                                 WHERE  `accounts_users_roles`.`roles_id` = :roles_id 
+                                   AND  `accounts_users_roles`.`status`   IS NULL', [
             ':roles_id' => $role->getId(),
         ]);
+
         if (empty($user)) {
             throw new NotExistsException(tr('No user exists that has the role ":role"', [
                 ':role' => $role,
@@ -281,9 +274,11 @@ class User extends DataEntry implements UserInterface
                                                 AND  `status` IS NULL', [
                         ':email' => $identifier,
                     ]);
+
                     if ($user) {
                         if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
                             $user = static::load($user['users_id'], 'id', $meta_enabled);
+
                             Log::warning(tr('Identified user ":user" with alternate email ":email"', [
                                 ':user'  => $user->getLogId(),
                                 ':email' => $identifier,
@@ -291,12 +286,14 @@ class User extends DataEntry implements UserInterface
 
                             return $user;
                         }
+
                         Log::warning(tr('Cannot identify user ":user" on alternate email, the email does not have the required verification', [
                             ':user' => $identifier,
                         ]));
                     }
                 }
             }
+
             // The requested user identifier doesn't exist
             throw $e;
         }
@@ -322,6 +319,7 @@ class User extends DataEntry implements UserInterface
     public function getLogId(): string
     {
         $id = $this->getValueTypesafe('int', $this->getIdColumn());
+
         if ($this instanceof GuestUser) {
             // This is a guest user
             return '0 / ' . tr('Guest');
@@ -378,6 +376,7 @@ class User extends DataEntry implements UserInterface
                 if (!$domain) {
                     $domain = Domains::getCurrent();
                 }
+
                 if ($user->getDomain() !== $domain) {
                     if (!$test) {
                         Incident::new()
@@ -394,6 +393,7 @@ class User extends DataEntry implements UserInterface
                                 ->notifyRoles('accounts')
                                 ->save();
                     }
+
                     throw new AuthenticationException(tr('The specified user ":user" is not allowed to access the domain ":domain"', [
                         ':user'   => $identifier,
                         ':domain' => $domain,
@@ -401,8 +401,14 @@ class User extends DataEntry implements UserInterface
                 }
             }
 
+            Hook::new('phoundation/accounts')->execute('authenticated', [
+                'user'     => $user,
+                'password' => $password
+            ]);
+
             return $user;
         }
+
         if (!$test) {
             Incident::new()
                     ->setType('Incorrect password')
@@ -411,6 +417,7 @@ class User extends DataEntry implements UserInterface
                     ->setDetails(['user' => $user->getLogId()])
                     ->save();
         }
+
         throw new AuthenticationException(tr('The specified password did not match for user ":user"', [
             ':user' => $identifier,
         ]));
@@ -431,16 +438,7 @@ class User extends DataEntry implements UserInterface
             throw new OutOfBoundsException(tr('Cannot match passwords, this user has not yet been saved in the database'));
         }
 
-        $match = Password::match($this->source[static::getIdColumn()], $password, (string) $this->source['password']);
-
-        Hook::new('phoundation')
-            ->execute('accounts/password-match', [
-                'match'    => $match,
-                'user'     => $this,
-                'password' => $password,
-            ]);
-
-        return $match;
+        return Password::match($this->source[static::getIdColumn()], $password, (string) $this->source['password']);
     }
 
 
@@ -545,6 +543,7 @@ class User extends DataEntry implements UserInterface
                             if ($this->getId() === -1) {
                                 // This is the guest user
                                 $name = tr('Guest');
+
                             } else {
                                 // This is a new user
                                 $name = tr('[NEW]');
@@ -552,6 +551,9 @@ class User extends DataEntry implements UserInterface
                         }
                     }
                 }
+
+            } elseif ($this->getTitle()) {
+                $name = $this->getTitle() . ' ' . $name;
             }
         }
 
@@ -593,12 +595,10 @@ class User extends DataEntry implements UserInterface
         if (!$rights) {
             return true;
         }
-        $contains = $this->getRights()
-                         ->containsKeys($rights, true, 'god');
-        if (
-            !$contains and $this->getRights()
-                                ->getCount()
-        ) {
+
+        $contains = $this->getRights()->containsKeys($rights, true, 'god');
+
+        if (!$contains and $this->getRights()->getCount()) {
             Rights::ensure($this->getMissingRights($rights));
         }
 
@@ -621,6 +621,7 @@ class User extends DataEntry implements UserInterface
                 ':user' => $this->getLogId(),
             ]));
         }
+
         if (!isset($this->rights) or $reload) {
             if ($this->getId()) {
                 $this->rights = Rights::new()
@@ -629,8 +630,7 @@ class User extends DataEntry implements UserInterface
 
             } else {
                 // This is the guest user or a new user. Either way, this user has no rights
-                $this->rights = Rights::new()
-                                      ->setParent($this);
+                $this->rights = Rights::new()->setParent($this);
             }
         }
 
@@ -651,8 +651,7 @@ class User extends DataEntry implements UserInterface
             return [];
         }
 
-        return $this->getRights()
-                    ->getMissingKeys($rights, 'god');
+        return $this->getRights()->getMissingKeys($rights, 'god');
     }
 
 
@@ -677,16 +676,13 @@ class User extends DataEntry implements UserInterface
      */
     public function getSession(): SessionInterface
     {
-        if (
-            $this->getId() === Session::getUser()
-                                      ->getId()
-        ) {
+        if ($this->getId() === Session::getUser()->getId()) {
             return Session::getInstance();
         }
+
         throw new SessionException(tr('Cannot access session data for user ":user", that user is not the current session user ":session"', [
             ':user'    => $this->getId(),
-            ':session' => Session::getUser()
-                                 ->getLogId(),
+            ':session' => Session::getUser()->getLogId(),
         ]));
     }
 
@@ -717,6 +713,7 @@ class User extends DataEntry implements UserInterface
                 ':user' => $this->getLogId(),
             ]));
         }
+
         if (!isset($this->roles)) {
             if ($this->getId()) {
                 $this->roles = Roles::new()
@@ -724,26 +721,11 @@ class User extends DataEntry implements UserInterface
                                     ->load();
 
             } else {
-                $this->roles = Roles::new()
-                                    ->setParent($this);
+                $this->roles = Roles::new()->setParent($this);
             }
         }
 
         return $this->roles;
-    }
-
-
-    /**
-     * Easy access to adding a role to this user
-     *
-     * @return $this
-     */
-    public function removeRole(RoleInterface|Stringable|array|string|float|int $keys): static
-    {
-        $this->getRoles()
-             ->deleteKeys($keys);
-
-        return $this;
     }
 
 
@@ -811,6 +793,7 @@ class User extends DataEntry implements UserInterface
                 // Return the remote user, immediately linked to this user
                 return $this->remote_user->setRemoteUser($this);
             }
+
             throw new OutOfBoundsException(tr('The existing remote user object with class ":class" is not an instance of the requested class ":requested"', [
                 ':class'     => get_class($this->remote_user),
                 ':requested' => $class,
@@ -1423,11 +1406,11 @@ class User extends DataEntry implements UserInterface
     {
         $password   = trim($password);
         $validation = trim($validation);
+
         $this->validatePassword($password, $validation);
         $this->setPassword(Password::hash($password, $this->source['id']));
 
-        Hook::new('phoundation')
-            ->execute('accounts/password-change', [
+        Hook::new('phoundation/accounts')->execute('password-change', [
                 'user' => $this,
                 'new'  => $password,
             ]);
@@ -1507,6 +1490,7 @@ class User extends DataEntry implements UserInterface
         if (empty($this->source['id'])) {
             throw new UsersException(tr('Cannot save password, this user does not have an id'));
         }
+
         sql()->query('UPDATE `accounts_users` SET `password` = :password WHERE `id` = :id', [
             ':id'       => $this->source['id'],
             ':password' => $this->source['password'],
@@ -1576,8 +1560,7 @@ class User extends DataEntry implements UserInterface
                                       ->load();
 
             } else {
-                $this->emails = Emails::new()
-                                      ->setParent($this);
+                $this->emails = Emails::new()->setParent($this);
             }
 
         }
@@ -1612,8 +1595,7 @@ class User extends DataEntry implements UserInterface
                                       ->load();
 
             } else {
-                $this->phones = Phones::new()
-                                      ->setParent($this);
+                $this->phones = Phones::new()->setParent($this);
             }
         }
 
@@ -1655,15 +1637,16 @@ class User extends DataEntry implements UserInterface
      */
     public function getRolesHtmlDataEntryFormObject(string $name = 'roles_id[]'): DataEntryFormInterface
     {
-        $form   = DataEntryForm::new()
-                               ->setDataEntry($this);
+        $form   = DataEntryForm::new()->setDataEntry($this);
         $roles  = Roles::new();
         $select = $roles->getHtmlSelect()
                         ->setCache(true)
                         ->setName($name);
+
         // Add extra entry with nothing selected
         $select->clearSelected();
         $content = [$select->render()];
+
         // Add all current roles
         foreach ($this->getRoles() as $role) {
             $select->setSelected($role->getId());
@@ -1685,7 +1668,7 @@ class User extends DataEntry implements UserInterface
     public function erase(bool $secure = false): static
     {
         // Delete the users data directory, then erase the user from the database
-        Directory::new(DIRECTORY_DATA . 'home/' . $this->getId(), Restrictions::new(DIRECTORY_DATA . 'home/', true))
+        FsDirectory::new(DIRECTORY_DATA . 'home/' . $this->getId(), FsRestrictions::new(DIRECTORY_DATA . 'home/', true))
                  ->delete(DIRECTORY_DATA . 'home/');
 
         return parent::erase();
@@ -1720,15 +1703,9 @@ class User extends DataEntry implements UserInterface
             // Cannot impersonate while we are already impersonating
             if (!Session::isImpersonated()) {
                 // We can only impersonate if we have the right to do so
-                if (
-                    Session::getUser()
-                           ->hasAllRights('impersonate')
-                ) {
+                if (Session::getUser()->hasAllRights('impersonate')) {
                     // We must have the right and we cannot impersonate ourselves
-                    if (
-                        $this->getId() !== Session::getUser()
-                                                  ->getId()
-                    ) {
+                    if ($this->getId() !== Session::getUser()->getId()) {
                         // Cannot impersonate god level users
                         if (!$this->isDeleted() and !$this->isLocked()) {
                             if (!$this->hasAllRights('god')) {
@@ -1767,10 +1744,7 @@ class User extends DataEntry implements UserInterface
     {
         // We cannot status change ourselves, we cannot status change god users nor system users, we cannot change
         // readonly users
-        if (
-            $this->getId() !== Session::getUser()
-                                      ->getId()
-        ) {
+        if ($this->getId() !== Session::getUser()->getId()) {
             // Cannot change status for god right users
             if (!$this->hasAllRights('god')) {
                 // Cannot change status for new users
@@ -1796,8 +1770,7 @@ class User extends DataEntry implements UserInterface
      */
     public function lock(?string $comments = null): static
     {
-        Sessions::new()
-                ->drop($this);
+        Sessions::new()->drop($this);
 
         return $this->setStatus('locked', $comments);
     }
@@ -1812,8 +1785,7 @@ class User extends DataEntry implements UserInterface
      */
     public function unlock(?string $comments = null): static
     {
-        Sessions::new()
-                ->drop($this);
+        Sessions::new()->drop($this);
 
         return $this->setStatus(null, $comments);
     }
@@ -1826,8 +1798,7 @@ class User extends DataEntry implements UserInterface
      */
     public function notify(): NotificationInterface
     {
-        return Notification::new()
-                           ->setUsersId($this->getId());
+        return Notification::new()->setUsersId($this->getId());
     }
 
 
@@ -1892,6 +1863,7 @@ class User extends DataEntry implements UserInterface
                                     ->setOptional(true)
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::number))
+
                     ->add(Definition::new($this, 'last_sign_in')
                                     ->setOptional(true)
                                     ->setDisabled(true)
@@ -1901,6 +1873,7 @@ class User extends DataEntry implements UserInterface
                                     ->setSize(3)
                                     ->setNullDb(true, '-')
                                     ->setLabel('Last sign in'))
+
                     ->add(Definition::new($this, 'sign_in_count')
                                     ->setOptional(true, 0)
                                     ->setDisabled(true)
@@ -1908,6 +1881,7 @@ class User extends DataEntry implements UserInterface
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Sign in count')))
+
                     ->add(Definition::new($this, 'authentication_failures')
                                     ->setOptional(true, 0)
                                     ->setDisabled(true)
@@ -1916,6 +1890,7 @@ class User extends DataEntry implements UserInterface
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Authentication failures')))
+
                     ->add(Definition::new($this, 'locked_until')
                                     ->setOptional(true)
                                     ->setDisabled(true)
@@ -1925,6 +1900,7 @@ class User extends DataEntry implements UserInterface
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Locked until')))
+
                     ->add(DefinitionFactory::getEmail($this)
                                            ->setOptional(true)
                                            ->setSize(3)
@@ -1932,16 +1908,19 @@ class User extends DataEntry implements UserInterface
                                            ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                // Email address is optional IF remote_id is specified
-                                               $validator->orColumn('remote_id');
                                                // Validate the email address
-                                               $validator->isUnique(tr('already exists as a primary email address'));
+                                               $validator->orColumn('remote_id');
+                                               $validator->isUnique(tr('it already exists as a primary email address'));
+
                                                $exists = sql()->get('SELECT `id` FROM `accounts_emails` WHERE `email` = :email', [
                                                    ':email' => $validator->getSelectedValue(),
                                                ]);
+
                                                if ($exists) {
-                                                   $validator->addFailure(tr('value ":email" already exists as an additional email address', [':email' => $validator->getSelectedValue()]));
+                                                   $validator->addFailure(tr('it already exists as an additional email address'));
                                                }
                                            }))
+
                     ->add(Definition::new($this, 'domain')
                                     ->setOptional(true)
                                     ->setMaxlength(128)
@@ -1953,6 +1932,7 @@ class User extends DataEntry implements UserInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDomain();
                                     }))
+
                     ->add(Definition::new($this, 'username')
                                     ->setOptional(true)
                                     ->setSize(3)
@@ -1964,27 +1944,32 @@ class User extends DataEntry implements UserInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isName(64);
                                     }))
+
                     ->add(DefinitionFactory::getName($this, 'nickname')
                                            ->setOptional(true)
                                            ->setLabel(tr('Nickname'))
                                            ->setCliColumn('--nickname NAME')
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The nickname for this user')))
+
                     ->add(DefinitionFactory::getName($this, 'first_names')
                                            ->setOptional(true)
                                            ->setCliColumn('-f,--first-names NAMES')
                                            ->setLabel(tr('First names'))
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The firstnames for this user')))
+
                     ->add(DefinitionFactory::getName($this, 'last_names')
                                            ->setOptional(true)
                                            ->setCliColumn('-n,--last-names')
                                            ->setLabel(tr('Last names'))
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The lastnames / surnames for this user')))
+
                     ->add(DefinitionFactory::getTitle($this)
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The title added to this users name')))
+
                     ->add(Definition::new($this, 'gender')
                                     ->setOptional(true)
                                     ->setElement(EnumElement::select)
@@ -2018,6 +2003,7 @@ class User extends DataEntry implements UserInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->hasMaxCharacters(6);
                                     }))
+
                     ->add(DefinitionFactory::getUsersEmail($this, 'leaders_email')
                                            ->setCliColumn('--leader USER-EMAIL')
                                            ->clearValidationFunctions()
@@ -2026,6 +2012,7 @@ class User extends DataEntry implements UserInterface
                                                          ->isEmail()
                                                          ->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leaders_email']);
                                            }))
+
                     ->add(DefinitionFactory::getUsersId($this, 'leaders_id')
                                            ->setCliColumn('--leaders-id USERS-DATABASE-ID')
                                            ->setLabel(tr('Leader'))
@@ -2036,6 +2023,7 @@ class User extends DataEntry implements UserInterface
                                                          ->isDbId()
                                                          ->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
                                            }))
+
                     ->add(Definition::new($this, 'is_leader')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
@@ -2048,9 +2036,11 @@ class User extends DataEntry implements UserInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isBoolean();
                                     }))
+
                     ->add(DefinitionFactory::getCode($this, 'code')
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The code associated with this user')))
+
                     ->add(Definition::new($this, 'priority')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
@@ -2064,6 +2054,7 @@ class User extends DataEntry implements UserInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isInteger();
                                     }))
+
                     ->add(DefinitionFactory::getDate($this, 'birthdate')
                                            ->setLabel(tr('Birthdate'))
                                            ->setCliColumn('-b,--birthdate')
@@ -2071,16 +2062,18 @@ class User extends DataEntry implements UserInterface
                                            ->setHelpText(tr('The birthdate for this user'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isDate()
-                                                         ->isBefore();
+                                                         ->isBefore(DateTime::getTomorrow());
                                            }))
+
                     ->add(DefinitionFactory::getPhone($this)
                                            ->setSize(3)
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('Main phone number where this user may be contacted'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                // Validate the email address
-                                               $validator->isUnique(tr('already exists as a primary phone number'));
+                                               $validator->isUnique(tr('it already exists as a primary phone number'));
                                            }))
+
                     ->add(Definition::new($this, 'address')
                                     ->setOptional(true)
                                     ->setMaxlength(255)
@@ -2093,6 +2086,7 @@ class User extends DataEntry implements UserInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isPrintable();
                                     }))
+
                     ->add(Definition::new($this, 'zipcode')
                                     ->setOptional(true)
                                     ->setMinlength(4)
@@ -2106,18 +2100,25 @@ class User extends DataEntry implements UserInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isPrintable();
                                     }))
+
                     ->add(DefinitionFactory::getCountry($this)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The country where this user resides')))
+
                     ->add(DefinitionFactory::getCountriesId($this))
+
                     ->add(DefinitionFactory::getState($this)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The state where this user resides')))
+
                     ->add(DefinitionFactory::getStatesId($this))
+
                     ->add(DefinitionFactory::getCity($this)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The city where this user resides')))
+
                     ->add(DefinitionFactory::getCitiesId($this))
+
                     ->add(Definition::new($this, 'latitude')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
@@ -2130,6 +2131,7 @@ class User extends DataEntry implements UserInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isLatitude();
                                     }))
+
                     ->add(Definition::new($this, 'longitude')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
@@ -2142,6 +2144,7 @@ class User extends DataEntry implements UserInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isLongitude();
                                     }))
+
                     ->add(Definition::new($this, 'offset_latitude')
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -2151,6 +2154,7 @@ class User extends DataEntry implements UserInterface
                                     ->setLabel(tr('Offset latitude'))
                                     ->setHelpGroup(tr('Location information'))
                                     ->setHelpText(tr('The latitude location for this user with a random offset within the configured range')))
+
                     ->add(Definition::new($this, 'offset_longitude')
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -2160,6 +2164,7 @@ class User extends DataEntry implements UserInterface
                                     ->setLabel(tr('Offset longitude'))
                                     ->setHelpGroup(tr('Location information'))
                                     ->setHelpText(tr('The longitude location for this user with a random offset within the configured range')))
+
                     ->add(Definition::new($this, 'accuracy')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
@@ -2174,6 +2179,7 @@ class User extends DataEntry implements UserInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isFloat();
                                     }))
+
                     ->add(Definition::new($this, 'type')
                                     ->setOptional(true)
                                     ->setMaxLength(16)
@@ -2186,14 +2192,19 @@ class User extends DataEntry implements UserInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isName();
                                     }))
+
                     ->add(DefinitionFactory::getTimezone($this)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The timezone where this user resides')))
+
                     ->add(DefinitionFactory::getTimezonesId($this))
+
                     ->add(DefinitionFactory::getLanguage($this)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The display language for this user')))
+
                     ->add(DefinitionFactory::getLanguagesId($this))
+
                     ->add(Definition::new($this, 'keywords')
                                     ->setOptional(true)
                                     ->setMaxlength(255)
@@ -2207,6 +2218,7 @@ class User extends DataEntry implements UserInterface
                                         $validator->isPrintable();
                                         //$validator->sanitizeForceArray(' ')->each()->isWord()->sanitizeForceString()
                                     }))
+
                     ->add(DefinitionFactory::getDateTime($this, 'verified_on')
                                            ->setReadonly(true)
                                            ->setNullInputType(EnumInputType::text)
@@ -2215,6 +2227,7 @@ class User extends DataEntry implements UserInterface
                                            ->setLabel(tr('Account verified on'))
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
+
                     ->add(DefinitionFactory::getUrl($this, 'redirect')
                                            ->setSize(3)
                                            ->setDataSource(UrlBuilder::getAjax('system/accounts/users/redirect/autosuggest.json'))
@@ -2223,6 +2236,7 @@ class User extends DataEntry implements UserInterface
                                            ->setLabel(tr('Redirect URL'))
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in')))
+
                     ->add(DefinitionFactory::getUrl($this, 'default_page')
                                            ->setSize(3)
                                            ->setDataSource(UrlBuilder::getAjax('system/accounts/users/redirect/autosuggest.json'))
@@ -2230,6 +2244,7 @@ class User extends DataEntry implements UserInterface
                                            ->setLabel(tr('Default page'))
                                            ->setHelpGroup(tr('Preferences'))
                                            ->setHelpText(tr('The user configurable default page where this user will be redirected to upon sign in')))
+
                     ->add(Definition::new($this, 'url')
                                     ->setSize(12)
                                     ->setOptional(true)
@@ -2238,29 +2253,35 @@ class User extends DataEntry implements UserInterface
                                     ->setLabel(tr('Website URL'))
                                     ->setHelpGroup(tr('Account information'))
                                     ->setHelpText(tr('A URL specified by the user, usually containing more information about the user')))
+
                     ->add(DefinitionFactory::getDescription($this)
                                            ->setSize(6)
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('A public description about this user')))
+
                     ->add(DefinitionFactory::getComments($this)
                                            ->setSize(6)
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user')))
+
                     ->add(Definition::new($this, 'verification_code')
                                     ->setOptional(true)
                                     ->setRender(false)
                                     ->setReadonly(true))
+
                     ->add(Definition::new($this, 'fingerprint')
                                     // TODO Implement
                                     ->setNoValidation(true)
                                     ->setOptional(true)
                                     ->setRender(false))
+
                     ->add(Definition::new($this, 'notifications_hash')
                         // This hash is set directly so it won't really be touched by DataEntry
                                     ->setOptional(true)
                                     ->setDirectUpdate(true)
                                     ->setRender(false)
                                     ->setReadonly(true))
+
                     ->add(Definition::new($this, 'password')
                                     ->setRender(false)
                                     ->setReadonly(true)
@@ -2273,11 +2294,13 @@ class User extends DataEntry implements UserInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isStrongPassword();
                                     }))
+
                     ->add(Definition::new($this, 'picture')
                                     // TODO Implement
                                     ->setNoValidation(true)
                                     ->setOptional(true)
                                     ->setRender(false))
+
                     ->add(DefinitionFactory::getData($this, 'data'));
     }
 

@@ -10,7 +10,7 @@ use Phoundation\Virtualization\Kubernetes\Secrets\Secrets;
 
 
 /**
- * Script devops/kubernetes/get/secrets
+ * Command devops/kubernetes/get/secrets
  *
  *
  *

@@ -10,7 +10,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script accounts/users/info
+ * Command accounts/users/info
  *
  * This script displays information about the specified user.
  *

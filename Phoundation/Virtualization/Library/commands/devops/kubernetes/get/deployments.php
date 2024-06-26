@@ -10,7 +10,7 @@ use Phoundation\Virtualization\Kubernetes\Deployments\Deployments;
 
 
 /**
- * Script devops/kubernetes/deployments/get
+ * Command devops/kubernetes/deployments/get
  *
  *
  *

@@ -38,11 +38,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.11', function () {
             // Drop the tables to be sure we have a clean slate
-            sql()->schema()->table('ssh_accounts')->drop();
-            sql()->schema()->table('servers')->drop();
+            sql()->getSchemaObject()->getTableObject('ssh_accounts')->drop();
+            sql()->getSchemaObject()->getTableObject('servers')->drop();
 
             // Create the sshaccounts table.
-            sql()->schema()->table('ssh_accounts')->define()
+            sql()->getSchemaObject()->getTableObject('ssh_accounts')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -69,7 +69,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the servers table.
-            sql()->schema()->table('servers')->define()
+            sql()->getSchemaObject()->getTableObject('servers')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -135,13 +135,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.0.15', function () {
             // Add support for SSH accounts key file
             // Add support for server name / seo_name
-            sql()->schema()
-                 ->table('ssh_accounts')
+            sql()->getSchemaObject()
+                 ->getTableObject('ssh_accounts')
                  ->alter()
                  ->addColumn('`file` VARCHAR(255) NULL DEFAULT NULL', 'AFTER `description`');
 
-            sql()->schema()
-                 ->table('servers')
+            sql()->getSchemaObject()
+                 ->getTableObject('servers')
                  ->alter()
                  ->addColumn('`name` varchar(128) NOT NULL,', 'AFTER `code`')
                  ->addColumn('`seo_name` varchar(128) NOT NULL,', 'AFTER `name`')

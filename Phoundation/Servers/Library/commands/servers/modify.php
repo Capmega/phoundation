@@ -10,7 +10,7 @@ use Phoundation\Servers\Server;
 
 
 /**
- * Script servers/modify
+ * Command servers/modify
  *
  * This script will modify a server with the specified properties
  *

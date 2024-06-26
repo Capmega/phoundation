@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Command notifications test
+ *
+ * Notifications test script. This script will send test notifications to the specified users or roles
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Notifications
+ */
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
@@ -8,19 +19,6 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-
-
-/**
- * Script notifications/test
- *
- * Notifications test script. This script will send test notifications to the specified users or roles
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
- */
-
 
 // Get arguments
 $count = 0;

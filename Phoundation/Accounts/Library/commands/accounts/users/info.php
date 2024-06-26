@@ -8,7 +8,7 @@ use Phoundation\Databases\Sql\Limit;
 
 
 /**
- * Script accounts/users/info
+ * Command accounts/users/info
  *
  * This script displays information about the specified user.
  *

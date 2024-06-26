@@ -54,7 +54,7 @@ use Phoundation\Virtualization\Kubernetes\ObjectFile;
  * name: mongo
  * resources: {}
  * terminationMessagePath: /dev/termination-log
- * terminationMessagePolicy: File
+ * terminationMessagePolicy: FsFileFileInterface
  * dnsPolicy: ClusterFirst
  * restartPolicy: Always
  * schedulerName: default-scheduler

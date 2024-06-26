@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Storage\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 
 /**
  * Interface PagesInterface
@@ -16,6 +16,6 @@ use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Pages
  */
-interface PagesInterface extends DataListInterface
+interface PagesInterface extends DataIteratorInterface
 {
 }

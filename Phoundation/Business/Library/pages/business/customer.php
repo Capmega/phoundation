@@ -97,7 +97,7 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
             ->addColumn($column)
-            ->addColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($picture->render() . '<br>' . $relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

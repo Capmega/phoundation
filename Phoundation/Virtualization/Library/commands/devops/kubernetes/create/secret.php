@@ -10,7 +10,7 @@ use Phoundation\Virtualization\Kubernetes\Secrets\Secret;
 
 
 /**
- * Script devops/kubernetes/create/secret
+ * Command devops/kubernetes/create/secret
  *
  *
  *

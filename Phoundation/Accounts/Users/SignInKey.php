@@ -198,7 +198,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
                 ':uuid' => $this->getUuid(),
             ]));
         }
-        // Execute only once?
+        // ExecuteExecuteInterface only once?
         if ($this->hasStatus('executed')) {
             if ($this->getOnce()) {
                 throw new SignInKeyUsedException(tr('This link ":uuid" has already been used', [

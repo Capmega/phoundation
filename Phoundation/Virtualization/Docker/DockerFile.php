@@ -7,8 +7,8 @@ namespace Phoundation\Virtualization\Docker;
 use Phoundation\Data\Traits\TraitDataDirectory;
 use Phoundation\Data\Traits\TraitDataPort;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Virtualization\Traits\TraitDataImage;
 
@@ -87,19 +87,19 @@ class DockerFile
     public function writeConfig(): static
     {
         // Delete old docker configuration files
-        File::new($this->directory . '.docker')
+        FsFile::new($this->directory . '.docker')
             ->setRestrictions($this->restrictions->getChild('.docker'))
             ->delete();
-        File::new($this->directory . 'docker-compose.yml')
+        FsFile::new($this->directory . 'docker-compose.yml')
             ->setRestrictions($this->restrictions->getChild('docker-compose.yml'))
             ->delete();
-        File::new($this->directory . '.docker/Dockerfile')
+        FsFile::new($this->directory . '.docker/Dockerfile')
             ->setRestrictions($this->restrictions->getChild('.docker/Dockerfile'))
             ->create('FROM php:8.2-apache
 COPY . /app
 COPY .docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN chown -R www-data:www-data /app && a2enmod rewrite');
-        File::new($this->directory . '.docker/vhost.conf')
+        FsFile::new($this->directory . '.docker/vhost.conf')
             ->setRestrictions($this->restrictions->getChild('.docker/vhost.conf'))
             ->create('<VirtualHost *:80>
     DocumentRoot /app/public
@@ -110,7 +110,7 @@ RUN chown -R www-data:www-data /app && a2enmod rewrite');
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>');
-        File::new($this->directory . 'docker-compose.yml')
+        FsFile::new($this->directory . 'docker-compose.yml')
             ->setRestrictions($this->restrictions->getChild('docker-compose.yml'))
             ->create('version: ‘3’
 services:
@@ -150,11 +150,10 @@ services:
      */
     public function render(bool $passthru = true): ?array
     {
-        // Execute the docker build process
+        // ExecuteExecuteInterface the docker build process
         $process = Process::new('docker')
                           ->setSudo(true)
                           ->setTimeout(300)
-                          ->setRestrictions($this->directory)
                           ->setExecutionDirectory($this->directory)
                           ->addArguments([
                               'build',

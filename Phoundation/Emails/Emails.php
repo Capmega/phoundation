@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Emails;
 
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 
 /**
  * Class Emails
@@ -16,7 +16,7 @@ use Phoundation\Data\DataEntry\DataList;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Plugins\Emails
  */
-class Emails extends DataList
+class Emails extends DataIterator
 {
 
     /**

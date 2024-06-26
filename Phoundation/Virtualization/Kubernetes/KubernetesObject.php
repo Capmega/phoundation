@@ -99,13 +99,12 @@ class KubernetesObject
      */
     public function save(): static
     {
-        $this->getObjectFile()
-             ->save();
+        $this->getObjectFile()->save();
+
         Log::success(tr('Saved ":kind" object ":name" in file ":file"', [
             ':kind' => $this->getKind(),
             ':name' => $this->getName(),
-            ':file' => $this->getObjectFile()
-                            ->getFile(),
+            ':file' => $this->getObjectFile()->getFile(),
         ]));
 
         return $this;

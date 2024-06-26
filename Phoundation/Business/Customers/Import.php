@@ -43,8 +43,8 @@ class Import extends \Phoundation\Developer\Project\Import
         $count = 0;
         if ($this->demo) {
             $table = sql()
-                ->schema()
-                ->table('business_customers');
+                ->getSchemaObject()
+                ->getTableObject('business_customers');
             $count = $table->getCount();
             if ($count and !FORCE) {
                 Log::warning(tr('Not importing data for "business_customers", the table already contains data'));

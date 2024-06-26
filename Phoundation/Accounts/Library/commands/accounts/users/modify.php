@@ -10,7 +10,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script accounts/users/modify
+ * Command accounts/users/modify
  *
  * This script will modify a user with the specified properties
  *

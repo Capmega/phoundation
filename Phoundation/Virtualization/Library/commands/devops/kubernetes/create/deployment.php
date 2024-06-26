@@ -8,7 +8,7 @@ use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
 
 
 /**
- * Script devops/kubernetes/create/deployments
+ * Command devops/kubernetes/create/deployments
  *
  *
  *

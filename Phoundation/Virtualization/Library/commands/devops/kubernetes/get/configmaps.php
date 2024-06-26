@@ -10,7 +10,7 @@ use Phoundation\Virtualization\Kubernetes\ConfigMaps\ConfigMaps;
 
 
 /**
- * Script devops/kubernetes/configmap/get
+ * Command devops/kubernetes/configmap/get
  *
  *
  *
