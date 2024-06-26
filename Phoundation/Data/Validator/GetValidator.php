@@ -1,16 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Validator;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\Exception\GetValidationFailedException;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\Exception\ValidatorException;
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Utils\Strings;
-
 /**
  * GetValidator class
  *
@@ -23,6 +12,18 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Validator;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\Exception\GetValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Utils\Strings;
+
 class GetValidator extends Validator
 {
     /**
@@ -48,6 +49,19 @@ class GetValidator extends Validator
 
 
     /**
+     * Returns a new $_GET data Validator object
+     *
+     * @param ValidatorInterface|null $parent
+     *
+     * @return GetValidator
+     */
+    public static function new(?ValidatorInterface $parent = null): GetValidator
+    {
+        return new static($parent);
+    }
+
+
+    /**
      * Link $_GET and $_GET and $argv data to internal arrays to ensure developers cannot access them until validation
      * has been completed
      *
@@ -59,8 +73,10 @@ class GetValidator extends Validator
     public static function hideData(): void
     {
         global $_GET;
+
         // Copy GET data and reset both GET and REQUEST
         static::$get = $_GET;
+
         $_GET     = [];
         $_REQUEST = [];
     }
@@ -78,11 +94,14 @@ class GetValidator extends Validator
         if (!$apply) {
             return $this;
         }
-        if (count($this->selected_fields) === count(static::$get)) {
+
+        if (count($this->selected_fields) === count($this->source)) {
             return $this;
         }
+
         $messages = [];
-        $get      = array_keys(static::$get);
+        $get      = array_keys($this->source);
+
         foreach ($get as $field) {
             if (!in_array($field, $this->selected_fields)) {
                 $messages[] = tr('Unknown field ":field" encountered', [
@@ -90,12 +109,12 @@ class GetValidator extends Validator
                 ]);
             }
         }
+
         throw ValidatorException::new(tr('Unknown GET fields ":fields" encountered', [
             ':fields' => Strings::force($get, ', '),
-        ]))
-                                ->addData($messages)
-                                ->makeWarning()
-                                ->log();
+        ]))->addData($messages)
+           ->makeWarning()
+           ->log();
     }
 
 
@@ -107,22 +126,9 @@ class GetValidator extends Validator
      *
      * @return void
      */
-    public static function addData(string $key, mixed $value): void
+    public function addData(string $key, mixed $value): void
     {
-        static::$get[$key] = $value;
-    }
-
-
-    /**
-     * Returns a new $_GET data Validator object
-     *
-     * @param ValidatorInterface|null $parent
-     *
-     * @return GetValidator
-     */
-    public static function new(?ValidatorInterface $parent = null): GetValidator
-    {
-        return new static($parent);
+        $this->source[$key] = $value;
     }
 
 
@@ -133,9 +139,13 @@ class GetValidator extends Validator
      */
     public function get(string $key): mixed
     {
-        Log::warning(tr('Forceably returned $_GET[:key] without data validation!', [':key' => $key]));
+        Log::warning(tr('Forcibly returned $_GET[:key] without data validation!', [':key' => $key]));
 
-        return isset_get(static::$get[$key]);
+        if (array_key_exists($key, $this->source)) {
+            return $this->source[$key];
+        }
+
+        return null;
     }
 
 
@@ -146,11 +156,11 @@ class GetValidator extends Validator
      *
      * @return bool
      */
-    public static function remove(string $key): bool
+    public function remove(string $key): bool
     {
-        $exists = array_key_exists($key, static::$get);
+        $exists = array_key_exists($key, $this->source);
 
-        unset(static::$get[$key]);
+        unset($this->source[$key]);
 
         return $exists;
     }
@@ -176,7 +186,7 @@ class GetValidator extends Validator
      */
     public function clear(): void
     {
-        static::$get = [];
+        $this->source = [];
         parent::clear();
     }
 

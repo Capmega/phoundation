@@ -30,11 +30,9 @@ use PDOStatement;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Exception\IteratorException;
 use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Exception\IteratorKeyNotExistsException;
@@ -61,19 +59,20 @@ class IteratorCore implements IteratorInterface
 {
     use TraitDataCallbacks;
 
+
     /**
      * Tracks the datatype required for all elements in this iterator, NULL if none is required
      *
      * @var array|null
      */
-    protected ?array $data_types = null;
+    protected ?array $accepted_data_types = null;
 
     /**
      * The list that stores all entries
      *
      * @var array $source
      */
-    protected array $source;
+    protected array $source = [];
 
     /**
      * Tracks the class used to generate the select input
@@ -110,7 +109,7 @@ class IteratorCore implements IteratorInterface
      *
      * @param string $input_select_class
      *
-     * @return DataList
+     * @return DataIterator
      */
     public function setComponentClass(string $input_select_class): static
     {
@@ -119,6 +118,7 @@ class IteratorCore implements IteratorInterface
 
             return $this;
         }
+
         throw new OutOfBoundsException(tr('Cannot use specified class ":class" to generate input select, the class must be an instance of InputSelectInterface', [
             ':class' => $input_select_class,
         ]));
@@ -161,9 +161,9 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns the current key for the current button
      *
-     * @return mixed
+     * @return string|int|null
      */
-    public function key(): mixed
+    public function key(): string|int|null
     {
         return key($this->source);
     }
@@ -178,9 +178,11 @@ class IteratorCore implements IteratorInterface
     {
         $key    = key($this->source);
         $exists = array_key_exists($key, $this->source);
+
         if (!$exists) {
             return false;
         }
+
         // The entry MIGHT exist, but we can't be 100% sure if the source array has a NULL key!
         // Weird PHP quirk coming up due to isset() / array_key_exists() not being typesafe...
         if ($key === null) {
@@ -201,6 +203,7 @@ class IteratorCore implements IteratorInterface
                 // Yay, the current value doesn't match the empty key value, we're out of range
                 return false;
             }
+
             // null value, perhaps?
             if ($this->source[null] === null) {
                 // Oh fork me...
@@ -229,12 +232,12 @@ class IteratorCore implements IteratorInterface
      *
      * @note this is basically a wrapper function for IteratorCore::add($value, $key, false) that always requires a key
      *
-     * @param mixed                       $value
-     * @param Stringable|string|float|int $key
+     * @param mixed                 $value
+     * @param Stringable|string|int $key
      *
      * @return mixed
      */
-    public function set(mixed $value, Stringable|string|float|int $key): static
+    public function set(mixed $value, Stringable|string|int $key): static
     {
         return $this->append($value, $key, false, false);
     }
@@ -243,16 +246,16 @@ class IteratorCore implements IteratorInterface
     /**
      * Wrapper for Iterator::append()
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null
-     * @param bool                             $exception
+     * @param mixed                      $value
+     * @param Stringable|string|int|null $key
+     * @param bool                       $skip_null_values
+     * @param bool                       $exception
      *
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function add(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
-        return $this->append($value, $key, $skip_null, $exception);
+        return $this->append($value, $key, $skip_null_values, $exception);
     }
 
 
@@ -261,18 +264,18 @@ class IteratorCore implements IteratorInterface
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null
-     * @param bool                             $exception
+     * @param mixed                      $value
+     * @param Stringable|string|int|null $key
+     * @param bool                       $skip_null_values
+     * @param bool                       $exception
      *
      * @return static
      */
-    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
-            if ($skip_null) {
+            if ($skip_null_values) {
                 return $this;
             }
         }
@@ -309,23 +312,26 @@ class IteratorCore implements IteratorInterface
      */
     protected function checkDataType(mixed $value): void
     {
-        if (!$this->data_types) {
+        if (!$this->accepted_data_types) {
             return;
         }
-        foreach ($this->data_types as $data_type) {
-            if (str_starts_with($data_type, 'object:')) {
+
+        foreach ($this->accepted_data_types as $data_type) {
+            if (str_contains($data_type, '\\')) {
                 if ($value instanceof $data_type) {
                     return;
                 }
+
             } else {
                 if (gettype($value) === $data_type) {
                     return;
                 }
             }
         }
-        throw new OutOfBoundsException(tr('Specified value has an invalid datatype or Interface ":type" where the only allowed datatypes or Interfaces are ":allowed"', [
+
+        throw new OutOfBoundsException(tr('Value argument must be of type ":allowed", ":type" given', [
             ':type'    => (is_object($value) ? get_class($value) : gettype($value)),
-            ':allowed' => Strings::force($this->data_types, ', '),
+            ':allowed' => Strings::force($this->accepted_data_types, ', '),
         ]));
     }
 
@@ -333,37 +339,40 @@ class IteratorCore implements IteratorInterface
     /**
      * Forces the specified source to become an Iterator
      *
-     * @note DataList objects will remain DataList objects as those are extended Iterators
+     * @note DataIterator objects will remain DataIterator objects as those are extended Iterators
      *
      * @param mixed       $source
      * @param string|null $separator
      *
-     * @return IteratorInterface|DataListInterface
+     * @return IteratorInterface|DataIteratorInterface
      */
-    public static function force(mixed $source, ?string $separator = ','): IteratorInterface|DataListInterface
+    public static function force(mixed $source, ?string $separator = ','): IteratorInterface|DataIteratorInterface
     {
         if (($source === '') or ($source === null)) {
             return new Iterator();
         }
+
         if ($source instanceof IteratorInterface) {
-            // This already is an Iterator (or DataList) object
+            // This already is an Iterator (or DataIterator) object
             return $source;
         }
+
         if (is_string($source)) {
             // Explode the string to an Iterator object, as we would to an array as well
             return static::explode($separator, $source);
         }
+
         if ($source instanceof ArrayableInterface) {
             // This is an object that can convert to array. Extract the array
             $source = $source->__toArray();
+
         } else {
             // Unknown datatype, toss it into an array
             $source = [$source];
         }
 
         // As of here, we have an array. Set it as an Iterator source and return
-        return Iterator::new()
-                       ->setSource($source);
+        return Iterator::new()->setSource($source);
     }
 
 
@@ -378,15 +387,16 @@ class IteratorCore implements IteratorInterface
     public static function explode(Stringable|string $source, ?string $separator = ','): IteratorInterface
     {
         $source = (string) $source;
+
         if ($separator) {
             $source = explode($separator, $source);
+
         } else {
             // We cannot explode with an empty separator, assume that $source is a single item and return it as such
             $source = [$source];
         }
 
-        return Iterator::new()
-                       ->setSource($source);
+        return Iterator::new()->setSource($source);
     }
 
 
@@ -406,18 +416,18 @@ class IteratorCore implements IteratorInterface
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null
-     * @param bool                             $exception
+     * @param mixed                      $value
+     * @param Stringable|string|int|null $key
+     * @param bool                       $skip_null_values
+     * @param bool                       $exception
      *
      * @return static
      */
-    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function prepend(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
-            if ($skip_null) {
+            if ($skip_null_values) {
                 return $this;
             }
         }
@@ -448,19 +458,19 @@ class IteratorCore implements IteratorInterface
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param Stringable|string|float|int|null $before
-     * @param bool                             $skip_null
-     * @param bool                             $exception
+     * @param mixed                      $value
+     * @param Stringable|string|int|null $key
+     * @param Stringable|string|int|null $before
+     * @param bool                       $skip_null_values
+     * @param bool                       $exception
      *
      * @return static
      */
-    public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $before = null, bool $skip_null = true, bool $exception = true): static
+    public function prependBeforeKey(mixed $value, Stringable|string|int|null $key = null, Stringable|string|int|null $before = null, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
-            if ($skip_null) {
+            if ($skip_null_values) {
                 return $this;
             }
         }
@@ -506,6 +516,7 @@ class IteratorCore implements IteratorInterface
     {
         try {
             $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
+
         } catch (OutOfBoundsException $e) {
             throw new OutOfBoundsException(tr('Failed to splice iterator by key ":key", the key does not exist', [
                 ':key' => $key,
@@ -521,23 +532,25 @@ class IteratorCore implements IteratorInterface
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param Stringable|string|float|int|null $after
-     * @param bool                             $skip_null
-     * @param bool                             $exception
+     * @param mixed                      $value
+     * @param Stringable|string|int|null $key
+     * @param Stringable|string|int|null $after
+     * @param bool                       $skip_null_values
+     * @param bool                       $exception
      *
      * @return static
      */
-    public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $after = null, bool $skip_null = true, bool $exception = true): static
+    public function appendAfterKey(mixed $value, Stringable|string|int|null $key = null, Stringable|string|int|null $after = null, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
-            if ($skip_null) {
+            if ($skip_null_values) {
                 return $this;
             }
         }
+
         $this->checkDataType($value);
+
         // Ensure the after key exists
         if (!array_key_exists($after, $this->source)) {
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the after key ":after" does not exist', [
@@ -546,6 +559,7 @@ class IteratorCore implements IteratorInterface
                 ':class' => get_class($this),
             ]));
         }
+
         // NULL keys will be added as numerical "next" entries
         if (array_key_exists($key, $this->source) and $exception) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
@@ -554,6 +568,7 @@ class IteratorCore implements IteratorInterface
                 ':class' => get_class($this),
             ]));
         }
+
         Arrays::spliceByKey($this->source, $after, 0, [$key => $value], true);
 
         return $this;
@@ -565,26 +580,29 @@ class IteratorCore implements IteratorInterface
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param mixed                            $before
-     * @param bool                             $strict
-     * @param bool                             $skip_null
-     * @param bool                             $exception
+     * @param mixed                      $value
+     * @param Stringable|string|int|null $key
+     * @param mixed                      $before
+     * @param bool                       $strict
+     * @param bool                       $skip_null_values
+     * @param bool                       $exception
      *
      * @return static
      */
-    public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static
+    public function prependBeforeValue(mixed $value, Stringable|string|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
-            if ($skip_null) {
+            if ($skip_null_values) {
                 return $this;
             }
         }
+
         $this->checkDataType($value);
+
         // Ensure the before key exists
         $before_key = array_search($before, $this->source, $strict);
+
         if ($before_key === false) {
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before value ":before" because the before value ":before" does not exist', [
                 ':key'    => $key,
@@ -592,6 +610,7 @@ class IteratorCore implements IteratorInterface
                 ':class'  => get_class($this),
             ]));
         }
+
         // NULL keys will be added as numerical "next" entries
         if (array_key_exists($key, $this->source) and $exception) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
@@ -600,6 +619,7 @@ class IteratorCore implements IteratorInterface
                 ':class'  => get_class($this),
             ]));
         }
+
         Arrays::spliceByKey($this->source, $before_key, 0, [$key => $value], false);
 
         return $this;
@@ -611,20 +631,20 @@ class IteratorCore implements IteratorInterface
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param mixed                            $after
-     * @param bool                             $strict
-     * @param bool                             $skip_null
-     * @param bool                             $exception
+     * @param mixed                      $value
+     * @param Stringable|string|int|null $key
+     * @param mixed                      $after
+     * @param bool                       $strict
+     * @param bool                       $skip_null_values
+     * @param bool                       $exception
      *
      * @return static
      */
-    public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static
+    public function appendAfterValue(mixed $value, Stringable|string|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
-            if ($skip_null) {
+            if ($skip_null_values) {
                 return $this;
             }
         }
@@ -660,13 +680,13 @@ class IteratorCore implements IteratorInterface
     /**
      * Will remove the entry with the specified key before the $before key
      *
-     * @param Stringable|string|float|int|null $key
-     * @param Stringable|string|float|int|null $before
-     * @param bool                             $strict
+     * @param Stringable|string|int|null $key
+     * @param Stringable|string|int|null $before
+     * @param bool                       $strict
      *
      * @return $this
      */
-    public function moveBeforeKey(Stringable|string|float|int|null $key, Stringable|string|float|int|null $before, bool $strict = true): static
+    public function moveBeforeKey(Stringable|string|int|null $key, Stringable|string|int|null $before, bool $strict = true): static
     {
         $pos_key    = array_search($key   , array_keys($this->source), $strict);
         $pos_before = array_search($before, array_keys($this->source), $strict);
@@ -687,6 +707,7 @@ class IteratorCore implements IteratorInterface
 
         $part1 = array_splice($this->source, $pos_key, 1);
         $part2 = array_splice($this->source, 0, $pos_before);
+
         $this->source = array_merge($part2, $part1, $this->source);
 
         return $this;
@@ -696,13 +717,13 @@ class IteratorCore implements IteratorInterface
     /**
      * Will remove the entry with the specified key after the $after key
      *
-     * @param Stringable|string|float|int|null $key
-     * @param Stringable|string|float|int|null $after
-     * @param bool                             $strict
+     * @param Stringable|string|int|null $key
+     * @param Stringable|string|int|null $after
+     * @param bool                       $strict
      *
      * @return $this
      */
-    public function moveAfterKey(Stringable|string|float|int|null $key, Stringable|string|float|int|null $after, bool $strict = true): static
+    public function moveAfterKey(Stringable|string|int|null $key, Stringable|string|int|null $after, bool $strict = true): static
     {
         $pos_key   = array_search($key  , array_keys($this->source), $strict);
         $pos_after = array_search($after, array_keys($this->source), $strict);
@@ -723,6 +744,7 @@ class IteratorCore implements IteratorInterface
 
         $part1 = array_splice($this->source, $pos_key, 1);
         $part2 = array_splice($this->source, 0, $pos_after + 1);
+
         $this->source = array_merge($part2, $part1, $this->source);
 
         return $this;
@@ -733,17 +755,20 @@ class IteratorCore implements IteratorInterface
      * Adds the specified source(s) to the internal source
      *
      * @param IteratorInterface|array|string|null $source
+     * @param bool                                $clear_keys
+     * @param bool                                $exception
      *
      * @return $this
      */
-    public function addSources(IteratorInterface|array|string|null $source): static
+    public function addSources(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static
     {
         if ($source instanceof IteratorInterface) {
             $source = $source->getSource();
         }
+
         // Add each entry
         foreach (Arrays::force($source) as $key => $value) {
-            $this->add($value, $key);
+            $this->add($value, $clear_keys ? null : $key, exception: $exception);
         }
 
         return $this;
@@ -781,9 +806,9 @@ class IteratorCore implements IteratorInterface
      *
      * Any value that is NOT a string will be quietly ignored
      *
-     * @param IteratorInterface|\PDOStatement|array|string|null $source
-     * @param array|null                                        $execute
-     * @param string|null                                       $separator
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                       $execute
+     * @param string|null                                      $separator
      * @return $this
      */
     public function setKeyValueSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, ?string $separator = null): static
@@ -801,6 +826,7 @@ class IteratorCore implements IteratorInterface
             }
 
             unset($value);
+
         } else {
             $this->source = $source;
         }
@@ -822,6 +848,7 @@ class IteratorCore implements IteratorInterface
             if (is_object($source)) {
                 $source = $source->__toArray();
             }
+
             $this->source = array_merge($this->source, $source);
         }
 
@@ -842,6 +869,7 @@ class IteratorCore implements IteratorInterface
             if (is_object($source)) {
                 $source = $source->__toArray();
             }
+
             $this->source = array_merge($source, $this->source);
         }
 
@@ -854,34 +882,37 @@ class IteratorCore implements IteratorInterface
      *
      * @return array|null
      */
-    public function getDataTypes(): ?array
+    public function getAcceptedDataTypes(): ?array
     {
-        return $this->data_types;
+        return $this->accepted_data_types;
     }
 
 
     /**
      * Sets the datatype restrictions for all elements in this iterator, NULL if none
      *
-     * @param array|string|null $data_types
+     * @param array|string|null $accepted_data_types
      * return static
      */
-    public function setDataTypes(array|string|null $data_types): static
+    public function setAcceptedDataTypes(array|string|null $accepted_data_types): static
     {
-        $data_types = Arrays::force($data_types, '|');
-        foreach ($data_types as $data_type) {
+        $accepted_data_types = Arrays::force($accepted_data_types, '|');
+
+        foreach ($accepted_data_types as $data_type) {
             if ($data_type) {
-                if (!preg_match('/^int|float|array|string|object:\\\?([A-Z][a-z0-9\\\]+)+$/', $data_type)) {
-                    throw new OutOfBoundsException(tr('Invalid Iterator datatype restriction ":datatype" specified, must be one or multiple of "int|float|array|string|object:\CLASS\PATH"', [
+                if (!preg_match('/^bool|int|float|string|array|string|(?:(?:(?:(?:[A-Z][a-z0-9]+)+\\\)+)+(?:[A-Z][a-z0-9]+)+)$/', $data_type)) {
+                    throw new OutOfBoundsException(tr('Invalid Iterator datatype restriction ":datatype" specified, must be one or multiple of "int|array|string|Class\Path"', [
                         ':datatype' => $data_type,
                     ]));
                 }
+
             } else {
                 // No data type restrictions required
                 $data_type = null;
             }
         }
-        $this->data_types = $data_types;
+
+        $this->accepted_data_types = $accepted_data_types;
 
         return $this;
     }
@@ -901,12 +932,12 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns value for the specified key, defaults that key to the specified value if it does not yet exist
      *
-     * @param Stringable|string|float|int $key
+     * @param Stringable|string|int $key
      * @param mixed                       $value
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function getValueOrDefault(Stringable|string|float|int $key, mixed $value): mixed
+    #[ReturnTypeWillChange] public function getValueOrDefault(Stringable|string|int $key, mixed $value): mixed
     {
         if (!array_key_exists($key, $this->source)) {
             $this->source[$key] = $value;
@@ -973,12 +1004,16 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns if the specified key exists or not
      *
-     * @param Stringable|string|float|int $key
+     * @param Stringable|string|int $key
      *
      * @return bool
      */
-    public function keyExists(Stringable|string|float|int $key): bool
+    public function keyExists(Stringable|string|int $key): bool
     {
+        if (is_object($key)) {
+            $key = (string) $key;
+        }
+
         return array_key_exists($key, $this->source);
     }
 
@@ -1073,12 +1108,12 @@ class IteratorCore implements IteratorInterface
     /**
      * Keep source keys on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param bool                                           $strict
+     * @param ArrayableInterface|array|string|int|null $needles
+     * @param bool                                     $strict
      *
      * @return $this
      */
-    public function keepKeys(ArrayableInterface|array|string|float|int|null $needles, bool $strict = false): static
+    public function keepKeys(ArrayableInterface|array|string|int|null $needles, bool $strict = false): static
     {
         $this->source = Arrays::keepKeys($this->source, $needles, $strict);
         return $this;
@@ -1088,12 +1123,12 @@ class IteratorCore implements IteratorInterface
     /**
      * Remove source keys on the specified needles with the specified match mode
      *
-     * @param Stringable|array|string|float|int $keys
-     * @param bool                              $strict
+     * @param Stringable|array|string|int $keys
+     * @param bool                        $strict
      *
      * @return $this
      */
-    public function removeKeys(Stringable|array|string|float|int $keys, bool $strict = false): static
+    public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
     {
         $this->source = Arrays::removeKeys($this->source, $keys, $strict);
         return $this;
@@ -1103,13 +1138,13 @@ class IteratorCore implements IteratorInterface
     /**
      * Keep source values on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param string|null                                    $column
-     * @param bool                                           $strict
+     * @param ArrayableInterface|array|string|int|null $needles
+     * @param string|null                              $column
+     * @param bool                                     $strict
      *
      * @return $this
      */
-    public function keepValues(ArrayableInterface|array|string|float|int|null $needles, ?string $column = null, bool $strict = false): static
+    public function keepValues(ArrayableInterface|array|string|int|null $needles, ?string $column = null, bool $strict = false): static
     {
         $this->source = Arrays::keepValues($this->source, $needles, $column, $strict);
         return $this;
@@ -1119,13 +1154,13 @@ class IteratorCore implements IteratorInterface
     /**
      * Remove source values on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param string|null                                    $column
-     * @param bool                                           $strict
+     * @param ArrayableInterface|array|string|int|null $needles
+     * @param string|null                              $column
+     * @param bool                                     $strict
      *
      * @return $this
      */
-    public function removeValues(ArrayableInterface|array|string|float|int|null $needles, ?string $column = null, bool $strict = false): static
+    public function removeValues(ArrayableInterface|array|string|int|null $needles, ?string $column = null, bool $strict = false): static
     {
         $this->source = Arrays::removeValues($this->source, $needles, $column, $strict);
         return $this;
@@ -1135,12 +1170,12 @@ class IteratorCore implements IteratorInterface
     /**
      * Remove source keys on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param int                                            $flags
+     * @param ArrayableInterface|array|string|int|null $needles
+     * @param int                                      $flags
      *
      * @return $this
      */
-    public function keepMatchingKeys(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
+    public function keepMatchingKeys(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
     {
         $this->source = Arrays::keepMatchingKeys($this->source, $needles, $flags);
         return $this;
@@ -1150,13 +1185,13 @@ class IteratorCore implements IteratorInterface
     /**
      * Keep source values on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param int                                            $flags
-     * @param string|null                                    $column
+     * @param ArrayableInterface|array|string|int|null $needles
+     * @param int                                      $flags
+     * @param string|null                              $column
      *
      * @return $this
      */
-    public function keepMatchingValues(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static
+    public function keepMatchingValues(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static
     {
         $this->source = Arrays::keepMatchingValues($this->source, $needles, $flags, $column);
         return $this;
@@ -1166,12 +1201,12 @@ class IteratorCore implements IteratorInterface
     /**
      * Remove source keys on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param int                                            $flags
+     * @param ArrayableInterface|array|string|int|null $needles
+     * @param int                                      $flags
      *
      * @return $this
      */
-    public function removeMatchingKeys(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
+    public function removeMatchingKeys(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
     {
         $this->source = Arrays::removeMatchingKeys($this->source, $needles, $flags);
         return $this;
@@ -1181,13 +1216,13 @@ class IteratorCore implements IteratorInterface
     /**
      * Remove source values on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param int                                            $flags
-     * @param string|null                                    $column
+     * @param ArrayableInterface|array|string|int|null $needles
+     * @param int                                      $flags
+     * @param string|null                              $column
      *
      * @return $this
      */
-    public function removeMatchingValues(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static
+    public function removeMatchingValues(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static
     {
         $this->source = Arrays::removeMatchingValues($this->source, $needles, $flags, $column);
         return $this;
@@ -1197,12 +1232,12 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns Iterator with the entries where the keys match the specified needles and flags
      *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param int                                            $flags
+     * @param ArrayableInterface|array|string|int|null $needles
+     * @param int                                      $flags
      *
      * @return $this
      */
-    public function getMatchingKeys(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface
+    public function getMatchingKeys(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface
     {
         return new Iterator(Arrays::keepMatchingKeys($this->source, $needles, $flags));
     }
@@ -1211,12 +1246,12 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns Iterator with the entries where the values match the specified needles and flags
      *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param int                                            $flags
+     * @param ArrayableInterface|array|string|int|null $needles
+     * @param int                                      $flags
      *
      * @return $this
      */
-    public function getMatchingValues(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface
+    public function getMatchingValues(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface
     {
         return new Iterator(Arrays::keepMatchingValues($this->source, $needles, $flags));
     }
@@ -1225,13 +1260,13 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns a list with all the values that match the specified value
      *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param int                                            $flags
-     * @param string|null                                    $column
+     * @param ArrayableInterface|array|string|int|null $needles
+     * @param int                                      $flags
+     * @param string|null                              $column
      *
      * @return IteratorInterface
      */
-    public function keepMatchingValuesStartingWith(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): IteratorInterface
+    public function keepMatchingValuesStartingWith(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): IteratorInterface
     {
         return new Iterator(Arrays::keepMatchingValuesStartingWith($this->source, $needles, $flags, $column));
     }
@@ -1240,12 +1275,12 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns a list with all the values that match the specified value
      *
-     * @param ArrayableInterface|array|string|float|int|null $needles
-     * @param int                                            $flags
+     * @param ArrayableInterface|array|string|int|null $needles
+     * @param int                                      $flags
      *
      * @return IteratorInterface
      */
-    public function keepMatchingKeysStartingWith(ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): IteratorInterface
+    public function keepMatchingKeysStartingWith(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): IteratorInterface
     {
         return new Iterator(Arrays::keepMatchingKeysStartingWith($this->source, $needles, $flags));
     }
@@ -1254,12 +1289,12 @@ class IteratorCore implements IteratorInterface
 //    /**
 //     * Deletes the entries that have columns with the specified value(s)
 //     *
-//     * @param Stringable|array|string|float|int $values
+//     * @param Stringable|array|string|int $values
 //     * @param string                            $column
 //     *
 //     * @return static
 //     */
-//    public function removeMatchingValuesByColumn(Stringable|array|string|float|int $values, string $column): static
+//    public function removeMatchingValuesByColumn(Stringable|array|string|int $values, string $column): static
 //    {
 //        foreach (Arrays::force($values, null) as $value) {
 //            foreach ($this->source as $key => $data) {
@@ -1305,23 +1340,28 @@ class IteratorCore implements IteratorInterface
     {
         $columns = Arrays::force($columns);
         $return  = [tr('Totals')];
+
         foreach ($this->source as &$entry) {
             if (!is_array($entry)) {
                 throw new OutOfBoundsException(tr('Cannot generate source totals, source contains non-array entry ":entry"', [
                     ':entry' => $entry,
                 ]));
             }
+
             foreach ($columns as $column => $total) {
                 if (!array_key_exists($column, $entry)) {
                     continue;
                 }
+
                 // Get data from array
                 if ($total) {
                     if (array_key_exists($column, $return)) {
                         $return[$column] += $entry[$column];
+
                     } else {
                         $return[$column] = $entry[$column];
                     }
+
                 } else {
                     $return[$column] = null;
                 }
@@ -1343,7 +1383,8 @@ class IteratorCore implements IteratorInterface
     public function displayCliMessage(?string $message = null, bool $header = false): static
     {
         if ($header) {
-            Log::information($message, use_prefix: false);
+            Log::information($message, echo_prefix: false);
+
         } else {
             Log::cli($message);
         }
@@ -1454,6 +1495,8 @@ class IteratorCore implements IteratorInterface
     /**
      * Sorts the Iterator source keys using the specified callback
      *
+     * @param callable $callback
+     *
      * @return $this
      */
     public function uksort(callable $callback): static
@@ -1465,7 +1508,7 @@ class IteratorCore implements IteratorInterface
 
 
     /**
-     * Will limit the amount of entries in the source of this DataList to the
+     * Will limit the amount of entries in the source of this DataIterator to the
      *
      * @return $this
      */
@@ -1500,6 +1543,7 @@ class IteratorCore implements IteratorInterface
 
                     return false;
                 }
+
             } elseif (!$all) {
                 // only one needs to be in the array, we found one, we're good!
                 return true;
@@ -1523,15 +1567,18 @@ class IteratorCore implements IteratorInterface
     public function getMissingKeys(IteratorInterface|array|string $list, string $always_match = null): array
     {
         $return = [];
+
         foreach (Arrays::force($list) as $key) {
             if (array_key_exists($key, $this->source)) {
                 continue;
             }
+
             // Can still match if $always_match is available!
             if ($always_match and array_key_exists($always_match, $this->source)) {
                 // Okay, this list contains ALL the requested entries due to $always_match
                 return [];
             }
+
             $return[] = $key;
         }
 
@@ -1553,19 +1600,20 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns multiple column values for a single entry
      *
-     * @param Stringable|string|float|int $key
-     * @param array|string                $columns
-     * @param bool                        $exception
+     * @param Stringable|string|int $key
+     * @param array|string          $columns
+     * @param bool                  $exception
      *
      * @return IteratorInterface
      */
-    #[ReturnTypeWillChange] public function getSingleRowMultipleColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): IteratorInterface
+    #[ReturnTypeWillChange] public function getSingleRowMultipleColumns(Stringable|string|int $key, array|string $columns, bool $exception = true): IteratorInterface
     {
         if (!$columns) {
             throw new OutOfBoundsException(tr('Cannot return source key columns for ":this", no columns specified', [
                 ':this' => get_class($this),
             ]));
         }
+
         $value = $this->get($key, $exception);
         $value = $this->checkSourceValueHasColumns($value, $columns);
 
@@ -1576,12 +1624,12 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns value for the specified key
      *
-     * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param Stringable|string|int $key
+     * @param bool                  $exception
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|int $key, bool $exception = true): mixed
     {
         if (array_key_exists($key, $this->source)) {
             return $this->source[$key];
@@ -1602,9 +1650,9 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns the random entry
      *
-     * @return Stringable|string|float|int|null
+     * @return Stringable|string|int|null
      */
-    #[ReturnTypeWillChange] public function getRandomKey(): Stringable|string|float|int|null
+    #[ReturnTypeWillChange] public function getRandomKey(): Stringable|string|int|null
     {
         if (empty($this->source)) {
             return null;
@@ -1680,19 +1728,20 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns multiple column values for multiple entries
      *
-     * @param Stringable|string|float|int $key
-     * @param string                      $column
-     * @param bool                        $exception
+     * @param Stringable|string|int $key
+     * @param string                $column
+     * @param bool                  $exception
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function getSingleRowsSingleColumn(Stringable|string|float|int $key, string $column, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function getSingleRowsSingleColumn(Stringable|string|int $key, string $column, bool $exception = true): mixed
     {
         if (!$column) {
             throw new OutOfBoundsException(tr('Cannot return source key column for ":this", no column specified', [
                 ':this' => get_class($this),
             ]));
         }
+
         $value = $this->get($key, $exception);
         $value = $this->checkSourceValueHasColumns($value, $column);
         $value = Arrays::keepKeys($value, $column);
@@ -1763,13 +1812,13 @@ class IteratorCore implements IteratorInterface
     /**
      * Renames and returns the specified value
      *
-     * @param Stringable|string|float|int $key
-     * @param Stringable|string|float|int $target
-     * @param bool                        $exception
+     * @param Stringable|string|int $key
+     * @param Stringable|string|int $target
+     * @param bool                  $exception
      *
      * @return DefinitionInterface
      */
-    #[ReturnTypeWillChange] public function renameKey(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function renameKey(Stringable|string|int $key, Stringable|string|int $target, bool $exception = true): mixed
     {
         // First, ensure the target doesn't exist yet!
         if (array_key_exists($target, $this->source)) {
@@ -1778,8 +1827,10 @@ class IteratorCore implements IteratorInterface
                 ':target' => $target,
             ]));
         }
+
         // Then, get the entry
         $entry = $this->get($key, $exception);
+
         // Now rename
         $this->source[$target] = $this->source[$key];
         unset($this->source[$key]);
@@ -1826,9 +1877,11 @@ class IteratorCore implements IteratorInterface
             // Return all columns
             return new Iterator($this->source);
         }
+
         // Already ensure columns is an array here to avoid Arrays::keep() having to convert all the time, just in case.
         $return  = [];
         $columns = Arrays::force($columns);
+
         foreach ($this->source as $key => $value) {
             $value        = $this->checkSourceValueHasColumns($value, $columns);
             $return[$key] = Arrays::keepKeys($value, $columns);
@@ -1864,8 +1917,7 @@ class IteratorCore implements IteratorInterface
      */
     public function getHtmlSelect(): InputSelectInterface
     {
-        return $this->input_select_class::new()
-                                        ->setSource($this->source);
+        return $this->input_select_class::new()->setSource($this->source);
     }
 
 
@@ -1900,5 +1952,37 @@ class IteratorCore implements IteratorInterface
         }
 
         return new Iterator(array_diff($this->source, $source));
+    }
+
+
+    /**
+     * Removes all empty values from this Iterator object
+     *
+     * @return $this
+     */
+    public function removeEmptyValues(): static
+    {
+        $this->source = Arrays::removeEmptyValues($this->source);
+
+        return $this;
+    }
+
+
+    /**
+     * Removes duplicate values from this Iterator
+     *
+     * @param int|null $flags Sorting type flags:
+     *                        SORT_REGULAR - compare items normally (don't change types)
+     *                        SORT_NUMERIC - compare items numerically
+     *                        SORT_STRING - compare items as strings
+     *                        SORT_LOCALE_STRING - compare items as strings, based on the current locale
+     *
+     * @return $this
+     */
+    public function unique(int $flags = null): static
+    {
+        $this->source = array_unique($this->source, $flags);
+
+        return $this;
     }
 }

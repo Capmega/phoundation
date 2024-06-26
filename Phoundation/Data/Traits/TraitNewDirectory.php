@@ -1,13 +1,14 @@
 <?php
 
 /**
- * Trait TraitDataDirectory
+ * Trait TraitNewDirectory
  *
- *
+ * This trait contains just the static new() command without any parameters
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @category  Function reference
  * @package   Phoundation\Data
  */
 
@@ -17,24 +18,17 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 
-trait TraitDataDirectory
+trait TraitNewDirectory
 {
-    use TraitDataDirectoryReadonly;
-
-
     /**
-     * Sets the directory
+     * Returns a new static object that accepts $directory in the constructor
      *
      * @param FsDirectoryInterface|null $directory
-     * @param string|null               $prefix
-     * @param bool                      $must_exist
      *
      * @return static
      */
-    public function setDirectory(?FsDirectoryInterface $directory, string $prefix = null, bool $must_exist = true): static
+    public static function new(FsDirectoryInterface|null $directory = null): static
     {
-        $this->directory = $directory?->makeAbsolute($prefix, $must_exist);
-
-        return $this;
+        return new static($directory);
     }
 }

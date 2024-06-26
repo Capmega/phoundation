@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class DataList
+ * Class DataIterator
  *
  *
  *
@@ -18,12 +18,13 @@ namespace Phoundation\Data\DataEntry;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataReadonly;
+use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlQueries;
@@ -41,12 +42,14 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
 
-class DataList extends Iterator implements DataListInterface
+class DataIterator extends Iterator implements DataIteratorInterface
 {
     use TraitDataReadonly;
     use TraitDataParent {
         setParent as protected __setParent;
     }
+    use TraitDataRestrictions;
+
 
     /**
      * The iterator position
@@ -113,9 +116,9 @@ class DataList extends Iterator implements DataListInterface
      *
      * @return bool
      */
-    public static function idColumnIs(string $column): bool
+    public static function indexColumnIs(string $column): bool
     {
-        return static::getIdColumn() === $column;
+        return static::getIndexColumn() === $column;
     }
 
 
@@ -124,7 +127,7 @@ class DataList extends Iterator implements DataListInterface
      *
      * @return string
      */
-    public static function getIdColumn(): string
+    public static function getIndexColumn(): string
     {
         return 'id';
     }
@@ -328,7 +331,7 @@ class DataList extends Iterator implements DataListInterface
             $column = static::getUniqueColumn();
 
             if (!$column) {
-                throw new OutOfBoundsException(tr('The DataList type class ":class" is configured to use its unique column as keys, but no unique column has been defined', [
+                throw new OutOfBoundsException(tr('The DataIterator type class ":class" is configured to use its unique column as keys, but no unique column has been defined', [
                     ':class' => get_class($this),
                 ]));
             }
@@ -364,7 +367,7 @@ class DataList extends Iterator implements DataListInterface
         // Does this entry exist?
         if (!array_key_exists($key, $this->source)) {
             if ($exception) {
-                throw new NotExistsException(tr('Key ":key" does not exist in this ":class" DataList', [
+                throw new NotExistsException(tr('Key ":key" does not exist in this ":class" DataIterator', [
                     ':key'   => $key,
                     ':class' => get_class($this),
                 ]));
@@ -409,15 +412,37 @@ class DataList extends Iterator implements DataListInterface
             // on the data available in the datalist, we'll have to load the DataEntry manually
             if (isset($this->query_builder)) {
                 // Load the DataEntry separately from the database (will require an extra query)
-                $this->source[$key] = static::getEntryClass()::get($key);
+                $this->source[$key] = static::getEntryClass()::get($key)
+                                                             ->setRestrictions($this->restrictions);
 
             } else {
                 if (is_array($this->source[$key])) {
-                    $this->source[$key] = static::getEntryClass()::new()->setSource($this->source[$key]);
+                    if (static::indexColumnIs('id')) {
+                        // Entries are stored with database ID
+                        if (!is_numeric($key)) {
+                            throw new OutOfBoundsException(tr('Invalid ":class" ID key ":key" encountered. The key should be a numeric database ID', [
+                                ':class' => get_class($this),
+                                ':key'   => $key,
+                            ]));
+                        }
+
+                        $this->source[$key]['id'] = $key;
+
+                    } else {
+                        if (empty($this->source[$key][static::getIndexColumn()])) {
+                            // No database ID available, and entries are not stored by ID so we can't get ID
+                            throw new OutOfBoundsException(tr('Cannot ensure DataEntry, no ID available, and data entries not stored by ID column'));
+                        }
+                    }
+
+                    $this->source[$key] = static::getEntryClass()::new()
+                                                                 ->setRestrictions($this->restrictions)
+                                                                 ->setSource($this->source[$key]);
 
                 } else {
                     // Load the entry manually from DB. REQUIRES the DataEntry object to have a unique column specified!
-                    $this->source[$key] = static::getEntryClass()::new($this->source[$key]);
+                    $this->source[$key] = static::getEntryClass()::new($this->source[$key])
+                                                                 ->setRestrictions($this->restrictions);
                 }
             }
         }
@@ -565,7 +590,7 @@ class DataList extends Iterator implements DataListInterface
         $execute = [];
 
         if (!$key_column) {
-            $key_column = static::getIdColumn();
+            $key_column = static::getIndexColumn();
         }
 
         if ($this->is_loaded or count($this->source)) {
@@ -788,7 +813,7 @@ class DataList extends Iterator implements DataListInterface
                 $key = $value->getUniqueColumnValue();
             }
             if (!$key) {
-                throw new OutOfBoundsException(tr('Cannot add entry ":value" because the ":class" DataList object should uses unique columns as keys, but has no unique column configured', [
+                throw new OutOfBoundsException(tr('Cannot add entry ":value" because the ":class" DataIterator object should uses unique columns as keys, but has no unique column configured', [
                     ':value' => $value,
                     ':class' => get_class($this),
                 ]));
@@ -851,8 +876,8 @@ class DataList extends Iterator implements DataListInterface
     /**
      * Load the id list from the database
      *
-     * @param bool $clear         Will clear the DataList source before loading
-     * @param bool $only_if_empty Will only load if the current DataList source is empty
+     * @param bool $clear         Will clear the DataIterator source before loading
+     * @param bool $only_if_empty Will only load if the current DataIterator source is empty
      *
      * @return static
      */
@@ -866,7 +891,7 @@ class DataList extends Iterator implements DataListInterface
 
             } else {
                 if (!$only_if_empty) {
-                    $this->source = array_merge($this->source, sql(static::getConnector())->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? static::getUniqueColumn() : static::getIdColumn()));
+                    $this->source = array_merge($this->source, sql(static::getConnector())->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? static::getUniqueColumn() : static::getIndexColumn()));
                 }
             }
 
@@ -883,12 +908,14 @@ class DataList extends Iterator implements DataListInterface
      * Adds the specified source to the internal source
      *
      * @param IteratorInterface|array|string|null $source
+     * @param bool                                $clear_keys
+     * @param bool                                $exception
      *
      * @return $this
      */
-    public function addSources(IteratorInterface|array|string|null $source): static
+    public function addSources(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static
     {
-        return parent::addSources($source);
+        return parent::addSources($source, $clear_keys, $exception);
     }
 
 

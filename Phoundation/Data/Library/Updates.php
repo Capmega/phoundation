@@ -38,9 +38,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.3', function () {
             // Create the categories table.
-            sql()->schema()->table('categories')->drop();
+            sql()->getSchemaObject()->getTableObject('categories')->drop();
 
-            sql()->schema()->table('categories')->define()
+            sql()->getSchemaObject()->getTableObject('categories')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -65,7 +65,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
         })->addUpdate('0.0.5', function () {
             // Modify the categories table.
-            sql()->schema()->table('categories')->alter()
+            sql()->getSchemaObject()->getTableObject('categories')->alter()
                  ->addColumn('
                     `created_by` bigint DEFAULT NULL', 'AFTER `created_on`
                 ')
@@ -77,9 +77,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ');
         })->addUpdate('0.0.12', function () {
             // Create the entities table.
-            sql()->schema()->table('entities')->drop();
+            sql()->getSchemaObject()->getTableObject('entities')->drop();
 
-            sql()->schema()->table('entities')->define()
+            sql()->getSchemaObject()->getTableObject('entities')->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

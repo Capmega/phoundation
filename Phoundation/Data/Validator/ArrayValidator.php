@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Validator;
-
-use Phoundation\Data\Validator\Exception\ValidatorException;
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Utils\Strings;
-
 /**
  * ArrayValidator class
  *
@@ -20,6 +12,15 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Validator;
+
+use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Utils\Strings;
+
 class ArrayValidator extends Validator
 {
     /**
@@ -62,12 +63,15 @@ class ArrayValidator extends Validator
         if (!$apply) {
             return $this;
         }
+
         if (count($this->selected_fields) === count($this->source)) {
             return $this;
         }
+
         $messages = [];
         $fields   = [];
         $post     = array_keys($this->source);
+
         foreach ($post as $field) {
             if (!in_array($field, $this->selected_fields)) {
                 $fields[]   = $field;
@@ -76,12 +80,12 @@ class ArrayValidator extends Validator
                 ]);
             }
         }
+
         throw ValidatorException::new(tr('Unknown ARRAY fields ":fields" encountered', [
             ':fields' => Strings::force($fields, ', '),
-        ]))
-                                ->addData($messages)
-                                ->makeWarning()
-                                ->log();
+        ]))->addData($messages)
+           ->makeWarning()
+           ->log();
     }
 
 

@@ -19,7 +19,7 @@ use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\DateTime;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Stringable;
 use UnitEnum;
 
@@ -608,7 +608,7 @@ interface ValidatorInterface
      *
      * @return static
      */
-    public function isBefore(?DateTime $before = null): static;
+    public function isBefore(?DateTime $before): static;
 
 
     /**
@@ -618,7 +618,7 @@ interface ValidatorInterface
      *
      * @return static
      */
-    public function isAfter(?DateTime $after = null): static;
+    public function isAfter(?DateTime $after): static;
 
 
     /**
@@ -765,36 +765,36 @@ interface ValidatorInterface
      * Validates if the selected field is a valid path
      *
      * @param array|Stringable|string|null $exists_in_directories
-     * @param RestrictionsInterface|null   $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      * @param bool                         $exists
      *
      * @return static
      */
-    public function isPath(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
+    public function isPath(array|Stringable|string|null $exists_in_directories = null, FsRestrictionsInterface|null $restrictions = null, bool $exists = true): static;
 
 
     /**
      * Validates if the selected field is a valid directory
      *
      * @param array|Stringable|string|null $exists_in_directories
-     * @param RestrictionsInterface|null   $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      * @param bool                         $exists
      *
      * @return static
      */
-    public function isDirectory(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
+    public function isDirectory(array|Stringable|string|null $exists_in_directories = null, FsRestrictionsInterface|null $restrictions = null, bool $exists = true): static;
 
 
     /**
      * Validates if the selected field is a valid file
      *
      * @param array|Stringable|string|null $exists_in_directories
-     * @param RestrictionsInterface|null   $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      * @param bool                         $exists
      *
      * @return static
      */
-    public function isFile(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
+    public function isFile(array|Stringable|string|null $exists_in_directories = null, FsRestrictionsInterface|null $restrictions = null, bool $exists = true): static;
 
 
     /**

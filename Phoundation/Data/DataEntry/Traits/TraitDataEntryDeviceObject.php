@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Plugins\Hardware\Devices\Device;
-use Plugins\Hardware\Devices\Interfaces\DeviceInterface;
+use Plugins\Phoundation\Hardware\Devices\Device;
+use Plugins\Phoundation\Hardware\Devices\Interfaces\DeviceInterface;
 
 /**
  * Trait TraitDataEntryDeviceObject

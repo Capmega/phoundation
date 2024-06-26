@@ -170,7 +170,7 @@ class CookieValidator extends Validator
      */
     public function getSourceKey(string $key): mixed
     {
-        Log::warning(tr('Forceably returned $_COOKIE[:key] without data validation!', [':key' => $key]));
+        Log::warning(tr('Forcibly returned $_COOKIE[:key] without data validation!', [':key' => $key]));
 
         return isset_get($this->source[$key]);
     }

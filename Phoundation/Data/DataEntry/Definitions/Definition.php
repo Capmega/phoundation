@@ -1736,10 +1736,6 @@ class Definition implements DefinitionInterface
         $this->setKey($value, 'source');
 
         if ($value) {
-            if (is_string($value)) {
-                $value = sql()->query($value);
-            }
-
             if ($value instanceof SqlQueryInterface) {
                 $value = sql()->query($value);
 
@@ -2481,10 +2477,8 @@ class Definition implements DefinitionInterface
 
         if ($this->getReadonly() or $this->getDisabled()) {
             // This column cannot be modified and should not be validated, unless its new or has a static value
-            if (!$this->data_entry->isNew() and !$this->getValue()) {
-                $validator->doNotValidate();
-                return false;
-            }
+            $validator->doNotValidate();
+            return false;
         }
 
         if ($this->getNoValidation() or $this->getIgnored()) {

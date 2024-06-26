@@ -24,13 +24,16 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Path;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Url;
@@ -270,11 +273,9 @@ abstract class Validator implements ValidatorInterface
         } else {
             $this->ensureSelected();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
-                    return $this;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
+                return $this;
             }
 
             foreach ($this->process_values as $key => &$value) {
@@ -367,8 +368,8 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
         $this->isInteger();
 
-        if ($this->process_value_failed) {
-            // Validation already failed, don't test anything more
+        if ($this->process_value_failed or $this->selected_is_default) {
+            // Validation already failed or defaulted, don't test anything more
             return $this;
         }
 
@@ -422,8 +423,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($allow_zero) {
             $this->isNumeric();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -472,6 +473,42 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Validates that the specified value is either an integer number, or a valid amount of bytes
+     *
+     * 1KB    = 1000
+     * 1MB    = 1000000
+     * 1GB    = 1000000000
+     * 1GiB   = 1073741824
+     * 1.5GiB = 1610612736
+     * etc...
+     *
+     * @return static
+     * @see trim()
+     */
+    public function isBytes(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            $this->hasMaxCharacters(32);
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            if (!is_numeric_integer($value)) {
+                try {
+                    $value = Numbers::fromBytes($value);
+                } catch (Throwable) {
+                    $this->addFailure(tr('must have a valid byte size, like 1000, 1000kb, 1000MiB, etc'));
+                }
+            }
+        });
+    }
+
+
+    /**
      * Validates the datatype for the selected field
      *
      * This method ensures that the specified array key is a valid latitude coordinate
@@ -483,8 +520,8 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
         $this->isFloat();
 
-        if ($this->process_value_failed) {
-            // Validation already failed, don't test anything more
+        if ($this->process_value_failed or $this->selected_is_default) {
+            // Validation already failed or defaulted, don't test anything more
             return $this;
         }
 
@@ -542,8 +579,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($minimum, $maximum, $equal) {
             $this->isNumeric();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -579,8 +616,8 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
         $this->isFloat();
 
-        if ($this->process_value_failed) {
-            // Validation already failed, don't test anything more
+        if ($this->process_value_failed or $this->selected_is_default) {
+            // Validation already failed or defaulted, don't test anything more
             return $this;
         }
 
@@ -603,10 +640,11 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
         $this->isInteger();
 
-        if ($this->process_value_failed) {
-            // Validation already failed, don't test anything more
+        if ($this->process_value_failed or $this->selected_is_default) {
+            // Validation already failed or defaulted, don't test anything more
             return $this;
         }
+
         if ($allow_negative) {
             if ($allow_zero) {
                 return $this;
@@ -648,10 +686,12 @@ abstract class Validator implements ValidatorInterface
 
             } else {
                 $this->isScalar();
-                if ($this->process_value_failed) {
-                    // Validation already failed, don't test anything more
+
+                if ($this->process_value_failed or $this->selected_is_default) {
+                    // Validation already failed or defaulted, don't test anything more
                     return;
                 }
+
                 if ($ignore_case) {
                     $compare_value  = strtolower((string) $value);
                     $validate_value = strtolower((string) $validate_value);
@@ -721,8 +761,8 @@ abstract class Validator implements ValidatorInterface
 
             $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -745,8 +785,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($characters) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -784,7 +824,11 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             if (!$this->checkIsOptional($value)) {
                 if (!is_string($value)) {
-                    if (!is_numeric($value)) {
+                    if ($value instanceof Stringable) {
+                        // Force value to be string from here
+                        $value = (string) $value;
+
+                    } elseif (!is_numeric($value)) {
                         if ($value !== null) {
                             $this->addFailure(tr('must have a string value'));
                         }
@@ -815,8 +859,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($characters) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -842,15 +886,46 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($characters) {
             $this->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
-            if (is_string($value)) {
-                $value = trim($value, $characters);
+            $value = trim((string) $value, $characters);
+        });
+    }
+
+
+    /**
+     * Sanitizes the selected value by converting human readable bytes to a positive integer number
+     *
+     * 1KB    = 1000
+     * 1MB    = 1000000
+     * 1GB    = 1000000000
+     * 1GiB   = 1073741824
+     * 1.5GiB = 1610612736
+     * etc...
+     *
+     * @return static
+     * @see trim()
+     */
+    public function sanitizeBytes(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            $this->hasMaxCharacters(32);
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            try {
+                $value = Numbers::fromBytes($value);
+
+            } catch (Throwable) {
+                $this->addFailure(tr('must have a valid byte size, like 1000, 1000kb, 1000MiB, etc'));
             }
         });
     }
@@ -868,8 +943,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -897,8 +972,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($amount, $equal) {
             $this->isNumeric();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -933,8 +1008,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($amount, $equal) {
             $this->isNumeric();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -968,8 +1043,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($allow_zero) {
             $this->isNumeric();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -994,8 +1069,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isFloat();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1025,8 +1100,8 @@ abstract class Validator implements ValidatorInterface
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1055,8 +1130,8 @@ abstract class Validator implements ValidatorInterface
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1092,8 +1167,8 @@ abstract class Validator implements ValidatorInterface
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1160,8 +1235,8 @@ abstract class Validator implements ValidatorInterface
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1191,8 +1266,8 @@ abstract class Validator implements ValidatorInterface
             // This value must be scalar
             $this->isScalar();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1228,8 +1303,8 @@ abstract class Validator implements ValidatorInterface
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1258,16 +1333,16 @@ abstract class Validator implements ValidatorInterface
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
             if ($array instanceof IteratorInterface) {
                 $this->sanitizeTrim()->hasMaxCharacters($array->getLongestValueLength());
 
-                if ($this->process_value_failed) {
-                    // Validation already failed, don't test anything more
+                if ($this->process_value_failed or $this->selected_is_default) {
+                    // Validation already failed or defaulted, don't test anything more
                     return;
                 }
 
@@ -1276,8 +1351,8 @@ abstract class Validator implements ValidatorInterface
             } else {
                 $this->sanitizeTrim()->hasMaxCharacters(Arrays::getLongestValueLength($array));
 
-                if ($this->process_value_failed) {
-                    // Validation already failed, don't test anything more
+                if ($this->process_value_failed or $this->selected_is_default) {
+                    // Validation already failed or defaulted, don't test anything more
                     return;
                 }
 
@@ -1305,8 +1380,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($characters) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1350,8 +1425,8 @@ abstract class Validator implements ValidatorInterface
             // This value must be scalar
             $this->isScalar();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1384,8 +1459,8 @@ abstract class Validator implements ValidatorInterface
             // This value must be scalar
             $this->isScalar();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1411,8 +1486,8 @@ abstract class Validator implements ValidatorInterface
             // This value must be scalar
             $this->isScalar();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1435,8 +1510,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1459,8 +1534,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1483,8 +1558,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1508,8 +1583,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1532,8 +1607,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1556,8 +1631,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1580,8 +1655,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1621,8 +1696,9 @@ abstract class Validator implements ValidatorInterface
 
             } else {
                 $this->isScalar();
-                if ($this->process_value_failed) {
-                    // Validation already failed, don't test anything more
+
+                if ($this->process_value_failed or $this->selected_is_default) {
+                    // Validation already failed or defaulted, don't test anything more
                     return;
                 }
 
@@ -1666,8 +1742,8 @@ abstract class Validator implements ValidatorInterface
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
             $this->sanitizeTrim()->hasMinCharacters(4)->hasMaxCharacters(32);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1767,8 +1843,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($formats) {
             $this->sanitizeTrim()->hasMinCharacters(5)->hasMaxCharacters(18); // 00:00:00.000000 AM
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1818,8 +1894,8 @@ abstract class Validator implements ValidatorInterface
             $this->sanitizeTrim()
                  ->hasMaxCharacters(32);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1850,7 +1926,7 @@ abstract class Validator implements ValidatorInterface
      *
      * @return static
      */
-    public function isBefore(?DateTime $before = null): static
+    public function isBefore(?DateTime $before): static
     {
         $this->test_count++;
 
@@ -1859,8 +1935,8 @@ abstract class Validator implements ValidatorInterface
             $this->sanitizeTrim()
                  ->hasMaxCharacters(32);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1882,7 +1958,7 @@ abstract class Validator implements ValidatorInterface
      *
      * @return static
      */
-    public function isAfter(?DateTime $after = null): static
+    public function isAfter(?DateTime $after): static
     {
         $this->test_count++;
 
@@ -1890,8 +1966,8 @@ abstract class Validator implements ValidatorInterface
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
             $this->sanitizeTrim()->hasMaxCharacters(32);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1925,8 +2001,8 @@ abstract class Validator implements ValidatorInterface
             // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
             $this->sanitizeTrim()->hasMaxCharacters(32);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -1970,8 +2046,8 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2005,8 +2081,8 @@ abstract class Validator implements ValidatorInterface
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
             $this->sanitizeTrim()->hasMaxCharacters(64);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2034,8 +2110,8 @@ abstract class Validator implements ValidatorInterface
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2071,8 +2147,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($count) {
             $this->isArray();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2097,8 +2173,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($count) {
             $this->isArray();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2123,8 +2199,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($count) {
             $this->isArray();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2147,8 +2223,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2204,8 +2280,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($separator) {
             $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(64);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2241,8 +2317,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(16);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2265,8 +2341,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($characters) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters($characters);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2287,8 +2363,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2313,8 +2389,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($characters) {
             $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($characters);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2335,8 +2411,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2359,8 +2435,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(32);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2381,8 +2457,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(32);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2405,8 +2481,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($length) {
             $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($length);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2419,22 +2495,22 @@ abstract class Validator implements ValidatorInterface
      * Validates if the selected field is a valid file path
      *
      * @param array|Stringable|string|null $exists_in_directories
-     * @param RestrictionsInterface|null   $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      * @param bool                         $exists
      *
      * @return static
      */
-    public function isPath(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static
+    public function isPath(array|Stringable|string|null $exists_in_directories = null, FsRestrictionsInterface|null $restrictions = null, bool $exists = true): static
     {
         $this->test_count++;
 
-        $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
+        $restrictions = FsRestrictions::ensure($restrictions)->setLabel(tr('Validator'));
 
         return $this->validateValues(function (&$value) use ($exists_in_directories, $restrictions, $exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2449,13 +2525,13 @@ abstract class Validator implements ValidatorInterface
      *
      * @param string|bool                  $value
      * @param array|Stringable|string|null $exists_in_directories
-     * @param RestrictionsInterface|null   $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      * @param bool                         $directory
      * @param bool|null                    $exist
      *
      * @return string|bool
      */
-    protected function checkFile(string|bool $value, array|Stringable|string|null $exists_in_directories, RestrictionsInterface|null $restrictions, ?bool $directory, ?bool $exist): string|bool
+    protected function checkFile(string|bool $value, array|Stringable|string|null $exists_in_directories, FsRestrictionsInterface|null $restrictions, ?bool $directory, ?bool $exist): string|bool
     {
         if (!$exists_in_directories) {
             return $value;
@@ -2479,15 +2555,15 @@ abstract class Validator implements ValidatorInterface
         }
 
         $file         = basename($value);
-        $restrictions = Restrictions::ensure($restrictions);
+        $restrictions = FsRestrictions::ensure($restrictions);
 
         foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
-            $test = Path::absolutePath($value, $exists_in_directory, false);
-            $test = Path::new($test, $restrictions)->checkRestrictions(false);
+            $value = FsPath::absolutePath($value, must_exist: false);
+            $value = FsPath::new($value, $restrictions)->checkRestrictions(false);
 
             if (empty($does_exist)) {
                 // We found the file itself, we're done
-                $does_exist = $test->exists();
+                $does_exist = $value->exists();
 
                 if ($does_exist) {
                     break;
@@ -2496,7 +2572,7 @@ abstract class Validator implements ValidatorInterface
 
             // Check if the parent exists, use the first specified parent
             if (empty($parent_exists)) {
-                $parent = $test->getParentDirectory();
+                $parent = $value->getParentDirectory();
 
                 if ($parent->exists()) {
                     $parent_exists = $parent;
@@ -2507,7 +2583,7 @@ abstract class Validator implements ValidatorInterface
         if (empty($does_exist)) {
             // The file, whatever it is, does NOT exist
             if ($exist) {
-                // File does NOT exist, but should exist
+                // FsFileFileInterface does NOT exist, but should exist
                 if ($type) {
                     $this->addFailure(tr('must be an existing :type', [':type' => $type]));
 
@@ -2516,15 +2592,9 @@ abstract class Validator implements ValidatorInterface
                 }
 
             } else {
-                // File should not exist, and does not exist, but ensure the parent path will exist!
+                // FsFileFileInterface should not exist, and does not exist, but ensure the parent path will exist!
                 if (empty($parent_exists)) {
-                    $test->getParentDirectory()->ensure();
-
-                    $value = $test->getPath();
-
-                } else {
-                    // We found a parent directory that exist!
-                    $value = $parent_exists->getPath() . $file;
+                    $value->getParentDirectory()->ensure();
                 }
             }
 
@@ -2537,19 +2607,19 @@ abstract class Validator implements ValidatorInterface
 
             if ($directory) {
                 // The file should be a directory
-                if (!is_dir($value)) {
+                if (!$value->isDirectory()) {
                     $this->addFailure(tr('must be a directory'));
                 }
 
             } elseif (is_bool($directory)) {
                 // The file should NOT be a directory
-                if (is_dir($value)) {
+                if ($value->isDirectory()) {
                     $this->addFailure(tr('cannot be a directory'));
                 }
             }
         }
 
-        return $value;
+        return $value->getPath();
     }
 
 
@@ -2557,22 +2627,22 @@ abstract class Validator implements ValidatorInterface
      * Validates if the selected field is a valid directory
      *
      * @param array|Stringable|string|null $exists_in_directories
-     * @param RestrictionsInterface|null   $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      * @param bool                         $exists
      *
      * @return static
      */
-    public function isDirectory(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static
+    public function isDirectory(array|Stringable|string|null $exists_in_directories = null, FsRestrictionsInterface|null $restrictions = null, bool $exists = true): static
     {
         $this->test_count++;
 
-        $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
+        $restrictions = FsRestrictions::ensure($restrictions)->setLabel(tr('Validator'));
 
         return $this->validateValues(function (&$value) use ($exists_in_directories, $restrictions, $exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2586,22 +2656,22 @@ abstract class Validator implements ValidatorInterface
      * Validates if the selected field is a valid file
      *
      * @param array|Stringable|string|null $exists_in_directories
-     * @param RestrictionsInterface|null   $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      * @param bool|null                    $exists
      *
      * @return static
      */
-    public function isFile(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, ?bool $exists = true): static
+    public function isFile(array|Stringable|string|null $exists_in_directories = null, FsRestrictionsInterface|null $restrictions = null, ?bool $exists = true): static
     {
         $this->test_count++;
 
-        $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
+        $restrictions = FsRestrictions::ensure($restrictions)->setLabel(tr('Validator'));
 
         return $this->validateValues(function (&$value) use ($exists_in_directories, $restrictions, $exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2625,8 +2695,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($characters) {
             $this->sanitizeTrim()->hasMaxCharacters($characters);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2650,8 +2720,8 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2688,8 +2758,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(128);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2712,8 +2782,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($characters) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($characters);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2735,8 +2805,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2761,8 +2831,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($characters) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($characters);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2787,8 +2857,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($max_size) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_size);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2811,8 +2881,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2835,8 +2905,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(48);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2859,8 +2929,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2885,8 +2955,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(48);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2915,8 +2985,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2950,8 +3020,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($separator, $enclosure, $escape) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -2984,8 +3054,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -3015,8 +3085,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -3043,8 +3113,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -3069,8 +3139,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($characters) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -3094,8 +3164,8 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($function, $failure) {
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -3119,8 +3189,8 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($function, $failure) {
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -3146,13 +3216,13 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($failure) {
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
             if (sql()->exists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
-                $this->addFailure($failure ?? tr('with value ":value" already exists', [':value' => $value]));
+                $this->addFailure($failure ?? tr('it already exists'));
             }
         });
     }
@@ -3171,11 +3241,9 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             if (is_string($value)) {
@@ -3217,11 +3285,9 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             if (is_string($value)) {
@@ -3247,11 +3313,9 @@ abstract class Validator implements ValidatorInterface
 
         return $this->validateValues(function (&$value) use ($needle) {
             $this->isString();
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             $value = Strings::from($value, $needle);
@@ -3276,11 +3340,9 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($needle) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             $value = Strings::until($value, $needle);
@@ -3306,11 +3368,9 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($needle) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             $value = Strings::fromReverse($value, $needle);
@@ -3336,11 +3396,9 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($needle) {
             $this->isString();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             $value = Strings::untilReverse($value, $needle);
@@ -3362,11 +3420,9 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             try {
@@ -3397,11 +3453,9 @@ abstract class Validator implements ValidatorInterface
                  ->hasMinCharacters(3)
                  ->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             try {
@@ -3433,11 +3487,9 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($replace, $regex) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             if ($regex) {
@@ -3470,11 +3522,9 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($array) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             try {
@@ -3499,11 +3549,9 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             try {
@@ -3537,11 +3585,9 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($separator, $enclosure, $escape) {
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             try {
@@ -3572,11 +3618,9 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             try {
@@ -3600,11 +3644,9 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             try {
@@ -3631,11 +3673,9 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($characters) {
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
             try {
                 $value = Arrays::force($value, $characters);
@@ -3663,11 +3703,9 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             try {
@@ -3696,11 +3734,9 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             try {
@@ -3729,11 +3765,9 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             try {
@@ -3766,11 +3800,9 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($characters) {
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             try {
@@ -3797,9 +3829,9 @@ abstract class Validator implements ValidatorInterface
 
         return $this->validateValues(function (&$value) use ($pre, $post) {
             if ($pre or $post) {
-                if ($this->process_value_failed) {
+                if ($this->process_value_failed or $this->selected_is_default) {
                     if (!$this->selected_is_default) {
-                        // Validation already failed, don't test anything more
+                        // Validation already failed or defaulted, don't test anything more
                         return $this;
                     }
 
@@ -3832,13 +3864,9 @@ abstract class Validator implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($callback) {
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return $this;
-                }
-
-                // This field contains the default
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return $this;
             }
 
             $value = $callback($value, $this->source, $this);
@@ -3865,11 +3893,9 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($callback) {
             $this->sanitizeTrim()->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             $value = $callback($value, $this->source);
@@ -3895,11 +3921,9 @@ abstract class Validator implements ValidatorInterface
             $this->sanitizeTrim()
                  ->hasMaxCharacters();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             $results = $callback($value, $this->source);
@@ -3927,11 +3951,9 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->isPhoneNumber();
 
-            if ($this->process_value_failed) {
-                if (!$this->selected_is_default) {
-                    // Validation already failed, don't test anything more
-                    return;
-                }
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
             }
 
             $value = Sanitize::new($value)->phoneNumber()->getSource();
@@ -3951,8 +3973,8 @@ abstract class Validator implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(30);
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
@@ -4120,5 +4142,27 @@ abstract class Validator implements ValidatorInterface
 
         $this->reflection_selected_optional = new ReflectionProperty($this, 'selected_optional');
         $this->reflection_process_value     = new ReflectionProperty($this, 'process_value');
+    }
+
+
+    /**
+     * Returns the number values that this validator holds in its source
+     *
+     * @return int
+     */
+    public function getCount(): int
+    {
+        return count($this->source);
+    }
+
+
+    /**
+     * Returns true if the current Validator has no values in its source
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return !$this->getCount();
     }
 }

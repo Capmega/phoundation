@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 
 /**
  * Trait TraitDataEntryFile
@@ -21,27 +23,35 @@ trait TraitDataEntryFile
     /**
      * Returns the file for this object
      *
-     * @return string|null
+     * @return FsFileInterface|null
      */
-    public function getFile(): ?string
+    public function getFile(): ?FsFileInterface
     {
-        return $this->getValueTypesafe('string', 'file');
+        $file = $this->getValueTypesafe(FsFileInterface::class, 'file');
+
+        if ($file) {
+            $file = new FsFile($file);
+        }
+
+        return $file;
     }
 
 
     /**
      * Sets the file for this object
      *
-     * @param string|null $file
+     * @param FsFileInterface|string|null $file
      *
      * @return static
      */
-    public function setFile(?string $file): static
+    public function setFile(FsFileInterface|string|null $file): static
     {
-        if (strlen((string) $file) > 2048) {
-            throw new OutOfBoundsException(tr('Specified file ":file" is invalid, the string should be no longer than 2048 characters', [
-                ':file' => $file,
-            ]));
+        if (is_string($file)) {
+            if (strlen($file) > 2048) {
+                throw new OutOfBoundsException(tr('Specified file ":file" is invalid, the string should be no longer than 2048 characters', [
+                    ':file' => $file,
+                ]));
+            }
         }
 
         return $this->set($file, 'file');

@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use PDOStatement;
-use Phoundation\Data\Interfaces\IteratorInterface;
-
 /**
  * Trait TraitNewSource
  *
@@ -18,6 +11,14 @@ use Phoundation\Data\Interfaces\IteratorInterface;
  * @category  Function reference
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
+
 trait TraitNewSource
 {
     /**
@@ -25,7 +26,12 @@ trait TraitNewSource
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null) {}
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
+    {
+        if ($source) {
+            $this->setSource($source);
+        }
+    }
 
 
     /**

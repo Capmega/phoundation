@@ -487,12 +487,15 @@ trait TraitValidatorCore
         $failure = trim($failure);
 
         if (Debug::getEnabled()) {
-            Log::write(tr('Validation failed for field ":field" with value ":value" because it :failure', [
+            Log::write(tr('Validation failed for field ":field" with value ":value" because :failure', [
                 ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
                 ':failure' => $failure,
                 ':value'   => $this->source[$selected_field],
             ]), 'debug', 6);
-            Log::backtrace(threshold: 4);
+            Log::write('Validation failed on value below:', 'debug', 6);
+            Log::printr($this->selected_value, 6, echo_header: false);
+            Log::write('Validation validation:', 'debug', 6);
+            Log::backtrace(threshold: 6);
         }
 
         // Build up the failure string
@@ -525,6 +528,7 @@ trait TraitValidatorCore
                         ':field' => $selected_field,
                     ]) . $failure;
             }
+
         } elseif (is_numeric($selected_field)) {
             if ($this->parent_field) {
                 $failure = tr('The ":key" field in ":parent" ', [
@@ -535,6 +539,7 @@ trait TraitValidatorCore
             } else {
                 $failure = tr('The ":key" field ', [':count' => Strings::ordinalIndicator($selected_field)]) . $failure;
             }
+
         } elseif ($this->parent_field) {
             $failure = tr('The ":field" field in ":parent" ', [
                     ':parent' => $this->parent_field,
@@ -933,6 +938,7 @@ trait TraitValidatorCore
 //        show($this->selected_field);
 //        show($value);
 //        show($this->selected_is_optional);
+
         if (!$value) {
             if (!$this->selected_is_optional) {
                 // At this point we know we MUST have a value, so we're bad here
@@ -941,7 +947,7 @@ trait TraitValidatorCore
                 return true;
             }
 
-            // If value is set or not doesn't matter, it's okay
+            // If the value is set or not doesn't matter, it's okay
             $value                      = $this->selected_optional;
             $this->selected_is_default  = true;
             $this->process_value_failed = true;
@@ -949,7 +955,7 @@ trait TraitValidatorCore
             return true;
         }
 
-        // Field has a value, we're okay
+        // The field has a value, we're okay
         return false;
     }
 }

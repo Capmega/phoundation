@@ -78,7 +78,7 @@ class ValidationFailedException extends ValidatorException implements Validation
             // Create a new exception data array with labels instead of keys
             foreach ($data as $key => $value) {
                 $label = $definitions->get($key)->getLabel() ?? $key;
-                $value = str_replace($key, $label, $value);
+                $value = str_replace('"' . $key . '"', '"' . $label . '"', $value);
 
                 $this->data[$label] = $value;
             }

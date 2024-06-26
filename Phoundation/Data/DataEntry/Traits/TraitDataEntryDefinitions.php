@@ -9,7 +9,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 /**
  * Trait TraitDataEntryDefinitions
  *
- * This trait contains methods for the data definitions of DataEntry or DataList objects
+ * This trait contains methods for the data definitions of DataEntry or DataIterator objects
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

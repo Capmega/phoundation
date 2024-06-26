@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Stringable;
-
 /**
  * Trait TraitDataFile
  *
@@ -16,22 +10,30 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Stringable;
+
 trait TraitDataFile
 {
     /**
      * The file for this object
      *
-     * @var string|null $file
+     * @var FsFileInterface|null $file
      */
-    protected ?string $file = null;
+    protected ?FsFileInterface $file = null;
 
 
     /**
      * Returns the file
      *
-     * @return string|null
+     * @return FsFileInterface|null
      */
-    public function getFile(): ?string
+    public function getFile(): ?FsFileInterface
     {
         return $this->file;
     }
@@ -40,13 +42,13 @@ trait TraitDataFile
     /**
      * Sets the file
      *
-     * @param Stringable|string|null $file
+     * @param FsFileInterface|null $file
      *
      * @return static
      */
-    public function setFile(Stringable|string|null $file): static
+    public function setFile(?FsFileInterface $file): static
     {
-        $this->file = get_null((string) $file);
+        $this->file = $file;
 
         return $this;
     }

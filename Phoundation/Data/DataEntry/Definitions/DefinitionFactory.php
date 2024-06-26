@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class DefinitionFactory
+ *
+ * Definition class factory that contains predefined column definitions
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Data
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
@@ -11,6 +22,7 @@ use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
 use Phoundation\Core\CoreLocale;
 use Phoundation\Core\Locale\Language\Languages;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -26,16 +38,6 @@ use Phoundation\Servers\Servers;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
-/**
- * Class DefinitionFactory
- *
- * Definition class factory that contains predefined column definitions
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Data
- */
 class DefinitionFactory
 {
     /**
@@ -1148,7 +1150,7 @@ class DefinitionFactory
                          ->setMaxLength(255)
                          ->setOptional(true)
                          ->setSize(3)
-                         ->setLabel(tr('File'))
+                         ->setLabel(tr('FsFileFileInterface'))
                          ->setCliColumn(tr('-f,--file NAME'))
                          ->setInputType(EnumInputType::text)
                          ->setCliAutoComplete(true)
@@ -1302,6 +1304,7 @@ class DefinitionFactory
     public static function getSeoName(DataEntryInterface $data_entry, ?string $column = 'seo_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
+                         ->setMaxlength(128)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setReadonly(true);

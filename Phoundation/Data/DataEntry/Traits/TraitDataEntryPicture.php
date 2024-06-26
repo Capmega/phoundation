@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
-use Phoundation\Content\Images\Image;
-use Phoundation\Content\Images\Interfaces\ImageInterface;
-use Phoundation\Utils\Strings;
-
 /**
  * Trait TraitDataEntryPicture
  *
@@ -18,6 +10,15 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Content\Images\Image;
+use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Utils\Strings;
+
 trait TraitDataEntryPicture
 {
     /**
@@ -27,10 +28,7 @@ trait TraitDataEntryPicture
      */
     public function getPicture(): ImageInterface
     {
-        $picture = get_null($this->getValueTypesafe('string', 'picture')) ?? 'img/profiles/default.png';
-
-        return Image::new($picture)
-                    ->setDescription(tr('Profile picture for :customer', [':customer' => $this->getName()]));
+        return get_null($this->getValueTypesafe('string', 'picture')) ?? new Image('img/profiles/default.png');
     }
 
 
@@ -43,11 +41,13 @@ trait TraitDataEntryPicture
      */
     public function setPicture(ImageInterface|string|null $picture): static
     {
-        if ($picture) {
-            // Make sure we have an Image object
-            $picture = Image::new($picture);
-        }
+        // Make sure we have an Image object or NULL
+        $picture = get_null($picture) ?? Image::new($picture);
 
-        return $this->set(Strings::from(get_null($picture)?->getFile(), DIRECTORY_CDN), 'picture');
+        $picture->setDescription(tr('Profile picture for :customer', [
+            ':customer' => $this->getName()
+        ]));
+
+        return $this->set($picture, 'picture');
     }
 }

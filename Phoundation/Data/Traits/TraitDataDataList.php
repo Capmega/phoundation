@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 
 /**
- * Trait TraitDataDataList
+ * Trait TraitDataDataIterator
  *
  *
  *
@@ -16,22 +16,22 @@ use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
-trait TraitDataDataList
+trait TraitDataDataIterator
 {
     /**
      * The data entry
      *
-     * @var DataListInterface $data_entry
+     * @var DataIteratorInterface $data_entry
      */
-    protected DataListInterface $data_entry;
+    protected DataIteratorInterface $data_entry;
 
 
     /**
      * Returns the data entry
      *
-     * @return DataListInterface
+     * @return DataIteratorInterface
      */
-    public function getDataList(): DataListInterface
+    public function getDataIterator(): DataIteratorInterface
     {
         return $this->data_entry;
     }
@@ -40,11 +40,11 @@ trait TraitDataDataList
     /**
      * Sets the data entry
      *
-     * @param DataListInterface $data_entry
+     * @param DataIteratorInterface $data_entry
      *
      * @return static
      */
-    public function setDataList(DataListInterface $data_entry): static
+    public function setDataIterator(DataIteratorInterface $data_entry): static
     {
         $this->data_entry = $data_entry;
 

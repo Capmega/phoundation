@@ -11,17 +11,7 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
-/**
- * Class DataList
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Data
- */
-interface DataListInterface
+interface DataIteratorInterface extends IteratorInterface
 {
     /**
      * Sets what SQL columns will be used in loading data
@@ -275,10 +265,12 @@ interface DataListInterface
      * Adds the specified source to the internal source
      *
      * @param IteratorInterface|array|string|null $source
+     * @param bool                                $clear_keys
+     * @param bool                                $exception
      *
      * @return $this
      */
-    public function addSources(IteratorInterface|array|string|null $source): static;
+    public function addSources(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static;
 
 
     /**

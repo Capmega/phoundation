@@ -1,16 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Validator;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\Exception\PostValidationFailedException;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Utils\Strings;
-use Phoundation\Web\Requests\Request;
-
 /**
  * PostValidator class
  *
@@ -23,6 +12,22 @@ use Phoundation\Web\Requests\Request;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Validator;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\Exception\CsrfFailedException;
+use Phoundation\Data\Validator\Exception\PostValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Csrf;
+use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Web;
+
 class PostValidator extends Validator
 {
     /**
@@ -46,6 +51,13 @@ class PostValidator extends Validator
      */
     protected static ?string $key = null;
 
+    /**
+     * If true will force CSRF testing
+     *
+     * @var bool
+     */
+    protected bool $test_csrf = true;
+
 
     /**
      * PostValidator constructor.
@@ -58,9 +70,22 @@ class PostValidator extends Validator
      *
      * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    protected function __construct(?ValidatorInterface $parent = null)
+    public function __construct(?ValidatorInterface $parent = null)
     {
         $this->construct($parent, static::$post);
+    }
+
+
+    /**
+     * Returns a new $_POST data Validator object
+     *
+     * @param ValidatorInterface|null $parent
+     *
+     * @return static
+     */
+    public static function new(?ValidatorInterface $parent = null): static
+    {
+        return new static($parent);
     }
 
 
@@ -76,8 +101,10 @@ class PostValidator extends Validator
     public static function hideData(): void
     {
         global $_POST;
+
         // Copy POST data and reset both POST and REQUEST
         static::$post = $_POST;
+
         $_POST    = [];
         $_REQUEST = [];
     }
@@ -88,9 +115,9 @@ class PostValidator extends Validator
      *
      * @return array|null
      */
-    public static function getKeys(): ?array
+    public function getKeys(): ?array
     {
-        return array_keys(static::$post);
+        return array_keys($this->source);
     }
 
 
@@ -122,14 +149,14 @@ class PostValidator extends Validator
      *
      * @return string|true|null
      */
-    public static function getSubmitButton(string $post_key = 'submit', bool $prefix = false, bool $return_key = false): string|true|null
+    public function getSubmitButton(string $post_key = 'submit', bool $prefix = false, bool $return_key = false): string|true|null
     {
         if (!Request::isPostRequestMethod()) {
             return null;
         }
 
         // Return button from cache if available
-        $button = static::getButton(static::$buttons, $post_key, $prefix, false);
+        $button = $this->getButton(static::$buttons, $post_key, $prefix, false);
 
         if ($button) {
             // We had it from cache. Get button key and value
@@ -138,14 +165,14 @@ class PostValidator extends Validator
 
         } else {
             // Not cached. Get button from post and remove it there, then store it in cache
-            $button = static::getButton(static::$post, $post_key, $prefix, true);
+            $button = $this->getButton($this->source, $post_key, $prefix, true);
 
             if (!$button) {
                 // Button was not in cache nor in POST
                 return null;
             }
 
-            // Get button key and value
+            // Get the button key and value
             $key   = (string) key($button);
             $value = (string) current($button);
 
@@ -199,7 +226,7 @@ class PostValidator extends Validator
      *
      * @return array|null
      */
-    protected static function getButton(array &$source, string $post_key, bool $prefix, bool $remove): array|null
+    protected function getButton(array &$source, string $post_key, bool $prefix, bool $remove): array|null
     {
         if ($prefix) {
             // Search for the specified prefix code for the button
@@ -210,6 +237,7 @@ class PostValidator extends Validator
                     break;
                 }
             }
+
             if (!isset($button)) {
                 // No button with specified prefix found
                 return null;
@@ -221,8 +249,10 @@ class PostValidator extends Validator
                 // Button was not pressed
                 return null;
             }
+
             $button = trim((string) $source[$post_key]);
         }
+
         if ($remove) {
             unset($source[$post_key]);
         }
@@ -239,22 +269,9 @@ class PostValidator extends Validator
      *
      * @return void
      */
-    public static function addData(string $key, mixed $value): void
+    public function addData(string $key, mixed $value): void
     {
-        static::$post[$key] = $value;
-    }
-
-
-    /**
-     * Returns a new $_POST data Validator object
-     *
-     * @param ValidatorInterface|null $parent
-     *
-     * @return static
-     */
-    public static function new(?ValidatorInterface $parent = null): static
-    {
-        return new static($parent);
+        $this->source[$key] = $value;
     }
 
 
@@ -271,12 +288,15 @@ class PostValidator extends Validator
         if (!$apply) {
             return $this;
         }
-        if (count($this->selected_fields) === count(static::$post)) {
+
+        if (count($this->selected_fields) === count($this->source)) {
             return $this;
         }
+
         $messages = [];
         $fields   = [];
-        $post     = array_keys(static::$post);
+        $post     = array_keys($this->source);
+
         foreach ($post as $field) {
             if (!in_array($field, $this->selected_fields)) {
                 $fields[]   = $field;
@@ -285,12 +305,12 @@ class PostValidator extends Validator
                 ]);
             }
         }
+
         throw ValidationFailedException::new(tr('Unknown POST fields ":fields" encountered', [
             ':fields' => Strings::force($fields, ', '),
-        ]))
-                                       ->addData($messages)
-                                       ->makeWarning()
-                                       ->log();
+        ]))->addData($messages)
+           ->makeWarning()
+           ->log();
     }
 
 
@@ -326,9 +346,13 @@ class PostValidator extends Validator
      */
     public function get(string $key): mixed
     {
-        Log::warning(tr('Forceably returned $_POST[:key] without data validation!', [':key' => $key]));
+        Log::warning(tr('Forcibly returned $_POST[:key] without data validation!', [':key' => $key]));
 
-        return isset_get(static::$get[$key]);
+        if (array_key_exists($key, $this->source)) {
+            return $this->source[$key];
+        }
+
+        return null;
     }
 
 
@@ -339,11 +363,11 @@ class PostValidator extends Validator
      *
      * @return bool
      */
-    public static function remove(string $key): bool
+    public function remove(string $key): bool
     {
-        $exists = array_key_exists($key, static::$post);
+        $exists = array_key_exists($key, $this->source);
 
-        unset(static::$post[$key]);
+        unset($this->source[$key]);
 
         return $exists;
     }
@@ -369,7 +393,7 @@ class PostValidator extends Validator
      */
     public function clear(): void
     {
-        static::$post = [];
+        $this->source = [];
         parent::clear();
     }
 
@@ -382,15 +406,67 @@ class PostValidator extends Validator
      * @param bool $clean_source
      *
      * @return array
-     * @throws PostValidationFailedException
      */
     public function validate(bool $clean_source = true): array
     {
         try {
+            $this->checkCsrf();
+
             return parent::validate($clean_source);
 
         } catch (ValidationFailedException $e) {
             throw new PostValidationFailedException($e);
         }
+    }
+
+
+    /**
+     * Enables CSRF testing
+     *
+     * @return $this
+     */
+    public function enableCsrf(): static
+    {
+        $this->test_csrf = true;
+
+        return $this;
+    }
+
+
+    /**
+     * Disables CSRF testing
+     *
+     * @return $this
+     */
+    public function disableCsrf(): static
+    {
+        $this->test_csrf = false;
+
+        return $this;
+    }
+
+
+    /**
+     * Checks if the CSRF code
+     *
+     * @return $this
+     */
+    protected function checkCsrf(): static
+    {
+        if ($this->test_csrf) {
+            // Try to get the CSRF code from the POST data and remove it
+            if (array_key_exists('__csrf', $this->source)) {
+                $csrf = $this->source['__csrf'];
+                unset($this->source['__csrf']);
+
+            } else {
+                $csrf = null;
+            }
+
+            // Check CSRF
+            Csrf::check($csrf);
+        }
+
+        return $this;
     }
 }

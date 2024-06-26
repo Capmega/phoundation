@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
 /**
  * Trait TraitDataEntryDirectory
  *
@@ -14,28 +10,38 @@ namespace Phoundation\Data\DataEntry\Traits;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+
 trait TraitDataEntryDirectory
 {
     /**
      * Returns the path for this object
      *
-     * @return string|null
+     * @return FsDirectoryInterface|null
      */
-    public function getDirectory(): ?string
+    public function getDirectory(): ?FsDirectoryInterface
     {
-        return $this->getValueTypesafe('string', 'directory');
+        return $this->getValueTypesafe(FsDirectoryInterface::class, 'directory');
     }
 
 
     /**
      * Sets the path for this object
      *
-     * @param string|null $directory
+     * @param FsDirectoryInterface|null $directory
      *
      * @return static
      */
-    public function setDirectory(?string $directory): static
+    public function setDirectory(FsDirectoryInterface|null $directory, ?FsRestrictionsInterface $restrictions = null): static
     {
-        return $this->set($directory, 'directory');
+        return $this->set(is_string($directory) ? new FsDirectory($directory, $restrictions) : $directory, 'directory');
     }
 }

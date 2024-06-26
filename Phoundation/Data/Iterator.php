@@ -42,9 +42,6 @@ class Iterator extends IteratorCore
     {
         if ($source) {
             $this->setSource($source);
-
-        } else {
-            $this->source = [];
         }
     }
 
