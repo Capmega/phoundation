@@ -989,7 +989,7 @@ function execute(): ?string
 {
     Core::setScriptState();
 
-    include(Request::getTarget());
+    echo include(Request::getTarget());
 
     return get_null((string) ob_get_clean());
 }
