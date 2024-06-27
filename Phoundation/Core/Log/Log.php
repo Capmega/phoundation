@@ -38,6 +38,7 @@ use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Requests\Request;
 use Stringable;
 use Throwable;
 
@@ -888,10 +889,10 @@ class Log
         }
 
         // Log the initial exception message
-        static::write(tr('Script    : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-        static::write(basename(isset_get($_SERVER['SCRIPT_FILENAME'])), $class, $threshold, true, true, false, $echo_screen);
         static::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
         static::write(get_class($exception), $class, $threshold, true, true, false, $echo_screen);
+        static::write(tr('Script    : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+        static::write(Request::getExecutedPath(true), $class, $threshold, true, true, false, $echo_screen);
         static::write(tr('Location  : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
         static::write($exception->getFile() . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
         static::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
@@ -992,9 +993,9 @@ class Log
         if ($exception instanceof Exception) {
             $data = $exception->getData();
 
-            static::write(tr('Data: '), 'information', $threshold, echo_screen: $echo_screen);
-
             if ($data) {
+                static::write(tr('Data      : '), 'information', $threshold, echo_screen: $echo_screen);
+
                 if ($exception->isWarning()) {
                     // Log warning data as individual lines for easier read
                     foreach (Arrays::force($data, null) as $line) {
@@ -1006,7 +1007,8 @@ class Log
                 }
 
             } else {
-                static::write('-', 'debug', $threshold, false, $echo_newline, $echo_prefix, $echo_screen);
+                static::write(tr('Data      : '), 'information', $threshold, false, echo_newline: false, echo_screen: $echo_screen);
+                static::write('-', 'debug', $threshold, false, $echo_newline, false, $echo_screen);
             }
         }
     }
