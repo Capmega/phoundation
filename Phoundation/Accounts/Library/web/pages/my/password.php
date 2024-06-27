@@ -22,7 +22,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
-
 // Get current user and password objects
 $user     = User::load(Session::getUser()->getId());
 $password = $user->getPassword();

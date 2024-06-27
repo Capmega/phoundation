@@ -24,7 +24,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
-
 // Only allow being here when it was forced by redirect
 if (!Session::getUser()->getRedirect() or (Session::getUser()->getRedirect() !== (string)UrlBuilder::getWww('/force-password-update.html'))) {
     Response::redirect('prev', 302, reason_warning: tr('Force password update is only available when it was accessed using forced user redirect'));

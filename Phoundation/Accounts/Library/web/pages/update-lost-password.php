@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Page update-lost-password
+ *
+ * This page allows users to update their lost password. It is typically used when the user lost their password and need
+ * a new one. It requires them being signed in using a sign-in key
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
@@ -13,20 +25,6 @@ use Phoundation\Web\Html\Pages\LostPasswordUpdatedPage;
 use Phoundation\Web\Html\Pages\UpdateLostPasswordPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-
-
-/**
- * Page update-lost-password
- *
- * This page allows users to update their lost password. It is typically used when the user lost their password and need
- * a new one. It requires them being signed in using a sign-in key
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
-
 
 // Only allow being here when it was forced by redirect
 if (Session::getUser()->isGuest()) {
