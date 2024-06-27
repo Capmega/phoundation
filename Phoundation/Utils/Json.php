@@ -175,7 +175,7 @@ class Json
                             ->setRoles('developer')
                             ->setTitle('Unknown message specified')
                             ->setMessage(tr('Json::message(): Unknown code ":code" specified', [':code' => $code]));
-                Json::error(null, (Debug::getEnabled() ? $data : null), 'ERROR', 500);
+                Json::error(null, (Debug::isEnabled() ? $data : null), 'ERROR', 500);
         }
     }
 
@@ -260,7 +260,7 @@ class Json
 
                 $code = $message->getCode();
 
-                if (Debug::getEnabled()) {
+                if (Debug::isEnabled()) {
                     // This is a user visible message
                     $message = $message->getMessage();
 
@@ -288,7 +288,7 @@ class Json
                     $data = $message->getMessage();
 
                 } else {
-                    if (Debug::getEnabled()) {
+                    if (Debug::isEnabled()) {
                         // This is a user visible message
                         $messages = $message->getMessages();
 

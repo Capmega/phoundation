@@ -361,7 +361,7 @@ class SqlQueries
             $query = Strings::replaceDouble($query, ' ', '\s');
         }
         // Debug::enabled() already logs the query, don't log it again
-        if (!Debug::getEnabled()) {
+        if (!Debug::isEnabled()) {
             Log::debug(static::getLogPrefix() . Strings::ensureEndsWith($query, ';'));
         }
 

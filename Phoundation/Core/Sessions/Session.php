@@ -402,7 +402,7 @@ class Session implements SessionInterface
                 if (Config::getBoolean('web.sessions.check-referrer', true)) {
                     ini_set('session.referer_check', static::$domain);
                 }
-                if (Debug::getEnabled() or !Config::getBoolean('cache.http.enabled', true)) {
+                if (Debug::isEnabled() or !Config::getBoolean('cache.http.enabled', true)) {
                     ini_set('session.cache_limiter', 'nocache');
 
                 } else {

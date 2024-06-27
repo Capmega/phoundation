@@ -687,7 +687,7 @@ class Route
                 return;
             }
 
-            if (Debug::getEnabled()) {
+            if (Debug::isEnabled()) {
                 Log::success(tr('Regex ":count" ":regex" matched with matches ":matches" and flags ":flags"', [
                     ':count'   => $count,
                     ':regex'   => $url_regex,

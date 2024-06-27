@@ -930,7 +930,7 @@ class Html
     function footer()
     {
         $this->render = '';
-        if (Debug::getEnabled()) {
+        if (Debug::isEnabled()) {
             $this->render .= debug_bar();
         }
 

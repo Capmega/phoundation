@@ -463,6 +463,12 @@ class PostValidator extends Validator
                 $csrf = $this->source['__csrf'];
                 unset($this->source['__csrf']);
 
+                if (!is_string($csrf)) {
+                    throw new CsrfFailedException(tr('Specified CSRF code is a ":csrf" while it should be a string value', [
+                        ':csrf' => gettype($csrf),
+                    ]));
+                }
+
             } else {
                 $csrf = null;
             }

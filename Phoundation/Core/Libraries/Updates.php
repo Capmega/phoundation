@@ -388,7 +388,7 @@ abstract class Updates implements UpdatesInterface
                 Log::warning(tr('Skipping init version ":version" for library ":library" because it is a future update', [
                     ':library' => $this->vendor . '/' . $this->library,
                     ':version' => $version,
-                ]), Debug::getEnabled() ? 10 : 4);
+                ]), Debug::isEnabled() ? 10 : 4);
 
                 return true;
         }

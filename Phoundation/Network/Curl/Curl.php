@@ -268,7 +268,7 @@ abstract class Curl implements CurlInterface
             throw new WebException(tr('The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'));
         }
         // Verbose is always on when running in debug mode
-        if (Debug::getEnabled()) {
+        if (Debug::isEnabled()) {
             $this->verbose = true;
         }
         $this->url   = (string) $url;

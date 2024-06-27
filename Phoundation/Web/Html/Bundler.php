@@ -244,7 +244,7 @@ class Bundler
                          if ($this->extension === 'css') {
                              $data = $this->processCssData($file, $org_file, $data);
                          }
-                         if (Debug::getEnabled()) {
+                         if (Debug::isEnabled()) {
                              FsFile::new($this->bundle_file, $this->restrictions)
                                  ->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
 

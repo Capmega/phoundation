@@ -73,7 +73,7 @@ if (Request::isPostRequestMethod()) {
         Response::setPageTitle(tr('Phoundation setup finished'));
         return;
 
-    } catch (EnvironmentExists|ValidationFailedException|SqlAccessDeniedException $e) {
+    } catch (EnvironmentExists | ValidationFailedException | SqlAccessDeniedException $e) {
         Response::getFlashMessages()->addMessage($e);
     }
 }

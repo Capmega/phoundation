@@ -66,7 +66,7 @@ Log::cli(CliColor::apply(Strings::size(tr('Project name:'), 28), 'white') . ' ' 
 Log::cli(CliColor::apply(Strings::size(tr('Current platform:'), 28), 'white') . ' ' . PLATFORM);
 Log::cli(CliColor::apply(Strings::size(tr('Environment:'), 28), 'white') . ' ' . ENVIRONMENT);
 Log::cli(CliColor::apply(Strings::size(tr('Production:'), 28), 'white') . ' ' . Strings::fromBoolean(Core::isProductionEnvironment()));
-Log::cli(CliColor::apply(Strings::size(tr('Debug:'), 28), 'white') . ' ' . Strings::fromBoolean(Debug::getEnabled()));
+Log::cli(CliColor::apply(Strings::size(tr('Debug:'), 28), 'white') . ' ' . Strings::fromBoolean(Debug::isEnabled()));
 Log::cli(CliColor::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown') . ($no_db ? ' (' . CliColor::apply(tr('NOT CONNECTED BECAUSE ":reason"', [':reason' => $no_db]), 'red') . ')' : ''));
 
 Log::cli(' ');

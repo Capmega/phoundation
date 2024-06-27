@@ -186,10 +186,7 @@ class Debug
      */
     #[NoReturn] public static function showDie(mixed $value = null, bool $sort = true, int $trace_offset = 0, bool $quiet = false, bool $var_dump = false): void
     {
-        // Show the previous call
-        $trace_offset--;
-
-        if (static::getEnabled()) {
+        if (static::isEnabled()) {
             try {
                 static::show($value, $sort, $trace_offset, $quiet, var_dump: $var_dump);
 
@@ -227,7 +224,7 @@ class Debug
      *
      * @return bool
      */
-    public static function getEnabled(): bool
+    public static function isEnabled(): bool
     {
         static $loop = false;
 
@@ -289,7 +286,7 @@ class Debug
      */
     public static function show(mixed $value = null, bool $sort = true, int $trace_offset = 0, bool $quiet = false, ?bool $full_backtrace = null, bool $var_dump = false): mixed
     {
-        if (!static::getEnabled()) {
+        if (!static::isEnabled()) {
             return null;
         }
 
@@ -1007,7 +1004,7 @@ class Debug
             $query = Strings::replaceDouble($query, ' ', '\s');
         }
         // Debug::enabled() already logs the query, don't log it again
-        if (!Debug::getEnabled()) {
+        if (!Debug::isEnabled()) {
             Log::printr(Strings::ensureEndsWith($query, ';'));
         }
 
@@ -1030,7 +1027,7 @@ class Debug
      */
     function debugTrace(array|string|null $filters = 'args', bool $skip_own = true): array
     {
-        if (!Debug::getEnabled()) {
+        if (!Debug::isEnabled()) {
             return [];
         }
         $filters = Arrays::force($filters);
@@ -1056,7 +1053,7 @@ class Debug
      */
     function debugBar(): ?string
     {
-        if (!Debug::getEnabled()) {
+        if (!Debug::isEnabled()) {
             return '';
         }
         $enabled = Config::get('debug.bar.enabled', false);

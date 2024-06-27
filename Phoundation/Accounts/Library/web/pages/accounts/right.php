@@ -68,7 +68,7 @@ if (Request::isPostRequestMethod()) {
                 Response::redirect();
         }
 
-    } catch (IncidentsException|ValidationFailedException $e) {
+    } catch (IncidentsException | ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Response::getFlashMessages()->addMessage($e);
         $right->forceApply();

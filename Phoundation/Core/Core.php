@@ -848,7 +848,7 @@ class Core implements CoreInterface
         static::$timer->stop();
 
         // Log debug information?
-        if (Debug::getEnabled() and Debug::printStatistics()) {
+        if (Debug::isEnabled() and Debug::printStatistics()) {
             // Only when auto complete is not active!
             if (!CliAutoComplete::isActive()) {
                 static::logDebug();
@@ -999,9 +999,10 @@ class Core implements CoreInterface
          * For cases like these, uncomment the following lines and you should see your
          * error displayed on your browser.
          */
-        static $executed = false;
+        static $executed     = false;
         $state               = static::$state;
         static::$error_state = true;
+
         // Ensure that definitions exist
         $defines = [
             'ADMIN'      => '',
@@ -1016,11 +1017,13 @@ class Core implements CoreInterface
             'DELETED'    => (getenv('DELETED') ? 'DELETED' : null),
             'STATUS'     => (getenv('STATUS') ? 'STATUS' : null),
         ];
+
         foreach ($defines as $key => $value) {
             if (!defined($key)) {
                 define($key, $value);
             }
         }
+
         // Start processing the uncaught exception
         try {
             try {
@@ -1160,7 +1163,7 @@ class Core implements CoreInterface
                             // This is just a simple validation warning, show warning messages in the exception data
                             Log::warning($e->getMessage());
                             Log::warning($e->getData());
-                            if (!Debug::getEnabled()) {
+                            if (!Debug::isEnabled()) {
                                 Request::executeSystem(400);
                             }
 
@@ -1181,7 +1184,7 @@ class Core implements CoreInterface
                         ]));
                         Log::error(tr('Exception data:'));
                         Log::error($e);
-                        if (!Debug::getEnabled()) {
+                        if (!Debug::isEnabled()) {
                             Request::executeSystem(500);
                         }
                         // Make sure the Router shutdown won't happen so it won't send a 404
@@ -1235,7 +1238,7 @@ class Core implements CoreInterface
                         if ($e->getCode() === 'validation') {
                             $e->setCode(400);
                         }
-                        if (Debug::getEnabled()) {
+                        if (Debug::isEnabled()) {
                             switch (Request::getRequestType()) {
                                 case EnumRequestTypes::api:
                                     // no break
@@ -1388,7 +1391,7 @@ class Core implements CoreInterface
                             http_response_code(500);
                             header('Content-Type: text/html');
                         }
-                        if (!Debug::getEnabled()) {
+                        if (!Debug::isEnabled()) {
                             Notification::new()
                                         ->setException($f)
                                         ->send();
@@ -1955,8 +1958,8 @@ class Core implements CoreInterface
         static::$register['ready'] = true;
 
         // Validate parameters and give some startup messages, if needed
-        if (Debug::getEnabled()) {
-            if (Debug::getEnabled()) {
+        if (Debug::isEnabled()) {
+            if (Debug::isEnabled()) {
                 Log::warning(tr('Running in DEBUG mode, started @ ":datetime"', [
                     ':datetime' => Date::convert(STARTTIME, 'ISO8601'),
                 ]), 8);

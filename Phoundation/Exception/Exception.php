@@ -150,7 +150,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
             Log::warning('Exception: ' . $message, 2, echo_screen: !CliAutoComplete::isActive());
         }
 
-        if (Debug::getEnabled()) {
+        if (Debug::isEnabled()) {
             if (Config::getBoolean('debug.exceptions.auto.full', true)) {
                 Log::error($this, 2);
             }

@@ -704,7 +704,7 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
  */
 function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false, bool $var_dump = false): mixed
 {
-    if (Debug::getEnabled()) {
+    if (Debug::isEnabled()) {
         if (Core::inStartupState() and Config::getBoolean('debug.startup', false)) {
             // Startup debugging may not have all libraries loaded required for Debug::show(), use show_system() instead
             return show_system($source, false);
@@ -733,7 +733,7 @@ function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bo
  */
 function showhex(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    if (Debug::getEnabled()) {
+    if (Debug::isEnabled()) {
         return show(bin2hex($source), $sort, $trace_offset);
     }
 
@@ -752,7 +752,7 @@ function showhex(mixed $source = null, bool $sort = true, int $trace_offset = 1,
  */
 function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = false): mixed
 {
-    if (Debug::getEnabled()) {
+    if (Debug::isEnabled()) {
         $backtrace = Debug::backtrace();
         $backtrace = Debug::formatBackTrace($backtrace);
 
@@ -780,7 +780,7 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
  */
 #[NoReturn] function showdie(mixed $source = null, bool $sort = true, int $trace_offset = 2, bool $quiet = false, bool $var_dump = false): void
 {
-    if (Debug::getEnabled()) {
+    if (Debug::isEnabled()) {
         if (Core::inStartupState() and Config::getBoolean('debug.startup', false)) {
             // Startup debugging may not have all libraries loaded required for Debug::show(), use show_system() instead
             show_system($source);

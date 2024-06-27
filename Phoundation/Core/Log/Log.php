@@ -186,7 +186,7 @@ class Log
 
                 } else {
                     // Be... normal, I guess
-                    if (Debug::getEnabled()) {
+                    if (Debug::isEnabled()) {
                         // Debug shows a bit more
                         $threshold = Config::getInteger('log.threshold', Core::errorState() ? 1 : 3);
 
@@ -650,7 +650,7 @@ class Log
             // Validate the specified log level
             if ($real_threshold > 9) {
                 // This is an "always log!" message, which only are displayed if we're running in debug mode
-                if (Debug::getEnabled()) {
+                if (Debug::isEnabled()) {
                     if ($real_threshold > 10) {
                         // Yeah, this is not okay
                         static::warning(tr('Invalid log level ":level" specified for the following log message. This level should be set to 1-10', [
@@ -761,7 +761,7 @@ class Log
                 static::$instance = new static();
 
                 // Log class startup message
-                if (Debug::getEnabled()) {
+                if (Debug::isEnabled()) {
                     static::information(tr('Logger started, threshold set to ":threshold"', [
                         ':threshold' => static::$threshold,
                     ]), 3);
