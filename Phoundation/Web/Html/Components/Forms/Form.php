@@ -343,6 +343,8 @@ class Form extends Element implements FormInterface
     public function render(): ?string
     {
         // Ensure the CSRF variable is injected before rendering.
-        return Csrf::addHiddenElement(parent::render());
+        $this->content = Csrf::addHiddenElement($this->content);
+
+        return parent::render();
     }
 }
