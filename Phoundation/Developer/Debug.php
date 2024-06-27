@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Debug
+ *
+ * This class contains the basic debug methods for use in Phoundation
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Developer
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer;
@@ -12,6 +23,9 @@ use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
+use Phoundation\Developer\Interfaces\FunctionCallInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
@@ -25,16 +39,6 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Throwable;
 
-/**
- * Class Debug
- *
- * This class contains the basic debug methods for use in Phoundation
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Developer
- */
 class Debug
 {
     /**
@@ -180,8 +184,11 @@ class Debug
      *
      * @return void
      */
-    #[NoReturn] public static function showDie(mixed $value = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false, bool $var_dump = false): void
+    #[NoReturn] public static function showDie(mixed $value = null, bool $sort = true, int $trace_offset = 0, bool $quiet = false, bool $var_dump = false): void
     {
+        // Show the previous call
+        $trace_offset--;
+
         if (static::getEnabled()) {
             try {
                 static::show($value, $sort, $trace_offset, $quiet, var_dump: $var_dump);
@@ -191,7 +198,10 @@ class Debug
                     Core::setShutdownState();
 
                     Log::warning(tr('Reached showdie() call at :location', [
-                        ':location' => static::currentLocation($trace_offset),
+                        ':location' => Strings::from(
+                            Debug::getPreviousCall($trace_offset)->getLocation(),
+                            DIRECTORY_ROOT
+                        ),
                     ]));
 
                     Audio::new('showdie.mp3')->playLocal(true);
@@ -829,6 +839,21 @@ class Debug
 
 
     /**
+     * Returns the arguments sent to the call
+     *
+     * @param int         $trace
+     *
+     * @return IteratorInterface
+     */
+    public static function currentArguments(int $trace = 0): IteratorInterface
+    {
+        $backtrace = debug_backtrace();
+
+        return new Iterator(isset_get($backtrace[$trace + 1]['args']));
+    }
+
+
+    /**
      * Returns the function name from where this call was made
      *
      * @param int         $trace
@@ -1129,19 +1154,35 @@ class Debug
                             </tr>
                         </thead>
                         <tbody>';
+
         foreach ($files as $id => $file) {
             $html .= '      <tr>
                             <td>' . ($id + 1) . '</td>
                             <td>' . $file . '</td>
                         </tr>';
         }
+
         $html .= '          </tbody>
                     </table>';
         $html .= '  </div>
              </div>';
+
         $html = str_replace(':query_count', count(Core::readRegister('debug_queries')), $html);
         $html = str_replace(':execution_time', number_format(microtime(true) - STARTTIME, 6), $html);
 
         return $html;
+    }
+
+
+    /**
+     * Returns the previous function call as an object
+     *
+     * @param int $offset
+     *
+     * @return FunctionCallInterface
+     */
+    public static function getPreviousCall(int $offset = 0): FunctionCallInterface
+    {
+        return new FunctionCall(++$offset);
     }
 }
