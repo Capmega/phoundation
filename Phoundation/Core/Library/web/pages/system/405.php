@@ -39,6 +39,7 @@ switch (Request::getRequestType()) {
 echo Template::new('system/http-error')->setSource([
                                                        ':h2'     => '405',
                                                        ':h3'     => tr('Method not allowed'),
+                                                       ':img'    => UrlBuilder::getImg('backgrounds/medinet-mobile/404/large.jpg'),
                                                        ':p'      => tr('The action you requested could not be executed because the method is (currently) not allowed. Please try again later or contact your system administrator', [
                                                            ':url' => Request::getReferer(true),
                                                        ]),

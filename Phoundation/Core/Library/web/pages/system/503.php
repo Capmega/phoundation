@@ -39,6 +39,7 @@ switch (Request::getRequestType()) {
 echo Template::new('system/http-error')->setSource([
                                                        ':h2'     => '503',
                                                        ':h3'     => tr('Service Unavailable'),
+                                                       ':img'    => UrlBuilder::getImg('backgrounds/medinet-mobile/404/large.jpg'),
                                                        ':p'      => tr('The server is under maintenance and will return momentarily. Please contact the system administrator for more information'),
                                                        ':type'   => 'warning',
                                                        ':search' => tr('Search'),

@@ -39,6 +39,7 @@ switch (Request::getRequestType()) {
 echo Template::new('system/http-error')->setSource([
                                                        ':h2'     => '403',
                                                        ':h3'     => tr('Forbidden'),
+                                                       ':img'    => UrlBuilder::getImg('backgrounds/medinet-mobile/404/large.jpg'),
                                                        ':p'      => tr('You do not have access to this page. Please contact the system administrator if you think this was in error'),
                                                        ':type'   => 'warning',
                                                        ':search' => tr('Search'),

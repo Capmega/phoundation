@@ -39,6 +39,7 @@ switch (Request::getRequestType()) {
 echo Template::new('system/http-error')->setSource([
                                                        ':h2'     => '404',
                                                        ':h3'     => tr('Page not found'),
+                                                       ':img'    => UrlBuilder::getImg('backgrounds/medinet-mobile/404/large.jpg'),
                                                        ':p'      => tr('We could not find the page you were looking for. Please go back where you came from!'),
                                                        ':type'   => 'warning',
                                                        ':search' => tr('Search'),

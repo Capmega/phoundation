@@ -39,6 +39,7 @@ switch (Request::getRequestType()) {
 echo Template::new('system/http-error')->setSource([
                                                        ':h2'     => '500',
                                                        ':h3'     => tr('Internal Server Error'),
+                                                       ':img'    => UrlBuilder::getImg('backgrounds/medinet-mobile/404/large.jpg'),
                                                        ':p'      => tr('The server encountered an internal error and could not fulfill your request. Please contact the system administrator'),
                                                        ':type'   => 'warning',
                                                        ':search' => tr('Search'),
