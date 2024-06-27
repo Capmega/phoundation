@@ -125,7 +125,7 @@ class Hook implements HookInterface
             // Try executing it!
             try {
                 Log::action(tr('Executing hook ":hook"', [
-                    ':hook' => $this->class . '/' . $hook,
+                    ':hook' => $this->class . $hook,
                 ]));
 
                 static::$source = $source;
