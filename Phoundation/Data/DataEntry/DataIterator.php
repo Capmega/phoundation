@@ -412,7 +412,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
             // on the data available in the datalist, we'll have to load the DataEntry manually
             if (isset($this->query_builder)) {
                 // Load the DataEntry separately from the database (will require an extra query)
-                $this->source[$key] = static::getEntryClass()::get($key)
+                $this->source[$key] = static::getEntryClass()::load($key)
                                                              ->setRestrictions($this->restrictions);
 
             } else {
