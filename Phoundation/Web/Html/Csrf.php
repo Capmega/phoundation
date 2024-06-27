@@ -61,7 +61,7 @@ class Csrf
 
 
     /**
-     * Generates a CSRF code, stores i it in the Session object, and returns it
+     * Generates a single CSRF code per page load, stores it in the Session object, and returns it
      *
      * @param string|null $prefix
      *
@@ -69,33 +69,30 @@ class Csrf
      */
     public static function get(?string $prefix = null): ?string
     {
-        if (!Config::get('security.web.csrf.enabled', true)) {
-            // CSRF check system has been disabled
-            return null;
-        }
+        static $csrf;
 
-        if (Core::readRegister('csrf')) {
-            return Core::readRegister('csrf');
-        }
-
-        // Avoid people messing around
-        $max_count = Config::get('security.web.csrf.buffer.size', 25);
-
-        if (isset($_SESSION['csrf'])) {
-            // Too many csrf, so too many post requests open. Remove the oldest CSRF code and add a new one
-            while (count($_SESSION['csrf']) > $max_count) {
-                array_shift($_SESSION['csrf']);
+        if (!isset($csrf)) {
+            // Generate CSRF code and cache it
+            if (!Config::get('security.web.csrf.enabled', true)) {
+                // CSRF check system has been disabled
+                Log::warning('Not generating requested CSRF, CSRF disabled in configuration setting "security.web.csrf.enabled"');
+                $csrf = '';
+                return null;
             }
+
+            static::validateBuffer();
+
+            $csrf = $prefix . Strings::unique('sha256');
+
+            if (empty($_SESSION['csrf'])) {
+                $_SESSION['csrf'] = [];
+            }
+
+            $_SESSION['csrf'][$csrf] = new DateTime();
+            $_SESSION['csrf'][$csrf] = $_SESSION['csrf'][$csrf]->getTimestamp();
+
+            Log::warning(tr('Added CSRF code ":code" to session buffer', [':code' => $csrf]));
         }
-
-        $csrf = $prefix . Strings::unique('sha256');
-
-        if (empty($_SESSION['csrf'])) {
-            $_SESSION['csrf'] = [];
-        }
-
-        $_SESSION['csrf'][$csrf] = new DateTime();
-        $_SESSION['csrf'][$csrf] = $_SESSION['csrf'][$csrf]->getTimestamp();
 
         return $csrf;
     }
@@ -141,6 +138,8 @@ class Csrf
                 }
             }
 
+            static::validateBuffer();
+
             if (!array_key_exists($csrf, $_SESSION['csrf'])) {
                 throw CsrfFailedException::new(tr('Specified CSRF ":code" does not exist', [
                     ':code' => $csrf,
@@ -156,13 +155,13 @@ class Csrf
             // Code timed out?
             if (Config::get('security.web.csrf.timeout', 3600)) {
                 if (($timestamp + Config::get('security.web.csrf.timeout')) < $now->getTimestamp()) {
-                    throw CsrfFailedException::new(tr('Specified CSRF ":code" timed out', [
+                    throw CsrfFailedException::new(tr('Specified CSRF ":code" timed out, removed it from session buffer', [
                         ':code' => $csrf,
                     ]))->makeWarning();
                 }
             }
 
-            Log::success(tr('Accepted POST CSRF code ":csrf"', [
+            Log::success(tr('Accepted POST CSRF code ":csrf" and removed it from session buffer', [
                 ':csrf' => $csrf
             ]));
 
@@ -173,6 +172,30 @@ class Csrf
             PostValidator::new()->clear();
 
             throw $e;
+        }
+    }
+
+
+    /**
+     * Ensure that the CSRF buffer isn't running crazy large
+     *
+     * @return void
+     */
+    protected static function validateBuffer(): void
+    {
+        // Avoid people messing around
+        $max_count = Config::get('security.web.csrf.buffer.size', 50);
+
+        if (isset($_SESSION['csrf'])) {
+            // Too many csrf, so too many post requests open. Remove the oldest CSRF code and add a new one
+            while (count($_SESSION['csrf']) > $max_count) {
+                $code = array_shift($_SESSION['csrf']);
+
+                Log::warning(tr('CSRF buffer size ":size" is too large, dropped CSRF code ":code"', [
+                    ':size' => (count($_SESSION['csrf']) + 1),
+                    ':code' => $code
+                ]));
+            }
         }
     }
 }
