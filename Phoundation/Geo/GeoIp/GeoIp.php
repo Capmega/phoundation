@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * GeoIp class
+ *
+ *
+ * @note      See https://linklyhq.com/blog/list-of-5-free-geoip-databases-2020
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation/Geo
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;
@@ -13,16 +24,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Throwable;
 
-/**
- * GeoIp class
- *
- *
- * @note      See https://linklyhq.com/blog/list-of-5-free-geoip-databases-2020
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation/Geo
- */
 class GeoIp
 {
     /**
@@ -43,8 +44,7 @@ class GeoIp
     public static function detect(?string $ip_address): ?static
     {
         try {
-            return static::getProvider()
-                         ?->detect($ip_address);
+            return static::getProvider()?->detect($ip_address);
 
         } catch (Throwable $e) {
             throw new GeoIpException(tr('Failed to detect Geo location from IP ":ip"', [
@@ -67,15 +67,19 @@ class GeoIp
             $provider = null;
             $enabled  = Config::get('geo.ip.enabled', true);
             $provider = Config::get('geo.ip.provider', null, $provider);
+
             if (!$enabled) {
                 // GeoIP detection has been disabled
                 return null;
             }
+
             switch ($provider) {
                 case 'maxmind':
                     return new MaxMind();
+
                 case 'ip2location':
                     throw new UnderConstructionException();
+
                 default:
                     throw new OutOfBoundsException(tr('Unknown GeoIP provider ":provider" specified', [
                         ':provider' => $provider,
@@ -124,5 +128,7 @@ class GeoIp
      *
      * @return bool
      */
-    public function isEuropean(): bool {}
+    public function isEuropean(): bool {
+
+    }
 }

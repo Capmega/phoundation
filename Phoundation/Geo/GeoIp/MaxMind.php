@@ -1,20 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Geo\GeoIp;
-
-use GeoIp2\Database\Reader;
-use GeoIp2\Exception\AddressNotFoundException;
-use GeoIp2\Model\City;
-use MaxMind\Db\Reader\InvalidDatabaseException;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataDirectory;
-use Phoundation\Network\Network;
-use Phoundation\Notifications\Notification;
-use Phoundation\Utils\Config;
-use Throwable;
-
 /**
  * MaxMind class
  *
@@ -25,9 +10,29 @@ use Throwable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation/Geo
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Geo\GeoIp;
+
+use GeoIp2\Database\Reader;
+use GeoIp2\Exception\AddressNotFoundException;
+use GeoIp2\Model\City;
+use MaxMind\Db\Reader\InvalidDatabaseException;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataDirectory;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Network\Network;
+use Phoundation\Notifications\Notification;
+use Phoundation\Utils\Config;
+use Throwable;
+
 class MaxMind extends GeoIp
 {
     use TraitDataDirectory;
+
 
     /**
      * The location record
@@ -49,7 +54,7 @@ class MaxMind extends GeoIp
      */
     public function __construct()
     {
-        $this->directory = DIRECTORY_DATA . 'sources/geoip/maxmind/';
+        $this->directory = new FsDirectory(DIRECTORY_DATA . 'sources/geoip/maxmind/', FsRestrictions::getReadonly(DIRECTORY_DATA . 'sources/geoip/maxmind/'));
         $this->pro       = Config::getBoolean('geo.ip.maxmind.pro', false);
     }
 
@@ -84,7 +89,7 @@ class MaxMind extends GeoIp
     public function setIpAddress(?string $ip_address): static
     {
         try {
-            $cityDbReader = new Reader($this->directory . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb'));
+            $cityDbReader     = new Reader($this->directory . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb'));
             $this->ip_address = $ip_address;
             $this->record     = $cityDbReader->city($ip_address);
 
@@ -104,10 +109,12 @@ class MaxMind extends GeoIp
                 // THIS... IS... LOCALHOST!!!! We can't get any GeoIP data from this address.
                 // Spoof the IP address, use the public IP address for this machine
                 $ip_address = Network::getPublicIpAddress();
+
                 if ($ip_address) {
                     Log::warning(tr('Connection is localhost, spoofing IP address with public IP address ":ip" for this machine', [
                         ':ip' => $ip_address,
                     ]));
+
                 } else {
                     // Fine, if that doesn't work then spoof the IP address by using the IP for phoundation.org
                     $ip_address = gethostbyname('phoundation.org');
@@ -122,12 +129,15 @@ class MaxMind extends GeoIp
                         return $this;
                     }
                 }
+
                 if ($ip_address === '127.0.0.1') {
                     // Avoid endless looping over 127.0.0.1 here!
                     $ip_address = '';
                 }
+
                 $this->ip_address = $ip_address;
                 $this->record     = $cityDbReader->city($ip_address);
+
             } else {
                 // For the moment, just log the failure and continue
                 Log::warning($e);
