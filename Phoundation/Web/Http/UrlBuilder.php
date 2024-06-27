@@ -782,6 +782,9 @@ class UrlBuilder implements UrlBuilderInterface
 //
 //            return $directory;
 //        }
+
+        $url = Strings::ensureStartsWith($url, 'img/');
+
         return static::renderCdn($url);
     }
 
