@@ -87,6 +87,7 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
+use Throwable;
 
 class User extends DataEntry implements UserInterface
 {
@@ -401,10 +402,11 @@ class User extends DataEntry implements UserInterface
                 }
             }
 
-            Hook::new('phoundation/accounts')->execute('authenticated', [
-                'user'     => $user,
-                'password' => $password
-            ]);
+            Hook::new('phoundation/accounts/authentication')
+                ->execute('success', [
+                    'user'     => $user,
+                    'password' => $password
+                ]);
 
             return $user;
         }
@@ -417,6 +419,12 @@ class User extends DataEntry implements UserInterface
                     ->setDetails(['user' => $user->getLogId()])
                     ->save();
         }
+
+        Hook::new('phoundation/accounts/authentication')
+            ->execute('failure', [
+                'user'     => $user,
+                'password' => $password
+            ]);
 
         throw new AuthenticationException(tr('The specified password did not match for user ":user"', [
             ':user' => $identifier,
@@ -1407,13 +1415,25 @@ class User extends DataEntry implements UserInterface
         $password   = trim($password);
         $validation = trim($validation);
 
-        $this->validatePassword($password, $validation);
-        $this->setPassword(Password::hash($password, $this->source['id']));
+        try {
+            $this->validatePassword($password, $validation);
+            $this->setPassword(Password::hash($password, $this->source['id']));
 
-        Hook::new('phoundation/accounts')->execute('password-change', [
-                'user' => $this,
-                'new'  => $password,
-            ]);
+            Hook::new('phoundation/accounts/password/change/')
+                ->execute('success', [
+                    'user' => $this,
+                    'new'  => $password,
+                ]);
+
+        } catch (Throwable $e) {
+            Hook::new('phoundation/accounts/password/change/')
+                ->execute('failure', [
+                    'user' => $this,
+                    'new'  => $password,
+                ]);
+
+            throw $e;
+        }
 
         return $this->savePassword();
     }
@@ -1431,27 +1451,34 @@ class User extends DataEntry implements UserInterface
     {
         $password   = trim($password);
         $validation = trim($validation);
+
         if (!$password) {
             throw new ValidationFailedException(tr('No password specified'));
         }
+
         if (!$validation) {
             throw new ValidationFailedException(tr('No validation password specified'));
         }
+
         if ($password !== $validation) {
             throw new ValidationFailedException(tr('The password must match the validation password'));
         }
+
         if (empty($this->source['id'])) {
             throw new OutOfBoundsException(tr('Cannot set password for user ":user", it has not been saved yet', [
                 ':user' => $this->getDisplayName(),
             ]));
         }
+
         if (empty($this->source['email'])) {
             throw new OutOfBoundsException(tr('Cannot set password for user ":user", it has no email address', [
                 ':user' => $this->getLogId(),
             ]));
         }
+
         // Is the password secure?
         Password::testSecurity($password, $this->source['email'], $this->source['id']);
+
         // Is the password not the same as the current password?
         try {
             static::doAuthenticate($this->source['email'], $password, isset_get($this->source['domain']), true);
@@ -1615,12 +1642,10 @@ class User extends DataEntry implements UserInterface
         if (!$rights) {
             return true;
         }
-        $contains = $this->getRights()
-                         ->containsKeys($rights, false, 'god');
-        if (
-            !$contains and $this->getRights()
-                                ->getCount()
-        ) {
+
+        $contains = $this->getRights()->containsKeys($rights, false, 'god');
+
+        if (!$contains and $this->getRights()->getCount()) {
             Rights::ensure($this->getMissingRights($rights));
         }
 
