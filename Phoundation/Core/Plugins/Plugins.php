@@ -308,7 +308,7 @@ class Plugins extends DataIterator implements PluginsInterface
             'status'    => null,
             'priority'  => 0,
             'class'     => 'Plugins\Phoundation\Phoundation\Library\Plugin',
-            'directory' => 'Plugins/Phoundation/',
+            'directory' => 'Plugins/Phoundation/Phoundation/',
         ];
     }
 

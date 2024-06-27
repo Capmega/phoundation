@@ -36,15 +36,18 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 class Plugin extends DataEntry implements PluginInterface
 {
     use TraitDataEntryNameDescription;
-    use TraitDataEntryDirectory;
+    use TraitDataEntryDirectory {
+        setDirectory as protected __setDirectory;
+    }
     use TraitDataEntryPriority {
-        setPriority as setTraitPriority;
+        setPriority as protected __setPriority;
     }
 
     /**
@@ -407,7 +410,7 @@ class Plugin extends DataEntry implements PluginInterface
             }
         }
 
-        return $this->setTraitPriority($priority);
+        return $this->__setPriority($priority);
     }
 
 
@@ -513,6 +516,24 @@ class Plugin extends DataEntry implements PluginInterface
     {
         static::unlinkScripts();
         sql()->delete('core_plugins', [':seo_name' => $this->getName()], $comments);
+    }
+
+
+    /**
+     * Sets the path for this object
+     *
+     * @param FsDirectoryInterface|string|null $directory
+     * @param FsRestrictionsInterface|null     $restrictions
+     *
+     * @return static
+     */
+    public function setDirectory(FsDirectoryInterface|string|null $directory, ?FsRestrictionsInterface $restrictions = null): static
+    {
+        if (!$restrictions) {
+            $restrictions = FsRestrictions::getReadonly(DIRECTORY_ROOT . 'Plugins', 'Plugin::setDirectory()');
+        }
+
+        return $this->set(is_string($directory) ? new FsDirectory($directory, $restrictions) : $directory, 'directory');
     }
 
 
