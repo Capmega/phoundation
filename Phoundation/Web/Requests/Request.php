@@ -34,6 +34,7 @@ use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\Time;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
@@ -1407,6 +1408,11 @@ abstract class Request implements RequestInterface
      */
     #[NoReturn] public static function executeSystem(int $http_code, ?Throwable $e = null, ?string $message = null): never
     {
+        if ($e instanceof \Exception and Debug::isEnabled()) {
+            // Don't show the pretty page, show the full exception
+            throw $e;
+        }
+
         SystemRequest::new()->execute($http_code, $e, $message);
     }
 
