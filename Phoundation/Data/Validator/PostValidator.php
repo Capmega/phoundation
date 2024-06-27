@@ -22,6 +22,7 @@ use Phoundation\Data\Validator\Exception\CsrfFailedException;
 use Phoundation\Data\Validator\Exception\PostValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Developer\Debug;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Csrf;
@@ -346,7 +347,10 @@ class PostValidator extends Validator
      */
     public function get(string $key): mixed
     {
-        Log::warning(tr('Forcibly returned $_POST[:key] without data validation!', [':key' => $key]));
+        Log::warning(tr('Forcibly returned $_POST[:key] without data validation at ":location"!', [
+            ':key'      => $key,
+            ':location' => Strings::from(Debug::getPreviousCall()->getLocation(), DIRECTORY_WEB),
+        ]));
 
         if (array_key_exists($key, $this->source)) {
             return $this->source[$key];

@@ -22,6 +22,7 @@ use Phoundation\Data\Validator\Exception\GetValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Developer\Debug;
 use Phoundation\Utils\Strings;
 
 class GetValidator extends Validator
@@ -139,7 +140,10 @@ class GetValidator extends Validator
      */
     public function get(string $key): mixed
     {
-        Log::warning(tr('Forcibly returned $_GET[:key] without data validation!', [':key' => $key]));
+        Log::warning(tr('Forcibly returned $_GET[:key] without data validation at ":location"!', [
+            ':key'      => $key,
+            ':location' => Strings::from(Debug::getPreviousCall()->getLocation(), DIRECTORY_WEB),
+        ]));
 
         if (array_key_exists($key, $this->source)) {
             return $this->source[$key];
