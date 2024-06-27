@@ -349,7 +349,7 @@ class PostValidator extends Validator
     {
         Log::warning(tr('Forcibly returned $_POST[:key] without data validation at ":location"!', [
             ':key'      => $key,
-            ':location' => Strings::from(Debug::getPreviousCall()->getLocation(), DIRECTORY_WEB),
+            ':location' => Strings::from(Debug::getPreviousCall()->getLocation(), DIRECTORY_ROOT),
         ]));
 
         if (array_key_exists($key, $this->source)) {
@@ -419,7 +419,7 @@ class PostValidator extends Validator
             return parent::validate($clean_source);
 
         } catch (ValidationFailedException $e) {
-            throw new PostValidationFailedException($e);
+            throw new PostValidationFailedException(tr('Post validation failed due to CSRF exception'), $e);
         }
     }
 

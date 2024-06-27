@@ -173,7 +173,7 @@ class CookieValidator extends Validator
     {
         Log::warning(tr('Forcibly returned $_COOKIE[:key] without data validation at ":location"!', [
             ':key'      => $key,
-            ':location' => Strings::from(Debug::getPreviousCall()->getLocation(), DIRECTORY_WEB),
+            ':location' => Strings::from(Debug::getPreviousCall()->getLocation(), DIRECTORY_ROOT),
         ]));
 
         return isset_get($this->source[$key]);
