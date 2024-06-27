@@ -36,11 +36,11 @@ trait TraitDataEntryDirectory
     /**
      * Sets the path for this object
      *
-     * @param FsDirectoryInterface|null $directory
+     * @param FsDirectoryInterface|string|null $directory
      *
      * @return static
      */
-    public function setDirectory(FsDirectoryInterface|null $directory, ?FsRestrictionsInterface $restrictions = null): static
+    public function setDirectory(FsDirectoryInterface|string|null $directory, ?FsRestrictionsInterface $restrictions = null): static
     {
         return $this->set(is_string($directory) ? new FsDirectory($directory, $restrictions) : $directory, 'directory');
     }
