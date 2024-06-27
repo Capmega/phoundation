@@ -1007,15 +1007,15 @@ class Core implements CoreInterface
         $defines = [
             'ADMIN'      => '',
             'PWD'        => Strings::slash(isset_get($_SERVER['PWD'])),
-            'FORCE'      => (getenv('FORCE') ? 'FORCE' : null),
-            'TEST'       => (getenv('TEST') ? 'TEST' : null),
-            'QUIET'      => (getenv('QUIET') ? 'QUIET' : null),
+            'FORCE'      => (getenv('FORCE')      ? 'FORCE'      : null),
+            'TEST'       => (getenv('TEST')       ? 'TEST'       : null),
+            'QUIET'      => (getenv('QUIET')      ? 'QUIET'      : null),
             'VERY_QUIET' => (getenv('VERY_QUIET') ? 'VERY_QUIET' : null),
-            'LIMIT'      => (getenv('LIMIT') ? 'LIMIT' : Config::getNatural('paging.limit', 50)),
-            'ORDERBY'    => (getenv('ORDERBY') ? 'ORDERBY' : null),
-            'ALL'        => (getenv('ALL') ? 'ALL' : null),
-            'DELETED'    => (getenv('DELETED') ? 'DELETED' : null),
-            'STATUS'     => (getenv('STATUS') ? 'STATUS' : null),
+            'LIMIT'      => (getenv('LIMIT')      ? 'LIMIT'      : Config::getNatural('paging.limit', 50)),
+            'ORDERBY'    => (getenv('ORDERBY')    ? 'ORDERBY'    : null),
+            'ALL'        => (getenv('ALL')        ? 'ALL'        : null),
+            'DELETED'    => (getenv('DELETED')    ? 'DELETED'    : null),
+            'STATUS'     => (getenv('STATUS')     ? 'STATUS'     : null),
         ];
 
         foreach ($defines as $key => $value) {
@@ -1045,7 +1045,9 @@ class Core implements CoreInterface
                         ':type'    => Request::getRequestType()->value,
                         ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
                     ]));
+
                     Log::error($e);
+
                     exit('exception before platform detection');
                 }
 
@@ -1072,6 +1074,7 @@ class Core implements CoreInterface
                                         Log::notice($file, 10);
                                     }
                                 }
+
                             } elseif ($e instanceof CliCommandNotFoundException) {
                                 if ($data = $e->getData()) {
                                     Log::information('Available sub methods:', 9, echo_prefix: false);
@@ -1080,6 +1083,7 @@ class Core implements CoreInterface
                                     }
                                 }
                             }
+
                             Core::exit(255);
                         }
 // TODO Remplement this with proper exception classes
@@ -1141,6 +1145,7 @@ class Core implements CoreInterface
 //                                    Script::setExitCode(250);
 //                                    exit(Script::getExitCode());
 //                            }
+
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" CLI PLATFORM COMMAND ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                             ':code'        => $e->getCode(),
                             ':type'        => Request::getRequestType()->value,
@@ -1148,8 +1153,10 @@ class Core implements CoreInterface
                             ':command'     => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
                         ]));
+
                         Log::error(tr('Exception data:'));
                         Log::error($e);
+
 //                        Log::error();
 //                        Log::write(tr('Extended trace:'), 'debug', 10, false);
 //                        Log::write(print_r($e->getTrace(), true), 'debug', 10, false);
@@ -1158,11 +1165,13 @@ class Core implements CoreInterface
 //                        Log::write(print_r(debug_backtrace(), true), 'debug', 10, false);
 //                        Log::printr(debug_backtrace());
                         Core::exit(1);
+
                     case 'web':
                         if ($e instanceof ValidationFailedException) {
                             // This is just a simple validation warning, show warning messages in the exception data
                             Log::warning($e->getMessage());
                             Log::warning($e->getData());
+
                             if (!Debug::isEnabled()) {
                                 Request::executeSystem(400);
                             }
@@ -1171,9 +1180,12 @@ class Core implements CoreInterface
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
-                            Request::executeSystem(500);
 
+                            if (!Debug::isEnabled()) {
+                                Request::executeSystem(500);
+                            }
                         }
+
                         // Log exception data
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                             ':code'        => $e->getCode(),
@@ -1182,13 +1194,17 @@ class Core implements CoreInterface
                             ':command'     => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
                         ]));
+
                         Log::error(tr('Exception data:'));
                         Log::error($e);
+
                         if (!Debug::isEnabled()) {
                             Request::executeSystem(500);
                         }
+
                         // Make sure the Router shutdown won't happen so it won't send a 404
                         Core::removeShutdownCallback('route[postprocess]');
+
                         // Remove all caching headers
                         if (!headers_sent()) {
                             header_remove('ETag');
@@ -1200,8 +1216,10 @@ class Core implements CoreInterface
                             header('Content-Type: text/html');
                             header('Content-length: 1048576'); // Required or browser won't show half the information
                         }
+
                         //
                         static::removeShutdownCallback('route_postprocess');
+
                         try {
                             Notification::new()
                                         ->setException($e)
@@ -1213,6 +1231,7 @@ class Core implements CoreInterface
                                         ->setException($f)
                                         ->send();
                         }
+
                         if (static::inStartupState($state)) {
                             /*
                              * Configuration hasn't been loaded yet, we cannot even know
@@ -1225,6 +1244,7 @@ class Core implements CoreInterface
                             if (!headers_sent()) {
                                 header('Content-Type: text/html', true);
                             }
+
                             if (method_exists($e, 'getMessages')) {
                                 foreach ($e->getMessages() as $message) {
                                     Log::error($message);
@@ -1233,19 +1253,24 @@ class Core implements CoreInterface
                             } else {
                                 Log::error($e->getMessage());
                             }
+
                             Core::exit(1, tr('System startup exception. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
                         }
+
                         if ($e->getCode() === 'validation') {
                             $e->setCode(400);
                         }
+
                         if (Debug::isEnabled()) {
                             switch (Request::getRequestType()) {
                                 case EnumRequestTypes::api:
                                     // no break
+
                                 case EnumRequestTypes::ajax:
                                     echo "UNCAUGHT EXCEPTION\n\n";
                                     showdie($e);
                             }
+
                             $return = ' <style>
                                         table.exception{
                                             font-family: sans-serif;
