@@ -38,8 +38,10 @@ class ValidationFailedException extends ValidatorException implements Validation
         $this->makeWarning();
 
         if (Config::getBoolean('security.validation.failures.log', true)) {
-            // Automatically log validation failures
-            Log::warning($this);
+            // Automatically log validation failures, but only once!
+            if (empty($previous)) {
+                Log::warning($this);
+            }
         }
     }
 
