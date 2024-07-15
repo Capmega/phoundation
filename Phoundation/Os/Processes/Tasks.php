@@ -52,7 +52,7 @@ class Tasks extends DataIterator implements TasksInterface
         if (!isset(static::$max_task_workers)) {
             static::$max_task_workers = Config::getInteger('tasks.workers.maximum', 25);
         }
-        $this->keys_are_unique_column = true;
+
         parent::__construct($source);
     }
 
@@ -135,7 +135,7 @@ class Tasks extends DataIterator implements TasksInterface
 
 
     /**
-     * ExecuteExecuteInterface the tasks in this list
+     * Execute the tasks in this list
      *
      * @return $this
      */

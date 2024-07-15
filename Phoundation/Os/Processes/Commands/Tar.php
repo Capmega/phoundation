@@ -32,7 +32,7 @@ class Tar extends Command
      *
      * @return FsDirectoryInterface
      */
-    public function untar(FsFileInterface $file, ?FsDirectoryInterface $target = null, int $timeout = 600 ): FsDirectoryInterface
+    public function untar(FsFileInterface $file, ?FsDirectoryInterface $target = null, int $timeout = 600): FsDirectoryInterface
     {
         try {
             if (!$target) {
@@ -50,7 +50,7 @@ class Tar extends Command
 
         } catch (ProcessFailedException $e) {
             // The command tar failed, most of the time either $file doesn't exist, or we don't have access
-            static::handleException('tar', $e, function ($file, $line, $e) use ($file) {
+            static::handleException('tar', $e, function ($source_file, $source_line, $e) use ($file) {
                 FsFile::new($file)->checkReadable($e);
             });
         }
@@ -61,28 +61,28 @@ class Tar extends Command
      * Tars the specified path
      *
      * @param FsPathInterface      $path
-     * @param FsFileInterface|null $target_file
+     * @param FsFileInterface|null $target
      * @param bool                 $compression
      * @param int                  $timeout
      *
-     * @return string
+     * @return FsFileInterface
      */
-    public function tar(FsPathInterface $path, ?FsFileInterface $target_file = null, bool $compression = true, int $timeout = 600): string
+    public function tar(FsPathInterface $path, ?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface
     {
         try {
-            if (!$target_file) {
-                $target_file = $path . '.tar.gz';
+            if (!$target) {
+                $target = new FsFile($path . '.tar.gz');
             }
 
             $this->setExecutionDirectory($path->getParentDirectory())
                  ->setCommand('tar')
                  ->addArguments(['-c', ($compression ? 'j' : null), '-f'])
-                 ->addArguments($target_file)
+                 ->addArguments($target)
                  ->addArguments($path)
                  ->setTimeout($timeout)
                  ->executeNoReturn();
 
-            return $target_file;
+            return $target;
 
         } catch (ProcessFailedException $e) {
             // The command tar failed, most of the time either $file doesn't exist, or we don't have access

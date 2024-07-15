@@ -22,7 +22,7 @@ use Stringable;
 class Cp extends Command
 {
     /**
-     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
+     * Execute the rsync operation and return the PID (background) or -1
      *
      * @param Stringable|string          $source
      * @param FsRestrictions             $source_restrictions

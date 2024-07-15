@@ -41,7 +41,7 @@ class Composer extends Command
 
 
     /**
-     * ExecuteExecuteInterface composer update
+     * Execute composer update
      *
      * @param EnumExecuteMethod $method
      *
@@ -54,7 +54,7 @@ class Composer extends Command
 
 
     /**
-     * ExecuteExecuteInterface composer require
+     * Execute composer require
      *
      * @param EnumExecuteMethod $method
      *
@@ -67,7 +67,7 @@ class Composer extends Command
 
 
     /**
-     * ExecuteExecuteInterface composer remove
+     * Execute composer remove
      *
      * @param EnumExecuteMethod $method
      *
@@ -80,7 +80,7 @@ class Composer extends Command
 
 
     /**
-     * ExecuteExecuteInterface composer why
+     * Execute composer why
      *
      * @param EnumExecuteMethod $method
      *
@@ -93,7 +93,7 @@ class Composer extends Command
 
 
     /**
-     * ExecuteExecuteInterface composer search
+     * Execute composer search
      *
      * @param EnumExecuteMethod $method
      *
@@ -106,7 +106,7 @@ class Composer extends Command
 
 
     /**
-     * ExecuteExecuteInterface composer fund
+     * Execute composer fund
      *
      * @param EnumExecuteMethod $method
      *

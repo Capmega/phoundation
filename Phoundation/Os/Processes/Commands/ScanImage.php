@@ -485,7 +485,7 @@ class ScanImage extends Command
 
 
     /**
-     * ExecuteExecuteInterface the configured scan
+     * Execute the configured scan
      *
      * @param string                     $path
      * @param EnumExecuteMethod $method

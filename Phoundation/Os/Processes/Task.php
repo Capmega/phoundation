@@ -588,10 +588,10 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function doExecute(): static
     {
-        // ExecuteExecuteInterface hook
+        // Execute hook
         Hook::new('tasks')
             ->execute('pre-execute', ['task' => $this]);
-        // ExecuteExecuteInterface the command
+        // Execute the command
         $worker = ProcessWorker::new($this->getCommand(), $this->getExecutionDirectory())
                                ->setServer($this->getServer())
                                ->setArguments($this->getArguments())
@@ -615,7 +615,7 @@ class Task extends DataEntry implements TaskInterface
              ->setStatus('executing')
              ->setExecutedCommand($worker->getFullCommandLine())
              ->save();
-        // ExecuteExecuteInterface the task
+        // Execute the task
         try {
             $results = $worker->executeReturnString();
             Log::success(tr('Task ":task" finished execution in ":time"', [
@@ -649,7 +649,7 @@ class Task extends DataEntry implements TaskInterface
                             ->send();
 
             }
-            // ExecuteExecuteInterface hook
+            // Execute hook
             Hook::new('tasks')
                 ->execute('post-execute', [
                     'task'   => $this,
@@ -693,7 +693,7 @@ class Task extends DataEntry implements TaskInterface
 
             }
 
-            // ExecuteExecuteInterface hook
+            // Execute hook
             Hook::new('tasks')
                 ->execute('execution-failed', [
                     'task'   => $this,
@@ -1310,7 +1310,7 @@ class Task extends DataEntry implements TaskInterface
                     ->add(Definition::new($this, 'execute_after')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::datetime_local)
-                                    ->setLabel('ExecuteExecuteInterface after')
+                                    ->setLabel('Execute after')
                                     ->setCliColumn('[--execute-after DATETIME]')
                                     ->setSize(4)
                                     ->setMaxlength(17)
@@ -1370,7 +1370,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setMaxlength(255)
-                                    ->setLabel('ExecuteExecuteInterface on server')
+                                    ->setLabel('Execute on server')
                                     ->setCliColumn('[-s,--server HOSTNAME]')
                                     ->setSize(4)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -1406,7 +1406,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setCliColumn('[-d,--execution-directory PATH]')
                                     ->setSize(4)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDirectory('/', FsRestrictions::getWritable('/'));
+                                        $validator->isDirectory(FsDirectory::getFilesystemRoot());
                                     }))
                     ->add(Definition::new($this, 'command')
                                     ->setInputType(EnumInputType::text)

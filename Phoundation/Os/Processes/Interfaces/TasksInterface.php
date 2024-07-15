@@ -34,7 +34,7 @@ interface TasksInterface extends DataIteratorInterface
 
 
     /**
-     * ExecuteExecuteInterface the tasks in this list
+     * Execute the tasks in this list
      *
      * @return $this
      */

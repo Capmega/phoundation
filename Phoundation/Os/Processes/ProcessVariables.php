@@ -1170,13 +1170,13 @@ trait ProcessVariables
                         // The command does not exist, but maybe we can auto install?
                         if (!$this->failed) {
                             if ($this->packages?->keyExists($command) and !in_array($command, $this->packages)) {
-                                throw new ProcessesException(tr('Specified process command ":command" does not exist, and auto install is denied by the package filter list', [
+                                throw new ProcessesException(tr('Specified command ":command" does not exist, and auto install is denied by the package filter list', [
                                     ':command' => $command,
                                 ]));
                             }
 
                             if (!Command::sudoAvailable('apt-get', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
-                                throw new ProcessesException(tr('Specified process command ":command" does not exist and this process does not have sudo access to apt-get', [
+                                throw new ProcessesException(tr('Specified command ":command" does not exist and this process does not have sudo access to apt-get', [
                                     ':command' => $command,
                                 ]));
                             }
@@ -1184,7 +1184,7 @@ trait ProcessVariables
 
                         $this->failed = true;
 
-                        throw new CommandNotFoundException(tr('Specified process command ":command" does not exist', [
+                        throw new CommandNotFoundException(tr('Specified command ":command" does not exist', [
                             ':command' => $command,
                         ]));
 

@@ -30,7 +30,7 @@ interface ProcessCoreInterface extends Stringable
 
 
     /**
-     * ExecuteExecuteInterface the command using the PHP exec() call and return an array
+     * Execute the command using the PHP exec() call and return an array
      *
      * @return array The output from the executed command
      */
@@ -38,7 +38,7 @@ interface ProcessCoreInterface extends Stringable
 
 
     /**
-     * ExecuteExecuteInterface the command using the PHP exec() call and return an IteratorInterface
+     * Execute the command using the PHP exec() call and return an IteratorInterface
      *
      * @return IteratorInterface The output from the executed command
      */
@@ -46,7 +46,7 @@ interface ProcessCoreInterface extends Stringable
 
 
     /**
-     * ExecuteExecuteInterface the command using the PHP exec() call and return a string
+     * Execute the command using the PHP exec() call and return a string
      *
      * @return string The output from the executed command
      */
@@ -54,7 +54,7 @@ interface ProcessCoreInterface extends Stringable
 
 
     /**
-     * ExecuteExecuteInterface the command using the PHP exec() call and return a string
+     * Execute the command using the PHP exec() call and return a string
      *
      * @return static
      */
@@ -62,7 +62,7 @@ interface ProcessCoreInterface extends Stringable
 
 
     /**
-     * ExecuteExecuteInterface the command and depending on specified method, return or log output
+     * Execute the command and depending on specified method, return or log output
      *
      * @param EnumExecuteMethod $method
      *
@@ -72,7 +72,7 @@ interface ProcessCoreInterface extends Stringable
 
 
     /**
-     * ExecuteExecuteInterface the command using passthru and send the output directly to the client
+     * Execute the command using passthru and send the output directly to the client
      *
      * @return bool
      */

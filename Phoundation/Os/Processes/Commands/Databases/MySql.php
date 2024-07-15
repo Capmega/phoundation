@@ -152,7 +152,7 @@ class MySql extends Command
 
 
     /**
-     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
+     * Execute the rsync operation and return the PID (background) or -1
      *
      * @param EnumExecuteMethod $method
      *
@@ -226,7 +226,7 @@ class MySql extends Command
 
 
     /**
-     * ExecuteExecuteInterface a query on a remote SSH server in a bash command
+     * Execute a query on a remote SSH server in a bash command
      *
      * @note This does NOT support bound variables!
      *

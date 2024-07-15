@@ -213,7 +213,7 @@ interface MysqlDumpInterface
 
 
     /**
-     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
+     * Execute the rsync operation and return the PID (background) or -1
      *
      * @param string|null                $file
      * @param EnumExecuteMethod $method

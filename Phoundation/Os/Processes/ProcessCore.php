@@ -113,7 +113,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * ExecuteExecuteInterface the command and depending on specified method, return or log output
+     * Execute the command and depending on specified method, return or log output
      *
      * @param EnumExecuteMethod $method
      *
@@ -155,7 +155,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * ExecuteExecuteInterface the command using the PHP exec() call and return an array
+     * Execute the command using the PHP exec() call and return an array
      *
      * @return array The output from the executed command
      */
@@ -268,14 +268,14 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             $this->cached_command_line = 'sleep ' . ($this->wait / 1000) . '; ' . $this->cached_command_line;
         }
 
-        // ExecuteExecuteInterface the command in this directory
+        // Execute the command in this directory
         if ($this->execution_directory?->isSet()) {
             $this->cached_command_line = 'cd ' . escapeshellarg($this->execution_directory->getPath()) . '; ' . $this->cached_command_line;
         }
 
-        // ExecuteExecuteInterface on a server?
+        // Execute on a server?
         if (!empty($this->server)) {
-            // ExecuteExecuteInterface on a server!
+            // Execute on a server!
             if ($this->sudo) {
                 // Add sudo
                 $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
@@ -284,7 +284,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             $this->cached_command_line = $this->server->getSshCommandLine($this->cached_command_line);
         }
 
-        // ExecuteExecuteInterface the command in the specified terminal
+        // Execute the command in the specified terminal
         if ($this->term) {
             $this->cached_command_line = 'export TERM=' . $this->term . '; ' . $this->cached_command_line;
         }
@@ -557,7 +557,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * ExecuteExecuteInterface the command using passthru and send the output directly to the client
+     * Execute the command using passthru and send the output directly to the client
      *
      * @return bool
      */
@@ -607,7 +607,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * ExecuteExecuteInterface the command using the PHP exec() call and return a string
+     * Execute the command using the PHP exec() call and return a string
      *
      * @return string The output from the executed command
      */
@@ -623,7 +623,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * ExecuteExecuteInterface the command using the PHP exec() call and return an IteratorInterface
+     * Execute the command using the PHP exec() call and return an IteratorInterface
      *
      * @return IteratorInterface The output from the executed command
      */
@@ -636,7 +636,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * ExecuteExecuteInterface the command using the PHP exec() call and return a string
+     * Execute the command using the PHP exec() call and return a string
      *
      * @return static
      */

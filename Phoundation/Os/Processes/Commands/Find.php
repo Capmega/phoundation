@@ -825,7 +825,7 @@ class Find extends Command implements FindInterface
         // The output array should have keys the same as values
         $this->output = Arrays::valueToKeys($this->output);
 
-        // ExecuteExecuteInterface callbacks?
+        // Execute callbacks?
         if ($this->callback) {
             $callback = $this->callback;
 

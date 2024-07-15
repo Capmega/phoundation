@@ -228,7 +228,7 @@ interface RsyncInterface
 
 
     /**
-     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
+     * Execute the rsync operation and return the PID (background) or -1
      *
      * @param EnumExecuteMethod $method
      *

@@ -49,10 +49,10 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// ExecuteExecuteInterface the task(s)
+// Execute the task(s)
 if ($argv['task']) {
     try {
-        // ExecuteExecuteInterface a specific task
+        // Execute a specific task
         $task = Task::load($argv['task'])->execute();
 
     } catch (TaskAlreadyExecutedException) {

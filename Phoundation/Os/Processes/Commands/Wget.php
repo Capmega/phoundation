@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataBindAddress;
 use Phoundation\Data\Traits\TraitDataSourceString;
 use Phoundation\Data\Traits\TraitDataTarget;
@@ -27,7 +28,7 @@ class Wget extends Command
     use TraitDataBindAddress;
 
     /**
-     * ExecuteExecuteInterface the rsync operation and return the PID (background) or -1
+     * Execute the rsync operation and return the PID (background) or -1
      *
      * @param EnumExecuteMethod $method
      *
@@ -43,8 +44,9 @@ class Wget extends Command
                  '-O',
                  $this->target,
              ] : null)
-             ->addArgument($this->source)
-             ->execute($method);
+             ->addArgument($this->source);
+
+        parent::execute($method);
 
         return null;
     }
