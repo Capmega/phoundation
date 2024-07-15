@@ -224,7 +224,7 @@ interface SqlInterface
 
 
     /**
-     * ExecuteExecuteInterface query and return only the first row
+     * Execute query and return only the first row
      *
      * @param string|PDOStatement $query
      * @param array|null          $execute

@@ -80,10 +80,7 @@ CliDocumentation::setAutoComplete([
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('-f,--file', true)->isFile([
-                                                             DIRECTORY_DATA . 'sources/',
-                                                             DIRECTORY_TMP,
-                                                         ], $restrictions)
+                     ->select('-f,--file', true)->isFile([FsDirectory::getDataSources(), FsDirectory::getTemporary()])
                      ->select('-b,--database', true)->isVariable()
                      ->select('-c,--comments', true)->isOptional()->isPrintable()
                      ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true, true)->getAllRowsSingleColumn('name'))
@@ -93,7 +90,7 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// ExecuteExecuteInterface the import for the specified driver
+// Execute the import for the specified driver
 Import::new()
       ->setConnector($argv['connector'], true)
       ->setDatabase($argv['database'])
@@ -103,7 +100,7 @@ Import::new()
       ->import();
 
 
-// ExecuteExecuteInterface init?
+// Execute init?
 if ($argv['no_init']) {
     Log::warning(tr('Not executing database init due to "--no-init" argument but this may leave the database in an incompatible state!'));
 

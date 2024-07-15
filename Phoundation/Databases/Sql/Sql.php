@@ -305,7 +305,7 @@ class Sql implements SqlInterface
 
 
     /**
-     * ExecuteExecuteInterface query and return only the first row
+     * Execute query and return only the first row
      *
      * @param string|PDOStatement $query
      * @param array|null          $execute
@@ -397,12 +397,12 @@ class Sql implements SqlInterface
                 SqlQueries::checkWriteAllowed($query);
 
                 if (empty($execute)) {
-                    // ExecuteExecuteInterface plain SQL query string. Only return ASSOC data.
+                    // Execute plain SQL query string. Only return ASSOC data.
                     $query = $this->pdo->query($query);
                     $query->setFetchMode(PDO::FETCH_ASSOC);
 
                 } else {
-                    // ExecuteExecuteInterface the query with the specified $execute variables. Only return ASSOC data.
+                    // Execute the query with the specified $execute variables. Only return ASSOC data.
                     $query = $this->pdo->prepare($query);
                     $query->setFetchMode(PDO::FETCH_ASSOC);
                     $query->execute($execute);

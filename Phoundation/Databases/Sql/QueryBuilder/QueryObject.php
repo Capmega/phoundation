@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * QueryObject class
+ *
+ * This class helps building queries with multiple variables
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Databases
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\QueryBuilder;
@@ -11,16 +22,6 @@ use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryObjectInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 
-/**
- * QueryObject class
- *
- * This class helps building queries with multiple variables
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Databases
- */
 class QueryObject implements QueryObjectInterface
 {
     use TraitDataDebug;
@@ -128,6 +129,7 @@ class QueryObject implements QueryObjectInterface
     public function __construct(DataEntryInterface|DataIteratorInterface|null $parent = null)
     {
         $this->parent = $parent;
+
         if ($this->parent) {
             // The first from will be the table from the parent class
             $this->addFrom($parent->getTable());
@@ -183,6 +185,7 @@ class QueryObject implements QueryObjectInterface
         if (!$this->execute) {
             $this->execute = [];
         }
+
         $this->execute[Strings::ensureStartsWith($column, ':')] = $value;
 
         return $this;
@@ -210,17 +213,36 @@ class QueryObject implements QueryObjectInterface
      *
      * @return static
      */
+    public function setSelect(string $select, ?array $execute = null): static
+    {
+        $this->select = [];
+
+        return $this->addSelect($select, $execute);
+    }
+
+
+    /**
+     * Make this a SELECT query by adding the select clause here
+     *
+     * @param string     $select
+     * @param array|null $execute
+     *
+     * @return static
+     */
     public function addSelect(string $select, ?array $execute = null): static
     {
         if ($this->delete) {
             throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add SELECT'));
         }
+
         if ($this->update) {
             throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add SELECT'));
         }
+
         if (!$this->select) {
             $select = 'SELECT ' . $select;
         }
+
         $this->select[] = $select;
 
         return $this->addExecuteArray($execute);
@@ -240,12 +262,15 @@ class QueryObject implements QueryObjectInterface
         if ($this->select) {
             throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add DELETE'));
         }
+
         if ($this->update) {
             throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add DELETE'));
         }
+
         if (!$this->delete) {
             $delete = 'DELETE ' . $delete;
         }
+
         $this->delete[] = $delete;
 
         return $this->addExecuteArray($execute);
@@ -265,9 +290,11 @@ class QueryObject implements QueryObjectInterface
         if ($this->select) {
             throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add UPDATE'));
         }
+
         if ($this->delete) {
             throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add UPDATE'));
         }
+
         $this->update[] = $update;
 
         return $this->addExecuteArray($execute);
@@ -394,21 +421,26 @@ class QueryObject implements QueryObjectInterface
         switch (gettype($value)) {
             case 'NULL':
                 return ' IS NULL ';
+
             case 'string':
                 $this->execute[Strings::ensureStartsWith($column, ':')] = $value;
 
                 return ' = :' . $column . ' ';
+
             case 'array':
                 switch (count($value) == 1) {
                     case 0:
                         // Nothing here!
                         return '';
+
                     case 1:
                         // This is just a scalar, try again!
                         return $this->compareQuery($column, current($value));
                 }
+
                 $count   = 0;
                 $columns = [];
+
                 foreach ($value as $scalar) {
                     $this->execute[$column . $count++] = $scalar;
                     $columns[]                         = $column . ($count++);
@@ -416,6 +448,7 @@ class QueryObject implements QueryObjectInterface
 
                 return ' = IN (' . implode(', ', $columns) . ') ';
         }
+
         throw new OutOfBoundsException(tr('Unknown / unsupported datatype specified for value ":value"', [
             ':value' => $value,
         ]));

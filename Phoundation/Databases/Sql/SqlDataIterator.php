@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class SqlDataIterator
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Databases
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql;
@@ -19,16 +30,6 @@ use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 
-/**
- * Class SqlDataIterator
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Databases
- */
 class SqlDataIterator implements SqlDataIteratorInterface
 {
     use TraitDataDataIterator {
@@ -40,6 +41,7 @@ class SqlDataIterator implements SqlDataIteratorInterface
     use TraitDataMetaEnabled;
     use TraitDataRandomId;
     use TraitDataTable;
+
 
     /**
      * The actual SQL connector
@@ -60,28 +62,28 @@ class SqlDataIterator implements SqlDataIteratorInterface
      * SqlDataIterator class constructor
      *
      * @param SqlInterface          $sql
-     * @param DataIteratorInterface $data_list
+     * @param DataIteratorInterface $data_iterator
      */
-    public function __construct(SqlInterface $sql, DataIteratorInterface $data_list)
+    public function __construct(SqlInterface $sql, DataIteratorInterface $data_iterator)
     {
         $this->setSql($sql)
-             ->setDataIterator($data_list);
+             ->setDataIterator($data_iterator);
     }
 
 
     /**
      * Sets the data list
      *
-     * @param DataIteratorInterface $data_list
+     * @param DataIteratorInterface $data_iterator
      *
      * @return static
      */
-    public function setDataIterator(DataIteratorInterface $data_list): static
+    public function setDataIterator(DataIteratorInterface $data_iterator): static
     {
-        $this->setTable($data_list->getTable())
-             ->setIdColumn($data_list->getIndexColumn());
+        $this->setTable($data_iterator->getTable())
+             ->setIdColumn($data_iterator->getUniqueColumn());
 
-        return $this->__setDataIterator($data_list);
+        return $this->__setDataIterator($data_iterator);
     }
 
 

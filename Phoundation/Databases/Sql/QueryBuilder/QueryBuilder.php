@@ -67,7 +67,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     public function getQuery(bool $debug = false): string
     {
         $query = (($this->debug or $debug) ? ' ' : '');
-        // ExecuteExecuteInterface all predefines before executing the query
+        // Execute all predefines before executing the query
         foreach ($this->predefines as $predefine) {
             $predefine();
         }

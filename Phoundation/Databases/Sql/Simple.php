@@ -96,7 +96,7 @@
 //        $resource = Sql::query(($params['debug'] ? ' ' : '') . 'SELECT ' . $columns . ' FROM  `' . $params['table'] . '` ' . $joins . $where . $orderby . $limit, $execute, $params['connector']);
 //
 //        /*
-//         * ExecuteExecuteInterface query and return results
+//         * Execute query and return results
 //         */
 //        switch ($params['method']) {
 //            case 'resource':
