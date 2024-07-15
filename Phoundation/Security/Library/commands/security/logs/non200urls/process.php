@@ -10,7 +10,7 @@ use Phoundation\Web\Non200Urls\Non200Urls;
 /**
  * Command security/non200urls/process
  *
- * This script will process Non HTTP-200 URL's and check for any illicit activities
+ * This command will process Non HTTP-200 URL's and check for any illicit activities
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

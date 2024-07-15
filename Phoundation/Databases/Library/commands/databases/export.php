@@ -3,7 +3,7 @@
 /**
  * Command databases export
  *
- * This script will export the specified database to the specified database file
+ * This command will export the specified database to the specified database file
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

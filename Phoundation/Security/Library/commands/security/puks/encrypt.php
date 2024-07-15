@@ -9,7 +9,7 @@ use Phoundation\Security\Puks\Puks;
 /**
  * Command puks/encrypt
  *
- * This script will encrypt the specified data using the PUKS system
+ * This command will encrypt the specified data using the PUKS system
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

@@ -11,7 +11,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 /**
  * Command business/companies/create
  *
- * This script will create a new company with the specified properties
+ * This command will create a new company with the specified properties
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

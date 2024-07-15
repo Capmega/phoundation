@@ -13,7 +13,7 @@ use Phoundation\Filesystem\FsRestrictions;
 /**
  * Command project/check
  *
- * This script will check for - and report - (and optionally fix) the project and its systems
+ * This command will check for - and report - (and optionally fix) the project and its systems
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

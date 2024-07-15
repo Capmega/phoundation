@@ -9,7 +9,7 @@ use Phoundation\Tests\Tests;
 /**
  * Command tests/cache/rebuild
  *
- * This script will rebuild the test cache
+ * This command will rebuild the test cache
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

@@ -12,7 +12,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 /**
  * Command accounts/users/modify
  *
- * This script will modify a user with the specified properties
+ * This command will modify a user with the specified properties
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

@@ -3,7 +3,11 @@
 /**
  * Command servers accounts list
  *
+<<<<<<< Updated upstream
  * This script will list the available SSH accounts on this system
+=======
+ * This command will list the available accounts on this system
+>>>>>>> Stashed changes
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

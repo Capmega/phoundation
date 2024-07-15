@@ -9,7 +9,7 @@ use Phoundation\Tests\Tests;
 /**
  * Command tests/unit/start
  *
- * This script will start PHP unit testing
+ * This command will start PHP unit testing
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

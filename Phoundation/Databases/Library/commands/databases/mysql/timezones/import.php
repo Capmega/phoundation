@@ -14,7 +14,7 @@ use Phoundation\Os\Processes\Commands\Databases\MySql;
 /**
  * Command databases/mysql/timezones/import
  *
- * This script will import the mysql timezones
+ * This command will import the mysql timezones
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

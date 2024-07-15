@@ -14,7 +14,7 @@ use Phoundation\Os\Processes\Tasks;
 /**
  * Command workers/execute
  *
- * This script will execute a parent worker that will execute its task through multiple parallel child workers
+ * This command will execute a parent worker that will execute its task through multiple parallel child workers
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

@@ -11,7 +11,7 @@ use Phoundation\Developer\Project\Project;
 /**
  * Command project/fix
  *
- * This script will fix project issues.
+ * This command will fix project issues.
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

@@ -3,7 +3,7 @@
 /**
  * Command databases import
  *
- * This script will import the specified database file into the specified database
+ * This command will import the specified database file into the specified database
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

@@ -5,7 +5,7 @@ THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS * Command developer patch
  *
  * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This script will copy git change patches back to your phoundation core, phoundation plugins, and phoundation
+ * This command will copy git change patches back to your phoundation core, phoundation plugins, and phoundation
  * templates installations where you can submit them.
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

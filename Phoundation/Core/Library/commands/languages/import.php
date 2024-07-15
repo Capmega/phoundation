@@ -10,7 +10,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 /**
  * Command languages/import
  *
- * This script will import data into the languages table from the data/sources/languages/languages file
+ * This command will import data into the languages table from the data/sources/languages/languages file
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

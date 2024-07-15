@@ -3,7 +3,7 @@
 /**
  * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This script will copy changed files back to your phoundation installation. The script will assume your phoundation
+ * This command will copy changed files back to your phoundation installation. The script will assume your phoundation
  * installation is in ~/projects/phoundation
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

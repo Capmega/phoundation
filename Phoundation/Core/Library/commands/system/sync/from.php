@@ -3,7 +3,7 @@
 /**
  * Command system/sync/from
  *
- * This script will synchronize either the specified environment to your local environment or vice versa.
+ * This command will synchronize either the specified environment to your local environment or vice versa.
  *
  * With this, a production environment can easily be tested locally, for example
  *

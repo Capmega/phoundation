@@ -11,7 +11,7 @@ use Phoundation\Utils\Config;
 /**
  * Command config/create-default
  *
- * This script will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration
+ * This command will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration
  * paths and their default values
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

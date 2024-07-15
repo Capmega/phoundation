@@ -19,7 +19,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 /**
  * Command monitor/service
  *
- * This script will monitor the specified service (by name) and alert and restart when it stops
+ * This command will monitor the specified service (by name) and alert and restart when it stops
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

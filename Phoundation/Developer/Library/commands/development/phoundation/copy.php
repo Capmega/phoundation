@@ -14,7 +14,7 @@ use Phoundation\Filesystem\FsRestrictions;
 /**
  * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This script will copy the specified file back to your phoundation development installation
+ * This command will copy the specified file back to your phoundation development installation
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

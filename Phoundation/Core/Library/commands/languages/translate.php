@@ -10,7 +10,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 /**
  * Command languages/translate
  *
- * This script will translate your project into the various configured translations
+ * This command will translate your project into the various configured translations
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

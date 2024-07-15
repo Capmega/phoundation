@@ -14,7 +14,7 @@ use Phoundation\Servers\SshAccount;
 /**
  * Command servers/accounts/modify
  *
- * This script will create a new account with the specified properties
+ * This command will create a new account with the specified properties
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

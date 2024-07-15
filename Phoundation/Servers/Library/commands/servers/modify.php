@@ -12,7 +12,7 @@ use Phoundation\Servers\Server;
 /**
  * Command servers/modify
  *
- * This script will modify a server with the specified properties
+ * This command will modify a server with the specified properties
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

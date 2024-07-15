@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This script will copy the specified files back to the various phoundation repositories found on your system
+ * This command will copy the specified files back to the various phoundation repositories found on your system
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

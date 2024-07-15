@@ -10,7 +10,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 /**
  * Command system/modes/readonly/enable
  *
- * This script will enable readonly mode
+ * This command will enable readonly mode
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

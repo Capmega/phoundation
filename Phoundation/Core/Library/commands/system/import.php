@@ -11,7 +11,7 @@ use Phoundation\Developer\Project\Project;
 /**
  * Command system/import
  *
- * This script will import all data to get your system going. Currently this script will import:
+ * This command will import all data to get your system going. Currently this script will import:
  *
  * languages
  * geo data (continents, countries, states, counties, cities, etc) (under construction)

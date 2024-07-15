@@ -11,7 +11,7 @@ use Phoundation\Databases\Sql\SqlQueries;
 /**
  * Command accounts/users/list
  *
- * This script will list the available users on this system
+ * This command will list the available users on this system
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
