@@ -43,7 +43,7 @@ if (Request::isPostRequestMethod()) {
 
         Project::setup();
 
-        Response::setBuildBody(false);
+        Response::setRenderMainWrapper(false);
         ?>
         <?= Response::getFlashMessages()->render() ?>
         <body class="hold-transition register-page" style="height: auto;">
@@ -79,7 +79,7 @@ if (Request::isPostRequestMethod()) {
 }
 
 // This page will build its own body
-Response::setBuildBody(false);
+Response::setRenderMainWrapper(false);
 ?>
 <?= Response::getFlashMessages()->render() ?>
     <body class="hold-transition register-page" style="height: auto;">

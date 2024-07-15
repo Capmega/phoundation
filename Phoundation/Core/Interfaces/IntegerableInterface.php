@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Interface ArrayableInterface
+ * Interface IntegerableInterface
  *
- * This interface ensures that the __toArray() method is available
+ * This interface ensures that the __toInteger() method is available
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -15,12 +15,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Interfaces;
 
-interface ArrayableInterface
+interface IntegerableInterface
 {
     /**
-     * Returns the contents of this object in an array
+     * Returns the contents of this object in an integer value
      *
-     * @return array
+     * @return int
      */
-    public function __toArray(): array;
+    public function __toInteger(): int;
 }

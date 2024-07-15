@@ -52,7 +52,7 @@ echo Template::new('system/http-error')->setSource([
 
 // Set page meta data
 Response::setHttpCode(409);
-Response::setBuildBody(false);
+Response::setRenderMainWrapper(false);
 Response::setPageTitle('409 - Conflict');
 Response::setHeaderTitle(tr('409 - Conflict'));
 Response::setDescription(tr('The specified could not be completed due to a conflict with the current state of the target resource'));

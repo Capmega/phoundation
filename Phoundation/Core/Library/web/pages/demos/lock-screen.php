@@ -25,7 +25,7 @@ Response::setHeaderTitle(tr('Lock screen'));
 Response::setHeaderSubTitle(tr('Demo'));
 
 // This page will build its own body
-Response::setBuildBody(false);
+Response::setRenderMainWrapper(false);
 
 ?>
 <body class="hold-transition lockscreen"

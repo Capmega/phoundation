@@ -703,7 +703,7 @@ class Library implements LibraryInterface
     public function verify(): static
     {
         if ($this->structure_ok === null) {
-            // ExecuteExecuteInterface the structural check for this library
+            // Execute the structural check for this library
             // TODO IMPLEMENT MORE
             $this->structure_ok = true;
         }

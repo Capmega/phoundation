@@ -197,7 +197,7 @@ abstract class Updates implements UpdatesInterface
     public function init(?string $comments = null): ?string
     {
         $version = $this->getNextInitVersion();
-        // ExecuteExecuteInterface this init, register the version as executed, and return the next version
+        // Execute this init, register the version as executed, and return the next version
         switch ($version) {
             case 'post_once':
                 // no break
@@ -216,7 +216,7 @@ abstract class Updates implements UpdatesInterface
                 ]));
         }
 
-        // ExecuteExecuteInterface the update and clear the versions_exists as after any update, the versions table should exist
+        // Execute the update and clear the versions_exists as after any update, the versions table should exist
         try {
             if (!TEST or (in_array($this->library, ['accounts',  'core', 'meta', 'geo']))) {
                 // In TEST mode only execute Core, Geo, Accounts, and Meta libraries
@@ -422,7 +422,7 @@ abstract class Updates implements UpdatesInterface
 
 
     /**
-     * ExecuteExecuteInterface the post init files
+     * Execute the post init files
      *
      * @param string|null $comments
      *
@@ -432,7 +432,7 @@ abstract class Updates implements UpdatesInterface
     {
         $result = false;
         // Only execute post_* files if we're not in TEST mode
-        // ExecuteExecuteInterface the post_once
+        // Execute the post_once
         if (array_key_exists('post_once', $this->updates)) {
             if (!$this->databaseVersionExists('post_once')) {
                 // This post_once has not yet been executed, do so now and register
@@ -444,7 +444,7 @@ abstract class Updates implements UpdatesInterface
                 $result = true;
             }
         }
-        // ExecuteExecuteInterface the post_always
+        // Execute the post_always
         if (array_key_exists('post_always', $this->updates)) {
             Log::action(tr('Executing "post_always" for library ":library"', [
                 ':library' => $this->vendor . '/' . $this->library,

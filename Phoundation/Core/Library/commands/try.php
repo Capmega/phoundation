@@ -16,11 +16,13 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\Validator\ArrayValidator;
+use Phoundation\Developer\Debug;
 use Phoundation\Developer\Phoundation\Repositories\Repositories;
 use Phoundation\Developer\Phoundation\Repositories\Repository;
 use Phoundation\Filesystem\Commands\LsBlk;
@@ -29,15 +31,3 @@ use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Strings;
 
-
-
-
-$restrictions = FsRestrictions::getWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP], tr('try'));
-$word         = '';
-
-show(FsDirectory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan($word . '*.sql'));
-
-
-
-
-passthru('stty');

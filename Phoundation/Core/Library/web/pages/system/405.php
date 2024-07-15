@@ -51,7 +51,7 @@ echo Template::new('system/http-error')->setSource([
 
 // Set page meta data
 Response::setHttpCode(405);
-Response::setBuildBody(false);
+Response::setRenderMainWrapper(false);
 Response::setPageTitle('405 - Method not allowed');
 Response::setHeaderTitle(tr('405 - Method not allowed'));
 Response::setDescription(tr('The specified method is not allowed'));

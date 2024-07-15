@@ -1263,7 +1263,7 @@ class Log
             static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        $messages = Log::ensureVisible($messages);
+        $messages = Strings::ensureVisible($messages);
 
         return static::write($messages, 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
@@ -1337,7 +1337,7 @@ class Log
             static::logDebugHeader('HEX', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        $messages = Log::ensureVisible($messages);
+        $messages = Strings::ensureVisible($messages);
 
         return static::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
@@ -1356,7 +1356,7 @@ class Log
      */
     public static function checkpoint(?string $messages = null, int $threshold = 10, bool $echo_screen = true): bool
     {
-        $messages = Log::ensureVisible($messages);
+        $messages = Strings::ensureVisible($messages);
 
         return static::logDebugHeader('CHECKPOINT ' . $messages, 1, $threshold, echo_screen: $echo_screen);
     }
@@ -1417,7 +1417,7 @@ class Log
     public static function backtrace(?int $display = null, ?array $backtrace = null, int $threshold = 10, bool $echo_screen = true, bool $echo_header = false, string|bool $echo_prefix = false): void
     {
         if ($backtrace === null) {
-            $backtrace = Debug::backtrace(1);
+            $backtrace = Debug::getBacktrace(1);
         }
 
         if ($echo_header) {
@@ -1459,7 +1459,7 @@ class Log
             static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        $messages = Log::ensureVisible($messages);
+        $messages = Strings::ensureVisible($messages);
 
         return static::write(print_r($messages, true), 'debug', $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
     }
@@ -1617,32 +1617,5 @@ class Log
             ->setMtime('+' . ($age_in_days * 1440))
             ->setExec('rf {} -rf')
             ->executeNoReturn();
-    }
-
-
-    /**
-     * Ensures that the log message contains visible information
-     *
-     * @param mixed $messages
-     *
-     * @return mixed
-     */
-    protected static function ensureVisible(mixed $messages): mixed
-    {
-        if ($messages === null) {
-            return 'NULL';
-        }
-
-        if (is_string($messages)) {
-            if (!$messages) {
-                return 'EMPTY';
-            }
-
-            if (!trim($messages)) {
-                return str_replace(' ', '_', $messages);
-            }
-        }
-
-        return $messages;
     }
 }

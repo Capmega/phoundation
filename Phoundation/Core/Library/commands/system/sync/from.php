@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Project\Project;
-use Phoundation\Developer\Sync;
-
-
 /**
  * Command system/sync/from
  *
@@ -22,19 +13,27 @@ use Phoundation\Developer\Sync;
  * @package   Phoundation\Scripts
  */
 
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Project\Project;
+use Phoundation\Developer\Sync;
+
 CliDocumentation::setAutoComplete([
-                                      'positions' => [
-                                          0 => [
-                                              'word'   => function ($word) { return Project::getEnvironments()->keepMatchingValuesStartingWith($word); },
-                                              'noword' => function () { return Project::getEnvironments(); },
-                                          ],
-                                      ],
-                                      'arguments' => [
-                                          '-l,--lock'    => false,
-                                          '-i,--no-init' => false,
-                                          '-t,--timeout' => true,
-                                      ],
-                                  ]);
+    'positions' => [
+        0 => [
+            'word'   => function ($word) { return Project::getEnvironments()->keepMatchingValuesStartingWith($word); },
+            'noword' => function () { return Project::getEnvironments(); },
+        ],
+    ],
+    'arguments' => [
+        '-l,--lock'    => false,
+        '-i,--no-init' => false,
+        '-t,--timeout' => true,
+    ],
+]);
 
 CliDocumentation::setUsage('./pho system sync from ENVIRONMENT
 ./pho system sync -l -i --to ENVIRONMENT');

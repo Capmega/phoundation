@@ -21,6 +21,8 @@ use Phoundation\Core\Plugins\Interfaces\PluginsInterface;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Developer\Debug;
+use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Utils\Config;
@@ -244,22 +246,42 @@ class Plugins extends DataIterator implements PluginsInterface
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
                     ]), 5);
+
                     include_once(DIRECTORY_ROOT . $plugin['directory'] . 'Library/Plugin.php');
                     $plugin['class']::start();
                 }
+
             } catch (Throwable $e) {
+                // Plugin failed to load, we MIGHT disable it automatically to avoid loads of errors in the log files
+                // Do a LOT of logging here to ensure its clear what is happening and why
                 Log::error(tr('Failed to start plugin ":vendor/:plugin" because of next exception', [
                     ':vendor' => $plugin['vendor'],
                     ':plugin' => $plugin['name'],
                 ]));
+
                 Log::error($e);
+
                 if (Config::getBoolean('plugins.error.startup.disable', true)) {
-                    Log::warning(tr('Disabling plugin ":vendor/:plugin" because it failed to startup', [
+                    if (!Debug::isEnabled()) {
+                        Log::warning(tr('Disabling plugin ":vendor/:plugin" because it failed on startup', [
+                            ':vendor' => $plugin['vendor'],
+                            ':plugin' => $plugin['name'],
+                        ]));
+
+                        Plugin::new($id)->disable();
+
+                    } else {
+                        Log::warning(tr('NOT automatically disabling failed plugin ":vendor/:plugin" because the system is running in debug mode', [
+                            ':vendor' => $plugin['vendor'],
+                            ':plugin' => $plugin['name'],
+                        ]));
+                    }
+
+                } else {
+                    Log::warning(tr('NOT automatically disabling failed plugin ":vendor/:plugin" because the option to do so has been disabled with configuration path "plugins.error.startup.disable"', [
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
                     ]));
-                    Plugin::new($id)
-                          ->disable();
                 }
             }
         }

@@ -86,7 +86,7 @@ interface UpdatesInterface
 
 
     /**
-     * ExecuteExecuteInterface the post init files
+     * Execute the post init files
      *
      * @param string|null $comments
      *

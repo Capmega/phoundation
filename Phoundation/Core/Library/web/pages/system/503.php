@@ -49,7 +49,7 @@ echo Template::new('system/http-error')->setSource([
 
 // Set page meta data
 Response::setHttpCode(503);
-Response::setBuildBody(false);
+Response::setRenderMainWrapper(false);
 Response::setPageTitle('503 - Service Unavailable');
 Response::setHeaderTitle(tr('503 - Error'));
 Response::setDescription(tr('The server is under maintenance and will return momentarily'));

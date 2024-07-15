@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Interface ArrayableInterface
+ * Interface FloatableInterface
  *
- * This interface ensures that the __toArray() method is available
+ * This interface ensures that the __toFloat() method is available
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -15,12 +15,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Interfaces;
 
-interface ArrayableInterface
+interface FloatableInterface
 {
     /**
-     * Returns the contents of this object in an array
+     * Returns the contents of this object in a float value
      *
-     * @return array
+     * @return float
      */
-    public function __toArray(): array;
+    public function __toFloat(): float;
 }

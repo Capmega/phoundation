@@ -140,7 +140,7 @@ class Libraries
 
 
     /**
-     * ExecuteExecuteInterface a complete systems initialization
+     * Execute a complete systems initialization
      *
      * @param bool        $system
      * @param bool        $plugins
@@ -198,7 +198,7 @@ class Libraries
 
 
     /**
-     * ExecuteExecuteInterface a forced initialization.
+     * Execute a forced initialization.
      *
      * This will drop the system database and initialize the sytem from scratch
      *
@@ -270,7 +270,7 @@ class Libraries
 
             // Go over the list of libraries and try to update each one
             foreach ($libraries as $directory => $library) {
-                // ExecuteExecuteInterface the update inits for this library and update the library information and start over
+                // Execute the update inits for this library and update the library information and start over
                 if ($library->init($comments)) {
                     // The library has been initialized. Break so that we can check which library should be updated next.
                     $update_count++;
@@ -295,7 +295,7 @@ class Libraries
             Log::action(tr('Executing post init updates'));
 
             foreach ($post_libraries as $library) {
-                // ExecuteExecuteInterface the update inits for this library and update the library information and start over
+                // Execute the update inits for this library and update the library information and start over
                 if ($library->initPost($comments)) {
                     // Library has been post initialized. Break so that we can check which library should be updated next.
                     $update_count++;

@@ -50,7 +50,7 @@ echo Template::new('system/http-error')->setSource([
 
 // Set page meta data
 Response::setHttpCode(404);
-Response::setBuildBody(false);
+Response::setRenderMainWrapper(false);
 Response::setPageTitle('404 - Page not found');
 Response::setHeaderTitle(tr('404 - Page not found'));
 Response::setDescription(tr('The specified page is not found'));

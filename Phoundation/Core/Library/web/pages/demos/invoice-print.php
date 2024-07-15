@@ -16,7 +16,7 @@ use Phoundation\Web\Requests\Response;
 
 
 // This page will build its own body
-Response::setBuildBody(false);
+Response::setRenderMainWrapper(false);
 
 ?>
 <body>

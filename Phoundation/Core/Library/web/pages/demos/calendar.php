@@ -28,11 +28,11 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                                        ]));
 
 // Load required CSS
-Response::loadCss('adminlte/plugins/fullcalendar/main');
+Response::loadCss('Phoundation/adminlte/plugins/fullcalendar/main');
 
 // Load required Javascript
-Response::loadJavascript('adminlte/plugins/moment/moment');
-Response::loadJavascript('adminlte/plugins/fullcalendar/main');
+Response::loadJavascript('Phoundation/adminlte/plugins/moment/moment');
+Response::loadJavascript('Phoundation/adminlte/plugins/fullcalendar/main');
 
 Script::new()
       ->setJavascriptWrapper(EnumJavascriptWrappers::window)

@@ -125,7 +125,7 @@ TARGET                                  - The target name to which to deploy
 [--no-backup]                           - Do NOT execute a site / database backup, even though per configuration, a
                                           backup should be done
 
-[--do-backup]                           - ExecuteExecuteInterface a site / database backup, even if per configuration, a backup should
+[--do-backup]                           - Execute a site / database backup, even if per configuration, a backup should
                                           not be done
 
 [--update-sitemap]                      - rsync the www/LANG/sitemap file as well (Normally always skipped)
@@ -188,7 +188,7 @@ if ($argv['targets']) {
     Project::new()->getDeploy()->listCategories()->getCliTable();
 
 } else {
-    // ExecuteExecuteInterface deployment
+    // Execute deployment
     Project::new()->getDeploy($argv['target'])
            ->setIgnoreChanges($argv['do_ignore_changes'], $argv['no_ignore_changes'])
            ->setExecuteHooks($argv['do_execute_hooks'], $argv['no_execute_hooks'])

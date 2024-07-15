@@ -17,7 +17,6 @@ namespace Phoundation\Core\Sessions;
 
 use DateTimeZone;
 use Exception;
-use GeoIP;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
@@ -41,6 +40,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
@@ -85,9 +85,9 @@ class Session implements SessionInterface
     /**
      * Tracks if the session has startup or not
      *
-     * @var bool $startup
+     * @var bool $has_started_up
      */
-    protected static bool $startup = false;
+    protected static bool $has_started_up = false;
 
     /**
      * Language for this session
@@ -147,7 +147,8 @@ class Session implements SessionInterface
      */
     public static function startup(): void
     {
-        if (static::$startup) {
+        if (static::$has_started_up) {
+            Log::warning(tr('Session has already started, not starting again'));
             return;
         }
 
@@ -160,10 +161,20 @@ class Session implements SessionInterface
 
         static::checkDomains();
         static::configureCookies();
-        static::checkCookie();
-        static::$startup = true;
+        static::resume();
+
+        static::$has_started_up = true;
 
         Http::setSslDefaultContext();
+    }
+
+
+    /**
+     * @return bool
+     */
+    public static function hasStartedUp(): bool
+    {
+        return static::$has_started_up;
     }
 
 
@@ -464,31 +475,6 @@ class Session implements SessionInterface
 
 
     /**
-     * Check if we have a session from a cookie
-     *
-     * @return void
-     */
-    public static function checkCookie(): void
-    {
-        // New session? Detect client type, language, and mobile device
-        if (array_key_exists(Config::get('web.sessions.cookies.name', 'phoundation'), $_COOKIE)) {
-            try {
-                // We have a cookie! Start a session for it
-                static::resume();
-
-            } catch (SessionException $e) {
-                Log::warning(tr('Failed to resume session due to exception ":e"', [':e' => $e->getMessage()]));
-                // Failed to start an existing session, so we'll have to detect the client anyway
-                Client::detect();
-            }
-
-        } else {
-            Client::detect();
-        }
-    }
-
-
-    /**
      * Resume an existing session
      *
      * @return bool
@@ -498,6 +484,7 @@ class Session implements SessionInterface
         if (!Config::get('web.sessions.enabled', true)) {
             return false;
         }
+
         switch (Request::getRequestType()) {
             case EnumRequestTypes::api:
                 // API's don't do cookies at all
@@ -505,6 +492,7 @@ class Session implements SessionInterface
             case EnumRequestTypes::ajax:
                 // TODO Implement
         }
+
         if (isset_get(Core::readRegister('session', 'client')['type']) === 'crawler') {
             // Do not send cookies to crawlers!
             Log::information(tr('Crawler ":crawler" on URL ":url"', [
@@ -514,6 +502,7 @@ class Session implements SessionInterface
 
             return false;
         }
+
 //show(session_get_cookie_params());
 //show('IMPLEMENT LONG SESSIONS SUPPORT');
 //show('IMPLEMENT MYSQL SESSIONS SUPPORT');
@@ -529,22 +518,30 @@ class Session implements SessionInterface
                                         ->ensure();
                 session_save_path($directory->getPath());
                 break;
+
             case 'memcached':
+                // no break
+
             case 'redis':
                 // no break
+
             case 'mongo':
                 // no break
+
             case 'sql':
                 // TODO Implement these session handlers ASAP
                 throw new UnderConstructionException();
                 break;
+
             default:
                 throw new ConfigException(tr('Unknown session handler ":handler" specified in configuration path "web.sessions.handler"', [
                     ':handler' => Config::getString('web.sessions.handler', 'files'),
                 ]));
         }
+
         // Start session
         session_start();
+
         // Initialize session?
         if (empty($_SESSION['init'])) {
             static::create();
@@ -553,6 +550,7 @@ class Session implements SessionInterface
             // Check for extended sessions
             // TODO Why are we still doing this? We should be able to do extended sessions better
             static::checkExtended();
+
             Log::success(tr('Resumed session ":session" for user ":user" from IP ":ip"', [
                 ':session' => session_id(),
                 ':user'    => static::getUser()->getLogId(),
@@ -567,7 +565,9 @@ class Session implements SessionInterface
                 // Session expired!
                 session_unset();
                 session_destroy();
+
                 Log::warning('RESTART SESSION');
+
                 session_start();
                 session_regenerate_id(true);
             }
@@ -577,10 +577,7 @@ class Session implements SessionInterface
 
         // Euro cookie check, can we do cookies at all?
         if (Config::getBoolean('web.sessions.cookies.europe', true) and !Config::getString('web.sessions.cookies.name', 'phoundation')) {
-            if (
-                GeoIP::new()
-                     ->isEuropean()
-            ) {
+            if (GeoIp::new()->isEuropean()) {
                 // All first visits to european countries require cookie permissions given!
                 $_SESSION['euro_cookie'] = true;
 
@@ -661,8 +658,7 @@ class Session implements SessionInterface
     {
         Log::success(tr('Created new session ":session" for user ":user"', [
             ':session' => session_id(),
-            ':user'    => static::getUser()
-                                ->getLogId(),
+            ':user'    => static::getUser()->getLogId(),
         ]));
 
         // Initialize the session
@@ -688,14 +684,15 @@ class Session implements SessionInterface
                 $_SESSION['user']['timezone'] = Config::get('timezone.display', 'UTC');
                 Notification::new()
                             ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
-                                ':user'     => static::getUser()
-                                                     ->getLogId(),
+                                ':user'     => static::getUser()->getLogId(),
                                 ':timezone' => $_SESSION['user']['timezone'],
-                            ]), $e)
-                                                           ->makeWarning())
+                            ]), $e)->makeWarning())
                             ->send();
             }
         }
+
+        // Detect and log client type
+        Client::detect();
 
         return true;
     }
@@ -734,6 +731,7 @@ class Session implements SessionInterface
                 return static::$impersonated_user;
             }
         }
+
         // Return the real user
         if (empty(static::$user)) {
             // User object does not yet exist
@@ -771,9 +769,11 @@ class Session implements SessionInterface
         try {
             // This user is loaded by the session object and should NOT use meta-tracking!
             $user = User::load($users_id, 'id');
+
             if (!$user->getStatus()) {
                 return $user;
             }
+
             // Only status NULL is allowed
             Log::warning(tr('The user ":user" has the status ":status" which is not allowed, killed session and dropping to guest user', [
                 ':user'   => $user->getLogId(),
@@ -794,6 +794,7 @@ class Session implements SessionInterface
                 ':user' => $_SESSION['user']['id'],
             ]));
         }
+
         // Remove user information for this session and return to guest user
         unset($_SESSION['user']['id']);
 
@@ -828,6 +829,8 @@ class Session implements SessionInterface
 //            throw new OutOfBoundsException(tr('session_cache(): Failed'), $e);
 //        }
 //    }
+
+
     /**
      * Checks if an extended session is available for this user
      *
@@ -841,9 +844,19 @@ class Session implements SessionInterface
         if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
             // Pull  extsession data
             $ext = sql_get('SELECT `users_id` 
-                            FROM `extended_sessions` WHERE `session_key` = ":session_key" AND DATE(`addedon`) < DATE(NOW());', [':session_key' => cfm($_COOKIE['extsession'])]);
+                            FROM   `extended_sessions` 
+                            WHERE  `session_key` = ":session_key" 
+                              AND  DATE(`addedon`) < DATE(NOW());', [
+                                  ':session_key' => cfm($_COOKIE['extsession'])
+                   ]);
+
             if ($ext['users_id']) {
-                $user = sql_get('SELECT * FROM `accounts_users` WHERE `accounts_users`.`id` = :id', [':id' => cfi($ext['users_id'])]);
+                $user = sql_get('SELECT * 
+                                 FROM   `accounts_users` 
+                                 WHERE  `accounts_users`.`id` = :id', [
+                                     ':id' => cfi($ext['users_id'])
+                        ]);
+
                 if ($user['id']) {
                     // Auto sign in user
                     static::$user = Users::signin($user, true);
@@ -879,18 +892,17 @@ class Session implements SessionInterface
         try {
             static::$user = $user_class::authenticate($user, $password);
             static::clear();
-            // Initialize session?
-            if (!isset($_SESSION['init'])) {
-                static::resume();
-            }
+
             // Update the users sign-in and last sign-in information
             static::updateSignInTracking();
+
             Incident::new()
                     ->setType(tr('User sign in'))
                     ->setSeverity(Severity::notice)
                     ->setTitle(tr('The user ":user" signed in', [':user' => static::$user->getLogId()]))
                     ->setDetails(['user' => static::$user->getLogId()])
                     ->save();
+
             $_SESSION['user']['id'] = static::$user->getId();
 
             return static::$user;
@@ -911,11 +923,11 @@ class Session implements SessionInterface
                         // The specified user does not exist
                         throw AuthenticationException::new(tr('The specified user ":user" does not exist', [
                             ':user' => $user,
-                        ]))
-                                                     ->makeWarning()
-                                                     ->log();
+                        ]))->makeWarning()
+                           ->log();
                 }
             }
+
             throw $e;
         }
     }
@@ -929,6 +941,7 @@ class Session implements SessionInterface
     public static function clear(): void
     {
         global $_SESSION;
+
         if (isset($_SESSION['init'])) {
             // Conserve init data
             $_SESSION = [
@@ -937,6 +950,7 @@ class Session implements SessionInterface
                 'first_ip'     => $_SESSION['first_ip'],
                 'first_domain' => $_SESSION['first_domain'],
             ];
+
         } else {
             $_SESSION = [];
         }
@@ -958,9 +972,9 @@ class Session implements SessionInterface
                                 WHERE  `id` = :id', [
                 ':id' => static::$user->getId(),
             ]);
+
             // Store this sign in
-            Signin::detect()
-                  ->save();
+            Signin::detect()->save();
         }
     }
 
@@ -991,8 +1005,8 @@ class Session implements SessionInterface
         if (PLATFORM_WEB) {
             // If this page has flash messages that have not yet been displayed then store them in the session variable
             // so that they can be displayed on the next page load
-            static::getFlashMessages()
-                  ->pullMessagesFrom(Response::getFlashMessages());
+            static::getFlashMessages()->pullMessagesFrom(Response::getFlashMessages());
+
             if (static::$flash_messages->getCount()) {
                 // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
                 $_SESSION['flash_messages'] = static::$flash_messages->export();
@@ -1299,15 +1313,13 @@ class Session implements SessionInterface
         static::$key  = $key;
         static::$user = $key->getUser();
         static::clear();
-        // Initialize session?
-        if (!isset($_SESSION['init'])) {
-            static::resume();
-        }
+
         // Update the users sign-in and last sign-in information
         static::updateSignInTracking();
+
         // Store this sign in
-        Signin::detect()
-              ->save();
+        Signin::detect()->save();
+
         Incident::new()
                 ->setSeverity(Severity::notice)
                 ->setType(tr('User sign in'))
@@ -1320,6 +1332,7 @@ class Session implements SessionInterface
                     'user' => static::$user->getLogId(),
                 ])
                 ->save();
+
         $_SESSION['user']['id'] = static::$user->getId();
         $_SESSION['sign-key']   = $key->getUuid();
 
@@ -1459,5 +1472,27 @@ class Session implements SessionInterface
             Log::error($e);
         }
         session_destroy();
+    }
+
+
+    /**
+     * Returns true if the current session has a guest user
+     *
+     * @return bool
+     */
+    public static function isGuest(): bool
+    {
+        return static::getUser()->isGuest();
+    }
+
+
+    /**
+     * Returns true if the current session has a registered user
+     *
+     * @return bool
+     */
+    public static function isUser(): bool
+    {
+        return !static::isGuest();
     }
 }

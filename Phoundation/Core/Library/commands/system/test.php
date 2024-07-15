@@ -31,7 +31,7 @@ This script can manage and start the PHP unit tests and others
 ARGUMENTS
 
 
-[--unit]                                ExecuteExecuteInterface PHP Unit tests');
+[--unit]                                Execute PHP Unit tests');
 
 
 // Get command line arguments
@@ -40,7 +40,7 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// ExecuteExecuteInterface unit tests?
+// Execute unit tests?
 if ($argv['unit']) {
     Tests::startPhpUnitTests();
 }

@@ -84,7 +84,7 @@ class Plugin extends DataEntry implements PluginInterface
 
 
     /**
-     * ExecuteExecuteInterface the required code to start the plugin
+     * Execute the required code to start the plugin
      *
      * @return void
      */

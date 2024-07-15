@@ -49,7 +49,7 @@ echo Template::new('system/http-error')->setSource([
 
 // Set page meta data
 Response::setHttpCode(500);
-Response::setBuildBody(false);
+Response::setRenderMainWrapper(false);
 Response::setPageTitle('500 - Internal Server Error');
 Response::setHeaderTitle(tr('500 - Error'));
 Response::setDescription(tr('The server encountered an internal error and could not fulfill your request'));

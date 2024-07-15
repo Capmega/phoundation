@@ -285,7 +285,7 @@ class ProcessControlSignals
         // caught and interpreted or ignored by the process. This allows the process to perform nice termination
         // releasing resources and saving state if appropriate. SIGINT is nearly identical to SIGTERM.
         Log::warning(tr('Killing process because of process signal ":signal"', [':signal' => $signal]), 10);
-        Log::backtrace(backtrace: Debug::backtrace(3));
+        Log::backtrace(backtrace: Debug::getBacktrace(3));
         Log::warning(tr('Signal information:'), 10);
         Log::table($info);
 

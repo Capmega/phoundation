@@ -115,7 +115,7 @@ Route::getMapping()->add('/^(\w{2})\//',
 
 
 // Set routing parameters to be applied for the various page types
-Route::getParameters()
+Route::getParametersObject()
      ->add(RoutingParameters::new('/^\w{2}\//') // Routing parameters for most pages
                             ->setTemplate(Mdb::class)
                             ->setRootUrl(':PROTOCOL://:DOMAIN/:LANGUAGE/')
@@ -131,7 +131,7 @@ Route::getParameters()
 Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z0-9-]+)\+([0-9a-z-]+)?\.html$/', 'pages/$2/$3.php?id=$4');            // Show the requested existing entry page
 Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z0-9-]+)\.html$/', 'pages/$2/$3.php');                                 // Show the requested new entry page
 Route::try('/^(\w{2})\/([a-z0-9-]+)\.html$/', 'pages/$2.php');                                                    // Show the requested page
-Route::try('/^(\w{2})\/ajax\/(.+?)\.json$/', 'ajax/$2.php', 'Q');                                                 // ExecuteExecuteInterface the requested AJAX page
+Route::try('/^(\w{2})\/ajax\/(.+?)\.json$/', 'ajax/$2.php', 'Q');                                                 // Execute the requested AJAX page
 Route::try('/^(\w{2})\/timesheets\/(\d{4}\/\d{2}\/\d{2})\.html$/', 'pages/timesheets/day.php?date=$2');           // Timesheet page
 Route::try('/^(\w{2})\/?$/', '/index.html', 'R301');                                                              // Redirect to index page
 Route::try('/^$/', '/index.html', 'R301');         // Redirect to index page
