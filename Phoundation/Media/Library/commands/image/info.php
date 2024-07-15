@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Content\Images\Image;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-
-
 /**
  * Command image/info
  *
@@ -19,6 +10,16 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Content\Images\Image;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\FsRestrictions;
+
 CliDocumentation::setUsage('./pho image info IMAGE_FILE_NAME');
 
 CliDocumentation::setHelp('This command will display basic information about the specified image');
@@ -31,7 +32,7 @@ $argv = ArgvValidator::new()
 
 
 // Get image object
-$image = Image::new($argv['file'], DIRECTORY_DATA);
+$image = Image::new($argv['file'], FsRestrictions::getData());
 
 
 // Display image information

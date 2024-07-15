@@ -22,5 +22,5 @@ use Phoundation\Tests\Tests;
 ArgvValidator::new()->validate();
 
 
-// ExecuteExecuteInterface the PHP unit tests
+// Execute the PHP unit tests
 Tests::startPhpUnitTests();

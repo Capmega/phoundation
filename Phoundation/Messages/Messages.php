@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Messages class
+ *
+ *
+ *
+ * @see       DataIterator
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundations\Messages
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Messages;
@@ -8,17 +20,6 @@ use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
-/**
- * Messages class
- *
- *
- *
- * @see       \Phoundation\Data\DataEntry\DataIterator
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundations\Messages
- */
 class Messages extends DataIterator
 {
     /**

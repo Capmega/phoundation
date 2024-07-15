@@ -150,7 +150,7 @@ services:
      */
     public function render(bool $passthru = true): ?array
     {
-        // ExecuteExecuteInterface the docker build process
+        // Execute the docker build process
         $process = Process::new('docker')
                           ->setSudo(true)
                           ->setTimeout(300)
