@@ -27,6 +27,9 @@ use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Interfaces\FloatableInterface;
+use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Databases;
@@ -753,7 +756,7 @@ function showhex(mixed $source = null, bool $sort = true, int $trace_offset = 1,
 function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = false): mixed
 {
     if (Debug::isEnabled()) {
-        $backtrace = Debug::backtrace();
+        $backtrace = Debug::getBacktrace();
         $backtrace = Debug::formatBackTrace($backtrace);
 
         if ($count) {
@@ -894,11 +897,13 @@ function get_integer(mixed $source, bool $allow_null = true): ?int
         // Well that was easy!
         return $source;
     }
+
     if (!is_string($source)) {
         throw new OutOfBoundsException(tr('Specified data ":source" is not an integer value', [
             ':source' => $source,
         ]));
     }
+
     if ($source === '') {
         if ($allow_null) {
             // Interpret this as a NULL value
@@ -906,14 +911,16 @@ function get_integer(mixed $source, bool $allow_null = true): ?int
         }
 
         return 0;
-    } else {
-        $old_source = $source;
-        $source     = (int) $source;
-        if ($old_source != $source) {
-            throw new OutOfBoundsException(tr('Specified data ":source" is not an integer value', [
-                ':source' => $old_source,
-            ]));
-        }
+
+    }
+
+    $old_source = $source;
+    $source     = (int) $source;
+
+    if ($old_source != $source) {
+        throw new OutOfBoundsException(tr('Specified data ":source" is not an integer value', [
+            ':source' => $old_source,
+        ]));
     }
 
     return $source;
@@ -957,7 +964,7 @@ function ensure_value(string|int $value, array $array, mixed $default): mixed
 
 
 /**
- * ExecuteExecuteInterface the specified callback function with the specified $params only if the callback has been set with an
+ * Execute the specified callback function with the specified $params only if the callback has been set with an
  * executable function
  *
  * @param callable|null $callback
@@ -977,7 +984,7 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
 
 
 /**
- * ExecuteExecuteInterface the current Request target and return the output (if any)
+ * Execute the current Request target and return the output (if any)
  *
  * @note This function is used to execute commands and web pages to give them their own empty function scope
  * @note Any information echo-ed by the targets will be stored in nested buffers and returned by Request::execute() or
@@ -989,7 +996,11 @@ function execute(): ?string
 {
     Core::setScriptState();
 
-    echo include(Request::getTarget());
+    $result = include(Request::getTarget());
+
+    if ($result and (is_string($result) or $result instanceof RenderInterface)) {
+        echo $result;
+    }
 
     return get_null((string) ob_get_clean());
 }
@@ -1343,6 +1354,68 @@ function array_value_last(array $source): mixed
     return $source[array_key_last($source)];
 }
 
+
+/**
+ * Returns an integer or float number from whatever was specified
+ *
+ * @param mixed $source
+ * @param bool  $allow_null
+ *
+ * @return float|int|null
+ */
+function get_numeric(mixed $source, bool $allow_null = true): float|int|null
+{
+    if (is_numeric($source)) {
+        // It's a number!
+        if (is_integer($source)) {
+            return $source;
+        }
+
+        if (is_float($source)) {
+            return $source;
+        }
+
+        if (is_numeric_integer($source)) {
+            return (int) $source;
+        }
+
+        return (float) $source;
+    }
+
+    if ($source) {
+        if(is_bool($source)) {
+            return 1;
+        }
+
+        if (is_object($source)) {
+            // We can possibly fetch numeric data from objects!
+            if ($source instanceof FloatableInterface) {
+                return $source->__toFloat();
+            }
+
+            if ($source instanceof IntegerableInterface) {
+                return $source->__toInteger();
+            }
+
+            if ($source instanceof Stringable) {
+                // Fetch string value and try again
+                return get_numeric($source->__toString());
+            }
+        }
+
+    } else {
+        if ($source === null) {
+            if ($allow_null) {
+                return null;
+            }
+
+            // NULL is not allowed, return 0 instead (below)
+        }
+    }
+
+    // Arrays, resources, objects we don't understand, it's all is zero
+    return 0;
+}
 
 
 /**
