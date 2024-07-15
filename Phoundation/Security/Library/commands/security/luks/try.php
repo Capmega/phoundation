@@ -47,10 +47,10 @@ CliDocumentation::setAutoComplete([
       '-f,--file' => [
           'arguments' => [
               'word'   => function ($word) use ($restrictions) {
-                 return FsDirectory::new('/', $restrictions)->scan($word . '*');
+                 return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan($word . '*');
               },
               'noword' => function () use ($restrictions) {
-                  return FsDirectory::new('/', $restrictions)->scan('*');
+                  return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan('*');
               },
           ],
       ],
@@ -59,7 +59,7 @@ CliDocumentation::setAutoComplete([
 
 // Get arguments
 $argv = ArgvValidator::new()
-            ->select('-f,--file', true)->isFile('/', FsRestrictions::getReadonly('/'))
+            ->select('-f,--file', true)->isFile(FsDirectory::getFilesystemRoot())
             ->validate();
 
 

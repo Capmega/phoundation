@@ -17,6 +17,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Security\Luks\Device;
 
@@ -49,7 +50,7 @@ CliDocumentation::setAutoComplete([
 
 // Get arguments
 $argv = ArgvValidator::new()
-            ->select('-f,--file', true)->isFile('/', FsRestrictions::getReadonly('/'))
+            ->select('-f,--file', true)->isFile(FsDirectory::getFilesystemRoot())
             ->select('-d,--device', true)->isVariable()
             ->select('-k,--key-file', true)->isOptional()->or('password')->isFile()
             ->validate();
