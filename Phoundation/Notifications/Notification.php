@@ -591,7 +591,7 @@ POST variables:
         }
 
         // Set the id to NULL so that the DataEntry will save a new record
-        $this->set('id', null)
+        $this->set(null, 'id')
              ->setUsersId($user);
 
         return parent::save();
