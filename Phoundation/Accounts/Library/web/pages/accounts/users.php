@@ -76,17 +76,19 @@ if (Request::isPostRequestMethod()) {
 // Get the users list and apply filters
 $users   = Users::new();
 $builder = $users->getQueryBuilder()
-                 ->addSelect('`accounts_users`.`id`, 
-                 TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, 
-                 `accounts_users`.`email`, 
-                 `accounts_users`.`status`, 
-                 GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`, 
-                 `accounts_users`.`sign_in_count`,
-                 `accounts_users`.`created_on`')
+                 ->addSelect('
+                     `accounts_users`.`id`, 
+                     TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, 
+                     `accounts_users`.`email`, 
+                     `accounts_users`.`status`, 
+                     GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`, 
+                     `accounts_users`.`sign_in_count`,
+                     `accounts_users`.`created_on`
+                 ')
                  ->addJoin('LEFT JOIN `accounts_users_roles`
-               ON        `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
+                            ON        `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
                  ->addJoin('LEFT JOIN `accounts_roles`
-               ON        `accounts_roles`.`id` = `accounts_users_roles`.`roles_id`')
+                            ON        `accounts_roles`.`id` = `accounts_users_roles`.`roles_id`')
                  ->addWhere('`accounts_users`.`email` != "guest"')
                  ->addGroupBy('`accounts_users`.`id`');
 
@@ -118,7 +120,6 @@ if ($filters->get('rights_id')) {
 
 
 // Build users table
-
 $buttons = Buttons::new()
                   ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')
                   ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
@@ -129,11 +130,10 @@ $buttons = Buttons::new()
 $users_card = Card::new()
                   ->setTitle('Active users')
                   ->setSwitches('reload')
-                  ->setContent($users
-                                   ->load()
-                                   ->getHtmlDataTable()
-                                   ->setRowUrl('/accounts/user+:ROW.html')
-                                   ->setOrder([1 => 'asc']))
+                  ->setContent($users->load()
+                                     ->getHtmlDataTable()
+                                         ->setRowUrl('/accounts/user+:ROW.html')
+                                         ->setOrder([1 => 'asc']))
                   ->useForm(true)
                   ->setButtons($buttons);
 

@@ -81,7 +81,7 @@ if (Request::isPostRequestMethod()) {
 
 
 // This page will build its own body
-Response::setBuildBody(false);
+Response::setRenderMainWrapper(false);
 if (isset($updated)) {
     // Set page meta data
     Response::setPageTitle(tr('Your password has been updated, please go to the sign-in page in to continue...'));

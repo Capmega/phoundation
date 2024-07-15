@@ -110,7 +110,7 @@ if (Request::isPostRequestMethod()) {
 
 
 // This page will build its own body
-Response::setBuildBody(false);
+Response::setRenderMainWrapper(false);
 
 ?>
 <?= Response::getFlashMessages()->render() ?>

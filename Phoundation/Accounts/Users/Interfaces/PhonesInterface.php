@@ -8,17 +8,6 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 
-/**
- * interface PhonesInterface
- *
- *
- *
- * @see       \Phoundation\Data\DataEntry\DataIterator
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Accounts
- */
 interface PhonesInterface extends DataIteratorInterface
 {
     /**
@@ -30,12 +19,11 @@ interface PhonesInterface extends DataIteratorInterface
      */
     public function setParent(DataEntryInterface $parent): static;
 
-
     /**
      * Returns Phones list object with phones for the specified user.
      *
      * @param bool $clear
-     *
+     * @param bool $only_if_empty
      * @return static
      * @throws SqlMultipleResultsException , NotExistsException
      */

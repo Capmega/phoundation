@@ -31,5 +31,9 @@ class GuestUser extends User implements GuestUserInterface
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
         parent::__construct('guest', 'email', false, $init);
+
+        $this->set(null   , 'redirect');
+        $this->set('guest', 'email');
+        $this->set('Guest', 'nickname');
     }
 }

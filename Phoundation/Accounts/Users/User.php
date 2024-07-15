@@ -26,9 +26,11 @@ use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\UsersException;
 use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
+use Phoundation\Accounts\Users\Interfaces\GuestUserInterface;
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
 use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
+use Phoundation\Accounts\Users\Interfaces\SystemUserInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\SessionException;
@@ -197,13 +199,13 @@ class User extends DataEntry implements UserInterface
 
 
     /**
-     * Returns true if this user object is the guest user
+     * Returns true if this user object is the system user
      *
      * @return bool
      */
     public function isSystem(): bool
     {
-        return (array_get_safe($this->source, 'email') === 'guest') or (!$this->isNew() and !$this->getId());
+        return (array_get_safe($this->source, 'email') === 'system');
     }
 
 
@@ -319,14 +321,19 @@ class User extends DataEntry implements UserInterface
      */
     public function getLogId(): string
     {
-        $id = $this->getValueTypesafe('int', $this->getIdColumn());
-
-        if ($this instanceof GuestUser) {
+        if ($this instanceof GuestUserInterface) {
             // This is a guest user
             return '0 / ' . tr('Guest');
         }
 
-        return $id . ' / ' . $this->getValueTypesafe('string|int', static::getUniqueColumn() ?? 'id');
+        if ($this instanceof SystemUserInterface) {
+            // This is a guest user
+            return 'NULL / ' . tr('System');
+        }
+
+        $id = $this->getValueTypesafe('int', $this->getIdColumn());
+
+        return Strings::ensureVisible($id) . ' / ' . $this->getValueTypesafe('string|int', static::getUniqueColumn() ?? 'id');
     }
 
 
@@ -854,7 +861,32 @@ class User extends DataEntry implements UserInterface
      */
     public function setNickname(?string $nickname): static
     {
-        return $this->set($nickname, 'nickname');
+        $nickname = trim((string) $nickname);
+
+        // Ensure nickname isn't system or guest
+        switch (strtolower($nickname)) {
+            case 'guest':
+                if ($this instanceof GuestUserInterface) {
+                    break;
+                }
+
+                // not allowed!
+                throw new ValidationFailedException(tr('The nickname ":name" can only be used for system accounts', [
+                    ':name' => $nickname
+                ]));
+
+            case 'system':
+                if ($this instanceof SystemUserInterface) {
+                    break;
+                }
+
+                // not allowed!
+                throw new ValidationFailedException(tr('The nickname ":name" can only be used for system accounts', [
+                    ':name' => $nickname
+                ]));
+        }
+
+        return $this->set(get_null($nickname), 'nickname');
     }
 
 
@@ -2338,5 +2370,25 @@ class User extends DataEntry implements UserInterface
     public function getName(): ?string
     {
         return trim($this->getValueTypesafe('string', 'first_names') . ' ' . $this->getValueTypesafe('string', 'last_names'));
+    }
+
+
+    /**
+     * Returns true if this is a new entry that hasn't been written to the database yet
+     *
+     * @return bool
+     */
+    public function isNew(): bool
+    {
+        $new = $this->getId() === null;
+
+        if ($new) {
+            // System and Guest users are never new!
+            if ($this->isGuest() or $this->isSystem()) {
+                return false;
+            }
+        }
+
+        return $new;
     }
 }

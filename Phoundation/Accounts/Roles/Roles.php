@@ -38,8 +38,7 @@ class Roles extends DataIterator implements RolesInterface
      */
     public function __construct()
     {
-        $this->setKeysareUniqueColumn(true)
-             ->setQuery('SELECT     `accounts_roles`.`id`, 
+        $this->setQuery('SELECT     `accounts_roles`.`id`, 
                                           CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) AS `role`, 
                                           GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) SEPARATOR ", ") AS `rights`, 
                                           `accounts_roles`.`description` 
@@ -73,17 +72,6 @@ class Roles extends DataIterator implements RolesInterface
      * @return string|null
      */
     public static function getUniqueColumn(): ?string
-    {
-        return 'seo_name';
-    }
-
-
-    /**
-     * Returns the index field used to store the roles internally
-     *
-     * @return string
-     */
-    public static function getIndexColumn(): string
     {
         return 'seo_name';
     }

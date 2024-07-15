@@ -1,14 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Accounts\Users;
-
-use Phoundation\Accounts\Users\Interfaces\SystemUserInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-
 /**
- * Class GuestUser
+ * Class SystemUser
  *
  *
  *
@@ -17,6 +10,14 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Accounts\Users;
+
+use Phoundation\Accounts\Users\Interfaces\SystemUserInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+
 class SystemUser extends User implements SystemUserInterface
 {
     /**
@@ -29,10 +30,11 @@ class SystemUser extends User implements SystemUserInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
-        parent::__construct($identifier, $column, $meta_enabled, $init);
+        parent::__construct('system', 'email', $meta_enabled, $init);
 
-        $this->source['id'] = null;
-
-        $this->setNickname('System');
+        $this->set(null    , 'id');
+        $this->set(null    , 'redirect');
+        $this->set('system', 'email');
+        $this->set('System', 'nickname');
     }
 }

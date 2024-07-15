@@ -55,6 +55,7 @@ class Users extends DataIterator implements UsersInterface
                                WHERE     `accounts_users`.`status` IS NULL AND `email` != "guest" 
                                GROUP BY  `accounts_users`.`id`
                                ORDER BY  `name`');
+
         parent::__construct();
     }
 
@@ -82,17 +83,6 @@ class Users extends DataIterator implements UsersInterface
 
 
     /**
-     * Returns the index field used to store the roles internally
-     *
-     * @return string
-     */
-    public static function getIndexColumn(): string
-    {
-        return 'seo_name';
-    }
-
-
-    /**
      * Set the new users for the current parents to the specified list
      *
      * @param array|null  $list
@@ -104,20 +94,25 @@ class Users extends DataIterator implements UsersInterface
     public function setUsers(?array $list, ?string $column = null): static
     {
         $this->ensureParent(tr('save entries'));
+
         if (is_array($list)) {
             // Convert the list to id's
             $users_list = [];
+
             foreach ($list as $user) {
                 if ($user) {
                     $users_list[] = static::getEntryClass()::get($user)
                                           ->getId();
                 }
             }
+
             // Get a list of what we have to add and remove to get the same list, and apply
             $diff = Arrays::valueDiff(array_keys($this->source), $users_list);
+
             foreach ($diff['add'] as $user) {
                 $this->add($user, $column);
             }
+
             foreach ($diff['delete'] as $user) {
                 $this->removeKeys($user);
             }
@@ -150,6 +145,7 @@ class Users extends DataIterator implements UsersInterface
         if (!$this->parent) {
             throw OutOfBoundsException::new('Cannot check if parent has the specified user, this users list has no parent specified');
         }
+
         if ($this->parent instanceof RoleInterface) {
             return (bool) sql()->get('SELECT `id` 
                                             FROM   `accounts_users_roles` 
@@ -196,6 +192,7 @@ class Users extends DataIterator implements UsersInterface
             } else {
                 // Add single right. Since this is a User object, the entry already exists in the database
                 $value = User::load($value);
+
                 // User already exists for this parent?
                 if ($this->hasUser($value)) {
                     // Ignore and continue
@@ -536,6 +533,7 @@ class Users extends DataIterator implements UsersInterface
                                   JOIN   `accounts_users` 
                                   ON     `accounts_users_roles`.`users_id` = `accounts_users`.`id`
                                   WHERE  `accounts_users_roles`.`roles_id` = :roles_id';
+
                 $this->execute = [
                     ':roles_id' => $this->parent->getId(),
                 ];
@@ -546,10 +544,12 @@ class Users extends DataIterator implements UsersInterface
                                 JOIN   `accounts_users` 
                                 ON     `accounts_users_rights`.`users_id`  = `accounts_users`.`id`
                                 WHERE  `accounts_users_rights`.`rights_id` = :rights_id';
+
                 $this->execute = [
                     ':rights_id' => $this->parent->getId(),
                 ];
             }
+
         } else {
             $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*
                             FROM   `accounts_users`

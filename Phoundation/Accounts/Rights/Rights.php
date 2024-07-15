@@ -82,17 +82,6 @@ class Rights extends DataIterator implements RightsInterface
 
 
     /**
-     * Returns the index field used to store the roles internally
-     *
-     * @return string
-     */
-    public static function getIndexColumn(): string
-    {
-        return 'seo_name';
-    }
-
-
-    /**
      * Checks the list of specified rights if they exist and returns those rights that do not exist.
      *
      * @param array|string $rights
@@ -315,7 +304,7 @@ class Rights extends DataIterator implements RightsInterface
                     // Add right to the internal list
                     parent::add($value);
 
-                    // Update all users with this role to get the new right as well!
+                    // Update all roles with this right to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
                         User::load($user)
                             ->getRights()

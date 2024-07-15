@@ -39,6 +39,7 @@ try {
                        ->select('email')->isOptional()->isEmail()
                        ->select('redirect')->isOptional()->isUrl()
                        ->validate();
+
 } catch (ValidationFailedException $e) {
     // If validation failed, this means that either the specified email or redirect variables were invalid. Redirect to
     // a clean sign-in page to ensure we have valid values
@@ -56,29 +57,28 @@ if (Request::isPostRequestMethod()) {
             $user     = Session::signIn($post['email'], $post['password'], $user_class);
 
             Response::redirect(UrlBuilder::getRedirect($redirect, $user->getDefaultPage()));
+
         } catch (PasswordTooShortException | NoPasswordSpecifiedException) {
             Response::getFlashMessages()->addWarning(tr('Please specify at least ":count" characters for the password', [
                 ':count' => Config::getInteger('security.passwords.size.minimum', 10),
             ]));
 
             break;
+
         } catch (ValidationFailedException $e) {
             Response::getFlashMessages()->addWarning(tr('Please specify a valid email and password'));
             break;
+
         } catch (AuthenticationException $e) {
             Response::getFlashMessages()->addWarning(tr('The specified email and/or password were incorrect'));
         }
     }
 
     if (empty($get['email'])) {
-        $get['email'] = PostValidator::new()->get('email');
+        GetValidator::new()->set(PostValidator::new()->get('email'), 'email');
     }
 }
 
 
-// Set page meta data
-Response::setPageTitle(tr('Please sign in'));
-
-
-// Display the sign in page
-return SignInPage::new();
+// Display the sign-in page
+return SignInPage::new()->setGetData($get)->setPostData(isset_get($post));

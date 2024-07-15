@@ -1,16 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Accounts\Users;
-
-use Phoundation\Accounts\Rights\Rights;
-use Phoundation\Accounts\Roles\Roles;
-use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\Definitions;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Web\Html\Enums\EnumElement;
-
 /**
  * Class FilterForm
  *
@@ -21,6 +10,19 @@ use Phoundation\Web\Html\Enums\EnumElement;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Accounts\Users;
+
+use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Accounts\Roles\Roles;
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Web\Html\Enums\EnumInputType;
+
 class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
     /**
@@ -37,12 +39,14 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     public function __construct()
     {
         parent::__construct();
+
         $this->states = [
             '__all'   => tr('All'),
             null      => tr('Active'),
             'locked'  => tr('Locked'),
             'deleted' => tr('Deleted'),
         ];
+
         $this->definitions = Definitions::new()
                                         ->add(Definition::new(null, 'entry_status')
                                                         ->setLabel(tr('Status'))
@@ -52,11 +56,13 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                         ->setValue(isset_get($this->source['entry_status']))
                                                         ->setKey(true, 'auto_submit')
                                                         ->setDataSource($this->states))
+
                                         ->add(Definition::new(null, 'roles_id')
                                                         ->setLabel(tr('Role'))
                                                         ->setSize(4)
                                                         ->setOptional(true)
                                                         ->setElement(EnumElement::select)
+                                                        ->setInputType(EnumInputType::dbid)
                                                         ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                                             return Roles::new()
                                                                         ->getHtmlSelect()
@@ -65,11 +71,13 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                                         ->setNotSelectedLabel(tr('Select'))
                                                                         ->setSelected(isset_get($this->source[$key]));
                                                         }))
+
                                         ->add(Definition::new(null, 'rights_id')
                                                         ->setLabel(tr('Right'))
                                                         ->setSize(4)
                                                         ->setOptional(true)
                                                         ->setElement(EnumElement::select)
+                                                        ->setInputType(EnumInputType::dbid)
                                                         ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                                             return Rights::new()
                                                                          ->getHtmlSelect()
