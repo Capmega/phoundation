@@ -1464,7 +1464,7 @@ class Arrays extends Utils
 
 
     /**
-     * Hide the specified keys from the specified array
+     * Hide the specified sensitivekey values from the specified array
      *
      * @param array|null   $source
      * @param string|array $keys
@@ -1474,7 +1474,7 @@ class Arrays extends Utils
      *
      * @return array|null
      */
-    public static function hide(?array $source, string|array $keys = ['GLOBALS', '%pass', 'ssh_key'], string $hide = '*** HIDDEN ***', string $empty = '-', bool $recurse = true): ?array
+    public static function hideSensitive(?array $source, string|array $keys = ['GLOBALS', '%pass', 'ssh_key'], string $hide = '*** HIDDEN ***', string $empty = '-', bool $recurse = true): ?array
     {
         static::requireArrayOrNull($source);
 
@@ -1485,11 +1485,11 @@ class Arrays extends Utils
             foreach ($keys as $key) {
                 if (is_array($source_value)) {
                     if ($recurse) {
-                        $source_value = Arrays::hide($source_value, $keys, $hide, $empty, $recurse);
+                        $source_value = Arrays::hideSensitive($source_value, $keys, $hide, $empty, $recurse);
 
                     } else {
                         // If we don't recurse, we'll hide the entire subarray
-                        $source_value = Arrays::hide($source_value, $hide, $empty);
+                        $source_value = Arrays::hideSensitive($source_value, $hide, $empty);
                     }
 
                 } else {
@@ -3302,7 +3302,7 @@ class Arrays extends Utils
         }
 
         if (is_string($source)) {
-            // This must be a query. ExecuteExecuteInterface it and get a list of all entries from the result
+            // This must be a query. Execute it and get a list of all entries from the result
             return sql()->list($source, $execute);
         }
 
