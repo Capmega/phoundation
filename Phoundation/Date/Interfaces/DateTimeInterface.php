@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Date\Interfaces;
 
 use Phoundation\Date\DateInterval;
+use Phoundation\Date\DateTime;
 use Phoundation\Date\DateTimeZone;
 
 /**
@@ -49,4 +50,18 @@ interface DateTimeInterface extends \DateTimeInterface
      * @return string
      */
     public function format(?string $format = null): string;
+
+    /**
+     * Returns a new DateTime object for the first day of the current month
+     *
+     * @return static
+     */
+    public function getDayStart(): static;
+
+    /**
+     * Returns the stop date for the month in which this date is
+     *
+     * @return static
+     */
+    public function getDayStop(): static;
 }

@@ -707,12 +707,9 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @return static
      */
-    public function getCurrentMonthStart(): static
+    public function getMonthStart(): static
     {
-        $datetime = static::new($this);
-        $date_day = $datetime->format('d');
-
-        return DateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
+        return DateTime::new($this->format('Y-m-1 00:00:00'), $this->getTimezone());
     }
 
 
@@ -721,12 +718,31 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @return static
      */
-    public function getCurrentMonthStop(): static
+    public function getMonthStop(): static
     {
-        $datetime = static::new($this);
-        $max      = $datetime->format('t');
+        return DateTime::new($this->format('Y-m-t 23:59:59.999999'), $this->getTimezone());
+    }
 
-        return DateTime::new($datetime->format('Y-m-t 23:59:59.999999'), $datetime->getTimezone());
+
+    /**
+     * Returns a new DateTime object for the first day of the current month
+     *
+     * @return static
+     */
+    public function getDayStart(): static
+    {
+        return DateTime::new($this->format('Y-m-d 00:00:00'), $this->getTimezone());
+    }
+
+
+    /**
+     * Returns the stop date for the month in which this date is
+     *
+     * @return static
+     */
+    public function getDayStop(): static
+    {
+        return DateTime::new($this->format('Y-m-d 23:59:59.999999'), $this->getTimezone());
     }
 
 
