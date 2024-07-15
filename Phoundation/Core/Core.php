@@ -585,6 +585,8 @@ class Core implements CoreInterface
         if (!$exit) {
             $exit = true;
 
+            Core::setShutdownState();
+
             if (static::$shutdown_handling) {
                 static::setErrorHandling(true);
 
@@ -609,7 +611,7 @@ class Core implements CoreInterface
                     }
                 }
 
-                // ExecuteExecuteInterface platform specific exit
+                // Execute platform specific exit
                 if (PLATFORM_WEB) {
                     // Kill a web page
                     Request::exit($exit_message, $sig_kill);
@@ -713,7 +715,7 @@ class Core implements CoreInterface
                     $data = [null];
                 }
 
-                // ExecuteExecuteInterface this shutdown function for each data value
+                // Execute this shutdown function for each data value
                 foreach ($data as $value) {
                     Log::action(tr('Executing shutdown function ":identifier" with data value ":value"', [
                         ':identifier' => $identifier,
@@ -721,7 +723,7 @@ class Core implements CoreInterface
                     ]), 1);
 
                     if (is_callable($function)) {
-                        // ExecuteExecuteInterface this call directly
+                        // Execute this call directly
                         $function($value);
                         continue;
                     }
@@ -737,7 +739,7 @@ class Core implements CoreInterface
                         }
                     }
 
-                    // ExecuteExecuteInterface this shutdown function with the specified value
+                    // Execute this shutdown function with the specified value
                     if (is_array($function)) {
                         // Decode the array contents. If anything is not correct, it will no-break fall through to the
                         // warning log
@@ -745,7 +747,7 @@ class Core implements CoreInterface
                             // The first entry can either be a class name string or an object
                             if (is_object($function[0])) {
                                 if (is_string($function[1])) {
-                                    // ExecuteExecuteInterface the method in the specified object
+                                    // Execute the method in the specified object
                                     $function[0]->$function[1]($value);
                                     continue;
                                 }
@@ -755,7 +757,7 @@ class Core implements CoreInterface
                                 if (is_string($function[1])) {
                                     // Ensure the class file is loaded
                                     Library::includeClassFile($function[0]);
-                                    // ExecuteExecuteInterface this shutdown function with the specified value
+                                    // Execute this shutdown function with the specified value
                                     $function[0]::{$function[1]}($value);
                                     continue;
                                 }
@@ -1363,7 +1365,7 @@ class Core implements CoreInterface
                             echo $return;
                             if ($e instanceof Exception) {
                                 // Clean data
-                                $e->addData(Arrays::hide(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
+                                $e->addData(Arrays::hideSensitive(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
                             }
                             showdie($e);
                         }
@@ -2998,8 +3000,8 @@ class Core implements CoreInterface
     public static function addShutdownCallback(string|int $identifier, array|string|callable $function, mixed $data = null): void
     {
         static::$shutdown_callbacks[$identifier] = [
-            'data'     => $data,
             'function' => $function,
+            'data'     => $data,
         ];
     }
 
