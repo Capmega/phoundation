@@ -90,17 +90,24 @@ class Template extends Page implements TemplateInterface
      */
     protected static function getPage(string $page): ?string
     {
+        $sign_out = Session::isGuest() ? null : '<p>' . tr('Click :here to sign out', [
+            ':here' => '<a href="' . UrlBuilder::getWww('sign-out') . '">here</a>'
+        ]) . '</p>';
+
         switch ($page) {
             case 'system/error':
                 return '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-                        <html><head>
+                        <html>
+                        <head>
                             <title>:title</title>
-                        </head><body>
+                        </head>
+                        <body>
                             <h1>:h1</h1>
                             <p>:p</p>
                             <hr>
                             :body
-                        </body></html>';
+                        </body>
+                        </html>';
 
             case 'system/detail-error':
                 return '<div class="container">
@@ -122,8 +129,8 @@ class Template extends Page implements TemplateInterface
                                             <h3><i class="fas fa-exclamation-triangle text-:type"></i> :h3</h3>
                                     
                                             <p>:p</p>
-                                            <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . UrlBuilder::getCurrentDomainRootUrl() . '">here</a>']) . '</p>
-                                            <p>' . tr('Click :here to sign out', [':here' => '<a href="' . UrlBuilder::getWww('sign-out') . '">here</a>']) . '</p>';
+                                            <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . UrlBuilder::getCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
+                                            $sign_out;
 
                 if (!Session::getUser()->isGuest()) {
                     $html .= '              <form class="search-form" method="post" action=":action">
