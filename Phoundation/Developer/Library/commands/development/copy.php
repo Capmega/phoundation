@@ -12,10 +12,12 @@
 
 declare(strict_types=1);
 
+use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Phoundation\Repositories\Repositories;
+use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 
 CliDocumentation::setAutoComplete([
@@ -54,7 +56,7 @@ ARGUMENTS
 $argv = ArgvValidator::new()
                      ->select('-a,--allow-changes')->isOptional(false)->isBoolean()
                      ->select('-b,--branch', true)->isOptional()->isVariableName()
-                     ->selectAll('files')->isOptional()->each()->isPath(DIRECTORY_ROOT, FsRestrictions::getReadonly(DIRECTORY_ROOT, tr('Development copy script source path')))
+                     ->selectAll('files')->isOptional()->each()->isPath(FsDirectory::getRoot(false))
                      ->validate();
 
 

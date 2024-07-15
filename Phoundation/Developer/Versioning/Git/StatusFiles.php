@@ -123,7 +123,7 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
      *
      * @return void
      */
-    public function cliDisplayTable(): void
+    public function displayCliTable(): void
     {
         $list = [];
 

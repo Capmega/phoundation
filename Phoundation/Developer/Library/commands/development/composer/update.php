@@ -41,5 +41,5 @@ CliDocumentation::setUsage('./pho composer update
 $argv = ArgvValidator::getArguments();
 
 
-// ExecuteExecuteInterface composer update
+// Execute composer update
 Composer::new()->setArguments($argv)->update();

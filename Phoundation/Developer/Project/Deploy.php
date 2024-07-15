@@ -245,7 +245,7 @@ class Deploy implements DeployInterface
 //            foreach (Translations::getLanguages() as $language)
             // Add the project directory to the rsync_target
             $project = Strings::fromReverse(Strings::ensureEndsNotWith(DIRECTORY_ROOT, '/'), '/');
-            // ExecuteExecuteInterface rsync
+            // Execute rsync
             Log::action(tr('Executing rsync to target ":target"', [
                 ':target' => Strings::ensureEndsWith($rsync_target, '/') . $project,
             ]));

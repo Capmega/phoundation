@@ -455,7 +455,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                 ':section' => $section,
             ]), 5);
 
-            // ExecuteExecuteInterface all Import objects if they are valid
+            // Execute all Import objects if they are valid
             foreach ($files as $file) {
                 $library = null;
 

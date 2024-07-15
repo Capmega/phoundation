@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Tests\BomFile;
-use Phoundation\Developer\Tests\Exception\BomException;
-use Phoundation\Filesystem\FsRestrictions;
-
-
 /**
  * Command bom
  *
@@ -21,6 +11,16 @@ use Phoundation\Filesystem\FsRestrictions;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Tests\BomFile;
+use Phoundation\Developer\Tests\Exception\BomException;
+use Phoundation\Filesystem\FsDirectory;
+
 CliDocumentation::setHelp('The bom script can search for and clear the BOM (Byte Order Mark) from all PHP files found in the specified path.
 
 The bom script uses the cache file ROOT/data/system/mtime to store the minimum file mtime for files to be checked.
@@ -50,7 +50,7 @@ $argv = ArgvValidator::new()
                      ->select('--test')->isOptional(false)->isBoolean()
                      ->select('--no-mtime')->isOptional(false)->isBoolean()
                      ->select('--cache-mtime', true)->isOptional()->isDateTime()
-                     ->select('file')->isFile(DIRECTORY_ROOT, FsRestrictions::getWritable(DIRECTORY_ROOT))
+                     ->select('file')->isFile(FsDirectory::getRoot(true))
                      ->validate();
 
 

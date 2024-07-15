@@ -386,7 +386,7 @@ class Phoundation extends Project
              ->ensureNoChanges();
 
         try {
-            // ExecuteExecuteInterface the patching
+            // Execute the patching
             $stash    = new Iterator();
             $sections = [
                 'Phoundation',

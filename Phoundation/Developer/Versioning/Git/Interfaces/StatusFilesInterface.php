@@ -23,7 +23,7 @@ interface StatusFilesInterface extends FsFilesInterface
      *
      * @return void
      */
-    public function cliDisplayTable(): void;
+    public function displayCliTable(): void;
 
 
     /**

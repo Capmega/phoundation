@@ -70,7 +70,7 @@ class Branches extends IteratorCore implements BranchesInterface
      *
      * @return void
      */
-    public function cliDisplayTable(): void
+    public function displayCliTable(): void
     {
         $list = [];
 

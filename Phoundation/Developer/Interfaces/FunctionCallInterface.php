@@ -30,9 +30,9 @@ interface FunctionCallInterface
     /**
      * Returns the class where this function is located
      *
-     * @return int
+     * @return string|null
      */
-    public function getClass(): int;
+    public function getClass(): ?string;
 
     /**
      * Returns the arguments given to this function call

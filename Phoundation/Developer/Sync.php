@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Sync
+ *
+ * This class contains functionalities to sync different environment with each other, facilitating development work that
+ * sometimes requires to work with production data
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Developer
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer;
@@ -25,17 +37,6 @@ use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Strings;
 
-/**
- * Sync Page
- *
- * This class contains functionalities to sync different environment with each other, facilitating development work that
- * sometimes requires to work with production data
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Developer
- */
 class Sync
 {
     use TraitDataTimeout;
@@ -198,6 +199,7 @@ class Sync
             ':environment' => $environment,
             ':local'       => ENVIRONMENT,
         ]));
+
         Core::enableInitState();
 
         return $this->initConfiguration($environment)
@@ -226,9 +228,9 @@ class Sync
         Log::action(tr('Clearing caches on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-clear-caches');
-        $this->getPhoCommand($server)
-             ->executeReturnString();
+        $this->getPhoCommand($server)->executeReturnString();
 
         return $this->executeHook('pre-clear-caches');
     }
@@ -248,7 +250,7 @@ class Sync
 
 
     /**
-     * ExecuteExecuteInterface the specified hook(s)
+     * Execute the specified hook(s)
      *
      * @param array|string $hooks
      *
@@ -257,8 +259,7 @@ class Sync
     protected function executeHook(array|string $hooks): static
     {
         if ($this->configuration['execute_hooks']) {
-            Hook::new('sync')
-                ->execute($hooks);
+            Hook::new('sync')->execute($hooks);
         }
 
         return $this;
@@ -291,19 +292,13 @@ class Sync
                           ->setCommand($this->configuration['path'] . 'pho', false)
                           ->setServer($server)
                           ->setSudo($this->configuration['sudo'])
-                          ->addArguments([
-                              '-E',
-                              $this->getEnvironmentForServer($server),
-                          ]);
+                          ->addArguments(['-E', $this->getEnvironmentForServer($server)]);
         }
 
         return Process::new()
                       ->setTimeout($this->timeout)
                       ->setCommand(DIRECTORY_ROOT . 'pho', false)
-                      ->addArguments([
-                          '-E',
-                          ENVIRONMENT,
-                      ]);
+                      ->addArguments(['-E', ENVIRONMENT]);
     }
 
 
@@ -319,6 +314,7 @@ class Sync
         Log::action(tr('Executing system initialization on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-init');
 
         return $this->executeHook('post-init');
@@ -337,20 +333,26 @@ class Sync
         Log::action(tr('Importing connector dumps on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-import-connectors');
+
         // Get connectors from target environment
         Config::setEnvironment($this->getEnvironmentForServer($server));
         $connectors = Config::getArray('databases.connectors');
+
         // Return Config to default environment
         Config::setEnvironment(ENVIRONMENT);
+
         // Dump all connectors
         foreach ($this->dump_files as $connector_name => $file) {
             $connector = Connector::newFromSource($connectors[$connector_name]);
             $connector->setName($connector_name);
+
             if ($connector->getType() === 'memcached') {
                 // Memcached is volatile, contains only temp data, and cannot (and should not) be dumped
                 continue;
             }
+
             if (!$connector->getSync() and ($connector->getName() !== 'system')) {
                 // This connector should not be sync. The connector "system" will always be synced, though!
                 Log::warning(tr('Not importing database ":database" because it should not be synced', [
@@ -358,6 +360,7 @@ class Sync
                 ]));
                 continue;
             }
+
             $this->importConnector($server, $file, $connector);
         }
 
@@ -381,7 +384,8 @@ class Sync
             ':environment' => $this->getEnvironmentForServer($server),
             ':connector'   => $connector->getDisplayName(),
         ]));
-        // ExecuteExecuteInterface the dump on the specified server
+
+        // Execute the dump on the specified server
         $this->executeHook('pre-import-connector')
              ->getPhoCommand($server)
              ->addArguments([
@@ -429,12 +433,7 @@ class Sync
     protected function clearTemporaryPath(?ServerInterface $server): static
     {
         $this->getPhoCommand($server)
-             ->addArguments([
-                 'system',
-                 'temporary',
-                 'clear',
-                 $this->source_temp_path,
-             ])
+             ->addArguments(['system', 'temporary', 'clear', $this->source_temp_path])
              ->executeNoReturn();
 
         return $this;
@@ -455,6 +454,7 @@ class Sync
             ':from' => $this->getEnvironmentForServer($from),
             ':to'   => $this->getEnvironmentForServer($to),
         ]));
+
         $this->executeHook('pre-copy-content');
 
         return $this->executeHook('post-copy-content');
@@ -475,11 +475,13 @@ class Sync
             ':from' => $this->getEnvironmentForServer($from),
             ':to'   => $this->getEnvironmentForServer($to),
         ]));
+
         $this->executeHook('pre-copy-connectors');
+
         if (empty($this->target_temp_path)) {
-            $this->target_temp_path = FsDirectory::getTemporary()
-                                                 ->getPath();
+            $this->target_temp_path = FsDirectory::getTemporary()->getPath();
         }
+
         foreach ($this->dump_files as $file) {
             // Build source / target strings
             if ($from) {
@@ -492,7 +494,8 @@ class Sync
                 $source = $this->target_temp_path . $file;
                 $target = $from->getHostname() . ':' . $this->source_temp_path . $file;
             }
-            // ExecuteExecuteInterface rsync
+
+            // Execute rsync
             Rsync::new()
                  ->setSource($source)
                  ->setTarget($target)
@@ -558,13 +561,10 @@ class Sync
         Log::action(tr('Unlocking system for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-lock-system')
              ->getPhoCommand($server)
-             ->addArguments([
-                 'system',
-                 'modes',
-                 'reset',
-             ])
+             ->addArguments(['system', 'modes', 'reset'])
              ->executeReturnString();
 
         return $this->executeHook('post-unlock-system');
@@ -583,21 +583,27 @@ class Sync
         Log::action(tr('Dumping all configured connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-dump-all-connectors');
+
         // Get connectors from target environment
         Config::setEnvironment($this->getEnvironmentForServer($server));
         $connectors = Config::getArray('databases.connectors');
+
         // Return Config to default environment
         Config::setEnvironment(ENVIRONMENT);
+
         // Dump all connectors
         foreach ($connectors as $name => $connector) {
             if ($this->getDumpConnector($name)) {
                 $connector = Connector::newFromSource($connector);
                 $connector->setName($name);
+
                 if ($connector->getType() === 'memcached') {
                     // Memcached is volatile, contains only temp data, and cannot (and should not) be dumped
                     continue;
                 }
+
                 if (!$connector->getSync() and ($connector->getName() !== 'system')) {
                     // This connector should not be sync. The connector "system" will always be synced, though!
                     Log::warning(tr('Not dumping database ":database" because it should not be synced', [
@@ -605,6 +611,7 @@ class Sync
                     ]));
                     continue;
                 }
+
                 $this->dumpConnector($server, $connector);
             }
         }
@@ -625,12 +632,15 @@ class Sync
         if (!isset($this->configuration['sync']['connectors'])) {
             return true;
         }
+
         if ($this->configuration['sync']['connectors'] === false) {
             return false;
         }
+
         if ($this->configuration['sync']['connectors'] === true) {
             return true;
         }
+
         if (!is_array($this->configuration['sync']['connectors'])) {
             throw new SyncConfigurationException(tr('Connectors configuration is invalid, it should be a boolean (true or false), or an array but contains ":content"', [
                 ':connector' => $connector_name,
@@ -658,9 +668,11 @@ class Sync
             ':environment' => $this->getEnvironmentForServer($server),
             ':connector'   => $connector->getDisplayName(),
         ]));
+
         // Create a temporary dump filename
         $file = $this->addDumpFile($connector->getName(), $connector->getDatabase() . '.' . $connector->getType() . '.gz');
-        // ExecuteExecuteInterface the dump on the specified server
+
+        // Execute the dump on the specified server
         $this->executeHook('pre-dump-connector')
              ->getPhoCommand($server)
              ->addArguments([
@@ -749,6 +761,7 @@ class Sync
         Log::action(tr('Locking MongoDB connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-lock-mongodb');
 
         return $this->executeHook('post-lock-mongodb');
@@ -767,6 +780,7 @@ class Sync
         Log::action(tr('Locking Redis connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-lock-redis');
 
         return $this->executeHook('post-lock-redis');
@@ -785,6 +799,7 @@ class Sync
         Log::action(tr('Locking SQL connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-lock-sql');
 
         return $this->executeHook('post-lock-sql');
@@ -803,14 +818,10 @@ class Sync
         Log::action(tr('Locking system for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-lock-system')
              ->getPhoCommand($server)
-             ->addArguments([
-                 'system',
-                 'modes',
-                 'readonly',
-                 'enable',
-             ])
+             ->addArguments(['system', 'modes', 'readonly', 'enable'])
              ->executeReturnString();
 
         return $this->executeHook('post-lock-system');
@@ -829,35 +840,44 @@ class Sync
         Log::action(tr('Scanning project installation on server ":server"', [
             ':server' => $this->server->getDisplayName(),
         ]));
+
         $this->executeHook('pre-scan');
+
         $result = Process::new('ls')
                          ->setServer($server)
                          ->setSudo($this->configuration['sudo'])
                          ->addArgument(Strings::slash($this->configuration['path']))
                          ->executeReturnString();
+
         if ($result) {
             $result = Process::new('ls')
                              ->setServer($server)
                              ->setSudo($this->configuration['sudo'])
                              ->addArgument(Strings::slash($this->configuration['path']) . 'pho')
                              ->executeReturnString();
+
             if ($result) {
                 $this->environment_state = true;
+
                 Log::success(tr('Target environment ":environment" path ":path" is fully available', [
                     ':environment' => $this->environment,
                     ':path'        => $this->configuration['path'],
                 ]));
+
             } else {
                 // The main project directory exists, but the ./pho command does not
                 $this->environment_state = 'partial';
+
                 Log::warning(tr('Target environment ":environment" path ":path" is partially available', [
                     ':environment' => $this->environment,
                     ':path'        => $this->configuration['path'],
                 ]));
             }
+
         } else {
             // This project doesn't exist yet
             $this->environment_state = false;
+
             Log::warning(tr('Target environment ":environment" path ":path" is not available', [
                 ':environment' => $this->environment,
                 ':path'        => $this->configuration['path'],
@@ -879,13 +899,9 @@ class Sync
     protected function initTemporaryPath(?ServerInterface $server): static
     {
         $path = $this->getPhoCommand($server)
-                     ->addArguments([
-                         'system',
-                         'temporary',
-                         'get',
-                         '-Q',
-                     ])
+                     ->addArguments(['system', 'temporary', 'get', '-Q'])
                      ->executeReturnArray();
+
         $this->source_temp_path = Strings::slash(Arrays::firstValue($path));
 
         return $this;
@@ -904,33 +920,38 @@ class Sync
         Log::action(tr('Reading configuration for environment ":environment"', [
             ':environment' => $environment,
         ]));
+
         try {
             $this->environment   = $environment;
-            $this->configuration = Config::forSection('deploy', $environment)
-                                         ->get();
+            $this->configuration = Config::forSection('deploy', $environment)->get();
+
             // Return Config to the default section
             Config::setSection('', ENVIRONMENT);
 
         } catch (ConfigFileDoesNotExistsException $e) {
             // Return Config to the default section
             Config::setSection('', ENVIRONMENT);
+
             throw SyncEnvironmentDoesNotExistsException::new(tr('The specified target environment ":environment" does not exist', [
                 ':environment' => $environment,
-            ]), $e)
-                                                       ->makeWarning();
+            ]), $e)->makeWarning();
         }
+
         Arrays::ensure($this->configuration, 'server,ssh_accounts_name,path,user,group');
         Arrays::default($this->configuration, 'sudo', false);
         Arrays::default($this->configuration, 'rsync_parallel', false);
+
         // Check path configuration
         $this->configuration['path'] = trim((string) $this->configuration['path']);
+
         if (!$this->configuration['path']) {
             throw SyncConfigurationException::new(tr('The specified target environment ":environment" has no project path specified', [
                 ':environment' => $environment,
-            ]))
-                                            ->makeWarning();
+            ]))->makeWarning();
         }
+
         $this->configuration['path'] = Strings::slash($this->configuration['path']);
+
         // Parse sudo configuration
         if ($this->configuration['sudo']) {
             if ($this->configuration['sudo'] === true) {
@@ -938,22 +959,25 @@ class Sync
 
             } else {
                 $this->configuration['sudo'] = trim($this->configuration['sudo']);
+
                 if (!str_starts_with($this->configuration['sudo'], 'sudo')) {
                     $this->configuration['sudo'] = 'sudo -Eu ' . $this->configuration['sudo'];
                 }
             }
+
             $this->configuration['sudo'] .= ' ';
 
         } else {
             $this->configuration['sudo'] = null;
         }
+
         if (!$this->configuration['server']) {
             // The target environment has no server configured
             throw SyncException::new(tr('The environment ":environment" has no server configured', [
                 ':environment' => $environment,
-            ]))
-                               ->makeWarning();
+            ]))->makeWarning();
         }
+
         // Setup remote server, MUST be from configuration!
         try {
             $server       = Config::get('servers.' . Config::escape($this->configuration['server']));
@@ -962,13 +986,14 @@ class Sync
         } catch (ConfigPathDoesNotExistsException) {
             throw SyncException::new(tr('The configured server ":server" for environment ":environment" does not exist', [
                 ':environment' => $environment,
-                ':server'      => $this->configuration['server'],
-            ]))
-                               ->makeWarning();
+                ':server'      => $this->configuration['server']
+            ]))->makeWarning();
         }
+
         // Setup SSH account
         try {
             $account = null;
+
             if ($this->configuration['ssh_accounts_name']) {
                 // Ignore the default SSH account for this server, use the one from configuration
                 $account = Config::get('ssh.accounts.' . $this->configuration['ssh_accounts_name']);
@@ -978,18 +1003,17 @@ class Sync
         } catch (ConfigPathDoesNotExistsException) {
             throw SyncException::new(tr('The configured SSH account ":account" for environment ":environment" does not exist', [
                 ':environment' => $environment,
-                ':account'     => $this->configuration['ssh_accounts_name'],
-            ]))
-                               ->makeWarning();
+                ':account'     => $this->configuration['ssh_accounts_name']
+            ]))->makeWarning();
         }
+
         // Does this server have an SSH account after all this?
         if (!$this->server->getSshAccount()) {
             // The server has no SSH account configured, and no SSH account was configured
             throw SyncException::new(tr('Cannot sync with server ":server" for environment ":environment", server has no SSH account configured and no SSH account was specified', [
                 ':environment' => $environment,
                 ':server'      => $this->server->getId(),
-            ]))
-                               ->makeWarning();
+            ]))->makeWarning();
         }
 
         return $this;
@@ -1031,6 +1055,7 @@ class Sync
         Log::action(tr('Unlocking Redis connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-unlock-redis');
 
         return $this->executeHook('post-unlock-redis');
@@ -1049,6 +1074,7 @@ class Sync
         Log::action(tr('Unlocking MongoDB connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-unlock-mongodb');
 
         return $this->executeHook('post-unlock-mongodb');
@@ -1067,6 +1093,7 @@ class Sync
         Log::action(tr('Importing SQL dumps on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-import-sql');
 
         return $this->executeHook('post-import-sql');
@@ -1085,6 +1112,7 @@ class Sync
         Log::action(tr('Importing MongoDB dumps on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-import-mongodb');
 
         return $this->executeHook('post-import-mongodb');
@@ -1103,6 +1131,7 @@ class Sync
         Log::action(tr('Importing Redis dumps on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
+
         $this->executeHook('pre-import-redis');
 
         return $this->executeHook('post-import-redis');

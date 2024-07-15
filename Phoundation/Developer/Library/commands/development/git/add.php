@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Versioning\Git\Git;
-
-
 /**
  * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
  *
@@ -19,8 +12,16 @@ use Phoundation\Developer\Versioning\Git\Git;
  * @category  Function reference
  * @package   Phoundation\Development
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Versioning\Git\Git;
+
 CliDocumentation::setUsage('./pho development git add [FILES]
 ./pho system dev git add [FILES]');
+
 CliDocumentation::setHelp('This command is an interface to the git command through Phoundation. Its not really needed -nor
 useful- beyond testing the git library');
 

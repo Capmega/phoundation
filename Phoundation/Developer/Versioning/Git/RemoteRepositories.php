@@ -50,7 +50,7 @@ class RemoteRepositories extends IteratorCore implements RemoteRepositoriesInter
      *
      * @return void
      */
-    public function CliDisplayTable(): void
+    public function displayCliTable(): void
     {
         $list = [];
         foreach ($this->getSource() as $repository) {

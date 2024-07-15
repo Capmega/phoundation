@@ -1,7 +1,19 @@
 <?php
 
+/**
+ * Command development mdb repositories sync
+ *
+ * This script can sync MDB repositories
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Development
+ */
+
 declare(strict_types=1);
 
+use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -12,17 +24,6 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
-
-/**
- * Command development/mdb/repositories/sync
- *
- * This script can sync MDB repositories
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Development
- */
 CliDocumentation::setHelp('The development/mdb/repositories/sync script synchronizes all MDB repositories
 
 If the repositories do not exist, they will be cloned.
@@ -49,8 +50,8 @@ $target_restrictions = FsRestrictions::new('~', true);
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('-s,--source')->isOptional('data/sources/mdb/repositories')->isFile('data/sources', $source_restrictions)
-                     ->select('-t,--target')->isOptional('~/projects/mdb')->isDirectory('~/projects/mdb', $target_restrictions, false)
+                     ->select('-s,--source')->isOptional('data/sources/mdb/repositories')->isFile(FsDirectory::getDataSources())
+                     ->select('-t,--target')->isOptional('~/projects/mdb')->isDirectory(FsDirectory::new('~/projects/mdb', FsRestrictions::getReadonly('~/projects/mdb')))
                      ->validate();
 
 

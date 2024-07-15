@@ -38,5 +38,5 @@ CliDocumentation::setUsage('
 $argv = ArgvValidator::getArguments();
 
 
-// ExecuteExecuteInterface composer why
+// Execute composer why
 Composer::new()->setArguments($argv)->fund();

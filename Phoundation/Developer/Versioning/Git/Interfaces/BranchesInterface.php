@@ -22,5 +22,5 @@ interface BranchesInterface extends IteratorInterface
      *
      * @return void
      */
-    public function cliDisplayTable(): void;
+    public function displayCliTable(): void;
 }

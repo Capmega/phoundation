@@ -123,13 +123,11 @@ class Debug
      *
      * @return array
      */
-    public static function backtrace(string|int $start = 1, array|string $remove_sections = [
-        'args',
-        'object',
-    ]): array
+    public static function getBacktrace(string|int $start = 1, array|string $remove_sections = ['args', 'object']): array
     {
         $trace           = [];
         $remove_sections = Arrays::force($remove_sections);
+
         foreach (debug_backtrace() as $key => $value) {
             if ($start) {
                 if (is_string($start)) {
@@ -143,14 +141,17 @@ class Debug
                             ':start' => $start,
                         ]));
                     }
+
                 } elseif ($key < $start) {
                     // Start building backtrace at specified entry
                     continue;
                 }
             }
+
             foreach ($remove_sections as $section) {
                 unset($value[$section]);
             }
+
             $trace[] = $value;
         }
 
@@ -178,10 +179,10 @@ class Debug
      * @note Does NOT return data type "never" because in production mode this call will be completely ignored!
      *
      * @param mixed $value
-     * @param bool  $sort
-     * @param int   $trace_offset
-     * @param bool  $quiet
-     *
+     * @param bool $sort
+     * @param int $trace_offset
+     * @param bool $quiet
+     * @param bool $var_dump
      * @return void
      */
     #[NoReturn] public static function showDie(mixed $value = null, bool $sort = true, int $trace_offset = 0, bool $quiet = false, bool $var_dump = false): void
@@ -313,7 +314,7 @@ class Debug
 
             // Filter secure data
             if (is_array($value)) {
-                $value = Arrays::hide($value, 'GLOBALS,%pass,ssh_key');
+                $value = Arrays::hideSensitive($value, 'GLOBALS,%pass,ssh_key');
             }
 
             if (PLATFORM_WEB) {
@@ -360,11 +361,6 @@ class Debug
             } else {
                 $return = '';
 
-                if (PLATFORM_WEB) {
-                    // We're displaying plain text to a browser platform. Send "<pre>" to force readable display
-                    echo '<pre>';
-                }
-
                 // Show output on CLI console
                 if (is_scalar($value)) {
                     $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:type :size] ', [
@@ -372,7 +368,7 @@ class Debug
                             ':file' => static::currentFile($trace_offset),
                             ':line' => static::currentLine($trace_offset),
                             ':size' => strlen((string) $value),
-                        ])) . $value . PHP_EOL;
+                        ])) . Strings::log($value) . PHP_EOL;
 
                 } else {
                     // Sort if is array for easier reading
@@ -535,46 +531,54 @@ class Debug
                 } else {
                     $type = tr('string');
                 }
+
             // no break
             case 'integer':
                 // no break
+
             case 'double':
                 return '<tr>
-                            <td>' . htmlspecialchars((string) $key) . '</td>
-                            <td>' . $type . '</td>
-                            <td>' . strlen((string) $value) . '</td>
+                            <td style="vertical-align: top;">' . htmlspecialchars((string) $key) . '</td>
+                            <td style="vertical-align: top;">' . $type . '</td>
+                            <td style="vertical-align: top;">' . strlen((string) $value) . '</td>
                             <td class="value">' . nl2br(htmlspecialchars((string) $value)) . '</td>
                         </tr>';
+
             case 'boolean':
                 return '<tr>
-                            <td>' . htmlspecialchars((string) $key) . '</td>
-                            <td>' . $type . '</td>
-                            <td>1</td>
+                            <td style="vertical-align: top;">' . htmlspecialchars((string) $key) . '</td>
+                            <td style="vertical-align: top;">' . $type . '</td>
+                            <td style="vertical-align: top;">1</td>
                             <td class="value">' . ($value ? tr('true') : tr('false')) . '</td>
                         </tr>';
+
             case 'NULL':
                 return '<tr>
-                            <td>' . $key . '</td>
-                            <td>' . $type . '</td>
-                            <td>0</td>
+                            <td style="vertical-align: top;">' . $key . '</td>
+                            <td style="vertical-align: top;">' . $type . '</td>
+                            <td style="vertical-align: top;">0</td>
                             <td class="value">' . $value . '</td>
                         </tr>';
+
             case 'resource':
                 return '<tr>
-                            <td>' . htmlspecialchars((string) $key) . '</td>
-                            <td>' . $type . '</td>
-                            <td>?</td>
+                            <td style="vertical-align: top;">' . htmlspecialchars((string) $key) . '</td>
+                            <td style="vertical-align: top;">' . $type . '</td>
+                            <td style="vertical-align: top;">?</td>
                             <td class="value">' . $value . '</td>
                         </tr>';
+
             case 'method':
                 // no break
+
             case 'property':
                 return '<tr>
-                            <td>' . htmlspecialchars((string) $key) . '</td>
-                            <td>' . $type . '</td>
-                            <td>' . strlen((string) $value) . '</td>
+                            <td style="vertical-align: top;">' . htmlspecialchars((string) $key) . '</td>
+                            <td style="vertical-align: top;">' . $type . '</td>
+                            <td style="vertical-align: top;">' . strlen((string) $value) . '</td>
                             <td class="value">' . $value . '</td>
                         </tr>';
+
             case 'object':
                 if (!($value instanceof ArrayableInterface)) {
                     // Format exception nicely
@@ -589,19 +593,21 @@ class Debug
                     $return = '<pre>' . $value . '</pre>';
 
                     return '<tr>
-                                <td>' . $key . '</td>
-                                <td>' . $type . '</td>
-                                <td>(' . tr('Dump size') . ')<br> ' . strlen($return) . '</td>
+                                <td style="vertical-align: top;">' . $key . '</td>
+                                <td style="vertical-align: top;">' . $type . '</td>
+                                <td style="vertical-align: top;">(' . tr('Dump size') . ')<br> ' . strlen($return) . '</td>
                                 <td>' . $return . '</td>
                             </tr>';
                 }
+
                 // This is an object that has a $value::__toArray() method, convert it to array and display it as such
                 $value = [
                     ''         => 'Arreable object',
                     'class'    => get_class($value),
                     'contents' => $value->__toArray(),
                 ];
-            // no break
+                // no break
+
             case 'array':
                 $return = '';
                 if ($sort) {
@@ -612,9 +618,9 @@ class Debug
                 }
 
                 return '<tr>
-                            <td>' . htmlspecialchars($key) . '</td>
-                            <td>' . $type . '</td>
-                            <td>' . count($value) . '</td>
+                            <td style="vertical-align: top;">' . htmlspecialchars($key) . '</td>
+                            <td style="vertical-align: top;">' . $type . '</td>
+                            <td style="vertical-align: top;">' . count($value) . '</td>
                             <td style="padding:0">
                                 <table class="debug">
                                     <thead>
@@ -1181,5 +1187,48 @@ class Debug
     public static function getPreviousCall(int $offset = 0): FunctionCallInterface
     {
         return new FunctionCall(++$offset);
+    }
+
+
+    /**
+     * Returns the call before the specified method (and optionally, class name)
+     *
+     * @param string $method
+     * @param string|null $class
+     * @return ?FunctionCallInterface
+     */
+    public static function getCallBefore(?string $method, ?string $class = null): ?FunctionCallInterface
+    {
+        $offset = 0;
+
+        // We'll use function call caching here, make sure cache is cleared before we start
+        FunctionCall::clearCache();
+
+        while(true) {
+            try {
+                $call = new FunctionCall($offset++, true);
+
+            } catch (OutOfBoundsException) {
+                // We're out of scope, the specified method / class does not exist
+                break;
+            }
+
+            if (($method === null) or ($method === $call->getFunction())) {
+                if ($class === null) {
+                    $next = true;
+                    continue;
+
+                } elseif ($class === (string) $call->getClass()) {
+                    $next = true;
+                    continue;
+                }
+            }
+
+            if (isset($next)) {
+                return $call;
+            }
+        }
+
+        return null;
     }
 }

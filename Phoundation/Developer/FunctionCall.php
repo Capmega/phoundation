@@ -16,6 +16,7 @@ namespace Phoundation\Developer;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Interfaces\FunctionCallInterface;
+use Phoundation\Exception\OutOfBoundsException;
 
 class FunctionCall implements FunctionCallInterface
 {
@@ -52,23 +53,46 @@ class FunctionCall implements FunctionCallInterface
      */
     protected IteratorInterface $arguments;
 
+    /**
+     * Backtrace cache
+     *
+     * @var array|null $backtrace
+     */
+    protected static ?array $backtrace;
+
 
     /**
      * FunctionCall class constructor
      *
      * @param int $offset
+     * @param bool $cache
      */
-    public function __construct(int $offset = 0)
+    public function __construct(int $offset = 0, bool $cache = false)
     {
+        if (empty(static::$backtrace) or !$cache) {
+            static::$backtrace = debug_backtrace();
+        }
+
         $offset++;
 
-        $this->file      = Debug::currentFile($offset);
-        $this->line      = Debug::currentLine($offset);
-        $this->function  = Debug::currentFunction($offset);
-        $this->class     = Debug::currentClass($offset);
-        $this->arguments = new Iterator(Debug::currentArguments($offset));
+        if (!array_key_exists($offset, static::$backtrace)) {
+            throw new OutOfBoundsException(tr('Requested offset is outside of call scope'));
+        }
+
+        $trace = static::$backtrace[$offset];
+
+        $this->file      = $trace['file'];
+        $this->line      = $trace['line'];
+        $this->function  = isset_get($trace['function']);
+        $this->class     = isset_get($trace['class']);
+        $this->arguments = new Iterator(isset_get($trace['args']));
     }
 
+
+    public static function clearCache(): void
+    {
+        static::$backtrace = null;
+    }
 
     /**
      * Returns the function (or method) of this call
@@ -106,9 +130,9 @@ class FunctionCall implements FunctionCallInterface
     /**
      * Returns the class where this function is located
      *
-     * @return int
+     * @return string|null
      */
-    public function getClass(): int
+    public function getClass(): ?string
     {
         return $this->class;
     }

@@ -362,7 +362,7 @@ class Plugins extends Project
              ->ensureNoChanges();
 
         try {
-            // ExecuteExecuteInterface the patching, first stash all libraries that are not in the official Phoundation Plugins list
+            // Execute the patching, first stash all libraries that are not in the official Phoundation Plugins list
             $non_phoundation_stash = $this->stashNonPhoundationPlugins();
             $stash                 = new Iterator();
             $sections              = [

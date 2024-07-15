@@ -39,5 +39,5 @@ CliDocumentation::setUsage('
 $argv = ArgvValidator::getArguments();
 
 
-// ExecuteExecuteInterface composer update
+// Execute composer update
 Composer::new()->setArguments($argv)->require();

@@ -12,7 +12,7 @@ interface RemoteRepositoriesInterface
      *
      * @return void
      */
-    public function CliDisplayTable(): void;
+    public function displayCliTable(): void;
 
 
     /**
