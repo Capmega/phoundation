@@ -13,6 +13,7 @@
 
 declare(strict_types=1);
 
+use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\FsDirectory;
@@ -25,10 +26,10 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new('/', $restrictions)->scan($word . '*');
+                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new('/', $restrictions)->scan('*');
+                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan('*');
             },
         ],
     ]
@@ -46,7 +47,7 @@ PATH                                    The path for which information should be
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('path')->isPath('/', FsRestrictions::getReadonly('/'))
+                     ->select('path')->isPath(FsDirectory::getFilesystemRoot())
                      ->select('-h,--human-readable')->isOptional(false)->isBoolean()
                      ->validate();
 

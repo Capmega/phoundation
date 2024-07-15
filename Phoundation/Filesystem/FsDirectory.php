@@ -60,55 +60,83 @@ class FsDirectory extends FsDirectoryCore
     /**
      * Returns a new FsDirectory object for the path DIRECTORY_ROOT
      *
-     * @param bool        $writable
-     * @param string|null $label
+     * @param bool        $restrictions_writable
+     * @param string|null $restrictions_label
      *
      * @return static
      */
-    public static function getRoot(bool $writable = false, ?string $label = 'Unknown'): static
+    public static function getRoot(bool $restrictions_writable = false, ?string $restrictions_label = null): static
     {
-        return new static(DIRECTORY_ROOT, FsRestrictions::new(DIRECTORY_ROOT, $writable, $label));
+        return new static(DIRECTORY_ROOT, FsRestrictions::new(DIRECTORY_ROOT, $restrictions_writable, $restrictions_label));
+    }
+
+
+    /**
+     * Returns a new FsDirectory object for the path /
+     *
+     * @param bool        $restrictions_writable
+     * @param string|null $restrictions_label
+     *
+     * @return static
+     */
+    public static function getFilesystemRoot(bool $restrictions_writable = false, ?string $restrictions_label = null): static
+    {
+        return new static('/', FsRestrictions::new('/', $restrictions_writable, $restrictions_label));
     }
 
 
     /**
      * Returns a new FsDirectory object for the path DIRECTORY_COMMANDS
      *
-     * @param bool        $writable
-     * @param string|null $label
+     * @param bool        $restrictions_writable
+     * @param string|null $restrictions_label
      *
      * @return static
      */
-    public static function getCommands(bool $writable = false, ?string $label = 'Unknown'): static
+    public static function getCommands(bool $restrictions_writable = false, ?string $restrictions_label = null): static
     {
-        return new static(DIRECTORY_COMMANDS, FsRestrictions::new(DIRECTORY_COMMANDS, $writable, $label));
+        return new static(DIRECTORY_COMMANDS, FsRestrictions::new(DIRECTORY_COMMANDS, $restrictions_writable, $restrictions_label));
     }
 
 
     /**
      * Returns a new FsDirectory object for the path DIRECTORY_WEB
      *
-     * @param bool        $writable
-     * @param string|null $label
+     * @param bool        $restrictions_writable
+     * @param string|null $restrictions_label
      *
      * @return static
      */
-    public static function getWeb(bool $writable = false, ?string $label = 'Unknown'): static
+    public static function getWeb(bool $restrictions_writable = false, ?string $restrictions_label = null): static
     {
-        return new static(DIRECTORY_WEB, FsRestrictions::new(DIRECTORY_WEB, $writable, $label));
+        return new static(DIRECTORY_WEB, FsRestrictions::new(DIRECTORY_WEB, $restrictions_writable, $restrictions_label));
     }
 
 
     /**
      * Returns a new FsDirectory object for the path DIRECTORY_DATA
      *
-     * @param bool        $writable
-     * @param string|null $label
+     * @param bool        $restrictions_writable
+     * @param string|null $restrictions_label
      *
      * @return static
      */
-    public static function getData(bool $writable = false, ?string $label = 'Unknown'): static
+    public static function getData(bool $restrictions_writable = false, ?string $restrictions_label = null): static
     {
-        return new static(DIRECTORY_DATA, FsRestrictions::new(DIRECTORY_DATA, $writable, $label));
+        return new static(DIRECTORY_DATA, FsRestrictions::new(DIRECTORY_DATA, $restrictions_writable, $restrictions_label));
+    }
+
+
+    /**
+     * Returns a new FsDirectory object for the path DIRECTORY_DATA
+     *
+     * @param bool        $restrictions_writable
+     * @param string|null $restrictions_label
+     *
+     * @return static
+     */
+    public static function getDataSources(bool $restrictions_writable = false, ?string $restrictions_label = null): static
+    {
+        return new static(DIRECTORY_DATA . 'sources/', FsRestrictions::new(DIRECTORY_DATA . 'sources/', $restrictions_writable, $restrictions_label));
     }
 }

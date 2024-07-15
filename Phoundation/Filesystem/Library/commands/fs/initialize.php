@@ -29,10 +29,10 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new('/', $restrictions)->scan($word . '*');
+                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new('/', $restrictions)->scan('*');
+                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan('*');
             },
         ],
     ]
@@ -65,7 +65,7 @@ PATH                                    The path of which the size needs to be c
 
 // Get the arguments
 $argv = ArgvValidator::new()
-    ->select('path')->isFile('/', FsRestrictions::getWritable('/'))
+    ->select('path')->isFile(FsDirectory::getFilesystemRoot(true))
     ->select('-r,--randomized')->isOptional(false)->isBoolean()
     ->select('-b,--block-size', true)->isOptional(4096)->sanitizeBytes()->isBetween(100, 1_073_741_824)
     ->select('-d,--data', true)->isString()->hasMinCharacters(1)->hasMaxCharacters(1_073_741_824)

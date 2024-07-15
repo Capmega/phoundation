@@ -25,16 +25,17 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new('/', $restrictions)->scan($word . '*');
+                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new('/', $restrictions)->scan('*');
+                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan('*');
             },
         ],
     ]
 ]);
 
 CliDocumentation::setUsage('./pho fs count PATH');
+
 CliDocumentation::setHelp('This command will count all the files in the specified directory recursively and display  
 the amount found
 
@@ -45,12 +46,13 @@ ARGUMENTS
 PATH                                    The path that should have the files counted, must be a directory');
 
 $argv = ArgvValidator::new()
-    ->select('path')->isDirectory('/', FsRestrictions::getReadonly('/'))
+    ->select('path')->isDirectory(FsDirectory::getFilesystemRoot())
     ->select('-h,--human-readable')->isOptional(false)->isBoolean()
     ->validate();
 
 if ($argv['human_readable']) {
     CliCommand::echo(number_format(FsDirectory::newExisting($argv['path'], FsRestrictions::new('/'))->getCount()));
+
 } else {
     CliCommand::echo(FsDirectory::newExisting($argv['path'], FsRestrictions::new('/'))->getCount());
 }

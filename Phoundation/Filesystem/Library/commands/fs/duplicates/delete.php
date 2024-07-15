@@ -13,14 +13,12 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\CliDocumentation;
 use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Utils\Numbers;
 
 $restrictions = FsRestrictions::getWritable('/', 'command fs duplicates delete');
 
@@ -32,10 +30,10 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new('/', $restrictions)->scan($word . '*');
+                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new('/', $restrictions)->scan('*');
+                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan('*');
             },
         ],
     ]
@@ -66,7 +64,7 @@ PATH                                    The path that should be scanned
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('path')->isDirectory('/', $restrictions)
+                     ->select('path')->isDirectory(FsDirectory::getFilesystemRoot())
                      ->select('-r,--recursive', true)->isOptional(1_000_000)->isInteger()->isPositive()
                      ->select('-m,--max-size', true)->isOptional(1_073_741_824)->sanitizeBytes()
                      ->validate();

@@ -1179,11 +1179,14 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     /**
      * Tars this file and returns a file object for the tar file
      *
-     * @return static
+     * @param FsFileInterface|null $target
+     * @param bool $compression
+     * @param int $timeout
+     * @return FsFileInterface
      */
-    public function tar(): static
+    public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface
     {
-        return FsFile::new(Tar::new($this->restrictions)->tar(FsPa));
+        return Tar::new()->tar($this, $target, $compression);
     }
 
 
@@ -1194,8 +1197,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
      */
     public function untar(): FsDirectory
     {
-        Tar::new($this->restrictions)
-           ->untar($this->path);
+        Tar::new()->untar($this);
 
         return FsDirectory::new(dirname($this->path), $this->restrictions);
     }
@@ -1286,7 +1288,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
         // Copy & replace
         $data = $this->getContentsAsString();
         if ($regex) {
-            // ExecuteExecuteInterface each regex
+            // Execute each regex
             foreach ($replaces as $from => $to) {
                 $data = str_replace($from, $to, $data);
             }

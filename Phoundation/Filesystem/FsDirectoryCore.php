@@ -534,7 +534,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
 
 
     /**
-     * Returns an ExecuteExecuteInterface object to execute callbacks on each file in specified directories
+     * Returns an Execute object to execute callbacks on each file in specified directories
      *
      * @return FsExecuteInterface
      */
@@ -912,14 +912,14 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     /**
      * Tars this directory and returns a file object for the tar file
      *
-     * @param FsFileInterface|null $file
-     * @param bool                 $compression
-     *
+     * @param FsFileInterface|null $target
+     * @param bool $compression
+     * @param int $timeout
      * @return FsFileInterface
      */
-    public function tar(?FsFileInterface $file = null, bool $compression = true): FsFileInterface
+    public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface
     {
-        return FsFile::new(Tar::new($this->restrictions)->tar($this, $file, $compression));
+        return Tar::new()->tar($this, $target, $compression);
     }
 
 

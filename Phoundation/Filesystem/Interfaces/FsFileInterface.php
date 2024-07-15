@@ -301,9 +301,12 @@ interface FsFileInterface extends FsPathInterface
     /**
      * Tars this file and returns a file object for the tar file
      *
-     * @return static
+     * @param FsFileInterface|null $target
+     * @param bool $compression
+     * @param int $timeout
+     * @return FsFileInterface
      */
-    public function tar(): static;
+    public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface;
 
     /**
      * Untars the file

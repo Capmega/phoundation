@@ -206,7 +206,7 @@ interface FsExecuteInterface extends FsDirectoryInterface
 
 
     /**
-     * ExecuteExecuteInterface the callback function on each file in the specified path
+     * Execute the callback function on each file in the specified path
      *
      * @param callable $callback
      *
@@ -216,7 +216,7 @@ interface FsExecuteInterface extends FsDirectoryInterface
 
 
     /**
-     * ExecuteExecuteInterface the callback function on each file in the specified path
+     * Execute the callback function on each file in the specified path
      *
      * @param callable $callback
      *

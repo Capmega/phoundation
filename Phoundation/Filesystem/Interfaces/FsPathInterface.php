@@ -1117,4 +1117,14 @@ interface FsPathInterface extends Stringable
      * @return bool
      */
     public function gidMatchesPuid(): bool;
+
+    /**
+     * Returns true if this path is in the specified directory
+     *
+     * To be in the specified directory, this path must start with the directory path.
+     *
+     * @param FsDirectoryInterface|string $directory
+     * @return bool
+     */
+    public function isInDirectory(FsDirectoryInterface|string $directory): bool;
 }

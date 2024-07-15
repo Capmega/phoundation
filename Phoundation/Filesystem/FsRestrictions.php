@@ -16,11 +16,16 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
+use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Core;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Web;
 use Stringable;
 
 class FsRestrictions implements FsRestrictionsInterface
@@ -53,7 +58,19 @@ class FsRestrictions implements FsRestrictionsInterface
             $this->label = $label;
 
         } else {
-            $this->label = tr('Unspecified');
+            // Autodetect the label, it should be the function call name (or class::method()) that called this
+            $call        = Debug::getCallBefore(null, FsRestrictions::class);
+            $this->label = $call->getCall();
+
+            if ($this->label === 'include()') {
+                // This is actually the main command or web page, so show that instead
+                if (PLATFORM_CLI) {
+                    $this->label = tr('Command :command', [':command' => CliCommand::getCommandsString()]);
+
+                } else {
+                    $this->label = tr('Web page :page', [':page' => Request::getExecutedPath()]);
+                }
+            }
         }
 
         if ($directories) {
@@ -213,13 +230,12 @@ class FsRestrictions implements FsRestrictionsInterface
      *                                                                will convert that into a FsRestrictions object and
      *                                                                this is the $label modifier for that object
      *
-     * @return FsRestrictions                                         A FsRestrictions object. If possible, the
+     * @return FsRestrictions|null                                    An FsRestrictions object or NULL. If possible, the
      *                                                                specified restrictions will be returned but if no
      *                                                                $restictions were specified ($restrictions was
-     *                                                                null or an empty string), the Core restrictions
-     *                                                                will be returned instead
+     *                                                                null or an empty string), NULL will be returned
      */
-    public static function ensure(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): FsRestrictionsInterface
+    public static function ensure(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): ?FsRestrictionsInterface
     {
         if ($restrictions) {
             if (!is_object($restrictions)) {
@@ -230,7 +246,7 @@ class FsRestrictions implements FsRestrictionsInterface
             return $restrictions;
         }
 
-        return static::getSystem();
+        return null;
     }
 
 

@@ -873,7 +873,7 @@ class FsPathCore implements FsPathInterface
         $this->checkRestrictions(true)->checkWriteAccess();
 
         // Delete all specified patterns
-        // ExecuteExecuteInterface the rm command
+        // Execute the rm command
         Process::new('rm', $this->restrictions)
                ->setSudo($sudo)
                ->setUseRunFile($use_run_file)
@@ -1266,7 +1266,7 @@ class FsPathCore implements FsPathInterface
         $this->checkRestrictions(true);
 
         // Delete all specified patterns
-        // ExecuteExecuteInterface the rm command
+        // Execute the rm command
         Process::new('find', $this->restrictions)
                ->setSudo($sudo)
                ->setTimeout(60)
@@ -1565,20 +1565,24 @@ class FsPathCore implements FsPathInterface
         $this->checkRestrictions(true);
 
         // If the object file exists and is writable, then we're done.
-        if (is_writable($this->path)) {
+        if (is_readable($this->path)) {
             return true;
         }
 
-        // From here the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
+        // From here the file is not writable. It may not exist, or it may simply not be writable. Let's continue...
         if (file_exists($this->path)) {
-            // Great! The file exists, but it is not writable at this moment. Try to make it writable.
+            // Great! The file exists, but it is not writable at this moment. Try to make it readable.
             try {
                 Log::warning(tr('The file ":file" :realis not readable. Attempting to apply default file mode ":mode"', [
                     ':file' => $this->path,
                     ':real' => $this->getRealPathLogString(),
                     ':mode' => $mode,
                 ]));
+
+                $this->restrictions->makeWritable();
+
                 $this->chmod('u+w');
+
             } catch (ProcessesException) {
                 throw new FileNotWritableException(tr('The file ":file" :realis not writable, and could not be made writable', [
                     ':file' => $this->path,
@@ -3841,5 +3845,23 @@ class FsPathCore implements FsPathInterface
     public function gidMatchesPuid(): bool
     {
         return $this->getGroupUid() === Core::getProcessUid();
+    }
+
+
+    /**
+     * Returns true if this path is in the specified directory
+     *
+     * To be in the specified directory, this path must start with the directory path.
+     *
+     * @param FsDirectoryInterface|string $directory
+     * @return bool
+     */
+    public function isInDirectory(FsDirectoryInterface|string $directory): bool
+    {
+        if (is_string($directory)) {
+            return str_starts_with($this->path, $directory);
+        }
+
+        return str_starts_with($this->path, $directory->getPath());
     }
 }

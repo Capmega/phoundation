@@ -360,7 +360,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
 
 
     /**
-     * ExecuteExecuteInterface the callback function on each file in the specified directory
+     * Execute the callback function on each file in the specified directory
      *
      * @param callable $callback
      *
@@ -420,7 +420,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
 
 
     /**
-     * ExecuteExecuteInterface the callback function on each file in the specified directory
+     * Execute the callback function on each file in the specified directory
      *
      * @param callable $callback
      *
@@ -481,7 +481,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
                                    ->onFiles($callback);
 
             } elseif (file_exists($this->path . $file)) {
-                // ExecuteExecuteInterface the callback
+                // Execute the callback
                 $count++;
                 $extension = FsPath::new($file)->getExtension();
 
