@@ -99,7 +99,7 @@ class MaxMind extends GeoIp
                         ->setUrl('developer/incidents.html')
                         ->setTitle(tr('Failed to do GeoIP lookup'))
                         ->setMessage(tr('Failed to do GeoIP lookup with the following error. Most likely, the MaxMind GeoIP data files have not yet been imported. Please refer to ":command"', [
-                            ':command' => './pho system geo ip import -H',
+                            ':command' => './pho geo ip import -H',
                         ]))
                         ->setException($e)
                         ->send();
@@ -146,7 +146,7 @@ class MaxMind extends GeoIp
         } catch (Throwable $e) {
             if (str_contains($e->getMessage(), 'Failed to open stream: No such file or directory')) {
                 // Database file does not exist, try to download it?
-                Log::warning(tr('MaxMind database file ":file" was not found, maybe try running "./pho system geo ip import" ?', [
+                Log::warning(tr('MaxMind database file ":file" was not found, maybe try running "./pho geo ip import" ?', [
                     ':file' => $this->directory . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb'),
                 ]));
                 throw $e;

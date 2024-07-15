@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Geo\GeoIp\Import;
-
-
 /**
  * Command geo/ip/import
  *
@@ -19,14 +10,23 @@ use Phoundation\Geo\GeoIp\Import;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Geo\GeoIp\Import;
+
 CliDocumentation::setUsage('./pho geo ip import');
 
 CliDocumentation::setHelp('This command will download and import the MaxMind geoip data files
 
 
-
 ARGUMENTS
-
 
 
 [-p / --provider PROVIDER]              One of "maxmind", "ip2location"
@@ -42,12 +42,9 @@ ARGUMENTS
 
 
 $argv = ArgvValidator::new()
-                     ->select('-p,--provider', true)->isOptional()->hasMaxCharacters(24)->isInArray([
-                                                                                                        'maxmind',
-                                                                                                        'ip2location',
-                                                                                                    ])
-                     ->select('-s,--source_path', true)->isOptional()->isDirectory(DIRECTORY_DATA)
-                     ->select('-t,--target_path', true)->isOptional()
+                     ->select('-p,--provider', true)->isOptional()->hasMaxCharacters(24)->isInArray(['maxmind', 'ip2location'])
+                     ->select('-s,--source-path', true)->isOptional()->isDirectory(FsDirectory::getData())
+                     ->select('-t,--target-path', true)->isOptional()->isDirectory(FsDirectory::getData())
                      ->validate();
 
 
@@ -55,12 +52,13 @@ $argv = ArgvValidator::new()
 $provider = Import::getProvider($argv['provider']);
 
 
-// Go!
+// Download the files!
 Log::information(tr('Downloading and importing max mind Geo IP data'));
 
 if ($argv['source_path']) {
     // Use files that are available in the specified source path
     $directory = $argv['source_path'];
+
 } else {
     // Download the files
     $directory = $provider::download();
@@ -69,10 +67,12 @@ if ($argv['source_path']) {
 
 // Process the files
 $provider::process($directory, $argv['target_path'], FsRestrictions::new([
-                                                                           $directory->getRestrictions(),
-                                                                           DIRECTORY_DATA,
-                                                                       ], true));
+    $directory->getRestrictions(),
+    DIRECTORY_DATA,
+], true));
 
+
+// Done!
 Log::success(tr('Finished importing all GeoIP data for provider ":provider"', [
     ':provider' => $provider->getName(),
 ]));

@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * States class
+ *
+ *
+ *
+ * @see       DataIterator
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Geo
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo\States;
@@ -9,17 +21,6 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
-/**
- * States class
- *
- *
- *
- * @see       \Phoundation\Data\DataEntry\DataIterator
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Geo
- */
 class States extends DataIterator
 {
     /**

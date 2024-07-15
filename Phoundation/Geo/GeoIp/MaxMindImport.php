@@ -65,9 +65,11 @@ class MaxMindImport extends GeoIpImport
         Log::action(tr('Storing GeoIP files in directory ":directory"', [':directory' => $directory]));
 
         foreach (static::getMaxMindFiles(true) as $file => $url) {
+            $url = str_replace('YOUR_LICENSE_KEY', $license_key, $url);
+
             Log::action(tr('Downloading MaxMind URL ":url"', [':url' => $url]));
 
-            $wget->setSource(str_replace('YOUR_LICENSE_KEY', $license_key, $url))
+            $wget->setSource($url)
                  ->setTarget($file)
                  ->execute();
         }
@@ -168,9 +170,9 @@ class MaxMindImport extends GeoIpImport
                                    ->checkSha256($shas[$file])
                                    ->untar()
                                    ->getSingleDirectory('/GeoLite2.+?/i');
+
                 // Move the file to the target path and delete the source path
-                $directory->getSingleFile('/.+?.mmdb/i')
-                          ->movePath($target_path);
+                $directory->getSingleFile('/.+?.mmdb/i')->movePath($target_path);
                 $directory->delete();
             }
 
@@ -183,6 +185,7 @@ class MaxMindImport extends GeoIpImport
             if (isset($previous)) {
                 $previous->movePath($target_path);
             }
+
             throw $e;
         }
 

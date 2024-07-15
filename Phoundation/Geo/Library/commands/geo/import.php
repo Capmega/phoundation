@@ -1,16 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Geo\Import;
-
-
 /**
- * Command geo/ip/import
+ * Command geo ip import
  *
  *
  *
@@ -19,6 +10,17 @@ use Phoundation\Geo\Import;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Geo\Import;
+
 CliDocumentation::setUsage('./pho geo import');
 
 CliDocumentation::setHelp('This command will download and import the geonames data files
@@ -55,7 +57,7 @@ ARGUMENTS
 
 
 $argv = ArgvValidator::new()
-                     ->select('-t,--target_path', true)->isOptional(DIRECTORY_DATA . 'sources/geo')->isDirectory(DIRECTORY_DATA)
+                     ->select('-t,--target_path', true)->isOptional(DIRECTORY_DATA . 'sources/geo')->isDirectory(FsDirectory::getData())
                      ->select('-l,--no-download')->isOptional(false)->isBoolean()
                      ->select('-i,--no-import')->isOptional(false)->isBoolean()
                      ->select('--ignore-sha-fail')->isOptional(false)->isBoolean()
