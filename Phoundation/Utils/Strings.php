@@ -1475,7 +1475,7 @@ throw new UnderConstructionException();
             }
 
         } elseif (is_array($source)) {
-            $source = Arrays::hide($source, [
+            $source = Arrays::hideSensitive($source, [
                 'password',
                 'ssh_key',
             ]);
@@ -2494,5 +2494,32 @@ throw new UnderConstructionException();
     public static function matches(Stringable|string $haystack, DataIteratorInterface|array|string|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): bool
     {
         return (bool) static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, $flags);
+    }
+
+
+    /**
+     * Ensures that the string contains something visible
+     *
+     * @param mixed $source
+     *
+     * @return mixed
+     */
+    public static function ensureVisible(mixed $source): mixed
+    {
+        if ($source === null) {
+            return 'NULL';
+        }
+
+        if (is_string($source)) {
+            if (!$source) {
+                return 'EMPTY';
+            }
+
+            if (!trim($source)) {
+                return str_replace(' ', '_', $source);
+            }
+        }
+
+        return $source;
     }
 }
