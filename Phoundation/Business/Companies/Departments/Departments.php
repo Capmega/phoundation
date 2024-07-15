@@ -1,5 +1,17 @@
 <?php
 
+/**
+ *  Class Departments
+ *
+ *
+ *
+ * @see       DataIterator
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Companies
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Business\Companies\Departments;
@@ -8,17 +20,6 @@ use Phoundation\Business\Companies\Departments\Interfaces\DepartmentsInterface;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
-/**
- *  Class Departments
- *
- *
- *
- * @see       \Phoundation\Data\DataEntry\DataIterator
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Companies
- */
 class Departments extends DataIterator implements DepartmentsInterface
 {
     /**

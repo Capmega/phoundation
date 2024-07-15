@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Class Companies
+ *
+ *
+ *
+ * @see       DataIterator
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Business
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Business\Companies;
@@ -9,17 +21,6 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
-/**
- * Class Companies
- *
- *
- *
- * @see       \Phoundation\Data\DataEntry\DataIterator
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Business
- */
 class Companies extends DataIterator
 {
     /**
