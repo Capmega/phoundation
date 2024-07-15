@@ -285,10 +285,6 @@ class Config implements ConfigInterface
      */
     public static function get(string|array $path = '', mixed $default = null, mixed $specified = null): mixed
     {
-        if (!$path) {
-            throw new OutOfBoundsException(tr('Cannot return configuration data, no path specified'));
-        }
-
         if (empty(static::$environment)) {
             // We don't really have an environment, don't check configuration
             // NOTE: DO NOT USE TR() HERE AS THE FUNCTIONS FILE MAY NOT YET BE LOADED
