@@ -75,13 +75,13 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
      *
      * @param Button|string|null              $button
      * @param EnumDisplayMode                 $mode
-     * @param EnumInputType|Stringable|string $type_or_anchor_url
+     * @param EnumInputType|Stringable|string $type_or_url
      * @param bool                            $outline
      * @param bool                            $right
      *
      * @return static
      */
-    public function addButton(Button|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_anchor_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
+    public function addButton(Button|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
     {
         if (!$button) {
             // Don't add anything
@@ -89,7 +89,7 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
         }
         if (is_string($button)) {
             if ($button === tr('Save')) {
-                $type_or_anchor_url = EnumButtonType::submit;
+                $type_or_url = EnumButtonType::submit;
             }
             // Button was specified as string, create a button first
             $button = Button::new()
@@ -103,18 +103,18 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
                             ->setFloatRight($right)
                             ->setMode($mode)
                             ->setName('submit');
-            switch ($type_or_anchor_url) {
+            switch ($type_or_url) {
                 case EnumButtonType::submit:
                     // no break
                 case EnumButtonType::button:
                     // no break
                 case EnumButtonType::reset:
                     // One of the submit, reset, or button buttons
-                    $button->setButtonType($type_or_anchor_url);
+                    $button->setButtonType($type_or_url);
                     break;
                 default:
                     // This is a URL button, place an anchor with href instead
-                    $button->setAnchorUrl($type_or_anchor_url);
+                    $button->setAnchorUrl($type_or_url);
             }
 
         }

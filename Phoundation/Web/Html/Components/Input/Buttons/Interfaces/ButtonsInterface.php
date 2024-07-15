@@ -36,13 +36,13 @@ interface ButtonsInterface
      *
      * @param Button|string|null              $button
      * @param EnumDisplayMode                 $mode
-     * @param EnumInputType|Stringable|string $type_or_anchor_url
+     * @param EnumInputType|Stringable|string $type_or_url
      * @param bool                            $outline
      * @param bool                            $right
      *
      * @return static
      */
-    public function addButton(Button|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_anchor_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static;
+    public function addButton(Button|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static;
 
 
     /**
