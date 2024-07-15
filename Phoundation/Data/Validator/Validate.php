@@ -293,8 +293,10 @@ class Validate
     public function hasMaxCharacters(?int $characters = null): static
     {
         $this->isString();
+
         // Validate the maximum number of characters
         $characters = $this->getMaxStringSize($characters);
+
         if (strlen($this->source) > $characters) {
             throw new ValidationFailedException(tr('The specified value must have ":count" characters or less', [
                 ':count' => $characters,

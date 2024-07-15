@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Interfaces;
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -28,9 +28,8 @@ use Phoundation\Date\DateTime;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
-use Stringable;
 
-interface DataEntryInterface extends EntryInterface
+interface DataEntryInterface extends EntryInterface, IntegerableInterface
 {
     /**
      * Initializes the DataEntry object

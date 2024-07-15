@@ -419,7 +419,11 @@ class PostValidator extends Validator
             return parent::validate($clean_source);
 
         } catch (ValidationFailedException $e) {
-            throw new PostValidationFailedException(tr('Post validation failed due to CSRF exception'), $e);
+            if ($e instanceof CsrfFailedException) {
+                throw new PostValidationFailedException(tr('Post validation failed due to CSRF exception'), $e);
+            }
+
+            throw $e;
         }
     }
 

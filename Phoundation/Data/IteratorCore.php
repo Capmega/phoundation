@@ -1338,9 +1338,21 @@ class IteratorCore implements IteratorInterface
      */
     public function getTotals(array|string $columns): array
     {
-        $columns = Arrays::force($columns);
-        $return  = [tr('Totals')];
+        if (is_string($columns)) {
+            $columns = Arrays::force($columns);
+            $columns = Arrays::initialize($columns, 'total');
+        }
 
+        // Build up the return columns
+        $return  = [
+            'totals' => tr('Totals')
+        ];
+
+        foreach ($columns as $column => $total) {
+            $return[$column] = 0;
+        }
+
+        // Build up the totals
         foreach ($this->source as &$entry) {
             if (!is_array($entry)) {
                 throw new OutOfBoundsException(tr('Cannot generate source totals, source contains non-array entry ":entry"', [
@@ -1356,10 +1368,10 @@ class IteratorCore implements IteratorInterface
                 // Get data from array
                 if ($total) {
                     if (array_key_exists($column, $return)) {
-                        $return[$column] += $entry[$column];
+                        $return[$column] += get_numeric($entry[$column]);
 
                     } else {
-                        $return[$column] = $entry[$column];
+                        $return[$column] = get_numeric($entry[$column]);
                     }
 
                 } else {
@@ -1903,7 +1915,7 @@ class IteratorCore implements IteratorInterface
         // Source is already loaded, use this instead
         // Create and return the table
         return HtmlDataTable::new()
-                            ->setId(static::getTable())
+                            ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                             ->setSource($this->getAllRowsMultipleColumns($columns))
                             ->setCallbacks($this->callbacks)
                             ->setCheckboxSelectors(EnumTableIdColumn::checkbox);

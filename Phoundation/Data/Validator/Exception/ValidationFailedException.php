@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator\Exception;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataDataEntryClass;
+use Phoundation\Data\Traits\TraitSourceObjectClass;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Phoundation\Utils\Config;
 use Throwable;
@@ -22,8 +22,8 @@ use Throwable;
  */
 class ValidationFailedException extends ValidatorException implements ValidationFailedExceptionInterface
 {
-    use TraitDataDataEntryClass {
-        setDataEntryClass as setDataEntryClassDirect;
+    use TraitSourceObjectClass {
+        setSourceObjectClass as protected __setSourceobjectClass;
     }
 
     /**
@@ -53,9 +53,9 @@ class ValidationFailedException extends ValidatorException implements Validation
      *
      * @return $this
      */
-    public function setDataEntryClass(?string $data_entry_class): static
+    public function setSourceObjectClass(?string $data_entry_class): static
     {
-        $this->setDataEntryClassDirect($data_entry_class);
+        $this->__setSourceobjectClass($data_entry_class);
         $this->applyLabels();
 
         return $this;
@@ -69,20 +69,23 @@ class ValidationFailedException extends ValidatorException implements Validation
      */
     protected function applyLabels(): void
     {
+        $failures = $this->getDataKey('failures');
+
         // Apply the data entry definition labels to the data
-        if ($this->data_entry_class and $this->data) {
+        if ($this->source_object_class and $failures) {
             // Create a temporary data entry object to get its definitions.
-            $data_entry_class = new $this->data_entry_class();
+            $data_entry_class = new $this->source_object_class();
             $definitions      = $data_entry_class->getDefinitionsObject();
-            $data             = $this->data;
-            $this->data       = [];
+            $data             = $failures;
+
+            $this->data['failures'] = [];
 
             // Create a new exception data array with labels instead of keys
             foreach ($data as $key => $value) {
                 $label = $definitions->get($key)->getLabel() ?? $key;
                 $value = str_replace('"' . $key . '"', '"' . $label . '"', $value);
 
-                $this->data[$label] = $value;
+                $this->data['failures'][$label] = $value;
             }
         }
     }

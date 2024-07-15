@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Data\Validator;
+namespace Phoundation\Data\Library\tests\Validator;
 
-use Phoundation\Data\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
 use PHPUnit\Framework\TestCase;
 

@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
-
 /**
  * Trait TraitDataDataIterator
  *
@@ -16,14 +10,21 @@ use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+
 trait TraitDataDataIterator
 {
     /**
      * The data entry
      *
-     * @var DataIteratorInterface $data_entry
+     * @var DataIteratorInterface $data_iterator
      */
-    protected DataIteratorInterface $data_entry;
+    protected DataIteratorInterface $data_iterator;
 
 
     /**
@@ -33,20 +34,20 @@ trait TraitDataDataIterator
      */
     public function getDataIterator(): DataIteratorInterface
     {
-        return $this->data_entry;
+        return $this->data_iterator;
     }
 
 
     /**
      * Sets the data entry
      *
-     * @param DataIteratorInterface $data_entry
+     * @param DataIteratorInterface $data_iterator
      *
      * @return static
      */
-    public function setDataIterator(DataIteratorInterface $data_entry): static
+    public function setDataIterator(DataIteratorInterface $data_iterator): static
     {
-        $this->data_entry = $data_entry;
+        $this->data_iterator = $data_iterator;
 
         return $this;
     }

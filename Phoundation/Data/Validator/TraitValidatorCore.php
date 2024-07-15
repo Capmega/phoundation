@@ -17,7 +17,7 @@ namespace Phoundation\Data\Validator;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataDataEntryClass;
+use Phoundation\Data\Traits\TraitSourceObjectClass;
 use Phoundation\Data\Traits\TraitDataIntId;
 use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Data\Traits\TraitDataMetaColumns;
@@ -37,7 +37,7 @@ trait TraitValidatorCore
     use TraitDataIntId;
     use TraitDataMaxStringSize;
     use TraitDataMetaColumns;
-    use TraitDataDataEntryClass;
+    use TraitSourceObjectClass;
 
 
     /**
@@ -492,6 +492,7 @@ trait TraitValidatorCore
                 ':failure' => $failure,
                 ':value'   => $this->source[$selected_field],
             ]), 'debug', 6);
+
             Log::write('Validation failed on value below:', 'debug', 6);
             Log::printr($this->selected_value, 6, echo_header: false);
             Log::write('Validation validation:', 'debug', 6);
@@ -832,10 +833,15 @@ trait TraitValidatorCore
         }
 
         if ($this->failures) {
-            if (!Config::getBoolean('security.validation.disabled', false)) {
+            $values = Arrays::keepKeys($this->source, array_keys($this->failures));
+
+            if (Config::getBoolean('security.validation.enabled', true)) {
                 throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
-                                               ->addData($this->failures)
-                                               ->setDataEntryClass($this->data_entry_class)
+                                               ->addData([
+                                                   'failures' => $this->failures,
+                                                   'values'   => $values
+                                               ])
+                                               ->setSourceObjectClass($this->source_object_class)
                                                ->makeWarning();
             }
 
@@ -843,7 +849,7 @@ trait TraitValidatorCore
         }
 
         if (isset($unclean)) {
-            if (!Config::getBoolean('security.validation.disabled', false)) {
+            if (Config::getBoolean('security.validation.enabled', true)) {
                 throw ValidationFailedException::new(tr('Data validation failed because of the following unknown fields'))
                                                ->addData($unclean)
                                                ->makeWarning();

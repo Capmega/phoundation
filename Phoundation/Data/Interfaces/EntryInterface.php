@@ -1,13 +1,15 @@
 <?php
 
- namespace Phoundation\Data\Interfaces;
+namespace Phoundation\Data\Interfaces;
 
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\EntryCore;
 use Phoundation\Data\Iterator;
+use Stringable;
 
-interface EntryInterface
+interface EntryInterface extends CliFormInterface, ArrayableInterface, Stringable
 {
-/**
+    /**
      * Returns all keys that are protected and cannot be removed from this object
      *
      * @return array

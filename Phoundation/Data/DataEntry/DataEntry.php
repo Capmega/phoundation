@@ -237,6 +237,17 @@ class DataEntry extends EntryCore implements DataEntryInterface
 
 
     /**
+     * Returns this DataEntry object as an integer
+     *
+     * @return int
+     */
+    public function __toInteger(): int
+    {
+        return get_integer($this->getId(), false);
+    }
+
+
+    /**
      * Initializes the DataEntry object
      *
      * @param DataEntryInterface|string|int|null $identifier
@@ -1399,10 +1410,18 @@ class DataEntry extends EntryCore implements DataEntryInterface
 
         $groups  = [];
         $columns = static::new()->getDefinitionsObject();
-        $return  = PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . CliColor::apply(strtoupper(tr('REQUIRED ARGUMENTS')), 'white');
+        $return  = PHP_EOL . PHP_EOL . PHP_EOL . CliColor::apply(strtoupper(tr('REQUIRED ARGUMENTS')), 'white');
 
         // Get the required columns and gather a list of available help groups
         foreach ($columns as $id => $definitions) {
+            if ($definitions->isMeta()) {
+                continue;
+            }
+
+            if (!$definitions->getRender()) {
+                continue;
+            }
+
             if (!$definitions->getOptional()) {
                 $columns->removeKeys($id);
                 $return .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliColumn(), 39) . ' ' . $definitions->getHelpText();
@@ -1419,10 +1438,14 @@ class DataEntry extends EntryCore implements DataEntryInterface
                 $header = PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . CliColor::apply(strtoupper(trim($group)), 'white');
 
             } else {
-                $header = PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . CliColor::apply(strtoupper(tr('Miscellaneous information')), 'white');
+                $header = PHP_EOL . PHP_EOL . PHP_EOL . CliColor::apply(strtoupper(tr('Miscellaneous information')), 'white');
             }
 
             foreach ($columns as $id => $definitions) {
+                if ($definitions->isMeta()) {
+                    continue;
+                }
+
                 if ($definitions->getHelpGroup() === $group) {
                     $columns->removeKeys($id);
                     $body .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliColumn(), 39) . ' ' . $definitions->getHelpText();
@@ -1500,7 +1523,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
         // When in force mode we will NOT clear the failed columns so that they can be sent back to the user for
         // corrections
         $data_source = Validator::pick($source);
-        $data_source->setDataEntryClass(static::class);
+        $data_source->setSourceObjectClass(static::class);
 
         if ($this->debug) {
             Log::debug('APPLY ' . static::getDataEntryName() . ' (' . get_class($this) . ')', 10, echo_header: false);
@@ -1592,7 +1615,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
         // what columns to select
         $validator->setId($this->getId())
-                  ->setDataEntryClass(static::class)
+                  ->setSourceobjectClass(static::class)
                   ->setMetaColumns($this->getMetaColumns())
                   ->setTable(static::getTable());
 
@@ -1623,7 +1646,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
         }
 
         try {
-            // ExecuteExecuteInterface the validate method to get the results of the validation
+            // Execute the validate method to get the results of the validation
             $source             = $validator->validate($clear_source);
             $this->is_validated = true;
 

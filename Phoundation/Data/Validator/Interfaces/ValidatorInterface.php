@@ -19,6 +19,7 @@ use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\DateTime;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Stringable;
 use UnitEnum;
@@ -764,37 +765,34 @@ interface ValidatorInterface
     /**
      * Validates if the selected field is a valid path
      *
-     * @param array|Stringable|string|null $exists_in_directories
-     * @param FsRestrictionsInterface|null $restrictions
-     * @param bool                         $exists
+     * @param array|FsDirectoryInterface|null $exists_in_directories
+     * @param bool                            $exists
      *
      * @return static
      */
-    public function isPath(array|Stringable|string|null $exists_in_directories = null, FsRestrictionsInterface|null $restrictions = null, bool $exists = true): static;
+    public function isPath(array|FsDirectoryInterface|null $exists_in_directories = null, bool $exists = true): static;
 
 
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param array|Stringable|string|null $exists_in_directories
-     * @param FsRestrictionsInterface|null $restrictions
-     * @param bool                         $exists
+     * @param array|FsDirectoryInterface|null $exists_in_directories
+     * @param bool                            $exists
      *
      * @return static
      */
-    public function isDirectory(array|Stringable|string|null $exists_in_directories = null, FsRestrictionsInterface|null $restrictions = null, bool $exists = true): static;
+    public function isDirectory(array|FsDirectoryInterface|null $exists_in_directories = null, bool $exists = true): static;
 
 
     /**
      * Validates if the selected field is a valid file
      *
-     * @param array|Stringable|string|null $exists_in_directories
-     * @param FsRestrictionsInterface|null $restrictions
-     * @param bool                         $exists
+     * @param array|FsDirectoryInterface|null $exists_in_directories
+     * @param bool                            $exists
      *
      * @return static
      */
-    public function isFile(array|Stringable|string|null $exists_in_directories = null, FsRestrictionsInterface|null $restrictions = null, bool $exists = true): static;
+    public function isFile(array|FsDirectoryInterface|null $exists_in_directories = null, bool $exists = true): static;
 
 
     /**
@@ -1303,4 +1301,20 @@ interface ValidatorInterface
      * @return static
      */
     public function renameKey(string|float|int $from_key, string|float|int $to_key, bool $exception = true, bool $overwrite = false): static;
+
+    /**
+     * Returns the data entry class
+     *
+     * @return string
+     */
+    public function getSourceObjectClass(): string;
+
+    /**
+     * Sets the data entry class
+     *
+     * @param string|null $source_object_class
+     *
+     * @return static
+     */
+    public function setSourceObjectClass(?string $source_object_class): static;
 }

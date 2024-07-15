@@ -6,7 +6,7 @@ namespace Phoundation\Data\Validator;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataDataEntryClass;
+use Phoundation\Data\Traits\TraitSourceObjectClass;
 use Phoundation\Data\Traits\TraitDataIntId;
 use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Data\Traits\TraitDataMetaColumns;
@@ -35,7 +35,7 @@ trait ValidatorBasics
     use TraitDataIntId;
     use TraitDataMaxStringSize;
     use TraitDataMetaColumns;
-    use TraitDataDataEntryClass;
+    use TraitSourceObjectClass;
 
 
     /**
@@ -790,7 +790,7 @@ trait ValidatorBasics
         if ($this->failures) {
             throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
                                            ->addData($this->failures)
-                                           ->setDataEntryClass($this->data_entry_class)
+                                           ->setSourceObjectClass($this->source_object_class)
                                            ->makeWarning();
         }
 

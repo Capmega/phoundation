@@ -84,7 +84,7 @@ trait TraitDataCallbacks
 
 
     /**
-     * ExecuteExecuteInterface the specified callbacks for each row
+     * Execute the specified callbacks for each row
      *
      * @note $params does NOT have a datatype specified as that would cause a crash when sending a non initialized
      *       variable there that would be assigned within this function

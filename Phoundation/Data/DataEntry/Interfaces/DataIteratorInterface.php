@@ -33,24 +33,6 @@ interface DataIteratorInterface extends IteratorInterface
 
 
     /**
-     * Returns if the DataEntry entries are stored with ID or key
-     *
-     * @return bool
-     */
-    public function getKeysareUniqueColumn(): bool;
-
-
-    /**
-     * Sets if the DataEntry entries are stored with ID or key
-     *
-     * @param bool $keys_are_unique_column
-     *
-     * @return static
-     */
-    public function setKeysareUniqueColumn(bool $keys_are_unique_column): static;
-
-
-    /**
      * Returns the query for this object when generating internal content
      *
      * @return string

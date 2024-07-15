@@ -91,7 +91,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      *
      * @var bool $keys_are_unique_column
      */
-    protected bool $keys_are_unique_column = false;
+    protected bool $keys_are_unique_column = true;
 
     /**
      * Tracks the class used to generate the select input
@@ -116,20 +116,20 @@ class DataIterator extends Iterator implements DataIteratorInterface
      *
      * @return bool
      */
-    public static function indexColumnIs(string $column): bool
+    public static function uniqueColumnIs(string $column): bool
     {
-        return static::getIndexColumn() === $column;
+        return static::getUniqueColumn() === $column;
     }
 
 
     /**
-     * Returns the column considered the "id" column
+     * Returns the column that is unique for this object
      *
-     * @return string
+     * @return string|null
      */
-    public static function getIndexColumn(): string
+    public static function getUniqueColumn(): ?string
     {
-        return 'id';
+        return static::getIdColumn();
     }
 
 
@@ -184,32 +184,6 @@ class DataIterator extends Iterator implements DataIteratorInterface
 
 
     /**
-     * Returns if the DataEntry entries are stored with ID or key
-     *
-     * @return bool
-     */
-    public function getKeysareUniqueColumn(): bool
-    {
-        return $this->keys_are_unique_column;
-    }
-
-
-    /**
-     * Sets if the DataEntry entries are stored with ID or key
-     *
-     * @param bool $keys_are_unique_column
-     *
-     * @return static
-     */
-    public function setKeysareUniqueColumn(bool $keys_are_unique_column): static
-    {
-        $this->keys_are_unique_column = $keys_are_unique_column;
-
-        return $this;
-    }
-
-
-    /**
      * Returns the query for this object when generating internal content
      *
      * @return string
@@ -248,18 +222,16 @@ class DataIterator extends Iterator implements DataIteratorInterface
     {
         // Use the default html_query and html_execute or QueryBuilder html_query and html_execute?
         if (isset($this->query_builder)) {
-            $this->query = $this->query_builder->getQuery();
+            $this->query   = $this->query_builder->getQuery();
             $this->execute = $this->query_builder->getExecute();
 
-        }
-        elseif (!isset($this->query)) {
+        } elseif (!isset($this->query)) {
             // Create query with optional filtering for parents_id
             if ($this->parent) {
                 $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->parent::getTable(), '_') . '_id` = :parents_id AND ';
                 $this->execute['parents_id'] = $this->parent->getId();
 
-            }
-            else {
+            } else {
                 $parent_filter = null;
             }
 
@@ -302,7 +274,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      */
     public function getSqlColumns(): string
     {
-        return $this->sql_columns ?? ' ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.* ';
+        return $this->sql_columns ?? ' ' . static::getTableIdColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.* ';
     }
 
 
@@ -325,32 +297,9 @@ class DataIterator extends Iterator implements DataIteratorInterface
      *
      * @return string
      */
-    protected function getKeyColumn(): string
+    protected function getTableIdColumn(): string
     {
-        if ($this->keys_are_unique_column) {
-            $column = static::getUniqueColumn();
-
-            if (!$column) {
-                throw new OutOfBoundsException(tr('The DataIterator type class ":class" is configured to use its unique column as keys, but no unique column has been defined', [
-                    ':class' => get_class($this),
-                ]));
-            }
-
-            return '`' . static::getTable() . '`.`' . $column . '`';
-        }
-
-        return '`' . static::getTable() . '`.`id`';
-    }
-
-
-    /**
-     * Returns the column that is unique for this object
-     *
-     * @return string|null
-     */
-    public static function getUniqueColumn(): ?string
-    {
-        return null;
+        return '`' . static::getTable() . '`.`' . static::getUniqueColumn() . '`';
     }
 
 
@@ -417,7 +366,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
 
             } else {
                 if (is_array($this->source[$key])) {
-                    if (static::indexColumnIs('id')) {
+                    if (static::uniqueColumnIs('id')) {
                         // Entries are stored with database ID
                         if (!is_numeric($key)) {
                             throw new OutOfBoundsException(tr('Invalid ":class" ID key ":key" encountered. The key should be a numeric database ID', [
@@ -429,9 +378,9 @@ class DataIterator extends Iterator implements DataIteratorInterface
                         $this->source[$key]['id'] = $key;
 
                     } else {
-                        if (empty($this->source[$key][static::getIndexColumn()])) {
+                        if (empty($this->source[$key][static::getUniqueColumn()])) {
                             // No database ID available, and entries are not stored by ID so we can't get ID
-                            throw new OutOfBoundsException(tr('Cannot ensure DataEntry, no ID available, and data entries not stored by ID column'));
+                            throw new OutOfBoundsException(tr('Cannot ensure DataEntry, Iterator source data does not contain the '));
                         }
                     }
 
@@ -590,7 +539,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
         $execute = [];
 
         if (!$key_column) {
-            $key_column = static::getIndexColumn();
+            $key_column = static::getUniqueColumn();
         }
 
         if ($this->is_loaded or count($this->source)) {
@@ -732,7 +681,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      */
     public function loadAll(): static
     {
-        $this->source = sql(static::getConnector())->listKeyValues('SELECT ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
+        $this->source = sql(static::getConnector())->listKeyValues('SELECT ' . static::getTableIdColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
                                                                                      FROM  `' . static::getTable() . '`');
 
         return $this;
@@ -891,7 +840,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
 
             } else {
                 if (!$only_if_empty) {
-                    $this->source = array_merge($this->source, sql(static::getConnector())->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? static::getUniqueColumn() : static::getIndexColumn()));
+                    $this->source = array_merge($this->source, sql(static::getConnector())->listKeyValues($this->query, $this->execute, static::getUniqueColumn()));
                 }
             }
 

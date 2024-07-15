@@ -23,7 +23,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Stringable;
 
-class EntryCore implements EntryInterface, CliFormInterface, ArrayableInterface, Stringable
+class EntryCore implements EntryInterface
 {
     /**
      * Contains the data for all information of this data entry
