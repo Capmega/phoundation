@@ -6,6 +6,7 @@ namespace Phoundation\Utils;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 
 /**
@@ -261,7 +262,7 @@ class Utils
             $source = $source->getSource();
         }
 
-        // ExecuteExecuteInterface matching
+        // Execute matching
         switch ($flags['match_mode']) {
             case 'full':
                 return static::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
@@ -315,7 +316,7 @@ class Utils
             $source = $source->getSource();
         }
 
-        // ExecuteExecuteInterface matching
+        // Execute matching
         switch ($flags['match_mode']) {
             case 'full':
                 return static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
@@ -596,22 +597,28 @@ class Utils
         if (is_string($value)) {
             return $value;
         }
+
         if (is_scalar($value)) {
             return Strings::force($value);
         }
+
         if (!$column) {
             throw new OutOfBoundsException(tr('Cannot extract string value from array or DataEntryInterface object, no column specified', [
                 ':value' => $value,
             ]));
         }
+
         if (is_array($value)) {
             return $value[$column];
         }
-        if ($value instanceof DataEntryInterface) {
+
+        if ($value instanceof EntryInterface) {
             return $value->get($column);
         }
-        throw new OutOfBoundsException(tr('Specified value ":value" must be either scalar, array, or a DataEntryInterface type object', [
+
+        throw new OutOfBoundsException(tr('Specified value ":value" must be either scalar, array, or a ":class" type object', [
             ':value' => $value,
+            ':class' => EntryInterface::class
         ]));
     }
 }
