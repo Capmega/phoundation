@@ -17,7 +17,7 @@ use Phoundation\Web\Json\Interfaces\JsonInterface;
 interface ApiInterface extends JsonInterface
 {
     /**
-     * ExecuteExecuteInterface the specified API page
+     * Execute the specified API page
      *
      * @return string|null
      */

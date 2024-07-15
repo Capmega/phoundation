@@ -79,7 +79,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
     /**
      * Renders and returns the HTML for this object using the template renderer if available
      *
-     * @note Templates work as follows: Any component that renders HTML must be in a Html/ directory, either in a
+     * @note Templates work as follows: Any component that renders HTML must be in an HTML/ directory, either in a
      *       Phoundation library, or in a Plugins library. The path of the component, starting from Html/ is the path
      *       that this method will search for in the Template. If the same path section is found then that file will
      *       render the HTML for the component. For example: Plugins\Example\Section\Html\Components\Input\InputText
@@ -94,8 +94,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
             return $this->content;
         }
 
-        $renderer_class = Request::getTemplate()
-                                 ->getRendererClass($this);
+        $renderer_class = Request::getTemplate()->getRendererClass($this);
 
         Log::write(tr('Using renderer class ":class" for ":this"', [
             ':class' => $renderer_class,
@@ -148,7 +147,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
 
 
     /**
-     * Sets the content of the element to display
+     * Sets if this element block should render an HTML form around itself, or not
      *
      * @param bool $use_form
      *
@@ -157,7 +156,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
     public function useForm(bool $use_form): static
     {
         if ($use_form) {
-            if (!$this->form) {
+            if (empty($this->form)) {
                 $this->form = Form::new();
             }
 

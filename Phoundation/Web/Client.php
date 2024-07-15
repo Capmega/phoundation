@@ -16,5 +16,7 @@ namespace Phoundation\Web;
  */
 class Client
 {
-    public static function detect(): void {}
+    public static function detect(): void {
+
+    }
 }

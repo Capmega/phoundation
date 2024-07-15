@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Pages;
-
-use Phoundation\Data\Traits\TraitDataEmail;
-use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\Html\Components\ElementsBlock;
-
-throw new UnderConstructionException();
-
 /**
  * Class MagicSignInPage
  *
@@ -20,17 +10,17 @@ throw new UnderConstructionException();
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Pages;
+
+use Phoundation\Data\Traits\TraitDataEmail;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\Html\Components\ElementsBlock;
+
+throw new UnderConstructionException();
+
 class MagicSignInPage extends ElementsBlock
 {
-    use TraitDataEmail;
-
-    /**
-     * SignIn class constructor
-     *
-     * @param string|null $content
-     */
-    public function __construct(?string $content = null)
-    {
-        parent::__construct($content);
-    }
 }

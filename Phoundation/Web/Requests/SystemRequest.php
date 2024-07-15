@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class SystemRequest
+ *
+ * Web request handling class that can execute system HTTP code pages
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Requests;
@@ -25,16 +36,6 @@ use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Web;
 use Throwable;
 
-/**
- * Class SystemRequest
- *
- * Web request handling class that can execute system HTTP code pages
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 class SystemRequest
 {
     use TraitNew;
@@ -57,7 +58,7 @@ class SystemRequest
 
 
     /**
-     * ExecuteExecuteInterface the specified system page
+     * Execute the specified system page
      *
      * @param array $variables
      *
@@ -69,14 +70,16 @@ class SystemRequest
         Arrays::default($variables, 'title', 'unspecified');
         Arrays::default($variables, 'message', 'unspecified');
         Arrays::default($variables, 'details', ((Config::getBoolString('security.expose.phoundation', 'limited')) ? '<address>Phoundation ' . Core::FRAMEWORK_CODE_VERSION . '</address>' : ''));
+
         // Determine the request path
         $request_path = match (Request::getRequestType()) {
             EnumRequestTypes::api  => DIRECTORY_WEB . 'api/',
             EnumRequestTypes::ajax => DIRECTORY_WEB . 'ajax/',
             default                => DIRECTORY_WEB . 'pages/', // HTML plus anything we don't know gets an HTML page
         };
+
         try {
-            // ExecuteExecuteInterface the system page request
+            // Execute the system page request
             Request::setSystem(true);
             Request::executeAndFlush($request_path . 'system/' . $variables['code'] . '.php', true);
             exit();
@@ -115,7 +118,7 @@ class SystemRequest
 
         Log::warning(tr('Executing system page ":page"', [':page' => $http_code]));
 
-        if (Config::getBoolean('security.web.monitor.non-200-urls', true)) {
+        if (Config::getBoolean('security.web.monitor.urls.non-200', true)) {
             Non200Url::new()
                      ->generate($http_code)
                      ->save();
@@ -287,15 +290,18 @@ class SystemRequest
      */
     #[NoReturn] protected function execute404(): never
     {
-        Log::warning(tr('Found no routes for known pages, testing for hacks'));
+        Log::warning(tr('Found no applicable routes or webserver called for 404, testing for hacks'));
+
         // Test the URI for known hacks. If so, apply configured response
         if (Config::get('web.route.known-hacks', false)) {
             Log::warning(tr('Applying known hacking rules'));
+
             foreach (Config::get('web.route.known-hacks') as $hacks) {
                 // TODO Fix this. This is old code and the specified method doesn't even exist anymore
                 static::try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
             }
         }
+
         // No hack detected, execute the 404 page.
         $this->executePage([
             'code'    => 404,

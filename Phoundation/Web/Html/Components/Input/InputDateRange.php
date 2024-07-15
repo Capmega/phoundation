@@ -129,12 +129,14 @@ class InputDateRange extends InputText
     public function render(): ?string
     {
         // Required javascript
-        Response::loadJavascript('adminlte/plugins/moment/moment');
-        Response::loadJavascript('adminlte/plugins/daterangepicker/daterangepicker');
-        Response::loadJavascript('adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
+        Response::loadJavascript('Phoundation/adminlte/plugins/moment/moment');
+        Response::loadJavascript('Phoundation/adminlte/plugins/daterangepicker/daterangepicker');
+        Response::loadJavascript('Phoundation/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
+
         // Required CSS
-        Response::loadCss('adminlte/plugins/daterangepicker/daterangepicker');
-        Response::loadCss('adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
+        Response::loadCss('Phoundation/adminlte/plugins/daterangepicker/daterangepicker');
+        Response::loadCss('Phoundation/adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
+
         // Setup & configuration script for daterangepicker
         Script::new()
               ->setJavascriptWrapper(EnumJavascriptWrappers::window)

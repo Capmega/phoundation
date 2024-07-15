@@ -34,7 +34,7 @@ abstract class TemplatePage implements TemplatePageInterface
      *
      * @return string|null
      */
-    public function renderBody(): ?string
+    public function renderMain(): ?string
     {
         return execute();
     }
@@ -48,7 +48,8 @@ abstract class TemplatePage implements TemplatePageInterface
     public function renderHtmlFooters(): ?string
     {
         $footers = Response::renderHtmlFooters();
-        if (Response::getBuildBodyWrapper()) {
+
+        if (Response::getRenderMainWrapper()) {
             return $footers . '
                       </body>
                   </html>';

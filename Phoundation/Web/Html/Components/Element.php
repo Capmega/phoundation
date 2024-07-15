@@ -111,7 +111,7 @@ abstract class Element implements ElementInterface
             $this->attributes->removeKeys('auto_submit');
 
             $postfix .= Script::new()
-                              ->setContent('$("[name=' . $this->name . ']").change(function (e){ e.target.closest("form").submit(); });')
+                              ->setContent('$("[name=' . $this->name . ']").change(function (e){ $(e.target).closest("form").submit(); });')
                               ->setJavascriptWrapper(EnumJavascriptWrappers::window);
         }
 

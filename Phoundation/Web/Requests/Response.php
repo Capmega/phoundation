@@ -175,9 +175,9 @@ class Response implements ResponseInterface
     /**
      * If true, the template will build the <body> tag. If false, the page will have to build it itself
      *
-     * @var bool $build_body
+     * @var bool $render_main_wrapper
      */
-    protected static bool $build_body = true;
+    protected static bool $render_main_wrapper = true;
 
     /**
      * @var string $language_code
@@ -216,6 +216,13 @@ class Response implements ResponseInterface
      * @var FlashMessagesInterface|null
      */
     protected static ?FlashMessagesInterface $flash_messages = null;
+
+    /**
+     * Sets if the request should render the entire page or the contents of the page only
+     *
+     * @var bool $render_main_contents_only
+     */
+    protected static bool $render_main_contents_only = false;
 
 
     /**
@@ -263,26 +270,26 @@ class Response implements ResponseInterface
 
 
     /**
-     * Sets an alternative class for the <body> tag
-     *
-     * @param bool $build_body
-     *
-     * @return void
-     */
-    public static function setBuildBody(bool $build_body): void
-    {
-        static::$build_body = $build_body;
-    }
-
-
-    /**
      * Returns the alternative class for the <body> tag or if not preset, the default
      *
      * @return bool
      */
-    public static function getBuildBodyWrapper(): bool
+    public static function getRenderMainWrapper(): bool
     {
-        return static::$build_body;
+        return static::$render_main_wrapper;
+    }
+
+
+    /**
+     * Sets an alternative class for the <body> tag
+     *
+     * @param bool $render_main_wrapper
+     *
+     * @return void
+     */
+    public static function setRenderMainWrapper(bool $render_main_wrapper): void
+    {
+        static::$render_main_wrapper = $render_main_wrapper;
     }
 
 
@@ -1666,6 +1673,30 @@ class Response implements ResponseInterface
     public static function addOutput(?string $output): void
     {
         echo $output;
+    }
+
+
+    /**
+     * Returns if only the main contents should be rendered, or the entire page
+     *
+     * @return bool
+     */
+    public static function getRenderMainContentsOnly(): bool
+    {
+        return static::$render_main_contents_only;
+    }
+
+
+    /**
+     * Sets if only the main contents should be rendered, or the entire page
+     *
+     * @param bool $render_main_contents_only
+     *
+     * @return void
+     */
+    public static function setRenderMainContentsOnly(bool $render_main_contents_only): void
+    {
+        static::$render_main_contents_only = $render_main_contents_only;
     }
 
 

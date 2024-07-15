@@ -32,7 +32,7 @@ class Api extends Json implements ApiInterface
 
 
     /**
-     * ExecuteExecuteInterface the specified API page
+     * Execute the specified API page
      *
      * @return string|null
      */

@@ -592,7 +592,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getPrimaryDomainRootUrl(): static
     {
-        return new static(Domains::getPrimary() . Request::getRootUri());
+        return new static(Domains::getPrimaryWeb() . Request::getRootUri());
     }
 
 
@@ -603,7 +603,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getPrimaryDomainUrl(): static
     {
-        return new static(Domains::getPrimary() . Request::getUri());
+        return new static(Domains::getPrimaryWeb() . Request::getUri());
     }
 
 

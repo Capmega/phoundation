@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class FilterForm
  *
@@ -31,11 +32,12 @@ class FilterForm extends DataEntryForm
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-        $this->setId('filters');
-        $this->useForm(true)
+
+        $this->setId('filters')
+             ->useForm(true)
              ->getForm()
-             ->setMethod(EnumHttpRequestMethod::get)
-             ->setAction(UrlBuilder::getWww());
+                 ->setMethod(EnumHttpRequestMethod::get)
+                 ->setAction(UrlBuilder::getWww());
     }
 
 
@@ -49,6 +51,7 @@ class FilterForm extends DataEntryForm
     public function apply(bool $clear_source = true): static
     {
         $validator = Validator::pick();
+        $validator->setSourceObjectClass(static::class);
 
         // Go over each field and let the field definition do the validation since it knows the specs
         foreach ($this->definitions as $definition) {
@@ -56,7 +59,7 @@ class FilterForm extends DataEntryForm
         }
 
         try {
-            // ExecuteExecuteInterface the validate method to get the results of the validation
+            // Execute the validate method to get the results of the validation
             $this->source = $validator->validate($clear_source);
 
         } catch (ValidationFailedException $e) {

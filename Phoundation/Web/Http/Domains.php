@@ -44,11 +44,19 @@ class Domains
     protected static array $whitelist_domains;
 
     /**
-     * The configured primary domain
+     * The configured primary WEB domain
      *
-     * @var string|null $primary_domain
+     * @todo Improve this, don't have variables for web, cdn, etc. What if we get 10 more types?
+     * @var string|null $primary_web_domain
      */
-    protected static ?string $primary_domain = null;
+    protected static ?string $primary_web_domain = null;
+
+    /**
+     * The configured primary CDN domain
+     *
+     * @var string|null $primary_cdn_domain
+     */
+    protected static ?string $primary_cdn_domain = null;
 
     /**
      * The domain with which this object will work
@@ -152,34 +160,93 @@ class Domains
      */
     public static function isPrimary(string $domain): bool
     {
-        return static::getPrimary() === $domain;
+        if (static::getPrimaryWeb() === $domain) {
+            return true;
+        }
+
+        return static::isPrimaryCdn($domain);
     }
 
 
     /**
-     * Returns the primary domain
+     * Returns true if the specified domain is the primary web domain
+     *
+     * @param string $domain
+     *
+     * @return bool
+     */
+    public static function isPrimaryWeb(string $domain): bool
+    {
+        return static::getPrimaryWeb() === $domain;
+    }
+
+
+    /**
+     * Returns true if the specified domain is the primary CDN domain
+     *
+     * @param string $domain
+     *
+     * @return bool
+     */
+    public static function isPrimaryCdn(string $domain): bool
+    {
+        return static::getPrimaryCdn() === $domain;
+    }
+
+
+    /**
+     * Returns the primary web domain
      *
      * @return string
      */
-    public static function getPrimary(): string
+    public static function getPrimaryWeb(): string
     {
-        if (!static::$primary_domain) {
+        if (!static::$primary_web_domain) {
             // Build cache
             static::loadConfiguration();
-            static::$primary_domain = (string) UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['web']));
+            static::$primary_web_domain = (string) UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['web']));
 
-            if (!static::$primary_domain) {
+            if (!static::$primary_web_domain) {
                 // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
                 // Assume the current domain is the primary domain instead
-                static::$primary_domain = Domains::getCurrent();
+                static::$primary_web_domain = Domains::getCurrent();
+
                 Log::warning(tr('Failed to get primary domain from configuration, assuming current domain ":domain" is the primary domain', [
-                    ':domain' => static::$primary_domain,
+                    ':domain' => static::$primary_web_domain,
                 ]));
             }
         }
 
         // Return cache
-        return static::$primary_domain;
+        return static::$primary_web_domain;
+    }
+
+
+    /**
+     * Returns the primary CDN domain
+     *
+     * @return string
+     */
+    public static function getPrimaryCdn(): string
+    {
+        if (!static::$primary_cdn_domain) {
+            // Build cache
+            static::loadConfiguration();
+            static::$primary_cdn_domain = (string) UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['cdn']));
+
+            if (!static::$primary_cdn_domain) {
+                // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
+                // Assume the current domain is the primary domain instead
+                static::$primary_cdn_domain = Domains::getCurrent();
+
+                Log::warning(tr('Failed to get primary domain from configuration, assuming current domain ":domain" is the primary domain', [
+                    ':domain' => static::$primary_cdn_domain,
+                ]));
+            }
+        }
+
+        // Return cache
+        return static::$primary_cdn_domain;
     }
 
 

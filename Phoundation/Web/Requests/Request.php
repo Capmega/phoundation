@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Request
  *
@@ -72,10 +73,11 @@ use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
 use Phoundation\Web\Requests\Interfaces\RequestInterface;
 use Phoundation\Web\Requests\Traits\TraitDataStaticRouteParameters;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
+use Phoundation\Web\Uploads\Interfaces\UploadHandlerInterface;
+use Phoundation\Web\Uploads\UploadHandler;
 use Stringable;
 use Templates\Phoundation\AdminLte\AdminLte;
 use Throwable;
-
 
 abstract class Request implements RequestInterface
 {
@@ -143,13 +145,6 @@ abstract class Request implements RequestInterface
     protected static int $stack_level = -1;
 
     /**
-     * Sets if the request should render the entire page or the contents of the page only
-     *
-     * @var bool $main_contents_only
-     */
-    protected static bool $main_contents_only = false;
-
-    /**
      * The list of metadata that the client accepts
      *
      * @var array|null $accepts
@@ -198,6 +193,20 @@ abstract class Request implements RequestInterface
      * @var PanelsInterface $panels
      */
     protected static PanelsInterface $panels;
+
+    /**
+     * The upload handler for this request
+     *
+     * @var UploadHandlerInterface $upload_handler
+     */
+    protected static UploadHandlerInterface $upload_handler;
+
+    /**
+     * Tracks if the current request is executing a system page or not
+     *
+     * @var bool $is_system
+     */
+    protected static bool $is_system = false;
 
 
     /**
@@ -274,6 +283,17 @@ abstract class Request implements RequestInterface
 
 
     /**
+     * Returns true if the request has routing parameters set
+     *
+     * @return bool
+     */
+    public static function hasRoutingParameters(): bool
+    {
+        return isset(static::$parameters);
+    }
+
+
+    /**
      * Returns the current tab index and automatically increments it
      *
      * @return MenusInterface
@@ -328,30 +348,6 @@ abstract class Request implements RequestInterface
     public static function setPanelsObject(PanelsInterface $panels): void
     {
         static::$panels = $panels;
-    }
-
-
-    /**
-     * Returns the file executed for this request
-     *
-     * @return bool
-     */
-    public static function getMainContentsOnly(): bool
-    {
-        return static::$main_contents_only;
-    }
-
-
-    /**
-     * Returns the file executed for this request
-     *
-     * @param bool $main_contents_only
-     *
-     * @return void
-     */
-    public static function setMainContentsOnly(bool $main_contents_only): void
-    {
-        static::$main_contents_only = $main_contents_only;
     }
 
 
@@ -1413,12 +1409,24 @@ abstract class Request implements RequestInterface
             throw $e;
         }
 
+        static::$is_system = true;
+
         SystemRequest::new()->execute($http_code, $e, $message);
     }
 
 
     /**
-     * ExecuteExecuteInterface the specified target for this request and returns the output
+     * Returns true if this request is executing a system page
+     *
+     * @return bool
+     */
+    public static function isSystemPage(): bool
+    {
+        return static::$is_system;
+    }
+
+    /**
+     * Execute the specified target for this request and returns the output
      *
      * @param FsFileInterface|string $target
      *
@@ -1431,7 +1439,7 @@ abstract class Request implements RequestInterface
 
 
     /**
-     * ExecuteExecuteInterface the specified target for this request and returns the output
+     * Execute the specified target for this request and returns the output
      *
      * @param FsFileInterface|string $target
      * @param bool                   $die
@@ -1445,7 +1453,7 @@ abstract class Request implements RequestInterface
 
 
     /**
-     * ExecuteExecuteInterface the specified target for this request and returns the output
+     * Execute the specified target for this request and returns the output
      *
      * @param FsFileInterface|string $target
      * @param bool                   $flush
@@ -1453,7 +1461,7 @@ abstract class Request implements RequestInterface
      *
      * @return string|null
      */
-    public static function doExecute(FsFileInterface|string $target, bool $flush, bool $die): ?string
+    protected static function doExecute(FsFileInterface|string $target, bool $flush, bool $die): ?string
     {
         // Set target and check if we have this target in the cache
         try {
@@ -1694,15 +1702,15 @@ abstract class Request implements RequestInterface
      */
     protected static function executeWebTarget(bool $flush): ?string
     {
-        // ExecuteExecuteInterface the specified target file
+        // Execute the specified target file
         try {
             // Prepare page, increase the stack counter, and execute the target
             if (!$flush and static::$stack_level) {
-                // ExecuteExecuteInterface only the file and return the output
+                // Execute only the file and return the output
                 return execute();
             }
 
-            // ExecuteExecuteInterface the entire page and return the output
+            // Execute the entire page and return the output
             return static::$page->execute();
 
         } catch (ValidationFailedExceptionInterface $e) {
@@ -1772,5 +1780,20 @@ abstract class Request implements RequestInterface
                 ':request'            => static::getRequestType(),
             ])),
         };
+    }
+
+
+    /**
+     * Returns the upload handler for this request
+     *
+     * @return UploadHandlerInterface
+     */
+    public function getUploadHandler(): UploadHandlerInterface
+    {
+        if (empty(static::$upload_handler)) {
+            static::$upload_handler = new UploadHandler();
+        }
+
+        return static::$upload_handler;
     }
 }

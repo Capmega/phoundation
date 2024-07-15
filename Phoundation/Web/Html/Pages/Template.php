@@ -145,6 +145,10 @@ class Template implements TemplateInterface
             $this->text = $renderer_class::new($this)->render();
 
         } else {
+            $sign_out = Session::isGuest() ? null : '<p>' . tr('Click :here to sign out', [
+                ':here' => '<a href="' . UrlBuilder::getWww('sign-out') . '">here</a>'
+            ]) . '</p>';
+
             switch ($this->page) {
                 case 'system/http-error':
                     $this->text = ' <body class="hold-transition login-page">
@@ -156,10 +160,10 @@ class Template implements TemplateInterface
                                                 <h3><i class="fas fa-exclamation-triangle text-:type"></i> :h3</h3>
 
                                                 <p>:p</p>
-                                                <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . UrlBuilder::getCurrentDomainRootUrl() . '">here</a>']) . '</p>
-                                                <p>' . tr('Click :here to sign out', [':here' => '<a href="' . UrlBuilder::getWww('sign-out') . '">here</a>']) . '</p>';
+                                                <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . UrlBuilder::getCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
+                                                $sign_out;
 
-                    if (!Session::getUser()->isGuest()) {
+                    if (Session::isUser()) {
                         $this->text .= '    <form class="search-form" method="post" action=":action">
                                                 ' . Csrf::getHiddenElement() . '
                                                 <div class="input-group">

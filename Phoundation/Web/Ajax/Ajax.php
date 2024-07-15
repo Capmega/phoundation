@@ -32,7 +32,7 @@ class Ajax extends Json implements AjaxInterface
 
 
     /**
-     * ExecuteExecuteInterface the specified AJAX API page
+     * Execute the specified AJAX API page
      *
      * @return string|null
      */

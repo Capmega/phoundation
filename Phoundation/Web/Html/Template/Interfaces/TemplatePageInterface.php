@@ -29,7 +29,7 @@ interface TemplatePageInterface
      *
      * @return string|null
      */
-    public function renderBody(): ?string;
+    public function renderMain(): ?string;
 
 
     /**

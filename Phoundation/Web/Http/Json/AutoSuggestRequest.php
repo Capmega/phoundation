@@ -99,6 +99,7 @@ class AutoSuggestRequest
     public static function getTerm(int $max_size = 255): string
     {
         static::ensureGet();
+
         if (strlen(static::$get['term']) > $max_size) {
             throw new ValidationFailedException(tr('The field term must have ":count" characters or less', [
                 ':count' => $max_size,

@@ -165,7 +165,7 @@ class Route
 
 
     /**
-     * ExecuteExecuteInterface the specified target
+     * Execute the specified target
      *
      * @param string $target
      * @param bool   $attachment
@@ -178,7 +178,7 @@ class Route
         Core::removeShutdownCallback(404);
 
         // Get routing parameters and find the correct target page
-        $parameters = static::getParameters()->select(static::$uri);
+        $parameters = static::getParametersObject()->select(static::$uri);
         $target     = new FsFile($target);
 
         Request::setRoutingParameters($parameters);
@@ -203,11 +203,30 @@ class Route
 
 
     /**
+     * Execute the specified system page
+     *
+     * @param int $target An integer and valid HTTP code which will display the system page for that HTTP code
+     *
+     * @return never
+     */
+    #[NoReturn] protected static function executeSystem(int $target, ?Throwable $e = null, ?string $message = null): never
+    {
+        Core::removeShutdownCallback(404);
+
+        // Get routing parameters and find the correct target page
+        $parameters = static::getParametersObject()->select((String) $target, true);
+
+        Request::setRoutingParameters($parameters, true);
+        Request::executeSystem($target, $e, $message);
+    }
+
+
+    /**
      * Returns the routing parameters list
      *
      * @return RoutingParametersList
      */
-    public static function getParameters(): RoutingParametersList
+    public static function getParametersObject(): RoutingParametersList
     {
         static::getInstance();
 
@@ -256,7 +275,7 @@ class Route
         if (Core::getMaintenanceMode()) {
             // We're running in maintenance mode, show the maintenance page
             Log::warning('WARNING: Not processing routes, system is in maintenance mode');
-            Request::executeSystem(503);
+            static::executeSystem(503);
         }
 
         // Domain should NOT end with a .
@@ -271,7 +290,7 @@ class Route
                 ':uri'   => static::$uri,
                 ':count' => strlen(static::$uri),
             ]));
-            Request::executeSystem(400);
+            static::executeSystem(400);
         }
 
         // Check for double // anywhere in the URL, this is automatically rejected with a 404, not found
@@ -281,7 +300,7 @@ class Route
             Log::warning(tr('Requested URI ":uri" contains one or multiple double slashes, automatically rejecting this with a 404 page', [
                 ':uri' => $_SERVER['REQUEST_URI'],
             ]));
-            Request::executeSystem(404);
+            static::executeSystem(404);
         }
 
         if (str_ends_with($_SERVER['HTTP_HOST'], '.')) {
@@ -294,8 +313,8 @@ class Route
 
         // Ensure a 404 is shown if route cannot execute anything
         Core::addShutdownCallback(404, function () {
-            Request::setRoutingParameters(static::getParameters()->select('system/404', true), true);
-            Request::executeSystem(404);
+            Request::setRoutingParameters(static::getParametersObject()->select('system/404', true), true);
+            static::executeSystem(404);
         });
     }
 
@@ -507,6 +526,7 @@ class Route
      * @throws RouteException|\Throwable
      * @package Web
      * @see     Request::executeSystem()
+     * @see     Route::executeSystem()
      * @see     Route::execute()
      * @see     domain()
      * @see     Route::map()
@@ -783,6 +803,40 @@ class Route
                 }
             }
 
+            // Apply regex GET variables replacements
+            if (preg_match_all('/\$(\w+)\$/', $route, $replacements)) {
+                foreach ($replacements[1] as $replacement) {
+                    try {
+                        if (!$replacement) {
+                            throw new RouteException(tr('Invalid empty regex replacement specified in route ":route"', [
+                                ':route' => $route,
+                            ]));
+                        }
+
+                        if (!GetValidator::new()->sourceKeyExists($replacement)) {
+                            throw new RouteException(tr('Regex replacement ":replacement" specified in route ":route" does not exist in the $_GET array', [
+                                ':replacement' => '$' . $replacement . '$',
+                                ':route'       => $route,
+                            ]));
+                        }
+
+                        $route = str_replace('$' . $replacement . '$', GetValidator::new()->getSourceValue($replacement), $route);
+
+                    } catch (Throwable $e) {
+                        Log::warning(tr('Ignoring route ":route" because regex ":regex" has the error ":e"', [
+                            ':regex' => $url_regex,
+                            ':route' => $route,
+                            ':e'     => $e->getMessage(),
+                        ]));
+                    }
+                }
+
+                if (str_contains('$', $route)) {
+                    // There are regex variables left that were not replaced. Replace them with nothing
+                    $route = preg_replace('/\$\w+\$/', '', $route);
+                }
+            }
+
             // Apply specified post matching flags. Depending on individual flags we may do different things
             foreach ($flags as $flags_id => $flag) {
                 if (!$flag) {
@@ -826,7 +880,7 @@ class Route
                         static::execute(Debug::currentFile(1), $attachment);
 
                     case 'G':
-                        // MUST be a GET reqest, NO POST data allowed!
+                        // MUST be a GET request, NO POST data allowed!
                         if (!empty($_POST)) {
                             Log::notice(tr('Matched route ":route" allows only GET requests, cancelling match', [':route' => $route]));
                             $count++;
@@ -859,7 +913,7 @@ class Route
                         break;
 
                     case 'P':
-                        // MUST be a POST reqest, NO EMPTY POST data allowed!
+                        // MUST be a POST request, NO EMPTY POST data allowed!
                         if (empty($_POST)) {
                             Log::notice(tr('Matched route ":route" allows only POST requests, cancelling match', [':route' => $route]));
                             $count++;
@@ -900,10 +954,12 @@ class Route
                                 ]));
                         }
 
-                        Request::setRoutingParameters(static::getParameters()->select(static::$uri));
+                        Request::setRoutingParameters(static::getParametersObject()->select(static::$uri));
                         Response::redirect(UrlBuilder::getWww($route)->addQueries($_GET), (int) $http_code);
+
                     case 'S':
                         $until = substr($flag, 1);
+
                         if ($until and !is_natural($until)) {
                             $until = null;
                             Log::warning(tr('Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', [
@@ -927,6 +983,17 @@ class Route
                         $restrictions = str_replace(';', ',', $restrictions);
                         break;
 
+                    case 'Y':
+                        // Execute the resolved page as a system page
+                        if (!is_numeric_integer($route)) {
+                            throw new OutOfBoundsException(tr('Cannot execute ":route" from route ":url_regex" as a system page, it should be an integer HTTP compatible number', [
+                                ':url_regex' => $url_regex,
+                                ':route'     => $route
+                            ]));
+                        }
+
+                        static::executeSystem((int) $route);
+
                     case 'Z':
                         // Restrict access to users with the specified right, or execute the specified page instead
                         // (defaults to 403). Format is Z$RIGHT$[$PAGE$] and multiple Z rules may be specified
@@ -934,7 +1001,8 @@ class Route
                             Log::warning(tr('Invalid "Z" (requires right) rule ":flag" encountered, denying access by default for security', [
                                 ':flag' => $flag,
                             ]));
-                            Request::executeSystem(403);
+
+                            static::executeSystem(403);
                         }
 
                         $right = get_null(isset_get($matches[1][0]));
@@ -942,7 +1010,7 @@ class Route
 
                         if (Session::getUser()->isGuest()) {
                             Log::warning(tr('Denied guest user access to resource because signed in user is required'));
-                            Request::executeSystem(401);
+                            static::executeSystem(401);
                         }
 
                         if (!Session::getUser()->hasAllRights($right)) {
@@ -951,7 +1019,8 @@ class Route
                                                    ->getLogId(),
                                 ':right' => $right,
                             ]));
-                            Request::executeSystem(403);
+
+                            static::executeSystem(403);
                         }
                 }
             }
@@ -963,6 +1032,7 @@ class Route
                     Log::warning(tr('Matched route ":route" does not allow query variables while client specified them, cancelling match', [
                         ':route' => $route,
                     ]));
+
 //                    Log::vardump($_GET);
                     $count++;
 
@@ -987,6 +1057,7 @@ class Route
                             ':route' => $route,
                             ':key'   => $key,
                         ]));
+
                         $count++;
 
                         return;
@@ -1004,12 +1075,13 @@ class Route
                             // Redirect to URL without query
                             $domain = Url::getDomain()->getThis();
                             $domain = Strings::until($domain, '?');
+
                             Log::warning(tr('Matched route ":route" allows GET key ":key" as redirect to URL without query', [
                                 ':route' => $route,
                                 ':key'   => $key,
                             ]));
-                            Request::setRoutingParameters(static::getParameters()
-                                                                ->select(static::$uri));
+
+                            Request::setRoutingParameters(static::getParametersObject()->select(static::$uri));
                             Response::redirect($domain);
                     }
                 }
@@ -1042,7 +1114,7 @@ class Route
                         ]));
 
                         // TODO Check if this should be 404 or maybe some other HTTP code?
-                        Request::executeSystem(404);
+                        static::executeSystem(404);
 
                     } else {
                         // Found a map for the requested language
@@ -1057,36 +1129,41 @@ class Route
 
                         if (!file_exists($page)) {
                             Log::warning(tr('Language remapped page ":page" does not exist', [':page' => $page]));
-                            Request::executeSystem(404);
+                            static::executeSystem(404);
                         }
 
                         Log::success(tr('Found remapped page ":page"', [':page' => $page]));
                     }
+
                     if (!$translated) {
                         // Page was not translated, ie it's still the original, and no translation was found.
                         Log::warning(tr('Requested language ":language" does not have a translation available in the language map for page ":page"', [
                             ':language' => $language,
                             ':page'     => $page,
                         ]));
-                        Request::executeSystem(404);
+                        static::executeSystem(404);
                     }
                 }
             }
+
             if (!$block) {
                 // If we have GET parameters, add them to the $_GET array
                 if ($get) {
                     $get = explode('&', $get);
+
                     foreach ($get as $entry) {
-                        GetValidator::addData(Strings::until($entry, '='), Strings::from($entry, '=', needle_required: true));
+                        GetValidator::new()->addData(Strings::until($entry, '='), Strings::from($entry, '=', needle_required: true));
                     }
                 }
+
                 // We are going to show the matched page so we no longer need to default to 404
-                // ExecuteExecuteInterface the page specified in $target (from here, $route)
+                // Execute the page specified in $target (from here, $route)
                 // Update the current running script name
                 // Flip the routemap keys <=> values foreach language so that its
                 // now english keys. This way, the routemap can be easily used to
                 // generate foreign language URLs
             }
+
             if ($until) {
                 // Store the request as a rule until it expires. Apply semi-permanent routing for this IP
                 // Remove the "S" flag since we don't want to store the rule again in subsequent loads
@@ -1096,6 +1173,7 @@ class Route
                     switch ($flag[0]) {
                         case 'H':
                             // no break
+
                         case 'S':
                             unset($flags[$id]);
                             break;
@@ -1162,7 +1240,7 @@ class Route
             // still, just to be sure
             if (empty($_SERVER['HTTP_HOST'])) {
                 // No host name WTF? Redirect to the main site
-                Request::setRoutingParameters(static::getParameters()
+                Request::setRoutingParameters(static::getParametersObject()
                                                     ->select(UrlBuilder::getRootDomainRootUrl()));
                 Response::redirect(UrlBuilder::getRootDomainRootUrl());
             }
@@ -1176,12 +1254,12 @@ class Route
                     Log::warning(tr('HTTP HOST ":host" is not configured, redirecting to main site main page', [
                         ':host' => $_SERVER['HTTP_HOST'],
                     ]));
-                    Request::setRoutingParameters(static::getParameters()
+                    Request::setRoutingParameters(static::getParametersObject()
                                                         ->select(UrlBuilder::getRootDomainRootUrl()));
                     Response::redirect(UrlBuilder::getRootDomainRootUrl());
                 }
                 // Redirect to correct page
-                Request::setRoutingParameters(static::getParameters()
+                Request::setRoutingParameters(static::getParametersObject()
                                                     ->select(UrlBuilder::getRootDomainUrl()));
                 Response::redirect(UrlBuilder::getRootDomainUrl());
             }

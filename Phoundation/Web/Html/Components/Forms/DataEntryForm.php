@@ -183,7 +183,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         $auto_focus_id = $this->getAutofocusId();
 
         if ($prefix) {
-            if (str_ends_with((string)$prefix, '[]')) {
+            if (str_ends_with($prefix, '[]')) {
                 // This is an array prefix with the closing tag attached, remove the closing tag
                 $prefix = substr($prefix, 0, -1);
             }
@@ -192,9 +192,12 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 // This prefix contains a [] to indicate a list item. Specify the correct ID's
                 $prefix = str_replace('[]', '[' . static::$list_count . ']', $prefix);
             }
-        }
 
-        $is_array = str_ends_with((string)$prefix, '[');
+            $is_array = str_ends_with((string) $prefix, '[');
+
+        } else {
+            $is_array = false;
+        }
 
         /*
          * $data column keys: (Or just use Definitions class)
@@ -281,7 +284,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     continue;
                 }
 
-                // Either the component or the entire form being readonly or disabled will make the component the same
+                // Either this component or the entire form being readonly or disabled will make the component the same
                 $definition->setReadonly($definition->getReadonly() or $this->getReadonly());
                 $definition->setDisabled($definition->getDisabled() or $this->getDisabled());
 
@@ -327,7 +330,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 }
 
                 if ($definition->getDisplayCallback()) {
-                    // ExecuteExecuteInterface the specified callback on the data before displaying it
+                    // Execute the specified callback on the data before displaying it
                     $source[$column] = $definition->getDisplayCallback()(isset_get($source[$column]), $source);
                 }
 
@@ -581,7 +584,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 ]));
                             }
 
-                            // ExecuteExecuteInterface this to get the element
+                            // Execute this to get the element
                             $this->rows->add($definition, $definition->getElement()($column, $definition, $source));
                     }
 
@@ -664,11 +667,23 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         // Add one empty element to (if required) close any rows
         static::$list_count++;
 
+        // Add the data entry object name in the ID field
+        // TODO Should we always do this?
         if (empty($this->data_entry)) {
-            return '<div>' . $this->rows->render() . '</div>';
+            $return = '<div>' . $this->rows->render() . '</div>';
+
+        } else {
+            $return = '<div id="' . $this->data_entry->getObjectName() . '">' . $this->rows->render() . '</div>';
         }
 
-        return '<div id="' . $this->data_entry->getObjectName() . '">' . $this->rows->render() . '</div>';
+        // Add optional HTML form
+        if ($this->form) {
+            $return = $this->form
+                ->setContent($return)
+                ->render();
+        }
+
+        return $return;
     }
 
 

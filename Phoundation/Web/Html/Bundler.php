@@ -204,7 +204,7 @@ class Bundler
 
 
     /**
-     * ExecuteExecuteInterface the bundling of all the specified files.
+     * Execute the bundling of all the specified files.
      *
      * @param array $files
      *

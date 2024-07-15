@@ -31,7 +31,7 @@ class Json implements JsonInterface
 
 
     /**
-     * ExecuteExecuteInterface the specified JSON page
+     * Execute the specified JSON page
      *
      * @return string|null
      */

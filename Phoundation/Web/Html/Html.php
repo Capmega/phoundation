@@ -267,7 +267,7 @@ class Html
         }
         if ($params['onchange']) {
             /*
-             * ExecuteExecuteInterface the JS code for an onchange
+             * Execute the JS code for an onchange
              */
             $return .= html_script('$("#' . $params['id'] . '").change(function() { ' . $params['onchange'] . ' });');
 

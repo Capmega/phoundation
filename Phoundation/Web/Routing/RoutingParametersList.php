@@ -55,9 +55,11 @@ class RoutingParametersList
     {
         if ($parameters->getSystemPagesOnly()) {
             $this->system_list[$parameters->getPattern()] = $parameters;
+
         } else {
             $this->list[$parameters->getPattern()] = $parameters;
         }
+
         $this->ordered = false;
 
         return $this;

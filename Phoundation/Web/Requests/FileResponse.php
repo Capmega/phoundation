@@ -436,7 +436,7 @@ class FileResponse extends FsFile
             return FsFile::new($file, $this->restrictions);
         }
 
-        // ExecuteExecuteInterface the callbacks before returning the data, delete the temporary file after
+        // Execute the callbacks before returning the data, delete the temporary file after
         $file = $callback($file);
 
         FsFile::new($file, $this->restrictions)->delete();
