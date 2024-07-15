@@ -437,11 +437,11 @@ class CliAutoComplete
 
             if (str_starts_with($definition, 'SELECT ')) {
                 if ($word) {
-                    // ExecuteExecuteInterface the query filtering on the specified word and limit the results
+                    // Execute the query filtering on the specified word and limit the results
                     return static::limit(sql()->listScalar($definition, [':word' => '%' . $word . '%']));
                 }
 
-                // ExecuteExecuteInterface the query completely and limit the results
+                // Execute the query completely and limit the results
                 return static::limit(sql()->listScalar($definition));
             }
 
@@ -717,16 +717,23 @@ class CliAutoComplete
                 // bash_completion contains rule for phoundation
                 return;
             }
+
+        } else {
+            // Initialize the bash_completion file
+            $file->appendData('#/usr/bin/env bash' . PHP_EOL);
+
         }
 
         // Phoundation command line auto complete has not yet been set up, do so now.
-        $file->appendData('#/usr/bin/en}");
+        $file->appendData(PHP_EOL . '_phoundation()
+{
+PHO=$(./pho --auto-complete "${COMP_CWORD} ${COMP_LINE}");
 COMPREPLY+=($(compgen -W "$PHO"));
 }
 
-complete -F _phoundation pho');
+complete -F _phoundation pho' . PHP_EOL);
 
-        Log::information('Setup auto complete for Phoundation in ~/.bash_completion');
-        Log::information('You may need to logout and login again for auto complete to work correctly');
+        Log::success('Setup auto complete for Phoundation in ~/.bash_completion');
+        Log::success('You may need to logout and login again for auto complete to work correctly');
     }
 }

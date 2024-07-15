@@ -198,7 +198,7 @@ class CliCommand
 
 
     /**
-     * ExecuteExecuteInterface a command by the "pho" command
+     * Execute a command by the "pho" command
      *
      * @return void
      * @throws Throwable
@@ -220,7 +220,7 @@ class CliCommand
         static::checkUsage();
         static::checkHelp();
 
-        // ExecuteExecuteInterface the command and finish execution
+        // Execute the command and finish execution
         try {
             Request::setRestrictions(FsRestrictions::getReadonly(DIRECTORY_COMMANDS, 'CLI command execution'));
             Request::execute(static::$command . '.php');
