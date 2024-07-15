@@ -38,4 +38,4 @@ $argv = ArgvValidator::new()
 // Display the available servers
 Servers::new()
        ->addFilter('status', (DELETED ? 'deleted' : null))
-       ->CliDisplayTable();
+       ->displayCliTable();

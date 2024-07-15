@@ -44,10 +44,10 @@ try {
     Server::get($argv['server'])->getCliForm();
 
     Log::information('Roles assigned to this server:');
-    Server::get($argv['server'])->roles()->CliDisplayTable();
+    Server::get($argv['server'])->roles()->displayCliTable();
 
     Log::information('Roles assigned to this server through its roles:');
-    Server::get($argv['server'])->rights()->CliDisplayTable();
+    Server::get($argv['server'])->rights()->displayCliTable();
 
 
 } catch (DataEntryNotExistsException $e) {

@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Servers\SshAccount;
-
-
 /**
  * Command servers/accounts/create
  *
@@ -19,6 +10,18 @@ use Phoundation\Servers\SshAccount;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Servers\SshAccount;
+
 CliDocumentation::setAutoComplete(SshAccount::getAutoComplete());
 
 CliDocumentation::setUsage('./pho servers accounts create [OPTIONS]
@@ -28,14 +31,24 @@ CliDocumentation::setHelp('This command allows you to create SSH accounts.
 ' . SshAccount::getHelpText());
 
 
+$argv = ArgvValidator::new()
+            ->select('-u,--username', true)->isVariable()
+            ->select('-i,--ssh-key-file', true)->isPrintable()->hasMaxCharacters(8192)
+            ->select('-k,--ssh-key', true)->isFile(FsDirectory::getFilesystemRoot())
+            ->select('-n,--name', true)->isOptional()->isName()
+            ->validate();
+
+
 // Check if the account already exists
-SshAccount::notExists($argv['name'], 'name', null, true);
+SshAccount::notExists($argv['username'], 'name', null, true);
 
 
 // Add password for this account
 if ($argv['ssh_key_file']) {
-    FsFile::new($argv['ssh_key_file'], $argv['ssh_key_file'])->ensureReadable();
-    $argv['ssh_key'] = file_get_contents($argv['ssh_key_file']);
+    $argv['ssh_key'] = FsFile::new($argv['ssh_key_file'], FsRestrictions::getReadonly('/'))
+                             ->ensureReadable()
+                             ->getContentsAsString($argv['ssh_key_file']);
+
 } else {
     $argv['ssh_key'] = Cli::readPassword(tr('Please paste the private key here:'));
 }
