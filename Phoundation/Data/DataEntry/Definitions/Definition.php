@@ -20,6 +20,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
@@ -2449,17 +2450,26 @@ class Definition implements DefinitionInterface
 
         // Checkbox inputs always are boolean and does this column have a prefix?
         $bool   = ($this->getInputType()?->value === 'checkbox');
-        $column =  $this->getCliColumn();
 
-        if (!$column) {
-            // This column name is empty. Coming from static::getCliColumn() this means that this column should NOT be
-            // validated
-            return false;
-        }
+        if ($validator instanceof ArgvValidatorInterface) {
+            // These are arguments directly from the command line, we need to interpret the keys using CLI definitions
+            $column =  $this->getCliColumn();
 
-        // Column name prefix is an HTML form array prefix? Then close the array
-        if (str_ends_with((string) $prefix, '[')) {
-            $column .= ']';
+            if (!$column) {
+                // This column name is empty. Coming from static::getCliColumn() this means that this column should NOT
+                // be validated nor used
+                return false;
+            }
+
+            // Column name prefix is an HTML form array prefix? Then close the array
+            if (str_ends_with((string) $prefix, '[')) {
+                $column .= ']';
+            }
+
+        } else {
+            // These arguments are either from GetValidator, PostValidator, or the ArrayValidator.
+            // Use standard column name
+            $column = $this->getColumn();
         }
 
         if ($this->getValue()) {
@@ -2587,12 +2597,15 @@ class Definition implements DefinitionInterface
             // We're either on web, or on CLI while data is not being applied but set manually. Return the HTTP column
             return $this->getColumn();
         }
+
         // We're on the command line and data is being applied. We're working with data from the $argv command line
         if (empty($this->source['cli_column'])) {
             // This column cannot be modified on the command line, no definition available
             return null;
         }
+
         $return = isset_get_typed('string', $this->source['cli_column']);
+
         if (str_starts_with($return, '[') and str_ends_with($return, ']')) {
             // Strip the []
             $return = substr($return, 1, -1);
