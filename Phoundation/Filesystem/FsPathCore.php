@@ -40,6 +40,7 @@ use Phoundation\Filesystem\Exception\FileReadException;
 use Phoundation\Filesystem\Exception\FileRenameException;
 use Phoundation\Filesystem\Exception\FileSyncException;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\Exception\FilesystemNoRestrictionsSetExceptions;
 use Phoundation\Filesystem\Exception\FileTruncateException;
 use Phoundation\Filesystem\Exception\MountLocationNotFoundException;
 use Phoundation\Filesystem\Exception\NotASymlinkException;
@@ -914,17 +915,20 @@ class FsPathCore implements FsPathInterface
 
             showbacktrace();
             showdie($this->path);
-        } else {
-            $this->restrictions->check($this->path, $write);
 
-            if ($write) {
-                return $this->checkWriteAccess();
-            }
-
-            return $this->checkReadAccess();
+        } elseif (empty($this->restrictions)) {
+            throw new FilesystemNoRestrictionsSetExceptions(tr('Cannot perform action, no filesystem restirctions have been set for this ":class" object', [
+                ':class' => get_class($this)
+            ]));
         }
 
-        return $this;
+        $this->restrictions->check($this->path, $write);
+
+        if ($write) {
+            return $this->checkWriteAccess();
+        }
+
+        return $this->checkReadAccess();
     }
 
 
