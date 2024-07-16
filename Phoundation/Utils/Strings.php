@@ -2501,10 +2501,11 @@ throw new UnderConstructionException();
      * Ensures that the string contains something visible
      *
      * @param mixed $source
+     * @todo This can be optimized
      *
-     * @return mixed
+     * @return string
      */
-    public static function ensureVisible(mixed $source): mixed
+    public static function ensureVisible(mixed $source): string
     {
         if ($source === null) {
             return 'NULL';
@@ -2520,6 +2521,33 @@ throw new UnderConstructionException();
             }
         }
 
-        return $source;
+        if (is_bool($source)) {
+            return Strings::fromBoolean($source);
+        }
+
+        if (is_scalar($source)) {
+            return (string) $source;
+        }
+
+        if (is_array($source)) {
+            return print_r($source, true);
+        }
+
+        if ($source instanceof Stringable) {
+            return (string) $source;
+        }
+
+        if (is_resource($source)) {
+            // Shows something like "Resource #43"
+            return (string) $source;
+        }
+
+        if (is_object($source)) {
+            // Return the objects class name
+            return get_class($source);
+        }
+
+        // Anything else just cast
+        return (string) $source;
     }
 }
