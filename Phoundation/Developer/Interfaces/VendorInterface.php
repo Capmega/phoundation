@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Developer\Interfaces;
 
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;

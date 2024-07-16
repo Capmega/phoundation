@@ -47,7 +47,7 @@ SshAccount::notExists($argv['username'], 'name', null, true);
 if ($argv['ssh_key_file']) {
     $argv['ssh_key'] = FsFile::new($argv['ssh_key_file'], FsRestrictions::getReadonly('/'))
                              ->ensureReadable()
-                             ->getContentsAsString($argv['ssh_key_file']);
+                             ->getContentsAsString($argv['ssh_  key_file']);
 
 } else {
     $argv['ssh_key'] = Cli::readPassword(tr('Please paste the private key here:'));

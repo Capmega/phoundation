@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Requests;
 
 use Phoundation\Web\Requests\Interfaces\SystemResponseInterface;

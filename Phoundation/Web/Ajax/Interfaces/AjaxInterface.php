@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Ajax\Interfaces;
 
 use Phoundation\Web\Json\Interfaces\JsonInterface;

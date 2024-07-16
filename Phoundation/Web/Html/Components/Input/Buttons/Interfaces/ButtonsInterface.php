@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Html\Components\Input\Buttons\Interfaces;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;

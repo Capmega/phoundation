@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Html\Traits;
 
 use Phoundation\Core\Sessions\Config;
