@@ -1273,8 +1273,18 @@ abstract class Validator implements ValidatorInterface
             }
 
             if ($regex) {
-                if (!preg_match($string, (string) $value)) {
-                    $this->addFailure(tr('must match regex ":value"', [':value' => $string]));
+                try {
+                    if (!preg_match($string, (string) $value)) {
+                        $this->addFailure(tr('must match regex ":value"', [':value' => $string]));
+                    }
+                } catch (Throwable $e) {
+                    if (str_contains($e->getMessage(), 'preg_match')) {
+                        throw new ValidatorException(tr('Specified regex ":regex" is invalid', [
+                            ':regex' => $string
+                        ]), $e);
+                    }
+
+                    throw new ValidatorException(tr('Failed validation'), $e);
                 }
 
             } else {
@@ -1432,8 +1442,19 @@ abstract class Validator implements ValidatorInterface
             }
 
             if ($regex) {
-                if (preg_match($string, $value)) {
-                    $this->addFailure(tr('must not contain ":value"', [':value' => $string]));
+                try {
+                    if (preg_match($string, $value)) {
+                        $this->addFailure(tr('must not contain ":value"', [':value' => $string]));
+                    }
+
+                } catch (Throwable $e) {
+                    if (str_contains($e->getMessage(), 'preg_match')) {
+                        throw new ValidatorException(tr('Specified regex ":regex" is invalid', [
+                            ':regex' => $string
+                        ]), $e);
+                    }
+
+                    throw new ValidatorException(tr('Failed validation'), $e);
                 }
 
             } else {
