@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Os\Processes\Commands\Exception\CommandsException;
-use Phoundation\Os\Processes\Exception\ProcessFailedException;
-use Phoundation\Utils\Config;
-use Phoundation\Utils\Strings;
-
 /**
  * Class Mkdir
  *
@@ -19,6 +10,16 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Os\Processes\Commands\Exception\CommandsException;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
+
 class Mkdir extends Command
 {
     /**

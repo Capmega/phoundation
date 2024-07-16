@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\SlowPages;
-
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Developer\Incidents\Incident;
-
 /**
  * SlowPage class
  *
@@ -17,6 +10,14 @@ use Phoundation\Developer\Incidents\Incident;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\SlowPages;
+
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Developer\Incidents\Incident;
+
 class SlowPage extends Incident
 {
     /**

@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Date;
-
-use Phoundation\Data\Iterator;
-use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
-use Phoundation\Exception\OutOfBoundsException;
-use Stringable;
-
 /**
  * Class DateRangePickerRanges
  *
@@ -19,6 +10,16 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Date
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Date;
+
+use Phoundation\Data\Iterator;
+use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
+use Phoundation\Exception\OutOfBoundsException;
+use Stringable;
+
 class DateRangePickerRanges extends Iterator implements DateRangePickerRangesInterface
 {
     /**

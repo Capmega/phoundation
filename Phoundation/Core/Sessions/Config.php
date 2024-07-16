@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core\Sessions;
-
-use Phoundation\Core\Sessions\Interfaces\ConfigInterface;
-
 /**
  * Class Config
  *
@@ -16,6 +10,13 @@ use Phoundation\Core\Sessions\Interfaces\ConfigInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Core\Sessions;
+
+use Phoundation\Core\Sessions\Interfaces\ConfigInterface;
+
 class Config extends \Phoundation\Utils\Config implements ConfigInterface
 {
     /**

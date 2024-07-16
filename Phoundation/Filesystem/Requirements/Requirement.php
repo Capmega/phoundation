@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Class Requirement
+ *
+ * This class can check if the specified path conforms to specific requirements like "must be a directory" or "must be
+ * filesystem type X"
+ *
+ * @note      On Ubuntu requires packages nfs-utils cifs-utils psmisc
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Filesystem
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Requirements;
@@ -13,18 +26,6 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryPath;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
-/**
- * Class Requirement
- *
- * This class can check if the specified path conforms to specific requirements like "must be a directory" or "must be
- * filesystem type X"
- *
- * @note      On Ubuntu requires packages nfs-utils cifs-utils psmisc
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Filesystem
- */
 class Requirement extends DataEntry
 {
     use TraitDataEntryNameDescription;

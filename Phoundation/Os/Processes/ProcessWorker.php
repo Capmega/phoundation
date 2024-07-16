@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes;
-
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Os\Processes\Interfaces\ProcessWorkerInterface;
-
 /**
  * Class WorkersCore
  *
@@ -18,6 +11,14 @@ use Phoundation\Os\Processes\Interfaces\ProcessWorkerInterface;
  * @package   Phoundation\Os
  * @uses      ProcessVariables
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes;
+
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Os\Processes\Interfaces\ProcessWorkerInterface;
+
 class ProcessWorker extends WorkersCore implements ProcessWorkerInterface
 {
     /**

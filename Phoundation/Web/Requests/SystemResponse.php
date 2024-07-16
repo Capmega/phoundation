@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Requests;
-
-use Phoundation\Web\Requests\Interfaces\SystemResponseInterface;
-
 /**
  * Class SystemResponse
  *
@@ -16,6 +10,13 @@ use Phoundation\Web\Requests\Interfaces\SystemResponseInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Requests;
+
+use Phoundation\Web\Requests\Interfaces\SystemResponseInterface;
+
 class SystemResponse extends Response implements SystemResponseInterface
 {
 }

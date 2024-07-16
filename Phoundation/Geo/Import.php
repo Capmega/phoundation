@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Import class
+ *
+ *
+ * @note      See http://download.geonames.org/export/dump/readme.txt
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation/Geo
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo;
@@ -18,16 +29,6 @@ use Phoundation\Utils\Config;
 use Stringable;
 use Throwable;
 
-/**
- * Import class
- *
- *
- * @note      See http://download.geonames.org/export/dump/readme.txt
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation/Geo
- */
 class Import extends \Phoundation\Developer\Project\Import
 {
     /**

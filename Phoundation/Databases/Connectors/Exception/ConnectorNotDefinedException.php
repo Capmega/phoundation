@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases\Connectors\Exception;
-
 /**
  * Class ConnectorNotDefinedException
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Databases\Connectors\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases\Connectors\Exception;
+
+
 class ConnectorNotDefinedException extends ConnectorException
 {
 }

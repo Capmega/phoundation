@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Translator;
-
-use Phoundation\Data\DataEntry\DataIterator;
-use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Utils\Config;
-use Phoundation\Web\Html\Components\Input\InputSelect;
-use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
-
 /**
  * Class Translations
  *
@@ -20,6 +10,17 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Translator
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Translator;
+
+use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+
 class Translations extends DataIterator
 {
     /**

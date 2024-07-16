@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Import
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Database
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases;
@@ -22,16 +33,6 @@ use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
-/**
- * Class Import
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Database
- */
 class Import
 {
     use TraitDataTimeout;

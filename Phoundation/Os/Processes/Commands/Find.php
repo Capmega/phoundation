@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Find
+ *
+ * This class manages the "find" command
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Os
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -21,16 +32,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
 
-/**
- * Class Find
- *
- * This class manages the "find" command
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Os
- */
 class Find extends Command implements FindInterface
 {
     use TraitDataName;

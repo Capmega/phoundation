@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Cli\Exception;
-
-use Throwable;
-
 /**
  * Class ArgumentsException
  *
@@ -16,6 +10,13 @@ use Throwable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Cli
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Cli\Exception;
+
+use Throwable;
+
 class CliArgumentsException extends CliException
 {
     /**

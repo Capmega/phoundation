@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Date\Exception;
-
 /**
  * Class DateIntervalException
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Date\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Date
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Date\Exception;
+
+
 class DateIntervalException extends DateException
 {
 }

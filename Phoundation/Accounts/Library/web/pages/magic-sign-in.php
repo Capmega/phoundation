@@ -166,6 +166,5 @@ Response::setRenderMainWrapper(false);
     </body>
 <?php
 
-
 // Set page meta data
 Response::setPageTitle(tr('Request a new password'));

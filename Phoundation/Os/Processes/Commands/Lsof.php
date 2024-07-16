@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Utils\Strings;
-
 /**
  * Class Lsblk
  *
@@ -19,6 +10,16 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Utils\Strings;
+
 class Lsof extends Command
 {
     /**

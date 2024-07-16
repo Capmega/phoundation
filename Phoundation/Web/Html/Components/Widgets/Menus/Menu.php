@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Menu class
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation/Web
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Menus;
@@ -11,16 +22,6 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Http\UrlBuilder;
 
-/**
- * Menu class
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation/Web
- */
 class Menu extends ElementsBlock implements MenuInterface
 {
     /**

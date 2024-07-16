@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Export
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Databases
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases;
@@ -25,16 +36,6 @@ use Phoundation\Os\Processes\Commands\Databases\MysqlDump;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Utils\Strings;
 
-/**
- * Class Export
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Databases
- */
 class Export
 {
     use TraitDataGzip;

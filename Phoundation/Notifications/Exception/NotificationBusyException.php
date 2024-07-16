@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Notifications\Exception;
-
 /**
  * Class NotificationBusyException
  *
@@ -15,6 +11,12 @@ namespace Phoundation\Notifications\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Filesystem
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Notifications\Exception;
+
+
 class NotificationBusyException extends NotificationsException
 {
 }

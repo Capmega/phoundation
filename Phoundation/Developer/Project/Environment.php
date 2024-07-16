@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Environment class
+ *
+ * This is the prototype Init class that contains the basic methods for all other Init classes in all other libraries
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   \Phoundation\Developer
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Project;
@@ -13,16 +24,6 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Config;
 use Throwable;
 
-/**
- * Environment class
- *
- * This is the prototype Init class that contains the basic methods for all other Init classes in all other libraries
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   \Phoundation\Developer
- */
 class Environment
 {
     /**

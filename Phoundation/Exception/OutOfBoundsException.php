@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Exception;
-
-use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
-
 /**
  * Class OutOfBoundsException
  *
@@ -14,6 +8,13 @@ use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
  *
  * @package Phoundation\Exception
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Exception;
+
+use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
+
 class OutOfBoundsException extends Exception implements OutOfBoundsExceptionInterface
 {
 }

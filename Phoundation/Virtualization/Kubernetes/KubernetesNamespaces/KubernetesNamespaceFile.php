@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\KubernetesNamespaces;
-
-use Phoundation\Virtualization\Kubernetes\ObjectFile;
-
 /**
  * Class KubernetesNamespaceFile
  *
@@ -62,6 +56,13 @@ use Phoundation\Virtualization\Kubernetes\ObjectFile;
  * terminationGracePeriodSeconds: 30
  *
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\KubernetesNamespaces;
+
+use Phoundation\Virtualization\Kubernetes\ObjectFile;
+
 class KubernetesNamespaceFile extends ObjectFile
 {
     /**

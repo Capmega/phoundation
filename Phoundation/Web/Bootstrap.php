@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web;
-
-use Phoundation\Utils\Config;
-use Phoundation\Web\Html\Enums\EnumContainerTier;
-use Phoundation\Web\Interfaces\BootstrapInterface;
-
 /**
  * Class Bootstrap
  *
@@ -18,6 +10,15 @@ use Phoundation\Web\Interfaces\BootstrapInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web;
+
+use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Enums\EnumContainerTier;
+use Phoundation\Web\Interfaces\BootstrapInterface;
+
 class Bootstrap implements BootstrapInterface
 {
     /**

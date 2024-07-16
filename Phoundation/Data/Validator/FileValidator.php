@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Validator;
-
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Exception\OutOfBoundsException;
-
 /**
  * FileValidator class
  *
@@ -19,6 +12,14 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Validator;
+
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Exception\OutOfBoundsException;
+
 class FileValidator
 {
     use TraitValidatorCore;

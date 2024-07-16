@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Accounts\Users\Exception;
-
-use Phoundation\Accounts\Exception\AccountsException;
-
 /**
  * Class UsersException
  *
@@ -16,6 +10,13 @@ use Phoundation\Accounts\Exception\AccountsException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Accounts\Users\Exception;
+
+use Phoundation\Accounts\Exception\AccountsException;
+
 class UsersException extends AccountsException
 {
 }

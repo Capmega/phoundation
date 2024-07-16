@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases;
-
 /**
  * SQL Exists library
  *
@@ -15,6 +11,12 @@ namespace Phoundation\Databases;
  * @category  Function reference
  * @package   Phoundation/Databases
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases;
+
+
 class SqlExists
 {
     /**

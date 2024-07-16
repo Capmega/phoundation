@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components;
-
-use Phoundation\Web\Html\Components\Interfaces\NullElementInterface;
-
 /**
  * NullElement class
  *
@@ -16,6 +10,13 @@ use Phoundation\Web\Html\Components\Interfaces\NullElementInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components;
+
+use Phoundation\Web\Html\Components\Interfaces\NullElementInterface;
+
 class NullElement extends Element implements NullElementInterface
 {
     /**

@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Emails;
-
-use Phoundation\Data\DataEntry\DataIterator;
-
 /**
  * Class Emails
  *
@@ -16,6 +10,13 @@ use Phoundation\Data\DataEntry\DataIterator;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Plugins\Emails
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Emails;
+
+use Phoundation\Data\DataEntry\DataIterator;
+
 class Emails extends DataIterator
 {
 

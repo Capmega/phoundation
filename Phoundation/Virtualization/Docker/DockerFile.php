@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class DockerFile
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Virtualization
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Docker;
@@ -12,16 +23,6 @@ use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Virtualization\Traits\TraitDataImage;
 
-/**
- * Class DockerFile
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Virtualization
- */
 class DockerFile
 {
     use TraitDataDirectory;

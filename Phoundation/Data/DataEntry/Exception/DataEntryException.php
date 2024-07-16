@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Exception;
-
-use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryExceptionInterface;
-use Phoundation\Data\Exception\DataException;
-
 /**
  * Class DataException
  *
@@ -17,6 +10,14 @@ use Phoundation\Data\Exception\DataException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Exception;
+
+use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryExceptionInterface;
+use Phoundation\Data\Exception\DataException;
+
 class DataEntryException extends DataException implements DataEntryExceptionInterface
 {
 }

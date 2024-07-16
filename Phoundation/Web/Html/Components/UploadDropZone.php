@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components;
-
-use Phoundation\Data\Traits\TraitDataSelector;
-use Phoundation\Data\Traits\TraitDataUrl;
-use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Requests\Response;
-
 /**
  * Class UploadDropZone
  *
@@ -20,6 +10,17 @@ use Phoundation\Web\Requests\Response;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components;
+
+use Phoundation\Data\Traits\TraitDataSelector;
+use Phoundation\Data\Traits\TraitDataUrl;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
+use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Response;
+
 class UploadDropZone extends ResourceElement
 {
     use TraitDataSelector;

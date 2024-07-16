@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Exception;
-
-use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
-
 /**
  * Class DataEntryBadException
  *
@@ -16,6 +10,13 @@ use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionI
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Exception;
+
+use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
+
 class DataEntryBadException extends DataEntryException implements DataEntryNotExistsExceptionInterface
 {
 }

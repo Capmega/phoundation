@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Bundler
+ *
+ * This class contains the bundler functions which can bundle JS and CSS files into one
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html;
@@ -21,16 +32,6 @@ use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Throwable;
 
-/**
- * Class Bundler
- *
- * This class contains the bundler functions which can bundle JS and CSS files into one
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 class Bundler
 {
     use TraitDataRestrictions;

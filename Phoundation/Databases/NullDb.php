@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases;
-
-use Phoundation\Databases\Interfaces\DatabaseInterface;
-
 /**
  * Class NullDb
  *
@@ -16,6 +10,13 @@ use Phoundation\Databases\Interfaces\DatabaseInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases;
+
+use Phoundation\Databases\Interfaces\DatabaseInterface;
+
 class NullDb implements DatabaseInterface
 {
     /**

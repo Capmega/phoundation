@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Exception;
-
-use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
-use Phoundation\Utils\Arrays;
-
 /**
  * Class DataEntryReadonlyException
  *
@@ -17,6 +10,14 @@ use Phoundation\Utils\Arrays;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Exception;
+
+use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
+use Phoundation\Utils\Arrays;
+
 class DataEntryReadonlyException extends DataEntryException implements DataEntryReadonlyExceptionInterface
 {
     /**

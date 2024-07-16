@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Http;
-
-use JetBrains\PhpStorm\ExpectedValues;
-
 /**
  * Class Flash
  *
@@ -16,6 +10,13 @@ use JetBrains\PhpStorm\ExpectedValues;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Http;
+
+use JetBrains\PhpStorm\ExpectedValues;
+
 class Flash
 {
     /**

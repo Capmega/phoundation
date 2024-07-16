@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core\Exception;
-
-use Phoundation\Core\Exception\Interfaces\CoreStartupFailedExceptionInterface;
-
 /**
  * Class CoreStartupFailedException
  *
@@ -16,6 +10,13 @@ use Phoundation\Core\Exception\Interfaces\CoreStartupFailedExceptionInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Core\Exception;
+
+use Phoundation\Core\Exception\Interfaces\CoreStartupFailedExceptionInterface;
+
 class CoreStartupFailedException extends CoreException implements CoreStartupFailedExceptionInterface
 {
 }

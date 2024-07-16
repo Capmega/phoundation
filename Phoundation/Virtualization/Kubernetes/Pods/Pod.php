@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\Pods;
-
-use Phoundation\Data\Traits\TraitDataName;
-use Phoundation\Virtualization\Kubernetes\KubernetesObject;
-
 /**
  * Class Pod
  *
@@ -17,6 +10,14 @@ use Phoundation\Virtualization\Kubernetes\KubernetesObject;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\Pods;
+
+use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Virtualization\Kubernetes\KubernetesObject;
+
 class Pod extends KubernetesObject
 {
     use TraitDataName;

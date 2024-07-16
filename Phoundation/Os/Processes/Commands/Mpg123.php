@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Data\Traits\TraitDataFile;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-
 /**
  * Class Mpg123
  *
@@ -18,6 +10,15 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Data\Traits\TraitDataFile;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+
 class Mpg123 extends Command
 {
     use TraitDataFile;

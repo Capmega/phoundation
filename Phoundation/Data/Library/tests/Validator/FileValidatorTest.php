@@ -1,5 +1,11 @@
 <?php
 
+
+
+/**
+ * \Phoundation\Data\Validator\FileValidator test class
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Library\tests\Validator;
@@ -8,10 +14,6 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
 use PHPUnit\Framework\TestCase;
 
-
-/**
- * \Phoundation\Data\Validator\FileValidator test class
- */
 class FileValidatorTest extends TestCase
 {
     public function testIsFile()

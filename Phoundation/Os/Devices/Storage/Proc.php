@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Devices\Storage;
-
-use Phoundation\Data\Iterator;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Utils\Strings;
-
 /**
  * Class Proc
  *
@@ -19,6 +10,16 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Devices\Storage;
+
+use Phoundation\Data\Iterator;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Utils\Strings;
+
 class Proc
 {
     /**

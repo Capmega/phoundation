@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Class BomFile
+ *
+ * This class can check and remove the Unicode Byte Order Mark from the specified file. This is important as PHP can
+ * choke on this BOM
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Developer
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Tests;
@@ -12,17 +24,6 @@ use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\FsPath;
 use Stringable;
 
-/**
- * Class BomFile
- *
- * This class can check and remove the Unicode Byte Order Mark from the specified file. This is important as PHP can
- * choke on this BOM
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Developer
- */
 class BomFile extends FsFile
 {
     public function __construct(FsPath|Stringable|string|null $file = null, FsRestrictionsInterface|array|string|null $restrictions = null)

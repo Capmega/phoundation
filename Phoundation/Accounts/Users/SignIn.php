@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * SignIn class
+ *
+ *
+ *
+ * @see       DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Accounts
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
@@ -23,17 +35,6 @@ use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
-/**
- * SignIn class
- *
- *
- *
- * @see       DataEntry
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Accounts
- */
 class SignIn extends DataEntry
 {
     use TraitDataEntryUserAgent;

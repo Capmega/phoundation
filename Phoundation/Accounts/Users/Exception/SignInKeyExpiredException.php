@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Accounts\Users\Exception;
-
 /**
  * Class SignInKeyExpiredException
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Accounts\Users\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Accounts\Users\Exception;
+
+
 class SignInKeyExpiredException extends SignInKeyException
 {
 }

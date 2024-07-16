@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Geo\Exception;
-
-use Phoundation\Exception\Exception;
-
 /**
  * Class GeoException
  *
@@ -16,6 +10,13 @@ use Phoundation\Exception\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Geo
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Geo\Exception;
+
+use Phoundation\Exception\Exception;
+
 class GeoException extends Exception
 {
 }

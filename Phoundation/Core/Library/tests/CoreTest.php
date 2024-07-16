@@ -1,5 +1,11 @@
 <?php
 
+
+
+/**
+ * \Phoundation\Core\Core test class
+ */
+
 declare(strict_types=1);
 
 namespace Core;
@@ -7,10 +13,6 @@ namespace Core;
 use Phoundation\Core\Core;
 use PHPUnit\Framework\TestCase;
 
-
-/**
- * \Phoundation\Core\Core test class
- */
 class CoreTest extends TestCase
 {
     public function testRegister()

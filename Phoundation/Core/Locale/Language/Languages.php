@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core\Locale\Language;
-
-use Phoundation\Core\Locale\Language\Interfaces\LanguagesInterface;
-use Phoundation\Data\DataEntry\DataIterator;
-use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
-
 /**
  * Languages class
  *
@@ -19,6 +11,15 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Core\Locale\Language;
+
+use Phoundation\Core\Locale\Language\Interfaces\LanguagesInterface;
+use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+
 class Languages extends DataIterator implements LanguagesInterface
 {
     /**

@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Templates;
-
-use Phoundation\Core\Sessions\Session;
-use Phoundation\Storage\Page;
-use Phoundation\Templates\Interfaces\TemplateInterface;
-use Phoundation\Web\Html\Csrf;
-use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -21,6 +12,17 @@ use Phoundation\Web\Http\UrlBuilder;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Templates
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Templates;
+
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Storage\Page;
+use Phoundation\Templates\Interfaces\TemplateInterface;
+use Phoundation\Web\Html\Csrf;
+use Phoundation\Web\Http\UrlBuilder;
+
 class Template extends Page implements TemplateInterface
 {
     /**

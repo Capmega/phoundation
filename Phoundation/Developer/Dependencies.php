@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Arrays;
-
 /**
  * Class Dependencies
  *
@@ -17,6 +10,14 @@ use Phoundation\Utils\Arrays;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Dependencies
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+
 class Dependencies
 {
     /*

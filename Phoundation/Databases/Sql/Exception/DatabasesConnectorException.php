@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases\Sql\Exception;
-
-use Phoundation\Databases\Exception\DatabasesException;
-
 /**
  * Class DatabasesConnectorException
  *
@@ -16,6 +10,13 @@ use Phoundation\Databases\Exception\DatabasesException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases\Sql\Exception;
+
+use Phoundation\Databases\Exception\DatabasesException;
+
 class DatabasesConnectorException extends DatabasesException
 {
 }

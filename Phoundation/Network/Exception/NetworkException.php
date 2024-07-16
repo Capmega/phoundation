@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Network\Exception;
-
-use Phoundation\Exception\Exception;
-
 /**
  * Class NetworkException
  *
@@ -16,6 +10,13 @@ use Phoundation\Exception\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Network
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Network\Exception;
+
+use Phoundation\Exception\Exception;
+
 class NetworkException extends Exception
 {
 }

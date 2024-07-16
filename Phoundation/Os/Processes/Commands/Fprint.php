@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-
 /**
  * Class Fprint
  *
@@ -17,6 +10,14 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+
 class Fprint extends Command
 {
     /**

@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Class City
+ *
+ *
+ *
+ * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Geo
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo\Cities;
@@ -13,17 +25,6 @@ use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\Timezones\Timezone;
 
-/**
- * Class City
- *
- *
- *
- * @see       \Phoundation\Data\DataEntry\DataEntry
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Geo
- */
 class City extends DataEntry
 {
     use TraitDataEntryNameDescription;

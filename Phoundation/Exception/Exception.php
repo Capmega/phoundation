@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Exception
+ *
+ * This is the most basic Phoundation exception class
+ *
+ * @author    Sven Olaf Oostenbrink
+ * @copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Exception
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Exception;
@@ -30,16 +41,6 @@ use Phoundation\Web\Routing\Route;
 use RuntimeException;
 use Throwable;
 
-/**
- * Class Exception
- *
- * This is the most basic Phoundation exception class
- *
- * @author    Sven Olaf Oostenbrink
- * @copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Exception
- */
 class Exception extends RuntimeException implements Interfaces\ExceptionInterface
 {
     /**

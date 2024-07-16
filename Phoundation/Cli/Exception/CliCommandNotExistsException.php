@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Cli\Exception;
-
 /**
  * Class MethodNotExistsException
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Cli\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Cli
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Cli\Exception;
+
+
 class CliCommandNotExistsException extends CliException
 {
 }

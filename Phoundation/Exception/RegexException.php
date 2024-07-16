@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Exception;
-
 /**
  * Class RegexException
  *
@@ -11,6 +7,12 @@ namespace Phoundation\Exception;
  *
  * @package Phoundation\Exception
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Exception;
+
+
 class RegexException extends Exception
 {
 }

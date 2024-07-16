@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Versioning\Git\Exception;
-
 /**
  * Class GitHasChangesException
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Developer\Versioning\Git\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Versioning\Git\Exception;
+
+
 class GitHasChangesException extends GitException
 {
 }

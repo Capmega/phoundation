@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Exception;
-
 /**
  * Class ObsoleteException
  *
@@ -12,6 +8,12 @@ namespace Phoundation\Exception;
  *
  * @package Phoundation\Exception
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Exception;
+
+
 class ObsoleteException extends Exception
 {
 }

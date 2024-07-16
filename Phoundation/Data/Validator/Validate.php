@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Validator;
-
-use Phoundation\Accounts\Users\Password;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\TraitDataMaxStringSize;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
-
 /**
  * Validate class
  *
@@ -19,6 +10,16 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Validator;
+
+use Phoundation\Accounts\Users\Password;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataMaxStringSize;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+
 class Validate
 {
     use TraitDataMaxStringSize;

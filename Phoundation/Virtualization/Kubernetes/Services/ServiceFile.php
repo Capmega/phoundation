@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\Services;
-
-use Phoundation\Virtualization\Kubernetes\ObjectFile;
-
 /**
  * Class ServiceFile
  *
@@ -30,6 +24,13 @@ use Phoundation\Virtualization\Kubernetes\ObjectFile;
  * targetPort: 9376
  *
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\Services;
+
+use Phoundation\Virtualization\Kubernetes\ObjectFile;
+
 class ServiceFile extends ObjectFile
 {
     /**

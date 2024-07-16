@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web;
-
 /**
  * Class Client
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Web;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web;
+
+
 class Client
 {
     public static function detect(): void {

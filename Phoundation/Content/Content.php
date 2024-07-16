@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Content;
-
-use Phoundation\Content\Exception\ContentException;
-use Phoundation\Content\Interfaces\ContentInterfaceFsFileInterface;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Os\Processes\Process;
-use Phoundation\Utils\Strings;
-
 /**
  * Class View
  *
@@ -20,6 +10,17 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Content
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Content;
+
+use Phoundation\Content\Exception\ContentException;
+use Phoundation\Content\Interfaces\ContentInterfaceFsFileInterface;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Strings;
+
 class Content extends FsFile implements ContentInterfaceFsFileInterface
 {
     /**

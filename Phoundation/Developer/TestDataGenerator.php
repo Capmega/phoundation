@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer;
-
-use Exception;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Numbers;
-use Phoundation\Utils\Strings;
-
 /**
  * Class TestDataGenerator
  *
@@ -19,6 +10,16 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer;
+
+use Exception;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Numbers;
+use Phoundation\Utils\Strings;
+
 class TestDataGenerator
 {
     /**

@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\Pods;
-
-use PDOStatement;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
-
 /**
  * Class Pods
  *
@@ -18,6 +10,15 @@ use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\Pods;
+
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
+
 class Pods extends KubernetesObjects
 {
     /**

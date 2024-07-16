@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\Ingresses;
-
-use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Virtualization\Kubernetes\ObjectFile;
-
 /**
  * Class IngressFile
  *
@@ -38,6 +31,14 @@ use Phoundation\Virtualization\Kubernetes\ObjectFile;
  * number: 80
  *
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\Ingresses;
+
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Virtualization\Kubernetes\ObjectFile;
+
 class IngressFile extends ObjectFile
 {
     /**

@@ -1,10 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace :type:name;
-
-
 /**
  * :name class
  *
@@ -15,6 +10,11 @@ namespace :type:name;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package :type:name
  */
+
+declare(strict_types=1);
+
+namespace :type:name;
+
 class Library extends \Phoundation\Core\Libraries\Library
 {
     /**

@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Storage;
-
-use Phoundation\Data\DataEntry\DataIterator;
-use Phoundation\Storage\Interfaces\PagesInterface;
-use Phoundation\Web\Requests\Request;
-
 /**
  * Class Pages
  *
@@ -18,6 +10,15 @@ use Phoundation\Web\Requests\Request;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Pages
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Storage;
+
+use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Storage\Interfaces\PagesInterface;
+use Phoundation\Web\Requests\Request;
+
 class Pages extends DataIterator implements PagesInterface
 {
     /**

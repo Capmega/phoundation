@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Template\Exception;
-
-use Phoundation\Web\Html\Exception\HtmlException;
-
 /**
  * Class TemplateException
  *
@@ -16,6 +10,13 @@ use Phoundation\Web\Html\Exception\HtmlException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Template\Exception;
+
+use Phoundation\Web\Html\Exception\HtmlException;
+
 class TemplateException extends HtmlException
 {
 }

@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html;
-
-use Phoundation\Notifications\Notification;
-use Phoundation\Utils\Arrays;
-use Phoundation\Web\Exception\WebException;
-use Phoundation\Web\Html\Enums\EnumDisplayMode;
-
 /**
  * Class Js
  *
@@ -19,6 +10,16 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html;
+
+use Phoundation\Notifications\Notification;
+use Phoundation\Utils\Arrays;
+use Phoundation\Web\Exception\WebException;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+
 class Js
 {
     /**

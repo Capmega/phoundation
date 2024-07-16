@@ -1,5 +1,11 @@
 <?php
 
+
+
+/**
+ * \Phoundation\Core\Validator test class
+ */
+
 declare(strict_types=1);
 
 namespace Data\Validator;
@@ -8,10 +14,6 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Validator;
 use PHPUnit\Framework\TestCase;
 
-
-/**
- * \Phoundation\Core\Validator test class
- */
 class ValidatorTest extends TestCase
 {
     /**

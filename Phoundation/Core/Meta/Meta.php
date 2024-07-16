@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Meta class
+ *
+ * This class keeps track of metadata for database entries throughout phoundation projects
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   \Phoundation\Core
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Meta;
@@ -27,16 +38,6 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Throwable;
 
-/**
- * Meta class
- *
- * This class keeps track of metadata for database entries throughout phoundation projects
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   \Phoundation\Core
- */
 class Meta implements MetaInterface
 {
     /**

@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Http;
-
-use Iterator;
-
 /**
  * Class Uploads
  *
@@ -17,6 +11,13 @@ use Iterator;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Http;
+
+use Iterator;
+
 class Uploads implements Iterator
 {
     /**

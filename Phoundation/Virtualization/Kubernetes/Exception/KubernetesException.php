@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Kubernetes\Exception;
-
-use Phoundation\Virtualization\Exception\VirtualizationException;
-
 /**
  * Class KubernetesException
  *
@@ -16,6 +10,13 @@ use Phoundation\Virtualization\Exception\VirtualizationException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Kubernetes\Exception;
+
+use Phoundation\Virtualization\Exception\VirtualizationException;
+
 class KubernetesException extends VirtualizationException
 {
 }

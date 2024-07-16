@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\Ingresses;
-
-use Phoundation\Virtualization\Kubernetes\KubernetesObject;
-
 /**
  * Class Ingress
  *
@@ -16,6 +10,13 @@ use Phoundation\Virtualization\Kubernetes\KubernetesObject;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\Ingresses;
+
+use Phoundation\Virtualization\Kubernetes\KubernetesObject;
+
 class Ingress extends KubernetesObject
 {
     /**

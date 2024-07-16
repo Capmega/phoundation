@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * SqlConnector class
+ *
+ * This class represents a single SQL connector coming either from configuration or DB storage
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Databases
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors;
@@ -29,16 +40,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
-/**
- * SqlConnector class
- *
- * This class represents a single SQL connector coming either from configuration or DB storage
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Databases
- */
 class Connector extends DataEntry implements ConnectorInterface
 {
     use TraitDataEntryNameDescription;

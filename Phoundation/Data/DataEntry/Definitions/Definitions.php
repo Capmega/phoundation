@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Definitions
+ *
+ * Contains a collection of Definition objects for a DataEntry class and can validate the values
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Data
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
@@ -13,16 +24,6 @@ use Phoundation\Data\Traits\TraitDataTable;
 use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
-/**
- * Class Definitions
- *
- * Contains a collection of Definition objects for a DataEntry class and can validate the values
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Data
- */
 class Definitions extends Iterator implements DefinitionsInterface
 {
     use TraitDataDataEntry;

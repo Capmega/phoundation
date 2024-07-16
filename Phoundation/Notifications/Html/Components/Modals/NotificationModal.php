@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Notifications\Html\Components\Modals;
-
-use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Components\Widgets\Modals\LargeModal;
-use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Requests\Response;
-
 /**
  * NotificationModal class
  *
@@ -20,6 +10,17 @@ use Phoundation\Web\Requests\Response;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Notifications\Html\Components\Modals;
+
+use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Components\Widgets\Modals\LargeModal;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
+use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Response;
+
 class NotificationModal extends LargeModal
 {
     /**

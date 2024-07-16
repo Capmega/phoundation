@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class FsMount
+ *
+ *
+ * @note      On Ubuntu requires packages nfs-utils cifs-utils psmisc
+ * * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Os
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -14,16 +25,6 @@ use Phoundation\Filesystem\Mounts\FsMounts;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Stringable;
 
-/**
- * Class FsMount
- *
- *
- * @note      On Ubuntu requires packages nfs-utils cifs-utils psmisc
- * * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Os
- */
 class UnMount extends Command
 {
     use TraitDataForce;

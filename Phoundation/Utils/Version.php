@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Utils;
-
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Utils\Traits\TraitVersion;
-
 /**
  * Class Version
  *
@@ -20,6 +11,16 @@ use Phoundation\Utils\Traits\TraitVersion;
  * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Utils;
+
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Utils\Traits\TraitVersion;
+
 class Version
 {
     use TraitVersion {

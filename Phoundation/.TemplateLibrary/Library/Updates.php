@@ -1,10 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace :type:name;
-
-
 /**
  * Updates class
  *
@@ -16,6 +11,11 @@ namespace :type:name;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package :type:name
  */
+
+declare(strict_types=1);
+
+namespace :type:name;
+
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**

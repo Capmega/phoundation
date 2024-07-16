@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Widgets\Panels;
-
-use Phoundation\Web\Html\Components\Widgets\Modals\SignInModal;
-use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
-use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Requests\Request;
-
 /**
  * SidePanel class
  *
@@ -19,6 +10,16 @@ use Phoundation\Web\Requests\Request;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Widgets\Panels;
+
+use Phoundation\Web\Html\Components\Widgets\Modals\SignInModal;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
+use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
+
 class SidePanel extends Panel
 {
     /**

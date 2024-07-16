@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\Services;
-
-use Phoundation\Virtualization\Kubernetes\KubernetesObject;
-use Phoundation\Virtualization\Kubernetes\Traits\TraitDataSelectors;
-
 /**
  * Class Service
  *
@@ -17,6 +10,14 @@ use Phoundation\Virtualization\Kubernetes\Traits\TraitDataSelectors;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\Services;
+
+use Phoundation\Virtualization\Kubernetes\KubernetesObject;
+use Phoundation\Virtualization\Kubernetes\Traits\TraitDataSelectors;
+
 class Service extends KubernetesObject
 {
     use TraitDataSelectors;

@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases\Sql\QueryBuilder;
-
-use Phoundation\Data\Iterator;
-use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
-
 /**
  * class QueryDefinitions
  *
@@ -17,6 +10,14 @@ use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases\Sql\QueryBuilder;
+
+use Phoundation\Data\Iterator;
+use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
+
 class QueryDefinitions extends Iterator implements QueryDefinitionsInterface
 {
 }

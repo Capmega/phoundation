@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core\Log\Exception;
-
-use Phoundation\Core\Exception\CoreException;
-
 /**
  * Class LogException
  *
@@ -16,6 +10,13 @@ use Phoundation\Core\Exception\CoreException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Core\Log\Exception;
+
+use Phoundation\Core\Exception\CoreException;
+
 class LogException extends CoreException
 {
 }

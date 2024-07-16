@@ -1,10 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Storage\Library;
-
-
 /**
  * Updates class
  *
@@ -16,6 +11,13 @@ namespace Phoundation\Storage\Library;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Storage
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Storage\Library;
+
+
+
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**

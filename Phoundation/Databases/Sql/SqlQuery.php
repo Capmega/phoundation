@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases\Sql;
-
-use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
-
 /**
  * SqlQuery class
  *
@@ -16,6 +10,13 @@ use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases\Sql;
+
+use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
+
 class SqlQuery implements SqlQueryInterface
 {
     /**

@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Translator;
-
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-
 /**
  * Class Translation
  *
@@ -18,6 +11,14 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Translator
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Translator;
+
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+
 class Translation extends DataEntry
 {
     /**

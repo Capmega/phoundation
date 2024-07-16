@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Validator\Exception;
-
-use Throwable;
-
 /**
  * Class CaptchaFailedException
  *
@@ -16,6 +10,13 @@ use Throwable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Validator\Exception;
+
+use Throwable;
+
 class CaptchaFailedException extends ValidationFailedException
 {
     public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)

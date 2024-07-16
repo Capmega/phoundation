@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer;
-
-use DateTime;
-use Phoundation\Filesystem\FsDirectory;
-use Stringable;
-
 /**
  * Class Mtime
  *
@@ -19,6 +11,15 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer;
+
+use DateTime;
+use Phoundation\Filesystem\FsDirectory;
+use Stringable;
+
 class Mtime
 {
     /**

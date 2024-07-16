@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\KubernetesNamespaces;
-
-use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
-
 /**
  * Class KubernetesNamespaces
  *
@@ -16,6 +10,13 @@ use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\KubernetesNamespaces;
+
+use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
+
 class KubernetesNamespaces extends KubernetesObjects
 {
 }

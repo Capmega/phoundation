@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Os\Processes\Commands\Find;
-use Phoundation\Utils\Config;
-
 /**
  * Class Tmp
  *
@@ -20,6 +10,17 @@ use Phoundation\Utils\Config;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Tmp
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Core;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Os\Processes\Commands\Find;
+use Phoundation\Utils\Config;
+
 class Tmp
 {
     /**

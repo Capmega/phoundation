@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\KubeCtl;
-
 /**
  * Class KubeCtl
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Virtualization\Kubernetes\KubeCtl;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\KubeCtl;
+
+
 class KubeCtl
 {
 }

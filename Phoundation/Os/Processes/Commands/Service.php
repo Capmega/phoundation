@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataServiceName;
-use Phoundation\Os\Processes\Commands\Exception\CommandsException;
-
 /**
  * Class Service
  *
@@ -18,6 +10,15 @@ use Phoundation\Os\Processes\Commands\Exception\CommandsException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataServiceName;
+use Phoundation\Os\Processes\Commands\Exception\CommandsException;
+
 class Service extends Command
 {
     use TraitDataServiceName;

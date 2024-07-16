@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Accounts\Users\Exception;
-
-use Throwable;
-
 /**
  * Class SignInKeyException
  *
@@ -16,6 +10,13 @@ use Throwable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Accounts\Users\Exception;
+
+use Throwable;
+
 class SignInKeyException extends UsersException
 {
     public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)

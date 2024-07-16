@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Requests\Exception;
-
-use Phoundation\Web\Exception\WebException;
-
 /**
  * Class RequestException
  *
@@ -16,6 +10,13 @@ use Phoundation\Web\Exception\WebException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Requests\Exception;
+
+use Phoundation\Web\Exception\WebException;
+
 class RequestException extends WebException
 {
 }

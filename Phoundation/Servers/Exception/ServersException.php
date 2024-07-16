@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Servers\Exception;
-
-use Phoundation\Exception\Exception;
-
 /**
  * Class ServersException
  *
@@ -16,6 +10,13 @@ use Phoundation\Exception\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Servers\Exception;
+
+use Phoundation\Exception\Exception;
+
 class ServersException extends Exception
 {
 }

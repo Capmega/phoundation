@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core\Exception;
-
 /**
  * Class NoProjectException
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Core\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Core\Exception;
+
+
 class NoProjectException extends CoreException
 {
 }

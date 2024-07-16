@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Api;
-
-use Phoundation\Web\Api\Interfaces\ApiInterface;
-use Phoundation\Web\Json\Json;
-use Phoundation\Web\Requests\Response;
-
 /**
  * Class Api
  *
@@ -18,6 +10,15 @@ use Phoundation\Web\Requests\Response;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Api;
+
+use Phoundation\Web\Api\Interfaces\ApiInterface;
+use Phoundation\Web\Json\Json;
+use Phoundation\Web\Requests\Response;
+
 class Api extends Json implements ApiInterface
 {
     /**

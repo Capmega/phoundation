@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Api;
-
-use Phoundation\Accounts\Users\User;
-
 /**
  * Class Users
  *
@@ -16,6 +10,13 @@ use Phoundation\Accounts\Users\User;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Api;
+
+use Phoundation\Accounts\Users\User;
+
 class Users extends \Phoundation\Accounts\Users\Users
 {
     /**

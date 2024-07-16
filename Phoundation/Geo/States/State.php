@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Class State
+ *
+ *
+ *
+ * @see       DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Geo
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo\States;
@@ -12,17 +24,6 @@ use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 
-/**
- * Class State
- *
- *
- *
- * @see       DataEntry
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Geo
- */
 class State extends DataEntry
 {
     use TraitDataEntryNameDescription;

@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Puks\Exception;
-
-use Phoundation\Exception\Exception;
-
 /**
  * Class PuksException
  *
@@ -16,6 +10,13 @@ use Phoundation\Exception\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Security
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Puks\Exception;
+
+use Phoundation\Exception\Exception;
+
 class PuksException extends Exception
 {
 }

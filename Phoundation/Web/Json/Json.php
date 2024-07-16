@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Json;
-
-use Phoundation\Web\Json\Interfaces\JsonInterface;
-use Phoundation\Web\Requests\Response;
-
 /**
  * Class Json
  *
@@ -17,6 +10,14 @@ use Phoundation\Web\Requests\Response;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Json;
+
+use Phoundation\Web\Json\Interfaces\JsonInterface;
+use Phoundation\Web\Requests\Response;
+
 class Json implements JsonInterface
 {
     /**

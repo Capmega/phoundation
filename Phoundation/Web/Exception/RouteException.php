@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Exception;
-
 /**
  * Class RouteException
  *
@@ -15,6 +11,12 @@ namespace Phoundation\Web\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Exception;
+
+
 class RouteException extends WebException
 {
 }

@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Security;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-
 /**
  * Class Crypt
  *
@@ -20,6 +10,17 @@ use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Security
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Security;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+
 class Crypt
 {
     /**

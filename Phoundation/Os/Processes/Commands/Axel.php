@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataBindAddress;
-use Phoundation\Data\Traits\TraitDataSourceString;
-use Phoundation\Data\Traits\TraitDataTarget;
-use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-
 /**
  * Class Axel
  *
@@ -20,6 +10,17 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataBindAddress;
+use Phoundation\Data\Traits\TraitDataSourceString;
+use Phoundation\Data\Traits\TraitDataTarget;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+
 class Axel extends Command
 {
     use TraitDataSourceString;

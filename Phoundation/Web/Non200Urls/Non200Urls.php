@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Non200Urls;
-
-use Phoundation\Data\DataEntry\DataIterator;
-use Phoundation\Exception\OutOfBoundsException;
-
 /**
  * Class Non200Urls
  *
@@ -17,6 +10,14 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Non200Urls;
+
+use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Exception\OutOfBoundsException;
+
 class Non200Urls extends DataIterator
 {
     /**

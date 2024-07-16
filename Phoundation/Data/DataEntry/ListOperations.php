@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry;
-
-use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
-use Phoundation\Utils\Arrays;
-
 /**
  * Class ListOperations
  *
@@ -17,6 +10,14 @@ use Phoundation\Utils\Arrays;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry;
+
+use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
+use Phoundation\Utils\Arrays;
+
 class ListOperations implements ListOperationsInterface
 {
     /**

@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Deploy;
-
 /**
  * Class Deploy
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Developer\Deploy;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Deploy;
+
+
 class Deploy
 {
 

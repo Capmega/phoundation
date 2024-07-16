@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Tests\Exception;
-
-use Phoundation\Developer\Exception\DeveloperException;
-
 /**
  * Class TestsException
  *
@@ -16,6 +10,13 @@ use Phoundation\Developer\Exception\DeveloperException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Tests\Exception;
+
+use Phoundation\Developer\Exception\DeveloperException;
+
 class TestsException extends DeveloperException
 {
 }

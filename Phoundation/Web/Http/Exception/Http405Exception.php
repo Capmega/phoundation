@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Http\Exception;
-
 /**
  * Class Http405Exception
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Web\Http\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Http\Exception;
+
+
 class Http405Exception extends HttpException
 {
 }

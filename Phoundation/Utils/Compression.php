@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Utils;
-
 /**
  * Class Compression
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Utils;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Utils
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Utils;
+
+
 class Compression
 {
 

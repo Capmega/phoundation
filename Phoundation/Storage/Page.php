@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Page
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Pages
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Storage;
@@ -19,16 +30,6 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Storage\Interfaces\PageInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 
-/**
- * Class Page
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Pages
- */
 class Page extends DataEntry implements PageInterface
 {
     use TraitDataEntryName;

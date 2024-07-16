@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Os\Processes\Exception\ProcessFailedException;
-
 /**
  * Class Ping
  *
@@ -16,6 +10,13 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
+
 class Ping extends Command
 {
     /**

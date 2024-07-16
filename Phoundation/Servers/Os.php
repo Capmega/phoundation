@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Servers;
-
 /**
  * Class Os
  *
@@ -16,6 +12,12 @@ namespace Phoundation\Servers;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Servers
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Servers;
+
+
 class Os
 {
 

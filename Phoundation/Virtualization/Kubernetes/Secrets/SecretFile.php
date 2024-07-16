@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\Secrets;
-
-use Phoundation\Virtualization\Kubernetes\ObjectFile;
-
 /**
  * Class SecretFile
  *
@@ -28,6 +22,13 @@ use Phoundation\Virtualization\Kubernetes\ObjectFile;
  *
  * @note      The values must be BASE64 encoded!
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\Secrets;
+
+use Phoundation\Virtualization\Kubernetes\ObjectFile;
+
 class SecretFile extends ObjectFile
 {
     /**

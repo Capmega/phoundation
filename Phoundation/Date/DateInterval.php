@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Date;
-
-use Exception;
-use Phoundation\Date\Exception\DateIntervalException;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Strings;
-use Stringable;
-
 /**
  * Class DateInterval
  *
@@ -21,6 +11,17 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Date
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Date;
+
+use Exception;
+use Phoundation\Date\Exception\DateIntervalException;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
+use Stringable;
+
 class DateInterval extends \DateInterval implements Stringable
 {
     /**

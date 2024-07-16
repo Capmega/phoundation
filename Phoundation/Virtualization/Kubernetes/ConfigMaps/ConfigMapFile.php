@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\ConfigMaps;
-
-use Phoundation\Virtualization\Kubernetes\ObjectFile;
-
 /**
  * Class ConfigMapFile
  *
@@ -36,6 +30,13 @@ use Phoundation\Virtualization\Kubernetes\ObjectFile;
  * allow.textmode=true
  *
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\ConfigMaps;
+
+use Phoundation\Virtualization\Kubernetes\ObjectFile;
+
 class ConfigMapFile extends ObjectFile
 {
     /**

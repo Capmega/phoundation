@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Os\Processes\Commands\Exception\CommandsException;
-use Phoundation\Os\Processes\Exception\ProcessFailedException;
-
 /**
  * Class Id
  *
@@ -18,6 +10,15 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Os\Processes\Commands\Exception\CommandsException;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
+
 class Id extends Command
 {
     /**

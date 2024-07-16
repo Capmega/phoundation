@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Connectors class
+ *
+ * This class represents a list of Connectors objects
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Databases
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors;
@@ -11,16 +22,6 @@ use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Config;
 
-/**
- * Connectors class
- *
- * This class represents a list of Connectors objects
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Databases
- */
 class Connectors extends DataIterator implements ConnectorsInterface
 {
     /**

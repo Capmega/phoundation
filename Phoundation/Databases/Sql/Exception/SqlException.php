@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases\Sql\Exception;
-
-use PDOStatement;
-use Phoundation\Databases\Exception\DatabasesException;
-use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
-
 /**
  * Class SqlException
  *
@@ -18,6 +10,15 @@ use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases\Sql\Exception;
+
+use PDOStatement;
+use Phoundation\Databases\Exception\DatabasesException;
+use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
+
 class SqlException extends DatabasesException implements SqlExceptionInterface
 {
     /**

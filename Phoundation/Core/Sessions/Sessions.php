@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Sessions
+ *
+ * Manage session data storage.
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Core
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Sessions;
@@ -12,16 +23,6 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Config;
 
-/**
- * Class Sessions
- *
- * Manage session data storage.
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Core
- */
 class Sessions
 {
     /**

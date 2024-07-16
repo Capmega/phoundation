@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Network\Proxies;
-
 /**
  * Class Proxy
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Network\Proxies;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Network
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Network\Proxies;
+
+
 class Proxy
 {
     public function __construct() {}

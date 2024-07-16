@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases\Connectors\Exception;
-
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
-
 /**
  * Class ConnectorNotExistsException
  *
@@ -16,6 +10,13 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases\Connectors\Exception;
+
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+
 class ConnectorNotExistsException extends DataEntryNotExistsException
 {
 }

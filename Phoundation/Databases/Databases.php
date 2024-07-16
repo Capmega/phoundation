@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Databases class
+ *
+ * This class is the quick access to all database connectors, SQL or NoSQL alike
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Databases
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases;
@@ -12,16 +23,6 @@ use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\UnderConstructionException;
 
-/**
- * Databases class
- *
- * This class is the quick access to all database connectors, SQL or NoSQL alike
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Databases
- */
 class Databases
 {
     /**

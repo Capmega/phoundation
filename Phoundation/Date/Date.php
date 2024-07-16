@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Class Date
+ *
+ * This class contains various date handling methods
+ *
+ * @deprecated Use Phoundation\Date\DateTime instead
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Date;
@@ -18,13 +26,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Throwable;
 
-/**
- * Class Date
- *
- * This class contains various date handling methods
- *
- * @deprecated Use Phoundation\Date\DateTime instead
- */
 class Date
 {
     /**

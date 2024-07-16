@@ -1,5 +1,18 @@
 <?php
 
+
+
+/**
+ * Class RouteParameters
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Routing;
@@ -19,17 +32,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Templates\Phoundation\AdminLte\AdminLte;
 
-
-/**
- * Class RouteParameters
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 class RoutingParameters implements RoutingParametersInterface
 {
     /**

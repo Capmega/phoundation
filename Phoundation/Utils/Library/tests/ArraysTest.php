@@ -1,5 +1,11 @@
 <?php
 
+
+
+/**
+ * \Phoundation\Utils\Arrays test class
+ */
+
 declare(strict_types=1);
 
 namespace tests;
@@ -8,10 +14,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use PHPUnit\Framework\TestCase;
 
-
-/**
- * \Phoundation\Utils\Arrays test class
- */
 class ArraysTest extends TestCase
 {
     public function testNextKey()

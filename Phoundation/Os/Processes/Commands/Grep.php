@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Data\Traits\TraitDataDirectory;
-use Phoundation\Data\Traits\TraitDataFile;
-use Phoundation\Data\Traits\TraitDataValue;
-use Phoundation\Os\Processes\Commands\Exception\CommandsException;
-use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-
 /**
  * Class Grep
  *
@@ -20,6 +10,17 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Data\Traits\TraitDataDirectory;
+use Phoundation\Data\Traits\TraitDataFile;
+use Phoundation\Data\Traits\TraitDataValue;
+use Phoundation\Os\Processes\Commands\Exception\CommandsException;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+
 class Grep extends Command
 {
     use TraitDataFile;

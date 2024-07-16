@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Network\Curl\Exception;
-
-use Phoundation\Network\Exception\NetworkException;
-
 /**
  * Class CurlException
  *
@@ -16,6 +10,13 @@ use Phoundation\Network\Exception\NetworkException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Network
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Network\Curl\Exception;
+
+use Phoundation\Network\Exception\NetworkException;
+
 class CurlException extends NetworkException
 {
 }

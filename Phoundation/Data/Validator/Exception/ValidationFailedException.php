@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Validator\Exception;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitSourceObjectClass;
-use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
-use Phoundation\Utils\Config;
-use Throwable;
-
 /**
  * Class ValidationFailedException
  *
@@ -20,6 +10,17 @@ use Throwable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Validator\Exception;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitSourceObjectClass;
+use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
+use Phoundation\Utils\Config;
+use Throwable;
+
 class ValidationFailedException extends ValidatorException implements ValidationFailedExceptionInterface
 {
     use TraitSourceObjectClass {

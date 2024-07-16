@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core\Exception;
-
-use Phoundation\Content\Exception\ContentException;
-
 /**
  * Class ImagesException
  *
@@ -16,6 +10,13 @@ use Phoundation\Content\Exception\ContentException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Content
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Core\Exception;
+
+use Phoundation\Content\Exception\ContentException;
+
 class ImagesException extends ContentException
 {
 }

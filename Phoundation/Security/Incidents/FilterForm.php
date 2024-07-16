@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Security\Incidents;
-
-use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\Definitions;
-use Phoundation\Web\Html\Enums\EnumElement;
-
 /**
  * Class FilterForm
  *
@@ -18,6 +10,15 @@ use Phoundation\Web\Html\Enums\EnumElement;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Security
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Security\Incidents;
+
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Web\Html\Enums\EnumElement;
+
 class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
     /**

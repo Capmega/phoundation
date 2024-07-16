@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Filesystem\Requirements;
-
-use Phoundation\Data\DataEntry\DataIterator;
-use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
-use Stringable;
-
 /**
  * Class Requirements
  *
@@ -18,6 +10,15 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Filesystem
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Filesystem\Requirements;
+
+use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
+use Stringable;
+
 class Requirements extends DataIterator implements RequirementsInterface
 {
     /**

@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Relays web requests
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Plugins\Grafana
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Network\Relay;
@@ -15,14 +24,6 @@ use Phoundation\Web\Requests\Response;
 use Stringable;
 use Throwable;
 
-/**
- * Relays web requests
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Plugins\Grafana
- */
 class Relay
 {
     /**

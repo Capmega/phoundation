@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Seo;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
-
 /**
  * Class Seo
  *
@@ -18,6 +10,15 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Seo;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
+
 class Seo
 {
     /**

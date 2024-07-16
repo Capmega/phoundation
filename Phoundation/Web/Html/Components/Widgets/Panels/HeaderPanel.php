@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Widgets\Panels;
-
-use PDOStatement;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Utils\Config;
-
 /**
  * HeaderPanel class
  *
@@ -18,6 +10,15 @@ use Phoundation\Utils\Config;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Widgets\Panels;
+
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Utils\Config;
+
 class HeaderPanel extends Panel
 {
     /**

@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Exception;
-
 /**
  * Class UnexpectedValueException
  *
@@ -11,6 +7,12 @@ namespace Phoundation\Exception;
  *
  * @package Phoundation\Exception
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Exception;
+
+
 class UnexpectedValueException extends Exception
 {
 }

@@ -1,30 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Cli;
-
-use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Cli\Exception\CliAutoCompleteException;
-use Phoundation\Core\Core;
-use Phoundation\Core\Locale\Language\Languages;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Sql\Limit;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Geo\Timezones\Timezones;
-use Phoundation\Os\Processes\Commands\Grep;
-use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
-use Stringable;
-
 /**
  * Class AutoComplete
  *
@@ -79,6 +54,32 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Cli
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Cli;
+
+use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Cli\Exception\CliAutoCompleteException;
+use Phoundation\Core\Core;
+use Phoundation\Core\Locale\Language\Languages;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Limit;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Geo\Timezones\Timezones;
+use Phoundation\Os\Processes\Commands\Grep;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
+use Stringable;
+
 class CliAutoComplete
 {
     /**

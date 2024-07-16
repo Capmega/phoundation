@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases\Exception;
-
-use Phoundation\Databases\Exception\Interfaces\DatabasesExceptionInterface;
-use Phoundation\Exception\Exception;
-
 /**
  * Class DatabaseException
  *
@@ -17,6 +10,14 @@ use Phoundation\Exception\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases\Exception;
+
+use Phoundation\Databases\Exception\Interfaces\DatabasesExceptionInterface;
+use Phoundation\Exception\Exception;
+
 class DatabasesException extends Exception implements DatabasesExceptionInterface
 {
 }

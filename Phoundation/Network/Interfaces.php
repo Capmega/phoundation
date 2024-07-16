@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Network;
-
-use Phoundation\Network\Exception\NetworkException;
-use Phoundation\Os\Processes\Process;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
-
 /**
  * Class Interfaces
  *
@@ -19,6 +10,16 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Network
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Network;
+
+use Phoundation\Network\Exception\NetworkException;
+use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
+
 class Interfaces
 {
     /**

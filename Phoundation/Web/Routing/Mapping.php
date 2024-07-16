@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Routing;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Routing\Interfaces\MapInterface;
-use Phoundation\Web\Routing\Interfaces\MappingInterface;
-
 /**
  * Class Mapping
  *
@@ -19,6 +10,16 @@ use Phoundation\Web\Routing\Interfaces\MappingInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Routing;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Routing\Interfaces\MapInterface;
+use Phoundation\Web\Routing\Interfaces\MappingInterface;
+
 class Mapping implements MappingInterface
 {
     /**

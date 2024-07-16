@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components;
-
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Web\Html\Enums\EnumAudioPreload;
-use Phoundation\Web\Http\UrlBuilder;
-use Stringable;
-
 /**
  * Audio class
  *
@@ -20,6 +10,17 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation/Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components;
+
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Web\Html\Enums\EnumAudioPreload;
+use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
+
 class Audio extends Element
 {
     /**

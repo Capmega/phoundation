@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Validator\Exception;
-
 /**
  * Class GetValidationFailedException
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Data\Validator\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Validator\Exception;
+
+
 class GetValidationFailedException extends ValidationFailedException
 {
 }

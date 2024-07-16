@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Validator;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Developer\Debug;
-use Phoundation\Utils\Strings;
-
 /**
  * PostValidator class
  *
@@ -22,6 +12,17 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Validator;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Developer\Debug;
+use Phoundation\Utils\Strings;
+
 class CookieValidator extends Validator
 {
     /**

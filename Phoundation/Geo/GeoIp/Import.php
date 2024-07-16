@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Geo\GeoIp;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Utils\Config;
-
 /**
  * Importer class
  *
@@ -18,6 +10,15 @@ use Phoundation\Utils\Config;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation/Geo
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Geo\GeoIp;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Config;
+
 class Import extends \Phoundation\Developer\Project\Import
 {
     /**

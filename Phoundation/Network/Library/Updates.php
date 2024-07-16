@@ -1,10 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Network\Library;
-
-
 /**
  * Updates class
  *
@@ -16,6 +11,13 @@ namespace Phoundation\Network\Library;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Network
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Network\Library;
+
+
+
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**

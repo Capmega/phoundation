@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Commands;
-
-use Phoundation\Core\Log\Log;
-
 /**
  * Class AptGet
  *
@@ -16,6 +10,13 @@ use Phoundation\Core\Log\Log;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Commands;
+
+use Phoundation\Core\Log\Log;
+
 class AptGet extends Command
 {
     /**

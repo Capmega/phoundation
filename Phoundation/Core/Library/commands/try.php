@@ -14,20 +14,35 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Users\GuestUser;
+use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliCommand;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
-use Phoundation\Data\Validator\ArrayValidator;
-use Phoundation\Developer\Debug;
-use Phoundation\Developer\Phoundation\Repositories\Repositories;
-use Phoundation\Developer\Phoundation\Repositories\Repository;
-use Phoundation\Filesystem\Commands\LsBlk;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Strings;
+
+show('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
+$user = GuestUser::new();
+show($user->getLogId() . ' > ' . Strings::ensureVisible($user->getReadonly()));
+
+$user = User::new($user->getId(), 'id');
+show($user->getLogId() . ' > ' . Strings::ensureVisible($user->getReadonly()));
+
+$user = User::new('guest');
+show($user->getLogId() . ' > ' . Strings::ensureVisible($user->getReadonly()));
+
+$user = User::new('guest', 'email');
+show($user->getLogId() . ' > ' . Strings::ensureVisible($user->getReadonly()));
+
+
+
+
+
+$user = SystemUser::new();
+show($user->getLogId() . ' > ' . Strings::ensureVisible($user->getReadonly()));
+
+$user = User::new('system');
+show($user->getLogId() . ' > ' . Strings::ensureVisible($user->getReadonly()));
+
+$user = User::new('system', 'email');
+show($user->getLogId() . ' > ' . Strings::ensureVisible($user->getReadonly()));
 

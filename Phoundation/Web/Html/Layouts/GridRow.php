@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Layouts;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Enums\EnumDisplaySize;
-
 /**
  * GridRow class
  *
@@ -17,6 +10,14 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Layouts;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
+
 class GridRow extends Layout
 {
     /**

@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Utils;
-
 /**
  * Class Words
  *
@@ -15,6 +11,12 @@ namespace Phoundation\Utils;
  * @category  Class reference
  * @package   Phoundation\Utils
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Utils;
+
+
 class Dictionary
 {
     /**

@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes;
-
-use Phoundation\Exception\OutOfBoundsException;
-
 /**
  * Class Signals
  *
@@ -16,6 +10,13 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes;
+
+use Phoundation\Exception\OutOfBoundsException;
+
 class Signals
 {
     /**

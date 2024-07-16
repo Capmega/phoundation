@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\SlowPages;
-
-use Phoundation\Developer\Incidents\Incidents;
-
 /**
  * SlowPages class
  *
@@ -16,6 +10,13 @@ use Phoundation\Developer\Incidents\Incidents;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\SlowPages;
+
+use Phoundation\Developer\Incidents\Incidents;
+
 class SlowProcesses extends Incidents
 {
     /**

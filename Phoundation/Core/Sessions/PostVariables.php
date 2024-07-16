@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core\Sessions;
-
 /**
  * Class GetVariables
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Core\Sessions;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Core\Sessions;
+
+
 class PostVariables extends HttpVariables
 {
     /**

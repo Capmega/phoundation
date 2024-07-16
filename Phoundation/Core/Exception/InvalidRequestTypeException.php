@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core\Exception;
-
-use Phoundation\Web\Requests\Exception\RequestException;
-
 /**
  * Class InvalidRequestTypeException
  *
@@ -16,6 +10,13 @@ use Phoundation\Web\Requests\Exception\RequestException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Core\Exception;
+
+use Phoundation\Web\Requests\Exception\RequestException;
+
 class InvalidRequestTypeException extends RequestException
 {
 }

@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Security\Puks;
-
-use Phoundation\Core\Sessions\Session;
-use Phoundation\Puks\Exception\PuksException;
-use Phoundation\Utils\Json;
-
 /**
  * Puks class
  *
@@ -18,6 +10,15 @@ use Phoundation\Utils\Json;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Security
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Security\Puks;
+
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Puks\Exception\PuksException;
+use Phoundation\Utils\Json;
+
 class Puks
 {
     /**

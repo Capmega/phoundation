@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Exception;
-
 /**
  * Class IteratorKeyNotExistsException
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Data\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Exception;
+
+
 class IteratorKeyNotExistsException extends IteratorException
 {
 }

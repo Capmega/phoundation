@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Http\Json;
-
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\GetValidator;
-
 /**
  * Class AutoSuggestRequest
  *
@@ -18,6 +11,14 @@ use Phoundation\Data\Validator\GetValidator;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Http\Json;
+
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
+
 class AutoSuggestRequest
 {
     /**

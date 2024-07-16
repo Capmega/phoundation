@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Widgets\Panels;
-
-use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\Iterator;
-use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
-use Phoundation\Web\Http\UrlBuilder;
-
 /**
  * TopPanel class
  *
@@ -19,6 +10,16 @@ use Phoundation\Web\Http\UrlBuilder;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Widgets\Panels;
+
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\Iterator;
+use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
+use Phoundation\Web\Http\UrlBuilder;
+
 class TopPanel extends Panel
 {
     /**

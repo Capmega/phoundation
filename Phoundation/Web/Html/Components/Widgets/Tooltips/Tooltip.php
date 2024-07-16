@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * Class Tooltip
+ *
+ * This is the default tooltip class, initially designed to work well with popper. This class can generate data-*
+ * attributes for an in-element tooltip, external element bound tooltips with an "?" icon, or stand-alone tooltip icons
+ *
+ * @see       https://popper.js.org/
+ * @see       https://getbootstrap.com/docs/4.1/components/tooltips/ for documentation
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Tooltips;
@@ -21,19 +35,6 @@ use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumToolti
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 
-/**
- * Class Tooltip
- *
- * This is the default tooltip class, initially designed to work well with popper. This class can generate data-*
- * attributes for an in-element tooltip, external element bound tooltips with an "?" icon, or stand-alone tooltip icons
- *
- * @see       https://popper.js.org/
- * @see       https://getbootstrap.com/docs/4.1/components/tooltips/ for documentation
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 class Tooltip extends Element implements TooltipInterface
 {
     /**

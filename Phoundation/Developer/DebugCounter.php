@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer;
-
-use Phoundation\Exception\OutOfBoundsException;
-
 /**
  * Class DebugCounter
  *
@@ -16,6 +10,13 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer;
+
+use Phoundation\Exception\OutOfBoundsException;
+
 class DebugCounter
 {
     /**

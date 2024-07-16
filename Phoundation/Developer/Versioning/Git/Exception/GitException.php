@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Versioning\Git\Exception;
-
-use Phoundation\Developer\Versioning\Exception\VersioningException;
-
 /**
  * Class GitException
  *
@@ -16,6 +10,13 @@ use Phoundation\Developer\Versioning\Exception\VersioningException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Versioning\Git\Exception;
+
+use Phoundation\Developer\Versioning\Exception\VersioningException;
+
 class GitException extends VersioningException
 {
 }

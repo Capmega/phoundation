@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class KubernetesObjects
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Virtualization
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes;
@@ -12,16 +23,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Virtualization\Kubernetes\Traits\TraitUsesKubeCtl;
 
-/**
- * Class KubernetesObjects
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Virtualization
- */
 class KubernetesObjects extends Iterator
 {
     use TraitUsesKubeCtl;

@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Sync;
-
 /**
  * Local class
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Developer\Sync;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Sync;
+
+
 class Local extends Host
 {
 }

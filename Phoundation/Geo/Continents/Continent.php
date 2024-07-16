@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Geo\Continents;
-
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
-use Phoundation\Geo\Timezones\Timezone;
-
 /**
  * Class Continent
  *
@@ -20,6 +11,16 @@ use Phoundation\Geo\Timezones\Timezone;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Geo
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Geo\Continents;
+
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
+use Phoundation\Geo\Timezones\Timezone;
+
 class Continent extends DataEntry
 {
     use TraitDataEntryNameDescription;

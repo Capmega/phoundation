@@ -1,5 +1,11 @@
 <?php
 
+
+
+/**
+ * \Phoundation\Utils\Config test class
+ */
+
 declare(strict_types=1);
 
 namespace Core;
@@ -7,10 +13,6 @@ namespace Core;
 use Phoundation\Utils\Config;
 use PHPUnit\Framework\TestCase;
 
-
-/**
- * \Phoundation\Utils\Config test class
- */
 class ConfigTest extends TestCase
 {
     public function testGet()

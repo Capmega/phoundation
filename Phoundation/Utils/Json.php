@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Json
+ *
+ * This class contains various JSON functions
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Utils
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Utils;
@@ -20,16 +31,6 @@ use Phoundation\Web\Requests\Response;
 use Stringable;
 use Throwable;
 
-/**
- * Class Json
- *
- * This class contains various JSON functions
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Utils
- */
 class Json
 {
     /**

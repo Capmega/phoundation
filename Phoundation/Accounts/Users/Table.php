@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Accounts\Users;
-
-use Phoundation\Web\Html\Components\Tables\HtmlTable;
-
 /**
  * Class Table
  *
@@ -16,6 +10,13 @@ use Phoundation\Web\Html\Components\Tables\HtmlTable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Accounts\Users;
+
+use Phoundation\Web\Html\Components\Tables\HtmlTable;
+
 class Table extends HtmlTable
 {
     /**

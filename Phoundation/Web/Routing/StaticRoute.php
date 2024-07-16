@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Routing;
-
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-
 /**
  * Class StaticRoute
  *
@@ -18,6 +11,14 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Routing;
+
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+
 class StaticRoute extends DataEntry
 {
     /**

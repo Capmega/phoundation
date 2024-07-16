@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Utils;
-
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
-use Phoundation\Data\Interfaces\EntryInterface;
-use Phoundation\Exception\OutOfBoundsException;
-
 /**
  * Class Utils
  *
@@ -19,6 +10,16 @@ use Phoundation\Exception\OutOfBoundsException;
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @package   Phoundation\Utils
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Utils;
+
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\Interfaces\EntryInterface;
+use Phoundation\Exception\OutOfBoundsException;
+
 class Utils
 {
     /**

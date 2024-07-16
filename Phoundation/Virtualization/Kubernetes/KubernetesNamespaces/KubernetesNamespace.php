@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\KubernetesNamespaces;
-
-use Phoundation\Data\Traits\TraitDataName;
-use Phoundation\Virtualization\Kubernetes\KubernetesObject;
-use Phoundation\Virtualization\Kubernetes\Traits\TraitDataReplicas;
-use Phoundation\Virtualization\Traits\TraitDataImage;
-
 /**
  * Class KubernetesNamespace
  *
@@ -19,6 +10,16 @@ use Phoundation\Virtualization\Traits\TraitDataImage;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\KubernetesNamespaces;
+
+use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Virtualization\Kubernetes\KubernetesObject;
+use Phoundation\Virtualization\Kubernetes\Traits\TraitDataReplicas;
+use Phoundation\Virtualization\Traits\TraitDataImage;
+
 class KubernetesNamespace extends KubernetesObject
 {
     use TraitDataName;
