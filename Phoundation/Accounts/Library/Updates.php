@@ -1,16 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Accounts\Library;
-
-use Phoundation\Accounts\Rights\Right;
-use Phoundation\Accounts\Roles\Role;
-use Phoundation\Accounts\Users\GuestUser;
-use Phoundation\Core\Log\Log;
-use Phoundation\Seo\Seo;
-
-
 /**
  * Updates class
  *
@@ -22,6 +11,17 @@ use Phoundation\Seo\Seo;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Accounts\Library;
+
+use Phoundation\Accounts\Rights\Right;
+use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\GuestUser;
+use Phoundation\Core\Log\Log;
+use Phoundation\Seo\Seo;
+
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -31,7 +31,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.3.0';
+        return '0.3.1';
     }
 
 
@@ -680,7 +680,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.2.1', function () {
             // Ensure Guest user is available
-            GuestUser::new('guest', 'email')->save();
+            GuestUser::new('guest', 'email');
 
             // Create default rights and roles
             $god = Right::new('God', 'name')
@@ -866,6 +866,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                      ->addColumn('`default_page` varchar(2048) DEFAULT NULL', 'AFTER `url`');
             }
 
+        })->addUpdate('0.2.4', function () {
+            // Guest user will have status "guest" as well.
+            sql()->query('UPDATE `accounts_users` SET `status` = "system" WHERE `email` = "guest"');
+
         })->addUpdate('0.3.0', function () {
             // Create the accounts_push_notifications table.
             sql()->getSchemaObject()->getTableObject('accounts_push_notifications')->define()
@@ -894,6 +898,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_push_notifications_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_push_notifications_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')->create();
+
+        })->addUpdate('0.3.1', function () {
+            // Guest user will have status "guest" as well.
+            sql()->query('UPDATE `accounts_users` SET `status` = "guest" WHERE `email` = "guest"');
         });
     }
 }

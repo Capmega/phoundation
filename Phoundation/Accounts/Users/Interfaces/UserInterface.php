@@ -154,19 +154,19 @@ interface UserInterface extends DataEntryInterface
     /**
      * Returns the update_password for this user
      *
-     * @return DateTime|null
+     * @return DateTimeInterface|null
      */
-    public function getUpdatePassword(): ?DateTime;
+    public function getUpdatePassword(): ?DateTimeInterface;
 
 
     /**
      * Sets the update_password for this user
      *
-     * @param DateTime|true|null $date_time
+     * @param DateTimeInterface|true|null $date_time
      *
      * @return static
      */
-    public function setUpdatePassword(DateTime|bool|null $date_time): static;
+    public function setUpdatePassword(DateTimeInterface|bool|null $date_time): static;
 
 
     /**
@@ -583,7 +583,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @return EmailsInterface
      */
-    public function getEmails(): EmailsInterface;
+    public function getEmailsObject(): EmailsInterface;
 
 
     /**
@@ -591,7 +591,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @return PhonesInterface
      */
-    public function getPhones(): PhonesInterface;
+    public function getPhonesObject(): PhonesInterface;
 
 
     /**
@@ -599,7 +599,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @return RolesInterface
      */
-    public function getRoles(): RolesInterface;
+    public function getRolesObject(): RolesInterface;
 
 
     /**
@@ -607,7 +607,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @return RightsInterface
      */
-    public function getRights(): RightsInterface;
+    public function getRightsObject(): RightsInterface;
 
 
     /**
@@ -730,7 +730,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @return SessionInterface
      */
-    public function getSession(): SessionInterface;
+    public function getSessionObject(): SessionInterface;
 
 
     /**
@@ -759,7 +759,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @return UserInterface|null
      */
-    public function getRemoteUser(string $class, ?string $column = null): ?UserInterface;
+    public function getRemoteUserObject(string $class, ?string $column = null): ?UserInterface;
 
 
     /**
@@ -769,7 +769,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @return static
      */
-    public function setRemoteUser(?UserInterface $remote_user): static;
+    public function setRemoteUserObject(?UserInterface $remote_user): static;
 
 
     /**

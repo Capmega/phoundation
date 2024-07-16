@@ -126,9 +126,9 @@ if (!$argv['no_password']) {
 
 
 // Set users roles
-$user->getRoles()->add($argv['roles']);
-$user->getEmails()->apply()->save();
-$user->getPhones()->apply()->save();
+$user->getRolesObject()->add($argv['roles']);
+$user->getEmailsObject()->apply()->save();
+$user->getPhonesObject()->apply()->save();
 
 
 // Done!

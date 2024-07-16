@@ -55,7 +55,7 @@ Log::cli();
 Log::information('Extra email addresses:', echo_prefix: false);
 Log::cli();
 
-User::load($argv['user'])->getEmails()->displayCliTable([
+User::load($argv['user'])->getEmailsObject()->displayCliTable([
                                                            'email'        => tr('Email address'),
                                                            'account_type' => tr('Email address type'),
                                                        ]);
@@ -66,7 +66,7 @@ Log::cli();
 Log::information('Extra phone numbers:', echo_prefix: false);
 Log::cli();
 
-User::load($argv['user'])->getPhones()->displayCliTable([
+User::load($argv['user'])->getPhonesObject()->displayCliTable([
                                                            'phone'        => tr('Phone number'),
                                                            'account_type' => tr('Phone number type'),
                                                        ]);
@@ -75,7 +75,7 @@ User::load($argv['user'])->getPhones()->displayCliTable([
 // Display roles
 Log::cli();
 
-User::load($argv['user'])->getRoles()->displayCliTable([
+User::load($argv['user'])->getRolesObject()->displayCliTable([
                                                           'name' => tr('Roles assigned to this user:'),
                                                       ]);
 
@@ -83,6 +83,6 @@ User::load($argv['user'])->getRoles()->displayCliTable([
 // Display rights
 Log::cli();
 
-User::load($argv['user'])->getRights()->displayCliTable([
+User::load($argv['user'])->getRightsObject()->displayCliTable([
                                                            'name' => tr('Rights assigned to this user through its roles:'),
                                                        ]);

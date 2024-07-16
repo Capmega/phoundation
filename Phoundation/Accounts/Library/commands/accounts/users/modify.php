@@ -78,9 +78,9 @@ $user = User::find([
                        'email'    => $argv['user'],
                        'code'     => $argv['user'],
                    ], filter: 'OR')->apply()->save();
-$user->getRoles()->setRoles($argv['roles']);
-$user->getEmails()->apply()->save();
-$user->getPhones()->apply()->save();
+$user->getRolesObject()->setRoles($argv['roles']);
+$user->getEmailsObject()->apply()->save();
+$user->getPhonesObject()->apply()->save();
 
 
 // Done!

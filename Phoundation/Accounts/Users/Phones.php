@@ -35,7 +35,7 @@ use Stringable;
 class Phones extends DataIterator implements PhonesInterface
 {
     use TraitDataParent {
-        setParent as __setParent;
+        setParentObject as __setParent;
     }
 
     /**
@@ -92,7 +92,7 @@ class Phones extends DataIterator implements PhonesInterface
      *
      * @return static
      */
-    public function setParent(DataEntryInterface $parent): static
+    public function setParentObject(DataEntryInterface $parent): static
     {
         if ($parent instanceof UserInterface) {
             // Clear the source to avoid having a parent with the wrong children

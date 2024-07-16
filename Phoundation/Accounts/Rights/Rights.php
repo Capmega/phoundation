@@ -307,7 +307,7 @@ class Rights extends DataIterator implements RightsInterface
                     // Update all roles with this right to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
                         User::load($user)
-                            ->getRights()
+                            ->getRightsObject()
                             ->add($value);
                     }
                 }
@@ -406,7 +406,7 @@ class Rights extends DataIterator implements RightsInterface
                 // Update all users with this role to get the new right as well!
                 foreach ($this->parent->getUsers() as $user) {
                     User::load($user, null)
-                        ->getRights()
+                        ->getRightsObject()
                         ->removeKeys($right);
                 }
 

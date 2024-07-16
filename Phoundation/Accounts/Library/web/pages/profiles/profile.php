@@ -176,13 +176,13 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
 
                             echo($user->getEmail() ? '<a href="mailto:' . $user->getEmail() . '">' . $user->getEmail() . '</a><br>' : null);
 
-                            foreach ($user->getEmails() as $email) {
+                            foreach ($user->getEmailsObject() as $email) {
                                 echo '<a href="mailto:' . $email->getEmail() . '">' . $email->getEmail() . '</a><br>';
                             }
 
                             echo($user->getPhone() ? '<a href="tel:' . $user->getPhone() . '">' . $user->getPhone() . '</a><br>' : null);
 
-                            foreach ($user->getPhones() as $phone) {
+                            foreach ($user->getPhonesObject() as $phone) {
                                 echo '<a href="tel:' . $phone->getPhone() . '">' . $phone->getPhone() . '</a><br>';
                             }
                             ?>

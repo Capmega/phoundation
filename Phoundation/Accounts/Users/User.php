@@ -44,6 +44,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
@@ -82,6 +83,7 @@ use Phoundation\Seo\Seo;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Api\Users;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
@@ -178,11 +180,31 @@ class User extends DataEntry implements UserInterface
             ];
         }
 
+        // Process system users
+        switch ($column) {
+            case null:
+                // break
+            case 'email':
+                // System users may be requested either by column "email" or column NULL.
+                // Accepted identifiers are "system" or "guest"
+                switch ($identifier) {
+                    case 'guest':
+                        parent::__construct('guest', 'email', false, true);
+                        $this->initGuestUser();
+                        return;
+
+                    case 'system':
+                        parent::__construct('system', 'email', false, false);
+                        $this->initSystemUser();
+                        return;
+                }
+        }
+
         parent::__construct($identifier, $column, $meta_enabled, $init);
 
-        if ($this->isGuest() or $this->isSystem()) {
-// TODO In theory, system and guest users should be readonly. Why has the following line been commented?
-//            $this->setReadonly(true);
+        if ($this->hasStatus('system')) {
+            // This is the guest user loaded manually
+            $this->initGuestUser();
         }
     }
 
@@ -321,19 +343,15 @@ class User extends DataEntry implements UserInterface
      */
     public function getLogId(): string
     {
-        if ($this instanceof GuestUserInterface) {
-            // This is a guest user
-            return '0 / ' . tr('Guest');
+        if ($this->hasStatus('system')) {
+            // This is a system type user, either system or guest
+            return Strings::ensureVisible($this->getId()) . ' / ' . $this->getNickname();
         }
 
-        if ($this instanceof SystemUserInterface) {
-            // This is a guest user
-            return 'NULL / ' . tr('System');
-        }
+        $id    = $this->getValueTypesafe('int'       , $this->getIdColumn());
+        $label = $this->getValueTypesafe('string|int', static::getUniqueColumn() ?? 'id');
 
-        $id = $this->getValueTypesafe('int', $this->getIdColumn());
-
-        return Strings::ensureVisible($id) . ' / ' . $this->getValueTypesafe('string|int', static::getUniqueColumn() ?? 'id');
+        return Strings::ensureVisible($id) . ' / ' . $label;
     }
 
 
@@ -468,6 +486,12 @@ class User extends DataEntry implements UserInterface
     public function save(bool $force = false, ?string $comments = null): static
     {
         Log::action(tr('Saving user ":user"', [':user' => $this->getDisplayName()]));
+
+        if ($this->readonly or $this->disabled) {
+            throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly or disabled', [
+                ':name' => static::getDataEntryName(),
+            ]));
+        }
 
         // Can this information be changed? If this user has god right, the executing user MUST have god right as well!
         if (!$this->isNew() and $this->hasAllRights('god')) {
@@ -611,9 +635,9 @@ class User extends DataEntry implements UserInterface
             return true;
         }
 
-        $contains = $this->getRights()->containsKeys($rights, true, 'god');
+        $contains = $this->getRightsObject()->containsKeys($rights, true, 'god');
 
-        if (!$contains and $this->getRights()->getCount()) {
+        if (!$contains and $this->getRightsObject()->getCount()) {
             Rights::ensure($this->getMissingRights($rights));
         }
 
@@ -629,7 +653,7 @@ class User extends DataEntry implements UserInterface
      *
      * @return RightsInterface
      */
-    public function getRights(bool $reload = false, bool $order = false): RightsInterface
+    public function getRightsObject(bool $reload = false, bool $order = false): RightsInterface
     {
         if ($this->isNew()) {
             throw new AccountsException(tr('Cannot access rights for user ":user", the user has not yet been saved', [
@@ -640,12 +664,12 @@ class User extends DataEntry implements UserInterface
         if (!isset($this->rights) or $reload) {
             if ($this->getId()) {
                 $this->rights = Rights::new()
-                                      ->setParent($this)
+                                      ->setParentObject($this)
                                       ->load($order);
 
             } else {
                 // This is the guest user or a new user. Either way, this user has no rights
-                $this->rights = Rights::new()->setParent($this);
+                $this->rights = Rights::new()->setParentObject($this);
             }
         }
 
@@ -666,7 +690,7 @@ class User extends DataEntry implements UserInterface
             return [];
         }
 
-        return $this->getRights()->getMissingKeys($rights, 'god');
+        return $this->getRightsObject()->getMissingKeys($rights, 'god');
     }
 
 
@@ -689,7 +713,7 @@ class User extends DataEntry implements UserInterface
      *
      * @return SessionInterface
      */
-    public function getSession(): SessionInterface
+    public function getSessionObject(): SessionInterface
     {
         if ($this->getId() === Session::getUser()->getId()) {
             return Session::getInstance();
@@ -709,7 +733,7 @@ class User extends DataEntry implements UserInterface
      */
     public function addRoles(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
-        $this->getRoles()
+        $this->getRolesObject()
              ->add($value, $key, $skip_null);
 
         return $this;
@@ -721,7 +745,7 @@ class User extends DataEntry implements UserInterface
      *
      * @return RolesInterface
      */
-    public function getRoles(): RolesInterface
+    public function getRolesObject(): RolesInterface
     {
         if ($this->isNew()) {
             throw new AccountsException(tr('Cannot access roles for user ":user", the user has not yet been saved', [
@@ -732,11 +756,11 @@ class User extends DataEntry implements UserInterface
         if (!isset($this->roles)) {
             if ($this->getId()) {
                 $this->roles = Roles::new()
-                                    ->setParent($this)
+                                    ->setParentObject($this)
                                     ->load();
 
             } else {
-                $this->roles = Roles::new()->setParent($this);
+                $this->roles = Roles::new()->setParentObject($this);
             }
         }
 
@@ -787,7 +811,7 @@ class User extends DataEntry implements UserInterface
      *
      * @return UserInterface|null
      */
-    public function getRemoteUser(string $class, ?string $column = null): ?UserInterface
+    public function getRemoteUserObject(string $class, ?string $column = null): ?UserInterface
     {
         // Validate
         if (!class_exists($class)) {
@@ -806,7 +830,7 @@ class User extends DataEntry implements UserInterface
         if ($this->remote_user) {
             if ($this->remote_user instanceof $class) {
                 // Return the remote user, immediately linked to this user
-                return $this->remote_user->setRemoteUser($this);
+                return $this->remote_user->setRemoteUserObject($this);
             }
 
             throw new OutOfBoundsException(tr('The existing remote user object with class ":class" is not an instance of the requested class ":requested"', [
@@ -833,7 +857,7 @@ class User extends DataEntry implements UserInterface
      *
      * @return static
      */
-    public function setRemoteUser(?UserInterface $remote_user): static
+    public function setRemoteUserObject(?UserInterface $remote_user): static
     {
         $this->remote_user = $remote_user;
 
@@ -870,23 +894,28 @@ class User extends DataEntry implements UserInterface
                     break;
                 }
 
-                // not allowed!
-                throw new ValidationFailedException(tr('The nickname ":name" can only be used for system accounts', [
-                    ':name' => $nickname
-                ]));
+                break;
 
             case 'system':
                 if ($this instanceof SystemUserInterface) {
                     break;
                 }
 
-                // not allowed!
-                throw new ValidationFailedException(tr('The nickname ":name" can only be used for system accounts', [
-                    ':name' => $nickname
-                ]));
+                break;
+
+            default:
+                return $this->set(get_null($nickname), 'nickname');
         }
 
-        return $this->set(get_null($nickname), 'nickname');
+        if ($this->hasStatus('system')) {
+            // GuestUser or SystemUser object in a User object, this is ok
+            return $this->set(get_null($nickname), 'nickname');
+        }
+
+        // This is a non system user with a reserved name, this is not allowed!
+        throw new ValidationFailedException(tr('The nickname ":name" can only be used for system accounts', [
+            ':name' => $nickname
+        ]));
     }
 
 
@@ -930,11 +959,12 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns the update_password for this user
      *
-     * @return DateTime|null
+     * @return DateTimeInterface|null
      */
-    public function getUpdatePassword(): ?DateTime
+    public function getUpdatePassword(): ?DateTimeInterface
     {
         $update_password = $this->getValueTypesafe('string', 'update_password');
+
         if ($update_password) {
             return new DateTime($update_password);
         }
@@ -946,15 +976,16 @@ class User extends DataEntry implements UserInterface
     /**
      * Sets the update_password for this user
      *
-     * @param DateTime|true|null $date_time
+     * @param DateTimeInterface|true|null $date_time
      *
      * @return static
      */
-    public function setUpdatePassword(DateTime|bool|null $date_time): static
+    public function setUpdatePassword(DateTimeInterface|bool|null $date_time): static
     {
         if (is_bool($date_time)) {
             // Update password immediately
             $date_time = new DateTime('1970');
+
         } elseif ($date_time) {
             $date_time = $date_time->getTimestamp();
         }
@@ -1610,16 +1641,16 @@ class User extends DataEntry implements UserInterface
      *
      * @return EmailsInterface
      */
-    public function getEmails(): EmailsInterface
+    public function getEmailsObject(): EmailsInterface
     {
         if (!isset($this->emails)) {
             if ($this->getId()) {
                 $this->emails = Emails::new()
-                                      ->setParent($this)
+                                      ->setParentObject($this)
                                       ->load();
 
             } else {
-                $this->emails = Emails::new()->setParent($this);
+                $this->emails = Emails::new()->setParentObject($this);
             }
 
         }
@@ -1645,16 +1676,16 @@ class User extends DataEntry implements UserInterface
      *
      * @return PhonesInterface
      */
-    public function getPhones(): PhonesInterface
+    public function getPhonesObject(): PhonesInterface
     {
         if (!isset($this->phones)) {
             if ($this->getId()) {
                 $this->phones = Phones::new()
-                                      ->setParent($this)
+                                      ->setParentObject($this)
                                       ->load();
 
             } else {
-                $this->phones = Phones::new()->setParent($this);
+                $this->phones = Phones::new()->setParentObject($this);
             }
         }
 
@@ -1675,9 +1706,9 @@ class User extends DataEntry implements UserInterface
             return true;
         }
 
-        $contains = $this->getRights()->containsKeys($rights, false, 'god');
+        $contains = $this->getRightsObject()->containsKeys($rights, false, 'god');
 
-        if (!$contains and $this->getRights()->getCount()) {
+        if (!$contains and $this->getRightsObject()->getCount()) {
             Rights::ensure($this->getMissingRights($rights));
         }
 
@@ -1705,7 +1736,7 @@ class User extends DataEntry implements UserInterface
         $content = [$select->render()];
 
         // Add all current roles
-        foreach ($this->getRoles() as $role) {
+        foreach ($this->getRolesObject() as $role) {
             $select->setSelected($role->getId());
             $content[] = $select->render();
         }
@@ -1889,7 +1920,7 @@ class User extends DataEntry implements UserInterface
      */
     public function hasRole(RolesInterface|Stringable|string $role): bool
     {
-        return $this->getRoles()
+        return $this->getRolesObject()
                     ->keyExists($role);
     }
 
@@ -1925,10 +1956,10 @@ class User extends DataEntry implements UserInterface
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::datetime_local)
-                                    ->setNullInputType(EnumInputType::text)
+                                    ->setDbNullInputType(EnumInputType::text)
                                     ->addClasses('text-center')
                                     ->setSize(3)
-                                    ->setNullDb(true, '-')
+                                    ->setDbNullValue(true, '-')
                                     ->setLabel('Last sign in'))
 
                     ->add(Definition::new($this, 'sign_in_count')
@@ -1943,7 +1974,7 @@ class User extends DataEntry implements UserInterface
                                     ->setOptional(true, 0)
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::number)
-                                    ->setNullDb(false, 0)
+                                    ->setDbNullValue(false, 0)
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Authentication failures')))
@@ -1952,8 +1983,8 @@ class User extends DataEntry implements UserInterface
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::datetime_local)
-                                    ->setNullInputType(EnumInputType::text)
-                                    ->setNullDb(true, tr('Not locked'))
+                                    ->setDbNullInputType(EnumInputType::text)
+                                    ->setDbNullValue(true, tr('Not locked'))
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Locked until')))
@@ -2278,8 +2309,8 @@ class User extends DataEntry implements UserInterface
 
                     ->add(DefinitionFactory::getDateTime($this, 'verified_on')
                                            ->setReadonly(true)
-                                           ->setNullInputType(EnumInputType::text)
-                                           ->setNullDb(true, tr('Not verified'))
+                                           ->setDbNullInputType(EnumInputType::text)
+                                           ->setDbNullValue(true, tr('Not verified'))
                                            ->addClasses('text-center')
                                            ->setLabel(tr('Account verified on'))
                                            ->setHelpGroup(tr('Account information'))
@@ -2346,7 +2377,7 @@ class User extends DataEntry implements UserInterface
                                     ->setCliAutoComplete(true)
                                     ->setInputType(EnumInputType::password)
                                     ->setMaxlength(64)
-                                    ->setNullDb(false)
+                                    ->setDbNullValue(false)
                                     ->setHelpText(tr('The password for this user'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isStrongPassword();
@@ -2390,5 +2421,42 @@ class User extends DataEntry implements UserInterface
         }
 
         return $new;
+    }
+
+
+    /**
+     * Initializes a Guest user object
+     *
+     * @return void
+     */
+    protected function initGuestUser(): void
+    {
+        $this->source['redirect'] = null;
+        $this->source['status']   = 'system';
+        $this->source['nickname'] = tr('Guest');
+
+        if ($this->isNew()) {
+            // Guest user does not yet exist, save it now
+            $this->save();
+        }
+
+        $this->setReadonly(true);
+    }
+
+
+    /**
+     * Initializes a System user object
+     *
+     * @return void
+     */
+    public function initSystemUser(): void
+    {
+
+        $this->source['id']       = null;
+        $this->source['redirect'] = null;
+        $this->source['status']   = 'system';
+        $this->source['nickname'] = tr('System');
+
+        $this->setReadonly(true);
     }
 }

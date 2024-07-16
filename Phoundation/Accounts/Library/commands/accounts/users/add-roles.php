@@ -68,7 +68,7 @@ try {
 
     // Get user and add roles
     $user  = User::load($argv['user']);
-    $roles = $user->getRoles();
+    $roles = $user->getRolesObject();
 
     foreach ($argv['roles'] as $role) {
         $roles->add(Role::load($role));

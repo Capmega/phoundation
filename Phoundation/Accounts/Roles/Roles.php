@@ -212,7 +212,7 @@ class Roles extends DataIterator implements RolesInterface
 
                     // Add rights to the user
                     foreach ($value->getRights() as $right) {
-                        $this->parent->getRights()
+                        $this->parent->getRightsObject()
                                      ->add($right);
                     }
 
@@ -233,7 +233,7 @@ class Roles extends DataIterator implements RolesInterface
                     // Update all users with this right to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
                         User::load($user)
-                            ->getRights()
+                            ->getRightsObject()
                             ->add($this->parent);
                     }
                 }
@@ -289,14 +289,14 @@ class Roles extends DataIterator implements RolesInterface
                 // Remove the rights related to this role
                 foreach ($role->getRights() as $right) {
                     // Ensure this right isn't also given by another role
-                    foreach ($right->getRoles() as $check_role) {
+                    foreach ($right->getRolesObject() as $check_role) {
                         if ($this->hasRole($check_role)) {
                             // Don't remove this right, another role gives it too.
                             continue 2;
                         }
                     }
 
-                    $this->parent->getRights()->removeKeys($right);
+                    $this->parent->getRightsObject()->removeKeys($right);
                 }
 
             } elseif ($this->parent instanceof RightInterface) {
@@ -316,7 +316,7 @@ class Roles extends DataIterator implements RolesInterface
                 // Update all users with this right to remove the new right as well!
                 foreach ($this->parent->getUsers() as $user) {
                     User::load($user, null)
-                        ->getRights()
+                        ->getRightsObject()
                         ->removeKeys($this->parent);
                 }
             }

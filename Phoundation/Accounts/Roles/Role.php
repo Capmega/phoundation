@@ -133,7 +133,7 @@ class Role extends DataEntry implements RoleInterface
 
         if (!$this->list) {
             $this->list = Rights::new()
-                                ->setParent($this)
+                                ->setParentObject($this)
                                 ->load();
         }
 
@@ -166,7 +166,7 @@ class Role extends DataEntry implements RoleInterface
         }
         // All users that have the $FROM role must get this role too
         foreach ($from->getUsers() as $user) {
-            $user->getRoles()
+            $user->getRolesObject()
                  ->add($this);
         }
         // Remove the "from" role
@@ -215,7 +215,7 @@ class Role extends DataEntry implements RoleInterface
         }
 
         return Users::new()
-                    ->setParent($this)
+                    ->setParentObject($this)
                     ->load();
     }
 

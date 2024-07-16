@@ -17,7 +17,7 @@ interface PhonesInterface extends DataIteratorInterface
      *
      * @return static
      */
-    public function setParent(DataEntryInterface $parent): static;
+    public function setParentObject(DataEntryInterface $parent): static;
 
     /**
      * Returns Phones list object with phones for the specified user.

@@ -50,10 +50,10 @@ $user = User::load($argv['user']);
 $user->displayCliForm();
 
 Log::information('Alternative email accounts for this user:');
-$user->getEmails()->displayCliTable();
+$user->getEmailsObject()->displayCliTable();
 
 Log::information('Roles assigned to this user:');
-$user->getRoles()->displayCliTable();
+$user->getRolesObject()->displayCliTable();
 
 Log::information('Roles assigned to this user through its roles:');
-$user->getRights()->displayCliTable();
+$user->getRightsObject()->displayCliTable();

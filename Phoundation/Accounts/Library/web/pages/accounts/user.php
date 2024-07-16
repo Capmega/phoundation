@@ -54,9 +54,9 @@ if (Request::isPostRequestMethod()) {
 
                 // Update user, roles, emails, and phones
                 $user->apply(false)->save();
-                $user->getRoles()->setRoles($post['roles_id']);
-                $user->getEmails()->apply(false)->save();
-                $user->getPhones()->apply()->save();
+                $user->getRolesObject()->setRoles($post['roles_id']);
+                $user->getEmailsObject()->apply(false)->save();
+                $user->getPhonesObject()->apply()->save();
 
 // TODO Implement timers
 //showdie(Timers::get('query'));
@@ -204,7 +204,7 @@ if ($user->getId()) {
     $roles_card = Card::new()
                       ->setCollapseSwitch(true)
                       ->setCollapsed(true)
-                      ->setTitle(tr('Edit roles for this user [:count]', [':count' => $user->getRoles()->getCount()]))
+                      ->setTitle(tr('Edit roles for this user [:count]', [':count' => $user->getRolesObject()->getCount()]))
                       ->setContent($user->getRolesHtmlDataEntryFormObject()->render())
                       ->setButtons(Buttons::new()
                                           ->addButton(tr('Save'))
@@ -213,9 +213,9 @@ if ($user->getId()) {
     $rights_card = Card::new()
                        ->setCollapseSwitch(true)
                        ->setCollapsed(true)
-                       ->setTitle(tr('Rights for this user [:count]', [':count' => $user->getRights()->getCount()]))
+                       ->setTitle(tr('Rights for this user [:count]', [':count' => $user->getRightsObject()->getCount()]))
                        ->setDescription(tr('This is a list of rights that this user has available because of its assigned roles. Each role gives the user a certain number of rights and with adding or removing roles, you add or remove these rights. These rights are used to determine the access to pages or specific information that a user has. To determine what rights are required to access a specific page, click the "lock" symbol at the top menu.'))
-                       ->setContent($user->getRights(true, true)
+                       ->setContent($user->getRightsObject(true, true)
                                          ->getHtmlDataTable('id,name,description')
                                          ->setLengthChangeEnabled(false)
                                          ->setSearchingEnabled(false)
@@ -233,8 +233,8 @@ if ($user->getId()) {
     $emails_card = Card::new()
                        ->setCollapseSwitch(true)
                        ->setCollapsed(true)
-                       ->setTitle(tr('Additional email addresses for this user [:count]', [':count' => $user->getEmails()->getCount()]))
-                       ->setContent($user->getEmails()->getHtmlDataEntryFormObject()->render())
+                       ->setTitle(tr('Additional email addresses for this user [:count]', [':count' => $user->getEmailsObject()->getCount()]))
+                       ->setContent($user->getEmailsObject()->getHtmlDataEntryFormObject()->render())
                        ->setButtons(Buttons::new()
                                            ->addButton(tr('Save'))
                                            ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
@@ -242,8 +242,8 @@ if ($user->getId()) {
     $phones_card = Card::new()
                        ->setCollapseSwitch(true)
                        ->setCollapsed(true)
-                       ->setTitle(tr('Additional phone numbers for this user [:count]', [':count' => $user->getPhones()->getCount()]))
-                       ->setContent($user->getPhones()->getHtmlDataEntryFormObject()->render())
+                       ->setTitle(tr('Additional phone numbers for this user [:count]', [':count' => $user->getPhonesObject()->getCount()]))
+                       ->setContent($user->getPhonesObject()->getHtmlDataEntryFormObject()->render())
                        ->setButtons(Buttons::new()
                                            ->addButton(tr('Save'))
                                            ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));

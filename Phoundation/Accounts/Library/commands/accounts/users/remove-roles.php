@@ -56,7 +56,7 @@ try {
 
     // Get role and remove rights
     $user  = User::load($argv['user']);
-    $roles = $user->getRoles();
+    $roles = $user->getRolesObject();
 
     foreach ($argv['roles'] as $role) {
         $roles->removeKeys(Role::load($role));

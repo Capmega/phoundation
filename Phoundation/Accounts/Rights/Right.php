@@ -123,7 +123,7 @@ class Right extends DataEntry implements RightInterface
         }
 
         return Roles::new()
-                    ->setParent($this)
+                    ->setParentObject($this)
                     ->load();
     }
 

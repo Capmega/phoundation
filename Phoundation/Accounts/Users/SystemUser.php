@@ -30,11 +30,6 @@ class SystemUser extends User implements SystemUserInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
-        parent::__construct('system', 'email', $meta_enabled, $init);
-
-        $this->set(null    , 'id');
-        $this->set(null    , 'redirect');
-        $this->set('system', 'email');
-        $this->set('System', 'nickname');
+        parent::__construct('system');
     }
 }
