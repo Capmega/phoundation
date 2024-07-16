@@ -233,4 +233,20 @@ interface QueryBuilderInterface
      * return static
      */
     public function setMetaEnabled(bool $meta_enabled): static;
+
+    /**
+     * Returns the debug value
+     *
+     * @return bool
+     */
+    public function getDebug(): bool;
+
+    /**
+     * Sets the debug value
+     *
+     * @param bool $debug
+     *
+     * @return static
+     */
+    public function setDebug(bool $debug): static;
 }

@@ -1015,7 +1015,7 @@ interface DefinitionInterface
      *
      * @return static
      */
-    public function setNullDb(bool $value, string|float|int|bool|null $default = null): static;
+    public function setDbNullValue(bool $value, string|float|int|bool|null $default = null): static;
 
 
     /**
@@ -1075,7 +1075,7 @@ interface DefinitionInterface
      *
      * @return static
      */
-    public function setNullInputType(?EnumInputType $value): static;
+    public function setDbNullInputType(?EnumInputType $value): static;
 
 
     /**

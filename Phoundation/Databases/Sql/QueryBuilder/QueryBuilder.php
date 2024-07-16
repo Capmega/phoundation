@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Databases\Sql\QueryBuilder;
-
-use PDOStatement;
-use Phoundation\Data\Traits\TraitDataDatabaseConnector;
-use Phoundation\Data\Traits\TraitDataMetaEnabled;
-use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
-
 /**
  * QueryBuilder class
  *
@@ -20,6 +10,17 @@ use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Databases\Sql\QueryBuilder;
+
+use PDOStatement;
+use Phoundation\Data\Traits\TraitDataDatabaseConnector;
+use Phoundation\Data\Traits\TraitDataMetaEnabled;
+use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
+use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
+
 class QueryBuilder extends QueryObject implements QueryBuilderInterface
 {
     use TraitDataMetaEnabled;

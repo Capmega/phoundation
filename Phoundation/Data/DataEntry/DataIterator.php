@@ -46,7 +46,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
 {
     use TraitDataReadonly;
     use TraitDataParent {
-        setParent as protected __setParent;
+        setParentObject as protected __setParent;
     }
     use TraitDataRestrictions;
 
@@ -847,7 +847,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
             return $this;
         }
 
-        $this->source = sql(static::getConnector())->list($this->query, $this->execute);
+        $this->source = sql(static::getConnector())->listKeyValues($this->query, $this->execute);
 
         return $this;
     }
@@ -875,7 +875,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      *
      * @return static
      */
-    public function setParent(DataEntryInterface $parent): static
+    public function setParentObject(DataEntryInterface $parent): static
     {
         // Clear the source to avoid having a parent with the wrong children
         $this->source = [];

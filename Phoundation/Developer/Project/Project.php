@@ -209,7 +209,7 @@ class Project implements ProjectInterface
 
             $user = User::new()->setEmail($configuration->getEmail())->save();
             $user->changePassword($configuration->getPassword(), $configuration->getPassword());
-            $user->getRoles()->add('god');
+            $user->getRolesObject()->add('god');
 
             Log::success(tr('Finished project setup'));
 

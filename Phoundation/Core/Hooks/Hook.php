@@ -99,7 +99,7 @@ class Hook implements HookInterface
             // Do not execute hooks during system initialization, too many unexpected side effects are possible!
             Log::warning(tr('Not executing hooks ":hooks" due to system being in init state', [
                 ':hooks' => $hooks
-            ]), 5);
+            ]), 4);
 
             return $this;
         }

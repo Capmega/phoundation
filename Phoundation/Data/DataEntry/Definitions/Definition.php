@@ -26,6 +26,7 @@ use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
@@ -41,38 +42,38 @@ class Definition implements DefinitionInterface
     use TraitBeforeAfterButtons;
 
 
-    /**
-     * Supported input element types
-     *
-     * @var array[] $supported_input_types
-     */
-    protected static array $supported_input_types = [
-        'button',
-        'checkbox',
-        'color',
-        'date',
-        'datetime-local',
-        'email',
-        'file',
-        'hidden',
-        'image',
-        'month',
-        'number',
-        'password',
-        'radio',
-        'range',
-        'reset',
-        'search',
-        'select',
-        'submit',
-        'tel',
-        'text',
-        'time',
-        'url',
-        'week',
-        'auto-suggest',
-        'array_json',
-    ];
+//    /**
+//     * Supported input element types
+//     *
+//     * @var array[] $supported_input_types
+//     */
+//    protected static array $supported_input_types = [
+//        'button',
+//        'checkbox',
+//        'color',
+//        'date',
+//        'datetime-local',
+//        'email',
+//        'file',
+//        'hidden',
+//        'image',
+//        'month',
+//        'number',
+//        'password',
+//        'radio',
+//        'range',
+//        'reset',
+//        'search',
+//        'select',
+//        'submit',
+//        'tel',
+//        'text',
+//        'time',
+//        'url',
+//        'week',
+//        'auto-suggest',
+//        'array_json',
+//    ];
 
     /**
      * The data entry where this definition belongs to
@@ -2238,7 +2239,7 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    public function setNullDb(bool $value, string|float|int|bool|null $default = null): static
+    public function setDbNullValue(bool $value, string|float|int|bool|null $default = null): static
     {
         $this->setKey($value, 'null_db');
         $this->setKey($default, 'default');
@@ -2343,7 +2344,7 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    public function setNullInputType(?EnumInputType $value): static
+    public function setDbNullInputType(?EnumInputType $value): static
     {
         if (empty($this->source['element'])) {
             $this->source['element'] = 'input';
@@ -2472,8 +2473,10 @@ class Definition implements DefinitionInterface
             $validator->set($value, $prefix . $column);
         }
 
-        // Set the column prefix and select the column
-        $validator->setColumnPrefix($prefix)->select($column, !$bool);
+        // Set the data entry id, the column prefix, and select the column
+        $validator->setId($this->data_entry->getId())
+                  ->setColumnPrefix($prefix)
+                  ->select($column, !$bool);
 
         if ($this->getReadonly() or $this->getDisabled()) {
             // This column cannot be modified and should not be validated, unless its new or has a static value
@@ -2488,7 +2491,7 @@ class Definition implements DefinitionInterface
             Log::warning(tr('Not validating DataEntry object ":object" column ":column" because it has one of the "no_validation" or "ignored" flag set', [
                 ':column' => $column,
                 ':object' => get_class($this->getDataEntry()),
-            ]), 5);
+            ]), 3);
 
         } else {
             // Apply default validations

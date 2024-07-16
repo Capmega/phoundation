@@ -262,7 +262,7 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return static
      */
-    public function setParent(DataEntryInterface $parent): static;
+    public function setParentObject(DataEntryInterface $parent): static;
 
 
     /**
