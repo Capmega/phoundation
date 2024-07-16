@@ -429,7 +429,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
                     $definitions->add(Definition::new($this, 'created_on')
                                                 ->setDisabled(true)
                                                 ->setInputType(EnumInputType::datetime_local)
-                                                ->setNullInputType(EnumInputType::text)
+                                                ->setDbNullInputType(EnumInputType::text)
                                                 ->addClasses('text-center')
                                                 ->setSize(3)
                                                 ->setTooltip(tr('This column contains the exact date / time when this object was created'))
@@ -473,7 +473,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
                                                 ->setDisabled(true)
                                                 ->setRender(false)
                                                 ->setInputType(EnumInputType::dbid)
-                                                ->setNullInputType(EnumInputType::text)
+                                                ->setDbNullInputType(EnumInputType::text)
                                                 ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
                                                 ->setLabel(tr('Meta ID')));
                     break;
@@ -484,7 +484,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
                                                 ->setDisabled(true)
                                                 ->setInputType(EnumInputType::text)
                                                 ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
-//                ->setDisplayDefault(tr('Ok'))
+//                                                ->setDisplayDefault(tr('Ok'))
                                                 ->addClasses('text-center')
                                                 ->setSize(3)
                                                 ->setLabel(tr('Status')));
@@ -1108,6 +1108,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
     protected function loadFromDatabase(string|int $identifier, ?string $column, ?bool $meta_enabled): void
     {
         $this->is_loading = true;
+
         // Get the data using the query builder
         $data = $this->getQueryBuilderObject()
                      ->setMetaEnabled($meta_enabled ?? $this->meta_enabled)
@@ -1115,13 +1116,16 @@ class DataEntry extends EntryCore implements DataEntryInterface
                      ->addSelect('`' . static::getTable() . '`.*')
                      ->addWhere('`' . static::getTable() . '`.`' . $column . '` = :identifier', [':identifier' => $identifier])
                      ->get();
+
         // Store all data in the object
         $this->setMetaData((array) $data)
              ->copyValuesToSource((array) $data, false);
+
         // Reset state
         $this->is_loading  = false;
         $this->is_saved    = false;
         $this->is_modified = false;
+
         // If this is a new entry, assign the identifier by default (NOT id though, since that is a DB identifier
         // meaning that it would HAVE to exist!)
         if ($this->isNew() and $column !== 'id') {
@@ -1478,6 +1482,12 @@ class DataEntry extends EntryCore implements DataEntryInterface
      */
     public function apply(bool $clear_source = true, ValidatorInterface|array|null &$source = null): static
     {
+        if ($this->readonly or $this->disabled) {
+            throw new DataEntryReadonlyException(tr('Cannot apply changes to ":name" object, the object is readonly or disabled', [
+                ':name' => static::getDataEntryName(),
+            ]));
+        }
+
         return $this->checkReadonly('apply')
                     ->doApply($clear_source, $source, false);
     }
