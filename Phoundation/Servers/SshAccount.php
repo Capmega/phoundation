@@ -26,6 +26,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Servers\Interfaces\SshAccountInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -130,9 +131,11 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                            ->setSize(6)
                                            ->setHelpGroup(tr('Identification'))
                                            ->setHelpText(tr('The name for this account')))
+
                     ->add(Definition::new($this, 'seo_name')
                                     ->setRender(false)
                                     ->setReadonly(true))
+
                     ->add(Definition::new($this, 'username')
                                     ->setLabel(tr('Username'))
                                     ->setInputType(EnumInputType::username)
@@ -141,15 +144,18 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                     ->setSize(6)
                                     ->setMaxlength(64)
                                     ->setHelpText(tr('The username on the server for this account')))
+
                     ->add(DefinitionFactory::getDescription($this)
                                            ->setHelpText(tr('The description for this account')))
+
                     ->add(DefinitionFactory::getFile($this)
                                            ->setLabel(tr('SSH key file'))
                                            ->setCliColumn(tr('-i,--ssh-key-file FILE'))
                                            ->setHelpText(tr('The SSH key file for this account'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isFile('/');
+                                               $validator->isFile(FsDirectory::getFilesystemRoot());
                                            }))
+
                     ->add(Definition::new($this, 'ssh_key')
                                     ->setLabel(tr('SSH key'))
                                     ->setCliColumn(tr('-k,--ssh-key "KEY"'))
@@ -158,7 +164,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                     ->setMaxlength(65_535)
                                     ->setHelpText(tr('The SSH private key associated with this username'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->matchesRegex('-----BEGIN .+? PRIVATE KEY-----.+?-----END .+? PRIVATE KEY-----');
+                                        $validator->matchesRegex('/-----BEGIN .+? PRIVATE KEY-----.+?-----END .+? PRIVATE KEY-----/s');
                                     }));
     }
 }

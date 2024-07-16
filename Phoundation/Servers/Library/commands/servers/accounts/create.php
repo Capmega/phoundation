@@ -14,6 +14,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -33,8 +34,7 @@ CliDocumentation::setHelp('This command allows you to create SSH accounts.
 
 $argv = ArgvValidator::new()
             ->select('-u,--username', true)->isVariable()
-            ->select('-i,--ssh-key-file', true)->isPrintable()->hasMaxCharacters(8192)
-            ->select('-k,--ssh-key', true)->isFile(FsDirectory::getFilesystemRoot())
+            ->select('-i,--ssh-key-file', true)->isOptional()->isFile(FsDirectory::getFilesystemRoot())
             ->select('-n,--name', true)->isOptional()->isName()
             ->validate();
 
@@ -47,16 +47,22 @@ SshAccount::notExists($argv['username'], 'name', null, true);
 if ($argv['ssh_key_file']) {
     $argv['ssh_key'] = FsFile::new($argv['ssh_key_file'], FsRestrictions::getReadonly('/'))
                              ->ensureReadable()
-                             ->getContentsAsString($argv['ssh_  key_file']);
+                             ->getContentsAsString();
+
+} elseif(CliCommand::hasStdInStream()) {
+    // Get the SSH key from the STDIN stream
+    $argv['ssh_key'] = CliCommand::getStdInStream();
 
 } else {
+    // Get the SSH key from the command line
     $argv['ssh_key'] = Cli::readPassword(tr('Please paste the private key here:'));
 }
 
+unset($argv['ssh_key_file']);
+
 
 // Create account
-$account = SshAccount::new()->apply()->save();
-$account->setSshKey($argv['ssh_key']);
+$account = SshAccount::new()->apply(source: $argv)->save();
 
 
 // Done!
