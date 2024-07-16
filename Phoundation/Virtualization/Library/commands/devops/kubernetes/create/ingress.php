@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Kubernetes\Ingresses\Ingress;
-
-
 /**
  * Command devops/kubernetes/create/ingress
  *
@@ -17,7 +10,15 @@ use Phoundation\Virtualization\Kubernetes\Ingresses\Ingress;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Kubernetes\Ingresses\Ingress;
+
 CliDocumentation::setUsage('./pho devops kubernetes create ingress');
+
 CliDocumentation::setHelp('This command creates a Kubernetes ingress using a ingress file');
 
 

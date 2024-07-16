@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Project\Project;
-
-
 /**
  * Command project/import
  *
@@ -22,6 +14,14 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Project\Project;
+
 CliDocumentation::setUsage('./pho project import');
 
 CliDocumentation::setHelp('This command allows you to import all project data with one command
@@ -34,7 +34,6 @@ Currently this script will import:
 
 
 ARGUMENTS
-
 
 
 [-d / --demo]                           If specified, will load demo data into the database tables so the system can

@@ -1,16 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Accounts\Roles\Role;
-use Phoundation\Accounts\Users\User;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Sql\Limit;
-
-
 /**
  * Command accounts/roles/add-roles
  *
@@ -21,6 +10,17 @@ use Phoundation\Databases\Sql\Limit;
  * @copyrole Copyrole (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package  Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Limit;
+
 CliDocumentation::setAutoComplete([
                                       'positions' => [
                                           0  => [
@@ -39,8 +39,8 @@ CliDocumentation::setUsage('./pho accounts users add-roles NAME "ROLE[,ROLE,ROLE
 
 CliDocumentation::setHelp('This command allows you to add roles to the specified user
 
-ARGUMENTS
 
+ARGUMENTS
 
 
 EMAIL                                   The identifier email of the user to which the roles should be added

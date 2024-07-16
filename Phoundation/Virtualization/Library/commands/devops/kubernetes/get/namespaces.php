@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespace;
-use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespaces;
-
-
 /**
  * Command devops/kubernetes/namespaces/get
  *
@@ -19,7 +10,17 @@ use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespa
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespace;
+use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespaces;
+
 CliDocumentation::setUsage('./pho devops kubernetes namespaces get');
+
 CliDocumentation::setHelp('This command returns the available kubernetes namespaces');
 
 

@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Phoundation\Developer\Incidents\FilterForm;
 use Phoundation\Developer\Incidents\Incidents;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;

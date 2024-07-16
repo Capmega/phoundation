@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Os\Processes\Task;
-
-
 /**
  * Command tasks/execute
  *
@@ -17,6 +10,13 @@ use Phoundation\Os\Processes\Task;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Os\Processes\Task;
+
 CliDocumentation::setAutoComplete(Task::getAutoComplete());
 
 CliDocumentation::setUsage('./pho tasks execute');

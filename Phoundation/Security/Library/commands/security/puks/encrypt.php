@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Security\Puks\Puks;
-
 /**
  * Command puks/encrypt
  *
@@ -16,6 +10,12 @@ use Phoundation\Security\Puks\Puks;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Puks
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Security\Puks\Puks;
 
 CliDocumentation::setAutoComplete();
 

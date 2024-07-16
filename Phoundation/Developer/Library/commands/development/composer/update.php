@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Os\Processes\Commands\Composer;
-use Phoundation\Utils\Strings;
-
-
 /**
  * Command developer/composer/update
  *
@@ -19,6 +11,12 @@ use Phoundation\Utils\Strings;
  * @package   Phoundation\Scripts
  */
 
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Os\Processes\Commands\Composer;
+use Phoundation\Utils\Strings;
 
 CliDocumentation::setHelp('This command will execute "composer update" passing on the given arguments to the composer
 command

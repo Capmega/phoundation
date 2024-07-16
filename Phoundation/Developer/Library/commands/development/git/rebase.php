@@ -1,9 +1,9 @@
 <?php
 
 /**
- * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
+ * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This script is an interface to the git command through Phoundation. Its not really needed -nor useful- beyond testing
+ * This command is an interface to the git command through Phoundation. Its not really needed -nor useful- beyond testing
  * the git library
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -18,6 +18,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Git\Git;
+use Phoundation\Filesystem\FsDirectory;
 
 CliDocumentation::setUsage('./pho development git rebase BRANCH
 ./pho system dev git rebase BRANCH');
@@ -32,4 +33,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(DIRECTORY_ROOT)->rebase($argv['branch']);
+Git::new(FsDirectory::getRoot())->rebase($argv['branch']);

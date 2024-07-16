@@ -1,16 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Os\Processes\Exception\NoTasksPendingExceptions;
-use Phoundation\Os\Processes\Exception\TaskAlreadyExecutedException;
-use Phoundation\Os\Processes\Task;
-use Phoundation\Os\Processes\Tasks;
-
-
 /**
  * Command workers/execute
  *
@@ -21,6 +10,16 @@ use Phoundation\Os\Processes\Tasks;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Os\Processes\Exception\NoTasksPendingExceptions;
+use Phoundation\Os\Processes\Exception\TaskAlreadyExecutedException;
+use Phoundation\Os\Processes\Task;
+use Phoundation\Os\Processes\Tasks;
 
 CliDocumentation::setUsage('./pho workers execute');
 

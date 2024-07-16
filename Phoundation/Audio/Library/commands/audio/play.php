@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Audio\Audio;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-
-
 /**
  * Command image/convert
  *
@@ -18,6 +10,14 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Audio\Audio;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+
 CliDocumentation::setUsage('./pho audio play FILENAME
 ./pho system audio play PATH/FILE');
 
@@ -26,7 +26,6 @@ CliDocumentation::setHelp('This command can apply various conversions to the spe
 
 
 ARGUMENTS
-
 
 
 FILENAME                                The file to play, the system will search in the ROOT/data/audio path

@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Mounts\FsMount;
-use Phoundation\Filesystem\Mounts\FsMounts;
-
-
 /**
  * Command file-system/mount/mount
  *
@@ -18,6 +10,14 @@ use Phoundation\Filesystem\Mounts\FsMounts;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Filesystem
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\Mounts\FsMount;
+use Phoundation\Filesystem\Mounts\FsMounts;
+
 
 
 CliDocumentation::setAutoComplete([

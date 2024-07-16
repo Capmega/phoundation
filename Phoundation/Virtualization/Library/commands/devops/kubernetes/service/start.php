@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Kubernetes\Kubernetes;
-use Phoundation\Virtualization\Kubernetes\MiniKube;
-
-
 /**
  * Command devops/kubernetes/service/start
  *
@@ -18,7 +10,16 @@ use Phoundation\Virtualization\Kubernetes\MiniKube;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Kubernetes\Kubernetes;
+use Phoundation\Virtualization\Kubernetes\MiniKube;
+
 CliDocumentation::setUsage('./pho devops kubernetes service start');
+
 CliDocumentation::setHelp('This command will start the kubernetes cluster service');
 
 

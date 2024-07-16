@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Sync;
-
-
 /**
  * Command system/sync
  *
@@ -20,6 +12,14 @@ use Phoundation\Developer\Sync;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Sync;
+
 CliDocumentation::setUsage('./pho system sync ENVIRONMENT
 ./pho system sync -l -i --to ENVIRONMENT');
 

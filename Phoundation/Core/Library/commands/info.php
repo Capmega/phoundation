@@ -27,6 +27,7 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
 CliDocumentation::setUsage('./pho info');
+
 CliDocumentation::setHelp('The info script will show detailed information about the current framework, project, database and more
 
 

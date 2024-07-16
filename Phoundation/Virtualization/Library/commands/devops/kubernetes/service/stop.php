@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Kubernetes\Kubernetes;
-use Phoundation\Virtualization\Kubernetes\MiniKube;
-
-
 /**
  * Command devops/kubernetes/service/stop
  *
@@ -18,7 +10,16 @@ use Phoundation\Virtualization\Kubernetes\MiniKube;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Kubernetes\Kubernetes;
+use Phoundation\Virtualization\Kubernetes\MiniKube;
+
 CliDocumentation::setUsage('./pho devops kubernetes service stop');
+
 CliDocumentation::setHelp('This command will stop the kubernetes cluster service');
 
 

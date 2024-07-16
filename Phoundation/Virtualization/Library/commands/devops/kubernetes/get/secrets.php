@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Kubernetes\Secrets\Secret;
-use Phoundation\Virtualization\Kubernetes\Secrets\Secrets;
-
-
 /**
  * Command devops/kubernetes/get/secrets
  *
@@ -19,7 +10,17 @@ use Phoundation\Virtualization\Kubernetes\Secrets\Secrets;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Kubernetes\Secrets\Secret;
+use Phoundation\Virtualization\Kubernetes\Secrets\Secrets;
+
 CliDocumentation::setUsage('./pho devops kubernetes get secrets');
+
 CliDocumentation::setHelp('This command returns the available kubernetes secrets');
 
 

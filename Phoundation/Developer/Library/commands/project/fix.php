@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Project\Project;
-
-
 /**
  * Command project/fix
  *
@@ -18,6 +10,14 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Project\Project;
+
 CliDocumentation::setUsage('./pho project fix');
 
 CliDocumentation::setHelp('This command will fix project issues. For the moment it can only fix filesystem mode and
@@ -28,7 +28,6 @@ NOTE: This script requires root access to the "chown" command
 
 
 ARGUMENTS
-
 
 
 -');

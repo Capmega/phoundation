@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Accounts\Users\Password;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-
-
 /**
  * Command accounts/users/info
  *
@@ -19,6 +10,15 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Accounts\Users\Password;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+
 CliDocumentation::setUsage('./pho accounts users encryption');
 
 CliDocumentation::setHelp('This command determines the best encryption cost value for your machine so you can configure 

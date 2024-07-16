@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Command email/send
+ *
+ * This script can send out emails
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Scripts
+ */
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
@@ -12,17 +23,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use PHPMailer\PHPMailer\PHPMailer;
 
-
-/**
- * Command email/send
- *
- * This script can send out emails
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Scripts
- */
 
 
 CliDocumentation::setAutoComplete([

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Command accounts/users/authenticate
+ *
+ * This script can be used to test the authentication for the specified user
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Scripts
+ */
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
@@ -11,18 +22,6 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Security\Passwords\Exception\PasswordFailedException;
-
-
-/**
- * Command accounts/users/authenticate
- *
- * This script can be used to test the authentication for the specified user
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Scripts
- */
 
 CliDocumentation::setAutoComplete(User::getAutoComplete([
                                                             'positions' => [

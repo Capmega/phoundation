@@ -1,16 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Versioning\Git\Git;
-
-
 /**
- * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
+ * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This script is an interface to the git command through Phoundation. Its not really needed -nor useful- beyond testing
+ * This command is an interface to the git command through Phoundation. Its not really needed -nor useful- beyond testing
  * the git library
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -19,8 +12,17 @@ use Phoundation\Developer\Versioning\Git\Git;
  * @category  Function reference
  * @package   Phoundation\Development
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Versioning\Git\Git;
+use Phoundation\Filesystem\FsDirectory;
+
 CliDocumentation::setUsage('./pho development git log
 ./pho system dev git log');
+
 CliDocumentation::setHelp('This command is an interface to the git command through Phoundation. Its not really needed -nor
 useful- beyond testing the git library');
 
@@ -31,4 +33,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(DIRECTORY_ROOT)->getLog()->displayCliTable();
+Log::cli(Git::new(FsDirectory::getRoot())->getLog());

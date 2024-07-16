@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Tests\Tests;
-
-
 /**
  * Command system/test
  *
@@ -20,6 +13,13 @@ use Phoundation\Tests\Tests;
  * @category  Function reference
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Tests\Tests;
+
 CliDocumentation::setUsage('./pho system test [OPTIONS]
 ./pho system test --unit');
 

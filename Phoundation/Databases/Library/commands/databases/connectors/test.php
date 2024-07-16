@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Databases\Connectors\Connectors;
-use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
-use Phoundation\Databases\Sql\Exception\SqlConnectException;
-use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
-use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
-
-
 /**
  * Command databases/connectors/test
  *
@@ -20,6 +10,16 @@ use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Databases\Connectors\Connectors;
+use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
+use Phoundation\Databases\Sql\Exception\SqlConnectException;
+use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
+use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
+
 
 
 // Test each connector

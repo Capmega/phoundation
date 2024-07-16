@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Accounts\Servers\Server;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-
-
 /**
  * Command servers/delete
  *
@@ -17,6 +10,13 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Accounts\Servers\Server;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+
 CliDocumentation::setUsage('./pho servers delete USER_EMAIL');
 
 CliDocumentation::setHelp('This command will delete the specified server. Note that deleted servers will not be removed from the database,
@@ -25,7 +25,6 @@ the status for the server will be updated to "deleted"
 
 
 ARGUMENTS
-
 
 
 USER_EMAIL                              The email address for the server to delete');

@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Locale\Language\Import;
-use Phoundation\Data\Validator\ArgvValidator;
-
-
 /**
  * Command languages/import
  *
@@ -17,6 +10,13 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Locale\Language\Import;
+use Phoundation\Data\Validator\ArgvValidator;
+
 CliDocumentation::setUsage('./pho languages import');
 
 CliDocumentation::setHelp('This command allows you to create users
@@ -24,7 +24,6 @@ CliDocumentation::setHelp('This command allows you to create users
 
 
 ARGUMENTS
-
 
 
 [--min] (10)                            If demo mode is enabled, this will specified the minimum number of records added

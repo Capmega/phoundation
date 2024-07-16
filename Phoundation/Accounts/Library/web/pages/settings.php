@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;

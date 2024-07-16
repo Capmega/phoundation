@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Kubernetes\Kubernetes;
-use Phoundation\Virtualization\Kubernetes\MiniKube;
-
-
 /**
  * Command devops/kubernetes/service/status
  *
@@ -19,7 +10,17 @@ use Phoundation\Virtualization\Kubernetes\MiniKube;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Kubernetes\Kubernetes;
+use Phoundation\Virtualization\Kubernetes\MiniKube;
+
 CliDocumentation::setUsage('./pho devops kubernetes service status');
+
 CliDocumentation::setHelp('This command will status the kubernetes cluster service');
 
 

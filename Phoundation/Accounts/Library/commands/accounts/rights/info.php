@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Accounts\Rights\Right;
-use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
-use Phoundation\Data\Validator\ArgvValidator;
-
-
 /**
  * Command accounts/rights/info
  *
@@ -19,6 +10,15 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Accounts\Rights\Right;
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Validator\ArgvValidator;
+
 CliDocumentation::setUsage('./pho accounts rights info USER');
 
 CliDocumentation::setHelp('This script displays information about the specified user.  
@@ -26,7 +26,6 @@ CliDocumentation::setHelp('This script displays information about the specified 
 
 
 ARGUMENTS
-
 
 
 USER                                    The user to display information about. Specify either by user id or email 

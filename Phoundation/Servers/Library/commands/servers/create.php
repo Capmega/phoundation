@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Servers\Server;
-
-
 /**
  * Command servers/create
  *
@@ -17,6 +10,13 @@ use Phoundation\Servers\Server;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Servers\Server;
+
 CliDocumentation::setAutoComplete(Server::getAutoComplete());
 
 CliDocumentation::setUsage('./pho servers create [OPTIONS]

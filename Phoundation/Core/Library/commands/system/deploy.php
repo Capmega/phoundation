@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Project\Project;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
-
-
 /**
  * Command project/check
  *
@@ -20,7 +10,15 @@ use Phoundation\Filesystem\FsRestrictions;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
-$restrictions = FsRestrictions::getReadonly([DIRECTORY_ROOT . 'config/deploy/'], tr('Deploy'));
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Project\Project;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;$restrictions = FsRestrictions::getReadonly([DIRECTORY_ROOT . 'config/deploy/'], tr('Deploy'));
 
 CliDocumentation::setAutoComplete([
                                       'positions' => [
@@ -75,7 +73,6 @@ environment. If the required target environment has no configuration file, you w
 
 
 ARGUMENTS
-
 
 
 TARGET                                  - The target name to which to deploy

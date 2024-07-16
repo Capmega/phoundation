@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Web\Non200Urls\Non200Urls;
-
-
 /**
  * Command security/non200urls/process
  *
@@ -17,6 +10,12 @@ use Phoundation\Web\Non200Urls\Non200Urls;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Security
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Web\Non200Urls\Non200Urls;
 
 CliDocumentation::setAutoComplete([
                                       'arguments' => [

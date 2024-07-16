@@ -37,6 +37,7 @@ CliDocumentation::setAutoComplete([
 
 CliDocumentation::setUsage('./pho fs info PATH
 ./pho fs info PATH -h');
+
 CliDocumentation::setHelp('This command will display information about the specified file or directory
 
 

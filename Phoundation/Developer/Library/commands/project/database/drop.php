@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This is the init script for the project. Run this script to ensure that the
  * database is running with the same version as the code
@@ -27,6 +25,8 @@ declare(strict_types=1);
  * @category  Function reference
  * @package   template
  */
+
+declare(strict_types=1);
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;

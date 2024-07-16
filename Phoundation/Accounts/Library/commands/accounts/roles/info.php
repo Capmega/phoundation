@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Command accounts/roles/info
+ *
+ * This script displays information about the specified role.
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Scripts
+ */
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Role;
@@ -12,17 +23,6 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Paging;
 use Phoundation\Utils\Arrays;
 
-
-/**
- * Command accounts/roles/info
- *
- * This script displays information about the specified role.
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Scripts
- */
 CliDocumentation::setAutoComplete([
                                       'positions' => [
                                           0 => [
@@ -39,7 +39,6 @@ CliDocumentation::setHelp('This script displays information about the specified 
 
 
 ARGUMENTS
-
 
 
 USER                                    The role to display information about. Specify either by role id or seo-name');

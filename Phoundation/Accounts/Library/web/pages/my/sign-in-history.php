@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Phoundation\Accounts\Users\SignIns;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;

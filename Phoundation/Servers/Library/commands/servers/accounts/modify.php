@@ -1,16 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Sql\Limit;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Servers\SshAccount;
-
-
 /**
  * Command servers/accounts/modify
  *
@@ -21,6 +10,17 @@ use Phoundation\Servers\SshAccount;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Limit;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Servers\SshAccount;
+
 CliDocumentation::setAutoComplete(SshAccount::getAutoComplete([
                                                                   'positions' => [
                                                                       0 => [
@@ -35,7 +35,9 @@ CliDocumentation::setUsage('./pho servers accounts modify IDENTIFIER [OPTIONS]
 
 CliDocumentation::setHelp(SshAccount::getHelpText('This script allows you to modify existing SSH accounts.
 
+
 ARGUMENTS
+
 
 IDENTIFIER                              The identifier (id or name) for the SSH account that needs to be modified'));
 

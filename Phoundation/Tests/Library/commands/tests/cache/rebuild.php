@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Tests\Tests;
-
-
 /**
  * Command tests/cache/rebuild
  *
@@ -17,6 +11,10 @@ use Phoundation\Tests\Tests;
  * @package   Phoundation\Scripts
  */
 
+declare(strict_types=1);
+
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Tests\Tests;
 
 ArgvValidator::new()->validate();
 

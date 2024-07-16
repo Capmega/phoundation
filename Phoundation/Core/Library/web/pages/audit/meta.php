@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Phoundation\Core\Meta\MetaList;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;

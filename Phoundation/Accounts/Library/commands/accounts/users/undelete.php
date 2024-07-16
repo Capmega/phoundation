@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Accounts\Users\User;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Sql\Limit;
-
-
 /**
  * Command accounts/users/undelete
  *
@@ -18,6 +10,13 @@ use Phoundation\Databases\Sql\Limit;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Limit;
 
 CliDocumentation::setAutoComplete(User::getAutoComplete([
                                                             'positions' => [
@@ -32,6 +31,7 @@ CliDocumentation::setUsage('./pho accounts users undelete USER_EMAIL');
 
 CliDocumentation::setHelp('This command will undelete the specified user. Note that undeleted users will have the
 status updated to NULL
+
 
 ARGUMENTS
 

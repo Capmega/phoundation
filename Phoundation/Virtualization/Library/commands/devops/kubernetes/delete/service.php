@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Kubernetes\Services\Service;
-
-
 /**
  * Command devops/kubernetes/delete/service
  *
@@ -17,7 +10,15 @@ use Phoundation\Virtualization\Kubernetes\Services\Service;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Kubernetes\Services\Service;
+
 CliDocumentation::setUsage('./pho devops kubernetes delete service');
+
 CliDocumentation::setHelp('This command deletes the specified Kubernetes service');
 
 

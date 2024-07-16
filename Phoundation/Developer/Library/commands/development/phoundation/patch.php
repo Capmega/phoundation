@@ -1,7 +1,7 @@
 <?php
 
 /**
- * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
+ * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
  * This command will copy changed files back to your phoundation installation. The script will assume your phoundation
  * installation is in ~/projects/phoundation

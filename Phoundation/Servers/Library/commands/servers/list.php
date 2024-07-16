@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Servers\Servers;
-
-
 /**
  * Command servers/list
  *
@@ -17,6 +10,13 @@ use Phoundation\Servers\Servers;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Servers\Servers;
+
 CliDocumentation::setUsage('./pho servers list [OPTIONS]
 ./pho system servers list -D');
 

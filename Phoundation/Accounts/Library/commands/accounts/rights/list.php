@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Accounts\Rights\Rights;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Sql\SqlQueries;
-
-
 /**
  * Command accounts/rights/list
  *
@@ -18,6 +10,14 @@ use Phoundation\Databases\Sql\SqlQueries;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\SqlQueries;
+
 CliDocumentation::setUsage('./pho accounts rights list [OPTIONS]
 ./pho system accounts rights list -d -r god');
 

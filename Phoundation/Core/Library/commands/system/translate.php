@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Translator\Translations;
-
-
 /**
  * Command system/translate
  *
@@ -22,6 +13,15 @@ use Phoundation\Translator\Translations;
  * @category  Function reference
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Translator\Translations;
+
 CliDocumentation::setUsage('./pho system translate [OPTIONS]
 ./pho system translate --all
 ./pho system translate --language LANGUAGES

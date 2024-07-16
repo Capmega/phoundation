@@ -1,17 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Accounts\Roles\Role;
-use Phoundation\Accounts\Users\User;
-use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliCommand;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Security\Passwords\Exception\PasswordFailedException;
-
-
 /**
  * Command accounts/users/create
  *
@@ -23,6 +11,16 @@ use Phoundation\Security\Passwords\Exception\PasswordFailedException;
  * @package   Phoundation\Scripts
  */
 
+declare(strict_types=1);
+
+use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Security\Passwords\Exception\PasswordFailedException;
 // Documentation
 CliDocumentation::setAutoComplete(User::getAutoComplete());
 

@@ -1,16 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliColor;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Os\Processes\Commands\Databases\MySql;
-
-
 /**
  * Command databases/mysql/timezones/import
  *
@@ -21,6 +10,17 @@ use Phoundation\Os\Processes\Commands\Databases\MySql;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliColor;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Os\Processes\Commands\Databases\MySql;
+
 CliDocumentation::setUsage('./pho databases mysql timezones import');
 
 CliDocumentation::setHelp('This command will import the mysql timezones

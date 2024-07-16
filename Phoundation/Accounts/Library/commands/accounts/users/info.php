@@ -35,7 +35,6 @@ CliDocumentation::setHelp('This command displays information about the specified
 ARGUMENTS
 
 
-
 USER                                    The user to display information about. Specify either by user id or email 
                                         address');
 

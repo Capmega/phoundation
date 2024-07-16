@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Plugins\Plugins;
-use Phoundation\Data\Validator\ArgvValidator;
-
-
 /**
  * Command plugins clear
  *
@@ -18,6 +11,13 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @category  Function reference
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Plugins\Plugins;
+use Phoundation\Data\Validator\ArgvValidator;
+
 CliDocumentation::setUsage('./pho plugins clear');
 
 CliDocumentation::setHelp('This command clears all plugin registrations by deleting all entries in the core_plugins

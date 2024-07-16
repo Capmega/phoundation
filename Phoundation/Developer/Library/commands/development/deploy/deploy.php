@@ -1,15 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Project\Project;
-
-
 /**
- * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
+ * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
  * This command will copy changed files back to your phoundation installation. The script will assume your phoundation
  * installation is in ~/projects/phoundation
@@ -21,6 +13,13 @@ use Phoundation\Developer\Project\Project;
  * @package   Phoundation\Development
  */
 
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Project\Project;
+
 CliDocumentation::setUsage('./pho development deploy [OPTIONS] TARGET_ENVIRONMENT
 ./pho system development deploy TARGET_ENVIRONMENT
 ');
@@ -30,7 +29,6 @@ CliDocumentation::setHelp('This command will update your Phoundation libraries a
 
 
 ARGUMENTS
-
 
 
 TARGET_ENVIRONMENT                      The target environment where to deploy to

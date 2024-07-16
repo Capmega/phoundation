@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Servers\SshAccount;
-
-
 /**
  * Command servers/accounts/info
  *
@@ -17,6 +10,13 @@ use Phoundation\Servers\SshAccount;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Servers\SshAccount;
+
 CliDocumentation::setUsage('./pho servers accounts info IDENTIFIER');
 
 CliDocumentation::setHelp('This command displays information about the specified SSH account.
@@ -24,7 +24,6 @@ CliDocumentation::setHelp('This command displays information about the specified
 
 
 ARGUMENTS
-
 
 
 IDENTIFIER                              The SSH account to display information about. Specify either by account id or

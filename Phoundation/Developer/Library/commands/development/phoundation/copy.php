@@ -1,18 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliCommand;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Phoundation\Phoundation;
-use Phoundation\Developer\Phoundation\Plugins;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
-
-
 /**
- * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
+ * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
  * This command will copy the specified file back to your phoundation development installation
  *
@@ -22,6 +11,16 @@ use Phoundation\Filesystem\FsRestrictions;
  * @category  Function reference
  * @package   Phoundation\Development
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Developer\Phoundation\Plugins;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsRestrictions;
 
 CliDocumentation::setUsage('./pho project copy FILE');
 

@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespace;
-
-
 /**
  * Command devops/kubernetes/create/namespaces
  *
@@ -17,7 +10,15 @@ use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespa
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespace;
+
 CliDocumentation::setUsage('./pho devops kubernetes create namespaces');
+
 CliDocumentation::setHelp('This command creates a Kubernetes namespace using a namespace file');
 
 

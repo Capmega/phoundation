@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Accounts\Accounts\Account;
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Servers\SshAccount;
-
-
 /**
  * Command servers/accounts/delete
  *
@@ -18,6 +10,14 @@ use Phoundation\Servers\SshAccount;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Accounts\Accounts\Account;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Servers\SshAccount;
+
 CliDocumentation::setUsage('./pho servers accounts delete NAME');
 
 CliDocumentation::setHelp('This command will delete the specified SSH account. Note that deleted accounts will not be
@@ -27,7 +27,6 @@ cleared
 
 
 ARGUMENTS
-
 
 
 NAME                                    The name of the account to delete');

@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Mtime;
-
-
 /**
  * Command system/touch
  *
@@ -20,6 +13,13 @@ use Phoundation\Developer\Mtime;
  * @category  Function reference
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Mtime;
+
 CliDocumentation::setUsage('./pho system touch [OPTIONS]
 ./pho system touch --unit');
 

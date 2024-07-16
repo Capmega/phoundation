@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Mounts\FsMounts;
-
-
 /**
  * Command file-system/mount/list
  *
@@ -18,6 +11,11 @@ use Phoundation\Filesystem\Mounts\FsMounts;
  * @package Phoundation\Scripts
  */
 
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\Mounts\FsMounts;
 
 CliDocumentation::setUsage('./pho filesystem mounts list');
 

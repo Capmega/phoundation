@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Filesystem\Mounts\FsMounts;
-
-
 /**
  * Command file-system/mount/all
  *
@@ -17,6 +11,10 @@ use Phoundation\Filesystem\Mounts\FsMounts;
  * @package Phoundation\Scripts
  */
 
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Filesystem\Mounts\FsMounts;
 
 CliDocumentation::setUsage('./pho filesystem mount all');
 

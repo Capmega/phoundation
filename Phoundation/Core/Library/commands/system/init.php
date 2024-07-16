@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Libraries\Libraries;
-use Phoundation\Core\Libraries\Library;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Project\Project;
-use Phoundation\Utils\Strings;
-
-
 /**
  * Command system/init
  *
@@ -22,6 +12,15 @@ use Phoundation\Utils\Strings;
  * @category  Function reference
  * @package   Phoundation\Core
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Libraries\Library;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Project\Project;
+use Phoundation\Utils\Strings;
 
 CliDocumentation::setAutoComplete([
     'arguments' => [

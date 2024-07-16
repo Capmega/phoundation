@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;

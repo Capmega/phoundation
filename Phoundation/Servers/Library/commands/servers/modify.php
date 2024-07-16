@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Sql\Limit;
-use Phoundation\Servers\Server;
-
-
 /**
  * Command servers/modify
  *
@@ -19,6 +10,15 @@ use Phoundation\Servers\Server;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Limit;
+use Phoundation\Servers\Server;
+
 CliDocumentation::setAutoComplete(Server::getAutoComplete([
                                                               'positions' => [
                                                                   0 => [
@@ -33,8 +33,8 @@ CliDocumentation::setUsage('./pho servers modify HOSTNAME [OPTIONS]
 
 CliDocumentation::setHelp(Server::getHelpText('This script allows you to modify servers
 
-ARGUMENTS
 
+ARGUMENTS
 
 
 HOSTNAME                                The server to modify. Always specify servers by their hostname '));

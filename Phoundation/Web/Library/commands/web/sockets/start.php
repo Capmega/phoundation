@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Web\Sockets\Test;
-use Ratchet\Server\IoServer;
-
-
 /**
  * Command web sockets start
  *
@@ -17,6 +11,10 @@ use Ratchet\Server\IoServer;
  * @package   Phoundation\Web
  */
 
+declare(strict_types=1);
+
+use Phoundation\Web\Sockets\Test;
+use Ratchet\Server\IoServer;
 $server = IoServer::factory(
     new Test(),
     8080

@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Project\Project;
-
-
 /**
  * Command project/check
  *
@@ -18,6 +10,14 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Project\Project;
+
 CliDocumentation::setUsage('./pho project check
 ./pho system project check --repair
 ');
@@ -27,7 +27,6 @@ CliDocumentation::setHelp('This command will check - and report - (and optionall
 
 
 ARGUMENTS
-
 
 
 [-r / --repair]                         If specified, the system will automatically fix all found issues');

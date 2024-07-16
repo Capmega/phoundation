@@ -1,17 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Libraries\Libraries;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Phoundation\Exception\PhoundationBranchNotExistException;
-use Phoundation\Developer\Phoundation\Phoundation;
-use Phoundation\Developer\Project\Project;
-use Phoundation\Filesystem\FsDirectory;
-
-
 /**
  * Command system/update
  *
@@ -22,6 +10,17 @@ use Phoundation\Filesystem\FsDirectory;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Phoundation\Exception\PhoundationBranchNotExistException;
+use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Developer\Project\Project;
+use Phoundation\Filesystem\FsDirectory;
 
 CliDocumentation::setAutoComplete([
                                       'arguments' => [

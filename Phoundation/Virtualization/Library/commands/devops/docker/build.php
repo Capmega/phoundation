@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Docker\DockerFile;
-
-
 /**
  * Command devops/docker/build
  *
@@ -17,7 +10,15 @@ use Phoundation\Virtualization\Docker\DockerFile;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Docker\DockerFile;
+
 CliDocumentation::setUsage('./pho devops docker build');
+
 CliDocumentation::setHelp('This command can build docker images');
 
 

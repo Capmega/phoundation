@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Virtualization\Kubernetes\Secrets\Secret;
-
-
 /**
  * Command devops/kubernetes/secrets/create
  *
@@ -17,7 +10,15 @@ use Phoundation\Virtualization\Kubernetes\Secrets\Secret;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Virtualization\Kubernetes\Secrets\Secret;
+
 CliDocumentation::setUsage('./pho devops kubernetes delete secret');
+
 CliDocumentation::setHelp('This command creates Kubernetes secrets');
 
 

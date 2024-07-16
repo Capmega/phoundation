@@ -208,7 +208,7 @@ class Git extends Versioning implements GitInterface
      */
     public function getStashObject(): StashInterface
     {
-        return Stash::new()->setDirectory($this->directory);
+        return Stash::new($this->directory);
     }
 
 
@@ -402,12 +402,32 @@ class Git extends Versioning implements GitInterface
     public function getDiff(array|string|null $files = null, bool $cached = false): string
     {
         return $this->git->clearArguments()
-                         ->addArgument('diff')
-                         ->addArgument('--no-color')
-                         ->addArgument($cached ? '--cached' : null)
-                         ->addArgument('--')
-                         ->addArguments($files)
-                         ->executeReturnString();
+            ->addArgument('diff')
+            ->addArgument(NOCOLOR ? '--no-color' : null)
+            ->addArgument($cached ? '--cached'   : null)
+            ->addArgument('--')
+            ->addArguments($files)
+            ->executeReturnString();
+    }
+
+
+    /**
+     * Get a diff for the specified file
+     *
+     * @param array|string|null $files
+     * @param bool              $cached
+     *
+     * @return string
+     */
+    public function getLog(array|string|null $files = null, bool $cached = false): string
+    {
+        return $this->git->clearArguments()
+            ->addArgument('log')
+            ->addArgument(NOCOLOR ? '--no-color' : null)
+            ->addArgument($cached ? '--cached'   : null)
+            ->addArgument('--')
+            ->addArguments($files)
+            ->executeReturnString();
     }
 
 

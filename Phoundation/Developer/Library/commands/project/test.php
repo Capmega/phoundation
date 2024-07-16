@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\Validator;
-
-
 /**
  * Command test
  *
@@ -17,6 +10,13 @@ use Phoundation\Data\Validator\Validator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\Validator;
+
 CliDocumentation::setUsage('./pho info');
 
 CliDocumentation::setHelp('The info script will show detailed information about the current framework, project, database and more

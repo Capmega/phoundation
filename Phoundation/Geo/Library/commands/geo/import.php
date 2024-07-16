@@ -39,7 +39,6 @@ The entire import consists of the following steps (which may be skipped using th
 ARGUMENTS
 
 
-
 [-d / --database DATABASE]              If defined, will not use the geonames database but the specified database
                                         instead
 
