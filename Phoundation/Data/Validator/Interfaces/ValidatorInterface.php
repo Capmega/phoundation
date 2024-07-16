@@ -1310,6 +1310,13 @@ interface ValidatorInterface
     public function getSourceObjectClass(): string;
 
     /**
+     * Returns the entire source for this validator object
+     *
+     * @return array|null
+     */
+    public function getSource(): ?array;
+
+    /**
      * Sets the data entry class
      *
      * @param string|null $source_object_class

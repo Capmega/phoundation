@@ -1566,7 +1566,7 @@ class FsPathCore implements FsPathInterface
     public function ensureFileReadable(?int $mode = null): bool
     {
         // Check filesystem restrictions
-        $this->checkRestrictions(true);
+        $this->checkRestrictions(false);
 
         // If the object file exists and is writable, then we're done.
         if (is_readable($this->path)) {
@@ -2654,10 +2654,11 @@ class FsPathCore implements FsPathInterface
         // PARENT directory IN the PARENT directory OF the PARENT!
         $this->checkRestrictions(false)
              ->checkClosed('getContents')
-            ->mountIfNeeded();
+             ->mountIfNeeded();
 
         try {
             $data = file_get_contents($this->path, $use_include_path, $context, $offset, $length);
+
         } catch (PhpException $e) {
             $this->checkReadable('', new FilesystemException(tr('Failed to get contents of file ":file" as string', [
                 ':file' => $this->path,

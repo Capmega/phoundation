@@ -24,16 +24,16 @@ use Phoundation\Databases\Sql\Limit;
 use Phoundation\Security\Passwords\Exception\PasswordFailedException;
 
 CliDocumentation::setAutoComplete(User::getAutoComplete([
-                                                            'positions' => [
-                                                                0 => [
-                                                                    'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-                                                                    'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-                                                                ],
-                                                            ],
-                                                            'arguments' => [
-                                                                '--no-password' => false,
-                                                            ],
-                                                        ]));
+    'positions' => [
+        0 => [
+            'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+            'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+        ],
+    ],
+    'arguments' => [
+        '--no-password' => false,
+    ],
+]));
 
 CliDocumentation::setUsage('./pho accounts users password USER
 echo PASSWORD | ./pho accounts users password USER');

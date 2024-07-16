@@ -24,7 +24,7 @@ use Throwable;
 class ValidationFailedException extends ValidatorException implements ValidationFailedExceptionInterface
 {
     use TraitSourceObjectClass {
-        setSourceObjectClass as protected __setSourceobjectClass;
+        setSourceObjectClass as protected __setSourceObjectClass;
     }
 
     /**
@@ -48,15 +48,15 @@ class ValidationFailedException extends ValidatorException implements Validation
 
 
     /**
-     * Sets the data entry object used to translate validation failed fields to human readable labels
+     * Sets the source object class name used to translate validation failed fields to human-readable labels
      *
-     * @param string|null $data_entry_class
+     * @param string|null $source_object_class
      *
      * @return $this
      */
-    public function setSourceObjectClass(?string $data_entry_class): static
+    public function setSourceObjectClass(?string $source_object_class): static
     {
-        $this->__setSourceobjectClass($data_entry_class);
+        $this->__setSourceObjectClass($source_object_class);
         $this->applyLabels();
 
         return $this;

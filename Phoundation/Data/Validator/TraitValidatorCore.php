@@ -785,6 +785,8 @@ trait TraitValidatorCore
      */
     public function validate(bool $clean_source = true): array
     {
+        // Check if there is still a field selected that has no test applied.
+        // If so, fail, because all fields must be tested
         if ($this->selected_field and !$this->test_count) {
             if (!Config::getBoolean('security.validation.disabled', false)) {
                 throw new ValidationFailedException(tr('Cannot validate because the previously selected field ":previous" has no validations performed yet', [

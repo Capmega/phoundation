@@ -1643,6 +1643,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
             }
 
             try {
+                // Execute the validations for this single definition
                 $definition->validate($validator, $prefix);
 
             } catch (ValidationFailedException $e) {
