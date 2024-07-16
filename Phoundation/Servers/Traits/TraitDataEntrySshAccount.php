@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Servers\Traits;
-
-use Phoundation\Servers\Interfaces\SshAccountInterface;
-use Phoundation\Servers\SshAccount;
-
 /**
  * Trait TraitDataEntrySshAccount
  *
@@ -17,6 +10,14 @@ use Phoundation\Servers\SshAccount;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Servers
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Servers\Traits;
+
+use Phoundation\Servers\Interfaces\SshAccountInterface;
+use Phoundation\Servers\SshAccount;
+
 trait TraitDataEntrySshAccount
 {
     /**

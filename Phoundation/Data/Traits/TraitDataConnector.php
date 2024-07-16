@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Databases\Connectors\Connector;
-use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
-use Phoundation\Seo\Seo;
-use Phoundation\Utils\Config;
-
 /**
  * Trait TraitDataConnector
  *
@@ -20,6 +10,17 @@ use Phoundation\Utils\Config;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Databases\Connectors\Connector;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
+use Phoundation\Seo\Seo;
+use Phoundation\Utils\Config;
+
 trait TraitDataConnector
 {
     /**

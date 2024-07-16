@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Traits;
-
 /**
  * Trait TraitUsesAttributeMultiple
  *
@@ -14,6 +10,11 @@ namespace Phoundation\Web\Html\Traits;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Traits;
+
 trait TraitUsesAttributeMultiple
 {
     /**

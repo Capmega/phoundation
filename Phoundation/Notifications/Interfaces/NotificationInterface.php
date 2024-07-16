@@ -8,17 +8,6 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Throwable;
 
-/**
- * Class Notification
- *
- *
- * @todo      Change the Notification::roles to a Data\Iterator class instead of a plain array
- * @see       \Phoundation\Data\DataEntry\DataEntry
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Notification
- */
 interface NotificationInterface extends DataEntryInterface
 {
     /**

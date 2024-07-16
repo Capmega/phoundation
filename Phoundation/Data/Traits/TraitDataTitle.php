@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Web\Html\Html;
-
 /**
  * Trait TraitDataTitle
  *
@@ -16,6 +10,13 @@ use Phoundation\Web\Html\Html;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Web\Html\Html;
+
 trait TraitDataTitle
 {
     /**

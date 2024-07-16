@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-
 /**
  * Trait TraitDataDataEntry
  *
@@ -16,6 +10,13 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+
 trait TraitDataDataEntry
 {
     /**

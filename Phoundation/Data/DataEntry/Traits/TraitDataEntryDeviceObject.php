@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
-use Plugins\Phoundation\Hardware\Devices\Device;
-use Plugins\Phoundation\Hardware\Devices\Interfaces\DeviceInterface;
-
 /**
  * Trait TraitDataEntryDeviceObject
  *
@@ -17,6 +10,14 @@ use Plugins\Phoundation\Hardware\Devices\Interfaces\DeviceInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Plugins\Hardware
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Plugins\Phoundation\Hardware\Devices\Device;
+use Plugins\Phoundation\Hardware\Devices\Interfaces\DeviceInterface;
+
 trait TraitDataEntryDeviceObject
 {
     /**

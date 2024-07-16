@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Traits;
-
 /**
  * Trait TraitDataImage
  *
@@ -14,6 +10,11 @@ namespace Phoundation\Virtualization\Traits;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Traits;
+
 trait TraitDataImage
 {
     protected string $image;

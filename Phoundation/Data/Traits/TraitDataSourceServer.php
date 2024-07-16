@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Servers\Interfaces\ServerInterface;
-
 /**
  * Trait TraitDataSourceServer
  *
@@ -16,6 +10,13 @@ use Phoundation\Servers\Interfaces\ServerInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Servers\Interfaces\ServerInterface;
+
 trait TraitDataSourceServer
 {
     /**

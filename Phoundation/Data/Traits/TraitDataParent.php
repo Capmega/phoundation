@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use ReturnTypeWillChange;
-
 /**
  * Trait TraitDataParent
  *
@@ -17,6 +10,14 @@ use ReturnTypeWillChange;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use ReturnTypeWillChange;
+
 trait TraitDataParent
 {
     /**

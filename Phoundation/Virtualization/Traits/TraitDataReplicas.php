@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Traits;
-
 /**
  * Trait TraitDataReplicas
  *
@@ -14,6 +10,11 @@ namespace Phoundation\Virtualization\Traits;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Traits;
+
 trait TraitDataReplicas
 {
     protected int $replicas = 1;

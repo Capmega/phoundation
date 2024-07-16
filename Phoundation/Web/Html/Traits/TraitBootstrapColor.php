@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Traits;
-
-use Phoundation\Core\Sessions\Config;
-use Phoundation\Web\Html\Enums\EnumBootstrapColor;
-
 /**
  * Trait TraitBootstrapColor
  *
@@ -17,6 +10,14 @@ use Phoundation\Web\Html\Enums\EnumBootstrapColor;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Templates\AdminLte
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Traits;
+
+use Phoundation\Core\Sessions\Config;
+use Phoundation\Web\Html\Enums\EnumBootstrapColor;
+
 trait TraitBootstrapColor
 {
     /**

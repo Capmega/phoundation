@@ -7,22 +7,6 @@ namespace Phoundation\Cli\Interfaces;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 
-/**
- * Class RunFile
- *
- * This class manages run files for Phoundation command processes
- *
- * Phoundation command processes are all commands that are available in the ROOT/system/commands/ directory
- *
- * Run files are stored as ROOT/system/run/PROCESS/PROCESSID
- *
- * If PROCESS is "accounts/users/create" with PID 6345 then the run file is ROOT/system/run/accounts/users/create/6345
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Cli
- */
 interface CliRunFileInterface extends FsFileInterface
 {
     /**

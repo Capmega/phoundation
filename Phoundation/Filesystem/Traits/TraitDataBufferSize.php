@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Filesystem\Traits;
-
-use Phoundation\Utils\Config;
-
 /**
  * Trait TraitDataBufferSize
  *
@@ -17,6 +11,13 @@ use Phoundation\Utils\Config;
  * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Filesystem\Traits;
+
+use Phoundation\Utils\Config;
+
 trait TraitDataBufferSize
 {
     /**

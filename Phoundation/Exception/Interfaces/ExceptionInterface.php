@@ -8,16 +8,6 @@ use Phoundation\Exception\Exception;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Throwable;
 
-/**
- * Class Exception
- *
- * This is the most basic Phoundation exception class
- *
- * @author    Sven Olaf Oostenbrink
- * @copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Exception
- */
 interface ExceptionInterface extends Throwable
 {
     /**

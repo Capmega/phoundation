@@ -7,17 +7,6 @@ namespace Phoundation\Os\Processes\Interfaces;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 
-/**
- * Interface ProcessCore
- *
- * This interface embodies a process that will be executed
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Os
- * @uses      \Phoundation\Os\Processes\ProcessVariables
- */
 interface ProcessInterface extends ProcessCoreInterface
 {
     /**

@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
-use Phoundation\Templates\Html\Pages\Interfaces\TemplateInterface;
-use Phoundation\Web\Html\Pages\Template;
-
 /**
  * Trait TraitDataEntryTemplate
  *
@@ -17,6 +10,14 @@ use Phoundation\Web\Html\Pages\Template;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Templates\Html\Pages\Interfaces\TemplateInterface;
+use Phoundation\Web\Html\Pages\Template;
+
 trait TraitDataEntryTemplate
 {
     /**

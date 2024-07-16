@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
-use Phoundation\Date\DateTime;
-use Phoundation\Date\Interfaces\DateTimeInterface;
-
 /**
  * Trait TraitDataEntryStop
  *
@@ -17,6 +10,14 @@ use Phoundation\Date\Interfaces\DateTimeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Date\DateTime;
+use Phoundation\Date\Interfaces\DateTimeInterface;
+
 trait TraitDataEntryStop
 {
     /**

@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Filesystem\Traits;
-
 /**
  * Trait TraitDataIsRelative
  *
@@ -15,6 +11,11 @@ namespace Phoundation\Filesystem\Traits;
  * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Filesystem\Traits;
+
 trait TraitDataIsRelative
 {
     /**

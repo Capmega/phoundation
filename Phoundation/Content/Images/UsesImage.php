@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Content\Images;
-
-use Phoundation\Content\Images\Interfaces\ImageInterface;
-use Phoundation\Data\Traits\TraitDataRestrictions;
-
 /**
  * Phoundation UsesImage trait
  *
@@ -18,6 +11,14 @@ use Phoundation\Data\Traits\TraitDataRestrictions;
  * @category  Function reference
  * @package   Phoundation\Content
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Content\Images;
+
+use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Data\Traits\TraitDataRestrictions;
+
 trait UsesImage
 {
     use TraitDataRestrictions;

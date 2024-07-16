@@ -7,16 +7,6 @@ namespace Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
-/**
- * interface FlashMessageInterface
- *
- * This class contains a single Flash message and can render it to HTML
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 interface FlashMessageInterface extends ElementsBlockInterface
 {
     /**

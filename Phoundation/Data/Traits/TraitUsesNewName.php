@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
 /**
  * Trait TraitUsesNewName
  *
@@ -15,6 +11,11 @@ namespace Phoundation\Data\Traits;
  * @category  Function reference
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
 trait TraitUsesNewName
 {
     use TraitDataName;

@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Web\Html\Enums\EnumWebRenderMethods;
-
 /**
  * Trait TraitDataRenderMethod
  *
@@ -16,6 +10,13 @@ use Phoundation\Web\Html\Enums\EnumWebRenderMethods;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Web\Html\Enums\EnumWebRenderMethods;
+
 trait TraitDataRenderMethod
 {
     /**

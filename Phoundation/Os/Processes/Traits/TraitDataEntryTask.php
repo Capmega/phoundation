@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Traits;
-
-use Phoundation\Os\Processes\Interfaces\TaskInterface;
-use Phoundation\Os\Processes\Task;
-
 /**
  * Trait TraitDataEntryTask
  *
@@ -17,6 +10,14 @@ use Phoundation\Os\Processes\Task;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Traits;
+
+use Phoundation\Os\Processes\Interfaces\TaskInterface;
+use Phoundation\Os\Processes\Task;
+
 trait TraitDataEntryTask
 {
     /**

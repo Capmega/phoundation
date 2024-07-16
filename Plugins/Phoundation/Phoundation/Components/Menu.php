@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Plugins\Phoundation\Phoundation\Components;
-
 /**
  * Class Menu
  *
@@ -14,6 +10,12 @@ namespace Plugins\Phoundation\Phoundation\Components;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Plugins\Phoundation\Phoundation\Components;
+
+
 class Menu extends \Phoundation\Web\Html\Components\Widgets\Menus\Menu
 {
     /**

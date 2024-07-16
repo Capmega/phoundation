@@ -7,16 +7,6 @@ namespace Phoundation\Os\Packages\Interfaces;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Stringable;
 
-/**
- * Interface PackagesInterface
- *
- * This class tracks required packages per operating system
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Os
- */
 interface PackagesInterface extends IteratorInterface
 {
     /**

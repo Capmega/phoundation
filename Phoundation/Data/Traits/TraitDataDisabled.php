@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Data\DataEntry\Exception\DataEntryDisabledException;
-use Phoundation\Utils\Strings;
-
 /**
  * Trait TraitDataDisabled
  *
@@ -17,6 +10,14 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Data\DataEntry\Exception\DataEntryDisabledException;
+use Phoundation\Utils\Strings;
+
 trait TraitDataDisabled
 {
     /**

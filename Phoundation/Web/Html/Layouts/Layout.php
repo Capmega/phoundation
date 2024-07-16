@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Layouts;
-
-use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Layouts\Interfaces\LayoutInterface;
-
 /**
  * Layout class
  *
@@ -17,6 +10,14 @@ use Phoundation\Web\Html\Layouts\Interfaces\LayoutInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Layouts;
+
+use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Layouts\Interfaces\LayoutInterface;
+
 abstract class Layout extends ElementsBlock implements LayoutInterface
 {
 }

@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
-use Phoundation\Business\Customers\Customer;
-
 /**
  * Trait TraitDataEntryCustomer
  *
@@ -16,6 +10,13 @@ use Phoundation\Business\Customers\Customer;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Business\Customers\Customer;
+
 trait TraitDataEntryCustomer
 {
     /**

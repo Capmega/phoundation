@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Components\Icons\Icon;
-use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
-
 /**
  * Trait TraitDataEntryIcon
  *
@@ -18,6 +10,15 @@ use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Components\Icons\Icon;
+use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
+
 trait TraitDataEntryIcon
 {
     /**

@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Core\Log\Log;
-
 /**
  * Trait TraitDataMaxStringSize
  *
@@ -16,6 +10,13 @@ use Phoundation\Core\Log\Log;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Core\Log\Log;
+
 trait TraitDataMaxStringSize
 {
     /**

@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Databases\Connectors\Connector;
-use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-
 /**
  * Trait TraitDataDatabaseConnector
  *
@@ -17,6 +10,14 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Databases\Connectors\Connector;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+
 trait TraitDataDatabaseConnector
 {
     /**

@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
-use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Accounts\Users\User;
-
 /**
  * Trait TraitDataEntryUsersId
  *
@@ -17,6 +10,14 @@ use Phoundation\Accounts\Users\User;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\User;
+
 trait TraitDataEntryUser
 {
     /**

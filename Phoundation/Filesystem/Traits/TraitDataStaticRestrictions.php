@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Filesystem\Traits;
-
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\FsRestrictions;
-
 /**
  * Trait TraitDataStaticRestrictions
  *
@@ -17,6 +10,14 @@ use Phoundation\Filesystem\FsRestrictions;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   \Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Filesystem\Traits;
+
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\FsRestrictions;
+
 trait TraitDataStaticRestrictions
 {
     /**

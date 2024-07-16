@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Phoundation Panel class
+ *
+ * This standard webinterface class contains the basic functionalities to render web panels
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Panels;
@@ -28,16 +39,6 @@ use Phoundation\Web\Html\Enums\EnumBootstrapColor;
 use Phoundation\Web\Html\Traits\TraitBootstrapColor;
 use Phoundation\Web\Html\Traits\TraitMode;
 
-/**
- * Phoundation Panel class
- *
- * This standard webinterface class contains the basic functionalities to render web panels
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 abstract class Panel extends ElementsBlock implements PanelInterface
 {
     use TraitMode;

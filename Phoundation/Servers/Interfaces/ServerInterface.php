@@ -6,17 +6,6 @@ namespace Phoundation\Servers\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
-/**
- * interface ServerInterface
- *
- * This class manages a single server
- *
- * @see       \Phoundation\Data\DataEntry\DataEntry
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Servers
- */
 interface ServerInterface extends DataEntryInterface
 {
     /**

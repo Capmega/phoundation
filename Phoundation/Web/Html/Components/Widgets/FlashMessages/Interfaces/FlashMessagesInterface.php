@@ -9,16 +9,6 @@ use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Stringable;
 
-/**
- * Interface FlashMessagesInterface
- *
- * This class tracks HTML flash messages and can render each message and return HTML code.
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
- */
 interface FlashMessagesInterface extends ElementsBlockInterface
 {
     /**

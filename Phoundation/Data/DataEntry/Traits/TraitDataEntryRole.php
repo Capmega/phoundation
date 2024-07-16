@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
-use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
-use Phoundation\Accounts\Roles\Role;
-
 /**
  * Trait TraitDataEntryRole
  *
@@ -17,6 +10,14 @@ use Phoundation\Accounts\Roles\Role;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
+use Phoundation\Accounts\Roles\Role;
+
 trait TraitDataEntryRole
 {
     /**

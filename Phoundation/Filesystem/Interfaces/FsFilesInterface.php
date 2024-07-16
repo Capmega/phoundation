@@ -10,17 +10,6 @@ use Phoundation\Filesystem\FsRestrictions;
 use ReturnTypeWillChange;
 use Stringable;
 
-/**
- * Interface FsFilesInterface
- *
- * This class manages a list of files that are not necessarily confined to the same directory
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
- * @package   Phoundation\Filesystem
- */
 interface FsFilesInterface extends IteratorInterface
 {
     /**

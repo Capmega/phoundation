@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
-
 /**
  * Trait TraitDataIteratorSource
  *
@@ -17,6 +10,14 @@ use Phoundation\Data\Iterator;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
+
 trait TraitDataIteratorSource
 {
     /**

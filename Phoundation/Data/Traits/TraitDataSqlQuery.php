@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
-use Phoundation\Databases\Sql\SqlQuery;
-
 /**
  * Trait TraitDataSqlQuery
  *
@@ -17,6 +10,14 @@ use Phoundation\Databases\Sql\SqlQuery;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
+use Phoundation\Databases\Sql\SqlQuery;
+
 trait TraitDataSqlQuery
 {
     /**

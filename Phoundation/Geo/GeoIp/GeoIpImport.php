@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Geo\GeoIp;
-
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Stringable;
-
 /**
  * GeoIpImport class
  *
@@ -17,6 +10,14 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation/Geo
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Geo\GeoIp;
+
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Stringable;
+
 abstract class GeoIpImport extends Import
 {
     /**

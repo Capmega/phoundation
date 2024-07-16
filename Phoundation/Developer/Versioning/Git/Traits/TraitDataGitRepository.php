@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Versioning\Git\Traits;
-
-use Phoundation\Developer\Versioning\Git\Git;
-use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-
 /**
  * Trait TraitDataGitRepository
  *
@@ -19,6 +10,16 @@ use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Versioning\Git\Traits;
+
+use Phoundation\Developer\Versioning\Git\Git;
+use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+
 trait TraitDataGitRepository
 {
     /**

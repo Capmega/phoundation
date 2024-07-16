@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Widgets\Boxes;
-
-use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Data\Traits\TraitDataTitle;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Components\Widgets\Widget;
-use Phoundation\Web\Html\Html;
-
 /**
  * Box class
  *
@@ -20,6 +10,17 @@ use Phoundation\Web\Html\Html;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Widgets\Boxes;
+
+use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Data\Traits\TraitDataTitle;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Components\Widgets\Widget;
+use Phoundation\Web\Html\Html;
+
 abstract class Box extends Widget
 {
     use TraitDataTitle;

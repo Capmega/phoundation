@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Requests\Traits;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
-
 /**
  * Trait TraitDataStaticParameters
  *
@@ -17,6 +10,14 @@ use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   \Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Requests\Traits;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
+
 trait TraitDataStaticRouteParameters
 {
     /**

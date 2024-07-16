@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Traits;
-
-use JetBrains\PhpStorm\ExpectedValues;
-
 /**
  * Trait TraitBackground
  *
@@ -16,6 +10,13 @@ use JetBrains\PhpStorm\ExpectedValues;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Traits;
+
+use JetBrains\PhpStorm\ExpectedValues;
+
 trait TraitBackground
 {
     /**

@@ -7,17 +7,6 @@ namespace Phoundation\Filesystem\Interfaces;
 use Phoundation\Filesystem\FsRestrictions;
 use Stringable;
 
-/**
- * FsRestrictions class
- *
- * This class manages file access restrictions
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
- * @package   Phoundation\Filesystem
- */
 interface FsRestrictionsInterface
 {
     /**

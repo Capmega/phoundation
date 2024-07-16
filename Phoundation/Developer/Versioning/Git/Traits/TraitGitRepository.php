@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Versioning\Git\Traits;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Path;
-use Phoundation\Os\Processes\Process;
-
 /**
  * Trait TraitGitRepository
  *
@@ -18,6 +10,15 @@ use Phoundation\Os\Processes\Process;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Versioning\Git\Traits;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Path;
+use Phoundation\Os\Processes\Process;
+
 trait TraitGitRepository
 {
     /**

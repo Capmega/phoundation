@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Traits;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Utils\Exception\JsonException;
-use Phoundation\Utils\Json;
-
 /**
  * Trait TraitDataEntryDetails
  *
@@ -18,6 +10,15 @@ use Phoundation\Utils\Json;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Utils\Json;
+
 trait TraitDataEntryDetails
 {
     /**

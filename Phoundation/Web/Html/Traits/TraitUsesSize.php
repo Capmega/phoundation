@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Traits;
-
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Enums\EnumDisplaySize;
-
 /**
  * Trait TraitUsesSize
  *
@@ -17,6 +10,14 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Traits;
+
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
+
 trait TraitUsesSize
 {
     /**

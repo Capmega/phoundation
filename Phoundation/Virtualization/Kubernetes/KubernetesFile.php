@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes;
-
-use Phoundation\Data\Traits\TraitDataFile;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsFile;
-
 /**
  * Class KubernetesFile
  *
@@ -18,6 +10,15 @@ use Phoundation\Filesystem\FsFile;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes;
+
+use Phoundation\Data\Traits\TraitDataFile;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\FsFile;
+
 abstract class KubernetesFile
 {
     use TraitDataFile;

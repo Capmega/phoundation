@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\Traits;
-
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryGeo;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryLongLat;
-use Phoundation\Geo\GeoIp\GeoIp;
-
 /**
  * Trait TraitDataEntryGeoIp
  *
@@ -18,6 +10,15 @@ use Phoundation\Geo\GeoIp\GeoIp;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\Traits;
+
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryGeo;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryLongLat;
+use Phoundation\Geo\GeoIp\GeoIp;
+
 trait TraitDataGeoIp
 {
     use TraitDataEntryGeo;
