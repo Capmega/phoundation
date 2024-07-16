@@ -24,7 +24,6 @@ CliDocumentation::setUsage('./pho accounts rights list [OPTIONS]
 CliDocumentation::setHelp('This command will list the available rights on this system
 
 
-
 ARGUMENTS
 
 

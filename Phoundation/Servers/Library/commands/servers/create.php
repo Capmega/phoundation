@@ -25,7 +25,6 @@ CliDocumentation::setUsage('./pho servers create [OPTIONS]
 CliDocumentation::setHelp(Server::getHelpText('This script allows you to create servers
 
 
-
 ARGUMENTS'));
 
 

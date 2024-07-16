@@ -22,7 +22,6 @@ CliDocumentation::setUsage('./pho servers accounts info IDENTIFIER');
 CliDocumentation::setHelp('This command displays information about the specified SSH account.
 
 
-
 ARGUMENTS
 
 

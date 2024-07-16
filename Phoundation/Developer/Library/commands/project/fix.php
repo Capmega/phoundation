@@ -26,7 +26,6 @@ ownership issues.
 NOTE: This script requires root access to the "chown" command
 
 
-
 ARGUMENTS
 
 

@@ -23,7 +23,6 @@ CliDocumentation::setHelp('This command will delete the specified server. Note t
 the status for the server will be updated to "deleted"
 
 
-
 ARGUMENTS
 
 

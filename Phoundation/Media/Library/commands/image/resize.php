@@ -23,7 +23,6 @@ CliDocumentation::setUsage('./pho image resize IMAGE_FILE_NAME -x 500 -y 500 -m 
 CliDocumentation::setHelp('This command can apply various conversions to the specified image
 
 
-
 ARGUMENTS
 
 

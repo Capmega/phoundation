@@ -24,7 +24,6 @@ CliDocumentation::setUsage('./pho accounts users list [OPTIONS]
 CliDocumentation::setHelp('This command will list the available users on this system
 
 
-
 ARGUMENTS
 
 

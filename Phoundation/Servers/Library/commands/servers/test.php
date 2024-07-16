@@ -24,7 +24,6 @@ CliDocumentation::setUsage('./pho servers authenticate USER');
 CliDocumentation::setHelp('This command can be used to test the authentication for the specified server
 
 
-
 ARGUMENTS
 
 

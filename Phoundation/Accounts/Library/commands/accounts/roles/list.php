@@ -24,7 +24,6 @@ CliDocumentation::setUsage('./pho accounts roles list [OPTIONS]
 CliDocumentation::setHelp('This command will list the available roles on this system
 
 
-
 ARGUMENTS
 
 

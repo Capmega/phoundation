@@ -25,7 +25,6 @@ removed from the database, the status for the account will be updated to "delete
 cleared
 
 
-
 ARGUMENTS
 
 

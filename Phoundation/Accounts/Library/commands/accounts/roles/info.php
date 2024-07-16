@@ -37,7 +37,6 @@ CliDocumentation::setUsage('./pho accounts roles info USER');
 CliDocumentation::setHelp('This script displays information about the specified role.  
 
 
-
 ARGUMENTS
 
 

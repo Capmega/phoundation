@@ -48,6 +48,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
         $this->config_path = 'ssh.accounts.';
+
         parent::__construct($identifier, $column, $meta_enabled, $init);
     }
 

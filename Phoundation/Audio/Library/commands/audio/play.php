@@ -24,7 +24,6 @@ CliDocumentation::setUsage('./pho audio play FILENAME
 CliDocumentation::setHelp('This command can apply various conversions to the specified image
 
 
-
 ARGUMENTS
 
 

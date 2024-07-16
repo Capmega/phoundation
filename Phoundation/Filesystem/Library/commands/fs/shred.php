@@ -46,7 +46,6 @@ CliDocumentation::setHelp('This command will count the sizes of all the files in
 display the amount found
 
 
-
 ARGUMENTS
 
 

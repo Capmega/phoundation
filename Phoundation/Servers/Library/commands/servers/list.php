@@ -23,7 +23,6 @@ CliDocumentation::setUsage('./pho servers list [OPTIONS]
 CliDocumentation::setHelp('This command will list the configured servers on this system
 
 
-
 ARGUMENTS
 
 

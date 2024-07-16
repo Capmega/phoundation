@@ -71,7 +71,6 @@ deployment configuration file named config/deploy/ENVIRONMENT.yml where ENVIRONM
 environment. If the required target environment has no configuration file, you will not be able to deploy to it.
 
 
-
 ARGUMENTS
 
 

@@ -24,7 +24,6 @@ CliDocumentation::setUsage('./pho accounts rights info USER');
 CliDocumentation::setHelp('This script displays information about the specified user.  
 
 
-
 ARGUMENTS
 
 

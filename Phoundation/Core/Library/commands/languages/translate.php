@@ -22,7 +22,6 @@ CliDocumentation::setUsage('./pho languages translate');
 CliDocumentation::setHelp('This command will translate your project into the various configured translations
 
 
-
 ARGUMENTS
 
 

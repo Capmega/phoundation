@@ -26,7 +26,6 @@ CliDocumentation::setUsage('./pho accounts roles add-right NAME "RIGHT[,RIGHT,RI
 CliDocumentation::setHelp('This command allows you to add rights to the specified role
 
 
-
 ARGUMENTS
 
 

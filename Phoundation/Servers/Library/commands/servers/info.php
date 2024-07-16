@@ -24,7 +24,6 @@ CliDocumentation::setUsage('./pho servers info USER');
 CliDocumentation::setHelp('This command displays information about the specified server.
 
 
-
 ARGUMENTS
 
 

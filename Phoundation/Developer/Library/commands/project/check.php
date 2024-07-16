@@ -25,7 +25,6 @@ CliDocumentation::setUsage('./pho project check
 CliDocumentation::setHelp('This command will check - and report - (and optionally fix) the project and its systems
 
 
-
 ARGUMENTS
 
 
