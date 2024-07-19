@@ -15,5 +15,4 @@ declare(strict_types=1);
 
 use Phoundation\Notifications\PushNotifications\PushNotification;
 
-$notification = PushNotification::new()
-                                ->;
+$notification = PushNotification::new()->;
