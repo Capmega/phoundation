@@ -1,15 +1,16 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Cli\CliCommand;
-
-
 /**
  * Pho ... undation!
  *
  * This is the standard phoundation command execution script.
  *
- * With this script you can execute all Phoundation scripts. It supports auto complete so please try and use <TAB>
+ * With this script you can execute all Phoundation scripts. It supports auto complete so please try and use <TAB> to
+ * find sub commands, but also use <TAB> in sub commands as most support auto complete with nearly all parameters.
+ *
+ * This script will also ensure that all required PHP modules and all vendor directories are installed using PHP
+ * composer (included in your Phoundation installation in ROOT/data/bin)
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -18,10 +19,14 @@ use Phoundation\Cli\CliCommand;
  * @package Phoundation\Cli
  */
 
+use Phoundation\Cli\CliCommand;
+
+// If your pho file is in /usr/bin then ensure this constant points to your Phoundation project directory
+const PHO_DIRECTORY = __DIR__;
 
 try {
     // Load the PHP autoloader and execute the static Script::execute() method that will execute the requested command
-    if (!@include(__DIR__ . '/vendor/autoload.php')) {
+    if (!@include(PHO_DIRECTORY . '/vendor/autoload.php')) {
         throw new Exception('Failed opening required \'./vendor/autoload.php\'');
     }
 
@@ -34,8 +39,8 @@ try {
         // Whoops, no vendor libraries available. Run composer to fix
         echo 'WARNING: Autoloader or vendor libraries could not be found, attempting to fix with composer' . PHP_EOL;
 
-        if (file_exists(__DIR__ . '/data/bin/composer.phar')) {
-            passthru('php ' . __DIR__ . '/data/bin/composer.phar update', $exit_code);
+        if (file_exists(PHO_DIRECTORY . '/data/bin/composer.phar')) {
+            passthru('php ' . PHO_DIRECTORY . '/data/bin/composer.phar update', $exit_code);
 
             if ($exit_code) {
                 throw new Exception('Composer failed to execute, see composer output for more information');
