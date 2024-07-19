@@ -1360,21 +1360,27 @@ class Core implements CoreInterface
                                                 </tr>
                                             </tbody>
                                         </table>';
+
                             if (!headers_sent()) {
                                 header_remove('Content-Type');
                                 header('Content-Type: text/html', true);
                             }
+
                             echo $return;
+
                             if ($e instanceof Exception) {
                                 // Clean data
                                 $e->addData(Arrays::hideSensitive(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
                             }
+
                             showdie($e);
                         }
+
                         // We're not in debug mode.
                         Notification::new()
                                     ->setException($e)
                                     ->send();
+
                         switch (Request::getRequestType()) {
                             case EnumRequestTypes::api:
                                 // no break
@@ -1382,9 +1388,11 @@ class Core implements CoreInterface
                                 if ($e instanceof CoreException) {
                                     Json::message($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
                                 }
+
                                 // Assume that all non CoreException exceptions are not warnings!
                                 Json::message($e->getCode(), ['reason' => '']);
                         }
+
                         Request::executeSystem($e->getCode());
                 }
 
@@ -1395,6 +1403,7 @@ class Core implements CoreInterface
 //                    Log::error($f->getMessage());
 //                    exit('Pre core available exception with handling failure. Please your application or webserver error log files, or enable the first line in the exception handler file for more information');
 //                }
+
                 if (!defined('PLATFORM') or static::inStartupState($state)) {
                     Log::error(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
                         ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
@@ -1404,8 +1413,10 @@ class Core implements CoreInterface
                     Log::error($f->getTrace());
                     exit('System startup exception with handling failure. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
                 }
+
                 Log::error('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!');
                 Log::error($f);
+
                 switch (PLATFORM) {
                     case 'cli':
                         Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
@@ -1415,11 +1426,13 @@ class Core implements CoreInterface
                         Debug::setEnabled(true);
                         show($f);
                         showdie($e);
+
                     case 'web':
                         if (!headers_sent()) {
                             http_response_code(500);
                             header('Content-Type: text/html');
                         }
+
                         if (!Debug::isEnabled()) {
                             Notification::new()
                                         ->setException($f)
@@ -1429,6 +1442,7 @@ class Core implements CoreInterface
                                         ->send();
                             Request::executeSystem(500);
                         }
+
                         show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
                             ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
                         ]));
