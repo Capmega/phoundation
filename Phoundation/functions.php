@@ -1,9 +1,11 @@
 <?php
 
 /**
- * functions file functions.php
+ * Functions file
  *
- * This is the core functions library file
+ * This is the core functions library file.
+ *
+ * In here are smaller functions which give generic functionality that can be used anywhere.
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -12,22 +14,12 @@
  * @package   functions
  */
 
-/**
- * Returns true if the specified string is a version, or false if it is not
- *
- * @param string $version The version to be validated
- *
- * @return boolean True if the specified $version is an N.N.N version string
- * @version 2.5.46: Added function and documentation
- */
-
 declare(strict_types=1);
 
 use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Interfaces\FloatableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -49,9 +41,19 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
 
+
+/**
+ * Returns true if the specified string is a version, or false if it is not
+ *
+ * @param string $version The version to be validated
+ *
+ * @return boolean True if the specified $version is an N.N.N version string
+ * @version 2.5.46: Added function and documentation
+ */
 function is_version(string $version): bool
 {
     $return = preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
+
     if ($return === false) {
         throw new Exception(tr('Failed to determine if ":version" is a valid version or not', [
             ':version' => $version,
@@ -241,6 +243,7 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
     if (isset($variable)) {
         return $variable;
     }
+
     // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
     unset($variable);
 
@@ -295,6 +298,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
     // The variable exists
     if (isset($variable)) {
         // Ensure datatype
+
         foreach (Arrays::force($types, '|') as $type) {
             switch ($type) {
                 case 'scalar':
@@ -478,6 +482,7 @@ function ensure_variable(mixed &$variable, mixed $initialize): mixed
 {
     if (isset($variable)) {
         $variable = $initialize;
+
     } elseif ($variable === null) {
         $variable = $initialize;
     }
@@ -504,10 +509,12 @@ function force_natural(mixed $source, int $default = 1, int $start = 1): int
         // This isn't even a number
         return $default;
     }
+
     if ($source < $start) {
         // Natural numbers have to be > 1 (by default, $start might be adjusted where needed)
         return $default;
     }
+
     if (!is_int($source)) {
         // This is a nice integer
         return (int) $source;
@@ -534,9 +541,11 @@ function is_natural(mixed $number, int $start = 1): bool
     if (!is_numeric($number)) {
         return false;
     }
+
     if ($number < $start) {
         return false;
     }
+
     if ($number != (int) $number) {
         return false;
     }
@@ -577,9 +586,11 @@ function is_new(DataEntryInterface|array $entry): bool
 
         return $entry->isNew();
     }
+
     if (isset_get($entry['status']) === '_new') {
         return true;
     }
+
     if (isset_get($entry['id']) === null) {
         return true;
     }
@@ -675,6 +686,7 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
         // Get a random count
         $count = random_int(1, count($arguments));
     }
+
     if (($count < 1) or ($count > count($arguments))) {
         // Invalid count specified
         throw new OutOfBoundsException(tr('Invalid count ":count" specified for ":args" arguments', [
@@ -682,8 +694,10 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
             ':args'  => count($arguments),
         ]));
     }
+
     // Return multiple arguments in an array
     $return = [];
+
     for ($i = 0; $i < $count; $i++) {
         $return[] = $arguments[$key = Arrays::getRandomValue($arguments)];
         unset($arguments[$key]);
@@ -1023,6 +1037,7 @@ function execute_hook(string $__file): void
 /**
  * ??? No idea what this is supposed to do or if its important. Figure it out later, I guess?
  *
+ * @todo Remove this function
  * @param mixed $variable
  * @param int   $level
  *
@@ -1033,24 +1048,30 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
     if (!defined('PHP_ZTS')) {
         return $variable;
     }
+
     if (++$level > 20) {
         // Recursion level reached, until here, no further!
         return '***  Resource limit reached! ***';
     }
+
     if (is_resource($variable)) {
         $variable = print_r($variable, true);
     }
+
     if (is_array($variable) or (is_object($variable) and (($variable instanceof Exception) or ($variable instanceof Error)))) {
         foreach ($variable as $key => &$value) {
             if ($key === 'object') {
                 $value = print_r($value, true);
+
             } else {
                 $value = variable_zts_safe($value, $level);
             }
         }
+
     } elseif (is_object($variable)) {
         $variable = print_r($variable, true);
     }
+
     unset($value);
 
     return $variable;
@@ -1135,9 +1156,11 @@ function has_trait(string $trait, object|string $class): bool
 {
     while ($class) {
         $traits = class_uses($class);
+
         if (in_array($trait, $traits)) {
             return true;
         }
+
         // Check parent class
         $class = get_parent_class($class);
     }
@@ -1161,8 +1184,10 @@ function has_trait(string $trait, object|string $class): bool
 
     if (!Core::userScriptRunning()) {
         $do = true;
+
     } elseif (Core::inShutdownState() and Config::getBoolean('debug.shutdown', false)) {
         $do = true;
+
     } elseif (Core::inStartupState() and Config::getBoolean('debug.startup', false)) {
         $do = true;
     }
@@ -1197,19 +1222,23 @@ function function_called(string $function): bool
 {
     // Clean requested function
     $function = trim($function);
+
     if (str_ends_with($function, '()')) {
         $function = substr($function, 0, -2);
     }
+
     // Divide into class and function
     $class    = Strings::until($function, '::', needle_required: true);
     $class    = strtolower(trim($class));
     $function = Strings::from($function, '::');
     $function = strtolower(trim($function));
+
     // Scan trace for class and function match
     foreach (debug_backtrace() as $trace) {
         $trace['function'] = strtolower(trim((string) $trace['function']));
         $trace['class']    = strtolower(trim((string) isset_get($trace['class'])));
         $trace['class']    = Strings::fromReverse($trace['class'], '\\');
+
         if ($trace['function'] === $function) {
             if ($trace['class'] === $class) {
                 return true;
@@ -1259,13 +1288,14 @@ function now(DateTimeZoneInterface|string|null $timezone = 'system'): DateTimeIn
  *
  * @param RenderInterface|callable|string|float|int|null $content
  *
- * @return string
+ * @return string|null
  */
-function render(RenderInterface|callable|string|float|int|null $content): string
+function render(RenderInterface|callable|string|float|int|null $content): ?string
 {
     if (is_callable($content)) {
         return render($content());
     }
+
     if ($content instanceof RenderInterface) {
         return render($content->render());
     }
