@@ -609,9 +609,6 @@ class Log
             return false;
         }
 
-        // TODO Delete static::$lock as it looks like its not needed anymore
-        static::$lock = true;
-
         static::ensureInstance();
 
         try {
@@ -635,7 +632,24 @@ class Log
                 static::$lock = false;
 
                 return $success;
+
             }
+
+            if (is_object($messages)) {
+                // If the message to be logged is an object, then extract the log information from there
+                return static::object($messages, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+            }
+
+            if (static::$lock) {
+                // Log::write() is already busy writing. Writing again would cause endless loops, so reject this call.
+                error_log(tr('Rejecting next log message to avoid endless loops because Log->write() is locked for another log entry. Check backtrace for Log-> calls within Log->write()'));
+                error_log(Strings::force($messages, PHP_EOL));
+                error_log(Strings::force(print_r(Debug::getBacktrace()), PHP_EOL));
+
+                return false;
+            }
+
+            static::$lock = true;
 
             // Get the real level and check if we passed the threshold. If $threshold was negative, the same message may be
             // logged multiple times
@@ -661,11 +675,6 @@ class Log
                 }
             }
 
-            // If the message to be logged is an object, then extract the log information from there
-            if (is_object($messages)) {
-                return static::object($messages, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
-            }
-
             // Make sure the log message is clean and readable.
             // Don't truncate as we might have huge log messages!
             // If no or an empty class was specified, we do not clean
@@ -682,7 +691,7 @@ class Log
 
             static::$last_message = $messages;
 
-            // If we're initializing the log, then write to the system log
+            // If logging to the standard log output failed or we're initializing the log, then write to the system log
             if (static::$failed) {
                 static::errorLog(Strings::force($messages));
                 static::$lock = false;
