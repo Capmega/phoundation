@@ -92,7 +92,7 @@ CliDocumentation::setAutoComplete([
 $argv = ArgvValidator::new()
                      ->select('-g,--gzip')->isOptional(false)->isBoolean()
                      ->select('--timeout', true)->isOptional(3600)->isInteger()->isMoreThan(0)
-                     ->select('-f,--file', true)->isOptional()->isFile([FsDirectory::getDataSources(), FsDirectory::getTemporary()])
+                     ->select('-f,--file', true)->isOptional()->sanitizeFile([FsDirectory::getDataSourcesObject(), FsDirectory::getTemporaryObject()])
                      ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getAllRowsSingleColumn('name'))
                      ->select('-b,--database', true)->isVariable()
                      ->validate();

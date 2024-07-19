@@ -32,7 +32,7 @@ $restrictions = FsRestrictions::getReadonly( [
 
 CliDocumentation::setUsage('./pho databases import -d mysql -b system -f system.sql');
 
-CliDocumentation::setHelp('This command will import the specified database file into the specified database
+CliDocumentation::setHelp('This command will import the specified database dump zfile into the specified database
 
 
 ARGUMENTS
@@ -45,7 +45,7 @@ ARGUMENTS
 -b / --database DATABASE                The database in which to import. Must specify either database, or connector
 
 [--comments COMMENTS]                   The optional comments to add in the versions table if the init is executed right
-                                        after import
+                                        after import (NOT YET IMPLEMENTED)
 
 -f / --file FILE                        The file which to import
 
@@ -72,6 +72,7 @@ CliDocumentation::setAutoComplete([
                                               'noword' => function () { return sql()->listScalar('SHOW DATABASES'); },
                                           ],
                                           '-t,--timeout'   => true,
+                                          '--comments'     => true,
                                           '--no-init'      => false,
                                           '--no-drop'      => false,
                                       ],
@@ -80,9 +81,9 @@ CliDocumentation::setAutoComplete([
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('-f,--file', true)->isFile([FsDirectory::getDataSources(), FsDirectory::getTemporary()])
+                     ->select('-f,--file', true)->sanitizeFile([FsDirectory::getDataSourcesObject(), FsDirectory::getDataTmpObject()])
                      ->select('-b,--database', true)->isVariable()
-                     ->select('-c,--comments', true)->isOptional()->isPrintable()
+                     ->select('--comments', true)->isOptional()->isPrintable()
                      ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true, true)->getAllRowsSingleColumn('name'))
                      ->select('-t,--timeout', true)->isOptional(3600)->isNatural(true)
                      ->select('--no-drop')->isOptional(false)->isBoolean()
@@ -95,7 +96,7 @@ Import::new()
       ->setConnector($argv['connector'], true)
       ->setDatabase($argv['database'])
       ->setDrop(!$argv['no_drop'])
-      ->setFile(FsFile::new($argv['file'], $restrictions))
+      ->setFile($argv['file'])
       ->setTimeout($argv['timeout'])
       ->import();
 

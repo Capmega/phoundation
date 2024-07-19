@@ -168,12 +168,14 @@ class Import
                     ':file'     => $this->file,
                     ':database' => $this->database,
                 ]));
+
                 MySql::new()
                      ->setTimeout($this->timeout)
                      ->setConnector($this->connector)
                      ->drop($this->drop ? $this->database : null)
                      ->create($this->drop ? $this->database : null)
-                     ->import($this->file, FsRestrictions::new('/'));
+                     ->import($this->file);
+
                 Log::success(tr('Finished importing MySQL dump file ":file" to database ":database"', [
                     ':file'     => $this->file,
                     ':database' => $this->database,

@@ -70,7 +70,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
-        $this->config_path = 'databases.connectors';
+        $this->configuration_path = 'databases.connectors';
 
         parent::__construct($identifier, $column, $meta_enabled, $init);
 
@@ -249,7 +249,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getType(): ?string
     {
-        return $this->getValueTypesafe('string', 'type');
+        return $this->getTypesafe('string', 'type');
     }
 
 
@@ -273,7 +273,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getDriver(): ?string
     {
-        return $this->getValueTypesafe('string', 'driver');
+        return $this->getTypesafe('string', 'driver');
     }
 
 
@@ -297,7 +297,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getPdoAttributes(): ?string
     {
-        return $this->getValueTypesafe('string', 'pdo_attributes');
+        return $this->getTypesafe('string', 'pdo_attributes');
     }
 
 
@@ -321,7 +321,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getMode(): ?string
     {
-        return $this->getValueTypesafe('string', 'mode');
+        return $this->getTypesafe('string', 'mode');
     }
 
 
@@ -345,7 +345,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getLimitMax(): ?int
     {
-        return $this->getValueTypesafe('string', 'limit_max');
+        return $this->getTypesafe('string', 'limit_max');
     }
 
 
@@ -369,7 +369,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getAutoIncrement(): ?int
     {
-        return $this->getValueTypesafe('string', 'auto_increment');
+        return $this->getTypesafe('string', 'auto_increment');
     }
 
 
@@ -393,7 +393,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getSshTunnelsId(): ?int
     {
-        return $this->getValueTypesafe('int', 'ssh_tunnels_id');
+        return $this->getTypesafe('int', 'ssh_tunnels_id');
     }
 
 
@@ -417,7 +417,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getLog(): ?bool
     {
-        return $this->getValueTypesafe('bool', 'log');
+        return $this->getTypesafe('bool', 'log');
     }
 
 
@@ -441,7 +441,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getPersist(): ?bool
     {
-        return $this->getValueTypesafe('bool', 'persist');
+        return $this->getTypesafe('bool', 'persist');
     }
 
 
@@ -465,7 +465,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getInit(): ?bool
     {
-        return $this->getValueTypesafe('bool', 'init');
+        return $this->getTypesafe('bool', 'init');
     }
 
 
@@ -489,7 +489,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getBuffered(): ?bool
     {
-        return $this->getValueTypesafe('bool', 'buffered');
+        return $this->getTypesafe('bool', 'buffered');
     }
 
 
@@ -513,7 +513,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getStatistics(): ?bool
     {
-        return $this->getValueTypesafe('bool', 'statistics');
+        return $this->getTypesafe('bool', 'statistics');
     }
 
 
