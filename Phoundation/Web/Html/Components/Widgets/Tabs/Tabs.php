@@ -84,12 +84,12 @@ class Tabs extends ElementsBlock implements TabsInterface
      *
      * @param mixed                            $value
      * @param float|Stringable|int|string|null $key
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return $this
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         if (!($value instanceof TabInterface)) {
             throw new OutOfBoundsException(tr('Specified tab ":value" should use a TabInterface', [
@@ -97,6 +97,6 @@ class Tabs extends ElementsBlock implements TabsInterface
             ]));
         }
 
-        return parent::add($value, $key, $skip_null, $exception);
+        return parent::add($value, $key, $skip_null_values, $exception);
     }
 }

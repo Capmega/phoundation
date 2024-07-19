@@ -179,7 +179,7 @@ class Route
 
         // Get routing parameters and find the correct target page
         $parameters = static::getParametersObject()->select(static::$uri);
-        $target     = new FsFile($target);
+        $target     = new FsFile($target, FsRestrictions::getReadonly(DIRECTORY_WEB));
 
         Request::setRoutingParameters($parameters);
         Request::setAttachment($attachment);

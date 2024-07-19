@@ -796,17 +796,17 @@ abstract class Request implements RequestInterface
      *
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return void
      */
-    public static function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): void
+    public static function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): void
     {
         if (empty(static::$source)) {
             static::$source = new Iterator();
         }
-        static::$source->add($value, $key, $skip_null, $exception);
+        static::$source->add($value, $key, $skip_null_values, $exception);
     }
 
 

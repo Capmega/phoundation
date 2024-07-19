@@ -12,7 +12,7 @@ interface PanelsInterface extends IteratorInterface
     /**
      * @inheritDoc
      */
-    public function add(mixed $value, float|Stringable|int|string|null $key = null, bool $skip_null = true, bool $exception = true): static;
+    public function add(mixed $value, float|Stringable|int|string|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
 
 
     /**

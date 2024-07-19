@@ -26,10 +26,10 @@ class Panels extends Iterator implements PanelsInterface
     /**
      * @inheritDoc
      */
-    public function add(mixed $value, float|Stringable|int|string|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function add(mixed $value, float|Stringable|int|string|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         if (($value === null) or ($value instanceof PanelInterface)) {
-            return parent::add($value, $key, $skip_null, $exception);
+            return parent::add($value, $key, $skip_null_values, $exception);
         }
         throw OutOfBoundsException::new(tr('Cannot add specified value type ":value" with key ":key", the value must be a PanelInterface type object', [
             ':key'   => $key,

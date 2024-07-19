@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Trait ElementAttributes
  *
@@ -493,13 +494,13 @@ trait TraitElementAttributes
      *
      * @param mixed                 $value
      * @param string|float|int|null $key
-     * @param bool                  $skip_null
+     * @param bool                  $skip_null_values
      *
      * @return static
      */
-    public function setAttribute(mixed $value, string|float|int|null $key = null, bool $skip_null = true): static
+    public function setAttribute(mixed $value, string|float|int|null $key = null, bool $skip_null_values = true): static
     {
-        $this->attributes->add($value, $key, $skip_null, exception: false);
+        $this->attributes->add($value, $key, $skip_null_values, exception: false);
 
         return $this;
     }
