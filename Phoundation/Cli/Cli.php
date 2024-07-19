@@ -160,7 +160,7 @@ class Cli
             if (!VERY_QUIET) {
                 foreach (Arrays::force($headers) as $column => $header) {
                     $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                    Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false, false);
+                    Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 10, false, false);
                 }
 
                 Log::cli(' ');
