@@ -276,12 +276,12 @@ class Emails extends DataIterator implements EmailsInterface
      *
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         if (!$value instanceof EmailInterface) {
             if (!is_string($value)) {
@@ -315,6 +315,6 @@ class Emails extends DataIterator implements EmailsInterface
                   ->save();
         }
 
-        return parent::add($value, $key, $skip_null, $exception);
+        return parent::add($value, $key, $skip_null_values, $exception);
     }
 }

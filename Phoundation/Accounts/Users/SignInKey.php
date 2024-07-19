@@ -119,7 +119,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function getValidUntil(): ?string
     {
-        return $this->getValueTypesafe('int', 'valid_until');
+        return $this->getTypesafe('int', 'valid_until');
     }
 
 
@@ -239,7 +239,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function getOnce(): ?bool
     {
-        return $this->getValueTypesafe('bool', 'once', true);
+        return $this->getTypesafe('bool', 'once', true);
     }
 
 
@@ -289,7 +289,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function getAllowNavigation(): bool
     {
-        return (bool) $this->getValueTypesafe('bool', 'allow_navigation', false);
+        return (bool) $this->getTypesafe('bool', 'allow_navigation', false);
     }
 
 

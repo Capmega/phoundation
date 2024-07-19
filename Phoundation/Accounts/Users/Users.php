@@ -172,13 +172,13 @@ class Users extends DataIterator implements UsersInterface
      *
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return static
      * @todo Move saving part to ->save(). ->add() should NOT immediately save to database!
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         $this->ensureParent(tr('add User entry to parent'));
 
@@ -186,7 +186,7 @@ class Users extends DataIterator implements UsersInterface
             if (is_array($value)) {
                 // Add multiple rights
                 foreach ($value as $entry) {
-                    $this->add($entry, $key, $skip_null);
+                    $this->add($entry, $key, $skip_null_values);
                 }
 
             } else {

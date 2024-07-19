@@ -245,14 +245,14 @@ class Rights extends DataIterator implements RightsInterface
      *
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return static
      * @throws OutOfBoundsExceptionInterface
      * @todo Move saving part to ->save(). ->add() should NOT immediately save to database!
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         $this->ensureParent(tr('add Right entry to parent'));
 
@@ -260,7 +260,7 @@ class Rights extends DataIterator implements RightsInterface
             if (is_array($value)) {
                 // Add multiple rights
                 foreach ($value as $entry) {
-                    $this->add($entry, $key, $skip_null);
+                    $this->add($entry, $key, $skip_null_values);
                 }
 
             } else {

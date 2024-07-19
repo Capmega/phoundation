@@ -901,7 +901,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.3.1', function () {
             // Guest user will have status "guest" as well.
-            sql()->query('UPDATE `accounts_users` SET `status` = "guest" WHERE `email` = "guest"');
+            sql()->query('UPDATE `accounts_users` SET `status` = "system" WHERE `email` = "guest"');
         });
     }
 }

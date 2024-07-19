@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AJAX REST request system/accounts/users/redirect/autosuggest
  *
