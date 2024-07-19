@@ -14,12 +14,18 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Mounts\FsMounts;
 
 
 CliDocumentation::setUsage('./pho filesystem requirements list');
 
 CliDocumentation::setHelp('This command lists all available path requirements');
+
+
+// Get the arguments
+$argv = ArgvValidator::new()
+    ->validate();
 
 
 // Display the available mounts

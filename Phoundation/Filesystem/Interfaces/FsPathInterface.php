@@ -22,6 +22,7 @@ use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
+use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
 
@@ -34,7 +35,6 @@ interface FsPathInterface extends Stringable
      */
     public function getExtension(): string;
 
-
     /**
      * Returns true if this Path object has the specified extension
      *
@@ -44,7 +44,6 @@ interface FsPathInterface extends Stringable
      */
     public function hasExtension(string $extension): bool;
 
-
     /**
      * Returns the basename of this path
      *
@@ -52,14 +51,12 @@ interface FsPathInterface extends Stringable
      */
     public function getBasename(): string;
 
-
     /**
      * Returns the stream for this file if it's opened. Will return NULL if closed
      *
      * @return mixed
      */
     public function getStream(): mixed;
-
 
     /**
      * Returns the path
@@ -70,7 +67,6 @@ interface FsPathInterface extends Stringable
      */
     public function getPath(FsPathInterface|string|null $from = null): ?string;
 
-
     /**
      * Returns true if this object is the specified path
      *
@@ -79,7 +75,6 @@ interface FsPathInterface extends Stringable
      * @return bool
      */
     public function isPath(string $path): bool;
-
 
     /**
      * Sets the file for this Path object
@@ -92,7 +87,6 @@ interface FsPathInterface extends Stringable
      */
     public function setPath(Stringable|string|null $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static;
 
-
     /**
      * Sets the target file name in case operations create copies of this file
      *
@@ -102,14 +96,12 @@ interface FsPathInterface extends Stringable
      */
     public function setTarget(Stringable|string $target): static;
 
-
     /**
      * Returns the target file name in case operations create copies of this file
      *
      * @return string|null
      */
     public function getTarget(): ?string;
-
 
     /**
      * Checks if the specified file exists
@@ -120,7 +112,6 @@ interface FsPathInterface extends Stringable
      * @return bool
      */
     public function exists(bool $check_dead_symlink = false, bool $auto_mount = true): bool;
-
 
     /**
      * Checks if the specified file exists, throws exception if it doesn't
@@ -133,7 +124,6 @@ interface FsPathInterface extends Stringable
      */
     public function checkExists(bool $force = false, bool $check_dead_symlink = false, bool $auto_mount = true): static;
 
-
     /**
      * Checks if the specified file does not exist, throws exception if it does
      *
@@ -145,7 +135,6 @@ interface FsPathInterface extends Stringable
      */
     public function checkNotExists(bool $force = false, bool $check_dead_symlink = false, bool $auto_mount = true): static;
 
-
     /**
      * Ensures that the path is completely mounted and executes the callback if a mount was made
      *
@@ -153,7 +142,6 @@ interface FsPathInterface extends Stringable
      * @todo Add support for recursive auto mounting
      */
     public function attemptAutoMount(): bool;
-
 
     /**
      * Renames a file or directory
@@ -165,7 +153,6 @@ interface FsPathInterface extends Stringable
      */
     public function rename(Stringable|string $to_filename, $context = null): static;
 
-
     /**
      * Truncates a file to a given length
      *
@@ -175,14 +162,12 @@ interface FsPathInterface extends Stringable
      */
     public function truncate(int $size): static;
 
-
     /**
      * Output all remaining data on a file pointer to the output buffer
      *
      * @return int The number of bytes
      */
     public function fpassthru(): int;
-
 
     /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown
@@ -202,14 +187,12 @@ interface FsPathInterface extends Stringable
      */
     public function checkReadable(?string $type = null, ?Throwable $previous_e = null): static;
 
-
     /**
      * Returns true if the path for this Path object is relative (and as such, starts NOT with /)
      *
      * @return bool
      */
     public function isRelative(): bool;
-
 
     /**
      * Returns true if the path for this Path object is absolute (and as such, starts with /)
@@ -218,7 +201,6 @@ interface FsPathInterface extends Stringable
      */
     public function isAbsolute(): bool;
 
-
     /**
      * Returns true if this path can be read
      *
@@ -226,14 +208,12 @@ interface FsPathInterface extends Stringable
      */
     public function isReadable(): bool;
 
-
     /**
      * Returns true if this path can be written
      *
      * @return bool
      */
     public function isWritable(): bool;
-
 
     /**
      * Check if the object file exists and is writable. If not both, an exception will be thrown
@@ -253,7 +233,6 @@ interface FsPathInterface extends Stringable
      */
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null): static;
 
-
     /**
      * Returns array with all permission information about the object files.
      *
@@ -262,7 +241,6 @@ interface FsPathInterface extends Stringable
      * @return string
      */
     public function getHumanReadableFileType(): string;
-
 
     /**
      * Returns array with all permission information about the object files.
@@ -273,7 +251,6 @@ interface FsPathInterface extends Stringable
      */
     public function getHumanReadableFileMode(): array;
 
-
     /**
      * Returns the mimetype data for the object file
      *
@@ -281,7 +258,6 @@ interface FsPathInterface extends Stringable
      * @version 2.4: Added documentation
      */
     public function getMimetype(): string;
-
 
     /**
      * Securely delete a file weather it exists or not, without error, using the "shred" command
@@ -295,7 +271,6 @@ interface FsPathInterface extends Stringable
      * @return $this
      */
     public function secureDelete(string|bool $clean_path = true, bool $sudo = false): static;
-
 
     /**
      * Delete a file weather it exists or not, without error, using the "rm" command
@@ -313,7 +288,6 @@ interface FsPathInterface extends Stringable
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static;
 
-
     /**
      * Moves this file to the specified target, will try to ensure target directory exists
      *
@@ -324,7 +298,6 @@ interface FsPathInterface extends Stringable
      */
     public function movePath(Stringable|string $target, ?FsRestrictions $restrictions = null): static;
 
-
     /**
      * Switches file mode to the new value and returns the previous value
      *
@@ -334,14 +307,12 @@ interface FsPathInterface extends Stringable
      */
     public function switchMode(string|int $mode): string|int;
 
-
     /**
      * Returns the file mode for the object file
      *
      * @return int|null
      */
     public function getMode(): int|null;
-
 
     /**
      * Returns the path octal filemode into a text readable filemode (rwxrwxrwx)
@@ -350,14 +321,12 @@ interface FsPathInterface extends Stringable
      */
     public function getModeHumanReadable(): string;
 
-
     /**
      * Returns the file type
      *
      * @return string|int|null
      */
     public function getType(): string|int|null;
-
 
     /**
      * Returns the name of the file type
@@ -366,14 +335,12 @@ interface FsPathInterface extends Stringable
      */
     public function getTypeName(): string;
 
-
     /**
      * Returns the stat data for the object file
      *
      * @return array
      */
     public function getStat(): array;
-
 
     /**
      * Update the object file owner and group
@@ -389,7 +356,6 @@ interface FsPathInterface extends Stringable
      */
     public function chown(?string $user = null, ?string $group = null, bool $recursive = false): static;
 
-
     /**
      * Change file mode, optionally recursively
      *
@@ -404,7 +370,6 @@ interface FsPathInterface extends Stringable
      */
     public function chmod(string|int $mode, bool $recursive = false, bool $sudo = false): static;
 
-
     /**
      * Ensure that the object file is readable
      *
@@ -417,12 +382,11 @@ interface FsPathInterface extends Stringable
      */
     public function ensureFileReadable(?int $mode = null): bool;
 
-
     /**
      * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
      *
-     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if
-     *                 whatever was specified does not exist.
+     * @return string string The real directory extrapolated from the specified $directory, if exists. False if
+     *                whatever was specified does not exist.
      *
      * @example
      * code
@@ -436,8 +400,18 @@ interface FsPathInterface extends Stringable
      * /bin
      * /code
      */
-    public function getRealPath(): ?string;
+    public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string;
 
+    /**
+     * Make this path a real path
+     *
+     * Real path will resolve all symlinks, requires that the path exists!
+     *
+     * @param Stringable|string|bool|null $absolute_prefix
+     * @param bool $must_exist
+     * @return $this
+     */
+    public function makeRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static;
 
     /**
      * Returns a normalized path that has all ./ and ../ resolved
@@ -462,7 +436,6 @@ interface FsPathInterface extends Stringable
      */
     public function getNormalizedPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): ?string;
 
-
     /**
      * Ensure that the object file is writable
      *
@@ -475,7 +448,6 @@ interface FsPathInterface extends Stringable
      */
     public function ensureFileWritable(?int $mode = null): bool;
 
-
     /**
      * Returns the size in bytes of this file or directory
      *
@@ -485,7 +457,6 @@ interface FsPathInterface extends Stringable
      */
     public function getSize(bool $recursive = true): int;
 
-
     /**
      * Returns the parent directory for this file
      *
@@ -494,7 +465,6 @@ interface FsPathInterface extends Stringable
      * @return FsDirectoryInterface
      */
     public function getParentDirectory(?FsRestrictionsInterface $restrictions = null): FsDirectoryInterface;
-
 
     /**
      * This is an fopen() wrapper with some built-in error handling
@@ -506,14 +476,12 @@ interface FsPathInterface extends Stringable
      */
     public function open(EnumFileOpenMode $mode, $context = null): static;
 
-
     /**
      * Returns true if the file is a symlink, whether its target exists or not
      *
      * @return bool
      */
     public function isLink(): bool;
-
 
     /**
      * Returns the path that this link points to
@@ -524,7 +492,6 @@ interface FsPathInterface extends Stringable
      */
     public function readLink(FsPathInterface|string|bool $absolute_prefix = false): FsPathInterface;
 
-
     /**
      * Wrapper for Path::readlink()
      *
@@ -534,14 +501,12 @@ interface FsPathInterface extends Stringable
      */
     public function getLinkTarget(FsPathInterface|string|bool $absolute = false): FsPathInterface;
 
-
     /**
      * Returns true if the file is a symlink AND its target exists
      *
      * @return bool
      */
     public function isLinkAndTargetExists(): bool;
-
 
     /**
      * Returns true if the file is a directory
@@ -550,14 +515,12 @@ interface FsPathInterface extends Stringable
      */
     public function isDirectory(): bool;
 
-
     /**
      * Returns true if this file is a FIFO
      *
      * @return bool
      */
     public function isFifo(): bool;
-
 
     /**
      * Returns true if this file is a Character device
@@ -566,14 +529,12 @@ interface FsPathInterface extends Stringable
      */
     public function isChr(): bool;
 
-
     /**
      * Returns true if this file is a block device
      *
      * @return bool
      */
     public function isBlk(): bool;
-
 
     /**
      * Returns true if this file is ???
@@ -582,7 +543,6 @@ interface FsPathInterface extends Stringable
      */
     public function isReg(): bool;
 
-
     /**
      * Returns true if this file is a socket device
      *
@@ -590,14 +550,12 @@ interface FsPathInterface extends Stringable
      */
     public function isSock(): bool;
 
-
     /**
      * Returns true if the file is opened
      *
      * @return bool
      */
     public function isOpen(): bool;
-
 
     /**
      * Creates a symlink $target that points to this file.
@@ -611,7 +569,6 @@ interface FsPathInterface extends Stringable
      */
     public function symlinkTargetFromThis(FsPathInterface|string $target, FsPathInterface|string|bool $make_relative = true): FsPathInterface;
 
-
     /**
      * Makes this path a symlink that points to the specified target.
      *
@@ -624,7 +581,6 @@ interface FsPathInterface extends Stringable
      */
     public function symlinkThisToTarget(FsPathInterface|string $target, FsPathInterface|string|bool $make_relative = true): FsPathInterface;
 
-
     /**
      * Returns true if the file pointer is at EOF
      *
@@ -632,14 +588,12 @@ interface FsPathInterface extends Stringable
      */
     public function isEof(): bool;
 
-
     /**
      * Returns how the file was opened, NULL if the file is not open
      *
      * @return EnumFileOpenMode|null
      */
     public function getOpenMode(): ?EnumFileOpenMode;
-
 
     /**
      * Sets the internal file pointer to the specified offset
@@ -652,7 +606,6 @@ interface FsPathInterface extends Stringable
      */
     public function seek(int $offset, int $whence = SEEK_SET): static;
 
-
     /**
      * Returns the current position of the file read/write pointer
      *
@@ -661,7 +614,6 @@ interface FsPathInterface extends Stringable
      */
     public function tell(): int;
 
-
     /**
      * Rewinds the position of the file pointer
      *
@@ -669,7 +621,6 @@ interface FsPathInterface extends Stringable
      * @throws FileNotOpenException|FileActionFailedException
      */
     public function rewind(): static;
-
 
     /**
      * Reads and returns the specified number of bytes from the current pointer location
@@ -681,7 +632,6 @@ interface FsPathInterface extends Stringable
      */
     public function read(?int $buffer = null, ?int $seek = null): string|false;
 
-
     /**
      * Reads and returns the next text line in this file
      *
@@ -690,7 +640,6 @@ interface FsPathInterface extends Stringable
      * @return string|false
      */
     public function readLine(?int $buffer = null): string|false;
-
 
     /**
      * Reads line from file pointer and parse for CSV fields
@@ -704,14 +653,12 @@ interface FsPathInterface extends Stringable
      */
     public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array|false;
 
-
     /**
      * Reads and returns a single character from the current file pointer
      *
      * @return string|false
      */
     public function readCharacter(): string|false;
-
 
     /**
      * Reads and returns the specified number of bytes at the specified location from this CLOSED file
@@ -725,7 +672,6 @@ interface FsPathInterface extends Stringable
      */
     public function readBytes(int $length, int $start = 0): string|false;
 
-
     /**
      * Binary-safe write the specified data to this file
      *
@@ -735,7 +681,6 @@ interface FsPathInterface extends Stringable
      * @return $this
      */
     public function write(string $data, ?int $length = null): static;
-
 
     /**
      * Write the specified data to this
@@ -749,7 +694,6 @@ interface FsPathInterface extends Stringable
      */
     public function getContentsAsString(bool $use_include_path = false, $context = null, int $offset = 0, ?int $length = null): string;
 
-
     /**
      * Returns the contents of this file as an array
      *
@@ -760,7 +704,6 @@ interface FsPathInterface extends Stringable
      */
     public function getContentsAsArray(int $flags = FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES, $context = null): array;
 
-
     /**
      * Returns the contents of this file as an Iterator object
      *
@@ -770,7 +713,6 @@ interface FsPathInterface extends Stringable
      * @return IteratorInterface
      */
     public function getContentsAsIterator(int $flags = FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES, $context = null): IteratorInterface;
-
 
     /**
      * Write the specified data to this file
@@ -783,7 +725,6 @@ interface FsPathInterface extends Stringable
      */
     public function putContents(string $data, int $flags = 0, $context = null): static;
 
-
     /**
      * Append specified data string to the end of the object file
      *
@@ -794,7 +735,6 @@ interface FsPathInterface extends Stringable
      */
     public function appendData(string $data, ?int $length = null): static;
 
-
     /**
      * Create the specified file
      *
@@ -804,14 +744,12 @@ interface FsPathInterface extends Stringable
      */
     public function create(bool $force = false): static;
 
-
     /**
      * Sets access and modification time of file
      *
      * @return $this
      */
     public function touch(): static;
-
 
     /**
      * Concatenates a list of files to a target file
@@ -822,7 +760,6 @@ interface FsPathInterface extends Stringable
      */
     public function appendFiles(string|array $sources): static;
 
-
     /**
      * Closes this file
      *
@@ -832,7 +769,6 @@ interface FsPathInterface extends Stringable
      */
     public function close(bool $force = false): static;
 
-
     /**
      * Synchronizes changes to the file (including meta-data)
      *
@@ -840,14 +776,12 @@ interface FsPathInterface extends Stringable
      */
     public function sync(): static;
 
-
     /**
      * Synchronizes data (but not meta-data) to the file
      *
      * @return $this
      */
     public function syncData(): static;
-
 
     /**
      * Will overwrite the file with random data before deleting it
@@ -858,14 +792,12 @@ interface FsPathInterface extends Stringable
      */
     public function shred(int $passes = 3): static;
 
-
     /**
      * Returns the device path of the filesystem where this file is stored
      *
      * @return string
      */
     public function getMountDevice(): string;
-
 
     /**
      * Returns a find object that will search for files in the specified path and upon execution returns a files-object
@@ -874,7 +806,6 @@ interface FsPathInterface extends Stringable
      * @return FindInterface
      */
     public function find(): FindInterface;
-
 
     /**
      * Returns the relative path between the specified path and this object's path
@@ -886,7 +817,6 @@ interface FsPathInterface extends Stringable
      */
     public function getRelativePathTo(FsPathInterface|string $target, FsPathInterface|string|bool $absolute_prefix = null): FsPathInterface;
 
-
     /**
      * Checks restrictions
      *
@@ -895,7 +825,6 @@ interface FsPathInterface extends Stringable
      * @return $this
      */
     public function checkRestrictions(bool $write): static;
-
 
     /**
      * Replaces the current path by moving it out of the way and moving the target in its place, then deleting the
@@ -907,14 +836,12 @@ interface FsPathInterface extends Stringable
      */
     public function replaceWithPath(FsPathInterface|string $target): FsPathInterface;
 
-
     /**
      * Ensures that this path is a symlink
      *
      * @return $this
      */
     public function checkSymlink(Stringable|string $target): static;
-
 
     /**
      * Returns a FsPathInterface object with the specified path appended to this path
@@ -926,7 +853,6 @@ interface FsPathInterface extends Stringable
      */
     public function appendPath(FsPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): FsPathInterface;
 
-
     /**
      * Returns a FsPathInterface object with the specified path prepended to this path
      *
@@ -937,7 +863,6 @@ interface FsPathInterface extends Stringable
      */
     public function prependPath(FsPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): FsPathInterface;
 
-
     /**
      * Returns a FsFilesInterface object that will contain all the files under this current path
      *
@@ -946,7 +871,6 @@ interface FsPathInterface extends Stringable
      * @return FsFilesInterface
      */
     public function getFilesObject(bool $reload = false): FsFilesInterface;
-
 
     /**
      * Copies all directories as directories and all files as symlinks in the tree starting at this objects path to the
@@ -962,7 +886,6 @@ interface FsPathInterface extends Stringable
      * @return $this
      */
     public function symlinkTreeToTarget(FsPathInterface|string $target, FsPathInterface|string|null $alternate_path = null, ?FsRestrictionsInterface $restrictions = null, bool $rename = false): FsPathInterface;
-
 
     /**
      * Will scan this path for symlinks and delete all of them one by one
@@ -1127,4 +1050,26 @@ interface FsPathInterface extends Stringable
      * @return bool
      */
     public function isInDirectory(FsDirectoryInterface|string $directory): bool;
+
+    /**
+     * Returns true if the specified path is on a domain
+     *
+     * @param string $path
+     * @return bool
+     */
+    public static function onDomain(string $path): bool;
+
+    /**
+     * Returns true if this objects' path is on a domain
+     *
+     * @return bool
+     */
+    public function isOnDomain(): bool;
+
+    /**
+     * Returns the domain part for this domain path
+     *
+     * @return string
+     */
+    public function getDomain(): string;
 }

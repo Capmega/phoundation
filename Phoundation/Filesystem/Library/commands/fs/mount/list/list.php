@@ -25,7 +25,8 @@ CliDocumentation::setHelp('This command will list all configured mount points');
 
 
 // Get the arguments
-$argv = ArgvValidator::new()->validate();
+$argv = ArgvValidator::new()
+                     ->validate();
 
 
 // Display the available mounts

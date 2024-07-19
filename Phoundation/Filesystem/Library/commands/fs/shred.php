@@ -30,10 +30,10 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan($word . '*');
+                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan('*');
+                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan('*');
             },
         ],
     ]
@@ -61,7 +61,7 @@ PATH                                    The path of which the size needs to be c
 
 // Get the arguments
 $argv = ArgvValidator::new()
-    ->select('path')->isDirectory(FsDirectory::getFilesystemRoot())
+    ->select('path')->sanitizeDirectory(FsDirectory::getFilesystemRootObject())
     ->select('-r,--random')->isOptional(false)->isBoolean()
     ->select('-p,--passes', true)->isOptional(false)->isInteger()->isBetween(1, 100)
     ->validate();

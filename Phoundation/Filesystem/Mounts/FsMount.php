@@ -29,6 +29,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryOptions;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryTimeout;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\NotExistsException;
+use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsMountInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
@@ -60,6 +61,7 @@ class FsMount extends DataEntry implements FsMountInterface
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true, ?FsRestrictionsInterface $restrictions = null)
     {
         parent::__construct($identifier, $column, $meta_enabled, $init);
+
         $this->restrictions = $this->ensureRestrictions($restrictions);
     }
 
@@ -136,13 +138,13 @@ class FsMount extends DataEntry implements FsMountInterface
 
                 case 'source_path':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = FsMounts::getMountSources($identifier);
-                    return static::newFromSource($mount, $meta_enabled);
+                    $mount = FsMounts::getMountSources(new FsDirectory($identifier));
+                    return static::new($mount, meta_enabled: $meta_enabled);
 
                 case 'target_path':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = FsMounts::getMountTargets($identifier);
-                    return static::newFromSource($mount, $meta_enabled);
+                    $mount = FsMounts::getMountTargets(new FsDirectory($identifier));
+                    return static::new($mount, meta_enabled: $meta_enabled);
             }
 
             throw $e;
@@ -207,7 +209,7 @@ class FsMount extends DataEntry implements FsMountInterface
      */
     public function getSourcePath(): ?string
     {
-        return $this->getValueTypesafe('string', 'source_path');
+        return $this->getTypesafe('string', 'source_path');
     }
 
 
@@ -354,7 +356,7 @@ class FsMount extends DataEntry implements FsMountInterface
      */
     public function getTargetPath(): ?string
     {
-        return $this->getValueTypesafe('string', 'target_path');
+        return $this->getTypesafe('string', 'target_path');
     }
 
 
@@ -386,7 +388,7 @@ class FsMount extends DataEntry implements FsMountInterface
      */
     public function getAutoMount(): ?bool
     {
-        return $this->getValueTypesafe('bool', 'auto_mount');
+        return $this->getTypesafe('bool', 'auto_mount');
     }
 
 
@@ -397,7 +399,7 @@ class FsMount extends DataEntry implements FsMountInterface
      */
     public function getAutoUnmount(): ?bool
     {
-        return $this->getValueTypesafe('bool', 'auto_unmount');
+        return $this->getTypesafe('bool', 'auto_unmount');
     }
 
 
@@ -422,7 +424,7 @@ class FsMount extends DataEntry implements FsMountInterface
      */
     public function getFilesystem(): ?string
     {
-        return $this->getValueTypesafe('string', 'filesystem');
+        return $this->getTypesafe('string', 'filesystem');
     }
 
 
@@ -459,7 +461,9 @@ class FsMount extends DataEntry implements FsMountInterface
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }))
+
                     ->add(DefinitionFactory::getSeoName($this))
+
                     ->add(Definition::new($this, 'source_path')
                                     ->setInputType(EnumInputType::name)
                                     ->setSize(4)
@@ -467,8 +471,9 @@ class FsMount extends DataEntry implements FsMountInterface
                                     ->setLabel(tr('Source'))
                                     ->setHelpText(tr('The source file for this mount'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isFile();
+                                        $validator->isFile([FsDirectory::getFilesystemRootObject(), FsDirectory::getDomainObject('*')]);
                                     }))
+
                     ->add(Definition::new($this, 'target_path')
                                     ->setInputType(EnumInputType::name)
                                     ->setSize(4)
@@ -476,8 +481,9 @@ class FsMount extends DataEntry implements FsMountInterface
                                     ->setLabel(tr('Target'))
                                     ->setHelpText(tr('The target file for this mount'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isFile();
+                                        $validator->isFile(FsDirectory::getFilesystemRootObject());
                                     }))
+
                     ->add(Definition::new($this, 'filesystem')
                                     ->setOptional(true)
                                     ->setSize(4)
@@ -507,29 +513,31 @@ class FsMount extends DataEntry implements FsMountInterface
                                     ])
                                     ->setLabel(tr('Filesystem'))
                                     ->setHelpText(tr('The filesystem with which to mount this source')))
+
                     ->add(Definition::new($this, 'options')
                                     ->setOptional(true)
                                     ->setSize(6)
                                     ->setDefault('defaults')
                                     ->setMaxlength(508)
                                     ->setLabel(tr('Options'))
-                                    ->setHelpText(tr('The options for this mount'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isFile();
-                                    }))
+                                    ->setHelpText(tr('The options for this mount')))
+
                     ->add(DefinitionFactory::getBoolean($this, 'auto_mount')
                                            ->setSize(2)
                                            ->setHelpText(tr('If checked, this mount will automatically be mounted by the process using a path in this mount'))
                                            ->setLabel(tr('Auto mount')))
+
                     ->add(DefinitionFactory::getBoolean($this, 'auto_unmount')
                                            ->setSize(2)
                                            ->setHelpText(tr('If checked, this mount will automatically be unmounted after use when the process using a path in this mount terminates'))
                                            ->setLabel(tr('Auto unmount')))
+
                     ->add(DefinitionFactory::getNumber($this, 'timeout')
                                            ->setOptional(true, 3)
                                            ->setSize(2)
                                            ->setHelpText(tr('If specified, the mount attempt for this filesystem will be aborted after this number of seconds'))
                                            ->setLabel(tr('Timeout')))
+
                     ->add(DefinitionFactory::getDescription($this)
                                            ->setHelpText(tr('The description for this mount')));
     }

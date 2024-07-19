@@ -34,12 +34,10 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function getPath(FsPathInterface|string|null $from = null, bool $remove_terminating_slash = false): ?string;
 
-
     /**
      * @inheritDoc
      */
-    public function getRealPath(): ?string;
-
+    public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string;
 
     /**
      * Returns an Execute object to execute callbacks on each file in specified directories
@@ -47,7 +45,6 @@ interface FsDirectoryInterface extends FsPathInterface
      * @return FsExecuteInterface
      */
     public function execute(): FsExecuteInterface;
-
 
     /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown
@@ -67,7 +64,6 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function checkReadable(?string $type = null, ?Throwable $previous_e = null): static;
 
-
     /**
      * Check if the object file exists and is writable. If not both, an exception will be thrown
      *
@@ -85,7 +81,6 @@ interface FsDirectoryInterface extends FsPathInterface
      * @return static
      */
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null): static;
-
 
     /**
      * Ensures existence of the specified directory
@@ -106,14 +101,12 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function ensure(string|int|null $mode = null, ?bool $clear = false, bool $sudo = false): static;
 
-
     /**
      * Returns true if the object directories are all empty
      *
      * @return bool
      */
     public function isEmpty(): bool;
-
 
     /**
      * Delete the directory, and each parent directory until a non-empty directory is encountered
@@ -132,7 +125,6 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function clearDirectory(?string $until_directory = null, bool $sudo = false, bool $use_run_file = true): void;
 
-
     /**
      * Creates a random directory in specified base directory (If it does not exist yet), and returns that directory
      *
@@ -143,14 +135,12 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function createTarget(?bool $single = null, int $length = 0): string;
 
-
     /**
      * Return all files in this directory
      *
      * @return FsFilesInterface The files
      */
     public function list(): FsFilesInterface;
-
 
     /**
      * Return all files in a directory that match the specified pattern with optional recursion.
@@ -163,7 +153,6 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function listTree(array|string|null $filters = null, bool $recursive = true): array;
 
-
     /**
      * Pick and return a random file name from the specified directory
      *
@@ -172,7 +161,6 @@ interface FsDirectoryInterface extends FsPathInterface
      * @return string A random file from a random directory from the object directories
      */
     public function random(): string;
-
 
     /**
      * Scan the entire object directory STRING upward for the specified file.
@@ -186,7 +174,6 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function scanUpwardsForFile(string $filename): ?string;
 
-
     /**
      * Returns true if the specified file exists in this directory
      *
@@ -199,7 +186,6 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function hasFile(string $filename): bool;
 
-
     /**
      * Returns the total size in bytes of the tree under the specified directory
      *
@@ -207,14 +193,12 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function treeFileSize(): int;
 
-
     /**
      * Returns the number of files under the object directory (directories not included in count)
      *
      * @return int The number of files
      */
     public function treeFileCount(): int;
-
 
     /**
      * Returns PHP code statistics for this directory
@@ -224,7 +208,6 @@ interface FsDirectoryInterface extends FsPathInterface
      * @return array
      */
     public function getPhpStatistics(bool $recurse = false): array;
-
 
     /**
      * Ensure that the object file is writable
@@ -238,7 +221,6 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function ensureWritable(?int $mode = null): static;
 
-
     /**
      * Tars this directory and returns a file object for the tar file
      *
@@ -248,7 +230,6 @@ interface FsDirectoryInterface extends FsPathInterface
      * @return FsFileInterface
      */
     public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface;
-
 
     /**
      * Returns the single one file in this directory IF there is only one file
@@ -260,7 +241,6 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function getSingleFile(?string $regex = null, bool $allow_multiple = false): FsFileInterface;
 
-
     /**
      * Returns the single one directory in this directory IF there is only one file
      *
@@ -271,7 +251,6 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): FsDirectoryInterface;
 
-
     /**
      * Returns the number of available files in the current file directory
      *
@@ -280,7 +259,6 @@ interface FsDirectoryInterface extends FsPathInterface
      * @return int
      */
     public function getCount(bool $recursive = true): int;
-
 
     /**
      * Returns a list of all available files in this directory matching the specified (multiple) pattern(s)
@@ -293,7 +271,6 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): FsFilesInterface;
 
-
     /**
      * Returns a list of all available files in this directory matching the specified (multiple) pattern(s)
      *
@@ -303,7 +280,6 @@ interface FsDirectoryInterface extends FsPathInterface
      * @return FsFilesInterface         The resulting directory files
      */
     public function scanRegex(?string $file_pattern = null, int $glob_flags = GLOB_MARK): FsFilesInterface;
-
 
     /**
      * Returns true if this specific directory is mounted from somewhere, false if not mounted, NULL if mounted, but
@@ -318,7 +294,6 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function isMounted(array|Stringable|string|null $sources): ?bool;
 
-
     /**
      * Returns true if this specific directory is mounted from somewhere, false otherwise
      *
@@ -328,7 +303,6 @@ interface FsDirectoryInterface extends FsPathInterface
      * @throws DirectoryNotMountedException
      */
     public function checkMounted(array|Stringable|string|null $sources): static;
-
 
     /**
      * Returns true if this specific directory is mounted from somewhere, false otherwise
@@ -341,7 +315,6 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function ensureMounted(array|Stringable|string|null $sources, ?array $options = null, ?string $filesystem = null): static;
 
-
     /**
      * Returns true if this specific directory is mounted from somewhere, false otherwise
      *
@@ -353,14 +326,12 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function mount(Stringable|string|null $source, ?string $filesystem = null, ?array $options = null): static;
 
-
     /**
      * Returns true if this specific directory is mounted from somewhere, false otherwise
      *
      * @return static
      */
     public function unmount(): static;
-
 
     /**
      * Returns true if this specific directory is mounted from somewhere, false otherwise
@@ -372,14 +343,12 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function bind(Stringable|string|null $source, ?array $options = null): static;
 
-
     /**
      * Returns true if this specific directory is mounted from somewhere, false otherwise
      *
      * @return static
      */
     public function unbind(): static;
-
 
     /**
      * Copy this directory with progress notification
@@ -400,14 +369,12 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function copy(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true): static;
 
-
     /**
      * Returns a new Find object
      *
      * @return FindInterface
      */
     public function find(): FindInterface;
-
 
     /**
      * Returns the specified directory added to this directory
@@ -418,14 +385,12 @@ interface FsDirectoryInterface extends FsPathInterface
      */
     public function addDirectory(FsPathInterface|string $directory): FsDirectoryInterface;
 
-
     /**
      * Returns true if this path contains any files
      *
      * @return bool
      */
     public function containFiles(): bool;
-
 
     /**
      * Returns the specified directory added to this directory

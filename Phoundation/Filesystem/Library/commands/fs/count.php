@@ -25,10 +25,10 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan($word . '*');
+                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan('*');
+                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan('*');
             },
         ],
     ]
@@ -46,7 +46,7 @@ ARGUMENTS
 PATH                                    The path that should have the files counted, must be a directory');
 
 $argv = ArgvValidator::new()
-    ->select('path')->isDirectory(FsDirectory::getFilesystemRoot())
+    ->select('path')->sanitizeDirectory(FsDirectory::getFilesystemRootObject())
     ->select('-h,--human-readable')->isOptional(false)->isBoolean()
     ->validate();
 

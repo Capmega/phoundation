@@ -19,7 +19,6 @@ interface FsFilesInterface extends IteratorInterface
      */
     public function getRestrictions(): FsRestrictionsInterface;
 
-
     /**
      * Sets the server and filesystem restrictions for this FsFileFileInterface object
      *
@@ -37,7 +36,6 @@ interface FsFilesInterface extends IteratorInterface
      */
     public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
 
-
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
@@ -47,14 +45,12 @@ interface FsFilesInterface extends IteratorInterface
      */
     public function ensureRestrictions(?FsRestrictionsInterface $restrictions): FsRestrictionsInterface;
 
-
     /**
      * Returns the parent Path (if available) that contains these files
      *
      * @return FsPathInterface|null
      */
     public function getParent(): ?FsPathInterface;
-
 
     /**
      * Returns the parent Path (if available) that contains these files
@@ -64,7 +60,6 @@ interface FsFilesInterface extends IteratorInterface
      * @return FsFiles
      */
     public function setParent(?FsPathInterface $parent): static;
-
 
     /**
      * Move all files to the specified target
@@ -78,7 +73,6 @@ interface FsFilesInterface extends IteratorInterface
      * @return $this
      */
     public function move(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null): static;
-
 
     /**
      * Copy all files to the specified target
@@ -94,14 +88,12 @@ interface FsFilesInterface extends IteratorInterface
      */
     public function copy(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static;
 
-
     /**
      * Returns the current file
      *
      * @return FsPathInterface
      */
     #[ReturnTypeWillChange] public function current(): FsPathInterface;
-
 
     /**
      * Returns if the current pointer is valid or not

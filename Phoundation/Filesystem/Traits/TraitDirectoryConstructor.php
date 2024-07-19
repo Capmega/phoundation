@@ -16,41 +16,29 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Traits;
 
-use Phoundation\Filesystem\Exception\NoRestrictionsSpecifiedExceptions;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Utils\Strings;
 use Stringable;
 
 trait TraitDirectoryConstructor
 {
+    use TraitPathConstructor {
+        __construct as protected ___construct;
+    }
+
+
     /**
      * TraitDirectoryConstructor class constructor
      *
-     * @param Stringable|string|null            $directory
+     * @param Stringable|string|null            $source
      * @param FsRestrictionsInterface|bool|null $restrictions
      * @param Stringable|string|bool|null       $absolute_prefix
      */
-    public function __construct(Stringable|string|null $directory, FsRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false) {
-        if ($directory instanceof FsPathInterface) {
-            // The Specified file is a Directory object
-            $this->setPath($directory, absolute_prefix: $absolute_prefix);
-            $this->setTarget($directory->getTarget());
-            $this->setRestrictions($restrictions ?? $directory->getRestrictions());
-
-        } else {
-            if (empty($restrictions)) {
-                throw new NoRestrictionsSpecifiedExceptions(
-                    tr('Cannot create FsDirectory object for path ":path", no restrictions were specified.', [
-                        ':path' => $directory
-                    ])
-                );
-            }
-
-            $this->setPath($directory, absolute_prefix: $absolute_prefix);
-            $this->setRestrictions($restrictions);
-        }
+    public function __construct(Stringable|string|null $source, FsRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
+    {
+        // Execute Path constructor, then apply directory specific requirements
+        $this->___construct($source, $restrictions, $absolute_prefix);
 
         // Path must always end with a /
         $this->path = Strings::slash($this->path);
@@ -58,8 +46,8 @@ trait TraitDirectoryConstructor
         if (file_exists($this->path)) {
             // This exists, it must be a directory!
             if (!is_dir($this->path)) {
-                throw new PathNotDirectoryException(tr('The specified path ":path" is not a directory', [
-                    ':path' => $directory,
+                throw new PathNotDirectoryException(tr('The specified path ":path" exists but is not a directory', [
+                    ':path' => $source,
                 ]));
             }
         }

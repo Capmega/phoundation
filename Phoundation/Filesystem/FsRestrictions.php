@@ -122,6 +122,20 @@ class FsRestrictions implements FsRestrictionsInterface
 
 
     /**
+     * Returns a restrictions object for /
+     *
+     * @param bool        $write
+     * @param string|null $label
+     *
+     * @return static
+     */
+    public static function getFilesystemRoot(bool $write = false, ?string $label = null): static
+    {
+        return new static('/', $write, $label);
+    }
+
+
+    /**
      * Returns a restrictions object for DIRECTORY_DATA
      *
      * @param bool        $write
@@ -392,6 +406,19 @@ class FsRestrictions implements FsRestrictionsInterface
         $this->source = [];
 
         return $this;
+    }
+
+
+    /**
+     * Adds restrictions from the specified restrictions object to these restrictions
+     *
+     * @param FsRestrictionsInterface $restrictions
+     *
+     * @return static
+     */
+    public function addRestrictions(FsRestrictionsInterface $restrictions): static
+    {
+        return $this->addDirectories($restrictions->getSource());
     }
 
 

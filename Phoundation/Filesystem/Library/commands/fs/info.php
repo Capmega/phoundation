@@ -26,10 +26,10 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan($word . '*');
+                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan('*');
+                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan('*');
             },
         ],
     ]
@@ -48,8 +48,8 @@ PATH                                    The path for which information should be
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('path')->isPath(FsDirectory::getFilesystemRoot())
+                     ->select('path')->sanitizePath(FsDirectory::getFilesystemRootObject())
                      ->select('-h,--human-readable')->isOptional(false)->isBoolean()
                      ->validate();
 
-FsPath::new($argv['path'], $restrictions)->getInfoObject()->displayCliForm();
+$argv['path']->getInfoObject()->displayCliForm();

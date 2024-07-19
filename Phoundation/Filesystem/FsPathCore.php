@@ -44,7 +44,9 @@ use Phoundation\Filesystem\Exception\FilesystemNoRestrictionsSetExceptions;
 use Phoundation\Filesystem\Exception\FileTruncateException;
 use Phoundation\Filesystem\Exception\MountLocationNotFoundException;
 use Phoundation\Filesystem\Exception\NotASymlinkException;
+use Phoundation\Filesystem\Exception\PathNotDomainException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
+use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Exception\SymlinkBrokenException;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
@@ -415,15 +417,13 @@ class FsPathCore implements FsPathInterface
      *
      * Real path will resolve all symlinks, requires that the path exists!
      *
+     * @param Stringable|string|bool|null $absolute_prefix
+     * @param bool $must_exist
      * @return $this
      */
-    public function makeRealPath(bool $must_exist = true): static
+    public function makeRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static
     {
-        if ($must_exist) {
-            $this->checkExists();
-        }
-
-        $this->path = realpath($this->path) ?: null;
+        $this->path = static::realpath($this->path, $absolute_prefix, $must_exist);
 
         return $this;
     }
@@ -479,6 +479,11 @@ class FsPathCore implements FsPathInterface
         if ($absolute_prefix === true) {
             // Prefix true is considered the same as prefix null
             $absolute_prefix = null;
+        }
+
+        if (static::onDomain($path)) {
+            // This is a domain:/file URL, it's already absolute
+            return $path;
         }
 
         // Validate the specified path, it must be an actual path
@@ -908,16 +913,13 @@ class FsPathCore implements FsPathInterface
     public function checkRestrictions(bool $write): static
     {
         if ($this->isRelative()) {
-            // TODO Find a way to check restrictions anyway
-            Log::warning(tr('Not checking restrictions for ":path" as it is a relative path with unknown directory prefix', [
+            throw new RestrictionsException(tr('Cannot check restrictions for ":path" as it is a relative path with unknown directory prefix', [
                 ':path' => $this->path,
-            ]), 4);
+            ]));
+        }
 
-            showbacktrace();
-            showdie($this->path);
-
-        } elseif (empty($this->restrictions)) {
-            throw new FilesystemNoRestrictionsSetExceptions(tr('Cannot perform action, no filesystem restirctions have been set for this ":class" object', [
+        if (empty($this->restrictions)) {
+            throw new FilesystemNoRestrictionsSetExceptions(tr('Cannot perform action, no filesystem restrictions have been set for this ":class" object', [
                 ':class' => get_class($this)
             ]));
         }
@@ -939,6 +941,10 @@ class FsPathCore implements FsPathInterface
      */
     public function isRelative(): bool
     {
+        if ($this->isOnDomain()) {
+            return false;
+        }
+
         return !str_starts_with($this->path, '/');
     }
 
@@ -1310,53 +1316,42 @@ class FsPathCore implements FsPathInterface
      */
     public function movePath(Stringable|string $target, ?FsRestrictions $restrictions = null): static
     {
-        // Ensure restrictions and ensure target is absolute
-        // FsRestrictions are either specified, included in the target, or this object's restrictions
-        $restrictions = FsRestrictions::getRestrictionsOrDefault(
-            $restrictions,
-            ($target instanceof FsPathInterface ? $target->getRestrictions() : null),
-            $this->getRestrictions()
-        );
-        $target       = FsPathCore::absolutePath($target, must_exist: false);
+        $target = new FsPath($target, $restrictions ?? $this->restrictions);
+        $target->makeAbsolute(must_exist: false);
 
-        // Ensure the target directory exists
-        if (file_exists($target)) {
+        // Check the target directory exists, if so must be directory
+        if ($target->exists()) {
             // Target exists. It has to be a directory where we can move into, or fail!
-            if (!is_dir($target)) {
+            if (!$target->isDirectory()) {
                 throw FileExistsException::new(tr('The specified target ":target" already exists', [
                     ':target' => $target,
                 ]));
             }
 
             // Target exists and is directory. Rename target to "this file in the target directory"
-            $target = Strings::slash($target) . basename($this->path);
+            $target = $target->appendPath($this->getBasename());
+
         } else {
             // Target does not exist
-            if (str_ends_with($target, '/')) {
+            if ($target instanceof FsDirectoryInterface) {
                 // If the target is indicated to be a directory (because it ends with a slash) then it should be created
-                $create = $target;
-                $target = Strings::slash($target) . basename($this->path);
-            } elseif (!file_exists(dirname($target))) {
-                // The target parent directory does not exist. It must be created or fail
-                $create = dirname($target);
-                $target = Strings::slash(dirname($target)) . basename($this->path);
-            }
+                $target->ensure();
 
-            if (isset($create)) {
-                // Ensure the target directory exist
-                FsDirectory::new(dirname($target), $this->restrictions)->ensure();
+            } else {
+                // Ensure that the target parent directory exists
+                $target->getParentDirectory()->ensure();
             }
         }
 
         // Check restrictions and execute move
-        $this->restrictions->check($target, true);
-        rename($this->path, $target);
+        $this->checkRestrictions(true);
+        $target->checkRestrictions(true);
 
-        // Update this file to the new location, and done
-        $this->path = $target;
-        $this->setRestrictions($restrictions);
+        rename($this->path, $target->getPath());
 
-        return $this;
+        // Update this object path and restrictions to the target and we're done
+        return $this->setPath($target->getPath())
+                    ->setRestrictions($target->getRestrictions());
     }
 
 
@@ -1623,19 +1618,44 @@ class FsPathCore implements FsPathInterface
 
 
     /**
-     * Returns the real path for the specified path
+     * Returns the absolute and real path for the specified path
+     *
+     * While PHP realpath() call may return false if the specified path does not exist, this method will both ensure the
+     * parent directory of the specified path exists and a valid absolute and real path is always returned
+     *
+     * @param string                      $path
+     * @param Stringable|string|bool|null $absolute_prefix
+     * @param bool                        $must_exist
+     * @return string
      */
-    public static function realPath(string $path): ?string
+    public static function realPath(string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string
     {
-        return realpath($path) ?: null;
+        $real = FsPath::new($path, FsRestrictions::getWritable('/'))->makeAbsolute($absolute_prefix, $must_exist);
+
+        if ($real->isOnDomain()) {
+            // This is a domain:/file URL, we can't make this real
+            return $path;
+        }
+
+        $base = $real->getBasename();
+        $real = $real->getParentDirectory()->ensure()->getPath();
+        $real = realpath($real);
+
+        if (!$real) {
+            throw new FilesystemException(tr('Failed to convert path ":path" in a realpath', [
+                ':path' => $path,
+            ]));
+        }
+
+        return Strings::slash($real) . $base;
     }
 
 
     /**
      * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
      *
-     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if
-     *                 whatever was specified does not exist.
+     * @return string string The real directory extrapolated from the specified $directory, if exists. False if
+     *                whatever was specified does not exist.
      *
      * @example
      * code
@@ -1649,9 +1669,9 @@ class FsPathCore implements FsPathInterface
      * /bin
      * /code
      */
-    public function getRealPath(): ?string
+    public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string
     {
-        return get_null(realpath($this->path));
+        return static::realPath($this->path, $absolute_prefix, $must_exist);
     }
 
 
@@ -2159,7 +2179,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getParentDirectory(?FsRestrictionsInterface $restrictions = null): FsDirectoryInterface
     {
-        return FsDirectory::new(dirname($this->path), $restrictions ?? $this->restrictions->getParent());
+        return FsDirectory::new(dirname($this->path), $restrictions ?? $this->restrictions?->getParent());
     }
 
 
@@ -3097,7 +3117,7 @@ class FsPathCore implements FsPathInterface
         // Move the old out of the way, push the new in, delete the current
         if ($this->exists()) {
             $new = clone $this;
-            $this->rename(FsDirectory::getTemporary());
+            $this->rename(FsDirectory::getTemporaryObject());
             $target->rename($new);
             $this->delete();
         } else {
@@ -3577,7 +3597,7 @@ class FsPathCore implements FsPathInterface
      *
      * @return bool
      */
-    public static function readIsEnabled(): bool
+    public static function getReadEnabled(): bool
     {
         return static::$read_enabled;
     }
@@ -3587,8 +3607,9 @@ class FsPathCore implements FsPathInterface
      * Returns true if file write access is available
      *
      * @return bool
+     * @todo Add Core::fileReadEnabled() checks in here
      */
-    public static function writeIsEnabled(): bool
+    public static function getWriteEnabled(): bool
     {
         return static::$write_enabled;
     }
@@ -3598,10 +3619,11 @@ class FsPathCore implements FsPathInterface
      * Checks if write access is available
      *
      * @return static
+     * @todo Add Core::fileWriteEnabled() checks in here
      */
     public function checkWriteAccess(): static
     {
-        if (!static::$write_enabled) {
+        if (!static::getWriteEnabled()) {
             throw new FileNotWritableException(tr('The file ":file" cannot be written because all write access has been disabled', [
                 ':file' => $this->path
             ]));
@@ -3618,7 +3640,7 @@ class FsPathCore implements FsPathInterface
      */
     public function checkReadAccess(): static
     {
-        if (!static::$read_enabled) {
+        if (!static::getReadEnabled()) {
             throw new FileNotReadableException(tr('The file ":file" cannot be read because all read access has been disabled', [
                 ':file' => $this->path
             ]));
@@ -3863,10 +3885,96 @@ class FsPathCore implements FsPathInterface
      */
     public function isInDirectory(FsDirectoryInterface|string $directory): bool
     {
+        if ($this->isOnDomain()) {
+            return $this->isInDomain($directory);
+        }
+
         if (is_string($directory)) {
             return str_starts_with($this->path, $directory);
         }
 
         return str_starts_with($this->path, $directory->getPath());
+    }
+
+
+    /**
+     * Returns true if this objects domain falls in the specified domain
+     *
+     * @note: This method supports * domains
+     *
+     * @param FsDirectoryInterface|string $domain
+     * @return bool
+     */
+    public function isInDomain(FsDirectoryInterface|string $domain): bool
+    {
+        if ($domain instanceof FsDirectoryInterface){
+            $domain = $domain->getPath();
+        }
+
+        if (str_starts_with($this->path, $domain)) {
+            return true;
+        }
+
+        // The exact start of domain didn't match, are all domains allowed?
+        $path   = Strings::from($domain, ':');
+        $domain = Strings::until($domain, ':');
+
+        if ($domain === '*') {
+            // All domains match, now check the rest of the path
+            return str_starts_with(Strings::from($this->path, ':'), $path);
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns true if the specified path is on a domain
+     *
+     * @param string $path
+     * @return bool
+     */
+    public static function onDomain(string $path): bool
+    {
+        if (str_contains($path, ':')) {
+            $host = Strings::until($path, ':');
+
+            if (filter_var($host, FILTER_VALIDATE_DOMAIN) or ($host === '*')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns true if this objects' path is on a domain
+     *
+     * @return bool
+     */
+    public function isOnDomain(): bool
+    {
+        return static::onDomain($this->path);
+    }
+
+
+    /**
+     * Returns the domain part for this domain path
+     *
+     * @return string
+     */
+    public function getDomain(): string
+    {
+        $domain = Strings::until($this->path, ':', needle_required: true);
+
+        if ($domain) {
+            return $domain;
+        }
+
+        // No domain?
+        throw new PathNotDomainException(tr('Cannot return domain from path ":path", it is not a domain path', [
+            ':path' => $this->path
+        ]));
     }
 }

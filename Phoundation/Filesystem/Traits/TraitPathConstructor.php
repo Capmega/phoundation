@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\NoRestrictionsSpecifiedExceptions;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Stringable;
@@ -39,6 +40,16 @@ trait TraitPathConstructor
                  ->setRestrictions($restrictions ?? $source->getRestrictions());
 
         } else {
+            // Path is specified by string, so we MUST get restrictions separately!
+            if (empty($restrictions)) {
+                throw new NoRestrictionsSpecifiedExceptions(
+                    tr('Cannot create ":class" object for path ":path", no restrictions were specified.', [
+                        ':class' => static::class,
+                        ':path'  => $source
+                    ])
+                );
+            }
+
             $source = (string) $source;
 
             // The Specified file was actually a FsFileFileInterface or Directory object, get the file from there

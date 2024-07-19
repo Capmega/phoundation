@@ -40,20 +40,35 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return FsDirectoryInterface
      */
-    public static function getTemporary(bool $public = false, bool $persist = false): FsDirectoryInterface
+    public static function getTemporaryObject(bool $public = false, bool $persist = false): FsDirectoryInterface
     {
         if (!$persist) {
             // Return a non-persistent temporary directory that will be deleted once this process terminates
             $path = static::getSessionTemporaryPath($public) . Strings::getUuid();
 
             return static::new($path, FsRestrictions::getWritable($path, tr('persistent temporary directory')))
-                         ->ensure();
+                ->ensure();
         }
 
         $directory    = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP);
         $restrictions = FsRestrictions::getWritable($directory, tr('persistent temporary directory'));
 
         return static::new($directory . Strings::getUuid(), $restrictions)->ensure();
+    }
+
+
+    /**
+     * Returns the data/tmp directory specific for this process that will be removed once the process terminates
+     *
+     * The temporary directory returned will always be the same within one process, if per
+     *
+     * @param bool $restrictions_writable
+     * @param string|null $restrictions_label
+     * @return FsDirectoryInterface
+     */
+    public static function getDataTmpObject(bool $restrictions_writable = false, ?string $restrictions_label = null): FsDirectoryInterface
+    {
+        return new static(DIRECTORY_TMP, FsRestrictions::new(DIRECTORY_TMP, $restrictions_writable, $restrictions_label));
     }
 
 
@@ -65,7 +80,7 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getRoot(bool $restrictions_writable = false, ?string $restrictions_label = null): static
+    public static function getRootObject(bool $restrictions_writable = false, ?string $restrictions_label = null): static
     {
         return new static(DIRECTORY_ROOT, FsRestrictions::new(DIRECTORY_ROOT, $restrictions_writable, $restrictions_label));
     }
@@ -79,9 +94,24 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getFilesystemRoot(bool $restrictions_writable = false, ?string $restrictions_label = null): static
+    public static function getFilesystemRootObject(bool $restrictions_writable = false, ?string $restrictions_label = null): static
     {
         return new static('/', FsRestrictions::new('/', $restrictions_writable, $restrictions_label));
+    }
+
+
+    /**
+     * Returns a new FsDirectory object for the specified domain
+     *
+     * @param string $domain
+     * @param bool $restrictions_writable
+     * @param string|null $restrictions_label
+     *
+     * @return static
+     */
+    public static function getDomainObject(string $domain, bool $restrictions_writable = false, ?string $restrictions_label = null): static
+    {
+        return new static($domain . ':/', FsRestrictions::new($domain . ':/', $restrictions_writable, $restrictions_label));
     }
 
 
@@ -93,7 +123,7 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getCommands(bool $restrictions_writable = false, ?string $restrictions_label = null): static
+    public static function getCommandsObject(bool $restrictions_writable = false, ?string $restrictions_label = null): static
     {
         return new static(DIRECTORY_COMMANDS, FsRestrictions::new(DIRECTORY_COMMANDS, $restrictions_writable, $restrictions_label));
     }
@@ -107,7 +137,7 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getWeb(bool $restrictions_writable = false, ?string $restrictions_label = null): static
+    public static function getWebObject(bool $restrictions_writable = false, ?string $restrictions_label = null): static
     {
         return new static(DIRECTORY_WEB, FsRestrictions::new(DIRECTORY_WEB, $restrictions_writable, $restrictions_label));
     }
@@ -121,7 +151,7 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getData(bool $restrictions_writable = false, ?string $restrictions_label = null): static
+    public static function getDataObject(bool $restrictions_writable = false, ?string $restrictions_label = null): static
     {
         return new static(DIRECTORY_DATA, FsRestrictions::new(DIRECTORY_DATA, $restrictions_writable, $restrictions_label));
     }
@@ -135,7 +165,7 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getDataSources(bool $restrictions_writable = false, ?string $restrictions_label = null): static
+    public static function getDataSourcesObject(bool $restrictions_writable = false, ?string $restrictions_label = null): static
     {
         return new static(DIRECTORY_DATA . 'sources/', FsRestrictions::new(DIRECTORY_DATA . 'sources/', $restrictions_writable, $restrictions_label));
     }

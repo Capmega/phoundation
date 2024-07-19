@@ -21,6 +21,7 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Interfaces\MountsInterface;
 use Phoundation\Os\Processes\Commands\Mount;
@@ -163,14 +164,13 @@ class FsMounts extends DataIterator implements MountsInterface
     /**
      * Returns a list of all source devices / paths as keys for the specified target path and with what options
      *
-     * @param Stringable|string       $target
-     * @param FsRestrictionsInterface $restrictions
+     * @param FsDirectoryInterface $target
      *
      * @return static
      */
-    public static function getMountSources(Stringable|string $target, FsRestrictionsInterface $restrictions): static
+    public static function getMountSources(FsDirectoryInterface $target): static
     {
-        $target = FsDirectory::new($target, $restrictions)->getPath(true);
+        $target = $target->getPath(remove_terminating_slash: true);
         $mounts = static::listMounts('target_path');
         $return = static::new();
 
@@ -194,12 +194,13 @@ class FsMounts extends DataIterator implements MountsInterface
      * Returns a list of all target directories as keys with value information about where they are mounted from and
      * with what options
      *
-     * @param string $source
+     * @param FsDirectoryInterface $source
      *
      * @return static
      */
-    public static function getMountTargets(string $source): static
+    public static function getMountTargets(FsDirectoryInterface $source): static
     {
+        $source = $source->getPath(remove_terminating_slash: true);
         $mounts = static::listMounts('source_path');
         $return = static::new();
 

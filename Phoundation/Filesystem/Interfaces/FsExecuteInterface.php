@@ -27,7 +27,6 @@ interface FsExecuteInterface extends FsDirectoryInterface
      */
     public function getBlacklistExtensions(): array;
 
-
     /**
      * Sets the extensions that are blacklisted
      *
@@ -37,14 +36,12 @@ interface FsExecuteInterface extends FsDirectoryInterface
      */
     public function setBlacklistExtensions(array|string|null $blacklist_extensions): static;
 
-
     /**
      * Returns the extensions that are whitelisted
      *
      * @return array
      */
     public function getWhitelistExtensions(): array;
-
 
     /**
      * Sets the extensions that are whitelisted
@@ -54,7 +51,6 @@ interface FsExecuteInterface extends FsDirectoryInterface
      * @return static
      */
     public function setWhitelistExtensions(array|string|null $whitelist_extensions): static;
-
 
     /**
      * Returns the path mode that will be set for each path
@@ -80,14 +76,12 @@ interface FsExecuteInterface extends FsDirectoryInterface
      */
     public function setMode(string|int|null $mode): static;
 
-
     /**
      * Returns if exceptions will be ignored during the processing of multiple files
      *
      * @return bool
      */
     public function getIgnoreExceptions(): bool;
-
 
     /**
      * Sets if exceptions will be ignored during the processing of multiple files
@@ -99,14 +93,12 @@ interface FsExecuteInterface extends FsDirectoryInterface
      */
     public function setIgnoreExceptions(bool $ignore_exceptions): static;
 
-
     /**
      * Returns if symlinks should be processed
      *
      * @return bool
      */
     public function getFollowSymlinks(): bool;
-
 
     /**
      * Sets if symlinks should be processed
@@ -118,14 +110,12 @@ interface FsExecuteInterface extends FsDirectoryInterface
      */
     public function setFollowSymlinks(bool $follow_symlinks): static;
 
-
     /**
      * Returns if hidden file should be processed
      *
      * @return bool
      */
     public function getFollowHidden(): bool;
-
 
     /**
      * Sets if hidden file should be processed
@@ -137,7 +127,6 @@ interface FsExecuteInterface extends FsDirectoryInterface
      */
     public function setFollowHidden(bool $follow_hidden): static;
 
-
     /**
      * Returns the path that will be skipped
      *
@@ -145,14 +134,12 @@ interface FsExecuteInterface extends FsDirectoryInterface
      */
     public function getSkipDirectories(): array;
 
-
     /**
      * Clears the paths that will be skipped
      *
      * @return static
      */
     public function clearSkipDirectories(): static;
-
 
     /**
      * Sets the paths that will be skipped
@@ -164,7 +151,6 @@ interface FsExecuteInterface extends FsDirectoryInterface
      */
     public function setSkipDirectories(string|array $directories): static;
 
-
     /**
      * Adds the paths that will be skipped
      *
@@ -174,7 +160,6 @@ interface FsExecuteInterface extends FsDirectoryInterface
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
     public function addSkipDirectories(string|array $directories): static;
-
 
     /**
      * Sets the path that will be skipped
@@ -186,14 +171,12 @@ interface FsExecuteInterface extends FsDirectoryInterface
      */
     public function addSkipDirectory(string $directory): static;
 
-
     /**
      * Returns if the object will recurse or not
      *
      * @return bool
      */
     public function getRecurse(): bool;
-
 
     /**
      * Returns if the object will recurse or not
@@ -204,7 +187,6 @@ interface FsExecuteInterface extends FsDirectoryInterface
      */
     public function setRecurse(bool $recurse): static;
 
-
     /**
      * Execute the callback function on each file in the specified path
      *
@@ -213,7 +195,6 @@ interface FsExecuteInterface extends FsDirectoryInterface
      * @return void
      */
     public function onDirectoryOnly(callable $callback): void;
-
 
     /**
      * Execute the callback function on each file in the specified path

@@ -1185,21 +1185,11 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     /**
      * @inheritDoc
      */
-    public function getRealPath(bool $exception = false): ?string
+    public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string
     {
-        $path = parent::getRealPath();
+        $path = parent::getRealPath($absolute_prefix, $must_exist);
 
-        if ($path) {
-            return Strings::slash($path);
-        }
-
-        if ($exception) {
-            throw new FileNotExistException(tr('The path ":path" does not exist', [
-                ':path' => $this->path,
-            ]));
-        }
-
-        return null;
+        return Strings::slash($path);
     }
 
 
