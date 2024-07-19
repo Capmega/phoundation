@@ -36,7 +36,7 @@ PATH/FILE                               The file to play directly
 
 
 $argv = ArgvValidator::new()
-                     ->select('file')->isFile()
+                     ->select('file')->sanitizeFile()
                      ->select('-b,--background')->isOptional()->isBoolean()
                      ->validate();
 

@@ -19,15 +19,28 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Mpg123;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+use Stringable;
 
 class Audio extends FsFile
 {
+    public function __construct(Stringable|string|null $source = null, bool|FsRestrictionsInterface|null $restrictions = null, bool|Stringable|string|null $absolute_prefix = false)
+    {
+        if (!$source instanceof FsPathInterface) {
+            $restrictions = $restrictions ?? FsRestrictions::getReadonly(DIRECTORY_DATA . 'audio');
+        }
+
+        parent::__construct($source, $restrictions, $absolute_prefix);
+    }
+
+
     /**
      * Play this audio file on the local computer
      *
