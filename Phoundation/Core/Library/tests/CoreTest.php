@@ -1,7 +1,5 @@
 <?php
 
-
-
 /**
  * \Phoundation\Core\Core test class
  */

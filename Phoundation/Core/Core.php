@@ -843,6 +843,8 @@ class Core implements CoreInterface
      */
     protected static function exitCleanup(): void
     {
+        Log::action(tr('Performing exit cleanup'), 2);
+
         // Flush the metadata
         Meta::flush();
 
@@ -1704,6 +1706,7 @@ class Core implements CoreInterface
                              ->select('-E,--environment', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(64)
                              ->select('-F,--force')->isOptional(false)->isBoolean()
                              ->select('-H,--help')->isOptional(false)->isBoolean()
+                             ->select('-J,--json', true)->isOptional()->hasMaxCharacters(8192)
                              ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
                              ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
                              ->select('-P,--page', true)->isOptional(1)->isDbId()
@@ -1745,10 +1748,11 @@ class Core implements CoreInterface
 //            'no_sound'               => false,
 //            'status'                 => false,
 //            'test'                   => false,
+//            'json'                   => null,
 //            'usage'                  => false,
 //            'verbose'                => false,
 //            'no_warnings'            => false,
-//            'language'        => false,
+//            'language'               => false,
 //            'deleted'                => false,
 //            'version'                => false,
 //            'limit'                  => false,
@@ -1758,6 +1762,11 @@ class Core implements CoreInterface
 //            'no_validation'          => false,
 //            'no_password_validation' => false
 //    ];
+
+        if ($argv['json']) {
+            // We received arguments in JSON format
+            $argv = static::applyJsonArguments($argv);
+        }
 
         // Check what environment we're in
         if ($argv['environment']) {
@@ -2053,6 +2062,34 @@ class Core implements CoreInterface
 
         // Ensure any extra dashed arguments are "undashed"
         ArgvValidator::unDoubleDash();
+    }
+
+
+    /**
+     * Applies the JSON arguments in the given argv array
+     *
+     * @param array $argv
+     * @return array
+     */
+    protected function applyJsonArguments(array $argv): array
+    {
+        $json = Json::decode($argv['json']);
+        unset($argv['json']);
+
+        // Convert all JSON argument parameters to proper format and add them to the argv, BUT DO NOT OVERWRITE EXISTING
+        foreach ($json as $key => $value) {
+            $key = str_replace('-', '_', $key);
+
+            if (str_starts_with($key, '__')) {
+                $key = substr($key, 2);
+            }
+
+            if (!array_key_exists($key, $argv)) {
+                $argv[$key] = $value;
+            }
+        }
+
+        return $argv;
     }
 
 

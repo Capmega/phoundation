@@ -459,7 +459,7 @@ class Log
      */
     public static function getFileEnabled(): bool
     {
-        return static::$enabled and static::$file_enabled and FsFile::writeIsEnabled();
+        return static::$enabled and static::$file_enabled and FsFile::getWriteEnabled();
     }
 
 
@@ -1263,7 +1263,7 @@ class Log
             static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        $messages = Strings::ensureVisible($messages);
+        $messages = Strings::log($messages);
 
         return static::write($messages, 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
@@ -1337,7 +1337,7 @@ class Log
             static::logDebugHeader('HEX', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        $messages = Strings::ensureVisible($messages);
+        $messages = Strings::log($messages);
 
         return static::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
@@ -1356,7 +1356,7 @@ class Log
      */
     public static function checkpoint(?string $messages = null, int $threshold = 10, bool $echo_screen = true): bool
     {
-        $messages = Strings::ensureVisible($messages);
+        $messages = Strings::log($messages);
 
         return static::logDebugHeader('CHECKPOINT ' . $messages, 1, $threshold, echo_screen: $echo_screen);
     }
@@ -1459,7 +1459,7 @@ class Log
             static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        $messages = Strings::ensureVisible($messages);
+        $messages = Strings::log($messages);
 
         return static::write(print_r($messages, true), 'debug', $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
     }

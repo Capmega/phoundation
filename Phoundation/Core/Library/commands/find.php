@@ -13,26 +13,52 @@
 
 declare(strict_types=1);
 
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Strings;
 
+CliDocumentation::setUsage('./pho find');
+
+CliDocumentation::setHelp('The find script will find the exact command you are looking for. Just type the sub 
+command as an argument and the find script will show all commands that have that sub command
+
+
+ARGUMENTS
+
+
+[-l,--like]                             If specified will return all commands that appear like *filter*');
+
+
 // Get arguments
 $argv = ArgvValidator::new()
-    ->select('command')->isPrintable()
-    ->validate();
+                     ->select('command')->isPrintable()
+                     ->select('-l,--like')->isOptional()->isBoolean()
+                     ->validate();
+
+
+// Are we using like? Add *
+$like = $argv['like'] ? '*' : null;
+
 
 // Find the files that match the specified command
-$results = Find::new(FsDirectory::getCommands(false, 'command find'))
-    ->setName($argv['command'] . '.php')
+$files = Find::new(FsDirectory::getCommandsObject(false, 'command find'))
+    ->setName($like . $argv['command'] . '.php' . $like)
+    ->executeReturnIterator();
+
+$directories = Find::new(FsDirectory::getCommandsObject(false, 'command find'))
+    ->setName($like . $argv['command'] . $like)
+    ->setType('d')
     ->executeReturnIterator();
 
 
-// Display the files
-if ($results->getCount()) {
-    foreach ($results as $result) {
+// Merge files and directories and display the results
+$files->addSources($directories);
+
+if ($files->getCount()) {
+    foreach ($files as $result) {
         $result = Strings::from($result, DIRECTORY_COMMANDS);
         $result = Strings::until($result, '.php');
         $result = str_replace('/', ' ', $result);

@@ -28,14 +28,12 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDirectory;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryPath;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryPriority;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -138,7 +136,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getDirectory(): FsDirectoryInterface
     {
-        $directory = $this->getValueTypesafe(FsDirectoryInterface::class, 'directory');
+        $directory = $this->getTypesafe(FsDirectoryInterface::class, 'directory');
 
         if (!$directory) {
             // Path hasn't been set yet? It should always be set UNLESS it's new.
@@ -153,10 +151,7 @@ class Plugin extends DataEntry implements PluginInterface
             $directory = dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT));
         }
 
-        return new FsDirectory(
-            $directory,
-            FsRestrictions::getReadonly(DIRECTORY_ROOT . 'Plugins', 'Plugin::getDirectory()')
-        );
+        return new FsDirectory($directory, FsRestrictions::getReadonly(DIRECTORY_ROOT . 'Plugins'));
     }
 
 
@@ -182,7 +177,7 @@ class Plugin extends DataEntry implements PluginInterface
             return true;
         }
 
-        return $this->getValueTypesafe('string', 'status') === null;
+        return $this->getTypesafe('string', 'status') === null;
     }
 
 
@@ -236,7 +231,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getMenuEnabled(): ?bool
     {
-        return $this->getValueTypesafe('int', 'menu_enabled', 50);
+        return $this->getTypesafe('int', 'menu_enabled', 50);
     }
 
 
@@ -260,7 +255,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getMenuPriority(): ?int
     {
-        return $this->getValueTypesafe('int', 'menu_priority', 50);
+        return $this->getTypesafe('int', 'menu_priority', 50);
     }
 
 
@@ -370,7 +365,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getVendor(): ?string
     {
-        $vendor = $this->getValueTypesafe('string', 'vendor');
+        $vendor = $this->getTypesafe('string', 'vendor');
 
         if ($vendor === null) {
             $directory = $this->getDirectory();
@@ -464,7 +459,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getCommandsEnabled(): bool
     {
-        return $this->getValueTypesafe('bool', 'commands_enabled', false);
+        return $this->getTypesafe('bool', 'commands_enabled', false);
     }
 
 
@@ -488,7 +483,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getWebEnabled(): bool
     {
-        return $this->getValueTypesafe('bool', 'web_enabled', false);
+        return $this->getTypesafe('bool', 'web_enabled', false);
     }
 
 
@@ -529,9 +524,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setDirectory(FsDirectoryInterface|string|null $directory, ?FsRestrictionsInterface $restrictions = null): static
     {
-        if (!$restrictions) {
-            $restrictions = FsRestrictions::getReadonly(DIRECTORY_ROOT . 'Plugins', 'Plugin::setDirectory()');
-        }
+        $restrictions = $restrictions ?? FsRestrictions::getReadonly(DIRECTORY_ROOT . 'Plugins');
 
         return $this->set(is_string($directory) ? new FsDirectory($directory, $restrictions) : $directory, 'directory');
     }
@@ -640,6 +633,7 @@ class Plugin extends DataEntry implements PluginInterface
 
                     ->add(Definition::new($this, 'directory')
                                     ->setLabel(tr('Directory'))
+                                    ->setInDirectories(new FsDirectory(DIRECTORY_ROOT . 'Plugins', FsRestrictions::getReadonly(DIRECTORY_ROOT . 'Plugins')))
                                     ->setInputType(EnumInputType::path)
                                     ->setMaxlength(128)
                                     ->setSize(6)

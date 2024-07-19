@@ -503,7 +503,7 @@ class Libraries
         Log::action(tr('Rebuilding command cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
-        $temporary = FsDirectory::getTemporary();
+        $temporary = FsDirectory::getTemporaryObject();
         $cache     = FsDirectory::new(DIRECTORY_COMMANDS, FsRestrictions::getWritable([
                                                                       DIRECTORY_COMMANDS,
                                                                       DIRECTORY_TMP,
@@ -700,7 +700,7 @@ class Libraries
         Log::action(tr('Rebuilding web cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
-        $temporary = FsDirectory::getTemporary();
+        $temporary = FsDirectory::getTemporaryObject();
         $cache     = FsDirectory::new(DIRECTORY_WEB, FsRestrictions::getWritable([
                                                                  DIRECTORY_WEB,
                                                                  DIRECTORY_TMP,
@@ -763,7 +763,7 @@ class Libraries
         Log::action(tr('Rebuilding tests cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
-        $temporary = FsDirectory::getTemporary();
+        $temporary = FsDirectory::getTemporaryObject();
         $cache     = FsDirectory::new(DIRECTORY_DATA . 'system/cache/tests', FsRestrictions::getWritable([
                                                                                          DIRECTORY_DATA . 'system/cache/tests',
                                                                                          DIRECTORY_TMP,

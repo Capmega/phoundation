@@ -54,7 +54,7 @@ $argv = ArgvValidator::new()
 if (ALL) {
     // Get all plugins
     $plugin = Plugins::new()->load()->each(function ($plugin) {
-        // Enable plugin
+        // Disable plugin
         Plugin::load($plugin)->disable();
     });
 
@@ -64,7 +64,7 @@ if (ALL) {
 } else {
     // Get specified plugins
     foreach ($argv['plugins'] as $plugin) {
-        // Enable plugin
+        // Disable plugin
         Plugin::load($plugin)->disable();
     }
 
