@@ -30,23 +30,23 @@ class FunctionCall implements FunctionCallInterface
     /**
      *
      *
-     * @var string $function
+     * @var string|null $function
      */
-    protected string $function;
+    protected ?string $function;
 
     /**
      *
      *
-     * @var string $file
+     * @var string|null $file
      */
-    protected string $file;
+    protected ?string $file;
 
     /**
      *
      *
-     * @var int $line
+     * @var int|null $line
      */
-    protected int $line;
+    protected ?int $line;
 
     /**
      * @var IteratorInterface $arguments
@@ -81,8 +81,8 @@ class FunctionCall implements FunctionCallInterface
 
         $trace = static::$backtrace[$offset];
 
-        $this->file      = $trace['file'];
-        $this->line      = $trace['line'];
+        $this->file      = isset_get($trace['file']);
+        $this->line      = isset_get($trace['line'], -1);
         $this->function  = isset_get($trace['function']);
         $this->class     = isset_get($trace['class']);
         $this->arguments = new Iterator(isset_get($trace['args']));
@@ -108,9 +108,9 @@ class FunctionCall implements FunctionCallInterface
     /**
      * Returns the file where this function is located
      *
-     * @return string
+     * @return string|null
      */
-    public function getFile(): string
+    public function getFile(): ?string
     {
         return $this->file;
     }
@@ -119,9 +119,9 @@ class FunctionCall implements FunctionCallInterface
     /**
      * Returns the line where this function is located
      *
-     * @return int
+     * @return int|null
      */
-    public function getLine(): int
+    public function getLine(): ?int
     {
         return $this->line;
     }

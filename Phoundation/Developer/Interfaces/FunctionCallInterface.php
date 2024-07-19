@@ -11,23 +11,23 @@ interface FunctionCallInterface
     /**
      * Returns the function (or method) of this call
      *
-     * @return string
+     * @return string|null
      */
-    public function getFunction(): string;
+    public function getFunction(): ?string;
 
     /**
      * Returns the file where this function is located
      *
-     * @return string
+     * @return string|null
      */
-    public function getFile(): string;
+    public function getFile(): ?string;
 
     /**
      * Returns the line where this function is located
      *
-     * @return int
+     * @return int|null
      */
-    public function getLine(): int;
+    public function getLine(): ?int;
 
     /**
      * Returns the class where this function is located
