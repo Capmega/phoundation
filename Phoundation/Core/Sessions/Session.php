@@ -1112,7 +1112,7 @@ class Session implements SessionInterface
     public static function getConfig(): ConfigInterface
     {
         if (empty(static::$config)) {
-            static::$config = new \Phoundation\Core\Sessions\Config();
+            static::$config = new SessionConfig();
         }
 
         return static::$config;

@@ -16,8 +16,9 @@ declare(strict_types=1);
 namespace Phoundation\Core\Sessions;
 
 use Phoundation\Core\Sessions\Interfaces\ConfigInterface;
+use Phoundation\Utils\Config;
 
-class Config extends \Phoundation\Utils\Config implements ConfigInterface
+class SessionConfig extends Config implements ConfigInterface
 {
     /**
      * Singleton variable for the main config object
