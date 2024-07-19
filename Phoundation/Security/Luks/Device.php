@@ -74,7 +74,7 @@ class Device extends FsFile
         $this->luksCheckPath();
 
         Process::new('cryptsetup', $this->restrictions)
-               ->addArguments(['luksAddKey', $this->path])
+               ->addArguments(['luksAddKey', $this->source])
                ->setSudo(true)
                ->setPipeFrom($code)
                ->executeNoReturn();
@@ -95,7 +95,7 @@ class Device extends FsFile
         $this->luksCheckPath();
 
         Process::new('cryptsetup', $this->restrictions)
-               ->addArguments(['luksRemoveKey', $this->path])
+               ->addArguments(['luksRemoveKey', $this->source])
                ->setSudo(true)
                ->setPipeFrom($code)
                ->executeNoReturn();
@@ -114,7 +114,7 @@ class Device extends FsFile
         $this->luksCheckPath();
 
         return Process::new('cryptsetup', $this->restrictions)
-                      ->addArguments(['luksDump', $this->path])
+                      ->addArguments(['luksDump', $this->source])
                       ->setSudo(true)
                       ->executeReturnIterator();
     }
@@ -135,11 +135,11 @@ class Device extends FsFile
         $this->luksCheckPath();
 
         Log::action(tr('Formatting LUKS device file ":file"', [
-            ':file' => $this->path,
+            ':file' => $this->source,
         ]));
 
         Process::new('cryptsetup', $this->restrictions)
-               ->addArguments(['luksFormat', '--batch-mode', $this->path])
+               ->addArguments(['luksFormat', '--batch-mode', $this->source])
                ->setSudo(true)
                ->setPipeFrom($password)
                ->execute($method);
@@ -227,7 +227,7 @@ class Device extends FsFile
         $this->luksCheckPath();
 
         $result = Process::new('cryptsetup', $this->restrictions)
-               ->addArguments(['isLuks', $this->path])
+               ->addArguments(['isLuks', $this->source])
                ->setSudo(true)
                ->executeReturnString();
 
@@ -245,7 +245,7 @@ class Device extends FsFile
         $this->luksCheckPath();
 
         return Process::new('cryptsetup', $this->restrictions)
-               ->addArguments(['luksUUID', $this->path])
+               ->addArguments(['luksUUID', $this->source])
                ->setSudo(true)
                ->executeReturnString();
     }
@@ -271,13 +271,13 @@ class Device extends FsFile
 
             if ($this->luksIsOpen()) {
                 throw new DeviceAlreadyOpenException(tr('Cannot open file ":file" to map to device ":device" because the file is already opened and mapped by LUKS', [
-                    ':file'   => $this->path,
+                    ':file'   => $this->source,
                     ':device' => $device_name
                 ]));
             }
 
             Process::new('cryptsetup', $this->restrictions)
-                  ->addArguments(['luksOpen', $this->path, $device_name])
+                  ->addArguments(['luksOpen', $this->source, $device_name])
                   ->setSudo(true)
                   ->setPipeFrom($passphrase)
                   ->execute($method);
@@ -285,7 +285,7 @@ class Device extends FsFile
         } catch (ProcessFailedException $e) {
             if ($e->dataMatchesRegex('/Device .+? already exists/i')) {
                 throw new DeviceAlreadyExistsException(tr('Cannot open LUKS file ":file" as device ":device", that device name already exists', [
-                    ':file'   => $this->path,
+                    ':file'   => $this->source,
                     ':device' => $device_name
                 ]));
             }
@@ -293,20 +293,20 @@ class Device extends FsFile
             if ($e->dataMatchesRegex('/Device .+? does not exist or access denied./i')) {
                 if ($this->exists()) {
                     throw new FileNotExistException(tr('Cannot open LUKS file ":file" as device ":device", the file does not exist', [
-                        ':file'   => $this->path,
+                        ':file'   => $this->source,
                         ':device' => $device_name
                     ]));
                 }
 
                 throw new FileWriteAccessDeniedException(tr('Cannot open LUKS file ":file" as device ":device", the file does not exist', [
-                    ':file'   => $this->path,
+                    ':file'   => $this->source,
                     ':device' => $device_name
                 ]));
             }
 
             if ($e->dataContains('No key available with this passphrase')) {
                 throw new DeviceNoKeyAvailableWithPassphraseException(tr('Cannot open LUKS file ":file" as device ":device", no crypt keys found for specified passphrase', [
-                    ':file'   => $this->path,
+                    ':file'   => $this->source,
                     ':device' => $device_name
                 ]));
             }
@@ -319,7 +319,7 @@ class Device extends FsFile
         $this->device_name = new FsFile('/dev/mapper/' . $device_name);
 
         Log::success(tr('Opened LUKS file ":file" and mapped it to device ":device"', [
-            ':file'   => $this->path,
+            ':file'   => $this->source,
             ':device' => $device_name
         ]), 2);
 
@@ -340,14 +340,14 @@ class Device extends FsFile
             if ($force) {
                 // It's closed, what more do you want?
                 Log::warning(tr('Will not close LUKS file ":file", the file is not open', [
-                    ':file'   => $this->path,
+                    ':file'   => $this->source,
                 ]), 2);
 
                 return $this;
             }
 
             throw new LuksNoOpenDeviceException(tr('Cannot close LUKS device for file ":file", no device has been opened yet for it', [
-                ':file' => $this->path
+                ':file' => $this->source
             ]));
         }
 
@@ -358,7 +358,7 @@ class Device extends FsFile
                 ->executeNoReturn();
 
             Log::success(tr('Closed LUKS device ":device" that was mapped from file ":file"', [
-                ':file'   => $this->path,
+                ':file'   => $this->source,
                 ':device' => $this->device_name
             ]), 2);
 
@@ -370,7 +370,7 @@ class Device extends FsFile
                 if ($force) {
                     // That's fine, we were just making sure
                     Log::warning(tr('Will not close LUKS device ":device" that was mapped from file ":file", the device was not open', [
-                        ':file'   => $this->path,
+                        ':file'   => $this->source,
                         ':device' => $this->device_name
                     ]), 2);
 
@@ -378,16 +378,16 @@ class Device extends FsFile
                 }
 
                 throw new DeviceNotActiveException(tr('Cannot close LUKS device ":device" for file ":file", the device is not currently active', [
-                    ':file'   => $this->path,
+                    ':file'   => $this->source,
                     ':device' => $this->device_name
                 ]));
             }
 
             if ($e->dataMatchesRegex('/Device .+? is still in use./i')) {
-                $processes = Lsof::new()->getForFile($this->device_name->getPath());
+                $processes = Lsof::new()->getForFile($this->device_name->getSource());
 
                 throw DeviceStillInUseException::new(tr('Cannot close LUKS device ":device" for file ":file", the device is still in use', [
-                    ':file'   => $this->path,
+                    ':file'   => $this->source,
                     ':device' => $this->device_name
                 ]))->addData(['processes' => $processes]);
             }
@@ -480,7 +480,7 @@ class Device extends FsFile
      */
     protected function luksCheckPath(): static
     {
-        if (empty($this->path)) {
+        if (empty($this->source)) {
             throw new OutOfBoundsException(tr('No LUKS file specified'));
         }
 

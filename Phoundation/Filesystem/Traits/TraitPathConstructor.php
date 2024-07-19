@@ -35,7 +35,7 @@ trait TraitPathConstructor
     {
         if ($source instanceof FsPathInterface) {
             // The Specified file was actually a FsFileFileInterface or Directory object, get the file from there
-            $this->setPath($source, $absolute_prefix)
+            $this->setSource($source, $absolute_prefix)
                  ->setTarget($source->getTarget())
                  ->setRestrictions($restrictions ?? $source->getRestrictions());
 
@@ -61,7 +61,7 @@ trait TraitPathConstructor
                 );
             }
 
-            $this->setPath($source, $absolute_prefix)
+            $this->setSource($source, $absolute_prefix)
                  ->setRestrictions($restrictions);
         }
     }

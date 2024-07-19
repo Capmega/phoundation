@@ -28,7 +28,7 @@ class FsMountedStorageDevices extends FsDirectoryCore
      */
     public function __construct(bool $writable = false)
     {
-        $this->path         = '/dev/disk/by-id/';
-        $this->restrictions = FsRestrictions::new($this->path, $writable, 'FsMountedStorageDevices');
+        $this->source         = '/dev/disk/by-id/';
+        $this->restrictions = FsRestrictions::new($this->source, $writable, 'FsMountedStorageDevices');
     }
 }

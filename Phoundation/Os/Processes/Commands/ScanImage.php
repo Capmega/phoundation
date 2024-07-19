@@ -503,9 +503,9 @@ class ScanImage extends Command
                                ->getUrl(),
              ])
              ->addArguments($this->options)
-             ->addArguments($this->batch ? ['--batch=' . $path->getPath()] : [
+             ->addArguments($this->batch ? ['--batch=' . $path->getSource()] : [
                  '-o',
-                 $path->getPath(),
+                 $path->getSource(),
              ])
              ->setTimeout(120)
              ->execute($method);

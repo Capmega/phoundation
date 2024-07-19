@@ -516,7 +516,7 @@ class Session implements SessionInterface
                     '/var/lib/php/sessions/',
                 ],                                                                                                                      true, 'system/sessions'))
                                         ->ensure();
-                session_save_path($directory->getPath());
+                session_save_path($directory->getSource());
                 break;
 
             case 'memcached':

@@ -1638,7 +1638,7 @@ class Response implements ResponseInterface
                         ->setAttachment(true)
                         ->setData(static::getOutput())
                         ->setFilename(basename(Request::getTarget()
-                                                      ->getPath()))
+                                                      ->getSource()))
                         ->send();
         }
         // Track data sizes

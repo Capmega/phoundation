@@ -533,7 +533,7 @@ class Plugins extends Project
         $return = [];
 
         foreach ($plugins as $plugin) {
-            $return[$plugin] = FsDirectory::new(DIRECTORY_ROOT . 'Plugins/' . $plugin)->getPath();
+            $return[$plugin] = FsDirectory::new(DIRECTORY_ROOT . 'Plugins/' . $plugin)->getSource();
         }
 
         return $return;

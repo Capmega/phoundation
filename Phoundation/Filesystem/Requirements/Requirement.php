@@ -22,14 +22,14 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryPath;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryPathObject;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 class Requirement extends DataEntry
 {
     use TraitDataEntryNameDescription;
-    use TraitDataEntryPath;
+    use TraitDataEntryPathObject;
 
     /**
      * @inheritDoc
@@ -65,7 +65,7 @@ class Requirement extends DataEntry
      */
     public function check(string $path): static
     {
-        if ($this->getPath()) {
+        if ($this->getPathObject()) {
 
         }
     }

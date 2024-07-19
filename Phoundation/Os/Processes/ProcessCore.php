@@ -205,13 +205,13 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
                 FsRestrictions::getWritable(dirname($this->command), 'ProcessCore::setExitCode()')
             );
 
-            if ($file->getParentDirectory()->getPath() === DIRECTORY_DATA . 'bin/') {
+            if ($file->getParentDirectory()->getSource() === DIRECTORY_DATA . 'bin/') {
                 // Yeah, this is a ROOT/data/bin executable
                 if ($file->getModePermissions() !== '750') {
                     // Yeah, file permission is not what it should be. Fix and retry.
                     Log::warning(tr('File mode ":mode" for executable ":file" is incorrect, should be "750". Fixing and retrying', [
                         ':mode' => $file->getMode(),
-                        ':file' => $file->getPath(),
+                        ':file' => $file->getSource(),
                     ]));
 
                     $file->chmod(0750);
@@ -271,7 +271,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
         // Execute the command in this directory
         if ($this->execution_directory?->isSet()) {
-            $this->cached_command_line = 'cd ' . escapeshellarg($this->execution_directory->getPath()) . '; ' . $this->cached_command_line;
+            $this->cached_command_line = 'cd ' . escapeshellarg($this->execution_directory->getSource()) . '; ' . $this->cached_command_line;
         }
 
         // Execute on a server?
@@ -566,7 +566,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
     {
         $this->setExecutionMethod(EnumExecuteMethod::passthru);
 
-        $output_file = FsFile::getTemporary(false)->getPath();
+        $output_file = FsFile::getTemporary(false)->getSource();
         $commands    = $this->getFullCommandLine();
         $commands    = Strings::ensureEndsNotWith($commands, ';');
 

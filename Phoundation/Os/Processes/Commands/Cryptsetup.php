@@ -38,7 +38,7 @@ class Cryptsetup extends Command
         // Get restrictions from the specified device
         $this->setRestrictions($device->getRestrictions());
 
-        $device = Device::new($device)->getPath();
+        $device = Device::new($device)->getSource();
 
         if ($key) {
             if ($key_file) {

@@ -30,7 +30,7 @@ class Content extends FsFile implements ContentInterfaceFsFileInterface
      */
     public function view(): void
     {
-        $file     = FsFile::new($this->path)->checkReadable('image');
+        $file     = FsFile::new($this->source)->checkReadable('image');
         $mimetype = $file->getMimetype();
         $primary  = Strings::until($mimetype, '/');
 
@@ -40,7 +40,7 @@ class Content extends FsFile implements ContentInterfaceFsFileInterface
             'pdf'       => static::viewPdf(),
             'directory' => static::viewDirectory(),
             default     => throw new ContentException(tr('Unknown mimetype ":viewer" for file ":file"', [
-                ':file'     => $file->getPath(),
+                ':file'     => $file->getSource(),
                 ':mimetype' => $mimetype,
             ])),
         };
@@ -55,7 +55,7 @@ class Content extends FsFile implements ContentInterfaceFsFileInterface
     protected function viewImage(): void
     {
         Process::new('feh', $this->restrictions, 'feh')
-               ->addArgument($this->path)
+               ->addArgument($this->source)
                ->executeBackground();
     }
 

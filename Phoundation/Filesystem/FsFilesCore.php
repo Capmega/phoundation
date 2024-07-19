@@ -143,7 +143,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
 
             if (!str_starts_with($current, '/')) {
                 // Prefix the file with the parent path ONLY IF it's not absolute and a parent was specified
-                $current = $this->parent?->getPath() . $current;
+                $current = $this->parent?->getSource() . $current;
             }
 
             if (is_dir($current)) {
@@ -160,7 +160,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
 
         // The file is already stored in an FsPathInterface object
         $file = current($this->source);
-        $file->makeAbsolute($this->parent?->getPath(), false);
+        $file->makeAbsolute($this->parent?->getSource(), false);
 
         return $file;
     }

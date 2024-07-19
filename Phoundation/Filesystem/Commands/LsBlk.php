@@ -66,7 +66,7 @@ class LsBlk extends Command
 
                 if ($match) {
                     // This is a "linked" device
-                    $result['device'] = FsFile::new($match)->getLinkTarget()->getPath();
+                    $result['device'] = FsFile::new($match)->getLinkTarget()->getSource();
                     $result['device'] = FsFile::normalizePath($result['device']);
 
                 } else {

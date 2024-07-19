@@ -55,13 +55,13 @@ class Device extends FsFile implements DeviceInterface
      */
     protected function checkDeviceFile(): void
     {
-        $this->path = Strings::ensureStartsWith($this->path, '/dev/');
+        $this->source = Strings::ensureStartsWith($this->source, '/dev/');
         if (
             !Lsblk::new()
-                  ->isStorageDevice($this->path)
+                  ->isStorageDevice($this->source)
         ) {
             throw new StorageException(tr('Specified device ":device" is not a storage device', [
-                ':device' => $this->path,
+                ':device' => $this->source,
             ]));
         }
     }
@@ -74,7 +74,7 @@ class Device extends FsFile implements DeviceInterface
      */
     public function checkMounted(): static
     {
-        if (!$this->isMounted($this->path)) {
+        if (!$this->isMounted($this->source)) {
             throw StorageException::new(tr('The device is not mounted'));
         }
 
@@ -90,7 +90,7 @@ class Device extends FsFile implements DeviceInterface
     public function isMounted(): bool
     {
         return Mount::new()
-                    ->deviceIsMounted($this->path);
+                    ->deviceIsMounted($this->source);
     }
 
 
@@ -111,7 +111,7 @@ class Device extends FsFile implements DeviceInterface
                ->setTimeout(0)
                ->addArguments([
                    'if=/dev/urandom',
-                   'of=' . $this->path,
+                   'of=' . $this->source,
                    'bs=4096',
                    'status=progress',
                ])
@@ -128,7 +128,7 @@ class Device extends FsFile implements DeviceInterface
      */
     public function checkUnmounted(): static
     {
-        if ($this->isMounted($this->path)) {
+        if ($this->isMounted($this->source)) {
             throw StorageException::new(tr('The device is mounted'));
         }
 

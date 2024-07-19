@@ -368,14 +368,14 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
      */
     public function onDirectoryOnly(callable $callback): void
     {
-        $this->restrictions->check($this->path, true);
+        $this->restrictions->check($this->source, true);
 
-        foreach (Arrays::force($this->path, '') as $this->path) {
+        foreach (Arrays::force($this->source, '') as $this->source) {
             // Get al files in this directory
-            $this->path = FsPath::absolutePath($this->path);
+            $this->source = FsPath::absolutePath($this->source);
 
             // Skip this directory
-            if ($this->skip($this->path)) {
+            if ($this->skip($this->source)) {
                 continue;
             }
 
@@ -384,10 +384,10 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
             }
 
             Log::action(tr('Executing callback function on directory ":directory"', [
-                ':directory' => $this->path,
+                ':directory' => $this->source,
             ]), 2);
 
-            $callback($this->path);
+            $callback($this->source);
 
             // Return original file mode
             if (isset($mode)) {
@@ -432,9 +432,9 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
         $files = [];
 
         // Get al files in this directory
-        $this->path = FsPath::absolutePath($this->path);
+        $this->source = FsPath::absolutePath($this->source);
         // Skip this directory?
-        if ($this->skip($this->path)) {
+        if ($this->skip($this->source)) {
             return 0;
         }
         if ($this->mode) {
@@ -442,10 +442,10 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
             $mode = $this->switchMode($this->mode);
         }
         try {
-            $files = scandir($this->path);
+            $files = scandir($this->source);
 
         } catch (Exception $e) {
-            FsDirectory::new($this->path, $this->restrictions)
+            FsDirectory::new($this->source, $this->restrictions)
                      ->checkReadable(previous_e: $e);
         }
 
@@ -457,7 +457,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
             if ($file[0] === '.') {
                 if (!$this->follow_hidden) {
                     Log::warning(tr('Not following directory ":directory", hidden files are ignored', [
-                        ':directory' => $this->path . $file,
+                        ':directory' => $this->source . $file,
                     ]), 2);
                 }
             }
@@ -465,22 +465,22 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
             if (is_link($file)) {
                 if (!$this->follow_symlinks) {
                     Log::warning(tr('Not following directory ":directory", symlinks are ignored', [
-                        ':directory' => $this->path . $file,
+                        ':directory' => $this->source . $file,
                     ]), 2);
                 }
             }
 
-            if (is_dir($this->path . $file)) {
+            if (is_dir($this->source . $file)) {
                 // Directory! Recurse?
                 if (!$this->recurse) {
                     continue;
                 }
 
                 $recurse = clone $this;
-                $count  += $recurse->setPath($this->path . $file)
+                $count  += $recurse->setSource($this->source . $file)
                                    ->onFiles($callback);
 
-            } elseif (file_exists($this->path . $file)) {
+            } elseif (file_exists($this->source . $file)) {
                 // Execute the callback
                 $count++;
                 $extension = FsPath::new($file)->getExtension();
@@ -489,7 +489,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
                     // Extension MUST be on this list
                     if (!array_key_exists($extension, $this->whitelist_extensions)) {
                         Log::warning(tr('Not executing callback function on file ":file", the extension is not whitelisted', [
-                            ':file' => $this->path . $file,
+                            ':file' => $this->source . $file,
                         ]), 2);
                     }
                 }
@@ -498,17 +498,17 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
                     // Extension MUST NOT be on this list
                     if (array_key_exists($extension, $this->whitelist_extensions)) {
                         Log::warning(tr('Not executing callback function on file ":file", the extension is blacklisted', [
-                            ':file' => $this->path . $file,
+                            ':file' => $this->source . $file,
                         ]), 2);
                     }
                 }
 
                 Log::action(tr('Executing callback function on file ":file"', [
-                    ':file' => $this->path . $file,
+                    ':file' => $this->source . $file,
                 ]), 2);
 
                 try {
-                    $callback($this->path . $file);
+                    $callback($this->source . $file);
 
                 } catch (Throwable $e) {
                     if (!$this->ignore_exceptions) {
@@ -525,7 +525,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
 
             } else {
                 Log::warning(tr('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
-                    ':file' => $this->path . $file,
+                    ':file' => $this->source . $file,
                 ]));
             }
 

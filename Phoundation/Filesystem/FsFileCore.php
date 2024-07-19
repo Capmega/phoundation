@@ -58,7 +58,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
         if ($this->exists()) {
             if (!$force) {
                 throw new FileExistsException(tr('Cannot create file ":file", it already exists', [
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                 ]));
             }
         }
@@ -68,7 +68,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
             // is still there?
             if (!$force) {
                 throw new FileExistsException(tr('Cannot create file ":file", it does not exist, but is open. Perhaps the file was deleted but the open inode is still there?', [
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                 ]));
             }
 
@@ -141,24 +141,24 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     public function ensureFile($mode = null, $pattern_mode = null): void
     {
         // Check filesystem restrictions
-        $directory = dirname($this->path);
+        $directory = dirname($this->source);
         $mode      = Config::get('filesystem.modes.defaults.file', 0640, $mode);
 
         $this->restrictions->check($directory, true);
 
-        FsDirectory::new(dirname($this->path), $this->restrictions)->ensure($pattern_mode);
+        FsDirectory::new(dirname($this->source), $this->restrictions)->ensure($pattern_mode);
 
-        if (!file_exists($this->path)) {
+        if (!file_exists($this->source)) {
             // Create the file
-            FsDirectory::new(dirname($this->path), $this->restrictions)
+            FsDirectory::new(dirname($this->source), $this->restrictions)
                      ->execute()
                      ->setMode(0770)
                      ->onDirectoryOnly(function () use ($mode) {
                         Log::warning(tr('FsFileFileInterface ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
-                            ':file' => $this->path,
+                            ':file' => $this->source,
                         ]));
 
-                        touch($this->path);
+                        touch($this->source);
 
                         if ($mode) {
                             $this->chmod($mode);
@@ -242,14 +242,14 @@ class FsFileCore extends FsPathCore implements FsFileInterface
         $restrictions = $this->ensureRestrictions($restrictions);
 
         // Check these restrictions and the new file restrictions
-        $this->restrictions->check($this->path, true);
+        $this->restrictions->check($this->source, true);
         $restrictions->check($target, false);
 
         stream_context_set_params($context, [
             'notification' => $callback,
         ]);
 
-        copy($this->path, $target, $context);
+        copy($this->source, $target, $context);
 
         return new static($target, $restrictions);
     }
@@ -275,10 +275,10 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     {
         parent::checkReadable($type, $previous_e);
 
-        if (is_dir($this->path)) {
+        if (is_dir($this->source)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be read because it is a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]), $previous_e);
         }
 
@@ -310,10 +310,10 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     {
         parent::checkWritable($type, $previous_e);
 
-        if (is_dir($this->path)) {
+        if (is_dir($this->source)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be written because it is a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]), $previous_e);
         }
 
@@ -334,7 +334,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     {
         if ($this->isText()) {
             throw new FileTypeNotSupportedException(tr('Cannot execute method ":method()" on file ":file", it is not a text file', [
-                ':file'   => $this->path,
+                ':file'   => $this->source,
                 ':method' => $method,
             ]));
         }
@@ -440,13 +440,13 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     public function pathContainsSymlink(?string $prefix = null): bool
     {
         // Check filesystem restrictions and if file exists
-        $this->restrictions->check($this->path, true);
+        $this->restrictions->check($this->source, true);
 
         // Build up the directory
-        if (str_starts_with($this->path, '/')) {
+        if (str_starts_with($this->source, '/')) {
             if ($prefix) {
                 throw new FilesystemException(tr('The specified file ":file" is absolute, which requires $prefix to be null, but it is ":prefix"', [
-                    ':file'   => $this->path,
+                    ':file'   => $this->source,
                     ':prefix' => $prefix,
                 ]));
             }
@@ -456,7 +456,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
             // Specified $pattern is relative, so prefix it with $prefix
             if (!str_starts_with($prefix, '/')) {
                 throw new FilesystemException(tr('The specified file ":file" is relative, which requires an absolute $prefix but it is ":prefix"', [
-                    ':file'   => $this->path,
+                    ':file'   => $this->source,
                     ':prefix' => $prefix,
                 ]));
             }
@@ -464,17 +464,17 @@ class FsFileCore extends FsPathCore implements FsFileInterface
             $location = Strings::ensureEndsWith($prefix, '/');
         }
 
-        $this->path = Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($this->path, '/'), '/');
+        $this->source = Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($this->source, '/'), '/');
 
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, false);
+        $this->restrictions->check($this->source, false);
 
-        foreach (explode('/', $this->path) as $section) {
+        foreach (explode('/', $this->source) as $section) {
             $location .= $section;
 
             if (!file_exists($location)) {
                 throw new FilesystemException(tr('The specified directory ":directory" with prefix ":prefix" leads to ":location" which does not exist', [
-                    ':directory' => $this->path,
+                    ':directory' => $this->source,
                     ':prefix'    => $prefix,
                     ':location'  => $location,
                 ]));
@@ -602,26 +602,26 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     public function moveToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string
     {
         throw new UnderConstructionException();
-        $this->restrictions->check($this->path, false);
+        $this->restrictions->check($this->source, false);
         $this->restrictions->check($directory, true);
-        if (is_array($this->path)) {
+        if (is_array($this->source)) {
             // Assume this is a PHP $_FILES array entry
-            $upload     = $this->path;
-            $this->path = $this->path['name'];
+            $upload     = $this->source;
+            $this->source = $this->source['name'];
         }
         if (isset($upload) and $copy) {
-            throw new FilesystemException(tr('Copy option has been set, but object file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $this->path]));
+            throw new FilesystemException(tr('Copy option has been set, but object file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $this->source]));
         }
         $directory      = FsDirectory::new($directory, $this->restrictions)
                                      ->ensure();
-        $this->filename = basename($this->path);
+        $this->filename = basename($this->source);
         if (!$this->filename) {
             // We always MUST have a filename
             $this->filename = bin2hex(random_bytes(32));
         }
         // Ensure we have a local copy of the file to work with
-        if ($this->path) {
-            $this->path = FileResponse::new($this->restrictions)
+        if ($this->source) {
+            $this->source = FileResponse::new($this->restrictions)
                                       ->download($is_downloaded, $context);
         }
         if (!$extension) {
@@ -651,7 +651,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
             return $this->moveToTarget($directory, $extension, $singledir, $length, $copy);
         }
         // Only move if file was specified. If no file specified, then we will only return the available directory
-        if ($this->path) {
+        if ($this->source) {
             if (isset($upload)) {
                 // This is an uploaded file
                 $this->moveToTarget($upload['tmp_name'], $target);
@@ -659,12 +659,12 @@ class FsFileCore extends FsPathCore implements FsFileInterface
             } else {
                 // This is a normal file
                 if ($copy and !$is_downloaded) {
-                    copy($this->path, $target);
+                    copy($this->source, $target);
 
                 } else {
                     rename($target);
 
-                    FsDirectory::new(dirname($this->path))->clearDirectory();
+                    FsDirectory::new(dirname($this->source))->clearDirectory();
                 }
             }
         }
@@ -776,33 +776,33 @@ class FsFileCore extends FsPathCore implements FsFileInterface
         if (is_dir($source)) {
             $source      = Strings::slash($source);
             $destination = Strings::slash($destination);
-            foreach (scandir($source) as $this->path) {
-                if (($this->path == '.') or ($this->path == '..')) {
+            foreach (scandir($source) as $this->source) {
+                if (($this->source == '.') or ($this->source == '..')) {
                     // Only replacing down
                     continue;
                 }
                 if (is_null($mode)) {
                     $this->filemode = Config::get('filesystem.modes.defaults.directories', 0640, $mode);
-                } elseif (is_link($source . $this->path)) {
+                } elseif (is_link($source . $this->source)) {
                     // No file permissions for symlinks
                     $this->filemode = false;
                 } else {
-                    $this->filemode = fileperms($source . $this->path);
+                    $this->filemode = fileperms($source . $this->source);
                 }
-                if (is_dir($source . $this->path)) {
+                if (is_dir($source . $this->source)) {
                     // Recurse
-                    if (file_exists($destination . $this->path)) {
+                    if (file_exists($destination . $this->source)) {
                         // Destination directory already exists. This -by the way- means that the destination tree was not
                         // clean
-                        if (!is_dir($destination . $this->path)) {
+                        if (!is_dir($destination . $this->source)) {
                             // Were overwriting here!
-                            file_delete($destination . $this->path, $this->restrictions);
+                            file_delete($destination . $this->source, $this->restrictions);
                         }
                     }
-                    $this->directory($destination . $this->path)
+                    $this->directory($destination . $this->source)
                          ->ensure($this->filemode);
                 }
-                file_copy_tree($source . $this->path, $destination . $this->path, $search, $replace, $extensions, $mode, true);
+                file_copy_tree($source . $this->source, $destination . $this->source, $search, $replace, $extensions, $mode, true);
             }
         } else {
             if (is_link($source)) {
@@ -920,18 +920,18 @@ class FsFileCore extends FsPathCore implements FsFileInterface
         }
 
         // Apply pattern
-        $dirname  = dirname($this->path) . '/';
-        $basename = basename($this->path);
+        $dirname  = dirname($this->source) . '/';
+        $basename = basename($this->source);
         $target = str_replace(':PATH', $dirname, $pattern);
         $target = str_replace(':FILE', $basename, $target);
         $target = str_replace(':DATE', date('ymd-his'), $target);
 
         // Make the backup
         if ($move) {
-            rename($this->path, $target);
+            rename($this->source, $target);
 
         } else {
-            copy($this->path, $target);
+            copy($this->source, $target);
         }
 
         return new static($target, $this->restrictions);
@@ -947,13 +947,13 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     {
         if (!$this->isPhp()) {
             throw new FilesystemException(tr('Cannot gather PHP statistics for file ":file", it is not a PHP file', [
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]));
         }
 
         $return = [
-            'size'           => filesize($this->path),
-            'page_estimate'  => (int) (filesize($this->path) / 4096),
+            'size'           => filesize($this->source),
+            'page_estimate'  => (int) (filesize($this->source) / 4096),
             'lines'          => 0,
             'words'          => 0,
             'code_lines'     => 0,
@@ -968,7 +968,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
             'enums'          => 0,
         ];
 
-        $data          = file($this->path);
+        $data          = file($this->source);
         $method        = false;
         $block_comment = false;
 
@@ -1087,7 +1087,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
      */
     public function isPhp(): bool
     {
-        if (str_ends_with($this->path, '.php')) {
+        if (str_ends_with($this->source, '.php')) {
             return ($this->getMimetype() === 'text/x-php');
         }
 
@@ -1111,7 +1111,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
         $mode = Config::get('filesystem.mode.default.file', 0440, $mode);
 
         if (!$this->ensureFileReadable($mode)) {
-            touch($this->path);
+            touch($this->source);
             $this->chmod($mode);
         }
 
@@ -1137,10 +1137,10 @@ class FsFileCore extends FsPathCore implements FsFileInterface
         if (!$this->ensureFileWritable($mode)) {
             Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
                 ':mode' => Strings::fromOctal($mode),
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]), 3);
 
-            touch($this->path);
+            touch($this->source);
             $this->chmod($mode);
         }
 
@@ -1158,17 +1158,17 @@ class FsFileCore extends FsPathCore implements FsFileInterface
      */
     public function checkSha256(string $sha256, bool $ignore_sha_fail = false): static
     {
-        $file_sha = Sha256::new($this->restrictions)->sha256($this->path);
+        $file_sha = Sha256::new($this->restrictions)->sha256($this->source);
 
         if ($sha256 !== $file_sha) {
             if (!$ignore_sha_fail) {
                 throw new Sha256MismatchException(tr('The SHA256 for file ":file" does not match with the required SHA256', [
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                 ]));
             }
 
             Log::warning(tr('WARNING: SHA256 hash for file ":file" does NOT match the required SHA256 hash! Continuing because SHA256 failures are ignored', [
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]));
         }
 
@@ -1199,7 +1199,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     {
         Tar::new()->untar($this);
 
-        return FsDirectory::new(dirname($this->path), $this->restrictions);
+        return FsDirectory::new(dirname($this->source), $this->restrictions);
     }
 
 
@@ -1274,12 +1274,12 @@ class FsFileCore extends FsPathCore implements FsFileInterface
             $target = clone $this;
         }
         // Check filesystem restrictions and if file exists
-        $this->restrictions->check($this->path, false);
+        $this->restrictions->check($this->source, false);
         $target->restrictions->check($target, true);
         // Source file must exist
         $this->checkExists();
         // Target file must not exist, target parent directory should exist
-        if ($this->path !== $target->getPath()) {
+        if ($this->source !== $target->getSource()) {
             // If we're replacing in the same file, then don't have to check
             $target->getParentDirectory()
                    ->ensure();
@@ -1317,7 +1317,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
                           '-n',
                           $lines,
                       ] : null)
-                      ->addArgument($this->path)
+                      ->addArgument($this->source)
                       ->executeReturnArray();
     }
 
@@ -1334,7 +1334,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
         if ($this->exists()) {
             if (!FORCE) {
                 throw new FileExistsException(tr('Cannot allocate file ":file", the file already exists', [
-                    ':file' => $this->path
+                    ':file' => $this->source
                 ]));
             }
 
@@ -1347,21 +1347,21 @@ class FsFileCore extends FsPathCore implements FsFileInterface
 
         if ($filesystem->getAvailableSpace() < $size) {
             throw new NotEnoughStorageSpaceAvailableException(tr('Cannot allocate file ":file" with size ":size", the filesystem ":filesystem" has only ":available" available', [
-                ':file'       => $this->path,
-                ':filesystem' => $filesystem->getPath(),
+                ':file'       => $this->source,
+                ':filesystem' => $filesystem->getSource(),
                 ':size'       => Numbers::getHumanReadableAndPreciseBytes($size),
                 ':available'  => Numbers::getHumanReadableAndPreciseBytes($filesystem->getAvailableSpace())
             ]));
         }
 
         Log::action(tr('Allocating file ":file" with size ":size"', [
-            ':file'       => $this->path,
+            ':file'       => $this->source,
             ':size'       => Numbers::getHumanReadableAndPreciseBytes($size),
         ]));
 
         // fallocate the file
         Process::new('fallocate', $this->getParentDirectory())
-               ->addArguments(['-l', $size, $this->path])
+               ->addArguments(['-l', $size, $this->source])
                ->executeReturnIterator();
 
         return $this;
@@ -1397,6 +1397,6 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     public function getSize(bool $recursive = true): int
     {
         // This is a single file!
-        return filesize($this->path);
+        return filesize($this->source);
     }
 }

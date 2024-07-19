@@ -182,7 +182,7 @@ class Phoundation extends Project
         try {
             $file    = FsFile::new($directory . 'config/project', $this->restrictions)
                              ->checkReadable()
-                             ->getPath();
+                             ->getSource();
             $project = file_get_contents($file);
 
             // TODO Update to use git remote show origin!

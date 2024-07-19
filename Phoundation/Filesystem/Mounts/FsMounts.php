@@ -170,7 +170,7 @@ class FsMounts extends DataIterator implements MountsInterface
      */
     public static function getMountSources(FsDirectoryInterface $target): static
     {
-        $target = $target->getPath(remove_terminating_slash: true);
+        $target = $target->getSource(remove_terminating_slash: true);
         $mounts = static::listMounts('target_path');
         $return = static::new();
 
@@ -200,7 +200,7 @@ class FsMounts extends DataIterator implements MountsInterface
      */
     public static function getMountTargets(FsDirectoryInterface $source): static
     {
-        $source = $source->getPath(remove_terminating_slash: true);
+        $source = $source->getSource(remove_terminating_slash: true);
         $mounts = static::listMounts('source_path');
         $return = static::new();
 

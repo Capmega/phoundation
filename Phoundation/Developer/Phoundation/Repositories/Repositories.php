@@ -346,19 +346,19 @@ class Repositories extends IteratorCore implements RepositoriesInterface
     {
         if (!$repository instanceof RepositoryInterface) {
             throw new OutOfBoundsException(tr('Specified repository ":path" must be a RepositoriesInterface object', [
-                ':path' => $repository->getPath()
+                ':path' => $repository->getSource()
             ]));
         }
 
         if (!$repository->exists()) {
             throw new OutOfBoundsException(tr('The path for the specified repository ":path" does not exist', [
-                ':path' => $repository->getPath()
+                ':path' => $repository->getSource()
             ]));
         }
 
         if (!$repository->isRepository()) {
             throw new OutOfBoundsException(tr('The path for the specified repository ":path" does not exist', [
-                ':path' => $repository->getPath()
+                ':path' => $repository->getSource()
             ]));
         }
 
@@ -441,22 +441,22 @@ class Repositories extends IteratorCore implements RepositoriesInterface
         $directories = $this->resolveDirectories($directories);
 
         foreach ($directories as $directory) {
-            if ($this->scanned_paths->keyExists($directory->getPath())) {
+            if ($this->scanned_paths->keyExists($directory->getSource())) {
                 // This path was already scanned
                 continue;
             }
 
             // Track scanned paths
-            $this->scanned_paths->add($directory, $directory->getPath());
+            $this->scanned_paths->add($directory, $directory->getSource());
 
             Log::action(tr('Scanning directory ":directory"', [
-                ':directory' => $directory->getPath()
+                ':directory' => $directory->getSource()
             ]));
 
             if (!$directory->exists()) {
                 // Nothing here
                 Log::warning(tr('Ignoring directory ":directory", it does not exist', [
-                    ':directory' => $directory->getPath(),
+                    ':directory' => $directory->getSource(),
                 ]), 2);
 
                 continue;
@@ -475,14 +475,14 @@ class Repositories extends IteratorCore implements RepositoriesInterface
                         continue;
                     }
 
-                    if ($this->keyExists($path->getPath())) {
+                    if ($this->keyExists($path->getSource())) {
                         // This repository has already been added
                         continue;
                     }
 
 
                     Log::action(tr('Testing directory ":directory" for Phoundation repository', [
-                        ':directory' => $path->getPath(),
+                        ':directory' => $path->getSource(),
                     ]), 1);
 
                     $repository = new Repository(
@@ -492,21 +492,21 @@ class Repositories extends IteratorCore implements RepositoriesInterface
 
                     if (!$repository->isRepository()) {
                         Log::warning(tr('Ignoring directory ":directory", it is not a repository', [
-                            ':directory' => $repository->getPath(),
+                            ':directory' => $repository->getSource(),
                         ]), 2);
 
                         if ($repository->isDirectory() and $recurse) {
-                            $this->scanDirectories([$repository->getPath()]);
+                            $this->scanDirectories([$repository->getSource()]);
                         }
 
                         continue;
                     }
 
                     Log::success(tr('Found Phoundation repository in ":path"', [
-                        ':path' => $repository->getPath()
+                        ':path' => $repository->getSource()
                     ]), 3);
 
-                    $this->add($repository, $repository->getPath());
+                    $this->add($repository, $repository->getSource());
 
                 } catch (FileNotWritableException $e) {
                     Log::warning(tr('Ignoring path ":path", the path cannot be written to', [
@@ -891,7 +891,7 @@ throw new UnderConstructionException();
         foreach ($this->source as $repository) {
             if ($repository->isVendorsRepository()) {
                 if ($repository->hasVendor($vendor->getIdentifier())) {
-                    $return->add($repository, $repository->getPath());
+                    $return->add($repository, $repository->getSource());
                 }
             }
         }

@@ -400,7 +400,7 @@ class Sync
                  '--database',
                  $connector->getDatabase(),
                  '--file',
-                 $file->getPath(),
+                 $file->getSource(),
              ])
              ->executePassthru();
 

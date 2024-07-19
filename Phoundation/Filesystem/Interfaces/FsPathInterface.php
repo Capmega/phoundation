@@ -65,7 +65,7 @@ interface FsPathInterface extends Stringable
      *
      * @return string|null
      */
-    public function getPath(FsPathInterface|string|null $from = null): ?string;
+    public function getSource(FsPathInterface|string|null $from = null): ?string;
 
     /**
      * Returns true if this object is the specified path
@@ -85,7 +85,7 @@ interface FsPathInterface extends Stringable
      *
      * @return static
      */
-    public function setPath(Stringable|string|null $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static;
+    public function setSource(Stringable|string|null $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static;
 
     /**
      * Sets the target file name in case operations create copies of this file

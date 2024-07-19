@@ -65,8 +65,8 @@ class ProfileImage extends ImageMenu
                 $image = 'img/profiles/default.png';
             }
 
-        } elseif (!$image->getPath()) {
-            $image->setPath('img/profiles/default.png');
+        } elseif (!$image->getSource()) {
+            $image->setSource('img/profiles/default.png');
         }
 
         return parent::setImage($image);

@@ -426,7 +426,7 @@ class FileResponse extends FsFile
     public function download(string $url, callable $callback = null): FsFileInterface|null
     {
         // Set temp file and download data
-        $file = FileResponse::getTemporary()->getPath();
+        $file = FileResponse::getTemporary()->getSource();
         $data = file_get_contents($url);
 
         // Write data to the temp file

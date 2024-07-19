@@ -107,7 +107,7 @@ class CliRunFile extends FsFileCore implements CliRunFileInterface
      */
     public function create(bool $force = false): static
     {
-        $this->path = static::$directory->addFile($this->command . '/' . $this->pid)->getPath();
+        $this->source = static::$directory->addFile($this->command . '/' . $this->pid)->getSource();
         return parent::create();
     }
 

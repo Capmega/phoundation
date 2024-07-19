@@ -37,21 +37,21 @@ class FsFilesystem extends FsFile implements FsFilesystemInterface
     public function __construct(Stringable|string|null $source = null, FsRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false) {
         parent::__construct($source, $restrictions, $absolute_prefix);
 
-        if (!$this->path) {
+        if (!$this->source) {
             throw new NoFilesystemSpecifiedException(tr('No filesystem specified'));
         }
 
         if (!$this->exists()) {
             throw new FilesystemDoesNotExistException(tr('The specified filesystem ":filesystem" does not exist', [
-                ':filesystem' => $this->path
+                ':filesystem' => $this->source
             ]));
         }
 
         $this->followLink(true);
 
-        if (!FsFilesystems::new()->get($this->path, false)) {
+        if (!FsFilesystems::new()->get($this->source, false)) {
             throw new NotAFilesystemException(tr('The specified value ":filesystem" is not a filesystem', [
-                ':filesystem' => $this->path
+                ':filesystem' => $this->source
             ]));
         }
     }
@@ -106,7 +106,7 @@ class FsFilesystem extends FsFile implements FsFilesystemInterface
         });
 
         // Adjust values to be byte precise
-        $results = $results->get($this->path, false);
+        $results = $results->get($this->source, false);
 
         $results['used']      = (int) floor($results['used'] * 1024);
         $results['size']      = (int) floor($results['size'] * 1024);

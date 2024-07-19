@@ -619,7 +619,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         // Is the path readable?
         $directory = FsDirectory::new($directory, $this->restrictions)
                                 ->checkReadable()
-                                ->getPath();
+                                ->getSource();
 
         // All these files and directories must be available.
         $files = [

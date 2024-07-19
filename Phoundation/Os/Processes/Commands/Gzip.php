@@ -37,14 +37,14 @@ class Gzip extends Command
         try {
             if ($file->isCompressed()) {
                 throw new AlredyCompressedException(tr('Cannot gzip file ":file", it is already compressed', [
-                    ':file' => $file->getPath(),
+                    ':file' => $file->getSource(),
                 ]));
             }
 
             if (file_exists($file . '.gz')) {
                 throw new FileExistsException(tr('Cannot gzip file ":file", the gzipped version ":gzip" already exists', [
-                    ':file' => $file->getPath(),
-                    ':gzip' => $file->getPath() . '.gz',
+                    ':file' => $file->getSource(),
+                    ':gzip' => $file->getSource() . '.gz',
                 ]));
             }
 
@@ -79,13 +79,13 @@ class Gzip extends Command
 
             if ($file->getMimetype() !== 'application/gzip') {
                 throw new InvalidFileType(tr('Cannot gunzip file ":file", it is not a gzip file', [
-                    ':file' => $file->getPath(),
+                    ':file' => $file->getSource(),
                 ]));
             }
 
             if ($target->exists()) {
                 throw new FileExistsException(tr('Cannot gunzip file ":file", the target version ":gzip" already exists', [
-                    ':file' => $file->getPath(),
+                    ':file' => $file->getSource(),
                     ':gzip' => $target,
                 ]));
             }

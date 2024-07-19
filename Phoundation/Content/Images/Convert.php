@@ -109,7 +109,7 @@ class Convert extends Command
      */
     public function getSourceFile(): ?string
     {
-        return $this->source->getPath();
+        return $this->source->getSource();
     }
 
 

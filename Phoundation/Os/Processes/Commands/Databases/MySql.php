@@ -146,7 +146,7 @@ class MySql extends Command
 
             default:
                 throw new FileTypeNotSupportedException(tr('The specified file ":file" has the unsupported filetype ":type"', [
-                    ':file' => $file->getPath(),
+                    ':file' => $file->getSource(),
                     ':type' => $file->getMimetype(),
                 ]));
         }

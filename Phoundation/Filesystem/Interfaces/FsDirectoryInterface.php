@@ -32,7 +32,7 @@ interface FsDirectoryInterface extends FsPathInterface
      *
      * @return string|null
      */
-    public function getPath(FsPathInterface|string|null $from = null, bool $remove_terminating_slash = false): ?string;
+    public function getSource(FsPathInterface|string|null $from = null, bool $remove_terminating_slash = false): ?string;
 
     /**
      * @inheritDoc

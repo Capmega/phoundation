@@ -29,7 +29,7 @@ class Image extends Content implements ImageInterface
      *
      * @var string|null
      */
-    protected ?string $path = null;
+    protected ?string $source = null;
 
     /**
      * Description for this image. Will be used as ALT text when converting this to an image HTML element
@@ -87,21 +87,21 @@ class Image extends Content implements ImageInterface
     public function getInformation(): array
     {
         $return = [
-            'file'   => $this->path,
-            'exists' => file_exists($this->path),
+            'file'   => $this->source,
+            'exists' => file_exists($this->source),
         ];
 
         if ($return['exists']) {
-            $return['size'] = filesize($this->path);
+            $return['size'] = filesize($this->source);
         }
 
         if ($return['size']) {
-            $return['mimetype'] = FsFile::new($this->path, $this->restrictions)->getMimetype();
+            $return['mimetype'] = FsFile::new($this->source, $this->restrictions)->getMimetype();
         }
 
         if (Strings::until($return['mimetype'], '/') === 'image') {
             $return['is_image']   = true;
-            $dimensions           = getimagesize($this->path);
+            $dimensions           = getimagesize($this->source);
 
             $return['bits']       = $dimensions['bits'];
             $return['exif']       = $this->getExifInformation();
@@ -125,11 +125,11 @@ class Image extends Content implements ImageInterface
      */
     protected function getExifInformation(): array
     {
-        $exif = exif_read_data($this->path);
+        $exif = exif_read_data($this->source);
 
         if (!$exif) {
             throw new ImagesException(tr('Failed to read EXIF information from image file ":file"', [
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]));
         }
 
@@ -145,7 +145,7 @@ class Image extends Content implements ImageInterface
     public function getHtmlElement(): Img
     {
         return Img::new()
-                  ->setSrc($this->path)
+                  ->setSrc($this->source)
                   ->setAlt($this->description);
     }
 }

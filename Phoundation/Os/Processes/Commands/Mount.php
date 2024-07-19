@@ -75,7 +75,7 @@ class Mount extends Command
     public static function isSource(Stringable|string $path, bool $exception = true): ?bool
     {
         $path      = FsDirectory::new($path, FsRestrictions::new('/'))
-                                ->getPath(true);
+                                ->getSource(true);
         $sources   = FsMounts::listMountSources();
         $targets   = FsMounts::listMountTargets();
         $is_source = $sources->keyExists($path);
@@ -115,7 +115,7 @@ class Mount extends Command
     public static function isMounted(Stringable|string $path): bool
     {
         $path = FsDirectory::new($path, FsRestrictions::new('/'))
-                           ->getPath(true);
+                           ->getSource(true);
 
         return FsMounts::listMountTargets()
                      ->keyExists($path);

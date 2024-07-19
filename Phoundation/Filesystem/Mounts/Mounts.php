@@ -170,7 +170,7 @@ class Mounts extends DataIterator implements MountsInterface
      */
     public static function getMountSources(Stringable|string $target, FsRestrictionsInterface $restrictions): static
     {
-        $target = FsDirectory::new($target, $restrictions)->getPath(true);
+        $target = FsDirectory::new($target, $restrictions)->getSource(true);
         $mounts = static::listMounts('target_path');
         $return = static::new();
 

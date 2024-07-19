@@ -30,9 +30,9 @@ class BomFile extends FsFile
     {
         parent::__construct($file, $restrictions);
         // Only allow PHP files
-        if (!str_ends_with($this->path, '.php')) {
+        if (!str_ends_with($this->source, '.php')) {
             throw new OutOfBoundsException(tr('Cannot check file ":file" for BOM, only PHP files are supported', [
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]));
         }
     }
@@ -49,7 +49,7 @@ class BomFile extends FsFile
         if ($this->hasBom()) {
             $data = $this->getContentsAsString();
             $this->write(substr($data, 3));
-            Log::warning(tr('Cleared BOM from file ":file"', [':file' => $this->path]));
+            Log::warning(tr('Cleared BOM from file ":file"', [':file' => $this->source]));
         }
 
         return $this;
@@ -64,11 +64,11 @@ class BomFile extends FsFile
     public function hasBom(): bool
     {
         // Only check unmodified files
-        if (Mtime::isModified($this->path)) {
+        if (Mtime::isModified($this->source)) {
             $data = $this->readBytes(3);
             if ($data === chr(0xEF) . chr(0xBB) . chr(0xBF)) {
                 // Found a twitcher! Gotta shootem in the head!
-                Log::warning(tr('Found BOM in file ":file"', [':file' => $this->path]));
+                Log::warning(tr('Found BOM in file ":file"', [':file' => $this->source]));
 
                 return true;
             }

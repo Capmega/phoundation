@@ -450,7 +450,7 @@ class Git extends Versioning implements GitInterface
                                 ->addArgument('--ignore-whitespace')
                                 ->addArgument('--ignore-space-change')
                                 ->addArgument('--whitespace=nowarn')
-                                ->addArgument($patch_file->getPath())
+                                ->addArgument($patch_file->getSource())
                                 ->executeReturnArray();
 
             Log::notice($output, 1, false);

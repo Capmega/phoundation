@@ -1564,7 +1564,7 @@ class Log
     {
         $current = static::$file;
         $file    = FsFile::new(static::$file, FsRestrictions::getWritable(DIRECTORY_DATA . 'log/'));
-        $target  = $file->getPath() . '~' . DateTime::new()->format('Ymd');
+        $target  = $file->getSource() . '~' . DateTime::new()->format('Ymd');
         $target  = FsFile::getAvailableVersion($target, '.gz');
 
         static::action(tr('Rotating to next syslog file'));
@@ -1572,7 +1572,7 @@ class Log
         $file = $file->rename($target)->gzip();
 
         static::setFile($current);
-        Log::information(tr('Continuing syslog from file ":file"', [':file' => $file->getPath()]));
+        Log::information(tr('Continuing syslog from file ":file"', [':file' => $file->getSource()]));
 
         return $file;
     }

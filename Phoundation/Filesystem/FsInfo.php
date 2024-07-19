@@ -38,11 +38,11 @@ class FsInfo extends EntryCore implements FsInfoInterface
         $this->path = $path;
 
         $this->source = [
-            'path'       => $path->getPath(),
+            'path'       => $path->getSource(),
             'type'       => $path->getTypeName(),
             'size'       => $path->getSize(),
             'binary'     => $path->isBinary(),
-            'filesystem' => $path->getFilesystemObject()->getPath(),
+            'filesystem' => $path->getFilesystemObject()->getSource(),
             'encrypted'  => $path->isEncrypted(),
         ];
     }

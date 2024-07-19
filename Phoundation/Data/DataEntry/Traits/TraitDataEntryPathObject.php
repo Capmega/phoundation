@@ -20,14 +20,14 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 
-trait TraitDataEntryPath
+trait TraitDataEntryPathObject
 {
     /**
      * Returns the path for this object
      *
      * @return FsPathInterface|null
      */
-    public function getPath(): ?FsPathInterface
+    public function getPathObject(): ?FsPathInterface
     {
         return $this->getTypesafe(FsPathInterface::class, 'path');
     }
@@ -36,13 +36,12 @@ trait TraitDataEntryPath
     /**
      * Sets the path for this object
      *
-     * @param FsPathInterface|string|null  $path
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param FsPathInterface|null $path
      *
      * @return static
      */
-    public function setPath(FsPathInterface|string|null $path, ?FsRestrictionsInterface $restrictions = null): static
+    public function setPathObject(?FsPathInterface $path): static
     {
-        return $this->set(is_string($path) ? new FsPath($path, $restrictions) : $path, 'path');
+        return $this->set($path, 'path');
     }
 }

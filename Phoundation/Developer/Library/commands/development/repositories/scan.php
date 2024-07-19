@@ -33,7 +33,7 @@ foreach (Repositories::getTypes() as $label => $type) {
     } else {
         foreach ($list as $name => $repository) {
             Log::write(Strings::size($repository->getName(), 30), 'debug', 10, false, false, false);
-            Log::notice($repository->getPath(), 10, echo_prefix: false);
+            Log::notice($repository->getSource(), 10, echo_prefix: false);
 
             $start = true;
 

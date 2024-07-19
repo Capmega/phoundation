@@ -131,7 +131,7 @@ class Hook implements HookInterface
                 static::$source = $source;
 
                 try {
-                    execute_hook($file->getPath());
+                    execute_hook($file->getSource());
 
                 } catch (Throwable $e) {
                     Log::error(tr('Execution of hook ":hook" failed with the following exception', [

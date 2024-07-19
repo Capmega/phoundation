@@ -890,7 +890,7 @@ abstract class Request implements RequestInterface
             if (!$message) {
                 $message = tr('The target ":target" cannot be accessed directly', [
                     ':page' => static::getTarget()
-                                     ->getPath('root'),
+                                     ->getSource('root'),
                 ]);
             }
             throw Http404Exception::new($message)
@@ -1154,16 +1154,16 @@ abstract class Request implements RequestInterface
                     ->setSeverity(Severity::low)
                     ->setTitle(tr('Guest user has no access to target page'))
                     ->setBody(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to ":redirect"', [
-                        ':target'      => static::$target->getPath('web'),
-                        ':real_target' => static::$target->getPath('web'),
+                        ':target'      => static::$target->getSource('web'),
+                        ':real_target' => static::$target->getSource('web'),
                         ':redirect'    => $guest_redirect,
                         ':rights'      => Strings::force($rights, ', '),
                     ]))
                     ->setDetails([
                         'user'        => 0,
                         'uri'         => static::getUri(),
-                        'target'      => static::$target->getPath('web'),
-                        'real_target' => static::$target->getPath('web'),
+                        'target'      => static::$target->getSource('web'),
+                        'real_target' => static::$target->getSource('web'),
                         'rights'      => $rights,
                     ])
                     ->save();
@@ -1208,15 +1208,15 @@ abstract class Request implements RequestInterface
                     ]))
                     ->setBody(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
                         ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
-                        ':target'      => static::$target->getPath('web'),
-                        ':real_target' => static::$main_target->getPath('web'),
+                        ':target'      => static::$target->getSource('web'),
+                        ':real_target' => static::$main_target->getSource('web'),
                         ':redirect'    => $rights_redirect,
                     ]))
                     ->setDetails([
                         'user'           => Session::getUser()->getLogId(),
                         'uri'            => static::getUri(),
-                        'target'         => static::$target->getPath('web'),
-                        'real_target'    => static::$main_target->getPath('web'),
+                        'target'         => static::$target->getSource('web'),
+                        'real_target'    => static::$main_target->getSource('web'),
                         'rights'         => $rights,
                         'missing_rights' => Rights::getNotExist($rights),
                     ])
@@ -1235,15 +1235,15 @@ abstract class Request implements RequestInterface
                     ->setBody(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
                         ':user'        => Session::getUser()->getLogId(),
                         ':rights'      => Session::getUser()->getMissingRights($rights),
-                        ':target'      => static::$target->getPath('web'),
-                        ':real_target' => static::$main_target->getPath('web'),
+                        ':target'      => static::$target->getSource('web'),
+                        ':real_target' => static::$main_target->getSource('web'),
                         ':redirect'    => $rights_redirect,
                     ]))
                     ->setDetails([
                         'user'        => Session::getUser()->getLogId(),
                         'uri'         => static::getUri(),
-                        'target'      => static::$target->getPath('web'),
-                        'real_target' => static::$main_target->getPath('web'),
+                        'target'      => static::$target->getSource('web'),
+                        'real_target' => static::$main_target->getSource('web'),
                         'rights'      => Session::getUser()->getMissingRights($rights),
                     ])
                     ->notifyRoles('accounts')
@@ -1276,7 +1276,7 @@ abstract class Request implements RequestInterface
                     ->setDetails([
                         'user'         => $key->getUser()->getLogId(),
                         'uri'          => static::getUri(),
-                        'target'       => static::$target->getPath('web'),
+                        'target'       => static::$target->getSource('web'),
                         'real_target'  => Strings::from($target, DIRECTORY_ROOT),
                         'rights'       => $rights,
                         ':sign_in_key' => $key->getUuid(),
@@ -1765,7 +1765,7 @@ abstract class Request implements RequestInterface
             return $target;
 
         } else {
-            $target = $target->getPath();
+            $target = $target->getSource();
         }
 
         return match (static::getRequestType()) {

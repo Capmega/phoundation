@@ -41,11 +41,11 @@ trait TraitDirectoryConstructor
         $this->___construct($source, $restrictions, $absolute_prefix);
 
         // Path must always end with a /
-        $this->path = Strings::slash($this->path);
+        $this->source = Strings::slash($this->source);
 
-        if (file_exists($this->path)) {
+        if (file_exists($this->source)) {
             // This exists, it must be a directory!
-            if (!is_dir($this->path)) {
+            if (!is_dir($this->source)) {
                 throw new PathNotDirectoryException(tr('The specified path ":path" exists but is not a directory', [
                     ':path' => $source,
                 ]));

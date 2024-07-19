@@ -92,7 +92,7 @@ class Repository extends FsDirectory implements RepositoryInterface
         }
 
         throw new NotARepositoryException(tr('The path ":path" is not a Phoundation repository', [
-            ':path' => $this->getPath()
+            ':path' => $this->getSource()
         ]));
     }
 
@@ -165,7 +165,7 @@ class Repository extends FsDirectory implements RepositoryInterface
         }
 
         throw new NotARepositoryException(tr('The path ":path" is not a Phoundation core repository', [
-            ':path' => $this->getPath()
+            ':path' => $this->getSource()
         ]));
     }
 
@@ -249,7 +249,7 @@ class Repository extends FsDirectory implements RepositoryInterface
         }
 
         throw new NotARepositoryException(tr('The path ":path" is not a Phoundation plugins repository', [
-            ':path' => $this->getPath()
+            ':path' => $this->getSource()
         ]));
     }
 
@@ -306,7 +306,7 @@ class Repository extends FsDirectory implements RepositoryInterface
         }
 
         throw new NotARepositoryException(tr('The path ":path" is not a Phoundation data repository', [
-            ':path' => $this->getPath()
+            ':path' => $this->getSource()
         ]));
     }
 
@@ -349,7 +349,7 @@ class Repository extends FsDirectory implements RepositoryInterface
         }
 
         throw new NotARepositoryException(tr('The path ":path" is not a vendor type repository', [
-            ':path' => $this->getPath()
+            ':path' => $this->getSource()
         ]));
     }
 
@@ -363,7 +363,7 @@ class Repository extends FsDirectory implements RepositoryInterface
     {
         $this->checkRepository();
 
-        return basename(dirname($this->getPath()));
+        return basename(dirname($this->getSource()));
     }
 
 

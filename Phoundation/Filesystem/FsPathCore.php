@@ -95,9 +95,9 @@ class FsPathCore implements FsPathInterface
     /**
      * The file for this object
      *
-     * @var string|null $path
+     * @var string|null $source
      */
-    protected ?string $path = null;
+    protected ?string $source = null;
 
     /**
      * The stream, if this file is opened
@@ -163,7 +163,7 @@ class FsPathCore implements FsPathInterface
      */
     public function isNull(): bool
     {
-        return $this->path === null;
+        return $this->source === null;
     }
 
 
@@ -174,7 +174,7 @@ class FsPathCore implements FsPathInterface
      */
     public function isSet(): bool
     {
-        return $this->path !== null;
+        return $this->source !== null;
     }
 
 
@@ -267,7 +267,7 @@ class FsPathCore implements FsPathInterface
                 }
             }
 
-            $path->setPath(Strings::untilReverse($path->getPath(), $extension) . $prefix . chr($version));
+            $path->setSource(Strings::untilReverse($path->getSource(), $extension) . $prefix . chr($version));
         }
 
         return $path;
@@ -284,7 +284,7 @@ class FsPathCore implements FsPathInterface
      */
     public function appendPath(FsPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): FsPathInterface
     {
-        $path = $this->getPath() . Strings::ensureStartsNotWith((string) $path, '/');
+        $path = $this->getSource() . Strings::ensureStartsNotWith((string) $path, '/');
 
         return FsPath::new($path, $this->restrictions, $absolute_prefix);
     }
@@ -297,7 +297,7 @@ class FsPathCore implements FsPathInterface
      */
     public function __toString(): string
     {
-        return $this->getPath();
+        return $this->getSource();
     }
 
 
@@ -308,18 +308,18 @@ class FsPathCore implements FsPathInterface
      *
      * @return string|null
      */
-    public function getPath(FsPathInterface|string|null $from = null): ?string
+    public function getSource(FsPathInterface|string|null $from = null): ?string
     {
         if ($this->isDirectory()) {
-            $return = Strings::slash($this->path);
+            $return = Strings::slash($this->source);
 
         } else {
-            $return = $this->path;
+            $return = $this->source;
         }
 
         if ($from) {
             if ($from instanceof FsPathInterface) {
-                $from = $from->getPath();
+                $from = $from->getSource();
             }
 
             return match ($from) {
@@ -345,7 +345,7 @@ class FsPathCore implements FsPathInterface
      *
      * @return static
      */
-    public function setPath(Stringable|string|null $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static
+    public function setSource(Stringable|string|null $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static
     {
         if ($this->isOpen()) {
             $this->close();
@@ -354,11 +354,11 @@ class FsPathCore implements FsPathInterface
         if ($absolute_prefix === false) {
             // No prefix specified, if the path is relative, leave it. This may be useful, for example, with relative
             // paths that may not even exist
-            $this->path = (string) $path;
+            $this->source = (string) $path;
 
         } else {
             // Ensure absolute paths are absolute
-            $this->path = static::absolutePath($path, $absolute_prefix, $must_exist);
+            $this->source = static::absolutePath($path, $absolute_prefix, $must_exist);
         }
 
         return $this;
@@ -372,7 +372,7 @@ class FsPathCore implements FsPathInterface
      */
     public function isDirectory(): bool
     {
-        return $this->path and is_dir($this->path);
+        return $this->source and is_dir($this->source);
     }
 
 
@@ -388,7 +388,7 @@ class FsPathCore implements FsPathInterface
      */
     public function makeAbsolute(?string $prefix = null, bool $must_exist = true): static
     {
-        $this->path = static::absolutePath($this->path, $prefix, $must_exist);
+        $this->source = static::absolutePath($this->source, $prefix, $must_exist);
 
         return $this;
     }
@@ -406,7 +406,7 @@ class FsPathCore implements FsPathInterface
      */
     public function makeNormalized(Stringable|string|bool|null $absolute_prefix = null): static
     {
-        $this->path = static::normalizePath($this->path, $absolute_prefix);
+        $this->source = static::normalizePath($this->source, $absolute_prefix);
 
         return $this;
     }
@@ -423,7 +423,7 @@ class FsPathCore implements FsPathInterface
      */
     public function makeRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static
     {
-        $this->path = static::realpath($this->path, $absolute_prefix, $must_exist);
+        $this->source = static::realpath($this->source, $absolute_prefix, $must_exist);
 
         return $this;
     }
@@ -439,7 +439,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getAbsolutePath(?string $prefix = null, bool $must_exist = true): ?string
     {
-        return static::absolutePath($this->path, $prefix, $must_exist);
+        return static::absolutePath($this->source, $prefix, $must_exist);
     }
 
 
@@ -620,7 +620,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getExtension(): string
     {
-        return Strings::fromReverse($this->path, '.');
+        return Strings::fromReverse($this->source, '.');
     }
 
 
@@ -633,7 +633,7 @@ class FsPathCore implements FsPathInterface
      */
     public function hasExtension(string $extension): bool
     {
-        return str_ends_with($this->path, '.' . Strings::ensureStartsNotWith($extension, '.'));
+        return str_ends_with($this->source, '.' . Strings::ensureStartsNotWith($extension, '.'));
     }
 
 
@@ -644,7 +644,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getBasename(): string
     {
-        return basename($this->path);
+        return basename($this->source);
     }
 
 
@@ -668,7 +668,7 @@ class FsPathCore implements FsPathInterface
      */
     public function isPath(string $path): bool
     {
-        return Strings::ensureEndsNotWith($this->path, '/') === Strings::ensureEndsNotWith($path, '/');
+        return Strings::ensureEndsNotWith($this->source, '/') === Strings::ensureEndsNotWith($path, '/');
     }
 
 
@@ -681,7 +681,7 @@ class FsPathCore implements FsPathInterface
     {
         if ($this->target === null) {
             // By default, assume target is the same as the source file
-            return $this->path;
+            return $this->source;
         }
 
         return $this->target;
@@ -717,7 +717,7 @@ class FsPathCore implements FsPathInterface
         if ($this->exists($check_dead_symlink, $auto_mount)) {
             if (!$force) {
                 throw new FileExistsException(tr('Specified file ":file" already exist', [
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                 ]));
             }
 
@@ -739,12 +739,12 @@ class FsPathCore implements FsPathInterface
      */
     public function exists(bool $check_dead_symlink = false, bool $auto_mount = true): bool
     {
-        if (!$this->path) {
+        if (!$this->source) {
             // There is no path specified
             return false;
         }
 
-        if (file_exists($this->path)) {
+        if (file_exists($this->source)) {
             return true;
         }
 
@@ -778,7 +778,7 @@ class FsPathCore implements FsPathInterface
      */
     public function isLink(): bool
     {
-        return is_link(Strings::ensureEndsNotWith($this->path, '/'));
+        return is_link(Strings::ensureEndsNotWith($this->source, '/'));
     }
 
 
@@ -795,11 +795,11 @@ class FsPathCore implements FsPathInterface
         if ($this->isLink()) {
             if (!$this->isLinkAndTargetExists()) {
                 throw new SymlinkBrokenException(tr('Cannot follow symlink ":path", the target does not exist', [
-                    ':path' => $this->path,
+                    ':path' => $this->source,
                 ]));
             }
 
-            $this->path = static::absolutePath($this->getLinkTarget(true)->getPath());
+            $this->source = static::absolutePath($this->getLinkTarget(true)->getSource());
 
             if ($this->isLink() and $all) {
                 // The link target is a link too, and with $all set, we keep following!
@@ -808,7 +808,7 @@ class FsPathCore implements FsPathInterface
         } else {
             if (!$force) {
                 throw new NotASymlinkException(tr('Cannot follow file ":path", the file is not a symlink', [
-                    ':path' => $this->path,
+                    ':path' => $this->source,
                 ]));
             }
         }
@@ -831,13 +831,13 @@ class FsPathCore implements FsPathInterface
 
         if (empty($this->restrictions)) {
             Log::warning(tr('Skipping auto mount of path ":path" with class instance ":class" attempt because no filesystem restrictions were specified', [
-                ':path'  => $this->path,
+                ':path'  => $this->source,
                 ':class' => get_class($this),
             ]));
         } else {
             try {
                 // Check if this path has a mount somewhere. If so, see if it needs auto-mounting
-                $mount = FsMount::getForPath($this->path, $this->restrictions->getTheseWritable());
+                $mount = FsMount::getForPath($this->source, $this->restrictions->getTheseWritable());
 
                 if ($mount) {
                     if ($mount->autoMount()) {
@@ -873,7 +873,7 @@ class FsPathCore implements FsPathInterface
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
-        Log::action(tr('Deleting file ":file"', [':file' => $this->path]), 2);
+        Log::action(tr('Deleting file ":file"', [':file' => $this->source]), 2);
 
         // Check filesystem restrictions
         $this->checkRestrictions(true)->checkWriteAccess();
@@ -884,7 +884,7 @@ class FsPathCore implements FsPathInterface
                ->setSudo($sudo)
                ->setUseRunFile($use_run_file)
                ->setTimeout(10)
-               ->addArgument($this->path, $escape)
+               ->addArgument($this->source, $escape)
                ->addArgument('-rf')
                ->executeNoReturn();
 
@@ -895,7 +895,7 @@ class FsPathCore implements FsPathInterface
                 $clean_path = null;
             }
 
-            FsDirectory::new(dirname($this->path), $this->restrictions->getParent())
+            FsDirectory::new(dirname($this->source), $this->restrictions->getParent())
                      ->clearDirectory($clean_path, $sudo, use_run_file: $use_run_file);
         }
 
@@ -914,7 +914,7 @@ class FsPathCore implements FsPathInterface
     {
         if ($this->isRelative()) {
             throw new RestrictionsException(tr('Cannot check restrictions for ":path" as it is a relative path with unknown directory prefix', [
-                ':path' => $this->path,
+                ':path' => $this->source,
             ]));
         }
 
@@ -924,7 +924,7 @@ class FsPathCore implements FsPathInterface
             ]));
         }
 
-        $this->restrictions->check($this->path, $write);
+        $this->restrictions->check($this->source, $write);
 
         if ($write) {
             return $this->checkWriteAccess();
@@ -945,7 +945,7 @@ class FsPathCore implements FsPathInterface
             return false;
         }
 
-        return !str_starts_with($this->path, '/');
+        return !str_starts_with($this->source, '/');
     }
 
 
@@ -962,7 +962,7 @@ class FsPathCore implements FsPathInterface
 
         if (!$result) {
             throw new FileTruncateException(tr('Failed to truncate file ":file" to ":size" bytes', [
-                ':file' => $this->path,
+                ':file' => $this->source,
                 ':size' => $size,
             ]));
         }
@@ -994,7 +994,7 @@ class FsPathCore implements FsPathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(false);
 
-        return is_readable($this->path) and static::$read_enabled;
+        return is_readable($this->source) and static::$read_enabled;
     }
 
 
@@ -1008,7 +1008,7 @@ class FsPathCore implements FsPathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(false);
 
-        return is_writable($this->path) and static::$write_enabled;
+        return is_writable($this->source) and static::$write_enabled;
     }
 
 
@@ -1025,7 +1025,7 @@ class FsPathCore implements FsPathInterface
         $this->checkRestrictions(true);
         $this->exists();
 
-        $perms     = fileperms($this->path);
+        $perms     = fileperms($this->source);
         $socket    = (($perms & 0xC000) == 0xC000);
         $symlink   = (($perms & 0xA000) == 0xA000);
         $regular   = (($perms & 0x8000) == 0x8000);
@@ -1077,7 +1077,7 @@ class FsPathCore implements FsPathInterface
         $this->checkRestrictions(false);
         $this->exists();
 
-        $perms  = fileperms($this->path);
+        $perms  = fileperms($this->source);
         $return = [];
 
         $return['socket']    = (($perms & 0xC000) == 0xC000);
@@ -1180,17 +1180,17 @@ class FsPathCore implements FsPathInterface
         $this->checkRestrictions(false);
 
         if (empty($this->mime)) {
-            if (is_dir($this->path)) {
+            if (is_dir($this->source)) {
                 $mime = 'directory/directory';
             } else {
                 try {
                     $r          = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
-                    $this->mime = finfo_file($r, $this->path);
+                    $this->mime = finfo_file($r, $this->source);
                     finfo_close($r);
                 } catch (Exception $e) {
                     // We failed to get mimetype data. Find out why and throw exception
                     $this->checkReadable('', new FilesystemException(tr('Failed to get mimetype information for file ":file"', [
-                        ':file' => $this->path,
+                        ':file' => $this->source,
                     ]), previous: $e));
                     // static::checkReadable() will have thrown an exception, but throw this anyway just to be sure
                     throw $e;
@@ -1224,25 +1224,25 @@ class FsPathCore implements FsPathInterface
         $this->checkRestrictions(false);
 
         if (!$this->exists()) {
-            if (!file_exists(dirname($this->path))) {
+            if (!file_exists(dirname($this->source))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FileNotExistException(tr('The ":type" type file ":file" cannot be read because the directory ":directory" does not exist', [
                     ':type'      => ($type ?: ''),
-                    ':file'      => $this->path,
-                    ':directory' => dirname($this->path),
+                    ':file'      => $this->source,
+                    ':directory' => dirname($this->source),
                 ]), $previous_e);
             }
 
             throw new FileNotExistException(tr('The ":type" type file ":file" cannot be read because it does not exist', [
                 ':type' => ($type ? ' ' . $type : ''),
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]), $previous_e);
         }
 
-        if (!is_readable($this->path)) {
+        if (!is_readable($this->source)) {
             throw new FileNotReadableException(tr('The ":type" type file ":file" cannot be read', [
                 ':type' => ($type ? ' ' . $type : ''),
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]), $previous_e);
         }
 
@@ -1280,7 +1280,7 @@ class FsPathCore implements FsPathInterface
         Process::new('find', $this->restrictions)
                ->setSudo($sudo)
                ->setTimeout(60)
-               ->addArgument($this->path)
+               ->addArgument($this->source)
                ->addArgument('-exec')
                ->addArgument('shred')
                ->addArgument('--remove=wipe')
@@ -1299,7 +1299,7 @@ class FsPathCore implements FsPathInterface
                 $clean_path = null;
             }
 
-            FsDirectory::new(dirname($this->path))->clearDirectory($clean_path, $sudo);
+            FsDirectory::new(dirname($this->source))->clearDirectory($clean_path, $sudo);
         }
 
         return $this;
@@ -1347,10 +1347,10 @@ class FsPathCore implements FsPathInterface
         $this->checkRestrictions(true);
         $target->checkRestrictions(true);
 
-        rename($this->path, $target->getPath());
+        rename($this->source, $target->getSource());
 
         // Update this object path and restrictions to the target and we're done
-        return $this->setPath($target->getPath())
+        return $this->setSource($target->getSource())
                     ->setRestrictions($target->getRestrictions());
     }
 
@@ -1415,7 +1415,7 @@ class FsPathCore implements FsPathInterface
         $this->checkRestrictions(false);
 
         try {
-            $stat = stat($this->path);
+            $stat = stat($this->source);
             if ($stat) {
                 return $stat;
             }
@@ -1447,7 +1447,7 @@ class FsPathCore implements FsPathInterface
             throw new OutOfBoundsException(tr('No file mode specified'));
         }
 
-        if (!$this->path) {
+        if (!$this->source) {
             throw new OutOfBoundsException(tr('No file specified'));
         }
 
@@ -1461,11 +1461,11 @@ class FsPathCore implements FsPathInterface
                    ->addArguments([
                        ($recursive ? '-R' : null),
                        '0' . decoct($mode),
-                       $this->path,
+                       $this->source,
                    ])
                    ->executeReturnArray();
         } else {
-            chmod($this->path, $mode);
+            chmod($this->source, $mode);
         }
 
         return $this;
@@ -1535,12 +1535,12 @@ class FsPathCore implements FsPathInterface
             $group = $group['name'];
         }
 
-        foreach ($this->path as $pattern) {
+        foreach ($this->source as $pattern) {
             Process::new('chown', $this->restrictions)
                    ->setSudo(true)
                    ->addArgument($recursive ? '-R' : null)
                    ->addArgument($user . ':' . $group)
-                   ->addArguments($this->path)
+                   ->addArguments($this->source)
                    ->executeReturnArray();
         }
 
@@ -1564,16 +1564,16 @@ class FsPathCore implements FsPathInterface
         $this->checkRestrictions(false);
 
         // If the object file exists and is writable, then we're done.
-        if (is_readable($this->path)) {
+        if (is_readable($this->source)) {
             return true;
         }
 
         // From here the file is not writable. It may not exist, or it may simply not be writable. Let's continue...
-        if (file_exists($this->path)) {
+        if (file_exists($this->source)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it readable.
             try {
                 Log::warning(tr('The file ":file" :realis not readable. Attempting to apply default file mode ":mode"', [
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                     ':real' => $this->getRealPathLogString(),
                     ':mode' => $mode,
                 ]));
@@ -1584,18 +1584,18 @@ class FsPathCore implements FsPathInterface
 
             } catch (ProcessesException) {
                 throw new FileNotWritableException(tr('The file ":file" :realis not writable, and could not be made writable', [
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                     ':real' => $this->getRealPathLogString(),
                 ]));
             }
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
-        FsDirectory::new(dirname($this->path), $this->restrictions)->ensure();
+        FsDirectory::new(dirname($this->source), $this->restrictions)->ensure();
 
         Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
             ':mode' => Strings::fromOctal($mode),
-            ':file' => $this->path,
+            ':file' => $this->source,
         ]));
 
         return false;
@@ -1609,7 +1609,7 @@ class FsPathCore implements FsPathInterface
      */
     protected function getRealPathLogString(): ?string
     {
-        if ($this->path === $this->getRealPath()) {
+        if ($this->source === $this->getRealPath()) {
             return null;
         }
 
@@ -1638,7 +1638,7 @@ class FsPathCore implements FsPathInterface
         }
 
         $base = $real->getBasename();
-        $real = $real->getParentDirectory()->ensure()->getPath();
+        $real = $real->getParentDirectory()->ensure()->getSource();
         $real = realpath($real);
 
         if (!$real) {
@@ -1671,7 +1671,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string
     {
-        return static::realPath($this->path, $absolute_prefix, $must_exist);
+        return static::realPath($this->source, $absolute_prefix, $must_exist);
     }
 
 
@@ -1691,30 +1691,30 @@ class FsPathCore implements FsPathInterface
         $this->checkRestrictions(true);
 
         // If the object file exists and is writable, then we're done.
-        if (is_writable($this->path)) {
+        if (is_writable($this->source)) {
             return true;
         }
 
         // From here, the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
-        if (file_exists($this->path)) {
+        if (file_exists($this->source)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it writable.
             try {
                 Log::warning(tr('The file ":file" :real is not writable. Attempting to apply default file mode ":mode"', [
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                     ':real' => $this->getRealPathLogString(),
                     ':mode' => $mode,
                 ]));
                 $this->chmod('u+w');
             } catch (ProcessesException) {
                 throw new FileNotWritableException(tr('The file ":file" :real is not writable, and could not be made writable', [
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                     ':real' => $this->getRealPathLogString(),
                 ]));
             }
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
-        FsDirectory::new(dirname($this->path), $this->restrictions->getParent())
+        FsDirectory::new(dirname($this->source), $this->restrictions->getParent())
                  ->ensure();
 
         return false;
@@ -1728,7 +1728,7 @@ class FsPathCore implements FsPathInterface
      */
     public function isLinkAndTargetExists(): bool
     {
-        return is_link($this->path);
+        return is_link($this->source);
     }
 
 
@@ -1859,14 +1859,14 @@ class FsPathCore implements FsPathInterface
         if ($target->isLink()) {
             // The target itself exists and is a link. Whether that link target exists or not does not matter here, just
             // that its target matches our target
-            if (Strings::ensureEndsNotWith($target->readLink(true)->getPath(), '/') === Strings::ensureEndsNotWith($this->getPath(), '/')) {
+            if (Strings::ensureEndsNotWith($target->readLink(true)->getSource(), '/') === Strings::ensureEndsNotWith($this->getSource(), '/')) {
                 // Symlink already exists and points to the same file. This is what we wanted to begin with, so all fine
                 return $target;
             }
 
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists and points to ":current" instead', [
                 ':target'  => $target->getNormalizedPath(),
-                ':link'    => Strings::ensureEndsNotWith($calculated_target->getPath(), '/'),
+                ':link'    => Strings::ensureEndsNotWith($calculated_target->getSource(), '/'),
                 ':current' => $target->readLink(true)
                                      ->getNormalizedPath(),
             ]));
@@ -1875,8 +1875,8 @@ class FsPathCore implements FsPathInterface
         // The target exists NOT as a link, but perhaps it might exist as a normal file or directory?
         if ($target->exists()) {
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists as a ":type"', [
-                ':target' => $target->getPath(),
-                ':link'   => Strings::ensureEndsNotWith($calculated_target->getPath(), '/'),
+                ':target' => $target->getSource(),
+                ':link'   => Strings::ensureEndsNotWith($calculated_target->getSource(), '/'),
                 ':type'   => $target->getTypeName(),
             ]));
         }
@@ -1887,13 +1887,13 @@ class FsPathCore implements FsPathInterface
 
         // Symlink!
         try {
-            symlink(Strings::ensureEndsNotWith($calculated_target->getPath(), '/'), $target->getPath());
+            symlink(Strings::ensureEndsNotWith($calculated_target->getSource(), '/'), $target->getSource());
         } catch (PhpException $e) {
             // Crap, what happened?
             if ($e->messageMatches('symlink(): FsFileFileInterface exists')) {
                 throw new FileExistsException(tr('Cannot symlink ":this" to target ":target" because ":e"', [
-                    ':this'   => $this->path,
-                    ':target' => $target->getPath(),
+                    ':this'   => $this->source,
+                    ':target' => $target->getSource(),
                     ':e'      => $e->getMessage(),
                 ]));
             }
@@ -1913,7 +1913,7 @@ class FsPathCore implements FsPathInterface
      */
     public function isAbsolute(): bool
     {
-        return str_starts_with($this->path, '/');
+        return str_starts_with($this->source, '/');
     }
 
 
@@ -1993,7 +1993,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getNormalizedPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): ?string
     {
-        return static::normalizePath($this->path, $absolute_prefix, $must_exist);
+        return static::normalizePath($this->source, $absolute_prefix, $must_exist);
     }
 
 
@@ -2101,16 +2101,16 @@ class FsPathCore implements FsPathInterface
     {
         if (!$this->isLink()) {
             throw new FilesystemException(tr('Cannot readlink path ":path", it is not a symlink', [
-                ':path' => $this->path,
+                ':path' => $this->source,
             ]));
         }
 
-        $path = readlink(Strings::ensureEndsNotWith($this->path, '/'));
+        $path = readlink(Strings::ensureEndsNotWith($this->source, '/'));
 
         if ($absolute_prefix and !str_starts_with($path, '/')) {
             // Links are relative, make them absolute
             if (is_bool($absolute_prefix)) {
-                $absolute_prefix = dirname($this->getPath()) . '/';
+                $absolute_prefix = dirname($this->getSource()) . '/';
             }
 
             $path = Strings::slash($absolute_prefix) . $path;
@@ -2136,11 +2136,11 @@ class FsPathCore implements FsPathInterface
      */
     public function getTypeName(): string
     {
-        if (is_link($this->path)) {
+        if (is_link($this->source)) {
             return 'symlink';
         }
 
-        if (is_dir($this->path)) {
+        if (is_dir($this->source)) {
             return 'directory';
         }
 
@@ -2179,7 +2179,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getParentDirectory(?FsRestrictionsInterface $restrictions = null): FsDirectoryInterface
     {
-        return FsDirectory::new(dirname($this->path), $restrictions ?? $this->restrictions?->getParent());
+        return FsDirectory::new(dirname($this->source), $restrictions ?? $this->restrictions?->getParent());
     }
 
 
@@ -2209,7 +2209,7 @@ class FsPathCore implements FsPathInterface
         if ($result === false) {
             // ftell() failed
             throw new FileActionFailedException(tr('Failed to tell file pointer for file ":file"', [
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]));
         }
 
@@ -2229,7 +2229,7 @@ class FsPathCore implements FsPathInterface
     {
         if (!$this->isOpen()) {
             throw new FileOpenException(tr('Cannot execute method ":method()" on file ":file", it is closed', [
-                ':file'   => $this->path,
+                ':file'   => $this->source,
                 ':method' => $method,
             ]));
         }
@@ -2280,7 +2280,7 @@ class FsPathCore implements FsPathInterface
     {
         if ($mode == EnumFileOpenMode::readOnly) {
             throw new ReadOnlyModeException(tr('Cannot write to file ":file", the file is opened in readonly mode', [
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]));
         }
 
@@ -2303,7 +2303,7 @@ class FsPathCore implements FsPathInterface
         if ($result === false) {
             // rewind() failed
             throw new FileActionFailedException(tr('Failed to rewind file ":file"', [
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]));
         }
 
@@ -2354,7 +2354,7 @@ class FsPathCore implements FsPathInterface
 
         throw new FileReadException(tr('Cannot read ":type" from file ":file", the file pointer is at the end of the file', [
             ':type' => $type,
-            ':file' => $this->path,
+            ':file' => $this->source,
         ]));
     }
 
@@ -2492,13 +2492,13 @@ class FsPathCore implements FsPathInterface
                 // FsFileFileInterface mode is not seekable
                 throw new FileActionFailedException(tr('Failed to seek in file ":file" because file mode ":mode" does not allow seek', [
                     ':mode' => $this->open_mode->value,
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                 ]));
             }
 
             // No idea why
             throw new FileActionFailedException(tr('Failed to seek in file ":file"', [
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]));
         }
 
@@ -2522,7 +2522,7 @@ class FsPathCore implements FsPathInterface
              ->mountIfNeeded();
 
         try {
-            $stream = fopen($this->path, $mode->value, false, $context);
+            $stream = fopen($this->source, $mode->value, false, $context);
         } catch (Throwable $e) {
             // Failed to open the target file
             $this->checkReadable('target', $e);
@@ -2547,7 +2547,7 @@ class FsPathCore implements FsPathInterface
                 break;
         }
 
-        throw new FilesystemException(tr('Failed to open file ":file"', [':file' => $this->path]));
+        throw new FilesystemException(tr('Failed to open file ":file"', [':file' => $this->source]));
     }
 
 
@@ -2563,7 +2563,7 @@ class FsPathCore implements FsPathInterface
     {
         if ($this->isOpen()) {
             throw new FileOpenException(tr('Cannot execute method ":method()" on file ":file", it is already open', [
-                ':file'   => $this->path,
+                ':file'   => $this->source,
                 ':method' => $method,
             ]));
         }
@@ -2593,21 +2593,21 @@ class FsPathCore implements FsPathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(true);
         if (!$this->exists()) {
-            if (!file_exists(dirname($this->path))) {
+            if (!file_exists(dirname($this->source))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FileNotExistException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent directory ":directory"', [
                     ':type'      => ($type ? '' : ' ' . $type),
-                    ':file'      => $this->path,
-                    ':directory' => dirname($this->path),
+                    ':file'      => $this->source,
+                    ':directory' => dirname($this->source),
                 ]), $previous_e);
             }
             // FsFileFileInterface doesn't exist, check if the parent directory is writable so that the file can be created
-            FsDirectory::new(dirname($this->path), $this->restrictions)
+            FsDirectory::new(dirname($this->source), $this->restrictions)
                      ->checkWritable($type, $previous_e);
-        } elseif (!is_writable($this->path)) {
+        } elseif (!is_writable($this->source)) {
             throw new FileNotWritableException(tr('The:type file ":file" cannot be written', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]), $previous_e);
         }
 
@@ -2624,7 +2624,7 @@ class FsPathCore implements FsPathInterface
      */
     protected function mountIfNeeded(bool $auto_mount = true): static
     {
-        $exists = file_exists($this->path);
+        $exists = file_exists($this->source);
         if (!$exists and $auto_mount) {
             // Oh noes! This path doesn't exist! Maybe a path isn't mounted?
             $this->attemptAutoMount();
@@ -2646,7 +2646,7 @@ class FsPathCore implements FsPathInterface
         if (!$this->stream) {
             if ($force) {
                 throw new FileNotOpenException(tr('The file ":file" cannot be closed, it is not open', [
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                 ]));
             }
         }
@@ -2677,11 +2677,11 @@ class FsPathCore implements FsPathInterface
              ->mountIfNeeded();
 
         try {
-            $data = file_get_contents($this->path, $use_include_path, $context, $offset, $length);
+            $data = file_get_contents($this->source, $use_include_path, $context, $offset, $length);
 
         } catch (PhpException $e) {
             $this->checkReadable('', new FilesystemException(tr('Failed to get contents of file ":file" as string', [
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]), previous: $e));
         }
 
@@ -2724,10 +2724,10 @@ class FsPathCore implements FsPathInterface
              ->mountIfNeeded();
 
         try {
-            $data = file($this->path, $flags, $context);
+            $data = file($this->source, $flags, $context);
         } catch (PhpException $e) {
             $this->checkReadable('', new FilesystemException(tr('Failed to get contents of file ":file" as array', [
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]), previous: $e));
         }
 
@@ -2756,9 +2756,9 @@ class FsPathCore implements FsPathInterface
              ->checkClosed('putContents')
              ->mountIfNeeded();
 
-        FsDirectory::new(dirname($this->path), $this->restrictions->getParent()->getParent())->ensure();
+        FsDirectory::new(dirname($this->source), $this->restrictions->getParent()->getParent())->ensure();
 
-        file_put_contents($this->path, $data, $flags, $context);
+        file_put_contents($this->source, $data, $flags, $context);
 
         return $this;
     }
@@ -2796,7 +2796,7 @@ class FsPathCore implements FsPathInterface
         if ($this->exists()) {
             if (!$force) {
                 throw new FileExistsException(tr('Cannot create file ":file", it already exists', [
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                 ]));
             }
         }
@@ -2806,7 +2806,7 @@ class FsPathCore implements FsPathInterface
             // is still there?
             if (!$force) {
                 throw new FileExistsException(tr('Cannot create file ":file", it does not exist, but is open. Perhaps the file was deleted but the open inode is still there?', [
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                 ]));
             }
 
@@ -2826,13 +2826,13 @@ class FsPathCore implements FsPathInterface
     {
         if ($this->exists()) {
             // Just touch it, I dare you.
-            touch($this->path);
+            touch($this->source);
         } elseif ($this instanceof FsDirectoryInterface) {
             // If this is supposed to be a directory, create it
             return $this->ensure();
         } else {
             // Create it by touching it. Or something like that
-            touch($this->path);
+            touch($this->source);
         }
 
         return $this;
@@ -2854,7 +2854,7 @@ class FsPathCore implements FsPathInterface
              ->mountIfNeeded();
 
         // Ensure the target path exists
-        FsDirectory::new(dirname($this->path), $this->restrictions)->ensure();
+        FsDirectory::new(dirname($this->source), $this->restrictions)->ensure();
 
         // Open target file
         $this->open(EnumFileOpenMode::writeOnlyAppend);
@@ -2891,7 +2891,7 @@ class FsPathCore implements FsPathInterface
 
         if (!fsync($this->stream)) {
             throw new FileSyncException(tr('Failed to sync file ":file"', [
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]));
         }
 
@@ -2910,7 +2910,7 @@ class FsPathCore implements FsPathInterface
 
         if (!fdatasync($this->stream)) {
             throw new FileSyncException(tr('Failed to data sync file ":file"', [
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]));
         }
 
@@ -2993,7 +2993,7 @@ class FsPathCore implements FsPathInterface
         }
 
         Log::action(tr('Initializing file ":file" with ":type" data', [
-            ':file' => $this->path,
+            ':file' => $this->source,
             ':type' => $type,
         ]), 4);
 
@@ -3037,7 +3037,7 @@ class FsPathCore implements FsPathInterface
         }
 
         // Return the size of a single file
-        return filesize($this->path);
+        return filesize($this->source);
     }
 
 
@@ -3052,13 +3052,13 @@ class FsPathCore implements FsPathInterface
         $mounts = FsMounts::listMountTargets();
 
         foreach ($mounts as $path => $mount) {
-            if (str_starts_with($this->path, $path)) {
+            if (str_starts_with($this->source, $path)) {
                 return $mount['source'];
             }
         }
 
         throw new MountLocationNotFoundException(tr('Failed to find a mount location for the path ":path"', [
-            ':path' => $this->path,
+            ':path' => $this->source,
         ]));
     }
 
@@ -3077,7 +3077,7 @@ class FsPathCore implements FsPathInterface
         if (!$this->exists($check_dead_symlink, $auto_mount)) {
             if (!$force) {
                 throw new FileNotExistException(tr('Specified file ":file" does not exist', [
-                    ':file' => $this->path,
+                    ':file' => $this->source,
                 ]));
             }
 
@@ -3098,7 +3098,7 @@ class FsPathCore implements FsPathInterface
      */
     public function find(): FindInterface
     {
-        return Find::new($this->path);
+        return Find::new($this->source);
     }
 
 
@@ -3142,16 +3142,16 @@ class FsPathCore implements FsPathInterface
     public function rename(Stringable|string $to_filename, $context = null): static
     {
         $to     = (string) $to_filename;
-        $result = rename($this->path, $to, $context);
+        $result = rename($this->source, $to, $context);
 
         if (!$result) {
             throw new FileRenameException(tr('Failed to rename file or directory ":file" to ":to"', [
-                ':file' => $this->path,
+                ':file' => $this->source,
                 ':to'   => $to,
             ]));
         }
 
-        $this->path = $to;
+        $this->source = $to;
 
         if ($to_filename instanceof FsPathInterface) {
             $this->setRestrictions($to_filename->getRestrictions());
@@ -3170,14 +3170,14 @@ class FsPathCore implements FsPathInterface
     {
         if (!$this->isLink()) {
             throw new FileNotSymlinkException(tr('The path ":path" must be a symlink but instead is a ":type" file', [
-                ':path' => $this->path,
+                ':path' => $this->source,
                 ':type' => $this->getTypeName(),
             ]));
         }
 
         if ($this->getLinkTarget() != $target) {
             throw new FileNotSymlinkException(tr('The path ":path" must be symlinked to ":target" but is symlinked to ":instead" instead', [
-                ':path'    => $this->path,
+                ':path'    => $this->source,
                 ':target'  => $target,
                 ':instead' => $this->getLinkTarget(),
             ]));
@@ -3210,7 +3210,7 @@ class FsPathCore implements FsPathInterface
      */
     public function prependPath(FsPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): FsPathInterface
     {
-        $path = Strings::ensureEndsWith((string) $path, '/') . $this->getPath();
+        $path = Strings::ensureEndsWith((string) $path, '/') . $this->getSource();
 
         return FsPath::new($path, $this->restrictions, $absolute_prefix);
     }
@@ -3253,7 +3253,7 @@ class FsPathCore implements FsPathInterface
             // If the file is a directory then create it in the target, if it is a normal file, then create a symlink
             foreach ($this->getFilesObject() as $path) {
                 // Get the section that we'll be working with
-                $section = Strings::ensureStartsNotWith(Strings::from($path->getPath(), $this->path), '/');
+                $section = Strings::ensureStartsNotWith(Strings::from($path->getSource(), $this->source), '/');
 
                 if ($path->isDirectory()) {
                     $path->symlinkTreeToTarget($dir_target->addDirectory($section), $dir_alternate_path->addDirectory($section), rename: $rename);
@@ -3310,11 +3310,11 @@ class FsPathCore implements FsPathInterface
 
             if ($this->isDirectory()) {
                 // Load all files in this directory
-                $this->files = FsFiles::new(new FsDirectory($this), scandir($this->path), $this->restrictions)->setParent($this);
+                $this->files = FsFiles::new(new FsDirectory($this), scandir($this->source), $this->restrictions)->setParent($this);
 
             } else {
                 // This is a file, so there are no files beyond THIS file.
-                $this->files = FsFiles::new($this->getParentDirectory(), [$this->path], $this->restrictions)->setParent($this);
+                $this->files = FsFiles::new($this->getParentDirectory(), [$this->source], $this->restrictions)->setParent($this);
             }
         }
 
@@ -3348,14 +3348,14 @@ class FsPathCore implements FsPathInterface
         if ($this->isLink()) {
             // The target itself exists and is a link. Whether that link target exists or not does not matter here, just
             // that its target matches our target
-            if (Strings::ensureEndsNotWith($this->readLink(true)->getPath(), '/') === Strings::ensureEndsNotWith($target->getPath(), '/')) {
+            if (Strings::ensureEndsNotWith($this->readLink(true)->getSource(), '/') === Strings::ensureEndsNotWith($target->getSource(), '/')) {
                 // Symlink already exists and points to the same file. This is what we wanted to begin with, so all fine
                 return $target;
             }
 
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists and points to ":current" instead', [
                 ':target'  => $this->getNormalizedPath(),
-                ':link'    => $calculated_target->getPath(),
+                ':link'    => $calculated_target->getSource(),
                 ':current' => $this->readLink(true)
                                    ->getNormalizedPath(),
             ]));
@@ -3364,7 +3364,7 @@ class FsPathCore implements FsPathInterface
         // The target exists NOT as a link, but perhaps it might exist as a normal file or directory?
         if ($this->exists()) {
             throw new FileExistsException(tr('Cannot create symlink ":source" that points to ":target", the file already exists as a ":type"', [
-                ':target' => $calculated_target->getPath(),
+                ':target' => $calculated_target->getSource(),
                 ':source' => $this->getNormalizedPath(),
                 ':type'   => $this->getTypeName(),
             ]));
@@ -3376,13 +3376,13 @@ class FsPathCore implements FsPathInterface
 
         // Symlink!
         try {
-            symlink(Strings::ensureEndsNotWith($calculated_target->getPath(), '/'), $this->getPath());
+            symlink(Strings::ensureEndsNotWith($calculated_target->getSource(), '/'), $this->getSource());
         } catch (PhpException $e) {
             // Crap, what happened?
             if ($e->messageMatches('symlink(): FsFileFileInterface exists')) {
                 throw new FileExistsException(tr('Cannot symlink ":this" to target ":target" because ":e"', [
-                    ':this'   => $this->getPath(),
-                    ':target' => $target->getPath(),
+                    ':this'   => $this->getSource(),
+                    ':target' => $target->getSource(),
                     ':e'      => $e->getMessage(),
                 ]));
             }
@@ -3435,7 +3435,7 @@ class FsPathCore implements FsPathInterface
 
         // Make sure the file path exists. NOTE: FsRestrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        FsDirectory::new(dirname($this->path), $this->restrictions->getParent()->getParent())->ensure();
+        FsDirectory::new(dirname($this->source), $this->restrictions->getParent()->getParent())->ensure();
 
         return $this->open($write_mode)
                     ->write($data)
@@ -3485,7 +3485,7 @@ class FsPathCore implements FsPathInterface
             $this->requirements = Requirements::new()->load();
         }
 
-        $this->requirements->check($this->path);
+        $this->requirements->check($this->source);
     }
 
 
@@ -3509,7 +3509,7 @@ class FsPathCore implements FsPathInterface
         $filesystem = null;
 
         foreach ($results as $result) {
-            if (str_starts_with($this->path, $result['mountedon'])) {
+            if (str_starts_with($this->source, $result['mountedon'])) {
                 if ($filesystem) {
                     if (strlen($filesystem['mountedon']) > strlen($result['mountedon'])) {
                         continue;
@@ -3625,7 +3625,7 @@ class FsPathCore implements FsPathInterface
     {
         if (!static::getWriteEnabled()) {
             throw new FileNotWritableException(tr('The file ":file" cannot be written because all write access has been disabled', [
-                ':file' => $this->path
+                ':file' => $this->source
             ]));
         }
 
@@ -3642,7 +3642,7 @@ class FsPathCore implements FsPathInterface
     {
         if (!static::getReadEnabled()) {
             throw new FileNotReadableException(tr('The file ":file" cannot be read because all read access has been disabled', [
-                ':file' => $this->path
+                ':file' => $this->source
             ]));
         }
 
@@ -3802,7 +3802,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getOwnerUid(): int
     {
-        return fileowner($this->path);
+        return fileowner($this->source);
     }
 
 
@@ -3813,7 +3813,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getGroupUid(): int
     {
-        return filegroup($this->path);
+        return filegroup($this->source);
     }
 
 
@@ -3890,10 +3890,10 @@ class FsPathCore implements FsPathInterface
         }
 
         if (is_string($directory)) {
-            return str_starts_with($this->path, $directory);
+            return str_starts_with($this->source, $directory);
         }
 
-        return str_starts_with($this->path, $directory->getPath());
+        return str_starts_with($this->source, $directory->getSource());
     }
 
 
@@ -3908,10 +3908,10 @@ class FsPathCore implements FsPathInterface
     public function isInDomain(FsDirectoryInterface|string $domain): bool
     {
         if ($domain instanceof FsDirectoryInterface){
-            $domain = $domain->getPath();
+            $domain = $domain->getSource();
         }
 
-        if (str_starts_with($this->path, $domain)) {
+        if (str_starts_with($this->source, $domain)) {
             return true;
         }
 
@@ -3921,7 +3921,7 @@ class FsPathCore implements FsPathInterface
 
         if ($domain === '*') {
             // All domains match, now check the rest of the path
-            return str_starts_with(Strings::from($this->path, ':'), $path);
+            return str_starts_with(Strings::from($this->source, ':'), $path);
         }
 
         return false;
@@ -3955,7 +3955,7 @@ class FsPathCore implements FsPathInterface
      */
     public function isOnDomain(): bool
     {
-        return static::onDomain($this->path);
+        return static::onDomain($this->source);
     }
 
 
@@ -3966,7 +3966,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getDomain(): string
     {
-        $domain = Strings::until($this->path, ':', needle_required: true);
+        $domain = Strings::until($this->source, ':', needle_required: true);
 
         if ($domain) {
             return $domain;
@@ -3974,7 +3974,7 @@ class FsPathCore implements FsPathInterface
 
         // No domain?
         throw new PathNotDomainException(tr('Cannot return domain from path ":path", it is not a domain path', [
-            ':path' => $this->path
+            ':path' => $this->source
         ]));
     }
 }

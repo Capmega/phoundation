@@ -90,7 +90,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                                                        ->delete()
                                                        ->ensure();
                 // Put lock file to avoid delete directory auto cleanup removing this session directory
-                touch(static::$temp_directory_public->getPath() . '.lock');
+                touch(static::$temp_directory_public->getSource() . '.lock');
             }
 
             return static::$temp_directory_public;
@@ -104,7 +104,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                                                     ->delete()
                                                     ->ensure();
             // Put lock file to avoid delete directory auto cleanup removing this session directory
-            touch(static::$temp_directory_private->getPath() . '.lock');
+            touch(static::$temp_directory_private->getSource() . '.lock');
         }
 
         return static::$temp_directory_private;
@@ -189,7 +189,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         if ($must_exist) {
             if (!$this->isDirectory()) {
                 throw new PathNotDirectoryException(tr('The absolute path ":path" exists but is not a directory', [
-                    ':path' => $this->path,
+                    ':path' => $this->source,
                 ]));
             }
         }
@@ -216,13 +216,13 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null): static
     {
-        $this->path = Strings::slash($this->path);
+        $this->source = Strings::slash($this->source);
         parent::checkWritable($type, $previous_e);
 
-        if (!is_dir($this->path)) {
+        if (!is_dir($this->source)) {
             throw new FilesystemException(tr('The:type directory ":file" cannot be written because it is not a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]), $previous_e);
         }
 
@@ -251,31 +251,31 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function clearDirectory(?string $until_directory = null, bool $sudo = false, bool $use_run_file = true): void
     {
-        $this->path = Strings::slash($this->path);
+        $this->source = Strings::slash($this->source);
         try {
-            while ($this->path) {
+            while ($this->source) {
                 // Restrict location access
-                $this->restrictions->check($this->path, true);
+                $this->restrictions->check($this->source, true);
 
-                if (!file_exists($this->path)) {
+                if (!file_exists($this->source)) {
                     // This section does not exist, jump up to the next section above
-                    $this->path = dirname($this->path);
+                    $this->source = dirname($this->source);
                     continue;
                 }
 
-                if (!is_dir($this->path)) {
+                if (!is_dir($this->source)) {
                     // This is a normal file, we only delete directories here!
                     throw new OutOfBoundsException(tr('Not clearing directory ":directory", it is not a directory', [
-                        ':directory' => $this->path,
+                        ':directory' => $this->source,
                     ]));
                 }
 
-                if ($until_directory and ($this->path === $until_directory)) {
+                if ($until_directory and ($this->source === $until_directory)) {
                     // We've cleaned until the requested directory, so we're good!
                     break;
                 }
 
-                if (!FsDirectory::new($this->path, $this->restrictions)->isEmpty()) {
+                if (!FsDirectory::new($this->source, $this->restrictions)->isEmpty()) {
                     // Do not remove anything more, there is contents here!
                     break;
                 }
@@ -288,14 +288,14 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                     // In all probability, a parallel process added a new content in this directory, so it's no longer empty.
                     // Just register the event and leave it be.
                     Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
-                        ':pattern' => $this->path,
+                        ':pattern' => $this->source,
                         ':e'       => $e,
                     ]));
                     break;
                 }
 
                 // Go one entry up, check if we're still within restrictions, and continue deleting
-                $this->path = dirname($this->path) . '/';
+                $this->source = dirname($this->source) . '/';
             }
         } catch (RestrictionsException) {
             // We're out of our territory, stop scanning!
@@ -310,18 +310,18 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function isEmpty(): bool
     {
-        $this->path = Strings::slash($this->path);
+        $this->source = Strings::slash($this->source);
         $this->exists();
 
-        if (!is_dir($this->path)) {
+        if (!is_dir($this->source)) {
             $this->checkReadable();
             throw new PathNotDirectoryException(tr('The specified directory ":directory" is not a directory', [
-                ':directory' => $this->path,
+                ':directory' => $this->source,
             ]));
         }
 
         // Start reading the directory.
-        $handle = opendir($this->path);
+        $handle = opendir($this->source);
 
         while (($file = readdir($handle)) !== false) {
             // Skip . and ..
@@ -360,13 +360,13 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function checkReadable(?string $type = null, ?Throwable $previous_e = null): static
     {
-        $this->path = Strings::slash($this->path);
+        $this->source = Strings::slash($this->source);
         parent::checkReadable($type, $previous_e);
 
-        if (!is_dir($this->path)) {
+        if (!is_dir($this->source)) {
             throw new FilesystemException(tr('The:type directory ":file" cannot be read because it is not a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]), $previous_e);
         }
 
@@ -389,8 +389,8 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     public function createTarget(?bool $single = null, int $length = 0): string
     {
         // Check filesystem restrictions
-        $this->path = Strings::slash($this->path);
-        $this->restrictions->check($this->path, true);
+        $this->source = Strings::slash($this->source);
+        $this->restrictions->check($this->source, true);
 
         $this->exists();
 
@@ -403,24 +403,24 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             $single = Config::getBoolean('filesystem.target-directory.single', false);
         }
 
-        $this->path = Strings::unslash(FsDirectory::new($this->path, $this->restrictions)
+        $this->source = Strings::unslash(FsDirectory::new($this->source, $this->restrictions)
                                                   ->ensure()
-                                                  ->getPath());
+                                                  ->getSource());
 
         if ($single) {
             // Assign directory in one dir, like abcde/
-            $this->path = Strings::slash($this->path) . substr(uniqid(), -$length, $length);
+            $this->source = Strings::slash($this->source) . substr(uniqid(), -$length, $length);
         } else {
             // Assign directory in multiple dirs, like a/b/c/d/e/
             foreach (str_split(substr(uniqid(), -$length, $length)) as $char) {
-                $this->path .= DIRECTORY_SEPARATOR . $char;
+                $this->source .= DIRECTORY_SEPARATOR . $char;
             }
         }
 
         // Ensure again to be sure the target directories too have been created
-        return Strings::slash(FsDirectory::new($this->path, $this->restrictions)
+        return Strings::slash(FsDirectory::new($this->source, $this->restrictions)
                                          ->ensure()
-                                         ->getPath());
+                                         ->getSource());
     }
 
 
@@ -432,9 +432,9 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      *
      * @return string|null
      */
-    public function getPath(FsPathInterface|string|null $from = null, bool $remove_terminating_slash = false): ?string
+    public function getSource(FsPathInterface|string|null $from = null, bool $remove_terminating_slash = false): ?string
     {
-        $path = parent::getPath($from);
+        $path = parent::getSource($from);
 
         if ($remove_terminating_slash) {
             if ($path === '/') {
@@ -462,68 +462,68 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function ensure(string|int|null $mode = null, ?bool $clear = false, bool $sudo = false): static
     {
-        $this->path = Strings::slash($this->path);
-        static::validateFilename($this->path);
+        $this->source = Strings::slash($this->source);
+        static::validateFilename($this->source);
 
         $mode = Config::get('filesystem.mode.directories', 0750, $mode);
 
         if ($clear) {
             // Delete the currently existing directory, so we can  be sure we have a clean directory to work with
-            FsFile::new($this->path, $this->restrictions)
+            FsFile::new($this->source, $this->restrictions)
                 ->delete(false, $sudo);
         }
 
-        if (!file_exists(Strings::unslash($this->path))) {
+        if (!file_exists(Strings::unslash($this->source))) {
             // The complete requested directory doesn't exist. Try to create it, but directory by directory so that we can
             // correct issues as we run in to them
-            $dirs       = explode('/', Strings::ensureStartsNotWith($this->path, '/'));
-            $this->path = '';
+            $dirs       = explode('/', Strings::ensureStartsNotWith($this->source, '/'));
+            $this->source = '';
 
             foreach ($dirs as $id => $dir) {
-                $this->path .= '/' . $dir;
+                $this->source .= '/' . $dir;
 
-                if (file_exists($this->path)) {
-                    if (!is_dir($this->path)) {
+                if (file_exists($this->source)) {
+                    if (!is_dir($this->source)) {
                         // Some normal file is in the way. Delete the file, and retry
-                        FsFile::new($this->path, $this->restrictions)
+                        FsFile::new($this->source, $this->restrictions)
                             ->delete(false, $sudo);
 
                         return $this->ensure($mode, $clear, $sudo);
                     }
 
                     continue;
-                } elseif (is_link($this->path)) {
+                } elseif (is_link($this->source)) {
                     // This is a dead symlink, delete it
-                    FsFile::new($this->path, $this->restrictions)->delete(false, $sudo);
+                    FsFile::new($this->source, $this->restrictions)->delete(false, $sudo);
                 }
 
                 try {
                     // Make sure that the parent directory is writable when creating the directory
-                    FsDirectory::new(dirname($this->path), $this->restrictions->getParent($id + 1))
+                    FsDirectory::new(dirname($this->source), $this->restrictions->getParent($id + 1))
                              ->execute()
                              ->setMode(0770)
                              ->onDirectoryOnly(function () use ($mode) {
-                                 mkdir($this->path, $mode);
+                                 mkdir($this->source, $mode);
                              });
                 } catch (RestrictionsException $e) {
                     throw $e;
                 } catch (Throwable $e) {
                     // It sometimes happens that the specified directory was created just in between the file_exists and
                     // mkdir
-                    if (!file_exists($this->path)) {
+                    if (!file_exists($this->source)) {
                         throw DirectoryException::new(tr('Failed to create directory ":directory"', [
-                            ':directory' => $this->path,
+                            ':directory' => $this->source,
                         ]), $e)
-                                                ->addData(['directory' => $this->path]);
+                                                ->addData(['directory' => $this->source]);
                     }
 
                     // We're okay, the directory already exists
                 }
             }
-        } elseif (!is_dir($this->path)) {
+        } elseif (!is_dir($this->source)) {
             // Some other file is in the way. Delete the file, and retry.
             // Ensure that the "file" is not accidentally specified as a directory ending in a /
-            FsFile::new(Strings::ensureEndsNotWith($this->path, '/'), $this->restrictions)
+            FsFile::new(Strings::ensureEndsNotWith($this->source, '/'), $this->restrictions)
                 ->delete(false, $sudo);
 
             return $this->ensure($mode, $clear, $sudo);
@@ -540,9 +540,9 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function execute(): FsExecuteInterface
     {
-        $this->path = Strings::slash($this->path);
+        $this->source = Strings::slash($this->source);
 
-        return new FsExecute($this->path, $this->restrictions);
+        return new FsExecute($this->source, $this->restrictions);
     }
 
 
@@ -555,13 +555,13 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     public function list(): FsFilesInterface
     {
         $return = [];
-        $list   = Arrays::removeMatchingValues(scandir($this->path), [
+        $list   = Arrays::removeMatchingValues(scandir($this->source), [
             '.',
             '..',
         ]);
 
         foreach ($list as $value) {
-            $value = $this->path . $value;
+            $value = $this->source . $value;
             $return[$value] = $value;
         }
 
@@ -581,12 +581,12 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     public function listTree(array|string|null $filters = null, bool $recursive = true): array
     {
         // Check filesystem restrictions
-        $this->path = Strings::slash($this->path);
-        $this->restrictions->check($this->path, false);
+        $this->source = Strings::slash($this->source);
+        $this->restrictions->check($this->source, false);
         $this->exists();
 
         $return = [];
-        $fh     = opendir($this->path);
+        $fh     = opendir($this->source);
 
         // Go over all files
         while (($filename = readdir($fh)) !== false) {
@@ -606,7 +606,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             }
 
             // Get the complete file directory
-            $file = Strings::slash($this->path) . $filename;
+            $file = Strings::slash($this->source) . $filename;
 
             // Add the file to the list. If the file is a directory, then recurse instead. Do NOT add the directory
             // itself, only files!
@@ -634,20 +634,20 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     public function random(): string
     {
         // Check filesystem restrictions
-        $this->path = Strings::slash($this->path);
-        $this->restrictions->check($this->path, false);
+        $this->source = Strings::slash($this->source);
+        $this->restrictions->check($this->source, false);
         $this->exists();
-        $this->path = Arrays::getRandomValue($this->path);
-        $files      = scandir($this->path);
+        $this->source = Arrays::getRandomValue($this->source);
+        $files      = scandir($this->source);
         Arrays::unsetValue($files, '.');
         Arrays::unsetValue($files, '..');
         if (!$files) {
             throw new FilesystemException(tr('The specified directory ":directory" contains no files', [
-                ':directory' => $this->path,
+                ':directory' => $this->source,
             ]));
         }
 
-        return Strings::slash($this->path) . Arrays::getRandomValue($files);
+        return Strings::slash($this->source) . Arrays::getRandomValue($files);
     }
 
 
@@ -664,19 +664,19 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     public function scanUpwardsForFile(string $filename): ?string
     {
         // Check filesystem restrictions
-        $this->path = Strings::slash($this->path);
-        $this->restrictions->check($this->path, false);
+        $this->source = Strings::slash($this->source);
+        $this->restrictions->check($this->source, false);
         $this->exists();
 
-        while (strlen($this->path) > 1) {
-            $this->path = Strings::slash($this->path);
+        while (strlen($this->source) > 1) {
+            $this->source = Strings::slash($this->source);
 
-            if (file_exists($this->path . $filename)) {
+            if (file_exists($this->source . $filename)) {
                 // The requested file is found! Return the directory where it was found
-                return $this->path;
+                return $this->source;
             }
 
-            $this->path = dirname($this->path);
+            $this->source = dirname($this->source);
         }
 
         return null;
@@ -691,28 +691,28 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     public function treeFileSize(): int
     {
         // Check filesystem restrictions
-        $this->path = Strings::slash($this->path);
-        $this->restrictions->check($this->path, false);
+        $this->source = Strings::slash($this->source);
+        $this->restrictions->check($this->source, false);
         $this->exists();
 
         $return = 0;
 
-        foreach (scandir($this->path) as $file) {
+        foreach (scandir($this->source) as $file) {
             if (($file == '.') or ($file == '..')) {
                 continue;
             }
 
             try {
-                if (is_dir($this->path . $file)) {
+                if (is_dir($this->source . $file)) {
                     // Recurse
-                    $return += FsDirectory::new($this->path . $file, $this->restrictions)
+                    $return += FsDirectory::new($this->source . $file, $this->restrictions)
                                           ->treeFileSize();
                 } else {
-                    $return += filesize($this->path . $file);
+                    $return += filesize($this->source . $file);
                 }
             } catch (PhpException) {
                 Log::warning(tr('Ignoring file size for path ":path", it does not exist (path is likely a dead symlink)', [
-                    ':path' => $this->path . $file,
+                    ':path' => $this->source . $file,
                 ]), 2);
             }
         }
@@ -729,27 +729,27 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     public function treeFileCount(): int
     {
         // Check filesystem restrictions
-        $this->path = Strings::slash($this->path);
-        $this->restrictions->check($this->path, false);
+        $this->source = Strings::slash($this->source);
+        $this->restrictions->check($this->source, false);
         $this->exists();
 
         $return = 0;
 
-        foreach (scandir($this->path) as $file) {
+        foreach (scandir($this->source) as $file) {
             if (($file == '.') or ($file == '..')) {
                 continue;
             }
 
             try {
-                if (is_dir($this->path . $file)) {
-                        $return += FsDirectory::new($this->path . $file, $this->restrictions)
+                if (is_dir($this->source . $file)) {
+                        $return += FsDirectory::new($this->source . $file, $this->restrictions)
                                               ->treeFileCount();
                 } else {
                     $return++;
                 }
             } catch (PhpException) {
                 Log::warning(tr('Ignoring file count for directory ":path", it does not exist (path is likely a dead symlink)', [
-                    ':path' => $this->path . $file,
+                    ':path' => $this->source . $file,
                 ]), 2);
             }
         }
@@ -899,10 +899,10 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         if (!$this->ensureFileWritable($mode)) {
             Log::action(tr('Creating non existing directory ":file" with file mode ":mode"', [
                 ':mode' => Strings::fromOctal($mode),
-                ':file' => $this->path,
+                ':file' => $this->source,
             ]), 3);
 
-            mkdir($this->path, $mode);
+            mkdir($this->source, $mode);
         }
 
         return $this;
@@ -933,7 +933,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function getSingleFile(?string $regex = null, bool $allow_multiple = false): FsFileInterface
     {
-        return FsFile::new($this->path . $this->getSingle($regex, false, $allow_multiple), $this->restrictions);
+        return FsFile::new($this->source . $this->getSingle($regex, false, $allow_multiple), $this->restrictions);
     }
 
 
@@ -948,11 +948,11 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     protected function getSingle(?string $regex = null, ?bool $directory = null, bool $allow_multiple = false): string
     {
-        $files = scandir($this->path);
+        $files = scandir($this->source);
 
         if (!$files) {
             throw new FilesystemException(tr('Cannot get single file from directory ":directory", scandir failed', [
-                ':directory' => $this->path,
+                ':directory' => $this->source,
             ]));
         }
 
@@ -963,7 +963,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         foreach ($files as $id => $file) {
             if (is_bool($directory)) {
                 // Filter on directories or non directories
-                if (is_dir($this->path . $file)) {
+                if (is_dir($this->source . $file)) {
                     // This is a directory
                     if (!$directory) {
                         // But we're looking for non directories
@@ -995,7 +995,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         switch (count($files)) {
             case 0:
                 throw new FilesystemException(tr('Cannot return a single file, the directory ":directory" matches no files', [
-                    ':directory' => $this->path,
+                    ':directory' => $this->source,
                 ]));
 
             case 1:
@@ -1004,7 +1004,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             default:
                 if (!$allow_multiple) {
                     throw new FilesystemException(tr('Cannot return a single file, the directory ":directory" matches ":count" files', [
-                        ':directory' => $this->path,
+                        ':directory' => $this->source,
                         ':count'     => count($files),
                     ]));
                 }
@@ -1024,7 +1024,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): FsDirectoryInterface
     {
-        return FsDirectory::new($this->path . $this->getSingle($regex, true, $allow_multiple), $this->restrictions);
+        return FsDirectory::new($this->source . $this->getSingle($regex, true, $allow_multiple), $this->restrictions);
     }
 
 
@@ -1047,7 +1047,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         }
 
         // Return the number of all files in this directory
-        $files = scandir($this->path);
+        $files = scandir($this->source);
         $count = count($files);
 
         // Recurse?
@@ -1060,7 +1060,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                 }
 
                 // Filename must have complete absolute directory
-                $file = $this->path . $file;
+                $file = $this->source . $file;
 
                 if (is_dir($file)) {
                     // Count all files in this sub directory, minus the directory itself
@@ -1085,7 +1085,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): FsFilesInterface
     {
-        $this->restrictions->check($this->path, false);
+        $this->restrictions->check($this->source, false);
 
         // Get directory pattern part and file pattern part
         if ($file_patterns) {
@@ -1155,7 +1155,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                     $test         = Strings::fromReverse(Strings::ensureEndsNotWith($file, '/'), '/');
 
                     if ($file_pattern) {
-                        if (is_dir($this->path . $file)) {
+                        if (is_dir($this->source . $file)) {
                             $directory_pattern = Strings::until($file_pattern, '.');
 
                             if (!fnmatch($directory_pattern, $test, $match_flags)) {
@@ -1170,7 +1170,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                     }
 
                     // Add the file for the found match and continue to the next file
-                    $file = $this->path . $file;
+                    $file = $this->source . $file;
                     $return[$file] = $file;
 
                     break;
@@ -1203,16 +1203,16 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function scanRegex(?string $file_pattern = null, int $glob_flags = GLOB_MARK): FsFilesInterface
     {
-        $this->restrictions->check($this->path, false);
+        $this->restrictions->check($this->source, false);
 
         // Get files
         $return = [];
-        $glob   = glob($this->path . '*', $glob_flags);
+        $glob   = glob($this->source . '*', $glob_flags);
 
         if ($glob) {
             // Check file patterns
             foreach ($glob as $file) {
-                $file = Strings::from($file, $this->path);
+                $file = Strings::from($file, $this->source);
                 $test = Strings::fromReverse(Strings::ensureEndsNotWith($file, '/'), '/');
 
                 if ($file_pattern) {
@@ -1246,14 +1246,14 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
 
         if ($status === false) {
             throw new DirectoryNotMountedException(tr('The directory ":directory" should be mounted from any of the sources ":source" but it is not mounted', [
-                ':directory' => $this->getPath(),
+                ':directory' => $this->getSource(),
                 ':source'    => $sources,
             ]));
         }
 
         if (!$status) {
             throw new DirectoryNotMountedException(tr('The directory ":directory" should be mounted from ":source" but has an unknown mount state', [
-                ':directory' => $this->getPath(),
+                ':directory' => $this->getSource(),
                 ':source'    => $sources,
             ]));
         }
@@ -1286,7 +1286,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                 $mount = FsMounts::getDirectoryMountInformation($this);
 
                 foreach ($sources as $source) {
-                    if ($mount['source'] == FsDirectory::new($source)->getPath()) {
+                    if ($mount['source'] == FsDirectory::new($source)->getSource()) {
                         return true;
                     }
                 }
@@ -1319,11 +1319,11 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     public function hasFile(string $filename): bool
     {
         // Check filesystem restrictions
-        $this->path = Strings::slash($this->path);
-        $this->restrictions->check($this->path, false);
+        $this->source = Strings::slash($this->source);
+        $this->restrictions->check($this->source, false);
         $this->exists();
 
-        return file_exists($this->path . Strings::ensureStartsNotWith($filename, '/'));
+        return file_exists($this->source . Strings::ensureStartsNotWith($filename, '/'));
     }
 
 
@@ -1445,8 +1445,8 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                 }
             } else {
                 copy($this->addFile($basename)
-                          ->getPath(), $target->addFile($basename)
-                                              ->getPath(), $context);
+                          ->getSource(), $target->addFile($basename)
+                                              ->getSource(), $context);
             }
         }
 
@@ -1463,7 +1463,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function addDirectory(FsPathInterface|string $directory): FsDirectoryInterface
     {
-        $directory = $this->getPath() . Strings::ensureStartsNotWith((string) $directory, '/');
+        $directory = $this->getSource() . Strings::ensureStartsNotWith((string) $directory, '/');
 
         return FsDirectory::new($directory, $this->restrictions);
     }
@@ -1478,7 +1478,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function addFile(FsPathInterface|string $file): FsFileInterface
     {
-        $file = $this->getPath() . Strings::ensureStartsNotWith((string) $file, '/');
+        $file = $this->getSource() . Strings::ensureStartsNotWith((string) $file, '/');
 
         return FsFile::new($file, $this->restrictions);
     }
@@ -1503,7 +1503,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     public function containFiles(): bool
     {
         return Find::new()
-                   ->setPath($this->path)
+                   ->setPath($this->source)
                    ->setType('f')
                    ->executeReturnIterator()
                    ->isNotEmpty();
@@ -1524,7 +1524,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     public function getDuplicateFiles(?int $recurse_levels = 1_000_000, int $max_size = 1_073_741_824): FsDuplicatesInterface
     {
         Log::action(tr('Scanning path ":path" for duplicate files', [
-            ':path' => $this->path
+            ':path' => $this->source
         ]));
 
         $max_size   = $max_size ?? 1_073_741_824;
@@ -1610,10 +1610,10 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
 
             if (array_key_exists($size, $sizes)) {
                 // This file size already exists, is it a duplicate?
-                $sizes[$size][$file->getPath()] = $file->getPath();
+                $sizes[$size][$file->getSource()] = $file->getSource();
 
             } else {
-                $sizes[$size] = [$file->getPath() => $file->getPath()];
+                $sizes[$size] = [$file->getSource() => $file->getSource()];
             }
         }
 
@@ -1659,7 +1659,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     public function getSize(bool $recursive = true): int
     {
         // Return the number of all files in this directory
-        $files = scandir($this->path);
+        $files = scandir($this->source);
         $size  = 0;
 
         foreach ($files as $file) {
@@ -1669,7 +1669,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             }
 
             // Filename must have the complete absolute path
-            $file = $this->path . $file;
+            $file = $this->source . $file;
 
             if (is_dir($file)) {
                 if ($recursive) {
