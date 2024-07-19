@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Phoundation\Utils;
 
 use Exception;
-use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
