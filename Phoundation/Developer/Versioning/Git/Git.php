@@ -215,11 +215,11 @@ class Git extends Versioning implements GitInterface
     /**
      * Checks out the specified branches or directories for this git directory
      *
-     * @param array|string $branches_or_directories
+     * @param array|Stringable $branches_or_directories
      *
      * @return static
      */
-    public function checkout(array|string $branches_or_directories): static
+    public function checkout(array|Stringable $branches_or_directories): static
     {
         $output = $this->git->clearArguments()
                             ->addArgument('checkout')
@@ -355,13 +355,13 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns a ChangedFiles object containing all the files that have changes according to git
      *
-     * @param FsDirectoryInterface|null $directory
+     * @param FsPathInterface|null $path
      *
      * @return StatusFilesInterface
      */
-    public function getStatusFilesObject(?FsDirectoryInterface $directory = null): StatusFilesInterface
+    public function getStatusFilesObject(?FsPathInterface $path = null): StatusFilesInterface
     {
-        return StatusFiles::new($directory ?? $this->directory)->scanChanges();
+        return StatusFiles::new($path ?? $this->directory)->scanChanges();
     }
 
 
@@ -402,12 +402,12 @@ class Git extends Versioning implements GitInterface
     public function getDiff(array|string|null $files = null, bool $cached = false): string
     {
         return $this->git->clearArguments()
-            ->addArgument('diff')
-            ->addArgument(NOCOLOR ? '--no-color' : null)
-            ->addArgument($cached ? '--cached'   : null)
-            ->addArgument('--')
-            ->addArguments($files)
-            ->executeReturnString();
+                         ->addArgument('diff')
+                         ->addArgument(NOCOLOR ? '--no-color' : null)
+                         ->addArgument($cached ? '--cached'   : null)
+                         ->addArgument('--')
+                         ->addArguments($files)
+                         ->executeReturnString();
     }
 
 
@@ -422,12 +422,12 @@ class Git extends Versioning implements GitInterface
     public function getLog(array|string|null $files = null, bool $cached = false): string
     {
         return $this->git->clearArguments()
-            ->addArgument('log')
-            ->addArgument(NOCOLOR ? '--no-color' : null)
-            ->addArgument($cached ? '--cached'   : null)
-            ->addArgument('--')
-            ->addArguments($files)
-            ->executeReturnString();
+                         ->addArgument('log')
+                         ->addArgument(NOCOLOR ? '--no-color' : null)
+                         ->addArgument($cached ? '--cached'   : null)
+                         ->addArgument('--')
+                         ->addArguments($files)
+                         ->executeReturnString();
     }
 
 

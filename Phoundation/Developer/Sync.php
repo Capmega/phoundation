@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer;
 
-use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataTimeout;
@@ -26,8 +25,11 @@ use Phoundation\Developer\Exception\SyncConfigurationException;
 use Phoundation\Developer\Exception\SyncEnvironmentDoesNotExistsException;
 use Phoundation\Developer\Exception\SyncException;
 use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Os\Processes\Commands\Interfaces\PhoInterface;
+use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Os\Processes\Commands\Rsync;
-use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Servers\Server;
@@ -35,6 +37,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
 class Sync
@@ -102,9 +105,9 @@ class Sync
     /**
      * The target temp path
      *
-     * @var string|null $target_temp_path
+     * @var FsDirectoryInterface|null $target_temp_path
      */
-    protected ?string $target_temp_path = null;
+    protected ?FsDirectoryInterface $target_temp_path = null;
 
     /**
      * Tracks the dump files to sync
@@ -119,7 +122,8 @@ class Sync
      */
     public function __construct()
     {
-        $this->timeout = 3600;
+        $this->timeout          = 3600;
+        $this->target_temp_path = FsDirectory::getTemporaryObject();
     }
 
 
@@ -200,8 +204,6 @@ class Sync
             ':local'       => ENVIRONMENT,
         ]));
 
-        Core::enableInitState();
-
         return $this->initConfiguration($environment)
                     ->scan($this->server)
                     ->lock($this->server)
@@ -230,7 +232,10 @@ class Sync
         ]));
 
         $this->executeHook('pre-clear-caches');
-        $this->getPhoCommand($server)->executeReturnString();
+
+//        $this->getPhoCommand($server)
+//             ->setPhoCommands('cache clear')
+//             ->executeReturnString();
 
         return $this->executeHook('pre-clear-caches');
     }
@@ -281,24 +286,21 @@ class Sync
      * Returns a new Pho command process
      *
      * @param ServerInterface|null $server
-     *
-     * @return ProcessInterface
+     * @param array|string|null $pho_commands
+     * @return PhoInterface
      */
-    protected function getPhoCommand(?ServerInterface $server): ProcessInterface
+    protected function getPhoCommand(?ServerInterface $server, array|string|null $pho_commands = null): PhoInterface
     {
         if ($server) {
-            return Process::new()
-                          ->setTimeout($this->timeout)
-                          ->setCommand($this->configuration['path'] . 'pho', false)
-                          ->setServer($server)
-                          ->setSudo($this->configuration['sudo'])
-                          ->addArguments(['-E', $this->getEnvironmentForServer($server)]);
+            return Pho::new($this->configuration['path'] . 'pho')
+                      ->setPhoCommands($pho_commands)
+                      ->setEnvironment($this->environment)
+                      ->setServer($server)
+                      ->setSudo($this->configuration['sudo']);
         }
 
-        return Process::new()
-                      ->setTimeout($this->timeout)
-                      ->setCommand(DIRECTORY_ROOT . 'pho', false)
-                      ->addArguments(['-E', ENVIRONMENT]);
+        return Pho::new(DIRECTORY_ROOT . 'pho')
+                  ->setPhoCommands($pho_commands);
     }
 
 
@@ -379,24 +381,26 @@ class Sync
      */
     public function importConnector(?ServerInterface $server, string $file, ConnectorInterface $connector): static
     {
-        Log::action(tr('Importing ":driver" database with connector ":connector" for environment ":environment"', [
+        $file = FsFile::new($this->target_temp_path . $file, $this->target_temp_path->getRestrictions());
+
+        Log::action(tr('Importing ":driver" database with connector ":connector" for environment ":environment" from file ":file"', [
             ':driver'      => $connector->getDriver(),
             ':environment' => $this->getEnvironmentForServer($server),
             ':connector'   => $connector->getDisplayName(),
+            ':file'        => $file,
         ]));
 
         // Execute the dump on the specified server
         $this->executeHook('pre-import-connector')
-             ->getPhoCommand($server)
+             ->getPhoCommand($server, 'databases import')
              ->addArguments([
-                 'databases',
-                 'import',
+                 '-L', Log::getThreshold(),
                  '--connector',
                  $connector->getName(),
                  '--database',
                  $connector->getDatabase(),
                  '--file',
-                 $this->target_temp_path . $file,
+                 $file->getPath(),
              ])
              ->executePassthru();
 
@@ -433,7 +437,8 @@ class Sync
     protected function clearTemporaryPath(?ServerInterface $server): static
     {
         $this->getPhoCommand($server)
-             ->addArguments(['system', 'temporary', 'clear', $this->source_temp_path])
+             ->setPhoCommands(['system', 'temporary', 'clear'])
+             ->addArguments($this->source_temp_path)
              ->executeNoReturn();
 
         return $this;
@@ -478,10 +483,6 @@ class Sync
 
         $this->executeHook('pre-copy-connectors');
 
-        if (empty($this->target_temp_path)) {
-            $this->target_temp_path = FsDirectory::getTemporary()->getPath();
-        }
-
         foreach ($this->dump_files as $file) {
             // Build source / target strings
             if ($from) {
@@ -505,6 +506,20 @@ class Sync
                  ->setTargetServer($to)
                  ->setRemoteSudo((bool) $this->configuration['sudo'])
                  ->execute();
+
+            $file = FsFile::new($target, $this->target_temp_path->getRestrictions());
+
+            if ($file->exists()){
+                Log::success(tr('Received target file ":file" with size ":size"', [
+                    ':file' => $file,
+                    ':size' => Numbers::getHumanReadableAndPreciseBytes($file->getSize()),
+                ]));
+
+            } else {
+                Log::warning(tr('Failed to receive target file ":file"', [
+                    ':file' => $file,
+                ]));
+            }
         }
 
         return $this->executeHook('post-copy-connectors');
@@ -564,7 +579,7 @@ class Sync
 
         $this->executeHook('pre-lock-system')
              ->getPhoCommand($server)
-             ->addArguments(['system', 'modes', 'reset'])
+             ->setPhoCommands(['system', 'modes', 'reset'])
              ->executeReturnString();
 
         return $this->executeHook('post-unlock-system');
@@ -675,9 +690,8 @@ class Sync
         // Execute the dump on the specified server
         $this->executeHook('pre-dump-connector')
              ->getPhoCommand($server)
+             ->setPhoCommands(['databases', 'export'])
              ->addArguments([
-                 'databases',
-                 'export',
                  '--connector',
                  $connector->getName(),
                  '--database',
@@ -821,7 +835,7 @@ class Sync
 
         $this->executeHook('pre-lock-system')
              ->getPhoCommand($server)
-             ->addArguments(['system', 'modes', 'readonly', 'enable'])
+             ->setPhoCommands(['system', 'modes', 'readonly', 'enable'])
              ->executeReturnString();
 
         return $this->executeHook('post-lock-system');
@@ -899,7 +913,8 @@ class Sync
     protected function initTemporaryPath(?ServerInterface $server): static
     {
         $path = $this->getPhoCommand($server)
-                     ->addArguments(['system', 'temporary', 'get', '-Q'])
+                     ->setPhoCommands(['system', 'temporary', 'get'])
+                     ->addArguments('-Q')
                      ->executeReturnArray();
 
         $this->source_temp_path = Strings::slash(Arrays::firstValue($path));

@@ -34,9 +34,11 @@ use Phoundation\Developer\Traits\TraitDataProject;
 use Phoundation\Developer\Versioning\Git\Exception\BranchNotAvailableException;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataBranch;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Utils\Config;
 use Stringable;
 
@@ -335,12 +337,12 @@ class Repositories extends IteratorCore implements RepositoriesInterface
      *
      * @param mixed                            $repository
      * @param float|Stringable|int|string|null $path
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return $this
      */
-    public function add(mixed $repository, float|Stringable|int|string|null $path = null, bool $skip_null = true, bool $exception = true): static
+    public function add(mixed $repository, float|Stringable|int|string|null $path = null, bool $skip_null_values = true, bool $exception = true): static
     {
         if (!$repository instanceof RepositoryInterface) {
             throw new OutOfBoundsException(tr('Specified repository ":path" must be a RepositoriesInterface object', [
@@ -360,7 +362,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
             ]));
         }
 
-        return parent::add($repository, $path, $skip_null, $exception);
+        return parent::add($repository, $path, $skip_null_values, $exception);
     }
 
 
@@ -694,6 +696,17 @@ showdie('Woah, from here we start patching!!');
         }
 
         return $this;
+    }
+
+
+    /**
+     * Will copy modified files directly to the repositories
+     *
+     * @return $this
+     */
+    public function copyModified(FsFileInterface|array|null $files = null): static
+    {
+throw new UnderConstructionException();
     }
 
 

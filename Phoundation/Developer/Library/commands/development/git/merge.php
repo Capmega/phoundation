@@ -29,8 +29,8 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('-b,--branch', true)->isFile()
+                     ->select('-b,--branch', true)->isVariable()
                      ->validate();
 
 
-Git::new(FsDirectory::getRoot())->merge($argv['branch']);
+Git::new(FsDirectory::getRootObject())->merge($argv['branch']);

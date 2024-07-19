@@ -507,7 +507,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public static function fixFileModes(): void
     {
-        $directory = FsDirectory::getRoot(true, 'Project::fixFileModes');
+        $directory = FsDirectory::getRootObject(true, 'Project::fixFileModes');
 
         // Don't check for root user, check sudo access to these commands individually, perhaps the user has it?
         Command::sudoAvailable('chown,chmod,mkdir,touch,rm', FsRestrictions::new('/bin,/usr/bin'), true);

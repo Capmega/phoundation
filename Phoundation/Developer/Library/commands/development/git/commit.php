@@ -29,9 +29,9 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('message', true)->isOptional()->isFile()
+                     ->select('message', true)->isOptional()->isDescription()
                      ->select('-s,--signed')->isOptional()->isBoolean()
                      ->validate();
 
 
-Git::new(FsDirectory::getRoot())->commit($argv['message'], $argv['signed']);
+Git::new(FsDirectory::getRootObject())->commit($argv['message'], $argv['signed']);

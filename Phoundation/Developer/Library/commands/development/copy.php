@@ -46,17 +46,17 @@ ARGUMENTS
 [FILE ... FILE FILE]                    A space separated list of files to copy. If left out, will try to copy all 
                                         files that have changes and have counterparts in the found repositories
 
--a, --allow-changes                     If specified will allow copies to repositories that contain uncommitted git 
+[-a, --allow-changes]                   If specified will allow copies to repositories that contain uncommitted git 
                                         changes, allowing for potential loss of work
                                         
--b, --branch BRANCH                     Change the Phoundation to the specified branch');
+[-b, --branch BRANCH]                   Change the Phoundation to the specified branch');
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
                      ->select('-a,--allow-changes')->isOptional(false)->isBoolean()
                      ->select('-b,--branch', true)->isOptional()->isVariableName()
-                     ->selectAll('files')->isOptional()->each()->isPath(FsDirectory::getRoot(false))
+                     ->selectAll('files')->isOptional()->each()->sanitizePath(FsDirectory::getRootObject(false))
                      ->validate();
 
 
@@ -64,4 +64,4 @@ $argv = ArgvValidator::new()
 Repositories::new()
             ->setBranch($argv['branch'])
             ->setAllowChanges($argv['allow_changes'])
-            ->copy($argv['files']);
+            ->copyModified($argv['files']);

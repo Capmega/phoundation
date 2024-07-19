@@ -29,8 +29,8 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('path', true)->isOptional()->isFile()
+                     ->select('path', true)->isOptional()->sanitizePath()
                      ->validate();
 
 
-Git::new(FsDirectory::getRoot())->getStatusFilesObject($argv['path'])->displayCliTable();
+Git::new(FsDirectory::getRootObject())->getStatusFilesObject($argv['path'])->displayCliTable();

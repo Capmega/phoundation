@@ -50,8 +50,8 @@ $target_restrictions = FsRestrictions::new('~', true);
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('-s,--source')->isOptional('data/sources/mdb/repositories')->isFile(FsDirectory::getDataSources())
-                     ->select('-t,--target')->isOptional('~/projects/mdb')->isDirectory(FsDirectory::new('~/projects/mdb', FsRestrictions::getReadonly('~/projects/mdb')))
+                     ->select('-s,--source')->isOptional('data/sources/mdb/repositories')->sanitizeFile(FsDirectory::getDataSourcesObject())
+                     ->select('-t,--target')->isOptional('~/projects/mdb')->sanitizeDirectory(FsDirectory::new('~/projects/mdb', FsRestrictions::getReadonly('~/projects/mdb')))
                      ->validate();
 
 

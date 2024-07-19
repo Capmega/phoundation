@@ -24,7 +24,7 @@ use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulExceptio
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Phoundation\Repositories\Repositories;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
-use Phoundation\Os\Processes\Commands\PhoCommand;
+use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Utils\Arrays;
 
 CliDocumentation::setAutoComplete([

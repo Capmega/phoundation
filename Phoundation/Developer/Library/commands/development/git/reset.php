@@ -30,8 +30,8 @@ useful- beyond testing the git library');
 // Get command line arguments
 $argv = ArgvValidator::new()
                      ->select('branch', true)->isVariable()
-                     ->select('files', true)->isOptional()->sanitizeForceArray()->each()->isFile()
+                     ->select('files', true)->isOptional()->sanitizeForceArray()->each()->sanitizeFile()
                      ->select('--hard')->isOptional()->isBoolean()
                      ->validate();
 
-Git::new(FsDirectory::getRoot())->reset($argv['branch'], get_null($argv['files']));
+Git::new(FsDirectory::getRootObject())->reset($argv['branch'], get_null($argv['files']));

@@ -85,11 +85,11 @@ interface GitInterface
     /**
      * Checks out the specified branches or paths for this git path
      *
-     * @param array|string $branches_or_directories
+     * @param array|Stringable $branches_or_directories
      *
      * @return static
      */
-    public function checkout(array|string $branches_or_directories): static;
+    public function checkout(array|Stringable $branches_or_directories): static;
 
     /**
      * Resets the current branch to the specified revision
@@ -123,11 +123,11 @@ interface GitInterface
     /**
      * Returns a ChangedFiles object containing all the files that have changes according to git
      *
-     * @param FsDirectoryInterface|null $directory
+     * @param FsPathInterface|null $path
      *
      * @return StatusFilesInterface
      */
-    public function getStatusFilesObject(?FsDirectoryInterface $directory = null): StatusFilesInterface;
+    public function getStatusFilesObject(?FsPathInterface $path = null): StatusFilesInterface;
 
     /**
      * Returns if this git directory has any changes

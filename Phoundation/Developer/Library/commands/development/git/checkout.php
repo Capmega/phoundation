@@ -29,8 +29,8 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('branch_or_file', true)->isFile()
+                     ->select('branch_or_file', true)->sanitizeFile()
                      ->validate();
 
 
-Git::new(FsDirectory::getRoot())->checkout($argv['branch_or_file']);
+Git::new(FsDirectory::getRootObject())->checkout($argv['branch_or_file']);

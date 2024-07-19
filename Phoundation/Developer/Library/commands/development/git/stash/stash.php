@@ -32,4 +32,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(FsDirectory::getRoot())->getStashObject()->stash();
+Git::new(FsDirectory::getRootObject())->getStashObject()->stash();

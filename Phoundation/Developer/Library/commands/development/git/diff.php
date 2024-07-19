@@ -29,8 +29,8 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('files')->sanitizeForceArray()->each()->isFile()
+                     ->select('files')->sanitizeForceArray()->each()->sanitizeFile()
                      ->validate();
 
 
-Log::cli(Git::new(FsDirectory::getRoot())->getDiff($argv['files']));
+Log::cli(Git::new(FsDirectory::getRootObject())->getDiff($argv['files']));

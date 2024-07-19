@@ -29,8 +29,8 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('-b,--branch', true)->isDirectory()
+                     ->select('-b,--branch', true)->sanitizeDirectory()
                      ->validate();
 
 
-Git::new(FsDirectory::getRoot())->rebase($argv['branch']);
+Git::new(FsDirectory::getRootObject())->rebase($argv['branch']);

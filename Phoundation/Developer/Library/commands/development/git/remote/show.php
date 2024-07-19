@@ -33,4 +33,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(FsDirectory::getRoot())->getRepositoriesObject()->get($argv['repository'])->CliDisplayForm();
+Git::new(FsDirectory::getRootObject())->getRepositoriesObject()->get($argv['repository'])->CliDisplayForm();
