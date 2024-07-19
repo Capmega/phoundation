@@ -29,7 +29,7 @@ trait TraitDataEntryDirectory
      */
     public function getDirectory(): ?FsDirectoryInterface
     {
-        return $this->getValueTypesafe(FsDirectoryInterface::class, 'directory');
+        return $this->getTypesafe(FsDirectoryInterface::class, 'directory');
     }
 
 

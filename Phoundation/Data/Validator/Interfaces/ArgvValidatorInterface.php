@@ -16,7 +16,6 @@ interface ArgvValidatorInterface extends ValidatorInterface
      */
     public function select(string|int $fields, string|bool $next = false): static;
 
-
     /**
      * Returns the $argv array
      *

@@ -24,7 +24,7 @@ trait TraitDataEntryCharacterSet
      */
     public function getCharacterSet(): ?string
     {
-        return $this->getValueTypesafe('string', 'character_set');
+        return $this->getTypesafe('string', 'character_set');
     }
 
 

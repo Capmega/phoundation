@@ -24,7 +24,7 @@ trait TraitDataEntrySourceString
      */
     public function getSourceString(): ?string
     {
-        return $this->getValueTypesafe('string', 'source');
+        return $this->getTypesafe('string', 'source');
     }
 
 

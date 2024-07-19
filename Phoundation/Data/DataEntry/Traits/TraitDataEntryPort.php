@@ -24,7 +24,7 @@ trait TraitDataEntryPort
      */
     public function getPort(): ?int
     {
-        return $this->getValueTypesafe('int', 'port');
+        return $this->getTypesafe('int', 'port');
     }
 
 

@@ -70,7 +70,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function getParentsId(): ?int
     {
-        return $this->getValueTypesafe('int', 'parents_id');
+        return $this->getTypesafe('int', 'parents_id');
     }
 
 
@@ -94,7 +94,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function getParent(): ?Category
     {
-        $parents_id = $this->getValueTypesafe('int', 'parents_id');
+        $parents_id = $this->getTypesafe('int', 'parents_id');
         if ($parents_id) {
             return new static($parents_id);
         }
@@ -110,7 +110,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function getParentsName(): ?string
     {
-        return $this->getValueTypesafe('string', 'parents_name');
+        return $this->getTypesafe('string', 'parents_name');
     }
 
 

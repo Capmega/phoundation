@@ -27,7 +27,7 @@ trait TraitDataEntryException
      */
     public function getException(): ?Exception
     {
-        return Exception::import($this->getValueTypesafe('string', 'exception'));
+        return Exception::import($this->getTypesafe('string', 'exception'));
     }
 
 

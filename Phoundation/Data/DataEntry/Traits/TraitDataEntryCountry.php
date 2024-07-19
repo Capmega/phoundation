@@ -26,7 +26,7 @@ trait TraitDataEntryCountry
      */
     public function getCountriesId(): ?int
     {
-        return $this->getValueTypesafe('int', 'countries_id');
+        return $this->getTypesafe('int', 'countries_id');
     }
 
 
@@ -50,7 +50,7 @@ trait TraitDataEntryCountry
      */
     public function getCountry(): ?Country
     {
-        $countries_id = $this->getValueTypesafe('int', 'countries_id');
+        $countries_id = $this->getTypesafe('int', 'countries_id');
         if ($countries_id) {
             return new Country($countries_id);
         }
@@ -66,7 +66,7 @@ trait TraitDataEntryCountry
      */
     public function getCountriesName(): ?string
     {
-        return $this->getValueTypesafe('string', 'countries_name');
+        return $this->getTypesafe('string', 'countries_name');
     }
 
 

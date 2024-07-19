@@ -24,7 +24,7 @@ trait TraitDataEntryPost
      */
     public function getPost(): ?array
     {
-        return $this->getValueTypesafe('array', 'post');
+        return $this->getTypesafe('array', 'post');
     }
 
 

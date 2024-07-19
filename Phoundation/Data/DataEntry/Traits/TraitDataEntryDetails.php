@@ -29,14 +29,14 @@ trait TraitDataEntryDetails
     public function getDetails(): array|string|null
     {
         try {
-            return Json::decode($this->getValueTypesafe('string', 'details'));
+            return Json::decode($this->getTypesafe('string', 'details'));
 
         } catch (JsonException $e) {
             Log::warning(tr('Failed to decode details because of following exception'));
             Log::warning(tr('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'));
             Log::error($e);
 
-            return $this->getValueTypesafe('string', 'details');
+            return $this->getTypesafe('string', 'details');
         }
     }
 

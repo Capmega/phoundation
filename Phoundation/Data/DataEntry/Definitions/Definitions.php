@@ -68,16 +68,16 @@ class Definitions extends Iterator implements DefinitionsInterface
      *
      * @param mixed                            $value
      * @param float|Stringable|int|string|null $key
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return $this
      */
-    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         $this->ensureValueAndPrefix($value);
 
-        return parent::append($value, $key ?? $value->getColumn(), $skip_null, $exception);
+        return parent::append($value, $key ?? $value->getColumn(), $skip_null_values, $exception);
     }
 
 
@@ -88,16 +88,16 @@ class Definitions extends Iterator implements DefinitionsInterface
      *
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return static
      */
-    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         $this->ensureValueAndPrefix($value);
 
-        return parent::prepend($value, $key ?? $value->getColumn(), $skip_null, $exception);
+        return parent::prepend($value, $key ?? $value->getColumn(), $skip_null_values, $exception);
     }
 
 
@@ -109,16 +109,16 @@ class Definitions extends Iterator implements DefinitionsInterface
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
      * @param Stringable|string|float|int|null $before
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return static
      */
-    public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $before = null, bool $skip_null = true, bool $exception = true): static
+    public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $before = null, bool $skip_null_values = true, bool $exception = true): static
     {
         $this->ensureValueAndPrefix($value);
 
-        return parent::prependBeforeKey($value, $key ?? $value->getColumn(), $before, $skip_null, $exception);
+        return parent::prependBeforeKey($value, $key ?? $value->getColumn(), $before, $skip_null_values, $exception);
     }
 
 
@@ -131,16 +131,16 @@ class Definitions extends Iterator implements DefinitionsInterface
      * @param Stringable|string|float|int|null $key
      * @param mixed                            $before
      * @param bool                             $strict
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return static
      */
-    public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static
+    public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
     {
         $this->ensureValueAndPrefix($value);
 
-        return parent::prependBeforeValue($value, $key ?? $value->getColumn(), $before, $strict, $skip_null, $exception);
+        return parent::prependBeforeValue($value, $key ?? $value->getColumn(), $before, $strict, $skip_null_values, $exception);
     }
 
 
@@ -152,16 +152,16 @@ class Definitions extends Iterator implements DefinitionsInterface
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
      * @param Stringable|string|float|int|null $after
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return static
      */
-    public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $after = null, bool $skip_null = true, bool $exception = true): static
+    public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $after = null, bool $skip_null_values = true, bool $exception = true): static
     {
         $this->ensureValueAndPrefix($value);
 
-        return parent::appendAfterKey($value, $key ?? $value->getColumn(), $after, $skip_null, $exception);
+        return parent::appendAfterKey($value, $key ?? $value->getColumn(), $after, $skip_null_values, $exception);
     }
 
 
@@ -174,16 +174,16 @@ class Definitions extends Iterator implements DefinitionsInterface
      * @param Stringable|string|float|int|null $key
      * @param mixed                            $after
      * @param bool                             $strict
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return static
      */
-    public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static
+    public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
     {
         $this->ensureValueAndPrefix($value);
 
-        return parent::appendAfterValue($value, $key ?? $value->getColumn(), $after, $strict, $skip_null, $exception);
+        return parent::appendAfterValue($value, $key ?? $value->getColumn(), $after, $strict, $skip_null_values, $exception);
     }
 
 

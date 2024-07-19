@@ -26,7 +26,7 @@ trait TraitDataEntryLine
      */
     public function getLine(): ?int
     {
-        return $this->getValueTypesafe('int', 'line');
+        return $this->getTypesafe('int', 'line');
     }
 
 

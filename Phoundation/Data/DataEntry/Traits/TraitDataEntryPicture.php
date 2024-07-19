@@ -17,6 +17,8 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Utils\Strings;
 
 trait TraitDataEntryPicture
@@ -28,7 +30,7 @@ trait TraitDataEntryPicture
      */
     public function getPicture(): ImageInterface
     {
-        return get_null($this->getValueTypesafe('string', 'picture')) ?? new Image('img/profiles/default.png');
+        return get_null($this->getTypesafe('string', 'picture')) ?? new Image('img/profiles/default.png', FsRestrictions::getReadonly('img/profiles'));
     }
 
 
@@ -42,8 +44,7 @@ trait TraitDataEntryPicture
     public function setPicture(ImageInterface|string|null $picture): static
     {
         // Make sure we have an Image object or NULL
-        $picture = get_null($picture) ?? Image::new($picture);
-
+        $picture = get_null($picture) ?? Image::new($picture, FsRestrictions::getReadonly('img/profiles'));
         $picture->setDescription(tr('Profile picture for :customer', [
             ':customer' => $this->getName()
         ]));

@@ -28,7 +28,7 @@ trait TraitDataEntryIcon
      */
     public function getIcon(): ?IconInterface
     {
-        return Icon::new($this->getValueTypesafe('string', 'icon'));
+        return Icon::new($this->getTypesafe('string', 'icon'));
 //
 //        if (!$return) {
 //            // Assign default icon

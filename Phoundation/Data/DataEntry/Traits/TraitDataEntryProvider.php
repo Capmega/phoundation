@@ -26,7 +26,7 @@ trait TraitDataEntryProvider
      */
     public function getProvidersId(): ?int
     {
-        return $this->getValueTypesafe('int', 'providers_id');
+        return $this->getTypesafe('int', 'providers_id');
     }
 
 
@@ -50,7 +50,7 @@ trait TraitDataEntryProvider
      */
     public function getProvider(): ?Provider
     {
-        $providers_id = $this->getValueTypesafe('int', 'providers_id');
+        $providers_id = $this->getTypesafe('int', 'providers_id');
         if ($providers_id) {
             return new Provider($providers_id, 'id');
         }
@@ -66,7 +66,7 @@ trait TraitDataEntryProvider
      */
     public function getProvidersName(): ?string
     {
-        return $this->getValueTypesafe('string', 'providers_name');
+        return $this->getTypesafe('string', 'providers_name');
     }
 
 

@@ -94,7 +94,7 @@ trait TraitDataEntryRole
      */
     public function getRolesId(): ?int
     {
-        return $this->getValueTypesafe('int', 'roles_id');
+        return $this->getTypesafe('int', 'roles_id');
 
     }
 

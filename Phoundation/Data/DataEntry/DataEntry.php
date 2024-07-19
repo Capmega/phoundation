@@ -3,7 +3,114 @@
 /**
  * Class DataEntry
  *
- * This class contains the basic data entry traits
+ * This class is the basic DataEntry class
+ *
+ * DataEntry are extensions of the Entry object. DataEntry classes reflect a single entry in a specific database table.
+ * User DataEntry classes, for example reflect a single entry from the "accounts_users" table.
+ *
+ * All DataEntry database rows can always be identified with a unique ID column (typically "id" but this can be
+ * configured per extending class to something different) and optionally a unique identifier. For example, the
+ * User DataEntry class (representing single entries in the "accounts_users" table) has the id column "id" and the
+ * unique identifier "email"
+ *
+ * DataEntry objects can be created in a number of different ways. Let's assume the Phoundation\Accounts\User class. You
+ * can use new User() or User::new(), which returns a new (empty) User. You can also load a specific user by specifying
+ * an identifier, in which case the DataEntry will try to load the specified entry IF it exists. Identifiers typically
+ * require specifying a colum, though if the column has not been specified, the DataEntry object will assume the class'
+ * "id" column if the identifier is numeric, or the unique column if the identifier is a string. If the given identifier
+ * does not exist, a new DataEntry object will be returned with the given column set to the identifier ("id" is the
+ * single exception to this, as the "id" column can never be changed). For example, new User(2309842), which returns
+ * user with ID 2309842 IF this user exists in the database. Another way could be User::new(user@domain.com) which would
+ * return the user with the unique identifier "user@domain.com" IF this user exists in the database, or in
+ * configuration. For more information about loading DataEntry objects from configuration, see below.
+ *
+ * All DataEntry objects have a static DataEntry::new() method which is simply a shorthand for new DataEntry(), which
+ * allows for direct usage of said object, not requiring a new line to continue working on the object.
+ *
+ * A different way to get a new DataEntry object is using the ::load() method. This will load the DataEntry from
+ * database or configuration, and REQUIRE that this entry exists.
+ *
+ * The final way to get a new DataEntry object is using DataEntry::newFromSource($array) where the source array contains
+ * the data for this DataEntry. All source column values will be copied to the inner source, any columns that are not
+ * supported will be ignored.
+ *
+ * Typically, DataEntries have metadata, though this can be disabled on a per extending class basis. Typically, this
+ * metadata consists of the following rows (though these rows can, again, be disabled on a per extending class basis):
+ *     id           Default unique identifier
+ *     created_on   User_id of the user that created this row
+ *     created_by   Timestamp that automatically initializes to the current datetime of row creation
+ *     meta_id      Link to the meta system that tracks all audit information about this row
+ *     status       Current status of this row
+ *     meta_state   Random string identifying if the row was modified, used for caching and consistency checks
+ *
+ * DataEntry rows are typically never deleted. Usually, their status column is updated to "deleted" meaning that the
+ * entry will no longer be available to most users (Right "access_deleted" is required to be able to access deleted
+ * rows). Attempting to load DataEntries with status "deleted" either through new DataEntry() or DataEntry::load() will
+ * result in a DataEntryDeletedException being thrown.
+ *
+ * The status column typically is NULL, meaning "all normal". The status column may have any status as needed for that
+ * table, but a number of often used status values are:
+ *     NULL            All is okay, the default status value
+ *     deleted         Means this row is deleted, and can no longer be loaded
+ *     system          This is a system entry, will be readonly
+ *     configuration   This entry was read not from database, but from configuration, and is readonly (see below)
+ *     new             This entry is new and requires an update to get into NULL state
+ *
+ * DataEntry tables typically refer to other tables by ID column. These ID columns are BIGINT. Saving new DataEntry
+ * objects will automatically generate a random new ID for this object in the database (unless configured not to do so,
+ * on a per extending class basis)
+ *
+ * DataEntry objects contain a definition of both the table and the structure of said table. This makes it that the
+ * entry can read and write data simply with DataEntry::load() or DataEntry::save(). Each DataEntry object will know
+ * exactly what columns are available to this entry, and will also know how to properly validate each column. When any
+ * value inside the object is changed, the object cannot write to disk without first validating each column value. If
+ * any validation fails, a ValidationFailedException will be thrown. DataEntry objects also have definition information
+ * on how to display the object in an HTML page, so DataEntry::getHtmlDataEntryFormObject() will return an
+ * HtmlDataEntryForm that allows the contents of this DataEntry object to be rendered for a web page correctly and
+ * automatically. The definitions also contain information on how to handle command line arguments and even command line
+ * auto suggest, making building scripts to handle these objects very easy.
+ *
+ * The definitions also tell the DataEntry object what columns are available. Some DataEntry extending classes will have
+ * special get/set handler methods, others won't. All columns are available through DataEntry::get(), or
+ * DataEntry::set(), but for example the User object also has User::getEmail(), User::setNickname(), etc.
+ *
+ * DataEntry objects can automatically receive and apply GET, POST, or argv data using the GetValidator, PostValidator,
+ * or ArgvValidator classes. DataEntry::apply() will automatically select the correct validator to use and applies the
+ * data, though data can also be manually specified using an array or ArrayValidator object, with
+ * DataEntry::apply([data]). Each column of a DataEntry object can also be specified manually like
+ * User::setEmail($email)
+ *
+ * Saving DataEntry objects will (if enabled, on a per extending class basis) update the meta information for this
+ * DataEntry object. The "meta_state" column will be updated, but also a new entry will be added to the "meta_history"
+ * table, containing the performed action and a diff of what changes were made when, by whom.
+ *
+ * If enabled, DataEntry objects will also track the creation of objects, allowing for tracking who accessed what data
+ * when. This is very useful in systems that require audits of who accessed and changed information.
+ *
+ * Meta information for each DataEntry object is available with DataEntry::getMetaObject()
+ *
+ * DataEntry source data (the data stored inside the object) can be accessed (like most other Phoundation objects)
+ * through DataEntry::getSource()
+ *
+ * DataEntry objects also contain information on what database connector to use, so each extended class will always
+ * automatically access the DataEntry object from the correct database using the correct credentials. The connector can
+ * be overridden by overriding the DataEntry::getConnector() method
+ *
+ * An entire DataEntry object can be disabled, or made readonly (causing the HTML output to have all fields disabled or
+ * readonly) using DataEntry::setReadonly(), DataEntry::getDisabled(), etc.
+ *
+ * DataEntry tables support loading from database, but also loading from configuration using Config::getArray()). This
+ * requires the DataEntry::$configuration_path to be set and to load the DataEntry either with column null or column
+ * equal to the DataEntry::getUniqueColumn() value for that DataEntry class. Please note that configuration loaded
+ * DataEntry objects are readonly and do not have any metadata support
+ *
+ * Multiple DataEntries can be contained in DataIterator class objects of a similar type, usually having the same name
+ * but in plural. User class objects, for example, can be stored in Users class object.
+ *
+ * @see \Phoundation\Data\Entry
+ * @see \Phoundation\Data\DataEntry\Definitions\Definitions
+ * @see \Phoundation\Data\DataEntry\Definitions\Definition
+ * @see \Phoundation\Data\DataEntry\DataIterator
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -277,6 +384,12 @@ class DataEntry extends EntryCore implements DataEntryInterface
 
             } else {
                 $this->loadFromDatabase($identifier, $column, $meta_enabled);
+
+                if ($this->isNew()) {
+                    // So this entry does not exist in the database
+                    // Does it perhaps have configuration load support and exist in configuration?
+                    static::tryLoadFromConfiguration($this, $identifier, $column);
+                }
             }
 
         } else {
@@ -555,7 +668,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
      */
     public function getId(): int|null
     {
-        return $this->getValueTypesafe('int', $this->getIdColumn());
+        return $this->getTypesafe('int', $this->getIdColumn());
     }
 
 
@@ -571,7 +684,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
         if ($key) {
             // Test if this key was defined to begin with! If not, throw an exception to clearly explain what's wrong
             if ($this->definitions->keyExists($key)) {
-                return $this->getValueTypesafe('string|float|int|null', static::getUniqueColumn());
+                return $this->getTypesafe('string|float|int|null', static::getUniqueColumn());
             }
 
             throw new OutOfBoundsException(tr('Specified unique key ":key" is not defined for the ":class" class DataEntry object', [
@@ -594,7 +707,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
      *
      * @return mixed
      */
-    protected function getValueTypesafe(string $type, string $column, mixed $default = null): mixed
+    protected function getTypesafe(string $type, string $column, mixed $default = null): mixed
     {
         $this->checkProtected($column);
 
@@ -768,8 +881,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
     public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
         if (!$identifier) {
-            // No identifier specified
-            // Identifier is required here
+            // No identifier specified, an identifier is required to load a DataEntry
             throw DataEntryNotExistsException::new(tr('The specified ":class" class column ":column" with identifier ":identifier" was empty', [
                 ':class'      => static::getClassName(),
                 ':column'     => static::determineColumn($identifier, $column),
@@ -789,54 +901,42 @@ class DataEntry extends EntryCore implements DataEntryInterface
             }
 
             return $identifier;
-
-        } else {
-            try {
-                $entry = new static($identifier, $column, $meta_enabled);
-
-            } catch (SqlTableDoesNotExistException $e) {
-                // The table for this object does not exist. This means that we're missing an init, perhaps, or maybe
-                // even the entire databese doesn't exist? Maybe we're in init or sync mode? Allow the system to continue
-                // to check if this entry perhaps is configured, so we can continue
-                if (!Core::inInitState()) {
-                    throw $e;
-                }
-
-                $entry = new static();
-            }
         }
 
-        if ($entry->isNew()) {
-            // So this entry does not exist in the database. Does it perhaps exist in configuration?
-            $path = static::new()->getConfigPath();
+        try {
+            // Try to load the DataEntry from database with the given identifier and column
+            $entry = new static($identifier, $column, $meta_enabled);
 
-            if ($path) {
-                if (!static::idColumnIs('id')) {
-                    throw new DataEntryException(tr('Cannot use configuration paths for DataEntry object ":class" that uses id column ":column" instead of "id"', [
-                        ':class'  => static::class,
-                        ':column' => static::getIdColumn(),
-                    ]));
-                }
-
-                // See if there is a configuration entry in the specified path
-                $entry = Config::getArray(Strings::ensureEndsWith($path, '.') . Config::escape($identifier), []);
-
-                if (count($entry)) {
-                    // Return a new DataEntry object from the configuration source
-                    $entry['id']   = -1;
-                    $entry['name'] = $identifier;
-
-                    // Create a DataTypeInterface object but since we can't write configuration, make it readonly!
-                    return static::newFromSource($entry)
-                                 ->setReadonly(true);
-                }
-            }
-
-            if (isset($e)) {
-                // We already had another exception pending, possibly SqlTableDoesNotExistException, continue with that.
+        } catch (SqlTableDoesNotExistException $e) {
+            // The table for this object does not exist. This means that we're missing an init, perhaps, or maybe
+            // even the entire databese doesn't exist? Maybe we're in init or sync mode? Allow the system to continue
+            // to check if this entry perhaps is configured, so we can continue
+            if (!Core::inInitState()) {
                 throw $e;
             }
 
+            // We're in init state, act as if the entry simply doesn't exist
+            $entry = new static();
+        }
+
+        if ($entry->isNew()) {
+            // So this entry does not exist in the database (or, SQL table doesn't exist either).
+            // Does it perhaps have configuration load support and exist in configuration?
+            $entry = static::tryLoadFromConfiguration($entry, $identifier, $column);
+
+            if ($entry) {
+                // Yay, found it there!
+                return $entry;
+            }
+
+            // Yeah, this DataEntry really doesn't exist anywhere!
+
+            if (isset($e)) {
+                // We already had another exception pending, probably SqlTableDoesNotExistException, continue with that.
+                throw $e;
+            }
+
+            // Throw the DataEntry does not exist exception
             throw DataEntryNotExistsException::new(tr('The ":class" class column ":column" with identifier ":identifier" does not exist', [
                 ':class'      => static::getClassName(),
                 ':column'     => static::determineColumn($identifier, $column),
@@ -846,12 +946,10 @@ class DataEntry extends EntryCore implements DataEntryInterface
             ]);
         }
 
+        // This entry exists in database, yay! Is it not deleted, though?
         if ($entry->isDeleted() and !$force) {
-            // This entry has been deleted and can only be viewed by user with the "deleted" right
-            if (
-                !Session::getUser()
-                        ->hasAllRights('deleted')
-            ) {
+            // This entry has been deleted and can only be viewed by user with the "access_deleted" right
+            if (!Session::getUser()->hasAllRights('access_deleted')) {
                 throw DataEntryDeletedException::new(tr('The ":class" class column ":column" with identifier ":identifier" is deleted', [
                     ':class'      => static::getClassName(),
                     ':column'     => static::determineColumn($identifier, $column),
@@ -937,7 +1035,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
      */
     public function isStatus(?string $status): bool
     {
-        return $this->getValueTypesafe('string', 'status') === $status;
+        return $this->getTypesafe('string', 'status') === $status;
     }
 
 
@@ -953,7 +1051,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
             $postfix = ' ' . tr('[DELETED]');
         }
 
-        return $this->getValueTypesafe('string', static::getUniqueColumn() ?? 'id') . $postfix;
+        return $this->getTypesafe('string', static::getUniqueColumn() ?? 'id') . $postfix;
     }
 
 
@@ -982,7 +1080,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
      */
     public function getStatus(): ?string
     {
-        return $this->getValueTypesafe('string', 'status');
+        return $this->getTypesafe('string', 'status');
     }
 
 
@@ -1097,6 +1195,66 @@ class DataEntry extends EntryCore implements DataEntryInterface
 
 
     /**
+     * Try to load this DataEntry from configuration instead of database
+     *
+     * @param DataEntryInterface $entry
+     * @param string|int $identifier
+     * @param string|null $column
+     * @return static|null
+     * @throws Exception
+     */
+    protected static function tryLoadFromConfiguration(DataEntryInterface $entry, string|int $identifier, ?string $column = null): ?static
+    {
+        $path = $entry->getConfigurationPath();
+
+        // Can only load from configuration if configuration path is available
+        if ($path) {
+            // Can only load from configuration using unique column, or NULL column
+            if (($column === null) or ($column === static::getUniqueColumn())) {
+                if (!static::idColumnIs('id')) {
+                    throw new DataEntryException(tr('Cannot use configuration paths for DataEntry object ":class" that uses id column ":column" instead of "id"', [
+                        ':class'  => static::class,
+                        ':column' => static::getIdColumn(),
+                    ]));
+                }
+
+                // See if there is a configuration entry in the specified path
+                return static::loadFromConfiguration($entry, $path, $identifier);
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Loads the DataEntry from configuration instead of the database
+     *
+     * @param DataEntryInterface $entry
+     * @param string $path
+     * @param string|int $identifier
+     * @return static|null
+     */
+    protected static function loadFromConfiguration(DataEntryInterface $entry, string $path, string|int $identifier): ?static
+    {
+        $source = Config::getArray(Strings::ensureEndsWith($path, '.') . Config::escape($identifier), []);
+
+        if (count($source)) {
+            // Found the entry in configuration! Make it a readonly DataEntry object
+            $source['id']     = -1;
+            $source['status'] = 'configuration';
+            $source['name']   = $identifier;
+
+            // Create a DataTypeInterface object but since we can't write configuration, make it readonly!
+            return $entry->setSource($source)->setReadonly(true);
+        }
+
+        // Entry not available in configuration
+        return null;
+    }
+
+
+    /**
      * Load all object data from the database
      *
      * @param string|int  $identifier
@@ -1117,9 +1275,11 @@ class DataEntry extends EntryCore implements DataEntryInterface
                      ->addWhere('`' . static::getTable() . '`.`' . $column . '` = :identifier', [':identifier' => $identifier])
                      ->get();
 
-        // Store all data in the object
-        $this->setMetaData((array) $data)
-             ->copyValuesToSource((array) $data, false);
+        if ($data) {
+            // If data was found, store all data in the object
+            $this->setMetaData($data)
+                ->copyValuesToSource($data, false);
+        }
 
         // Reset state
         $this->is_loading  = false;
@@ -1150,7 +1310,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
 
 
     /**
-     * Sets all data for this data entry at once with an array of information
+     * Copies all specified source entries to the internal source
      *
      * @param array $source The data for this DataEntry object
      * @param bool  $modify
@@ -1194,6 +1354,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
                 } else {
                     $value = $definition->getDefault();
                 }
+
                 // No default available?
                 if ($value === null) {
                     // This value wasn't specified in the source, there are no default values, so continue
@@ -1831,7 +1992,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
      */
     public function getMetaState(): ?string
     {
-        return $this->getValueTypesafe('string', 'meta_state');
+        return $this->getTypesafe('string', 'meta_state');
     }
 
 
@@ -2569,7 +2730,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
      */
     public function getLogId(): string
     {
-        return $this->getValueTypesafe('int', static::getIdColumn()) . ' / ' . (static::getUniqueColumn() ? $this->getValueTypesafe('string', static::getUniqueColumn()) : '-');
+        return $this->getTypesafe('int', static::getIdColumn()) . ' / ' . (static::getUniqueColumn() ? $this->getTypesafe('string', static::getUniqueColumn()) : '-');
     }
 
 
@@ -2582,7 +2743,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
      */
     public function hasStatus(string $status): bool
     {
-        return $status === $this->getValueTypesafe('string', 'status');
+        return $status === $this->getTypesafe('string', 'status');
     }
 
 
@@ -2668,7 +2829,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
             return null;
         }
 
-        $meta_id = $this->getValueTypesafe('int', 'meta_id');
+        $meta_id = $this->getTypesafe('int', 'meta_id');
 
         if ($meta_id === null) {
             throw new DataEntryException(tr('DataEntry ":id" does not have meta_id information', [
@@ -2703,7 +2864,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
      */
     public function getCreatedByObject(): ?UserInterface
     {
-        $created_by = $this->getValueTypesafe('int', 'created_by');
+        $created_by = $this->getTypesafe('int', 'created_by');
 
         if ($created_by === null) {
             return null;
@@ -2721,7 +2882,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
      */
     public function getCreatedOnObject(): ?DateTime
     {
-        $created_on = $this->getValueTypesafe('string', 'created_on');
+        $created_on = $this->getTypesafe('string', 'created_on');
 
         if ($created_on === null) {
             return null;
@@ -2778,7 +2939,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
      */
     public function getMetaId(): ?int
     {
-        return $this->getValueTypesafe('int', 'meta_id');
+        return $this->getTypesafe('int', 'meta_id');
     }
 
 
@@ -3122,5 +3283,16 @@ class DataEntry extends EntryCore implements DataEntryInterface
         $alt = trim($alt);
 
         return get_null($alt) ?? $column;
+    }
+
+
+    /**
+     * Returns true if this DataEntry was loaded from configuration
+     *
+     * @return bool
+     */
+    public function isLoadedFromConfiguration(): bool
+    {
+        return $this->hasStatus('configuration');
     }
 }

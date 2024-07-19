@@ -26,7 +26,7 @@ trait TraitDataEntryProduct
      */
     public function getProduct(): ?string
     {
-        return $this->getValueTypesafe('string', 'product');
+        return $this->getTypesafe('string', 'product');
     }
 
 

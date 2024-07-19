@@ -24,7 +24,7 @@ trait TraitDataEntryIpAddress
      */
     public function getIpAddress(): ?string
     {
-        return $this->getValueTypesafe('string', 'ip_address');
+        return $this->getTypesafe('string', 'ip_address');
     }
 
 

@@ -26,7 +26,7 @@ trait TraitDataEntryParent
      */
     public function getParentsId(): ?int
     {
-        return $this->getValueTypesafe('int', 'parents_id');
+        return $this->getTypesafe('int', 'parents_id');
     }
 
 
@@ -50,7 +50,7 @@ trait TraitDataEntryParent
      */
     public function getParentsName(): ?string
     {
-        return $this->getValueTypesafe('string', 'parents_name');
+        return $this->getTypesafe('string', 'parents_name');
     }
 
 
@@ -61,7 +61,7 @@ trait TraitDataEntryParent
      */
     public function getParent(): ?DataEntryInterface
     {
-        $parents_id = $this->getValueTypesafe('int', 'parents_id');
+        $parents_id = $this->getTypesafe('int', 'parents_id');
         if ($parents_id) {
             return new static($parents_id);
         }

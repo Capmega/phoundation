@@ -38,7 +38,7 @@ trait TraitDataEntryGender
      */
     public function getGender(): ?string
     {
-        return $this->getValueTypesafe('string', 'gender');
+        return $this->getTypesafe('string', 'gender');
     }
 
 

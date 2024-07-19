@@ -20,9 +20,9 @@ trait TraitDataConfigPath
     /**
      * If specified tracks from which configuration path this DataEntry object can be loaded
      *
-     * @var ?string $config_path
+     * @var ?string $configuration_path
      */
-    protected ?string $config_path = null;
+    protected ?string $configuration_path = null;
 
 
     /**
@@ -32,9 +32,9 @@ trait TraitDataConfigPath
      *
      * @return string|null
      */
-    public function getConfigPath(): ?string
+    public function getConfigurationPath(): ?string
     {
-        return $this->config_path;
+        return $this->configuration_path;
     }
 
 
@@ -43,13 +43,13 @@ trait TraitDataConfigPath
      *
      * Set NULL if this object cannot be loaded from configuration
      *
-     * @param string|null $config_path
+     * @param string|null $configuration_path
      *
      * @return static
      */
-    public function setConfigPath(?string $config_path): static
+    public function setConfigurationPath(?string $configuration_path): static
     {
-        $this->config_path = $config_path;
+        $this->configuration_path = $configuration_path;
 
         return $this;
     }

@@ -24,7 +24,7 @@ trait TraitDataEntryResults
      */
     public function getResults(): ?string
     {
-        return $this->getValueTypesafe('string', 'results');
+        return $this->getTypesafe('string', 'results');
     }
 
 

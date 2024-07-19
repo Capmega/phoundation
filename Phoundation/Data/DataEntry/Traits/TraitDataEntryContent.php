@@ -24,7 +24,7 @@ trait TraitDataEntryContent
      */
     public function getContent(): ?string
     {
-        return $this->getValueTypesafe('string', 'content');
+        return $this->getTypesafe('string', 'content');
     }
 
 

@@ -26,7 +26,7 @@ trait TraitDataEntryMode
      */
     public function getMode(): EnumDisplayMode
     {
-        return EnumDisplayMode::from((string) $this->getValueTypesafe('string', 'mode', 'primary'));
+        return EnumDisplayMode::from((string) $this->getTypesafe('string', 'mode', 'primary'));
     }
 
 

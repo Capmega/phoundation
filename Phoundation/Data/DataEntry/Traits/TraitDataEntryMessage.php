@@ -26,7 +26,7 @@ trait TraitDataEntryMessage
      */
     public function getMessage(): ?string
     {
-        return $this->getValueTypesafe('string', 'message');
+        return $this->getTypesafe('string', 'message');
     }
 
 

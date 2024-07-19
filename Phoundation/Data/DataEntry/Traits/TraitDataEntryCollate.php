@@ -24,7 +24,7 @@ trait TraitDataEntryCollate
      */
     public function getCollate(): ?string
     {
-        return $this->getValueTypesafe('string', 'collate');
+        return $this->getTypesafe('string', 'collate');
     }
 
 

@@ -24,7 +24,7 @@ trait TraitDataEntryVerifiedOn
      */
     public function getVerifiedOn(): ?string
     {
-        return $this->getValueTypesafe('string', 'verified_on');
+        return $this->getTypesafe('string', 'verified_on');
     }
 
 

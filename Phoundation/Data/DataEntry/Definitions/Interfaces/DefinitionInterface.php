@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Definition
  *
@@ -19,6 +20,8 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
@@ -1316,4 +1319,43 @@ interface DefinitionInterface
      * @return static
      */
     public function addBeforeButton(?ButtonInterface $button): static;
+
+    /**
+     * Returns the in_directories restrictions for this definition
+     *
+     * @return FsDirectoryInterface|array|null
+     */
+    public function getInDirectories(): FsDirectoryInterface|array|null;
+
+    /**
+     * Sets the in_directories restrictions for this definition
+     *
+     * @param FsDirectoryInterface|array|null $in_directories
+     * @return static
+     */
+    public function setInDirectories(FsDirectoryInterface|array|null $in_directories): static;
+
+    /**
+     * Returns the server restrictions
+     *
+     * @return FsRestrictionsInterface
+     */
+    public function getRestrictions(): FsRestrictionsInterface;
+
+    /**
+     * Sets the server and filesystem restrictions for this FsFileFileInterface object
+     *
+     * @param FsRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
+     * @param bool                                      $write        If $restrictions is not specified as a
+     *                                                                FsRestrictions class, but as a path string, or
+     *                                                                array of path strings, then this method will
+     *                                                                convert that into a FsRestrictions object and this
+     *                                                                is the $write modifier for that object
+     * @param string|null                               $label        If $restrictions is not specified as a
+     *                                                                FsRestrictions class, but as a path string, or
+     *                                                                array of path strings, then this method will
+     *                                                                convert that into a FsRestrictions object and this
+     *                                                                is the $label modifier for that object
+     */
+    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
 }

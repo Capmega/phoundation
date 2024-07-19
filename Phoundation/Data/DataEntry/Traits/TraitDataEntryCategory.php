@@ -27,7 +27,7 @@ trait TraitDataEntryCategory
      */
     public function getCategoriesId(): ?int
     {
-        return $this->getValueTypesafe('int', 'categories_id');
+        return $this->getTypesafe('int', 'categories_id');
     }
 
 
@@ -51,7 +51,7 @@ trait TraitDataEntryCategory
      */
     public function getCategory(): ?CategoryInterface
     {
-        $categories_id = $this->getValueTypesafe('int', 'categories_id');
+        $categories_id = $this->getTypesafe('int', 'categories_id');
         if ($categories_id) {
             return new Category($categories_id);
         }
@@ -67,7 +67,7 @@ trait TraitDataEntryCategory
      */
     public function getCategoriesName(): ?string
     {
-        return $this->getValueTypesafe('string', 'categories_name');
+        return $this->getTypesafe('string', 'categories_name');
     }
 
 

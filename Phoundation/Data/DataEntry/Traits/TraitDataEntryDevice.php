@@ -24,7 +24,7 @@ trait TraitDataEntryDevice
      */
     public function getDevice(): ?string
     {
-        return $this->getValueTypesafe('string', 'device');
+        return $this->getTypesafe('string', 'device');
     }
 
 

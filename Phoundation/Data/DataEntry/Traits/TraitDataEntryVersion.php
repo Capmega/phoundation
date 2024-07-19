@@ -26,7 +26,7 @@ trait TraitDataEntryVersion
      */
     public function getSeoVersion(): ?string
     {
-        return $this->getValueTypesafe('string', 'seo_version');
+        return $this->getTypesafe('string', 'seo_version');
     }
 
 
@@ -37,7 +37,7 @@ trait TraitDataEntryVersion
      */
     public function getVersion(): ?string
     {
-        return $this->getValueTypesafe('string', 'version');
+        return $this->getTypesafe('string', 'version');
     }
 
 
@@ -57,7 +57,7 @@ trait TraitDataEntryVersion
             // Get SEO version and ensure that the seo_version does NOT surpass the version maxlength because MySQL
             // won't find the entry if it does!
             $seo_version = Seo::unique(substr($version, 0, $this->definitions->get('version')
-                                                                             ->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_version');
+                                                                             ->getMaxlength()), static::getTable(), $this->getTypesafe('int', 'id'), 'seo_version');
             $this->set($seo_version, true, 'seo_version');
         }
 

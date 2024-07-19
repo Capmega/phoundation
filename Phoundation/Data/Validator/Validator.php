@@ -18,6 +18,7 @@ namespace Phoundation\Data\Validator;
 use PDOStatement;
 use Phoundation\Accounts\Users\Password;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -27,6 +28,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\FsRestrictions;
@@ -46,6 +48,7 @@ use UnitEnum;
 abstract class Validator implements ValidatorInterface
 {
     use TraitValidatorCore;
+    use TraitDataRestrictions;
 
 
     /**
@@ -2505,18 +2508,32 @@ abstract class Validator implements ValidatorInterface
     /**
      * Checks if the specified path exists in one the required directories or not, and if its of the correct type
      *
-     * @param string|bool                     $path
-     * @param array|FsDirectoryInterface|null $exists_in_directories
+     * @param string                          $path
+     * @param FsDirectoryInterface|array|null $exists_in_directories
      * @param bool                            $must_be_directory
      * @param bool|null                       $exist
      *
-     * @return string|bool
+     * @return FsPathInterface
      */
-    protected function validatePath(string|bool $path, array|FsDirectoryInterface|null $exists_in_directories, ?bool $must_be_directory, ?bool $exist): string|bool
+    protected function validatePath(string $path, FsDirectoryInterface|array|null $exists_in_directories, ?bool $must_be_directory, ?bool $exist): FsPathInterface
     {
+        // Determine type, if any
+        if ($must_be_directory) {
+            $type  = 'directory';
+            $class = FsDirectory::class;
+
+        } elseif (is_bool($must_be_directory)) {
+            $type = 'file';
+            $class = FsFile::class;
+
+        } else {
+            $type  = null;
+            $class = FsPath::class;
+        }
+
         // Is the path required to exist anywhere?
         if (!$exists_in_directories) {
-            return $path;
+            return new $class($path, $this->restrictions);
         }
 
         // Was a path specified? We need a path here!
@@ -2524,19 +2541,10 @@ abstract class Validator implements ValidatorInterface
             // Some value must be specified
             $this->addFailure(tr('must contain a path'));
 
-            return $path;
+            return new $class($path, $this->restrictions);
         }
 
-        // Determine type, if any
-        if ($must_be_directory) {
-            $type = 'directory';
-
-        } elseif (is_bool($must_be_directory)) {
-            $type = 'file';
-
-        } else {
-            $type = null;
-        }
+        $path = FsPath::realPath($path);
 
         foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
             if (!$exists_in_directory instanceof FsDirectoryInterface) {
@@ -2550,7 +2558,7 @@ abstract class Validator implements ValidatorInterface
                                 ->checkRestrictions(false);
 
             // The path should be an FsPath object with restrictions from the specified directory we're testing
-            $path = new FsPath($path, $exists_in_directory->getRestrictions());
+            $path = new $class($path, $exists_in_directory->getRestrictions());
 
             if ($path->isInDirectory($exists_in_directory)) {
                 $does_exist = true;
@@ -2563,10 +2571,15 @@ abstract class Validator implements ValidatorInterface
             if ($exist) {
                 // FsFileFileInterface does NOT exist, but should exist
                 if ($type) {
-                    $this->addFailure(tr('must be an existing :type', [':type' => $type]));
+                    $this->addFailure(tr('must be an existing ":type" in paths ":paths"', [
+                        ':type'  => $type,
+                        ':paths' => $exists_in_directories
+                    ]));
 
                 } else {
-                    $this->addFailure(tr('must exist'));
+                    $this->addFailure(tr('must exist in paths ":paths"', [
+                        ':paths' => $exists_in_directories
+                    ]));
                 }
 
             } else {
@@ -2597,19 +2610,19 @@ abstract class Validator implements ValidatorInterface
             }
         }
 
-        return $path->getPath();
+        return $path;
     }
 
 
     /**
      * Validates if the selected field is a valid file path
      *
-     * @param array|FsDirectoryInterface|null $exists_in_directories
+     * @param FsDirectoryInterface|array|null $exists_in_directories
      * @param bool                            $exists
      *
      * @return static
      */
-    public function isPath(array|FsDirectoryInterface|null $exists_in_directories = null, bool $exists = true): static
+    public function isPath(FsDirectoryInterface|array|null $exists_in_directories = null, bool $exists = true): static
     {
         $this->test_count++;
 
@@ -2621,8 +2634,8 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            // Check the directory
-            $value = $this->validatePath($value, $exists_in_directories, null, $exists);
+            // Check the path
+            $this->validatePath($value, $exists_in_directories, null, $exists);
         });
     }
 
@@ -2630,12 +2643,12 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param array|FsDirectoryInterface|null $exists_in_directories
+     * @param FsDirectoryInterface|array|null $exists_in_directories
      * @param bool                            $exists
      *
      * @return static
      */
-    public function isDirectory(array|FsDirectoryInterface|null $exists_in_directories = null, bool $exists = true): static
+    public function isDirectory(FsDirectoryInterface|array|null $exists_in_directories = null, bool $exists = true): static
     {
         $this->test_count++;
 
@@ -2648,7 +2661,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             // Check the directory
-            $value = $this->validatePath($value, $exists_in_directories, true, $exists);
+            $this->validatePath($value, $exists_in_directories, true, $exists);
         });
     }
 
@@ -2656,12 +2669,12 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file
      *
-     * @param array|FsDirectoryInterface|null $exists_in_directories
+     * @param FsDirectoryInterface|array|null $exists_in_directories
      * @param bool|null                       $exists
      *
      * @return static
      */
-    public function isFile(array|FsDirectoryInterface|null $exists_in_directories = null, ?bool $exists = true): static
+    public function isFile(FsDirectoryInterface|array|null $exists_in_directories = null, ?bool $exists = true): static
     {
         $this->test_count++;
 
@@ -2674,6 +2687,84 @@ abstract class Validator implements ValidatorInterface
             }
 
             // Check the file
+            $this->validatePath($value, $exists_in_directories, false, $exists);
+        });
+    }
+
+
+    /**
+     * Validates if the selected field is a valid file path and converts the value into FsPath object
+     *
+     * @param FsDirectoryInterface|array $exists_in_directories
+     * @param bool                       $exists
+     *
+     * @return static
+     */
+    public function sanitizePath(FsDirectoryInterface|array $exists_in_directories, bool $exists = true): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $exists) {
+            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            // Check the path and convert into FsPath object
+            $value = $this->validatePath($value, $exists_in_directories, null, $exists);
+        });
+    }
+
+
+    /**
+     * Validates if the selected field is a valid directory and converts the value into FsDirectory object
+     *
+     * @param FsDirectoryInterface|array $exists_in_directories
+     * @param bool                       $exists
+     *
+     * @return static
+     */
+    public function sanitizeDirectory(FsDirectoryInterface|array $exists_in_directories, bool $exists = true): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $exists) {
+            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            // Check the directory and convert into FsDirectory object
+            $value = $this->validatePath($value, $exists_in_directories, true, $exists);
+        });
+    }
+
+
+    /**
+     * Validates if the selected field is a valid file and converts the value into an FsFile object
+     *
+     * @param FsDirectoryInterface|array $exists_in_directories
+     * @param bool|null                  $exists
+     *
+     * @return static
+     */
+    public function sanitizeFile(FsDirectoryInterface|array $exists_in_directories, ?bool $exists = true): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $exists) {
+            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            // Check the file and convert into FsFile object
             $value = $this->validatePath($value, $exists_in_directories, false, $exists);
         });
     }

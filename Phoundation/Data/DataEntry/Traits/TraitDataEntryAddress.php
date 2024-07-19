@@ -24,7 +24,7 @@ trait TraitDataEntryAddress
      */
     public function getAddress(): ?string
     {
-        return $this->getValueTypesafe('string', 'address');
+        return $this->getTypesafe('string', 'address');
     }
 
 
@@ -48,7 +48,7 @@ trait TraitDataEntryAddress
      */
     public function getZipcode(): ?string
     {
-        return $this->getValueTypesafe('string', 'zipcode');
+        return $this->getTypesafe('string', 'zipcode');
     }
 
 

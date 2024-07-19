@@ -24,7 +24,7 @@ trait TraitDataEntryUsername
      */
     public function getUsername(): ?string
     {
-        return $this->getValueTypesafe('string', 'username');
+        return $this->getTypesafe('string', 'username');
     }
 
 

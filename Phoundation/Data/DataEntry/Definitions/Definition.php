@@ -17,15 +17,18 @@ namespace Phoundation\Data\DataEntry\Definitions;
 
 use PDOStatement;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Definitions\Exception\DefinitionsException;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
@@ -41,6 +44,7 @@ use ValueError;
 class Definition implements DefinitionInterface
 {
     use TraitBeforeAfterButtons;
+    use TraitDataRestrictions;
 
 
 //    /**
@@ -133,6 +137,13 @@ class Definition implements DefinitionInterface
      */
     protected array $source = [];
 
+    /**
+     * Restrictions for within what directories paths must exist
+     *
+     * @var FsDirectoryInterface|array|null $in_directories
+     */
+    protected FsDirectoryInterface|array|null $in_directories = null;
+
 
     /**
      * UsesNewColumn class constructor
@@ -142,8 +153,33 @@ class Definition implements DefinitionInterface
      */
     public function __construct(?DataEntryInterface $data_entry, ?string $column = null)
     {
-        $this->data_entry = $data_entry;
-        $this->setColumn($column);
+        $this->setColumn($column)
+             ->data_entry = $data_entry;
+    }
+
+
+    /**
+     * Returns the in_directories restrictions for this definition
+     *
+     * @return FsDirectoryInterface|array|null
+     */
+    public function getInDirectories(): FsDirectoryInterface|array|null
+    {
+        return $this->in_directories;
+    }
+
+
+    /**
+     * Sets the in_directories restrictions for this definition
+     *
+     * @param FsDirectoryInterface|array|null $in_directories
+     * @return static
+     */
+    public function setInDirectories(FsDirectoryInterface|array|null $in_directories): static
+    {
+        $this->in_directories = $in_directories;
+
+        return $this;
     }
 
 
@@ -464,6 +500,7 @@ class Definition implements DefinitionInterface
     public function getClasses(bool $add_prefixless_names = true): array
     {
         $classes = isset_get_typed('array', $this->source['classes'], []);
+
         if ($add_prefixless_names) {
             if ($this->getColumn()) {
                 // Add the column name without prefix as a class name
@@ -1097,6 +1134,7 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::dbid:
                 $value = EnumInputType::number;
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isNatural();
@@ -1105,6 +1143,7 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::natural:
                 $value = EnumInputType::number;
+
                 $this->setElement(EnumElement::input)
                      ->setKey($value->value, 'type')
                      ->setMin(0)
@@ -1115,6 +1154,7 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::integer:
                 $value = EnumInputType::number;
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isInteger();
@@ -1123,6 +1163,7 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::positiveInteger:
                 $value = EnumInputType::number;
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isInteger()
@@ -1131,6 +1172,7 @@ class Definition implements DefinitionInterface
                 break;
             case EnumInputType::negativeInteger:
                 $value = EnumInputType::number;
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isInteger()
@@ -1140,6 +1182,7 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::float:
                 $value = EnumInputType::number;
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isFloat();
@@ -1148,6 +1191,7 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::name:
                 $value = EnumInputType::text;
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isName();
@@ -1175,6 +1219,7 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::url:
                 $value = EnumInputType::text;
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isUrl();
@@ -1185,6 +1230,7 @@ class Definition implements DefinitionInterface
                 // no break
             case EnumInputType::tel:
                 $value = EnumInputType::tel;
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->sanitizePhoneNumber();
@@ -1193,6 +1239,7 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::phones:
                 $value = EnumInputType::text;
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isPhoneNumbers();
@@ -1201,6 +1248,7 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::username:
                 $value = EnumInputType::text;
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isUsername();
@@ -1209,22 +1257,43 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::path:
                 $value = EnumInputType::text;
+
+                if (empty($this->in_directories) and empty($this->restrictions)) {
+                    throw new DefinitionsException(tr('Cannot use EnumInputType::path without having first specified either "Definition::setInDirectories()" or "Definition::setRestrictions()"', [
+                        ':path'             => ':path',
+                        ':setInDirectories' => ':setInDirectories',
+                        ':setRestrictions'  => ':setRestrictions'
+                    ]));
+                }
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
-                         $validator->isDirectory();
+                         $validator->setRestrictions($this->restrictions)
+                                   ->isDirectory($this->in_directories);
                      });
                 break;
 
             case EnumInputType::file:
                 $value = EnumInputType::text;
+
+                if (empty($this->in_directories) and empty($this->restrictions)) {
+                    throw new DefinitionsException(tr('Cannot use EnumInputType::path without having first specified either "Definition::setInDirectories()" or "Definition::setRestrictions()"', [
+                        ':path'             => ':path',
+                        ':setInDirectories' => ':setInDirectories',
+                        ':setRestrictions'  => ':setRestrictions'
+                    ]));
+                }
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
-                         $validator->isFile();
+                         $validator->setRestrictions($this->restrictions)
+                                   ->isFile($this->in_directories);
                      });
                 break;
 
             case EnumInputType::code:
                 $value = EnumInputType::text;
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isCode();
@@ -1253,6 +1322,7 @@ class Definition implements DefinitionInterface
                 // no break
             case EnumInputType::boolean:
                 $value = EnumInputType::checkbox;
+
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isBoolean();

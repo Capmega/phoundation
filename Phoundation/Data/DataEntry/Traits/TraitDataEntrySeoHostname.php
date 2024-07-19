@@ -24,6 +24,6 @@ trait TraitDataEntrySeoHostname
      */
     public function getSeoHostname(): ?string
     {
-        return $this->getValueTypesafe('string', 'seo_hostname');
+        return $this->getTypesafe('string', 'seo_hostname');
     }
 }

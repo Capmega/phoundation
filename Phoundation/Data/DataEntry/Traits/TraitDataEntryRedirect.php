@@ -26,7 +26,7 @@ trait TraitDataEntryRedirect
      */
     public function getRedirect(): ?string
     {
-        return $this->getValueTypesafe('string', 'redirect');
+        return $this->getTypesafe('string', 'redirect');
     }
 
 

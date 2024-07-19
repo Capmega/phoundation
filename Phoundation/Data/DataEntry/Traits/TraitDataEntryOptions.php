@@ -26,7 +26,7 @@ trait TraitDataEntryOptions
      */
     public function getOptions(): ?string
     {
-        return $this->getValueTypesafe('string', 'options');
+        return $this->getTypesafe('string', 'options');
     }
 
 

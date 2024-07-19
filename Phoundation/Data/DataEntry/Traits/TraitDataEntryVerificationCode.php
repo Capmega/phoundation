@@ -24,7 +24,7 @@ trait TraitDataEntryVerificationCode
      */
     public function getVerificationCode(): ?string
     {
-        return $this->getValueTypesafe('string', 'verification_code');
+        return $this->getTypesafe('string', 'verification_code');
     }
 
 

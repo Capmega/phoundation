@@ -1,7 +1,5 @@
 <?php
 
-
-
 /**
  * \Phoundation\Core\Validator test class
  */

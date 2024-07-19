@@ -24,7 +24,7 @@ trait TraitDataEntryDescription
      */
     public function getDescription(): ?string
     {
-        return $this->getValueTypesafe('string', 'description');
+        return $this->getTypesafe('string', 'description');
     }
 
 

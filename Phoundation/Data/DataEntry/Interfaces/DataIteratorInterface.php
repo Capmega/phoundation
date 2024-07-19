@@ -69,19 +69,18 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return DataEntry|null
      */
-    public function get(Stringable|string|float|int $key, bool $exception = true): ?DataEntryInterface;
-
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?DataEntryInterface;
 
     /**
      * Sets the value for the specified key
      *
      * @param DataEntryInterface          $value
      * @param Stringable|string|float|int $key
-     * @param bool                        $skip_null
+     * @param bool                        $skip_null_values
      *
      * @return static
      */
-    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null = true): static;
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static;
 
 
     /**
@@ -194,12 +193,12 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
 
 
     /**

@@ -24,7 +24,7 @@ trait TraitDataEntrySync
      */
     public function getSync(): ?bool
     {
-        return $this->getValueTypesafe('bool', 'sync');
+        return $this->getTypesafe('bool', 'sync');
     }
 
 

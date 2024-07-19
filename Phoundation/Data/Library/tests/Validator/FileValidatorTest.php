@@ -1,7 +1,5 @@
 <?php
 
-
-
 /**
  * \Phoundation\Data\Validator\FileValidator test class
  */

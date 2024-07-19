@@ -24,7 +24,7 @@ trait TraitDataEntryPhone
      */
     public function getPhone(): ?string
     {
-        return $this->getValueTypesafe('string', 'phone');
+        return $this->getTypesafe('string', 'phone');
     }
 
 

@@ -26,7 +26,7 @@ trait TraitDataEntryDefaultPage
      */
     public function getDefaultPage(): ?string
     {
-        return $this->getValueTypesafe('string', 'default_page');
+        return $this->getTypesafe('string', 'default_page');
     }
 
 

@@ -53,6 +53,6 @@ trait TraitDataEntryUuid
      */
     public function getUuid(): ?string
     {
-        return $this->getValueTypesafe('string', 'uuid');
+        return $this->getTypesafe('string', 'uuid');
     }
 }

@@ -26,7 +26,7 @@ trait TraitDataEntryState
      */
     public function getStatesId(): ?int
     {
-        return $this->getValueTypesafe('int', 'states_id');
+        return $this->getTypesafe('int', 'states_id');
     }
 
 
@@ -50,7 +50,7 @@ trait TraitDataEntryState
      */
     public function getState(): ?State
     {
-        $states_id = $this->getValueTypesafe('int', 'states_id');
+        $states_id = $this->getTypesafe('int', 'states_id');
         if ($states_id) {
             return new State($states_id);
         }
@@ -66,7 +66,7 @@ trait TraitDataEntryState
      */
     public function getStatesName(): ?string
     {
-        return $this->getValueTypesafe('string', 'states_name');
+        return $this->getTypesafe('string', 'states_name');
     }
 
 

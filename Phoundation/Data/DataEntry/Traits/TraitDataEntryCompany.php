@@ -26,7 +26,7 @@ trait TraitDataEntryCompany
      */
     public function getCompaniesId(): ?int
     {
-        return $this->getValueTypesafe('int', 'companies_id');
+        return $this->getTypesafe('int', 'companies_id');
     }
 
 
@@ -50,7 +50,7 @@ trait TraitDataEntryCompany
      */
     public function getCompany(): ?Company
     {
-        $companies_id = $this->getValueTypesafe('int', 'companies_id');
+        $companies_id = $this->getTypesafe('int', 'companies_id');
         if ($companies_id) {
             return new Company($companies_id);
         }
@@ -66,7 +66,7 @@ trait TraitDataEntryCompany
      */
     public function getCompaniesName(): ?string
     {
-        return $this->getValueTypesafe('string', 'companies_name');
+        return $this->getTypesafe('string', 'companies_name');
     }
 
 

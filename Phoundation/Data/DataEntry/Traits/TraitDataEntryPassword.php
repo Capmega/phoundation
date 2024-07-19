@@ -24,7 +24,7 @@ trait TraitDataEntryPassword
      */
     public function getPassword(): ?string
     {
-        return $this->getValueTypesafe('string', 'password');
+        return $this->getTypesafe('string', 'password');
     }
 
 

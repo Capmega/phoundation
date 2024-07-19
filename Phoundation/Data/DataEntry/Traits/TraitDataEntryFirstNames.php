@@ -24,7 +24,7 @@ trait TraitDataEntryFirstNames
      */
     public function getFirstNames(): ?string
     {
-        return $this->getValueTypesafe('string', 'first_names');
+        return $this->getTypesafe('string', 'first_names');
     }
 
 

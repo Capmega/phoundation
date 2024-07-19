@@ -26,7 +26,7 @@ trait TraitDataEntryManufacturer
      */
     public function getManufacturer(): ?string
     {
-        return $this->getValueTypesafe('string', 'manufacturer');
+        return $this->getTypesafe('string', 'manufacturer');
     }
 
 

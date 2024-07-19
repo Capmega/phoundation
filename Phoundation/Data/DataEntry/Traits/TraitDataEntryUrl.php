@@ -26,7 +26,7 @@ trait TraitDataEntryUrl
      */
     public function getUrl(): ?string
     {
-        return $this->getValueTypesafe('string', 'url');
+        return $this->getTypesafe('string', 'url');
     }
 
 

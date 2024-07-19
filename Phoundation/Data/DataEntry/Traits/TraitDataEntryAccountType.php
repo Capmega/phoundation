@@ -26,7 +26,7 @@ trait TraitDataEntryAccountType
      */
     public function getAccountType(): ?string
     {
-        return $this->getValueTypesafe('string', 'account_type');
+        return $this->getTypesafe('string', 'account_type');
     }
 
 

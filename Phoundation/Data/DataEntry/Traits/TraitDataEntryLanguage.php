@@ -26,7 +26,7 @@ trait TraitDataEntryLanguage
      */
     public function getLanguagesId(): ?int
     {
-        return $this->getValueTypesafe('int', 'languages_id');
+        return $this->getTypesafe('int', 'languages_id');
     }
 
 
@@ -50,7 +50,7 @@ trait TraitDataEntryLanguage
      */
     public function getLanguage(): ?Language
     {
-        $languages_id = $this->getValueTypesafe('int', 'languages_id');
+        $languages_id = $this->getTypesafe('int', 'languages_id');
         if ($languages_id) {
             return new Language($languages_id);
         }
@@ -66,7 +66,7 @@ trait TraitDataEntryLanguage
      */
     public function getLanguagesName(): ?string
     {
-        return $this->getValueTypesafe('string', 'languages_name');
+        return $this->getTypesafe('string', 'languages_name');
     }
 
 
@@ -90,7 +90,7 @@ trait TraitDataEntryLanguage
      */
     public function getLanguagesCode(): ?string
     {
-        return $this->getValueTypesafe('string', 'languages_code');
+        return $this->getTypesafe('string', 'languages_code');
     }
 
 

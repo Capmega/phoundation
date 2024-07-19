@@ -28,10 +28,10 @@ trait TraitDataEntryFile
      */
     public function getFile(): ?FsFileInterface
     {
-        $file = $this->getValueTypesafe(FsFileInterface::class, 'file');
+        $file = $this->getTypesafe(FsFileInterface::class . '|string', 'file');
 
-        if ($file) {
-            $file = new FsFile($file);
+        if ($file and is_string($file)) {
+            $file = new FsFile($file, $this->restrictions);
         }
 
         return $file;

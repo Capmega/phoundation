@@ -24,7 +24,7 @@ trait TraitDataEntryHttpCode
      */
     public function getHttpCode(): ?int
     {
-        return $this->getValueTypesafe('int', 'http_code');
+        return $this->getTypesafe('int', 'http_code');
     }
 
 

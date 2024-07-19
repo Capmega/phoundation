@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataConfigPath;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataRestrictions;
@@ -30,6 +31,7 @@ use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
@@ -44,6 +46,7 @@ use Stringable;
 
 class DataIterator extends Iterator implements DataIteratorInterface
 {
+    use TraitDataConfigPath;
     use TraitDataReadonly;
     use TraitDataParent {
         setParentObject as protected __setParent;
@@ -130,6 +133,18 @@ class DataIterator extends Iterator implements DataIteratorInterface
     public static function getUniqueColumn(): ?string
     {
         return static::getIdColumn();
+    }
+
+
+    /**
+     * Returns the column that is the ID column for this object. Typically this is "id" but may be changed as needed by
+     * overriding this method
+     *
+     * @return string|null
+     */
+    public static function getIdColumn(): ?string
+    {
+        return 'id';
     }
 
 
@@ -361,8 +376,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
             // on the data available in the datalist, we'll have to load the DataEntry manually
             if (isset($this->query_builder)) {
                 // Load the DataEntry separately from the database (will require an extra query)
-                $this->source[$key] = static::getEntryClass()::load($key)
-                                                             ->setRestrictions($this->restrictions);
+                $entry = static::getEntryClass()::load($key)->setRestrictions($this->restrictions);
 
             } else {
                 if (is_array($this->source[$key])) {
@@ -375,7 +389,8 @@ class DataIterator extends Iterator implements DataIteratorInterface
                             ]));
                         }
 
-                        $this->source[$key]['id'] = $key;
+                        // Ensure the id key is available in the entry
+                        $this->source[$key][static::getEntryClass()::getIdColumn()] = $key;
 
                     } else {
                         if (empty($this->source[$key][static::getUniqueColumn()])) {
@@ -384,16 +399,23 @@ class DataIterator extends Iterator implements DataIteratorInterface
                         }
                     }
 
-                    $this->source[$key] = static::getEntryClass()::new()
-                                                                 ->setRestrictions($this->restrictions)
-                                                                 ->setSource($this->source[$key]);
+                    $entry = static::getEntryClass()::new()
+                                                    ->setRestrictions($this->restrictions)
+                                                    ->setSource($this->source[$key]);
 
                 } else {
                     // Load the entry manually from DB. REQUIRES the DataEntry object to have a unique column specified!
-                    $this->source[$key] = static::getEntryClass()::new($this->source[$key])
-                                                                 ->setRestrictions($this->restrictions);
+                    $entry = static::getEntryClass()::new($this->source[$key])
+                                                    ->setRestrictions($this->restrictions);
                 }
             }
+
+            if ($entry->isLoadedFromConfiguration()) {
+                // Configuration loaded entries are always readonly
+                $entry->setReadonly(true);
+            }
+
+            $this->source[$key] = $entry;
         }
 
         return $this->source[$key];
@@ -416,11 +438,11 @@ class DataIterator extends Iterator implements DataIteratorInterface
      *
      * @param DataEntryInterface          $value
      * @param Stringable|string|float|int $key
-     * @param bool                        $skip_null
+     * @param bool                        $skip_null_values
      *
      * @return static
      */
-    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null = true): static
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static
     {
         if ($value instanceof DataEntryInterface) {
             return parent::set($key, $value);
@@ -716,8 +738,8 @@ class DataIterator extends Iterator implements DataIteratorInterface
             $in = SqlQueries::in($identifiers);
 
             return sql(static::getConnector())->list('SELECT `id` 
-                                                                   FROM   `' . static::getTable() . '` 
-                                                                   WHERE  `' . static::getUniqueColumn() . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
+                                                            FROM   `' . static::getTable() . '` 
+                                                            WHERE  `' . static::getUniqueColumn() . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
         }
 
         return [];
@@ -729,21 +751,22 @@ class DataIterator extends Iterator implements DataIteratorInterface
      *
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null
+     * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         if (!$value instanceof DataEntryInterface) {
             // Value might be NULL if we skip NULLs?
-            if (($value !== null) or !$skip_null) {
+            if (($value !== null) or !$skip_null_values) {
                 throw new OutOfBoundsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface', [
                     ':value' => $value,
                 ]));
             }
         }
+
         if ($this->keys_are_unique_column) {
             if ($key) {
                 if (!$value->isNew() and ($key != $value->getUniqueColumnValue())) {
@@ -756,11 +779,14 @@ class DataIterator extends Iterator implements DataIteratorInterface
                         ':key'    => $key,
                     ]));
                 }
+
                 // Either the specified DataEntry object has no value for its unique column, or the unique column
                 // matches the specified key. Either way, we're good to go
+
             } else {
                 $key = $value->getUniqueColumnValue();
             }
+
             if (!$key) {
                 throw new OutOfBoundsException(tr('Cannot add entry ":value" because the ":class" DataIterator object should uses unique columns as keys, but has no unique column configured', [
                     ':value' => $value,
@@ -780,12 +806,13 @@ class DataIterator extends Iterator implements DataIteratorInterface
                 }
 
                 // Either the specified DataEntry object is new or the id matches the specified key, we're good to go
+
             } else {
                 $key = $value->getId();
             }
         }
 
-        return parent::add($value, $key, $skip_null, $exception);
+        return parent::add($value, $key, $skip_null_values, $exception);
     }
 
 
@@ -849,7 +876,42 @@ class DataIterator extends Iterator implements DataIteratorInterface
 
         $this->source = sql(static::getConnector())->listKeyValues($this->query, $this->execute);
 
+        if ($this->configuration_path) {
+            $this->source = array_merge($this->source, $this->loadFromConfiguration());
+        }
+
         return $this;
+    }
+
+
+    /**
+     * Load configuration from the specified configuration path
+     *
+     * @return array
+     */
+    protected function loadFromConfiguration(): array
+    {
+        $source      = Config::getArray(Strings::ensureEndsNotWith($this->configuration_path, '.'), []);
+        $entry       = static::getEntryClass();
+        $entry       = new $entry();
+        $definitions = $entry->getDefinitionsObject();
+
+        // Ensure all entry definition columns are available, apply default values where they don't
+        foreach ($source as $key => &$value) {
+            $value['status'] = 'configuration';
+
+            foreach ($definitions as $column => $definition) {
+                if (array_key_exists($column, $value)) {
+                    continue;
+                }
+
+                // Apply the default value for this column
+                $value[$column] = $definition->getDefault();
+            }
+        }
+
+        unset($value);
+        return $source;
     }
 
 

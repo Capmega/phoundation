@@ -24,7 +24,7 @@ trait TraitDataEntrySpent
      */
     public function getSpent(): ?float
     {
-        return $this->getValueTypesafe('float', 'spent');
+        return $this->getTypesafe('float', 'spent');
     }
 
 

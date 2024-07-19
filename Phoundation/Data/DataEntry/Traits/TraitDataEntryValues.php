@@ -24,7 +24,7 @@ trait TraitDataEntryValues
      */
     public function getValues(): ?array
     {
-        return $this->getValueTypesafe('array', 'values');
+        return $this->getTypesafe('array', 'values');
     }
 
 

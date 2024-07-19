@@ -24,7 +24,7 @@ trait TraitDataEntryTimeout
      */
     public function getTimeout(): ?int
     {
-        return $this->getValueTypesafe('int', 'timeout');
+        return $this->getTypesafe('int', 'timeout');
     }
 
 

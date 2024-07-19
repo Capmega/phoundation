@@ -24,7 +24,7 @@ trait TraitDataEntryComments
      */
     public function getComments(): ?string
     {
-        return $this->getValueTypesafe('string', 'comments');
+        return $this->getTypesafe('string', 'comments');
     }
 
 

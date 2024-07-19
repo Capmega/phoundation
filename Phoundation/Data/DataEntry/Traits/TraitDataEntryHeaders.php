@@ -24,7 +24,7 @@ trait TraitDataEntryHeaders
      */
     public function getHeaders(): ?array
     {
-        return $this->getValueTypesafe('array', 'headers');
+        return $this->getTypesafe('array', 'headers');
     }
 
 

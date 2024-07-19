@@ -24,7 +24,7 @@ trait TraitDataEntryClass
      */
     public function getClass(): ?string
     {
-        return $this->getValueTypesafe('string', 'class');
+        return $this->getTypesafe('string', 'class');
     }
 
 

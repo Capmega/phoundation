@@ -26,7 +26,7 @@ trait TraitDataEntryUnits
      */
     public function getUnits(): ?string
     {
-        return $this->getValueTypesafe('string', 'units');
+        return $this->getTypesafe('string', 'units');
     }
 
 

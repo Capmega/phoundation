@@ -27,7 +27,7 @@ trait TraitDataEntryStart
      */
     public function getStart(): ?DateTimeInterface
     {
-        return $this->getValueTypesafe('datetime', 'start');
+        return $this->getTypesafe('datetime', 'start');
     }
 
 

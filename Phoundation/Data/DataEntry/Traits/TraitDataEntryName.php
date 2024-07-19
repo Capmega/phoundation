@@ -28,7 +28,7 @@ trait TraitDataEntryName
      */
     public function getSeoName(): ?string
     {
-        return $this->getValueTypesafe('string', 'seo_name');
+        return $this->getTypesafe('string', 'seo_name');
     }
 
 
@@ -39,7 +39,7 @@ trait TraitDataEntryName
      */
     public function getName(): ?string
     {
-        return $this->getValueTypesafe('string', 'name');
+        return $this->getTypesafe('string', 'name');
     }
 
 
@@ -61,7 +61,7 @@ trait TraitDataEntryName
                 // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
                 // the entry if it does!
                 try {
-                    $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_name');
+                    $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getTypesafe('int', 'id'), 'seo_name');
                     $this->set($seo_name, 'seo_name', true);
 
                 } catch (SqlTableDoesNotExistException $e) {

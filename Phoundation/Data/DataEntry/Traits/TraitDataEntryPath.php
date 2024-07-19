@@ -29,7 +29,7 @@ trait TraitDataEntryPath
      */
     public function getPath(): ?FsPathInterface
     {
-        return $this->getValueTypesafe(FsPathInterface::class, 'path');
+        return $this->getTypesafe(FsPathInterface::class, 'path');
     }
 
 
