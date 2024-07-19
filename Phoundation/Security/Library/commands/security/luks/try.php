@@ -47,10 +47,10 @@ CliDocumentation::setAutoComplete([
       '-f,--file' => [
           'arguments' => [
               'word'   => function ($word) use ($restrictions) {
-                 return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan($word . '*');
+                 return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan($word . '*');
               },
               'noword' => function () use ($restrictions) {
-                  return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan('*');
+                  return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan('*');
               },
           ],
       ],
@@ -59,8 +59,8 @@ CliDocumentation::setAutoComplete([
 
 // Get arguments
 $argv = ArgvValidator::new()
-            ->select('-f,--file', true)->isFile(FsDirectory::getFilesystemRoot())
-            ->validate();
+                     ->select('-f,--file', true)->sanitizeFile(FsDirectory::getFilesystemRootObject())
+                     ->validate();
 
 
 // Get the LUKS file password sections

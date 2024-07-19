@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command geo/ip/import
+ * Command geo ip import
  *
  *
  *
@@ -23,7 +23,7 @@ use Phoundation\Geo\GeoIp\Import;
 
 CliDocumentation::setUsage('./pho geo ip import');
 
-CliDocumentation::setHelp('This command will download and import the MaxMind geoip data files
+CliDocumentation::setHelp('This command will download and import GeoIP data files
 
 
 ARGUMENTS
@@ -43,8 +43,8 @@ ARGUMENTS
 
 $argv = ArgvValidator::new()
                      ->select('-p,--provider', true)->isOptional()->hasMaxCharacters(24)->isInArray(['maxmind', 'ip2location'])
-                     ->select('-s,--source-path', true)->isOptional()->isDirectory(FsDirectory::getData())
-                     ->select('-t,--target-path', true)->isOptional()->isDirectory(FsDirectory::getData())
+                     ->select('-s,--source-path', true)->isOptional()->sanitizeDirectory(FsDirectory::getDataObject())
+                     ->select('-t,--target-path', true)->isOptional()->sanitizeDirectory(FsDirectory::getDataObject())
                      ->validate();
 
 

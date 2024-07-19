@@ -1,24 +1,10 @@
 <?php
 
-/**
- * GeoIpImport class
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation/Geo
- */
-
-declare(strict_types=1);
-
-namespace Phoundation\Geo\GeoIp;
+namespace Phoundation\Geo\GeoIp\Interfaces;
 
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Geo\GeoIp\Interfaces\GeoIpImportInterface;
 
-abstract class GeoIpImport extends Import implements GeoIpImportInterface
+interface GeoIpImportInterface
 {
     /**
      * Download the GeoIP files
@@ -31,8 +17,7 @@ abstract class GeoIpImport extends Import implements GeoIpImportInterface
      *
      * @return FsDirectoryInterface
      */
-    abstract public static function download(): FsDirectoryInterface;
-
+    public static function download(): FsDirectoryInterface;
 
     /**
      * Process downloaded GeoIP files
@@ -42,5 +27,5 @@ abstract class GeoIpImport extends Import implements GeoIpImportInterface
      *
      * @return FsDirectoryInterface
      */
-    abstract public static function process(FsDirectoryInterface $source_directory, FsDirectoryInterface|null $target_directory = null): FsDirectoryInterface;
+    public static function process(FsDirectoryInterface $source_directory, FsDirectoryInterface|null $target_directory = null): FsDirectoryInterface;
 }

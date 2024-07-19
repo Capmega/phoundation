@@ -42,7 +42,7 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
-use Phoundation\Os\Processes\Commands\PhoCommand;
+use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\JsonException;
@@ -373,7 +373,7 @@ POST variables:
             } catch (Throwable $f) {
                 Log::error(tr('Failed to display notifications detail due to the following exception. Details following after exception'));
                 Log::error($f);
-                Log::write(print_r($this->getValueTypesafe('string', 'details'), true), 'debug', 10, false);
+                Log::write(print_r($this->getTypesafe('string', 'details'), true), 'debug', 10, false);
             }
 
             Log::error(tr('Notification sending exception:'));
@@ -547,22 +547,14 @@ POST variables:
 
         $user = User::load($user);
 
-        PhoCommand::new('email send')
-                  ->addArgument('--no-audio')
-                  ->addArgument('-h')
-                  ->addArguments([
-                      '-t',
-                      $user->getEmail(),
-                  ])
-                  ->addArguments([
-                      '-s',
-                      $this->getTitle(),
-                  ])
-                  ->addArguments([
-                      '-b',
-                      $this->getMessage(),
-                  ])
-                  ->executeBackground();
+        Pho::new()
+           ->setPhoCommands('email send')
+           ->addArgument('--no-audio')
+           ->addArgument('-h')
+           ->addArguments(['-t', $user->getEmail()])
+           ->addArguments(['-s', $this->getTitle()])
+           ->addArguments(['-b', $this->getMessage()])
+           ->executeBackground();
 
         return $this;
     }

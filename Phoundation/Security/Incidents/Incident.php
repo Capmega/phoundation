@@ -271,7 +271,7 @@ class Incident extends DataEntry implements IncidentInterface
      */
     public function getSeverity(): string
     {
-        return $this->getValueTypesafe('string', 'severity', Severity::unknown->value);
+        return $this->getTypesafe('string', 'severity', Severity::unknown->value);
     }
 
 

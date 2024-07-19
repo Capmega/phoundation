@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class Luks
+ * Class Device
  *
  *
  *
@@ -281,6 +281,7 @@ class Device extends FsFile
                   ->setSudo(true)
                   ->setPipeFrom($passphrase)
                   ->execute($method);
+
         } catch (ProcessFailedException $e) {
             if ($e->dataMatchesRegex('/Device .+? already exists/i')) {
                 throw new DeviceAlreadyExistsException(tr('Cannot open LUKS file ":file" as device ":device", that device name already exists', [

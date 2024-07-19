@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Content\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FileInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 
-interface ContentInterface extends FileInterface
+interface ContentInterface extends FsFileInterface
 {
     /**
      * View the object file

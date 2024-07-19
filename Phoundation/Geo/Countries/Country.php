@@ -67,7 +67,7 @@ class Country extends DataEntry
      */
     public function getTimezone(): Timezone
     {
-        return new Timezone($this->getValueTypesafe('int', 'timezones_id'));
+        return new Timezone($this->getTypesafe('int', 'timezones_id'));
     }
 
 
@@ -78,7 +78,7 @@ class Country extends DataEntry
      */
     public function getContinent(): Continent
     {
-        return new Continent($this->getValueTypesafe('int', 'continents_id'));
+        return new Continent($this->getTypesafe('int', 'continents_id'));
     }
 
 

@@ -50,10 +50,10 @@ CliDocumentation::setAutoComplete([
 
 // Get arguments
 $argv = ArgvValidator::new()
-            ->select('-f,--file', true)->isFile(FsDirectory::getFilesystemRoot())
-            ->select('-d,--device', true)->isVariable()
-            ->select('-k,--key-file', true)->isOptional()->or('password')->isFile()
-            ->validate();
+                     ->select('-f,--file', true)->sanitizeFile(FsDirectory::getFilesystemRootObject(true))
+                     ->select('-d,--device', true)->isVariable()
+                     ->select('-k,--key-file', true)->isOptional()->or('password')->sanitizeFile()
+                     ->validate();
 
 
 // Get the LUKS file password
@@ -61,7 +61,7 @@ $argv['password'] = CliCommand::getStdInStreamOrPassword(tr('Enter the LUKS devi
 
 
 // Open the LUKS file
-$device = Device::new($argv['file'], FsRestrictions::getWritable($argv['file']));
+$device = Device::new($argv['file']);
 
 if (FORCE) {
     $device->luksClose(true);

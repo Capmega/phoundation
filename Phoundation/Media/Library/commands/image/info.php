@@ -18,7 +18,6 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsRestrictions;
 
 CliDocumentation::setUsage('./pho image info IMAGE_FILE_NAME');
 
@@ -27,14 +26,10 @@ CliDocumentation::setHelp('This command will display basic information about the
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('file', true)->isFile(true)
+                     ->select('file', true)->sanitizeFile(FsDirectory::getFilesystemRoot())
                      ->validate();
-
-
-// Get image object
-$image = Image::new($argv['file'], FsRestrictions::getData());
 
 
 // Display image information
 Log::information(tr('Displaying image information for ":file"', [':file' => $argv['file']]));
-Cli::displayTable($image->getInformation());
+Cli::displayTable(Image::new($argv['file'])->getInformation());

@@ -33,7 +33,7 @@ trait TraitDataEntrySshAccount
      */
     public function getSshAccountsId(): ?int
     {
-        return $this->getValueTypesafe('int', 'ssh_accounts_id');
+        return $this->getTypesafe('int', 'ssh_accounts_id');
     }
 
 
@@ -90,7 +90,7 @@ trait TraitDataEntrySshAccount
      */
     public function getSshAccountsName(): ?string
     {
-        return $this->getValueTypesafe('string', 'ssh_accounts_name');
+        return $this->getTypesafe('string', 'ssh_accounts_name');
     }
 
 

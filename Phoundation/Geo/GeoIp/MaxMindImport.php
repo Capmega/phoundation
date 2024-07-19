@@ -18,6 +18,7 @@ namespace Phoundation\Geo\GeoIp;
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\FsRestrictions;
@@ -52,9 +53,9 @@ class MaxMindImport extends GeoIpImport
      *       https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/license-key and configured in the configuration path
      *       geo.ip.max-mind.api-key
      *
-     * @return Stringable|string
+     * @return FsDirectoryInterface
      */
-    public static function download(): Stringable|string
+    public static function download(): FsDirectoryInterface
     {
         $license_key = Config::getString('geo.ip.max-mind.api-key');
         $wget        = Wget::new();
@@ -116,43 +117,44 @@ class MaxMindImport extends GeoIpImport
     /**
      * Process downloaded GeoIP files
      *
-     * @param Stringable|string                         $source_path
-     * @param Stringable|string|null                    $target_path
-     * @param FsRestrictionsInterface|array|string|null $restrictions = null
+     * @param FsDirectoryInterface      $source_directory
+     * @param FsDirectoryInterface|null $target_directory
      *
-     * @return string
+     * @return FsDirectoryInterface
      */
-    public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, FsRestrictionsInterface|array|string|null $restrictions = null): string
+    public static function process(FsDirectoryInterface $source_directory, FsDirectoryInterface|null $target_directory = null): FsDirectoryInterface
     {
         // Determine what target path to use
-        $restrictions = $restrictions ?? FsRestrictions::new(DIRECTORY_DATA, true);
-        $target_path  = Config::getString('geo.ip.max-mind.path', DIRECTORY_DATA . 'sources/geoip/maxmind/', $target_path);
-        $target_path  = FsPath::absolutePath($target_path, DIRECTORY_ROOT, false);
+        if (empty($target_directory)) {
+            $configured       = Config::getString('geo.ip.max-mind.path', DIRECTORY_DATA . 'sources/geoip/maxmind/');
+            $configured       = FsDirectory::absolutePath($configured, DIRECTORY_ROOT, false);
+            $target_directory = FsDirectory::new($configured, FsRestrictions::getWritable($configured));
+        }
 
-        FsDirectory::new($target_path, $restrictions)->ensure();
+        $target_directory->ensure();
+        $target_directory->getRestrictions()->addDirectory(DIRECTORY_DATA . 'garbage/', true);
 
-        Log::action(tr('Processing GeoIP files and moving to directory ":directory"', [':directory' => $target_path]));
+        Log::action(tr('Processing GeoIP files and moving to directory ":directory"', [
+            ':directory' => $target_directory
+        ]));
 
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
+            FsFile::new(DIRECTORY_DATA . 'garbage/maxmind', FsRestrictions::getData(true))->delete();
             FsFile::new(
-                DIRECTORY_DATA . 'garbage/maxmind',
-                $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/')
-            )->delete();
-
-            FsFile::new(
-                $source_path . 'GeoLite2-*',
-                $restrictions
+                $source_directory . 'GeoLite2-*',
+                $source_directory->getRestrictions()
             )->delete(false, false, false);
 
-            $previous = FsDirectory::new($target_path, $restrictions)->movePath(DIRECTORY_DATA . 'garbage/');
+            $original = clone $target_directory;
+            $previous = $target_directory->movePath(DIRECTORY_DATA . 'garbage/');
             $shas     = [];
 
             // Perform sha256 check on all files
             foreach (static::getMaxMindFiles(true) as $file => $url) {
                 if (str_ends_with($file, 'sha256')) {
                     // Get the required sha256 code for the following file
-                    $sha = FsFile::new($source_path . $file, $restrictions)
+                    $sha = FsFile::new($source_directory . $file, $source_directory->getRestrictions())
                                  ->checkReadable()
                                  ->getContentsAsString();
 
@@ -165,30 +167,36 @@ class MaxMindImport extends GeoIpImport
 
                 // Take the downloaded file, check sha256, untar it, and move the datafile from the resulting directory
                 // to the target
-                $directory = FsFile::new($source_path . $file, $restrictions)
+                $directory = FsFile::new($source_directory . $file, $source_directory->getRestrictions())
                                    ->checkReadable()
                                    ->checkSha256($shas[$file])
                                    ->untar()
                                    ->getSingleDirectory('/GeoLite2.+?/i');
 
                 // Move the file to the target path and delete the source path
-                $directory->getSingleFile('/.+?.mmdb/i')->movePath($target_path);
-                $directory->delete();
+                $source = clone $directory;
+
+                $directory->getRestrictions()->addRestrictions($target_directory->getRestrictions());
+                $directory->getSingleFile('/.+?.mmdb/i')->movePath($target_directory);
+                $source->delete();
             }
 
             // Delete the previous data files from garbage
             $previous->delete();
 
         } catch (Throwable $e) {
+            Log::error(tr('Failed MaxMindImport->process() with following exception. Moving original files back in place'));
+            Log::exception($e);
+
             // Something borked. Move the previous data files back from the garbage to their original path so the system
             // will remain functional
-            if (isset($previous)) {
-                $previous->movePath($target_path);
+            if (isset($previous) and isset($original)) {
+                $previous->movePath($original);
             }
 
             throw $e;
         }
 
-        return $target_path;
+        return $target_directory;
     }
 }

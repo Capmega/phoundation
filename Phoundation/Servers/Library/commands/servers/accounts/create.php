@@ -33,9 +33,9 @@ CliDocumentation::setHelp('This command allows you to create SSH accounts.
 
 
 $argv = ArgvValidator::new()
+            ->select('-n,--name', true)->isName()
             ->select('-u,--username', true)->isVariable()
-            ->select('-i,--ssh-key-file', true)->isOptional()->isFile(FsDirectory::getFilesystemRoot())
-            ->select('-n,--name', true)->isOptional()->isName()
+            ->select('-i,--ssh-key-file', true)->isOptional()->sanitizeFile(FsDirectory::getFilesystemRootObject())
             ->validate();
 
 

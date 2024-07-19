@@ -40,13 +40,12 @@ class Crypt
     /**
      * Returns a file containing random bytes directly from /dev/urandom
      *
-     * @param string                  $filename
-     * @param FsRestrictionsInterface $restrictions
-     * @param int                     $size
+     * @param FsFileInterface $file
+     * @param int             $size
      *
      * @return FsFileInterface
      */
-    public static function createCryptFile(string $filename, FsRestrictionsInterface $restrictions, int $size = 4_096): FsFileInterface
+    public static function createCryptFile(FsFileInterface $file, int $size = 4_096): FsFileInterface
     {
         if ($size > 16_777_216) {
             // Yeah, 16M keys is not enough? Really?
@@ -54,11 +53,11 @@ class Crypt
                 ':size' => $size,
             ]));
         }
+
         $bytes = FsFile::new('/dev/urandom', FsRestrictions::getReadonly('/dev/', 'Crypt::createCryptFile()'))
                        ->readBytes($size);
 
-        return FsFile::new($filename, $restrictions)
-                     ->putContents($bytes);
+        return $file->putContents($bytes);
     }
 
 }

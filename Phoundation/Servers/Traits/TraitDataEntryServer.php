@@ -94,7 +94,7 @@ trait TraitDataEntryServer
      */
     public function getServersId(): ?int
     {
-        return $this->getValueTypesafe('int', 'servers_id');
+        return $this->getTypesafe('int', 'servers_id');
 
     }
 

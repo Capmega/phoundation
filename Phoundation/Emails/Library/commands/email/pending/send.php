@@ -17,7 +17,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Emails\Emails;
-use Phoundation\Os\Processes\Commands\PhoCommand;
+use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
 CliDocumentation::setAutoComplete([
@@ -86,14 +86,12 @@ if ($count) {
             }
 
             // Restart the command
-            PhoCommand::new('emails/send')
-                      ->addArgument('--auto-restart')
-                      ->addArgument($argv['background'] ? '--background' : null)
-                      ->addArguments($argv['limit'] ? [
-                          '--limit',
-                          $argv['limit'],
-                      ] : null)
-                      ->execute($method);
+            Pho::new()
+               ->setPhoCommands('emails send')
+               ->addArgument('--auto-restart')
+               ->addArgument($argv['background'] ? '--background' : null)
+               ->addArguments($argv['limit']    ? ['--limit', $argv['limit']] : null)
+               ->execute($method);
         }
     }
 

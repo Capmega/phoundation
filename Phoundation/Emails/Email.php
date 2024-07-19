@@ -20,7 +20,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Os\Processes\Commands\PhoCommand;
+use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Pages\Template;
@@ -83,13 +83,15 @@ class Email extends DataEntry
         if ($background) {
             // Set status to SEND so that it will send as a background process
             $this->setStatus('PENDING-SEND');
-            PhoCommand::new('emails/pending/send')
-                      ->execute(EnumExecuteMethod::background);
+            Pho::new()
+               ->setPhoCommands('emails pending send')
+               ->execute(EnumExecuteMethod::background);
 
         } else {
             $from      = $this->from;
             $phpmailer = new PHPMailer();
             $phpmailer->isSMTP();
+
             // Setup email host configuration
             $phpmailer->Host       = $from->getSmtpHost();
             $phpmailer->SMTPAuth   = $from->getSmtpAuth();

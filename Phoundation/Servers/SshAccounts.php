@@ -5,7 +5,7 @@
  *
  *
  *
- * @see       \Phoundation\Data\DataEntry\DataIterator
+ * @see       DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -18,6 +18,8 @@ namespace Phoundation\Servers;
 
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
@@ -31,10 +33,8 @@ class SshAccounts extends DataIterator
      */
     public function __construct()
     {
-        $this->setQuery('SELECT   `id`, `name`, `created_on` 
-                               FROM     `ssh_accounts` 
-                               WHERE    `status` IS NULL 
-                               ORDER BY `name`');
+        $this->configuration_path = 'ssh.accounts';
+
         parent::__construct();
     }
 
@@ -82,6 +82,7 @@ class SshAccounts extends DataIterator
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
     {
         $table = parent::getHtmlTable();
+
         $table->setCheckboxSelectors(EnumTableIdColumn::checkbox);
 
         return $table;
@@ -109,11 +110,37 @@ class SshAccounts extends DataIterator
 
 
     /**
+     * @inheritDoc
+     */
+    public function load(bool $clear = true, bool $only_if_empty = false): static
+    {
+        parent::load($clear, $only_if_empty);
+
+        // If any of the accounts have the "file" key, replace that key with ssh_key value
+        foreach ($this->source as &$entry) {
+            if (empty($entry['name'])) {
+                // No name always default to username
+                $entry['name'] = $entry['username'];
+            }
+
+            if (array_key_exists('file', $entry)) {
+                if ($entry['file']) {
+                    $entry['ssh_key'] = FsFile::new($entry['file'], FsRestrictions::getFilesystemRoot())->getContentsAsString();
+                }
+            }
+        }
+
+        unset($entry);
+        return $this;
+    }
+
+
+    /**
      * Load the data for this right list
      *
      * @param array|string|null $columns
-     * @param array             $filters
-     *
+     * @param array $filters
+     * @param array $order_by
      * @return array
      */
     public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
@@ -122,21 +149,26 @@ class SshAccounts extends DataIterator
         if (!$columns) {
             $columns = 'id,name,created_on';
         }
+
         // Default ordering
         if (!$order_by) {
             $order_by = ['name' => false];
         }
+
         // Get column information
         $columns = Arrays::force($columns);
         $columns = Strings::force($columns);
+
         // Build query
         $builder = new QueryBuilder();
         $builder->addSelect($columns);
         $builder->addFrom('`ssh_accounts`');
+
         // Add ordering
         foreach ($order_by as $column => $direction) {
             $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
+
         // Build filters
         foreach ($filters as $key => $value) {
             switch ($key) {
@@ -144,6 +176,7 @@ class SshAccounts extends DataIterator
                     $no_delete = true;
             }
         }
+
         if (isset($no_delete)) {
             $builder->addWhere('`status` IS NULL');
         }

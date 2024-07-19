@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Ajax system/notifications/get.php
  *

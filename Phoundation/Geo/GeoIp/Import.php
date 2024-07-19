@@ -17,6 +17,7 @@ namespace Phoundation\Geo\GeoIp;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Geo\GeoIp\Interfaces\GeoIpImportInterface;
 use Phoundation\Utils\Config;
 
 class Import extends \Phoundation\Developer\Project\Import
@@ -31,6 +32,7 @@ class Import extends \Phoundation\Developer\Project\Import
     public function __construct(bool $demo = false, ?int $min = null, ?int $max = null)
     {
         parent::__construct($demo, $min, $max);
+
         $this->name = 'GeoIP';
     }
 
@@ -44,6 +46,7 @@ class Import extends \Phoundation\Developer\Project\Import
     {
         $provider  = static::getProvider();
         $directory = $provider->download();
+
         $provider->process($directory);
 
         return 0;
@@ -55,16 +58,18 @@ class Import extends \Phoundation\Developer\Project\Import
      *
      * @param string|null $provider
      *
-     * @return static
+     * @return GeoIpImportInterface
      */
-    public static function getProvider(?string $provider = null): static
+    public static function getProvider(?string $provider = null): GeoIpImportInterface
     {
         $provider = Config::get('geo.ip.provider', null, $provider);
         switch ($provider) {
             case 'maxmind':
                 return new MaxMindImport();
+
             case 'ip2location':
                 throw new UnderConstructionException();
+
             default:
                 throw new OutOfBoundsException(tr('Unknown GeoIP provider ":provider" specified', [
                     ':provider' => $provider,

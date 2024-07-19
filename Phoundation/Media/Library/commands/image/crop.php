@@ -17,7 +17,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Content\Images\Image;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\FsDirectory;
 
 CliDocumentation::setUsage('./pho image convert IMAGE');
 
@@ -27,13 +27,14 @@ CliDocumentation::setHelp('This command can apply various conversions to the spe
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('method')->isName()
-                     ->select('file')->isFile(true)
+                     ->select('file')->sanitizeFile(FsDirectory::getFilesystemRootObject())
                      ->validate();
 
 
 // Get image and crop it
-$image = Image::new($argv['file'], FsRestrictions::new(DIRECTORY_DATA, true));
-$image->convert()->crop();
+Image::new($argv['file'])
+     ->convert()
+     ->crop();
 
 
 // Display image information

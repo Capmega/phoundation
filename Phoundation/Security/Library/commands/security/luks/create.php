@@ -34,10 +34,10 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan($word . '*');
+                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRoot())->scan('*');
+                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan('*');
             },
         ],
     ]
@@ -72,12 +72,12 @@ FILE                                    The file to be created
 
 // Get the arguments
 $argv = ArgvValidator::new()
-    ->select('file')->isFile(FsDirectory::getFilesystemRoot(), (FORCE ? null : false))
-    ->select('-s,--size', true)->isOptional(false)->sanitizeBytes()
-    ->select('-i,--initialize')->isOptional(false)->isBoolean()
-    ->select('-b,--block-size', true)->isOptional(4096)->sanitizeBytes()->isBetween(1024, 1_073_741_824)
-    ->select('-r,--randomized')->isOptional(false)->isBoolean()
-    ->validate();
+                     ->select('file')->sanitizeFile(FsDirectory::getFilesystemRootObject(), (FORCE ? null : false))
+                     ->select('-s,--size', true)->isOptional(false)->sanitizeBytes()
+                     ->select('-i,--initialize')->isOptional(false)->isBoolean()
+                     ->select('-b,--block-size', true)->isOptional(4096)->sanitizeBytes()->isBetween(1024, 1_073_741_824)
+                     ->select('-r,--randomized')->isOptional(false)->isBoolean()
+                     ->validate();
 
 
 // Get the LUKS file password
@@ -85,18 +85,18 @@ $argv['password'] = CliCommand::getStdInStreamOrPassword(tr('Enter the LUKS devi
 
 
 // Allocate the specified file
-$file = FsFile::new($argv['file'], $restrictions)->allocate($argv['size']);
+$argv['file']->allocate($argv['size']);
 
 
 // Initialize the file
 if ($argv['initialize']) {
     // Determine the initialization data
-    $file->initialize('random', $argv['block_size'], $argv['randomized']);
+    $argv['file']->initialize('random', $argv['block_size'], $argv['randomized']);
 }
 
 
 // Format the device as a LUKS device
-$file = Device::new($file)->luksFormat($argv['password']);
+Device::new($argv['file'])->luksFormat($argv['password']);
 
 
 // Done!

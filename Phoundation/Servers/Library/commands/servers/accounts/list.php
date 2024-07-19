@@ -16,6 +16,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Servers\SshAccounts;
+use Phoundation\Utils\Arrays;
 
 CliDocumentation::setUsage('./pho servers accounts list [OPTIONS]
 ./pho system servers accounts list -D');
@@ -36,5 +37,6 @@ $argv = ArgvValidator::new()
 
 // Display the available SSH accounts
 SshAccounts::new()
+           ->load()
            ->removeValues(DELETED ? 'deleted' : '', 'status', true)
-           ->displayCliTable();
+           ->displayCliTable(['name', 'username']);

@@ -69,7 +69,8 @@ class Server extends DataEntry implements ServerInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
     {
-        $this->config_path = 'servers.';
+        $this->configuration_path = 'servers';
+
         parent::__construct($identifier, $column, $meta_enabled, $init);
     }
 
@@ -114,7 +115,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getCost(): ?float
     {
-        return $this->getValueTypesafe('float', 'cost');
+        return $this->getTypesafe('float', 'cost');
     }
 
 
@@ -138,7 +139,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getBillDueDate(): ?string
     {
-        return $this->getValueTypesafe('string', 'bill_due_date');
+        return $this->getTypesafe('string', 'bill_due_date');
     }
 
 
@@ -173,7 +174,7 @@ class Server extends DataEntry implements ServerInterface
     ])]
     public function getInterval(): ?string
     {
-        return $this->getValueTypesafe('string', 'interval');
+        return $this->getTypesafe('string', 'interval');
     }
 
 
@@ -220,7 +221,7 @@ class Server extends DataEntry implements ServerInterface
     ])]
     public function getOsName(): ?string
     {
-        return $this->getValueTypesafe('string', 'os_name');
+        return $this->getTypesafe('string', 'os_name');
     }
 
 
@@ -256,7 +257,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getOsVersion(): ?string
     {
-        return $this->getValueTypesafe('string', 'os_version');
+        return $this->getTypesafe('string', 'os_version');
     }
 
 
@@ -280,7 +281,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getWebServices(): bool
     {
-        return $this->getValueTypesafe('bool', 'web_services', false);
+        return $this->getTypesafe('bool', 'web_services', false);
     }
 
 
@@ -304,7 +305,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getMailServices(): bool
     {
-        return $this->getValueTypesafe('bool', 'mail_services', false);
+        return $this->getTypesafe('bool', 'mail_services', false);
     }
 
 
@@ -328,7 +329,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getDatabaseServices(): bool
     {
-        return $this->getValueTypesafe('bool', 'database_services', false);
+        return $this->getTypesafe('bool', 'database_services', false);
     }
 
 
@@ -352,7 +353,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getAllowSshdModifications(): bool
     {
-        return $this->getValueTypesafe('bool', 'allow_sshd_modifications', false);
+        return $this->getTypesafe('bool', 'allow_sshd_modifications', false);
     }
 
 
