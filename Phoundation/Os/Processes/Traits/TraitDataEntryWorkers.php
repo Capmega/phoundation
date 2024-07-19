@@ -24,7 +24,7 @@ trait TraitDataEntryWorkers
      */
     public function getMinimumWorkers(): ?int
     {
-        return $this->getValueTypesafe('int', 'maximum_workers');
+        return $this->getTypesafe('int', 'maximum_workers');
     }
 
 
@@ -48,7 +48,7 @@ trait TraitDataEntryWorkers
      */
     public function getMaximumWorkers(): ?int
     {
-        return $this->getValueTypesafe('int', 'maximum_workers');
+        return $this->getTypesafe('int', 'maximum_workers');
     }
 
 

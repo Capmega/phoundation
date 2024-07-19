@@ -307,9 +307,9 @@ interface ProcessVariablesInterface
     /**
      * Returns the command to be executed for this process
      *
-     * @return string
+     * @return string|null
      */
-    public function getCommand(): string;
+    public function getCommand(): ?string;
 
 
     /**

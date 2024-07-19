@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Devices\Storage\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FileInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 
-interface DeviceInterface extends FileInterface
+interface DeviceInterface extends FsFileInterface
 {
     /**
      * Returns true if this device is mounted

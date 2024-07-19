@@ -341,7 +341,7 @@ trait ProcessVariables
     {
         // Ensure that the run files directory is available
         // Set server filesystem restrictions
-        $this->setUseRunFile(FsDirectory::writeIsEnabled());
+        $this->setUseRunFile(FsDirectory::getWriteEnabled());
         $this->setRunDirectory(DIRECTORY_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/');
 
         if ($execution_directory_or_restrictions) {
@@ -783,7 +783,7 @@ trait ProcessVariables
      */
     public function setExecutionDirectoryToTemp(bool $public = false): static
     {
-        return $this->setExecutionDirectory(FsDirectory::getTemporary($public));
+        return $this->setExecutionDirectory(FsDirectory::getTemporaryObject($public));
     }
 
 
@@ -870,7 +870,7 @@ trait ProcessVariables
      */
     public function getRunFile(): ?string
     {
-        if ($this->use_run_file and FsFile::writeIsEnabled()) {
+        if ($this->use_run_file and FsFile::getWriteEnabled()) {
             return $this->run_file;
         }
 
@@ -1119,9 +1119,9 @@ trait ProcessVariables
     /**
      * Returns the command to be executed for this process
      *
-     * @return string
+     * @return string|null
      */
-    public function getCommand(): string
+    public function getCommand(): ?string
     {
         return $this->command;
     }
@@ -1317,6 +1317,46 @@ trait ProcessVariables
 
 
     /**
+     * Adds multiple arguments to the beginning of the existing list of arguments for the command that will be executed
+     *
+     * @param Stringable|array|string|int|float|null $arguments
+     * @param bool                                   $escape_arguments
+     * @param bool                                   $escape_quotes
+     *
+     * @return static This process so that multiple methods can be chained
+     */
+    public function prependArguments(Stringable|array|string|int|float|null $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
+    {
+        $this->cached_command_line = null;
+
+        if ($arguments) {
+            if (is_array($arguments)) {
+                // Since we are prepending, reverse the array!
+                $arguments = array_reverse($arguments);
+
+                foreach ($arguments as $argument) {
+                    if (!$argument) {
+                        if ($argument !== 0) {
+                            // Ignore empty arguments
+                            continue;
+                        }
+                    }
+
+                    // Add multiple arguments
+                    $this->prependArguments($argument, $escape_arguments, $escape_quotes);
+                }
+
+            } else {
+                // Add a single argument
+                $this->prependArgument($arguments, $escape_arguments, $escape_quotes);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Adds an argument to the existing list of arguments for the command that will be executed
      *
      * @param Stringable|array|string|float|int|null $argument
@@ -1338,6 +1378,35 @@ trait ProcessVariables
                 'escape_quotes'   => $escape_quotes,
                 'argument'        => (string) $argument,
             ];
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Adds an argument to the beginning of the existing list of arguments for the command that will be executed
+     *
+     * @param Stringable|array|string|float|int|null $argument
+     * @param bool                                   $escape_argument
+     * @param bool                                   $escape_quotes
+     *
+     * @return static This process so that multiple methods can be chained
+     */
+    public function prependArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true, bool $escape_quotes = true): static
+    {
+        if ($argument !== null) {
+            if (is_array($argument)) {
+                return $this->prependArguments($argument, $escape_argument, $escape_quotes);
+            }
+
+            $this->cached_command_line = null;
+
+            array_unshift($this->arguments,  [
+                'escape_argument' => $escape_argument,
+                'escape_quotes'   => $escape_quotes,
+                'argument'        => (string) $argument,
+            ]);
         }
 
         return $this;

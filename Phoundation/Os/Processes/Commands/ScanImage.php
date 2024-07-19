@@ -17,6 +17,7 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataBatch;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -405,11 +406,9 @@ class ScanImage extends Command
     /**
      * Returns the profile used to scan images
      *
-     * @param ProfileInterface $profile
-     *
      * @return ProfileInterface|null
      */
-    public function getProfile(ProfileInterface $profile): ?ProfileInterface
+    public function getProfile(): ?ProfileInterface
     {
         return $this->profile;
     }
@@ -487,12 +486,12 @@ class ScanImage extends Command
     /**
      * Execute the configured scan
      *
-     * @param string                     $path
+     * @param FsPathInterface   $path
      * @param EnumExecuteMethod $method
      *
      * @return static
      */
-    public function scan(string $path, EnumExecuteMethod $method = EnumExecuteMethod::noReturn): static
+    public function scan(FsPathInterface $path, EnumExecuteMethod $method = EnumExecuteMethod::noReturn): static
     {
         if (empty($this->profile)) {
             throw new ScannersException(tr('Cannot execute document scan, no profile specified'));
@@ -504,9 +503,9 @@ class ScanImage extends Command
                                ->getUrl(),
              ])
              ->addArguments($this->options)
-             ->addArguments($this->batch ? ['--batch=' . $path] : [
+             ->addArguments($this->batch ? ['--batch=' . $path->getPath()] : [
                  '-o',
-                 $path,
+                 $path->getPath(),
              ])
              ->setTimeout(120)
              ->execute($method);

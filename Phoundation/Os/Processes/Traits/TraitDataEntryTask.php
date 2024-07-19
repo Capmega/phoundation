@@ -94,7 +94,7 @@ trait TraitDataEntryTask
      */
     public function getTasksId(): ?int
     {
-        return $this->getValueTypesafe('int', 'tasks_id');
+        return $this->getTypesafe('int', 'tasks_id');
 
     }
 

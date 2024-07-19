@@ -25,6 +25,7 @@ use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
 use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\FsRestrictions;
@@ -90,25 +91,23 @@ class MySql extends Command
     /**
      * Imports the specified MySQL dump file into the specified database
      *
-     * @param string                  $file
-     * @param FsRestrictionsInterface $restrictions
+     * @param FsFileInterface         $file
      *
      * @throws Throwable
      */
-    public function import(string $file, FsRestrictionsInterface $restrictions): void
+    public function import(FsFileInterface $file): void
     {
         // Get file and database information
-        $file         = FsPath::absolutePath($file, DIRECTORY_DATA . 'sources/');
-        $restrictions = FsRestrictions::getRestrictionsOrDefault($restrictions, FsRestrictions::new(DIRECTORY_DATA . 'sources/', false, 'Mysql importer'));
-        $threshold    = Log::setThreshold(3);
+        $threshold = Log::setThreshold(3);
+
         // If we're importing the system database, then switch to init mode!
         if ($this->connector->getDatabase() === sql()->getDatabase()) {
             Core::enableInitState();
         }
+
         // Check file restrictions and start the import
         Log::setThreshold($threshold);
-        $file = FsFile::new($file, $restrictions)
-                      ->checkReadable();
+
         switch ($file->getMimetype()) {
             case 'text/plain':
                 $this->setCommand('mysql')
@@ -137,12 +136,14 @@ class MySql extends Command
                          '-B',
                          $this->connector->getDatabase(),
                      ]);
+
                 Zcat::new()
                     ->setTimeout($this->timeout)
                     ->setFile($file)
                     ->setPipe($this)
                     ->execute();
                 break;
+
             default:
                 throw new FileTypeNotSupportedException(tr('The specified file ":file" has the unsupported filetype ":type"', [
                     ':file' => $file->getPath(),

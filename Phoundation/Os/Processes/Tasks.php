@@ -20,7 +20,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Os\Processes\Commands\PhoCommand;
+use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Os\Processes\Exception\NoTasksPendingExceptions;
 use Phoundation\Os\Processes\Exception\TasksException;
 use Phoundation\Os\Processes\Interfaces\TasksInterface;
@@ -115,9 +115,9 @@ class Tasks extends DataIterator implements TasksInterface
         return InputSelect::new()
                           ->setConnector(static::getConnector())
                           ->setSourceQuery('SELECT   `' . $key_column . '`, ' . $value_column . ' 
-                                         FROM     `' . static::getTable() . '` 
-                                         WHERE    `status` IS NULL 
-                                         ORDER BY `created_on` ASC')
+                                                       FROM     `' . static::getTable() . '` 
+                                                       WHERE    `status` IS NULL 
+                                                       ORDER BY `created_on` ASC')
                           ->setName('tasks_id')
                           ->setNotSelectedLabel(tr('Select a task'))
                           ->setComponentEmptyLabel(tr('No tasks available'));
@@ -145,35 +145,41 @@ class Tasks extends DataIterator implements TasksInterface
         if (isset(static::$executing)) {
             throw new OutOfBoundsException(tr('Cannot execute pending tasks, tasks are already being executed'));
         }
+
         static::$executing = now();
+
         $keys = $this->getSourceKeys();
+
         if (!count($keys)) {
             throw NoTasksPendingExceptions::new(tr('There are no pending tasks'))
                                           ->makeWarning();
         }
+
         Log::action(tr('Executing ":count" pending tasks with ":workers" child worker', [
             ':count'   => count($keys),
             ':workers' => static::$max_task_workers,
         ]));
+
         try {
-            PhoCommand::new('tasks,execute')
-                      ->setLabel(tr('task'))
-                      ->addArguments([
-                          '-t',
-                          ':TASKSID',
-                      ])
-                      ->setKey(':TASKSID')
-                      ->setValues($keys)
-                      ->setMaximumWorkers(static::$max_task_workers)
-                      ->start();
+            Pho::new()
+               ->setPhoCommands('tasks execute')
+               ->setLabel(tr('task'))
+               ->addArguments(['-t', ':TASKSID'])
+               ->setKey(':TASKSID')
+               ->setValues($keys)
+               ->setMaximumWorkers(static::$max_task_workers)
+               ->start();
 
         } catch (TasksException $e) {
             Log::error(tr('Execution of pending tasks failed'));
             Log::exception($e);
+
             // Restart tasks execution in a separate process
             Log::action(tr('Restarting pending tasks executer in new background process'));
-            PhoCommand::new('tasks,execute')
-                      ->executeBackground();
+
+            Pho::new()
+               ->setPhoCommands('tasks,execute')
+               ->executeBackground();
         }
 
         return $this;

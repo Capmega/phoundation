@@ -7,6 +7,7 @@ namespace Phoundation\Os\Processes\Interfaces;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Servers\Interfaces\ServerInterface;
+use Phoundation\Utils\Arrays;
 use Stringable;
 
 interface ProcessCoreInterface extends Stringable
@@ -121,4 +122,26 @@ interface ProcessCoreInterface extends Stringable
      * @return string
      */
     public function getFullCommandLine(bool $background = false): string;
+
+    /**
+     * Adds multiple arguments to the beginning of the existing list of arguments for the command that will be executed
+     *
+     * @param Stringable|array|string|int|float|null $arguments
+     * @param bool                                   $escape_arguments
+     * @param bool                                   $escape_quotes
+     *
+     * @return static This process so that multiple methods can be chained
+     */
+    public function prependArguments(Stringable|array|string|int|float|null $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static;
+
+    /**
+     * Adds an argument to the beginning of the existing list of arguments for the command that will be executed
+     *
+     * @param Stringable|array|string|float|int|null $argument
+     * @param bool                                   $escape_argument
+     * @param bool                                   $escape_quotes
+     *
+     * @return static This process so that multiple methods can be chained
+     */
+    public function prependArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true, bool $escape_quotes = true): static;
 }

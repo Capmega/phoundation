@@ -238,6 +238,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             throw new OutOfBoundsException(tr('Cannot generate full command line, no command specified'));
         }
 
+// TODO What to do with this next section?
 //        if ($this->execution_directory->isNull()) {
 //            throw new OutOfBoundsException(tr('Cannot execute process command ":command", no execution directory specified', [
 //                ':command' => $this->command

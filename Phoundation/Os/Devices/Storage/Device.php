@@ -17,10 +17,11 @@ namespace Phoundation\Os\Devices\Storage;
 
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsFileCore;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Devices\Storage\Exception\StorageException;
-use Phoundation\Os\Devices\Storage\Interfaces\DeviceInterfaceFsFileInterface;
+use Phoundation\Os\Devices\Storage\Interfaces\DeviceInterface;
 use Phoundation\Os\Processes\Commands\Cryptsetup;
 use Phoundation\Os\Processes\Commands\Lsblk;
 use Phoundation\Os\Processes\Commands\Mount;
@@ -28,7 +29,7 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 
-class Device extends FsFile implements DeviceInterfaceFsFileInterface
+class Device extends FsFile implements DeviceInterface
 {
     /**
      * Device class constructor
@@ -138,16 +139,16 @@ class Device extends FsFile implements DeviceInterfaceFsFileInterface
     /**
      * Formats this device for encryption using LUKS
      *
-     * @param string|null $key
-     * @param string|null $key_file
+     * @param string|null          $key
+     * @param FsFileInterface|null $key_file
      *
      * @return $this
      */
-    public function encrypt(?string $key, ?string $key_file = null): static
+    public function encrypt(?string $key, ?FsFileInterface $key_file = null): static
     {
         $this->checkUnmounted();
-        Cryptsetup::new($this->restrictions)
-                  ->luksFormat($this, $key, $key_file);
+
+        Cryptsetup::new()->luksFormat($this, $key, $key_file);
 
         return $this;
     }
