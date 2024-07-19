@@ -1,7 +1,5 @@
 <?php
 
-
-
 /**
  * \Phoundation\Utils\Arrays test class
  */

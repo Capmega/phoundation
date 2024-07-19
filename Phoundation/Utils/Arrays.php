@@ -885,9 +885,9 @@ class Arrays extends Utils
         $needles = Arrays::force($needles);
 
         foreach ($source as $key => $value) {
-            $value = static::getStringValue($value, $column);
+            $test = static::getStringValue($value, $column);
 
-            if (!in_array($value, $needles, $strict)) {
+            if (!in_array($test, $needles, $strict)) {
                 $return[$key] = $value;
             }
         }

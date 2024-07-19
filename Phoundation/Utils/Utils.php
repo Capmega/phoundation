@@ -19,6 +19,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Throwable;
 
 class Utils
 {
@@ -591,33 +592,43 @@ class Utils
      * @param mixed       $value
      * @param string|null $column
      *
-     * @return string
+     * @return string|null
      */
-    protected static function getStringValue(mixed $value, ?string $column): string
+    protected static function getStringValue(mixed $value, ?string $column): ?string
     {
+        if ($column) {
+            try {
+                if (is_array($value)) {
+                    return get_null((string) $value[$column]);
+                }
+
+                if ($value instanceof EntryInterface) {
+                    return get_null((string) $value->get($column));
+                }
+
+            } catch (Throwable $e) {
+                throw new OutOfBoundsException(tr('Specified column ":column" does not exist in the given value ":value"', [
+                    ':column' => $column,
+                    ':value'  => $value,
+                ]), $e);
+            }
+        }
+
         if (is_string($value)) {
-            return $value;
+            return get_null($value);
         }
 
         if (is_scalar($value)) {
-            return Strings::force($value);
+            return get_null(Strings::force($value));
         }
 
-        if (!$column) {
-            throw new OutOfBoundsException(tr('Cannot extract string value from array or DataEntryInterface object, no column specified', [
+        if (is_array($value) or ($value instanceof EntryInterface)) {
+            throw new OutOfBoundsException(tr('Cannot extract string value from array or EntryInterface object, no column specified', [
                 ':value' => $value,
             ]));
         }
 
-        if (is_array($value)) {
-            return $value[$column];
-        }
-
-        if ($value instanceof EntryInterface) {
-            return $value->get($column);
-        }
-
-        throw new OutOfBoundsException(tr('Specified value ":value" must be either scalar, array, or a ":class" type object', [
+        throw new OutOfBoundsException(tr('Specified value ":value" must be either scalar, array, or an ":class" type object', [
             ':value' => $value,
             ':class' => EntryInterface::class
         ]));
