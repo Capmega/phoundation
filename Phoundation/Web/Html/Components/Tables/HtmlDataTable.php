@@ -17,6 +17,7 @@ namespace Phoundation\Web\Html\Components\Tables;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Date\DateFormats;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -487,7 +488,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setJsDateFormat(?string $date_format): static
     {
         $this->js_date_format  = $date_format;
-        $this->php_date_format = DateTime::convertJsToPhpFormat($date_format);
+        $this->php_date_format = DateFormats::convertJsToPhp($date_format);
 
         return $this;
     }
@@ -517,7 +518,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setPhpDateFormat(?string $php_date_format): static
     {
         $this->php_date_format = $php_date_format;
-        $this->js_date_format  = DateTime::convertPhpToJsFormat($php_date_format);
+        $this->js_date_format  = DateFormats::convertPhpToJs($php_date_format);
 
         return $this;
     }
