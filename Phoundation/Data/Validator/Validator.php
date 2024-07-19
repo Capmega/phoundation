@@ -23,7 +23,9 @@ use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Date\DateFormats;
 use Phoundation\Date\DateTime;
+use Phoundation\Date\DateTimeFormats;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
@@ -1764,10 +1766,7 @@ abstract class Validator implements ValidatorInterface
             // Ensure we have formats to work with
             if (!$formats) {
                 // Default to a number of acceptable formats
-                $formats = Config::get('locale.formats.date', [
-                    'Y-m-d',
-                    'd-m-Y',
-                ]);
+                $formats = DateFormats::getSupportedPhp();
             }
 
             $formats = Arrays::force($formats, null);
@@ -1793,17 +1792,17 @@ abstract class Validator implements ValidatorInterface
     {
         // We must be able to create a date object using the given formats without failure, and the resulting date
         // must be the same as the specified date
-        $given = static::normalizeDate($date);
+        $given = DateFormats::normalizeDate($date);
 
         foreach ($formats as $format) {
             try {
                 // Create DateTime object
-                $format = static::normalizeDate($format);
+                $format = DateFormats::normalizeDate($format);
                 $value  = DateTime::createFromFormat($format, $given);
 
                 if ($value) {
                     // DateTime object created successfully! Now get a dateformat, and normalize it
-                    $test = static::normalizeDate($value->format($format));
+                    $test = DateFormats::normalizeDate($value->format($format));
 
                     // Test the normalized test DateTime against the specified normalized date time string
                     if ($test === $given) {
@@ -1819,25 +1818,6 @@ abstract class Validator implements ValidatorInterface
 
         // Nothing matched
         return null;
-    }
-
-
-    /**
-     * Ensures that the date only uses - as element separators, will replace " ", "-", "_", "/", "\"
-     *
-     * @param string $date
-     *
-     * @return string
-     */
-    protected static function normalizeDate(string $date): string
-    {
-        return str_replace([
-            ' ',
-            '-',
-            '_',
-            '/',
-            '\\',
-        ], '-', $date);
     }
 
 
@@ -1916,10 +1896,7 @@ abstract class Validator implements ValidatorInterface
             // Ensure we have formats to work with
             if (!$formats) {
                 // Default to a number of acceptable formats
-                $formats = Config::get('locale.formats.datetime', [
-                    'Y-m-d H:i:s',
-                    'd-m-Y H:i:s',
-                ]);
+                $formats = DateTimeFormats::getSupportedPhp();
             }
 
             $formats = Arrays::force($formats, null);

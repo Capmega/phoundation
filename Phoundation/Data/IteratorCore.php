@@ -1333,20 +1333,24 @@ class IteratorCore implements IteratorInterface
      * Returns the total amounts for all columns together
      *
      * @param array|string $columns
-     *
+     * @param string|null $totals_column
      * @return array
      */
-    public function getTotals(array|string $columns): array
+    public function getTotals(array|string $columns, ?string $totals_column = null): array
     {
         if (is_string($columns)) {
             $columns = Arrays::force($columns);
             $columns = Arrays::initialize($columns, 'total');
         }
 
+        // Get the first entry to use for columns, and remove the ID column
+        $return = $this->getFirstValue();
+        array_shift($return);
+
         // Build up the return columns
-        $return  = [
-            'totals' => tr('Totals')
-        ];
+        $key    = array_key_first($return);
+        $return = Arrays::setValues($return, null);
+        $return = array_merge($return, [$totals_column ?? $key => tr('Totals')]);
 
         foreach ($columns as $column => $total) {
             $return[$column] = 0;

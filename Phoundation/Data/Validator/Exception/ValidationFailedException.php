@@ -70,7 +70,19 @@ class ValidationFailedException extends ValidatorException implements Validation
      */
     protected function applyLabels(): void
     {
-        $failures = $this->getDataKey('failures');
+        // Tracks if this function is already processing to avoid endless loops
+        static $processing;
+
+        if ($processing) {
+            // We've entered an endless loop!
+            Log::warning(tr('Failed to apply labels to validation exception keys, creating the source object class ":class" caused another ValidationFailedException', [
+                ':class' => $this->source_object_class
+            ]));
+            return;
+        }
+
+        $processing = true;
+        $failures   = $this->getDataKey('failures');
 
         // Apply the data entry definition labels to the data
         if ($this->source_object_class and $failures) {
@@ -89,6 +101,8 @@ class ValidationFailedException extends ValidatorException implements Validation
                 $this->data['failures'][$label] = $value;
             }
         }
+
+        $processing = false;
     }
 
 

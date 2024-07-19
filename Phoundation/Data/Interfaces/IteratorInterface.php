@@ -539,10 +539,10 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * Returns the total amounts for all columns together
      *
      * @param array|string $columns
-     *
+     * @param string|null $totals_column
      * @return array
      */
-    public function getTotals(array|string $columns): array;
+    public function getTotals(array|string $columns, ?string $totals_column = null): array;
 
     /**
      * Displays a message on the command line
