@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace :type:name;
+namespace Phoundation\TemplateLibrary\Library;
 
 class Library extends \Phoundation\Core\Libraries\Library
 {

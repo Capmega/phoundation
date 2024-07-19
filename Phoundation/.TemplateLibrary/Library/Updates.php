@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace :type:name;
+namespace Phoundation\TemplateLibrary\Library;
 
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
