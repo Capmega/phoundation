@@ -15,8 +15,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
+use Phoundation\Data\Traits\TraitDataDateFormat;
 use Phoundation\Data\Traits\TraitDataStartDate;
 use Phoundation\Data\Traits\TraitDataStopDate;
+use Phoundation\Date\DateFormats;
 use Phoundation\Date\DateRangePickerRanges;
 use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -29,6 +31,8 @@ class InputDateRange extends InputText
 {
     use TraitDataStartDate;
     use TraitDataStopDate;
+    use TraitDataDateFormat;
+
 
     /**
      * The HTML selector to which the daterange will respond
@@ -52,7 +56,9 @@ class InputDateRange extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->input_type = EnumInputType::text;
+        $this->setFormat(DateFormats::getDefaultJavascript())
+             ->input_type = EnumInputType::text;
+
         parent::__construct($content);
     }
 
@@ -94,9 +100,9 @@ class InputDateRange extends InputText
     {
         switch ($ranges) {
             case 'default':
-                $this->getRanges()
-                     ->useDefault();
+                $this->getRanges()->useDefault();
                 break;
+
             default:
                 throw new OutOfBoundsException(tr('Unknown ranges ":ranges" specified, specify one of "default"', [
                     ':ranges' => $ranges,
@@ -125,6 +131,7 @@ class InputDateRange extends InputText
     /**
      * Render and return the HTML for this Input Element
      *
+     * @see https://daterangepicker.com/#config
      * @return string|null
      */
     public function render(): ?string
@@ -144,6 +151,9 @@ class InputDateRange extends InputText
               ->setContent('
                 $("[name=' . $this->getName() . ']").daterangepicker(
                 {
+                    locale: {
+                        format: "' . $this->format . '"
+                    },                                
                     onSelect: function(dateText, inst) {
                         return $(this).trigger("change");
                     },
@@ -171,7 +181,9 @@ class InputDateRange extends InputText
         if (empty($this->ranges) or $this->ranges->isEmpty()) {
             return null;
         }
+
         $return = [];
+
         foreach ($this->ranges as $key => $range) {
             $return[] = '"' . $key . '"  : ' . $range;
         }
