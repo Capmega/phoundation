@@ -44,7 +44,7 @@ class DateRangePickerRanges extends Iterator implements DateRangePickerRangesInt
     /**
      * @inheritDoc
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         if (!is_string($value)) {
             throw new OutOfBoundsException(tr('Specified value ":value" must be string', [
@@ -58,6 +58,6 @@ class DateRangePickerRanges extends Iterator implements DateRangePickerRangesInt
             ]));
         }
 
-        return parent::add($value, $key, $skip_null, $exception);
+        return parent::add($value, $key, $skip_null_values, $exception);
     }
 }
