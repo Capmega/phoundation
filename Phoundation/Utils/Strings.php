@@ -1450,29 +1450,41 @@ throw new UnderConstructionException();
      * truncated to (by default) 8192 characters
      *
      * @param mixed $source
-     * @param int   $truncate
-     *
+     * @param int $truncate
+     * @param bool $ensure_visible
      * @return string The string, truncated if required, according to the specified truncating rules
      * @see       Strings::truncate()
      */
-    public static function log(mixed $source, int $truncate = 8192): string
+    public static function log(mixed $source, int $truncate = 8192, bool $ensure_visible = false): string
     {
-        if (!$source) {
-            if (is_numeric($source)) {
-                return '0';
+        if ($source === null) {
+            if ($ensure_visible) {
+                $source = 'NULL';
+
+            } else {
+                $source = '';
             }
 
-            if (is_bool($source)) {
-                return 'false';
+        } elseif (is_string($source)) {
+            if (!$source) {
+                if ($ensure_visible) {
+                    $source = 'EMPTY';
+
+                } else {
+                    $source = '';
+                }
             }
 
-            return '';
-        }
-
-        if (is_scalar($source)) {
-            if (is_bool($source)) {
-                return 'true';
+            if (!trim($source)) {
+                // Show spaces using underscores
+                $source = str_replace(' ', '_', $source);
             }
+
+        } elseif (is_bool($source)) {
+            $source = Strings::fromBoolean($source);
+
+        } elseif (is_scalar($source)) {
+            $source = (string) $source;
 
         } elseif (is_array($source)) {
             $source = Arrays::hideSensitive($source, [
@@ -1480,23 +1492,31 @@ throw new UnderConstructionException();
                 'ssh_key',
             ]);
 
+            foreach ($source as $key => &$value) {
+                $value = static::log($value);
+            }
+
+            unset($value);
+
             $source = 'array: ' . trim(Json::encode($source));
+
+        } elseif ($source instanceof Stringable) {
+            $source = (string) $source;
+
+        } elseif (is_resource($source)) {
+            // Shows something like "Resource #43"
+            $source = (string) $source;
+
+        } elseif (is_object($source)) {
+            // Return the objects class name
+            $source = 'object: ' . get_class($source);
 
         } elseif (is_enum($source)) {
             $source = $source->value;
 
-        } elseif ($source instanceof DataEntryInterface) {
-            $source = $source->getLogId();
-
-        } elseif ($source instanceof Stringable) {
-            // Do nothing, display the string version of this object
-            $source = (string) $source;
-
-        } elseif (is_object($source)) {
-            $source = 'object: ' . get_class($source);
-
         } else {
-            $source = trim(Json::encode($source));
+            // Anything else just cast
+            $source = (string) $source;
         }
 
         return static::replaceDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', static::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
@@ -2494,60 +2514,5 @@ throw new UnderConstructionException();
     public static function matches(Stringable|string $haystack, DataIteratorInterface|array|string|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): bool
     {
         return (bool) static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, $flags);
-    }
-
-
-    /**
-     * Ensures that the string contains something visible
-     *
-     * @param mixed $source
-     * @todo This can be optimized
-     *
-     * @return string
-     */
-    public static function ensureVisible(mixed $source): string
-    {
-        if ($source === null) {
-            return 'NULL';
-        }
-
-        if (is_string($source)) {
-            if (!$source) {
-                return 'EMPTY';
-            }
-
-            if (!trim($source)) {
-                return str_replace(' ', '_', $source);
-            }
-        }
-
-        if (is_bool($source)) {
-            return Strings::fromBoolean($source);
-        }
-
-        if (is_scalar($source)) {
-            return (string) $source;
-        }
-
-        if (is_array($source)) {
-            return print_r($source, true);
-        }
-
-        if ($source instanceof Stringable) {
-            return (string) $source;
-        }
-
-        if (is_resource($source)) {
-            // Shows something like "Resource #43"
-            return (string) $source;
-        }
-
-        if (is_object($source)) {
-            // Return the objects class name
-            return get_class($source);
-        }
-
-        // Anything else just cast
-        return (string) $source;
     }
 }
