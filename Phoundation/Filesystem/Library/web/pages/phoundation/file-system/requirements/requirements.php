@@ -25,7 +25,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Layouts\Grid;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -120,7 +120,7 @@ $requirements_card = Card::new()
     ->setButtons($buttons);
 
 $requirements_card->getForm()
-                  ->setAction(UrlBuilder::getCurrent())
+                  ->setAction(Url::getCurrent())
                   ->setMethod(EnumHttpRequestMethod::post);
 
 
@@ -128,7 +128,7 @@ $requirements_card->getForm()
 $relevant = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/phoundation/file-system/roles.html') . '">' . tr('Filesystem connectors management') . '</a><br>');
+    ->setContent('<a href="' . Url::getWww('/phoundation/file-system/roles.html') . '">' . tr('Filesystem connectors management') . '</a><br>');
 
 
 // Build documentation

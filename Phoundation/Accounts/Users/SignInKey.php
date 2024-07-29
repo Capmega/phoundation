@@ -32,7 +32,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryUser;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUuid;
 use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
@@ -171,9 +171,9 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         }
         $this->setUuid($uuid)
              ->save();
-        $url = UrlBuilder::getWww('sign-key');
+        $url = Url::getWww('sign-key');
         $url = str_replace(':key', $uuid, $url);
-        $this->url = UrlBuilder::getWww($url);
+        $this->url = Url::getWww($url);
 
         return $this;
     }
@@ -250,7 +250,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function signKeyRedirectUrlMatchesCurrentUrl(): bool
     {
-        return $this->getRedirect() === (string) UrlBuilder::getCurrent();
+        return $this->getRedirect() === (string) Url::getCurrent();
     }
 
 
@@ -269,7 +269,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
             // Redirect URL is always allowed
             return true;
         }
-        if ($url === (string) UrlBuilder::getWww('sign-out')) {
+        if ($url === (string) Url::getWww('sign-out')) {
             // sign-out page is always allowed
             return true;
         }

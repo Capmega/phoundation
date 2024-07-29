@@ -23,7 +23,7 @@ use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Pages\SignInPage;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -56,7 +56,7 @@ if (Request::isPostRequestMethod()) {
             $post     = Session::validateSignIn();
             $user     = Session::signIn($post['email'], $post['password'], $user_class);
 
-            Response::redirect(UrlBuilder::getRedirect($redirect, $user->getDefaultPage()));
+            Response::redirect(Url::getRedirect($redirect, $user->getDefaultPage()));
 
         } catch (PasswordTooShortException | NoPasswordSpecifiedException) {
             Response::getFlashMessages()->addWarning(tr('Please specify at least ":count" characters for the password', [

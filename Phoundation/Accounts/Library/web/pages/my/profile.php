@@ -13,7 +13,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -164,7 +164,7 @@ $picture = Card::new()
                ->setContent(Img::new()
                                ->addClasses('w100')
                                ->setSrc($user->getPicture())
-                               ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                               ->setSrc(Url::getImg('img/profiles/default.png'))
                                ->setAlt(tr('My profile picture')));
 
 
@@ -172,10 +172,10 @@ $picture = Card::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . UrlBuilder::getWww('/my/password.html') . '">' . tr('Change Your password') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/my/settings.html') . '">' . tr('Manage Your settings') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/my/api-access.html') . '">' . tr('Manage Your API access') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/my/sign-in-history.html') . '">' . tr('Review Your sign-in history') . '</a>');
+                ->setContent('<a href="' . Url::getWww('/my/password.html') . '">' . tr('Change Your password') . '</a><br>
+                         <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage Your settings') . '</a><br>
+                         <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage Your API access') . '</a><br>
+                         <a href="' . Url::getWww('/my/sign-in-history.html') . '">' . tr('Review Your sign-in history') . '</a>');
 
 
 // Build documentation

@@ -24,7 +24,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Layouts\Grid;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -81,7 +81,7 @@ $notifications = Card::new()
                         ->addButton(tr('Mark all as read')));
 
 $notifications->getForm()
-              ->setAction(UrlBuilder::getCurrent())
+              ->setAction(Url::getCurrent())
               ->setMethod(EnumHttpRequestMethod::post);
 
 
@@ -89,8 +89,8 @@ $notifications->getForm()
 $relevant = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/notifications/unread.html') . '">' . tr('Unread notifications') . '</a><br>
-                          <a href="' . UrlBuilder::getWww('/notifications/test.html') . '">' . tr('Send me a test notification') . '</a>');
+    ->setContent('<a href="' . Url::getWww('/notifications/unread.html') . '">' . tr('Unread notifications') . '</a><br>
+                          <a href="' . Url::getWww('/notifications/test.html') . '">' . tr('Send me a test notification') . '</a>');
 
 
 // Build documentation

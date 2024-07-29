@@ -22,7 +22,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Csrf;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -51,7 +51,7 @@ if (Request::isPostRequestMethod()) {
 
         try {
             $user = User::load($post['email'], 'email');
-            $key  = $user->getSigninKey()->generate(UrlBuilder::getWww('/update-lost-password.html'));
+            $key  = $user->getSigninKey()->generate(Url::getWww('/update-lost-password.html'));
 
             $mail = new PHPMailer();
             $mail->isSMTP();
@@ -115,7 +115,7 @@ Response::setRenderMainWrapper(false);
 ?>
 <?= Response::getFlashMessages()->render() ?>
     <body class="hold-transition login-page"
-          style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/lost-password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+          style="background: url(<?= Url::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/lost-password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
         <!-- /.login-logo -->
         <div class="card card-outline card-info">
@@ -126,7 +126,7 @@ Response::setRenderMainWrapper(false);
             <div class="card-body">
                 <p class="login-box-msg"><?= tr('Please provide your email address and we will send you a link where you can re-establish your password') ?></p>
 
-                <form action="<?= UrlBuilder::getWww() ?>" method="post">
+                <form action="<?= Url::getWww() ?>" method="post">
                     <?php Csrf::getHiddenElement() ?>
                     <?php
                     if (Session::supports('email')) {
@@ -151,7 +151,7 @@ Response::setRenderMainWrapper(false);
                         <div class="row">
                             <div class="col-12">
                                 <a class="btn btn-outline-secondary btn-block"
-                                   href="<?= UrlBuilder::getWww('/sign-in.html')->addQueries(isset_get($get['email']) ? 'email=' . $get['email'] : '', isset_get($get['redirect']) ? 'redirect=' . $get['redirect'] : '') ?>"><?= tr('Back to sign in') ?></a>
+                                   href="<?= Url::getWww('/sign-in.html')->addQueries(isset_get($get['email']) ? 'email=' . $get['email'] : '', isset_get($get['redirect']) ? 'redirect=' . $get['redirect'] : '') ?>"><?= tr('Back to sign in') ?></a>
                             </div>
                         </div>
                         <?php

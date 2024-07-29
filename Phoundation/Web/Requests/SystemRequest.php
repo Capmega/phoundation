@@ -22,13 +22,14 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Traits\TraitNew;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Exception\EnvironmentNotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Pages\Template;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
@@ -118,11 +119,16 @@ class SystemRequest
 
         Log::warning(tr('Executing system page ":page"', [':page' => $http_code]));
 
-        if (Config::getBoolean('security.web.monitor.urls.non-200', true)) {
-            Non200Url::new()
-                     ->generate($http_code)
-                     ->save();
-            Log::warning('Registered request as non HTTP-200 URL');
+        if ($e instanceof EnvironmentNotExistsException) {
+            Log::warning('Not registering request as non HTTP-200 URL, invalid environment specified');
+
+        } else {
+            if (Config::getBoolean('security.web.monitor.urls.non-200', true)) {
+                Non200Url::new()
+                         ->generate($http_code)
+                         ->save();
+                Log::warning('Registered request as non HTTP-200 URL');
+            }
         }
 
         Log::warning($message);
@@ -203,7 +209,7 @@ class SystemRequest
                              ':body'   => $variables['details'],
                              ':type'   => 'warning',
                              ':search' => tr('Search'),
-                             ':action' => UrlBuilder::getWww('search/'),
+                             ':action' => Url::getWww('search/'),
                          ])
                          ->render();
 
@@ -239,10 +245,10 @@ class SystemRequest
 
         } catch (Throwable $g) {
             // Even this failed? Try to log to the system log as a last ditch effort
-            error_log('SystemRequest::execute() failed with multiple exceptions, failed to show the "' . isset_get($variables['code']) . '" page, and the "' . isset_get($variables['code']) . '" template. Displaying hardcoded 500 page instead. See exception below for more information.');
-            error_log($e->getMessage());
-            error_log($f->getMessage());
-            error_log($g->getMessage());
+            Log::errorLog('SystemRequest::execute() failed with multiple exceptions, failed to show the "' . isset_get($variables['code']) . '" page, and the "' . isset_get($variables['code']) . '" template. Displaying hardcoded 500 page instead. See exception below for more information.');
+            Log::errorLog($e->getMessage());
+            Log::errorLog($f->getMessage());
+            Log::errorLog($g->getMessage());
         }
     }
 

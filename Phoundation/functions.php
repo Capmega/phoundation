@@ -1083,12 +1083,13 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
  *
  * @param ConnectorInterface|string $connector
  * @param bool                      $use_database
+ * @param bool                      $connect
  *
  * @return SqlInterface
  */
-function sql(ConnectorInterface|string $connector = 'system', bool $use_database = true): SqlInterface
+function sql(ConnectorInterface|string $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
 {
-    return Databases::sql($connector, $use_database);
+    return Databases::sql($connector, $use_database, $connect);
 }
 
 

@@ -25,7 +25,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Layouts\Grid;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -117,7 +117,7 @@ $connectors_card = Card::new()
                        ->setButtons($buttons);
 
 $connectors_card->getForm()
-                ->setAction(UrlBuilder::getCurrent())
+                ->setAction(Url::getCurrent())
                 ->setMethod(EnumHttpRequestMethod::post);
 
 
@@ -125,8 +125,8 @@ $connectors_card->getForm()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . UrlBuilder::getWww('/phoundation/databases/connectors/roles.html') . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/phoundation/databases/connectors/rights.html') . '">' . tr('Rights management') . '</a>');
+                ->setContent('<a href="' . Url::getWww('/phoundation/databases/connectors/roles.html') . '">' . tr('Roles management') . '</a><br>
+                         <a href="' . Url::getWww('/phoundation/databases/connectors/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation

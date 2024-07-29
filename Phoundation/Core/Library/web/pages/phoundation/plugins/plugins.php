@@ -12,7 +12,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Layouts\Grid;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -58,7 +58,7 @@ $plugins = Card::new()
                ->setButtons($buttons);
 
 $plugins->getForm()
-        ->setAction(UrlBuilder::getCurrent())
+        ->setAction(Url::getCurrent())
         ->setMethod(EnumHttpRequestMethod::post);
 
 
@@ -66,7 +66,7 @@ $plugins->getForm()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . UrlBuilder::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a>');
+                ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a>');
 
 
 // Build documentation

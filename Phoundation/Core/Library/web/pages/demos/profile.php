@@ -4,7 +4,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -41,7 +41,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                         <div class="text-center">
                             <?= Session::getUser()->getPicture()
                                        ->getHtmlElement()
-                                       ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                       ->setSrc(Url::getImg('img/profiles/default.png'))
                                        ->setClass('profile-user-img img-fluid img-circle')
                                        ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                        ->render() ?>
@@ -131,7 +131,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     <div class="user-block">
                                         <?= Session::getUser()->getPicture()
                                                    ->getHtmlElement()
-                                                   ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
                                                    ->setClass('img-circle img-bordered-sm')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                                    ->render() ?>
@@ -171,7 +171,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     <div class="user-block">
                                         <?= Session::getUser()->getPicture()
                                                    ->getHtmlElement()
-                                                   ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
                                                    ->setClass('img-circle img-bordered-sm')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                                    ->render() ?>
@@ -206,7 +206,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     <div class="user-block">
                                         <?= Session::getUser()->getPicture()
                                                    ->getHtmlElement()
-                                                   ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
                                                    ->setClass('img-circle img-bordered-sm')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                                    ->render() ?>

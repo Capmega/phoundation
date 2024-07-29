@@ -31,7 +31,7 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Html\Traits\TraitButtons;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Stringable;
 
 
@@ -856,7 +856,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 }
             }
 
-            return '<a' . $this->renderAnchorClassString() . ' href="' . UrlBuilder::getWww($url) . '"' . $attributes . '>' . $value . '</a>';
+            return '<a' . $this->renderAnchorClassString() . ' href="' . Url::getWww($url) . '"' . $attributes . '>' . $value . '</a>';
         }
 
         return $url;

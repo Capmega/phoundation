@@ -24,7 +24,7 @@ use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -132,7 +132,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
                         <div class="text-center">
                             <?= Session::getUser()->getPicture()
                                        ->getHtmlElement()
-                                       ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                       ->setSrc(Url::getImg('img/profiles/default.png'))
                                        ->setClass('profile-user-img img-fluid img-circle')
                                        ->setAlt(tr('Profile picture for :user', [
                                            ':user' => Html::safe(Session::getUser()->getDisplayName()),

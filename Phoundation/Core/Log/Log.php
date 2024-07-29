@@ -23,6 +23,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\DateTime;
 use Phoundation\Developer\Debug;
@@ -41,6 +42,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
 use Stringable;
 use Throwable;
+use Traversable;
 
 class Log
 {
@@ -144,7 +146,7 @@ class Log
      *
      * @var bool $lock
      */
-    protected static bool $lock = false;
+    protected static bool|array $lock = false;
 
     /**
      * If true, double log messages will be filtered out (not recommended, this might hide issues)
@@ -159,6 +161,20 @@ class Log
      * @var FsRestrictions $restrictions
      */
     protected static FsRestrictions $restrictions;
+
+    /**
+     * Tracks whether the syslog filter ini setting has been applied
+     *
+     * @var bool $syslog_filter_applied
+     */
+    protected static bool $syslog_filter_applied = false;
+
+    /**
+     * Tracks whether the syslog is open or not
+     *
+     * @var bool $syslog_open
+     */
+    protected static bool $syslog_open = false;
 
 
     /**
@@ -193,6 +209,14 @@ class Log
 
                     } else {
                         $threshold = Config::getInteger('log.threshold', Core::errorState() ? 1 : 5);
+                    }
+
+                    if ($threshold === 1) {
+                        // Threshold is at lowest, this will log a LOT
+                        if (Core::isState('boot')) {
+                            // Boot time logging should not be too much
+                            $threshold = 5;
+                        }
                     }
                 }
 
@@ -288,14 +312,26 @@ class Log
     /**
      * Log to PHP error console
      *
-     * @param $message
+     * @param IteratorInterface|array|string $messages
+     * @todo Improve handling of logging that does not go through syslog
      *
      * @return void
      */
-    protected static function errorLog($message): void
+    public static function errorLog(IteratorInterface|array|string $messages, int $message_type = 4, ?string $destination = null, ?string $additional_headers = null): void
     {
-        if (static::getScreenEnabled()) {
-            error_log($message);
+        if (!static::$syslog_filter_applied) {
+            ini_set('syslog.filter', 'any');
+            static::$syslog_filter_applied = true;
+        }
+
+        $additional_headers = $additional_headers ?? Config::get('log.headers', '');
+
+        if (is_array($messages) or ($messages instanceof IteratorInterface)) {
+            foreach ($messages as $message) {
+                static::errorLog(Strings::force($message, PHP_EOL));
+            }
+        } else {
+            error_log($messages, $message_type, $destination, $additional_headers);
         }
 
         if (php_sapi_name() !== 'cli') {
@@ -305,7 +341,71 @@ class Log
 
 
     /**
-     * Returns true if the log is in failed mode and only logging to error_log()
+     * Log to PHP syslog
+     *
+     * @todo Under construction
+     *
+     * @param string $message
+     * @param int    $priority_flags
+     * @param int    $open_flags
+     * @param int    $facility
+     *
+     * $priority_flags can be a mix of the following flags:
+     *
+     * LOG_EMERG   system is unusable
+     * LOG_ALERT   action must be taken immediately
+     * LOG_CRIT    critical conditions
+     * LOG_ERR     error conditions
+     * LOG_WARNING warning conditions
+     * LOG_NOTICE  normal, but significant, condition
+     * LOG_INFO    informational message
+     * LOG_DEBUG   debug-level message
+     *
+     * $open_flags can be a mix of the following flags:
+     * LOG_CONS    if there is an error while sending data to the system logger, write directly to the system console
+     * LOG_NDELAY  open the connection to the logger immediately
+     * LOG_ODELAY  (default) delay opening the connection until the first message is logged
+     * LOG_PERROR  print log message also to standard error
+     * LOG_PID     include PID with each message
+     *
+     * $faciltiy
+     * LOG_AUTH    security/authorization messages (use LOG_AUTHPRIV instead in systems where that constant is defined)
+     * LOG_AUTHPRIV    security/authorization messages (private)
+     * LOG_CRON    clock daemon (cron and at)
+     * LOG_DAEMON    other system daemons
+     * LOG_KERN    kernel messages
+     * LOG_LOCAL0 ... LOG_LOCAL7    reserved for local use, these are not available in Windows
+     * LOG_LPR    line printer subsystem
+     * LOG_MAIL    mail subsystem
+     * LOG_NEWS    USENET news subsystem
+     * LOG_SYSLOG    messages generated internally by syslogd
+     * LOG_USER    generic user-level messages
+     * LOG_UUCP    UUCP subsystem
+     *
+     * @return void
+     */
+    protected static function sysLog(string $message, int $priority_flags = LOG_INFO, int $open_flags = LOG_CONS | LOG_NDELAY | LOG_ODELAY | LOG_PERROR | LOG_PID, int $facility = LOG_USER): void
+    {
+        if (!static::$syslog_filter_applied) {
+            ini_set('syslog.filter', 'all');
+            static::$syslog_filter_applied = true;
+        }
+
+        static::$syslog_open = true;
+        openlog(PROJECT, $priority_flags, $facility);
+
+        if (static::getScreenEnabled()) {
+            syslog($priority_flags, $message);
+        }
+
+        if (php_sapi_name() !== 'cli') {
+            flush();
+        }
+    }
+
+
+    /**
+     * Returns true if the log is in failed mode and only logging to Log::errorLog()
      *
      * @return bool
      */
@@ -641,10 +741,9 @@ class Log
             }
 
             if (static::$lock) {
-                // Log::write() is already busy writing. Writing again would cause endless loops, so reject this call.
-                error_log(tr('Rejecting next log message to avoid endless loops because Log->write() is locked for another log entry. Check backtrace for Log-> calls within Log->write()'));
-                error_log(Strings::force($messages, PHP_EOL));
-                error_log(Strings::force(print_r(Debug::getBacktrace()), PHP_EOL));
+                static::errorLog(tr('Rejecting next log message to avoid endless loops because Log->write() is locked for another log entry. Check backtrace for Log-> calls within Log->write()'));
+                static::errorLog(Strings::force($messages, PHP_EOL));
+                static::errorLog(Strings::force(print_r(Debug::getBacktrace(), true), PHP_EOL));
 
                 return false;
             }
@@ -708,6 +807,15 @@ class Log
             if (!$messages) {
                 if (!is_numeric($messages)) {
                     // Do not log empty messages
+                    static::$lock = false;
+
+                    if (Debug::isEnabled()) {
+                        // Log where this empty log message came from
+                        Log::warning(tr('Encountered an empty log message at ":call"', [
+                            ':call' => Debug::getPreviousCall()->getLocation()
+                        ]));
+                    }
+
                     return false;
                 }
 
@@ -900,12 +1008,12 @@ class Log
         // Log the initial exception message
         static::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
         static::write(get_class($exception), $class, $threshold, true, true, false, $echo_screen);
+        static::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+        static::write('[E' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
         static::write(tr('Script    : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
         static::write(Request::getExecutedPath(true), $class, $threshold, true, true, false, $echo_screen);
         static::write(tr('Location  : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
         static::write($exception->getFile() . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
-        static::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-        static::write('[' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
 
         // Log the exception data and trace
         static::logExceptionData($exception, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
@@ -1054,7 +1162,7 @@ class Log
             $previous = $exception->getPrevious();
 
             while ($previous) {
-                static::write('Previous exception: ', 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+                static::write('Previous exception: ', 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
                 static::exception($previous, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
                 $previous = $previous->getPrevious();
             }
@@ -1141,6 +1249,7 @@ class Log
     {
         // Don't ever let the system crash because of a log issue, so we catch all possible exceptions
         static::$failed = true;
+        static::$lock   = false;
 
         try {
             $message = $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . ' Failed to log message to internal log files because "' . $e->getMessage() . '"';
@@ -1626,5 +1735,16 @@ class Log
             ->setMtime('+' . ($age_in_days * 1440))
             ->setExec('rf {} -rf')
             ->executeNoReturn();
+    }
+
+
+    /**
+     * Returns true if the syslog is open
+     *
+     * @return bool
+     */
+    public static function syslogIsOpen(): bool
+    {
+        return static::$syslog_open;
     }
 }

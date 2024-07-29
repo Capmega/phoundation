@@ -20,14 +20,13 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Enums\EnumRepositoryType;
 use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
 use Phoundation\Developer\Phoundation\Exception\PhoundationBranchNotExistException;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Phoundation\Plugins;
-use Phoundation\Developer\Phoundation\Repositories\Vendors\RepositoryVendors;
-use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Developer\Project\Interfaces\DeployInterface;
 use Phoundation\Developer\Project\Interfaces\ProjectInterface;
 use Phoundation\Developer\Project\Vendors\Interfaces\ProjectVendorsInterface;
@@ -37,6 +36,7 @@ use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGit;
+use Phoundation\Exception\EnvironmentExistsException;
 use Phoundation\Exception\NoLongerSupportedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -44,8 +44,6 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Rsync;
@@ -248,7 +246,7 @@ class Project implements ProjectInterface
         $environment = Environment::sanitize($environment);
         if (Environment::exists($environment)) {
             if (!FORCE) {
-                throw EnvironmentExists::new(tr('Specified environment ":environment" has already been setup', [
+                throw EnvironmentExistsException::new(tr('Specified environment ":environment" has already been setup', [
                     ':environment' => $environment,
                 ]))->makeWarning();
             }

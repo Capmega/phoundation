@@ -35,7 +35,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Throwable;
 
 class Meta implements MetaInterface
@@ -318,7 +318,7 @@ class Meta implements MetaInterface
                     ':meta_id_' . static::$pointer    => $this->id,
                     ':created_by_' . static::$pointer => Session::getUser()
                                                                 ->getId(),
-                    ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? UrlBuilder::getCurrent() : CliCommand::getExecutedPath()),
+                    ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? Url::getCurrent() : CliCommand::getExecutedPath()),
                     ':action_' . static::$pointer     => $action,
                     ':comments_' . static::$pointer   => $comments,
                     ':data_' . static::$pointer       => $data,
@@ -330,7 +330,7 @@ class Meta implements MetaInterface
                     ':meta_id'    => $this->id,
                     ':created_by' => Session::getUser()
                                             ->getId(),
-                    ':source'     => (string) (PLATFORM_WEB ? UrlBuilder::getCurrent() : CliCommand::getExecutedPath()),
+                    ':source'     => (string) (PLATFORM_WEB ? Url::getCurrent() : CliCommand::getExecutedPath()),
                     ':action'     => $action,
                     ':comments'   => $comments,
                     ':data'       => $data,

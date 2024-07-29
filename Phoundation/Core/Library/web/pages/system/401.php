@@ -16,7 +16,7 @@ declare(strict_types=1);
 use Phoundation\Core\Core;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Pages\Template;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;

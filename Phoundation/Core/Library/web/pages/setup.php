@@ -5,11 +5,11 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
-use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Developer\Project\Project;
+use Phoundation\Exception\EnvironmentExistsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Csrf;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -59,7 +59,7 @@ if (Request::isPostRequestMethod()) {
                         to start using it!</p>
                     <hr>
                     <div class="mb-3">
-                        <a class="form-control btn btn-primary" href="<?= UrlBuilder::getCurrentDomainRootUrl() ?>">Start
+                        <a class="form-control btn btn-primary" href="<?= Url::getCurrentDomainRootUrl() ?>">Start
                             using Phoundation!</a>
                     </div>
                 </div>
@@ -73,7 +73,7 @@ if (Request::isPostRequestMethod()) {
         Response::setPageTitle(tr('Phoundation setup finished'));
         return;
 
-    } catch (EnvironmentExists | ValidationFailedException | SqlAccessDeniedException $e) {
+    } catch (EnvironmentExistsException | ValidationFailedException | SqlAccessDeniedException $e) {
         Response::getFlashMessages()->addMessage($e);
     }
 }

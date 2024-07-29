@@ -5,7 +5,7 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -23,22 +23,22 @@ use Phoundation\Web\Requests\Response;
 
 echo Card::new()
          ->setTitle(tr('Demo page links'))
-         ->setContent('                  <a href="' . UrlBuilder::getWww('/demos/timeline.html') . '">' . tr('Package timeline') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/calendar.html') . '">' . tr('User calendar') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/contact-us.html') . '">' . tr('Contact us') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/contacts.html') . '">' . tr('Contacts') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/profile.html') . '">' . tr('Employee profile page') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/fingerprint-screen.html') . '">' . tr('Finger print detection') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/lock-screen.html') . '">' . tr('Lock screen') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/invoice.html') . '">' . tr('Invoice') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/kanban.html') . '">' . tr('Kanban project management board') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/projects.html') . '">' . tr('Projects') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/project-detail.html') . '">' . tr('Projects detail page') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/project-edit.html') . '">' . tr('Projects edit page') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/mailbox.html') . '">' . tr('Mail box') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/readmail.html') . '">' . tr('Read mail') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/compose.html') . '">' . tr('Compose mail') . '</a><br>
-                  <a href="' . UrlBuilder::getWww('/demos/scanner/gallery.html') . '">' . tr('Scanner gallery') . '</a>')
+         ->setContent('                  <a href="' . Url::getWww('/demos/timeline.html') . '">' . tr('Package timeline') . '</a><br>
+                  <a href="' . Url::getWww('/demos/calendar.html') . '">' . tr('User calendar') . '</a><br>
+                  <a href="' . Url::getWww('/demos/contact-us.html') . '">' . tr('Contact us') . '</a><br>
+                  <a href="' . Url::getWww('/demos/contacts.html') . '">' . tr('Contacts') . '</a><br>
+                  <a href="' . Url::getWww('/demos/profile.html') . '">' . tr('Employee profile page') . '</a><br>
+                  <a href="' . Url::getWww('/demos/fingerprint-screen.html') . '">' . tr('Finger print detection') . '</a><br>
+                  <a href="' . Url::getWww('/demos/lock-screen.html') . '">' . tr('Lock screen') . '</a><br>
+                  <a href="' . Url::getWww('/demos/invoice.html') . '">' . tr('Invoice') . '</a><br>
+                  <a href="' . Url::getWww('/demos/kanban.html') . '">' . tr('Kanban project management board') . '</a><br>
+                  <a href="' . Url::getWww('/demos/projects.html') . '">' . tr('Projects') . '</a><br>
+                  <a href="' . Url::getWww('/demos/project-detail.html') . '">' . tr('Projects detail page') . '</a><br>
+                  <a href="' . Url::getWww('/demos/project-edit.html') . '">' . tr('Projects edit page') . '</a><br>
+                  <a href="' . Url::getWww('/demos/mailbox.html') . '">' . tr('Mail box') . '</a><br>
+                  <a href="' . Url::getWww('/demos/readmail.html') . '">' . tr('Read mail') . '</a><br>
+                  <a href="' . Url::getWww('/demos/compose.html') . '">' . tr('Compose mail') . '</a><br>
+                  <a href="' . Url::getWww('/demos/scanner/gallery.html') . '">' . tr('Scanner gallery') . '</a>')
          ->render();
 ?>
     <div class="row">
@@ -123,7 +123,7 @@ echo Card::new()
                                 <a href="#" class="dropdown-item">Add new event</a>
                                 <a href="#" class="dropdown-item">Clear events</a>
                                 <div class="dropdown-divider"></div>
-                                <a href="<?= UrlBuilder::getWww('calendar/calendar.html'); ?>" class="dropdown-item">View
+                                <a href="<?= Url::getWww('calendar/calendar.html'); ?>" class="dropdown-item">View
                                     calendar</a>
                             </div>
                         </div>

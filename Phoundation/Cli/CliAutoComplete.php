@@ -690,8 +690,7 @@ class CliAutoComplete
      */
     public static function ensureAvailable(): void
     {
-        $file = FsFile::new('~/.bash_completion')
-                      ->setRestrictions('~/.bash_completion', true, 'CliAutoComplete::ensureAvailable()')
+        $file = FsFile::new('~/.bash_completion', FsRestrictions::getWritable('~/.bash_completion'))
                       ->makeAbsolute(must_exist: false);
 
         if ($file->exists()) {

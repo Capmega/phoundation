@@ -16,7 +16,7 @@ declare(strict_types=1);
 use Phoundation\Core\Core;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Pages\Template;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
@@ -39,11 +39,11 @@ switch (Request::getRequestType()) {
 echo Template::new('system/http-error')->setSource([
                                                        ':h2'     => '403',
                                                        ':h3'     => tr('Forbidden'),
-                                                       ':img'    => UrlBuilder::getImg('backgrounds/medinet-mobile/404/large.jpg'),
+                                                       ':img'    => Url::getImg('backgrounds/medinet-mobile/404/large.jpg'),
                                                        ':p'      => tr('You do not have access to this page. Please contact the system administrator if you think this was in error'),
                                                        ':type'   => 'warning',
                                                        ':search' => tr('Search'),
-                                                       ':action' => UrlBuilder::getWww('search/'),
+                                                       ':action' => Url::getWww('search/'),
                                                    ])->render();
 
 

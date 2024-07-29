@@ -18,7 +18,7 @@ namespace Phoundation\Web\Html\Components\Forms;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -37,7 +37,7 @@ class FilterForm extends DataEntryForm
              ->useForm(true)
              ->getForm()
                  ->setMethod(EnumHttpRequestMethod::get)
-                 ->setAction(UrlBuilder::getWww());
+                 ->setAction(Url::getWww());
     }
 
 

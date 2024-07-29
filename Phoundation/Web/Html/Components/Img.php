@@ -21,7 +21,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\ImgInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Stringable;
@@ -222,7 +222,7 @@ class Img extends Span implements ImgInterface
 //            $file_src = '/pub'.Strings::startsWith($src, '/');
 //            $src      = UrlBuilder::getImg($src);
 //        }
-        $this->src = UrlBuilder::getImg($src);
+        $this->src = Url::getImg($src);
 
         return $this;
     }

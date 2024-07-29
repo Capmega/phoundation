@@ -89,7 +89,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Domains;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Stringable;
 use Throwable;
 
@@ -1404,7 +1404,7 @@ class User extends DataEntry implements UserInterface
     {
         if ($redirect) {
             // Ensure we have a valid redirect URL
-            $redirect = UrlBuilder::getWww($redirect);
+            $redirect = Url::getWww($redirect);
         }
 
         return $this->set(get_null((string) $redirect), 'redirect');
@@ -2318,7 +2318,7 @@ class User extends DataEntry implements UserInterface
 
                     ->add(DefinitionFactory::getUrl($this, 'redirect')
                                            ->setSize(3)
-                                           ->setDataSource(UrlBuilder::getAjax('system/accounts/users/redirect/autosuggest.json'))
+                                           ->setDataSource(Url::getAjax('system/accounts/users/redirect/autosuggest.json'))
                                            ->setInputType(EnumInputType::auto_suggest)
                                            ->setInitialDefault(Config::getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))
                                            ->setLabel(tr('Redirect URL'))
@@ -2327,7 +2327,7 @@ class User extends DataEntry implements UserInterface
 
                     ->add(DefinitionFactory::getUrl($this, 'default_page')
                                            ->setSize(3)
-                                           ->setDataSource(UrlBuilder::getAjax('system/accounts/users/redirect/autosuggest.json'))
+                                           ->setDataSource(Url::getAjax('system/accounts/users/redirect/autosuggest.json'))
                                            ->setInputType(EnumInputType::auto_suggest)
                                            ->setLabel(tr('Default page'))
                                            ->setHelpGroup(tr('Preferences'))

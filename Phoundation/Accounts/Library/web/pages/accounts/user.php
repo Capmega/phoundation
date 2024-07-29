@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -66,7 +66,7 @@ if (Request::isPostRequestMethod()) {
                 ]));
 
                 // Redirect away from POST
-                Response::redirect(UrlBuilder::getWww('/accounts/user+' . $user->getId() . '.html'));
+                Response::redirect(Url::getWww('/accounts/user+' . $user->getId() . '.html'));
 
             case tr('Impersonate'):
                 $user->impersonate();
@@ -192,7 +192,7 @@ $user_card = Card::new()
                  ->setContent($user->getHtmlDataEntryFormObject()->render())
                  ->setButtons(Buttons::new()
                                      ->addButton(isset_get($save))
-                                     ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true)
+                                     ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/users.html'), true)
                                      ->addButton(isset_get($audit))
                                      ->addButton(isset_get($delete))
                                      ->addButton(isset_get($lock))
@@ -208,7 +208,7 @@ if ($user->getId()) {
                       ->setContent($user->getRolesHtmlDataEntryFormObject()->render())
                       ->setButtons(Buttons::new()
                                           ->addButton(tr('Save'))
-                                          ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
+                                          ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/users.html'), true));
 
     $rights_card = Card::new()
                        ->setCollapseSwitch(true)
@@ -237,7 +237,7 @@ if ($user->getId()) {
                        ->setContent($user->getEmailsObject()->getHtmlDataEntryFormObject()->render())
                        ->setButtons(Buttons::new()
                                            ->addButton(tr('Save'))
-                                           ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
+                                           ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/users.html'), true));
 
     $phones_card = Card::new()
                        ->setCollapseSwitch(true)
@@ -246,7 +246,7 @@ if ($user->getId()) {
                        ->setContent($user->getPhonesObject()->getHtmlDataEntryFormObject()->render())
                        ->setButtons(Buttons::new()
                                            ->addButton(tr('Save'))
-                                           ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
+                                           ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/users.html'), true));
 }
 
 
@@ -255,7 +255,7 @@ $picture = Card::new()
                ->setTitle(tr('User profile picture'))
                ->setContent(Img::new()
                                ->addClasses('w100')
-                               ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                               ->setSrc(Url::getImg('img/profiles/default.png'))
 //        ->setSrc($user->getPicture())
                                ->setAlt(tr('Profile picture for :user', [':user' => $user->getDisplayName()])));
 
@@ -264,9 +264,9 @@ $picture = Card::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent(($user->isNew() ? '' : '<a href="' . UrlBuilder::getWww('/accounts/password+' . $user->getId() . '.html') . '">' . tr('Change password for this user') . '</a><br>') . '
-                        <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
-                        <a href="' . UrlBuilder::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+                ->setContent(($user->isNew() ? '' : '<a href="' . Url::getWww('/accounts/password+' . $user->getId() . '.html') . '">' . tr('Change password for this user') . '</a><br>') . '
+                        <a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
+                        <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation

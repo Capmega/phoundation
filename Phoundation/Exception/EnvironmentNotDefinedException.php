@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class EnvironmentExists
+ * Class EnvironmentNotDefinedException
  *
  *
  *
@@ -13,9 +13,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Developer\Project\Exception;
+namespace Phoundation\Exception;
 
-
-class EnvironmentExists extends EnvironmentException
+class EnvironmentNotDefinedException extends EnvironmentException
 {
 }

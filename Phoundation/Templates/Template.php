@@ -19,7 +19,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Storage\Page;
 use Phoundation\Templates\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Csrf;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 
 class Template extends Page implements TemplateInterface
 {
@@ -91,7 +91,7 @@ class Template extends Page implements TemplateInterface
     protected static function getPage(string $page): ?string
     {
         $sign_out = Session::isGuest() ? null : '<p>' . tr('Click :here to sign out', [
-            ':here' => '<a href="' . UrlBuilder::getWww('sign-out') . '">here</a>'
+            ':here' => '<a href="' . Url::getWww('sign-out') . '">here</a>'
         ]) . '</p>';
 
         switch ($page) {
@@ -129,7 +129,7 @@ class Template extends Page implements TemplateInterface
                                             <h3><i class="fas fa-exclamation-triangle text-:type"></i> :h3</h3>
                                     
                                             <p>:p</p>
-                                            <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . UrlBuilder::getCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
+                                            <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . Url::getCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
                                             $sign_out;
 
                 if (!Session::getUser()->isGuest()) {

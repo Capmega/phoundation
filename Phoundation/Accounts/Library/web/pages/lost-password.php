@@ -12,7 +12,7 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\LostPasswordPage;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -56,7 +56,7 @@ if (Request::isPostRequestMethod()) {
                     ->throw(AccessDeniedException::class);
         }
 
-        $key = $user->getSigninKey()->generate(UrlBuilder::getWww('/update-lost-password.html'));
+        $key = $user->getSigninKey()->generate(Url::getWww('/update-lost-password.html'));
 
         $mail = new PHPMailer();
         $mail->isSMTP();

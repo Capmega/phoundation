@@ -26,7 +26,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Enums\EnumJsonAfterReply;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 use Stringable;
 use Throwable;
@@ -68,10 +68,10 @@ class Json
                 Json::error(null, ['location' => $data], 'REDIRECT', 301);
 
             case 302:
-                Json::error(null, ['location' => UrlBuilder::getAjax($_CONFIG['redirects']['signin'])], 'REDIRECT', 302);
+                Json::error(null, ['location' => Url::getAjax($_CONFIG['redirects']['signin'])], 'REDIRECT', 302);
 
             case 'signin':
-                Json::error(null, ['location' => UrlBuilder::getAjax($_CONFIG['redirects']['signin'])], 'SIGNIN', 302);
+                Json::error(null, ['location' => Url::getAjax($_CONFIG['redirects']['signin'])], 'SIGNIN', 302);
 
             case 400:
                 // no break

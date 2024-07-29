@@ -89,6 +89,17 @@ class FunctionCall implements FunctionCallInterface
     }
 
 
+    /**
+     * Returns the call location as a string
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getLocation();
+    }
+
+
     public static function clearCache(): void
     {
         static::$backtrace = null;

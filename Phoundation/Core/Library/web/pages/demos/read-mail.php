@@ -1,7 +1,7 @@
 <?php
 
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -238,7 +238,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li>
                                 <span class="mailbox-attachment-icon has-img"><img
-                                            src="<?= UrlBuilder::getCdn('/img/mail/test/image1.png'); ?>"
+                                            src="<?= Url::getCdn('/img/mail/test/image1.png'); ?>"
                                             alt="Attachment"></span>
 
                                 <div class="mailbox-attachment-info">
@@ -252,7 +252,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li>
                                 <span class="mailbox-attachment-icon has-img"><img
-                                            src="<?= UrlBuilder::getCdn('/img/mail/test/image2.png'); ?>"
+                                            src="<?= Url::getCdn('/img/mail/test/image2.png'); ?>"
                                             alt="Attachment"></span>
 
                                 <div class="mailbox-attachment-info">
@@ -269,9 +269,9 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     <!-- /.card-footer -->
                     <div class="card-footer">
                         <div class="float-right">
-                            <a href="<?= UrlBuilder::getWww('/demos/compose.html'); ?>" type="button"
+                            <a href="<?= Url::getWww('/demos/compose.html'); ?>" type="button"
                                class="btn btn-default"><i class="fas fa-reply"></i> Reply</a>
-                            <a href="<?= UrlBuilder::getWww('/demos/compose.html'); ?>" type="button"
+                            <a href="<?= Url::getWww('/demos/compose.html'); ?>" type="button"
                                class="btn btn-default"><i class="fas fa-share"></i> Forward</a>
                         </div>
                         <button type="button" class="btn btn-default"><i class="far fa-trash-alt"></i> Delete</button>

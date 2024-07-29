@@ -18,7 +18,6 @@ namespace Phoundation\Web\Routing;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\CookieValidator;
@@ -40,7 +39,6 @@ use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Routing\Interfaces\MappingInterface;
@@ -148,7 +146,7 @@ class Route
                 PostValidator::hideData();
             }
 
-        } catch (SqlException | NoProjectException) {
+        } catch (SqlException) {
             // Either we have no project or no system database
             GetValidator::hideData();
             PostValidator::hideData();
@@ -355,7 +353,7 @@ class Route
      */
     public static function getRequest(): string
     {
-        return (string) UrlBuilder::getWww();
+        return (string) Url::getWww();
     }
 
 
@@ -461,7 +459,7 @@ class Route
     /**
      * Route the request uri from the client to the correct php file
      *
-     * The Route::add() call requires 3 arguments; $regex, $target, and $flags.
+     * The Route::try() call requires 3 arguments; $regex, $target, and $flags.
      *
      * The first argument is the PERL compatible regular expression that will match the URL you wish to route to a
      * page.
@@ -955,7 +953,7 @@ class Route
                         }
 
                         Request::setRoutingParameters(static::getParametersObject()->select(static::$uri));
-                        Response::redirect(UrlBuilder::getWww($route)->addQueries($_GET), (int) $http_code);
+                        Response::redirect(Url::getWww($route)->addQueries($_GET), (int) $http_code);
 
                     case 'S':
                         $until = substr($flag, 1);
@@ -1241,8 +1239,8 @@ class Route
             if (empty($_SERVER['HTTP_HOST'])) {
                 // No host name WTF? Redirect to the main site
                 Request::setRoutingParameters(static::getParametersObject()
-                                                    ->select(UrlBuilder::getRootDomainRootUrl()));
-                Response::redirect(UrlBuilder::getRootDomainRootUrl());
+                                                    ->select(Url::getRootDomainRootUrl()));
+                Response::redirect(Url::getRootDomainRootUrl());
             }
             if (str_starts_with($_SERVER['HTTP_HOST'], '.') or str_ends_with($_SERVER['HTTP_HOST'], '.')) {
                 Log::warning(tr('Encountered invalid HTTP HOST ":host", it starts or ends with a dot. Redirecting to clean hostname', [
@@ -1255,13 +1253,13 @@ class Route
                         ':host' => $_SERVER['HTTP_HOST'],
                     ]));
                     Request::setRoutingParameters(static::getParametersObject()
-                                                        ->select(UrlBuilder::getRootDomainRootUrl()));
-                    Response::redirect(UrlBuilder::getRootDomainRootUrl());
+                                                        ->select(Url::getRootDomainRootUrl()));
+                    Response::redirect(Url::getRootDomainRootUrl());
                 }
                 // Redirect to correct page
                 Request::setRoutingParameters(static::getParametersObject()
-                                                    ->select(UrlBuilder::getRootDomainUrl()));
-                Response::redirect(UrlBuilder::getRootDomainUrl());
+                                                    ->select(Url::getRootDomainUrl()));
+                Response::redirect(Url::getRootDomainUrl());
             }
         }
     }

@@ -1193,8 +1193,9 @@ class Debug
     /**
      * Returns the call before the specified method (and optionally, class name)
      *
-     * @param string $method
+     * @param string|null $method
      * @param string|null $class
+     *
      * @return ?FunctionCallInterface
      */
     public static function getCallBefore(?string $method, ?string $class = null): ?FunctionCallInterface
@@ -1204,7 +1205,7 @@ class Debug
         // We'll use function call caching here, make sure cache is cleared before we start
         FunctionCall::clearCache();
 
-        while(true) {
+        while (true) {
             try {
                 $call = new FunctionCall($offset++, true);
 

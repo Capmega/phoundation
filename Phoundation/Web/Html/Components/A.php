@@ -18,8 +18,8 @@ namespace Phoundation\Web\Html\Components;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\AInterface;
 use Phoundation\Web\Html\Enums\EnumAnchorTarget;
-use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
+use Phoundation\Web\Http\Url;
 
 class A extends Span implements AInterface
 {
@@ -49,14 +49,14 @@ class A extends Span implements AInterface
     /**
      * Sets the href for this anchor
      *
-     * @param UrlBuilderInterface|string|null $href
+     * @param UrlInterface|string|null $href
      *
      * @return $this
      */
-    public function setHref(UrlBuilderInterface|string|null $href): static
+    public function setHref(UrlInterface|string|null $href): static
     {
         // Run the href through UrlBuilder to ensure that preconfigured URL's like "sign-out" are converted to full URLs
-        $this->attributes->set((string) UrlBuilder::getWww($href), 'href');
+        $this->attributes->set((string) Url::getWww($href), 'href');
 
         return $this;
     }

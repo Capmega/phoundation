@@ -42,7 +42,7 @@ use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\BreadCrumbsInterface;
 use Phoundation\Web\Http\Exception\HttpException;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\PageNotFoundException;
 use Phoundation\Web\Requests\Exception\ResponseHeadersException;
@@ -597,7 +597,7 @@ class Response implements ResponseInterface
                 $file = FsPath::absolutePath(LANGUAGE . '/' . $url, DIRECTORY_CDN);
                 static::$page_headers['link'][$url] = [
                     'rel'  => 'icon',
-                    'href' => UrlBuilder::getImg($url),
+                    'href' => Url::getImg($url),
                     'type' => FsFile::new($file)
                                     ->getMimetype(),
                 ];
@@ -606,7 +606,7 @@ class Response implements ResponseInterface
                 // Unknown (likely remote?) link
                 static::$page_headers['link'][$url] = [
                     'rel'  => 'icon',
-                    'href' => UrlBuilder::getImg($url),
+                    'href' => Url::getImg($url),
                     'type' => 'image/' . Strings::fromReverse($url, '.'),
                 ];
             }
@@ -775,7 +775,7 @@ class Response implements ResponseInterface
             $url = static::versionFile($url, 'js');
             $scripts[$url] = [
                 'type' => 'text/javascript',
-                'src'  => UrlBuilder::getJs($url),
+                'src'  => Url::getJs($url),
             ];
         }
         // Add scripts to header or footer
@@ -799,12 +799,12 @@ class Response implements ResponseInterface
     /**
      * Load the specified CSS file(s)
      *
-     * @param UrlBuilder|array|string $urls
+     * @param Url|array|string $urls
      * @param bool                    $prefix If true, the scripts will be added at the beginning of the scripts list
      *
      * @return void
      */
-    public static function loadCss(UrlBuilder|array|string $urls, bool $prefix = false): void
+    public static function loadCss(Url|array|string $urls, bool $prefix = false): void
     {
         $scripts = [];
 
@@ -813,7 +813,7 @@ class Response implements ResponseInterface
             $url           = static::versionFile($url, 'css');
             $scripts[$url] = [
                 'rel'  => 'stylesheet',
-                'href' => UrlBuilder::getCss($url),
+                'href' => Url::getCss($url),
             ];
         }
 
@@ -981,7 +981,7 @@ class Response implements ResponseInterface
                                ->getRedirect();
             if ($redirect) {
                 // Are we at the forced redirect page? If so, we can stay
-                $current = (string) UrlBuilder::getCurrent();
+                $current = (string) Url::getCurrent();
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
                     // We're at a different page. Should we redirect to the specified page?
                     if (!static::skipRedirect()) {
@@ -992,8 +992,8 @@ class Response implements ResponseInterface
                             ':url'  => $redirect,
                         ]));
                         // Get URL builder object, ensure that sign-in page gets a redirect=$current_url
-                        $redirect = UrlBuilder::getWww($redirect);
-                        if ((string) $redirect === (string) UrlBuilder::getWww('sign-in')) {
+                        $redirect = Url::getWww($redirect);
+                        if ((string) $redirect === (string) Url::getWww('sign-in')) {
                             $redirect->addQueries('redirect=' . $current);
                         }
                         static::redirect($redirect);
@@ -1059,12 +1059,12 @@ class Response implements ResponseInterface
     {
         if (!$url) {
             // Default to current URL
-            $url = UrlBuilder::getCurrent();
+            $url = Url::getCurrent();
         }
         // Compare URLs without queries
         $url  = Strings::until((string) $url, '?');
         $skip = [
-            (string) UrlBuilder::getWww('sign-out'),
+            (string) Url::getWww('sign-out'),
         ];
 
         return in_array($url, $skip);
@@ -1074,11 +1074,11 @@ class Response implements ResponseInterface
     /**
      * Signs the user out of the session and optionally redirects
      *
-     * @param UrlBuilder|string|null $redirect
+     * @param Url|string|null $redirect
      *
      * @return void
      */
-    public static function signOut(UrlBuilder|string|null $redirect = 'signin'): void
+    public static function signOut(Url|string|null $redirect = 'signin'): void
     {
         Session::signOut();
 
@@ -1093,16 +1093,16 @@ class Response implements ResponseInterface
      *
      * @note If no URL is specified, the current URL will be used
      *
-     * @param UrlBuilder|string|bool|null $url
+     * @param Url|string|bool|null $url
      * @param int                         $http_code
      * @param int|null                    $time_delay
      * @param string|null                 $reason_warning
      *
      * @return never
-     * @see  UrlBuilder
-     * @see  UrlBuilder::addQueries()
+     * @see  Url
+     * @see  Url::addQueries()
      */
-    #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
+    #[NoReturn] public static function redirect(Url|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
     {
         if (!PLATFORM_WEB) {
             throw new ResponseRedirectException(tr('Response::redirect() can only be called on web sessions'));
@@ -1117,16 +1117,16 @@ class Response implements ResponseInterface
         //            ]));
         //        }
         // Build URL
-        $target = UrlBuilder::getWww($url);
+        $target = Url::getWww($url);
         // Protect against endless redirecting.
-        if (UrlBuilder::isCurrent($target)) {
+        if (Url::isCurrent($target)) {
             // POST-requests may target to the same page as the target will change POST to GET
             if (!Request::isPostRequestMethod()) {
                 // If the specified target URL was a short code like "prev" or "referer", then it was not hard coded
                 // and the system couldn't know that the short code is the same as the current URL. Redirect to domain
                 // root instead
                 $target = match ($url) {
-                    'prev', 'previous', 'referer' => UrlBuilder::getCurrentDomainRootUrl(),
+                    'prev', 'previous', 'referer' => Url::getCurrentDomainRootUrl(),
                     default                       => throw new OutOfBoundsException(tr('Will NOT target to ":url", its the current page and the current request method is not POST', [
                         ':url' => $target,
                     ])),
@@ -1135,7 +1135,7 @@ class Response implements ResponseInterface
         }
         if (isset_get($_GET['target'])) {
             // Add a target back query
-            $target = UrlBuilder::getWww($target)
+            $target = Url::getWww($target)
                                 ->addQueries(['target' => $_GET['target']]);
         }
         /*

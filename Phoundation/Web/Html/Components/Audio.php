@@ -18,7 +18,7 @@ namespace Phoundation\Web\Html\Components;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Web\Html\Enums\EnumAudioPreload;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Stringable;
 
 class Audio extends Element
@@ -98,7 +98,7 @@ class Audio extends Element
     {
         // For the moment generate the HTML directly
         return '<audio class="' . $this->getClass() . '" preload="auto">
-                    <source src="' . UrlBuilder::getCdn(UrlBuilder::getCdn($this->attributes->get('src', false) ?? $this->content)) . '" type="audio/mpeg">
+                    <source src="' . Url::getCdn(Url::getCdn($this->attributes->get('src', false) ?? $this->content)) . '" type="audio/mpeg">
                 </audio>';
     }
 }

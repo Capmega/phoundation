@@ -26,7 +26,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Domains;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Templates\Phoundation\AdminLte\AdminLte;
 
@@ -444,7 +444,7 @@ class RoutingParameters implements RoutingParametersInterface
     public function setRootUrl(string $root_url): static
     {
         // Make it a correct local URL
-        $this->root_url = (string) UrlBuilder::getWww($root_url, true);
+        $this->root_url = (string) Url::getWww($root_url, true);
 
         return $this;
     }

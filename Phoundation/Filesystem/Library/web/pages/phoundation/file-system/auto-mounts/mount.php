@@ -27,7 +27,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -57,7 +57,7 @@ if (Request::isPostRequestMethod()) {
                 ]));
 
                 // Redirect away from POST
-                Response::redirect(UrlBuilder::getWww('/phoundation/file-system/mount+' . $mount->getId() . '.html'));
+                Response::redirect(Url::getWww('/phoundation/file-system/mount+' . $mount->getId() . '.html'));
 
             case tr('Delete'):
                 $mount->delete();
@@ -130,7 +130,7 @@ $mount_card = Card::new()
     ->setContent($mount->getHtmlDataEntryFormObject()->render())
     ->setButtons(Buttons::new()
                         ->addButton(isset_get($save))
-                        ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/file-system/mounts.html'), true)
+                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/phoundation/file-system/mounts.html'), true)
                         ->addButton(isset_get($audit))
                         ->addButton(isset_get($delete))
                         ->addButton(isset_get($impersonate)));
@@ -141,7 +141,7 @@ $picture = Card::new()
     ->setTitle(tr('FsMount profile picture'))
     ->setContent(Img::new()
         ->addClasses('w100')
-        ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+        ->setSrc(Url::getImg('img/profiles/default.png'))
 //        ->setSrc($mount->getPicture())
         ->setAlt(tr('Profile picture for :mount', [':mount' => $mount->getDisplayName()])));
 
@@ -150,7 +150,7 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
-->setContent('<a href="' . UrlBuilder::getWww('/phoundation/file-systems.html') . '">' . tr('Manage filesystems') . '</a><br>');
+->setContent('<a href="' . Url::getWww('/phoundation/file-systems.html') . '">' . tr('Manage filesystems') . '</a><br>');
 
 
 // Build documentation

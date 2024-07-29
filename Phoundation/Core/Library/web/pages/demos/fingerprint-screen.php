@@ -4,7 +4,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -28,7 +28,7 @@ Response::setRenderMainWrapper(false);
 
 ?>
 <body class="hold-transition lockscreen"
-      style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/fingerprint-screen.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+      style="background: url(<?= Url::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/fingerprint-screen.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
 <!-- Automatic element centering -->
 <div class="lockscreen-wrapper card card-outline card-info">
     <div class="card-header text-center">
@@ -44,7 +44,7 @@ Response::setRenderMainWrapper(false);
                 <?= Session::getUser()->getPicture()
                            ->getHtmlElement()
                            ->addClasses('rounded-circle')
-                           ->setSrc(UrlBuilder::getImg('img/fingerprint-256x192.png'))
+                           ->setSrc(Url::getImg('img/fingerprint-256x192.png'))
                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                            ->render() ?>
             </div>
@@ -55,7 +55,7 @@ Response::setRenderMainWrapper(false);
             Please authenticate using the fingerprint scanner to continue
         </div>
         <div class="text-center">
-            <a href="<?= UrlBuilder::getWww('sign-out'); ?>">Or sign in as a different user</a>
+            <a href="<?= Url::getWww('sign-out'); ?>">Or sign in as a different user</a>
         </div>
         <div class="lockscreen-footer text-center">
             <?= 'Copyright © ' . Config::getString('project.copyright', '2024') . ' <b><a href="' . Config::getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . Config::getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>

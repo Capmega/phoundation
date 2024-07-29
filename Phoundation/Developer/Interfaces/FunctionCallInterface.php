@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Stringable;
 
-interface FunctionCallInterface
+interface FunctionCallInterface extends Stringable
 {
     /**
      * Returns the function (or method) of this call

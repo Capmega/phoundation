@@ -5,7 +5,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -49,7 +49,7 @@ $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch 
                         <div class="col-5 text-center">
                         ' . Session::getUser()->getPicture()
                                    ->getHtmlElement()
-                                   ->setSrc(UrlBuilder::getImg("img/profiles/default.png"))
+                                   ->setSrc(Url::getImg("img/profiles/default.png"))
                                    ->setClass("img-circle img-fluid")
                                    ->setAlt(tr("Profile picture for :user", [":user" => Html::safe(Session::getUser()->getDisplayName())]))
                                    ->render() . '                          
@@ -61,7 +61,7 @@ $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch 
                         <a href="#" class="btn btn-sm bg-teal">
                           <i class="fas fa-comments"></i>
                         </a>
-                        <a href="' . UrlBuilder::getWww("profiles/profile+:id.html") . '" class="btn btn-sm btn-primary">
+                        <a href="' . Url::getWww("profiles/profile+:id.html") . '" class="btn btn-sm btn-primary">
                           <i class="fas fa-user"></i> View Profile
                         </a>
                       </div>

@@ -29,7 +29,7 @@ use Phoundation\Web\Html\Components\Interfaces\DivInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
 trait TraitElementAttributes
@@ -272,14 +272,14 @@ trait TraitElementAttributes
     /**
      * Sets the anchor for this element
      *
-     * @param UrlBuilderInterface|AInterface|null $anchor
+     * @param UrlInterface|AInterface|null $anchor
      *
      * @return Span
      */
-    public function setAnchor(UrlBuilderInterface|AInterface|null $anchor): static
+    public function setAnchor(UrlInterface|AInterface|null $anchor): static
     {
         if ($anchor) {
-            if ($anchor instanceof UrlBuilderInterface) {
+            if ($anchor instanceof UrlInterface) {
                 $anchor = A::new()
                            ->setHref($anchor);
             }

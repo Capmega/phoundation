@@ -10,7 +10,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Layouts\Grid;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -23,7 +23,7 @@ $signins = Card::new()
                ->useForm(true);
 
 $signins->getForm()
-        ->setAction(UrlBuilder::getCurrent())
+        ->setAction(Url::getCurrent())
         ->setMethod(EnumHttpRequestMethod::post);
 
 
@@ -31,9 +31,9 @@ $signins->getForm()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . UrlBuilder::getWww('/my/settings.html') . '">' . tr('Your settings') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/my/api-access.html') . '">' . tr('Your API access') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/my/profile.html') . '">' . tr('Your profile') . '</a>');
+                ->setContent('<a href="' . Url::getWww('/my/settings.html') . '">' . tr('Your settings') . '</a><br>
+                         <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Your API access') . '</a><br>
+                         <a href="' . Url::getWww('/my/profile.html') . '">' . tr('Your profile') . '</a>');
 
 
 // Build documentation

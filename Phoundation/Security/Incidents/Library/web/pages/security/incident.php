@@ -10,7 +10,7 @@ use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -27,15 +27,15 @@ $card     = Card::new()
                 ->setTitle($incident->getTitle())
                 ->setMaximizeSwitch(true)
                 ->setContent($form->render())
-                ->setButtons(Buttons::new()->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/security/incidents.html'), true));
+                ->setButtons(Buttons::new()->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/security/incidents.html'), true));
 
 
 // Build relevant links
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . UrlBuilder::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+                ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
+                         <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation

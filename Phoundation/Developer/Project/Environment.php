@@ -17,7 +17,7 @@ namespace Phoundation\Developer\Project;
 
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
-use Phoundation\Developer\Project\Exception\EnvironmentException;
+use Phoundation\Exception\EnvironmentException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;

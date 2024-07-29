@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Interfaces;
 
-interface UrlBuilderInterface
+interface UrlInterface
 {
     /**
      * When used as string, will always return the internal URL as available

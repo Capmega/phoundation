@@ -41,6 +41,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
+use Phoundation\Notifications\Exception\NotificationsException;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Utils\Arrays;
@@ -95,6 +96,20 @@ class Notification extends DataEntry implements NotificationInterface
      * @var Throwable|null $e
      */
     protected ?Throwable $e = null;
+
+    /**
+     * Tracks if this notification has been logged or not
+     *
+     * @var bool $is_logged
+     */
+    protected bool $is_logged = false;
+
+    /**
+     * Tracks if this notification has been sent or not
+     *
+     * @var bool $is_sent
+     */
+    protected bool $is_sent = false;
 
 
     /**
@@ -302,10 +317,18 @@ POST variables:
             static $sending = false;
 
             if ($sending) {
-                throw NotificationBusyException::new(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
+                // Avoid endless looping!
+                throw NotificationBusyException::new(tr('Cannot send notification ":title" notification with message ":message", the notifications system is already busy sending another notification', [
                     ':title'   => $this->getTitle(),
                     ':message' => $this->getMessage(),
                 ]))->addData($this->source);
+            }
+
+            if (!sql(connect: false)->isConnected()) {
+                throw new NotificationsException(tr('Cannot send notification ":title" notification with message ":message", the system database is not available', [
+                    ':title'   => $this->getTitle(),
+                    ':message' => $this->getMessage(),
+                ]));
             }
 
             $sending = true;
@@ -368,7 +391,11 @@ POST variables:
             Log::write(tr('Data :'), 'debug', 10, false);
 
             try {
-                Log::write(print_r($this->getDetails(), true), 'debug', 10, false);
+                $details = $this->getDetails();
+
+                if ($details) {
+                    Log::write(print_r($details, true), 'debug', 10, false);
+                }
 
             } catch (Throwable $f) {
                 Log::error(tr('Failed to display notifications detail due to the following exception. Details following after exception'));
@@ -586,7 +613,28 @@ POST variables:
         $this->set(null, 'id')
              ->setUsersId($user);
 
-        return parent::save();
+        // Notifications are stored in the system database. Do we have the system database available?
+        if (sql()->isConnected()) {
+            return parent::save();
+        }
+
+        // Nope, no system DB!
+        if ($this->is_logged) {
+            // Log the entire notification
+            Log::error(tr('Not saving next notification, the system database is not available', [
+                ':id' => $this->getId()
+            ]));
+
+            $this->log();
+
+        } else {
+            // Notification was already logged, don't log again
+            Log::error(tr('Not saving previous notification ":title", there is no system database available', [
+                ':title' => $this->getTitle()
+            ]));
+        }
+
+        return $this;
     }
 
 
@@ -604,6 +652,7 @@ POST variables:
                                         $validator->isDbId()
                                                   ->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$users_id']);
                                     }))
+
                     ->add(Definition::new($this, 'code')
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -615,6 +664,7 @@ POST variables:
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isPrintable();
                                     }))
+
                     ->add(Definition::new($this, 'mode')
                                     ->setLabel(tr('Mode'))
                                     ->setReadonly(true)
@@ -625,10 +675,12 @@ POST variables:
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDisplayMode();
                                     }))
+
                     ->add(Definition::new($this, 'icon')
                                     ->setRender(false)
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::url))
+
                     ->add(Definition::new($this, 'priority')
                                     ->setReadonly(true)
                                     ->setInputType(EnumInputType::integer)
@@ -638,6 +690,7 @@ POST variables:
                                     ->setMin(1)
                                     ->setMax(9)
                                     ->setSize(3))
+
                     ->add(Definition::new($this, 'title')
                                     ->setReadonly(true)
                                     ->setLabel(tr('Title'))
@@ -646,6 +699,7 @@ POST variables:
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isPrintable();
                                     }))
+
                     ->add(Definition::new($this, 'message')
                                     ->setReadonly(true)
                                     ->setElement(EnumElement::textarea)
@@ -655,6 +709,7 @@ POST variables:
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isPrintable();
                                     }))
+
                     ->add(Definition::new($this, 'url')
                                     ->setReadonly(true)
                                     ->setOptional(true)
@@ -662,6 +717,7 @@ POST variables:
                                     ->setLabel(tr('URL'))
                                     ->setMaxlength(2048)
                                     ->setSize(12))
+
                     ->add(Definition::new($this, 'details')
                                     ->setReadonly(true)
                                     ->setOptional(true)
@@ -700,6 +756,7 @@ POST variables:
                                             return $value;
                                         }
                                     }))
+
                     ->add(Definition::new($this, 'file')
                                     ->setReadonly(true)
                                     ->setOptional(true)
@@ -708,6 +765,7 @@ POST variables:
                                     ->setLabel(tr('FsFileFileInterface'))
                                     ->setMaxlength(255)
                                     ->setSize(8))
+
                     ->add(Definition::new($this, 'line')
                                     ->setReadonly(true)
                                     ->setOptional(true)
@@ -716,6 +774,7 @@ POST variables:
                                     ->setLabel(tr('Line'))
                                     ->setMin(1)
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'trace')
                                     ->setReadonly(true)
                                     ->setOptional(true)
@@ -728,6 +787,29 @@ POST variables:
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isJson();
                                     }))
+
                     ->get('status')->setDefault('UNREAD');
+    }
+
+
+    /**
+     * Returns true if this notification has been logged
+     *
+     * @return bool
+     */
+    public function isLogged(): bool
+    {
+        return $this->is_logged;
+    }
+
+
+    /**
+     * Returns true if this notification has been sent to its recipients
+     *
+     * @return bool
+     */
+    public function isSent(): bool
+    {
+        return $this->is_sent;
     }
 }

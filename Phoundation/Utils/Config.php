@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Phoundation\Utils;
 
 use Exception;
-use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -101,6 +100,13 @@ class Config implements ConfigInterface
      */
     protected static bool $include_production = true;
 
+    /**
+     * Tracks if configuration access is allowed without environment available
+     *
+     * @var bool
+     */
+    protected static bool $allow_no_environment = false;
+
 
     /**
      * Returns the current environment for the configuration object
@@ -136,7 +142,7 @@ class Config implements ConfigInterface
         static::$environment        = strtolower(trim($environment));
 
         static::reset();
-        static::read(false);
+        static::read();
     }
 
 
@@ -181,7 +187,7 @@ class Config implements ConfigInterface
         static::$environment        = strtolower(trim($environment));
 
         static::reset();
-        static::read(true);
+        static::read();
     }
 
 
@@ -259,6 +265,11 @@ class Config implements ConfigInterface
             return Strings::toBoolean($return);
 
         } catch (OutOfBoundsException) {
+            if (($default === null) and static::$allow_no_environment) {
+                // In the allow no environment mode, we can return default (if not specified, default will be false)
+                return false;
+            }
+
             // Do nothing, following exception will do the job
 
             throw new ConfigException(tr('The configuration path ":path" should be a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has value ":value" instead', [
@@ -271,6 +282,12 @@ class Config implements ConfigInterface
 
     /**
      * Return configuration data for the specified key path
+     *
+     * @note An environment must be available when calling this method. If (during early startup) the environment is not
+     *       available (yet) a ConfigException will be thrown
+     *
+     * @note If no environment is available (usually during early startup) and static::$allow_no_environment is true,
+     *       this method will not throw an exception but will always return the default value instead
      *
      * @param string|array $path      The key path to search for. This should be specified either as an array with key
      *                                names or a "." separated string
@@ -288,7 +305,12 @@ class Config implements ConfigInterface
         if (empty(static::$environment)) {
             // We don't really have an environment, don't check configuration
             // NOTE: DO NOT USE TR() HERE AS THE FUNCTIONS FILE MAY NOT YET BE LOADED
-            throw new ConfigException('Cannot access configuration, environment has not been determined yet');
+            if (!static::$allow_no_environment) {
+                throw new ConfigException('Cannot access configuration, environment has not been determined yet');
+            }
+
+            // Non environment configuration access will ALWAYS return the default value
+            return $default;
         }
 
         Debug::counter('Config::get()')->increase();
@@ -369,9 +391,9 @@ class Config implements ConfigInterface
     /**
      * Singleton, ensure to always return the same Config object.
      *
-     * @return static
+     * @return ConfigInterface
      */
-    public static function getInstance(): static
+    public static function getInstance(): ConfigInterface
     {
         if (!isset(static::$instance)) {
             static::$instance = new static();
@@ -424,6 +446,11 @@ class Config implements ConfigInterface
             return $return;
         }
 
+        if (($default === null) and static::$allow_no_environment) {
+            // In the allow no environment mode, we can return default (if not specified, default will be 0)
+            return 0;
+        }
+
         throw new ConfigException(tr('The configuration path ":path" should be an integer number but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
@@ -450,6 +477,11 @@ class Config implements ConfigInterface
             return $return;
         }
 
+        if (($default === null) and static::$allow_no_environment) {
+            // In the allow no environment mode, we can return default (if not specified, default will be 0)
+            return 0;
+        }
+
         throw new ConfigException(tr('The configuration path ":path" should be a natural number, integer 0 or above, but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
@@ -474,6 +506,11 @@ class Config implements ConfigInterface
 
         if (is_float($return)) {
             return $return;
+        }
+
+        if (($default === null) and static::$allow_no_environment) {
+            // In the allow no environment mode, we can return default (if not specified, default will be 0)
+            return 0;
         }
 
         throw new ConfigException(tr('The configuration path ":path" should be a number but has value ":value"', [
@@ -519,6 +556,11 @@ class Config implements ConfigInterface
             return static::fixKeys($return);
         }
 
+        if (($default === null) and static::$allow_no_environment) {
+            // In the allow no environment mode, we can return default (if not specified, default will be array)
+            return [];
+        }
+
         throw new ConfigException(tr('The configuration path ":path" should be an array but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
@@ -545,6 +587,11 @@ class Config implements ConfigInterface
             return $return;
         }
 
+        if (($default === null) and static::$allow_no_environment) {
+            // In the allow no environment mode, we can return default (if not specified, default will be "")
+            return '';
+        }
+
         throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
@@ -569,6 +616,11 @@ class Config implements ConfigInterface
 
         if (is_string($return) or is_bool($return)) {
             return $return;
+        }
+
+        if (($default === null) and static::$allow_no_environment) {
+            // In the allow no environment mode, we can return default (if not specified, default will be false)
+            return false;
         }
 
         throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
@@ -822,6 +874,7 @@ class Config implements ConfigInterface
     {
         // Reset data, then import data
         static::reset();
+
         static::$data = [
             'security'      => [
                 'seed' => Strings::getRandom(random_int(16, 32)),
@@ -861,6 +914,7 @@ class Config implements ConfigInterface
                     ],
                 ],
             ],
+
             'notifications' => [
                 'groups' => [
                     'developer' => [
@@ -868,6 +922,7 @@ class Config implements ConfigInterface
                     ],
                 ],
             ],
+
             'web'           => [
                 'minify'   => false,
                 'sessions' => [
@@ -876,6 +931,7 @@ class Config implements ConfigInterface
                         'domain' => 'auto',
                     ],
                 ],
+
                 'domains'  => [
                     'primary'     => [
                         'www' => 'http://' . $configuration->getDomain() . '/:LANGUAGE/',
@@ -886,6 +942,7 @@ class Config implements ConfigInterface
                         'cdn' => 'https://cdn.whitelabel1.phoundation.org/:LANGUAGE/',
                     ],
                 ],
+
                 'route'    => [
                     'known-hacks' => [],
                 ],
@@ -924,17 +981,16 @@ class Config implements ConfigInterface
     /**
      * Reads the configuration file for the specified configuration environment
      *
-     * @param bool $exception
-     *
      * @return void
      */
-    protected static function read(bool $exception): void
+    protected static function read(): void
     {
         try {
             if (!static::$environment) {
                 // We don't really have an environment, don't read configuration
                 return;
             }
+
             // What environments should be read?
             if (static::$environment === 'production') {
                 $environments = [
@@ -953,17 +1009,21 @@ class Config implements ConfigInterface
                 // Read only the specified environment
                 $environments = [static::$environment];
             }
+
             // Read the section for each environment
             foreach ($environments as $environment) {
                 $file = DIRECTORY_ROOT . 'config/' . self::$section . $environment . '.yaml';
+
                 FsRestrictions::new(DIRECTORY_ROOT . 'config/')
                             ->check($file, false);
+
                 // Check if a configuration file exists for this environment
                 if (!file_exists($file)) {
                     // Do NOT use tr() here as it will cause endless loops!
                     throw ConfigFileDoesNotExistsException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" does not exist')
                                                           ->makeWarning();
                 }
+
                 try {
                     // Read the configuration data and merge it in the internal configuration data array
                     $data = yaml_parse_file($file);
@@ -971,37 +1031,68 @@ class Config implements ConfigInterface
                 } catch (Throwable $e) {
                     // Failed to read YAML data from configuration file
                     static::$failed = 'Failed to read configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" because "' . $e->getMessage() . '"';
+
                     throw ConfigParseFailedException::new(static::$failed, $e)
                                                     ->makeWarning();
                 }
+
                 if (!is_array($data)) {
                     if ($data) {
                         throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [
                             ':file' => $file,
                         ]));
                     }
+
                     // It looks like the configuration file was empty
                     $data = [];
                 }
+
                 static::$data = Arrays::mergeFull(static::$data, $data);
             }
 
         } catch (ConfigException $e) {
             // Do NOT use Log class here as log class requires config which just now failed... Same goes for tr()!
             static::$failed = 'Failed to load configuration file "' . isset_get($file) . '" because: ' . $e->getMessage();
-            if ($exception) {
-                throw $e;
-            }
-            if (Core::inStartupState()) {
-                error_log(static::$failed);
-                echo 'Failed to start, see framework and web server logs for more information';
-                if (PLATFORM_CLI) {
-                    echo PHP_EOL;
-                    exit(1);
-                }
-                exit();
-            }
-            echo static::$failed . PHP_EOL;
+            throw $e;
+
+// TODO The following section may be deleted
+//            if (Core::inStartupState()) {
+//                Log::errorLog(static::$failed);
+//
+//                echo 'Failed to start, see framework and web server logs for more information';
+//
+//                if (PLATFORM_CLI) {
+//                    echo PHP_EOL;
+//                    exit(1);
+//                }
+//
+//                exit();
+//            }
+//
+//            echo static::$failed . PHP_EOL;
         }
+    }
+
+
+    /**
+     * Will allow Config::get() calls with ENVIRONMENT not (yet) defined
+     *
+     * @return void
+     */
+    public static function allowNoEnvironment(): void
+    {
+        static::$failed               = false;
+        static::$allow_no_environment = true;
+    }
+
+
+    /**
+     * Will not allow Config::get() calls with ENVIRONMENT not (yet) defined
+     *
+     * @return void
+     */
+    public static function disallowNoEnvironment(): void
+    {
+        static::$allow_no_environment = false;
     }
 }

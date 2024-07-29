@@ -18,7 +18,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -44,7 +44,7 @@ if (Request::isPostRequestMethod()) {
             $user->changePassword($post['password'], $post['passwordv']);
 
             Response::getFlashMessages()->addSuccess(tr('Your password has been updated'));
-            Response::redirect(UrlBuilder::getWww(UrlBuilder::getPrevious('/my/profile.html')));
+            Response::redirect(Url::getWww(Url::getPrevious('/my/profile.html')));
 
         } catch (PasswordTooShortException | NoPasswordSpecifiedException) {
             Response::getFlashMessages()->addWarning(tr('Please specify at least 10 characters for the password'));
@@ -69,7 +69,7 @@ if (Request::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
                   ->addButton(tr('Save'))
-                  ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/my/profile.html'), true);
+                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/my/profile.html'), true);
 
 
 // Build the user form
@@ -91,10 +91,10 @@ $column = GridColumn::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . UrlBuilder::getWww('/my/profile.html') . '">' . tr('Manage Your profile') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/my/settings.html') . '">' . tr('Manage Your settings') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/my/api-access.html') . '">' . tr('Manage Your API access') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/my/sign-in-history.html') . '">' . tr('Review Your sign-in history') . '</a>');
+                ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('Manage Your profile') . '</a><br>
+                         <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage Your settings') . '</a><br>
+                         <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage Your API access') . '</a><br>
+                         <a href="' . Url::getWww('/my/sign-in-history.html') . '">' . tr('Review Your sign-in history') . '</a>');
 
 
 // Build documentation

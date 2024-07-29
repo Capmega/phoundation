@@ -102,15 +102,17 @@ class Databases
      *
      * @param ConnectorInterface|string $connector
      * @param bool                      $use_database
+     * @param bool                      $connect
      *
      * @return SqlInterface
      */
-    public static function sql(ConnectorInterface|string $connector = 'system', bool $use_database = true): SqlInterface
+    public static function sql(ConnectorInterface|string $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
     {
         if (!$connector) {
             // Default to system connector
             $connector = 'system';
         }
+
         if ($connector instanceof ConnectorInterface) {
             $connector_name = $connector->getName();
             if (!$connector_name) {
@@ -123,10 +125,11 @@ class Databases
             // The connector specified was a connector name
             $connector_name = $connector;
         }
+
         if (!array_key_exists($connector_name, static::$sql)) {
             // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it.
             // Connect and add it
-            static::$sql[$connector_name] = new Sql($connector, $use_database);
+            static::$sql[$connector_name] = new Sql($connector, $use_database, $connect);
         }
 
         return static::$sql[$connector_name];

@@ -3,7 +3,7 @@
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -41,7 +41,7 @@ echo Script::new()
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-3">
-                <a href="<?= UrlBuilder::getWww('/demos/mailbox.html'); ?>" class="btn btn-primary btn-block mb-3">Back
+                <a href="<?= Url::getWww('/demos/mailbox.html'); ?>" class="btn btn-primary btn-block mb-3">Back
                     to Inbox</a>
 
                 <div class="card">

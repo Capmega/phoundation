@@ -29,7 +29,7 @@ use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\CoreStartupFailedException;
 use Phoundation\Core\Exception\Interfaces\CoreStartupFailedExceptionInterface;
-use Phoundation\Core\Exception\NoProjectException;
+use Phoundation\Core\Exception\ProjectException;
 use Phoundation\Core\Interfaces\CoreInterface;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Library;
@@ -48,6 +48,9 @@ use Phoundation\Date\Date;
 use Phoundation\Date\DateTimeZone;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
+use Phoundation\Exception\EnvironmentException;
+use Phoundation\Exception\EnvironmentNotDefinedException;
+use Phoundation\Exception\EnvironmentNotExistsException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
@@ -61,11 +64,12 @@ use Phoundation\Os\Processes\Commands\Id;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
+use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Http;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
@@ -334,11 +338,14 @@ class Core implements CoreInterface
             // project name, platform and request type
             static::getInstance();
             static::securePhpSettings();
-            static::setProject();
             static::setPlatform();
-            static::startupPlatform();
+            static::setProject();
+            static::startPlatform();
 
         } catch (Throwable $e) {
+            Config::allowNoEnvironment();
+            Core::ensureCoreDefines();
+
             if (defined('PLATFORM_WEB')) {
                 if (PLATFORM_WEB and headers_sent($file, $line)) {
                     if (preg_match('/debug-.+\.php$/', $file)) {
@@ -353,11 +360,7 @@ class Core implements CoreInterface
                 }
             }
 
-            if (($e instanceof ValidationFailedException) or ($e instanceof CliArgumentsException)) {
-                throw $e;
-            }
-
-            throw new CoreStartupFailedException('Failed core startup because: ' . $e->getMessage(), $e);
+            throw $e;
         }
     }
 
@@ -385,8 +388,9 @@ class Core implements CoreInterface
         // Get the project name
         try {
             $project = strtoupper(trim(file_get_contents(DIRECTORY_ROOT . 'config/project')));
+
             if (!$project) {
-                throw new OutOfBoundsException('No project defined in DIRECTORY_ROOT/config/project file');
+                throw new OutOfBoundsException('No project definition found in DIRECTORY_ROOT/config/project file');
             }
 
             define('PROJECT', $project);
@@ -394,11 +398,11 @@ class Core implements CoreInterface
         } catch (Throwable $e) {
             static::$failed = true;
 
-            define('PROJECT', 'UNKNOWN');
+            define('PROJECT'          , 'UNKNOWN');
             define('DIRECTORY_PROJECT', DIRECTORY_DATA . 'sources/' . PROJECT . '/');
 
             if ($e instanceof OutOfBoundsException) {
-                throw $e;
+                throw new ProjectException(tr('Project file is empty. Please ensure that the file "' . DIRECTORY_ROOT . 'config/project" has a valid project name (only letters and dashes)'));
             }
 
             // Project file is not readable
@@ -407,18 +411,21 @@ class Core implements CoreInterface
                     // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
                     // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
                     // won't be able to work our way around this.
-                    throw new CoreException(tr('Project file "config/project" does exist but is not readable. Please check the owner, group and mode for this file'));
+                    throw new ProjectException(tr('Project file "config/project" does exist but is not readable. Please check the owner, group and mode for this file'));
                 }
 
                 // The file doesn't exist, that is good. Go to setup mode
-                error_log('Project file "config/project" does not exist, entering setup mode');
+                Log::errorLog('Project file "config/project" does not exist, entering setup mode');
 
                 static::setPlatform();
-                static::startupPlatform();
+                static::startPlatform();
                 static::$state = 'setup';
 
-                throw new NoProjectException('Project file "' . DIRECTORY_ROOT . 'config/project" cannot be read. Please ensure it exists');
+                throw new ProjectException('Project file "' . DIRECTORY_ROOT . 'config/project" cannot be read. Please ensure it exists');
             }
+
+            // Unknown error
+            throw ProjectException(tr('Failed to get project name, please ensure that the file "' . DIRECTORY_ROOT . 'config/project" is readable'), $e);
         }
     }
 
@@ -453,40 +460,45 @@ class Core implements CoreInterface
      *
      * @return void
      */
-    protected static function startupPlatform(): void
+    protected static function startPlatform(): void
     {
         // Detect platform and execute the specific platform startup sequence
-        switch (PLATFORM) {
-            case 'web':
-                static::startupWeb();
-                break;
+        try {
+            switch (PLATFORM) {
+                case 'web':
+                    static::startWeb();
+                    break;
 
-            case 'cli':
-                static::startupCli();
+                case 'cli':
+                    static::startCli();
+            }
+
+            static::$state = 'startup';
+
+        } catch (ConfigFileDoesNotExistsException $e) {
+            throw new EnvironmentNotExistsException(tr('The configured or requested environment ":environment" does not exist', [
+                ':environment' => ENVIRONMENT
+            ]));
         }
-
-        static::$state = 'startup';
     }
 
 
-    /**
+    /**f
      * Startup for HTTP requests
      *
      * @return void
+     * @todo Move this to the Web class
      */
-    protected static function startupWeb(): void
+    protected static function startWeb(): void
     {
-        if (PROJECT === 'UNKNOWN') {
-            $env = '';
+        // Check what environment we're in
+        $env = get_null(getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT'));
 
-        } else {
-            // Check what environment we're in
-            $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
-
-            if (empty($env)) {
-                // No environment set in ENV, maybe given by parameter?
-                Core::exit(2, 'startup: No required web environment specified for project "' . PROJECT . '"');
-            }
+        if (empty($env)) {
+            // No environment set in ENV, maybe given by parameter?
+            Config::allowNoEnvironment();
+            throw EnvironmentNotDefinedException::new('No required web environment specified for project "' . PROJECT . '"')
+                                      ->setCode(500);
         }
 
         // Set environment and protocol
@@ -495,8 +507,6 @@ class Core implements CoreInterface
         Config::setEnvironment(ENVIRONMENT);
 
         // Register basic HTTP information
-        // TODO MOVE TO HTTP CLASS
-        static::$register['http']['code'] = 200;
 //                    static::$register['http']['accepts'] = Request::accepts();
 //                    static::$register['http']['accepts_languages'] = Request::acceptsLanguages();
 
@@ -505,18 +515,18 @@ class Core implements CoreInterface
         define('PROTOCOL'  , Config::get('web.protocol', 'https://'));
         define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
         define('PAGE'      , $_GET['page'] ?? 1);
-        define('QUIET'     , ((getenv('QUIET') or getenv('VERY_QUIET')) ? 'QUIET' : false));
-        define('ALL'       , (getenv('ALL')        ? getenv('ALL')        : false));
-        define('DELETED'   , (getenv('DELETED')    ? getenv('DELETED')    : false));
-        define('FORCE'     , (getenv('FORCE')      ? getenv('FORCE')      : false));
-        define('ORDERBY'   , (getenv('ORDERBY')    ? getenv('ORDERBY')    : ''));
-        define('STATUS'    , (getenv('STATUS')     ? getenv('STATUS')     : ''));
-        define('VERY_QUIET', (getenv('VERY_QUIET') ? getenv('VERY_QUIET') : false));
-        define('TEST'      , (getenv('TEST')       ? getenv('TEST')       : false));
-        define('VERBOSE'   , (getenv('VERBOSE')    ? getenv( 'VERBOSE')   : false));
-        define('NOAUDIO'   , (getenv('NOAUDIO')    ? getenv('NOAUDIO')    : false));
-        define('LIMIT'     , (getenv('LIMIT')      ? getenv('LIMIT')      : Config::getNatural('paging.limit', 50)));
-        define('NOWARNINGS', (getenv('NOWARNINGS') ? getenv('NOWARNINGS') : false));
+        define('QUIET'     , (get_null(getenv('QUIET')) or get_null(getenv('VERY_QUIET'))) ?? false);
+        define('ALL'       , get_null(getenv('ALL'))        ?? false);
+        define('DELETED'   , get_null(getenv('DELETED'))    ?? false);
+        define('FORCE'     , get_null(getenv('FORCE'))      ?? false);
+        define('ORDERBY'   , get_null(getenv('ORDERBY'))    ?? '');
+        define('STATUS'    , get_null(getenv('STATUS'))     ?? '');
+        define('VERY_QUIET', get_null(getenv('VERY_QUIET')) ?? false);
+        define('TEST'      , get_null(getenv('TEST'))       ?? false);
+        define('VERBOSE'   , get_null(getenv('VERBOSE'))    ?? false);
+        define('NOAUDIO'   , get_null(getenv('NOAUDIO'))    ?? false);
+        define('LIMIT'     , get_null(getenv('LIMIT'))      ?? Config::getNatural('paging.limit', 50));
+        define('NOWARNINGS', get_null(getenv('NOWARNINGS')) ?? false);
 
         // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
@@ -574,7 +584,7 @@ class Core implements CoreInterface
      * @param Throwable|int $exit_code    The exit code for this process once it terminates
      * @param string|null   $exit_message Message to be printed upon exit, only works for CLI processes
      * @param bool          $sig_kill     If true, the process is being terminated due to an external KILL signal
-     * @param bool          $direct_exit  If true, will exit the process immediately without loging, cleaning, etc.
+     * @param bool          $direct_exit  If true, will exit the process immediately without logging, cleaning, etc.
      *
      * @return never
      */
@@ -601,9 +611,11 @@ class Core implements CoreInterface
                 } else {
                     // Try shutdown with cleanup
                     try {
-                        static::executeShutdownCallbacks($exit_code, $exit_message, $sig_kill);
-                        static::executePeriodicals($exit_code, $exit_message, $sig_kill);
-                        static::exitCleanup();
+                        if (Config::getEnvironment()) {
+                            static::executeShutdownCallbacks();
+                            static::executePeriodicals($exit_code);
+                            static::exitCleanup();
+                        }
 
                     } catch (Throwable $e) {
                         // Uncaught exception handler for exit
@@ -614,12 +626,18 @@ class Core implements CoreInterface
                 // Execute platform specific exit
                 if (PLATFORM_WEB) {
                     // Kill a web page
+                    Response::setHttpCode($exit_code);
                     Request::exit($exit_message, $sig_kill);
                 }
 
                 // Kill a CLI command
                 CliCommand::exit($exit_code, $exit_message, $sig_kill);
             }
+        }
+
+        if (Log::syslogIsOpen()) {
+            // Close the syslog
+            closelog();
         }
 
         exit();
@@ -687,14 +705,10 @@ class Core implements CoreInterface
     /**
      * This method will execute all registered shutdown callback functions
      *
-     * @param Throwable|int $exit_code
-     * @param string|null   $exit_message
-     * @param bool          $sig_kill
-     *
      * @return void
      * @throws Throwable
      */
-    protected static function executeShutdownCallbacks(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false): void
+    protected static function executeShutdownCallbacks(): void
     {
         if (empty(static::$shutdown_callbacks)) {
             return;
@@ -805,13 +819,11 @@ class Core implements CoreInterface
      * This method will execute all registered shutdown callback functions
      *
      * @param Throwable|int $exit_code
-     * @param string|null   $exit_message
-     * @param bool          $sig_kill
      *
      * @return void
      * @throws Throwable
      */
-    protected static function executePeriodicals(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false): void
+    protected static function executePeriodicals(Throwable|int $exit_code = 0): void
     {
         // Periodically execute the following functions
         if (!$exit_code) {
@@ -843,25 +855,33 @@ class Core implements CoreInterface
      */
     protected static function exitCleanup(): void
     {
-        Log::action(tr('Performing exit cleanup'), 2);
+        if (Config::getEnvironment()) {
+            if (sql(connect: false)->isConnected()) {
+                Log::action(tr('Performing exit cleanup'), 2);
 
-        // Flush the metadata
-        Meta::flush();
+                // Flush the metadata
+                Meta::flush();
 
-        // Stop time measuring here
-        static::$timer->stop();
+                // Stop time measuring here
+                static::$timer->stop();
 
-        // Log debug information?
-        if (Debug::isEnabled() and Debug::printStatistics()) {
-            // Only when auto complete is not active!
-            if (!CliAutoComplete::isActive()) {
-                static::logDebug();
+                // Log debug information?
+                if (Debug::isEnabled() and Debug::printStatistics()) {
+                    // Only when auto complete is not active!
+                    if (!CliAutoComplete::isActive()) {
+                        static::logDebug();
+                    }
+                }
+
+                // Cleanup
+                Session::exit();
+                FsDirectory::removeTemporary();
             }
         }
 
-        // Cleanup
-        Session::exit();
-        FsDirectory::removeTemporary();
+        // If we get here...
+        // The Config object has no environment and won't be able to load configuration. This means that the process is
+        // exiting during startup. As such, we won't have logging either. Don't do cleanup, don't do anything. Just exit
     }
 
 
@@ -908,7 +928,26 @@ class Core implements CoreInterface
 
 
     /**
-     * This function is called automatically
+     * Phoundation uncaught exception handler
+     * *
+     * This function is called automatically by PHP when an exception was not caught by Phoundation itself.
+     *
+     *
+     * IMPORTANT! IF YOU ARE FACED WITH AN UNCAUGHT EXCEPTION, OR WEIRD EFFECTS LIKE WHITE SCREEN, ALWAYS FOLLOW THESE
+     * STEPS:
+     *
+     * When faced with an exception on the web platform, check the DIRECTORY_ROOT/data/log/syslog (or exception log if
+     * you have single_log disabled). In here you can find 99% of the issues. If the syslog file does not give any
+     * information, then try the web server logs as failures that cannot be logged in the syslog will be logged there.
+     * Typically you will find these in /var/log/php and /var/log/apache2 or /var/log/nginx
+     *
+     * When facing exceptions on the command line, all exception data will always be printed on the command line itself.
+     *
+     * If that gives you nothing, then try uncommenting the first line in the method. This will force display the error
+     *
+     * The reason that this is normally commented out and that logging or displaying your errors might fail is for
+     * security, as Phoundation may not know at the point where your error occurred if it is on a production environment
+     * or not.
      *
      * @param Throwable $e
      *
@@ -918,130 +957,47 @@ class Core implements CoreInterface
      */
     #[NoReturn] public static function uncaughtException(Throwable $e): never
     {
-        // When on commandline, ring an alarm
-        if (!defined('PLATFORM_CLI') or PLATFORM_CLI) {
-            try {
-                if ($e instanceof Exception) {
-                    if ($e->isWarning()) {
-                        Audio::new('warning.mp3')->playLocal(true);
+        //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
 
-                    } else {
-                        Audio::new('critical.mp3')->playLocal(true);
-                    }
+        static $executed = false;
 
-                } else {
-                    Audio::new('critical.mp3')->playLocal(true);
-                }
-
-            } catch (Throwable $f) {
-                if (!CliAutoComplete::isActive()) {
-                    Log::warning('Failed to play uncaught exception audio because "' . $f->getMessage() . '"');
-                }
-            }
+        if ($executed) {
+            // WTF? This should never happen. We seem to be stuck in an uncaught exception loop, cut it out now!
+            // This basically means that the unhandledException handler also is causing uncaught exceptions,
+            // which should be impossible as it catches Throwable for the entire method. This extra check is just added
+            // to ensure we never get in an endless loop for some unforseen reason
+            exit('uncaught exception handler loop detected, please check logs');
         }
 
+        $executed = true;
+
+        // Track state
+        $state               = static::$state;
+        static::$error_state = true;
+
+        // We MAY not have an environment yet, tell configuration that it can just return default values from here on.
+        // Ensure all defines are available to avoid next crashes because of missing defines.
+        // When on commandline, ring an alarm to notify the user
+        Config::allowNoEnvironment();
+        static::ensureCoreDefines();
+        static::playUncaughtExceptionAudio($e);
+
+        // Ensure the exception is a Phoundation exception
+        $e = Exception::ensurePhoundationException($e);
+
+        // When in CLI auto complete mode, just log and display a standard exception message
         if (CliAutoComplete::isActive()) {
             Log::error($e, 10, echo_screen: false);
             echo 'auto-complete-failed-see-system-log';
             exit(1);
         }
 
-        // Ensure the exception is a Phoundation exception and register it
-        $e = Exception::ensurePhoundationException($e);
-
-        // Don't register warning exceptions
-        if (!$e->isWarning()) {
-            // Only notify and register developer incident if we're on production
-            if (Core::isProductionEnvironment()) {
-                // We CAN only notify after startup!
-                if (!static::inStartupState()) {
-                    try {
-                        $e->registerDeveloperIncident();
-
-                    } catch (Throwable $f) {
-                        Log::error(tr('Failed to register uncaught exception because of the following exception'));
-                        Log::error($f);
-                    }
-                    try {
-                        $e->getNotificationObject()
-                          ->send(false);
-
-                    } catch (Throwable $f) {
-                        Log::error(tr('Failed to notify developers of uncaught exception because of the following exception'));
-                        Log::error($f);
-                    }
-                }
-            }
-        }
-
-        //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
-        /*
-         * Phoundation uncaught exception handler
-         *
-         * IMPORTANT! IF YOU ARE FACED WITH AN UNCAUGHT EXCEPTION, OR WEIRD EFFECTS LIKE
-         * WHITE SCREEN, ALWAYS FOLLOW THESE STEPS:
-         *
-         *    Check the DIRECTORY_ROOT/data/log/syslog (or exception log if you have single_log
-         *    disabled). In here you can find 99% of the issues
-         *
-         *    If the syslog did not contain information, then check your apache / nginx
-         *    or PHP error logs. Typically you will find these in /var/log/php and
-         *    /var/log/apache2 or /var/log/nginx
-         *
-         *    If that gives you nothing, then try uncommenting the line in the section
-         *    right below these comments. This will forcibly display the error
-         */
-        /*
-         * If you are faced with an uncaught exception that does not give any
-         * information (for example, "exception before platform detection", or
-         * "pre ready exception"), uncomment the files line of this file to see whats up.
-         *
-         * The reason that this is normally commented out and that logging or displaying
-         * your errors might fail is for security, as Phoundation may not know at the
-         * point where your error occurred if it is on a production environment or not.
-         *
-         * For cases like these, uncomment the following lines and you should see your
-         * error displayed on your browser.
-         */
-        static $executed     = false;
-        $state               = static::$state;
-        static::$error_state = true;
-
-        // Ensure that definitions exist
-        $defines = [
-            'ADMIN'      => '',
-            'PWD'        => Strings::slash(isset_get($_SERVER['PWD'])),
-            'FORCE'      => (getenv('FORCE')      ? 'FORCE'      : null),
-            'TEST'       => (getenv('TEST')       ? 'TEST'       : null),
-            'QUIET'      => (getenv('QUIET')      ? 'QUIET'      : null),
-            'VERY_QUIET' => (getenv('VERY_QUIET') ? 'VERY_QUIET' : null),
-            'LIMIT'      => (getenv('LIMIT')      ? 'LIMIT'      : Config::getNatural('paging.limit', 50)),
-            'ORDERBY'    => (getenv('ORDERBY')    ? 'ORDERBY'    : null),
-            'ALL'        => (getenv('ALL')        ? 'ALL'        : null),
-            'DELETED'    => (getenv('DELETED')    ? 'DELETED'    : null),
-            'STATUS'     => (getenv('STATUS')     ? 'STATUS'     : null),
-        ];
-
-        foreach ($defines as $key => $value) {
-            if (!defined($key)) {
-                define($key, $value);
-            }
-        }
+        // Register exception incident in the database
+        static::registerUncaughtExceptionIncident($e);
 
         // Start processing the uncaught exception
         try {
             try {
-                if ($executed) {
-                    // We seem to be stuck in an uncaught exception loop, cut it out now!
-                    // This basically means that the unhandledException handler also is causing exceptions.
-                    // :TODO: ADD NOTIFICATIONS OF STUFF GOING FUBAR HERE!
-//                    echo '<pre>';
-//                    print_r($e);
-                    exit('uncaught exception handler loop detected, please check logs');
-                }
-
-                $executed = true;
-
                 if (!defined('PLATFORM')) {
                     // The system crashed before platform detection.
                     Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":command" ***', [
@@ -1057,405 +1013,27 @@ class Core implements CoreInterface
 
                 switch (PLATFORM) {
                     case 'cli':
-                        // Command line command crashed.
-                        // If not using Debug::enabled() mode, then try to give nice error messages for known issues
-                        if (($e instanceof ValidationFailedException) and $e->isWarning()) {
-                            // This is just a simple validation warning, show warning messages in the exception data
-                            Log::warning($e->getMessage(), 10);
-                            Log::warning($e->getData(), 10);
-                            Core::exit(255);
-                        }
-
-                        if (($e instanceof Exception) and $e->isWarning()) {
-                            // This is just a simple general warning, no backtrace and such needed, only show the
-                            // principal message
-                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
-
-                            if ($e instanceof CliNoCommandSpecifiedException) {
-                                if ($data = $e->getData()) {
-                                    Log::information('Available methods:', 9);
-                                    foreach ($data['commands'] as $file) {
-                                        Log::notice($file, 10);
-                                    }
-                                }
-
-                            } elseif ($e instanceof CliCommandNotFoundException) {
-                                if ($data = $e->getData()) {
-                                    Log::information('Available sub methods:', 9, echo_prefix: false);
-                                    foreach ($data['commands'] as $method) {
-                                        Log::notice($method, 10, echo_prefix: false);
-                                    }
-                                }
-                            }
-
-                            Core::exit(255);
-                        }
-// TODO Remplement this with proper exception classes
-//                            switch ((string) $e->getCode()) {
-//                                case 'already-running':
-//                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-//                                    Script::setExitCode(254);
-//                                    exit(Script::getExitCode());
-//
-//                                case 'no-method':
-//                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-//                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-//                                    Script::setExitCode(253);
-//                                    exit(Script::getExitCode());
-//
-//                                case 'unknown-method':
-//                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-//                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-//                                    Script::setExitCode(252);
-//                                    exit(Script::getExitCode());
-//
-//                                case 'missing-arguments':
-//                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-//                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-//                                    Script::setExitCode(253);
-//                                    exit(Script::getExitCode());
-//
-//                                case 'invalid-arguments':
-//                                    Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-//                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-//                                    Script::setExitCode(251);
-//                                    exit(Script::getExitCode());
-//
-//                                case 'validation':
-//                                    if (static::executedPathIs('system/init')) {
-//                                        // In the init command, all validations are fatal!
-//                                        $e->makeWarning(false);
-//                                        break;
-//                                    }
-//
-//                                    if (method_exists($e, 'getMessages')) {
-//                                        $messages = $e->getMessages();
-//
-//                                    } else {
-//                                        $messages = $e->getMessage();
-//                                    }
-//
-//                                    if (count($messages) > 2) {
-//                                        array_pop($messages);
-//                                        array_pop($messages);
-//                                        Log::warning(tr('Validation failed'));
-//                                        Log::warning($messages, 'yellow');
-//
-//                                    } else {
-//                                        Log::warning($messages);
-//                                    }
-//
-//                                    cli_show_usage(isset_get($GLOBALS['usage']), 'white');
-//                                    Script::setExitCode(250);
-//                                    exit(Script::getExitCode());
-//                            }
-
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" CLI PLATFORM COMMAND ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
-                            ':code'        => $e->getCode(),
-                            ':type'        => Request::getRequestType()->value,
-                            ':state'       => static::$state,
-                            ':command'     => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
-                            ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
-                        ]));
-
-                        Log::error(tr('Exception data:'));
-                        Log::error($e);
-
-//                        Log::error();
-//                        Log::write(tr('Extended trace:'), 'debug', 10, false);
-//                        Log::write(print_r($e->getTrace(), true), 'debug', 10, false);
-//                        Log::error();
-//                        Log::write(tr('Super extended trace:'), 'debug', 10, false);
-//                        Log::write(print_r(debug_backtrace(), true), 'debug', 10, false);
-//                        Log::printr(debug_backtrace());
-                        Core::exit(1);
+                        static::processUncaughtCliException($e, $state);
 
                     case 'web':
-                        if ($e instanceof ValidationFailedException) {
-                            // This is just a simple validation warning, show warning messages in the exception data
-                            Log::warning($e->getMessage());
-                            Log::warning($e->getData());
-
-                            if (!Debug::isEnabled()) {
-                                Request::executeSystem(400);
-                            }
-
-                        } elseif (($e instanceof Exception) and ($e->isWarning())) {
-                            // This is just a simple general warning, no backtrace and such needed, only show the
-                            // principal message
-                            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
-
-                            if (!Debug::isEnabled()) {
-                                Request::executeSystem(500);
-                            }
-                        }
-
-                        // Log exception data
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
-                            ':code'        => $e->getCode(),
-                            ':type'        => Request::getRequestType()->value,
-                            ':state'       => static::$state,
-                            ':command'     => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
-                            ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
-                        ]));
-
-                        Log::error(tr('Exception data:'));
-                        Log::error($e);
-
-                        if (!Debug::isEnabled()) {
-                            Request::executeSystem(500);
-                        }
-
-                        // Make sure the Router shutdown won't happen so it won't send a 404
-                        Core::removeShutdownCallback('route[postprocess]');
-
-                        // Remove all caching headers
-                        if (!headers_sent()) {
-                            header_remove('ETag');
-                            header_remove('Cache-Control');
-                            header_remove('Expires');
-                            header_remove('Content-Type');
-                            Response::setHttpCode(500);
-                            http_response_code(500);
-                            header('Content-Type: text/html');
-                            header('Content-length: 1048576'); // Required or browser won't show half the information
-                        }
-
-                        //
-                        static::removeShutdownCallback('route_postprocess');
-
-                        try {
-                            Notification::new()
-                                        ->setException($e)
-                                        ->send();
-
-                        } catch (OutOfBoundsException $f) {
-                            Log::error('Failed to generate notification of uncaught exception, see following notification');
-                            Notification::new()
-                                        ->setException($f)
-                                        ->send();
-                        }
-
-                        if (static::inStartupState($state)) {
-                            /*
-                             * Configuration hasn't been loaded yet, we cannot even know
-                             * if we are in debug mode or not!
-                             *
-                             * Try sending the right response code and content type
-                             * headers so that at least there will be a visible page
-                             * with the right mimetype
-                             */
-                            if (!headers_sent()) {
-                                header('Content-Type: text/html', true);
-                            }
-
-                            if (method_exists($e, 'getMessages')) {
-                                foreach ($e->getMessages() as $message) {
-                                    Log::error($message);
-                                }
-
-                            } else {
-                                Log::error($e->getMessage());
-                            }
-
-                            Core::exit(1, tr('System startup exception. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
-                        }
-
-                        if ($e->getCode() === 'validation') {
-                            $e->setCode(400);
-                        }
-
-                        if (Debug::isEnabled()) {
-                            switch (Request::getRequestType()) {
-                                case EnumRequestTypes::api:
-                                    // no break
-
-                                case EnumRequestTypes::ajax:
-                                    echo "UNCAUGHT EXCEPTION\n\n";
-                                    showdie($e);
-                            }
-
-                            $return = ' <style>
-                                        table.exception{
-                                            font-family: sans-serif;
-                                            width:99%;
-                                            background:#AAAAAA;
-                                            border-collapse:collapse;
-                                            border-spacing:2px;
-                                            margin: 5px auto 5px auto;
-                                            border-radius: 10px;
-                                        }
-                                        td.center{
-                                            text-align: center;
-                                        }
-                                        table.exception thead{
-                                            background: #CE0000;
-                                            color: white;
-                                            font-weight: bold;
-                                        }
-                                        table.exception thead td{
-                                            border-top-left-radius: 10px;
-                                            border-top-right-radius: 10px;
-                                        }
-                                        table.exception td{
-                                            border: 0;
-                                            padding: 15px;
-                                        }
-                                        table.exception td.value{
-                                            word-break: break-all;
-                                        }
-                                        table.debug{
-                                            background:#AAAAAA !important;
-                                        }
-                                        table.debug thead{
-                                            background: #CE0000 !important;
-                                            color: white;
-                                        }
-                                        table.debug .debug-header{
-                                            display: none;
-                                        }
-                                        pre {
-                                            white-space: break-spaces;
-                                        }
-                                        </style>
-                                        <table class="exception">
-                                            <thead>
-                                                <td colspan="2" class="center">
-                                                    ' . tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE COMMAND ":command" ***', [
-                                    ':code'    => $e->getCode(),
-                                    ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
-                                    ':type'    => Request::getRequestType()->value,
-                                ]) . '
-                                                </td>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td colspan="2" class="center">
-                                                        ' . tr('An uncaught exception with code ":code" occurred in web page ":command". See the exception core dump below for more information on how to fix this issue', [
-                                    ':code'    => $e->getCode(),
-                                    ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
-                                ]) . '
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        ' . tr('FsFileFileInterface') . '
-                                                    </td>
-                                                    <td>
-                                                        ' . $e->getFile() . '
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        ' . tr('Line') . '
-                                                    </td>
-                                                    <td>
-                                                        ' . $e->getLine() . '
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td colspan="2">
-                                                        <a href="' . UrlBuilder::getWww('signout') . '">Sign out</a>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>';
-
-                            if (!headers_sent()) {
-                                header_remove('Content-Type');
-                                header('Content-Type: text/html', true);
-                            }
-
-                            echo $return;
-
-                            if ($e instanceof Exception) {
-                                // Clean data
-                                $e->addData(Arrays::hideSensitive(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
-                            }
-
-                            showdie($e);
-                        }
-
-                        // We're not in debug mode.
-                        Notification::new()
-                                    ->setException($e)
-                                    ->send();
-
-                        switch (Request::getRequestType()) {
-                            case EnumRequestTypes::api:
-                                // no break
-                            case EnumRequestTypes::ajax:
-                                if ($e instanceof CoreException) {
-                                    Json::message($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
-                                }
-
-                                // Assume that all non CoreException exceptions are not warnings!
-                                Json::message($e->getCode(), ['reason' => '']);
-                        }
-
-                        Request::executeSystem($e->getCode());
+                        static::processUncaughtWebException($e, $state);
                 }
 
             } catch (Throwable $f) {
-//                if (!isset($core)) {
-//                    Log::error(tr('*** UNCAUGHT PRE CORE AVAILABLE EXCEPTION HANDLER CRASHED ***'));
-//                    Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
-//                    Log::error($f->getMessage());
-//                    exit('Pre core available exception with handling failure. Please your application or webserver error log files, or enable the first line in the exception handler file for more information');
-//                }
-
-                if (!defined('PLATFORM') or static::inStartupState($state)) {
-                    Log::error(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
-                        ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
-                    ]));
-                    Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
-                    Log::error($f->getMessage());
-                    Log::error($f->getTrace());
-                    exit('System startup exception with handling failure. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
-                }
-
-                Log::error('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!');
-                Log::error($f);
-
-                switch (PLATFORM) {
-                    case 'cli':
-                        Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
-                            ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
-                        ]));
-                        Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
-                        Debug::setEnabled(true);
-                        show($f);
-                        showdie($e);
-
-                    case 'web':
-                        if (!headers_sent()) {
-                            http_response_code(500);
-                            header('Content-Type: text/html');
-                        }
-
-                        if (!Debug::isEnabled()) {
-                            Notification::new()
-                                        ->setException($f)
-                                        ->send();
-                            Notification::new()
-                                        ->setException($e)
-                                        ->send();
-                            Request::executeSystem(500);
-                        }
-
-                        show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
-                            ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
-                        ]));
-                        show('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***');
-                        show($f);
-                        showdie($e);
-                }
+                // Great! The uncaught exception handler caused an exception itself! Try to log / notify both
+                static::processUncaughtExceptionException($e, $f, $state);
             }
 
         } catch (Throwable $g) {
-            // Well, we tried. Here we just give up all together. Don't do anything anymore because every step from here
-            // will fail anyway. Exit the process
+            // Well, we tried. Here we just give up all together. Just try to log to error_log, then exit the process
             echo 'Fatal error. check data/syslog, application server logs, or webserver logs for more information' . PHP_EOL;
+
+            try {
+                error_log($g->getMessage());
+
+            } catch (Throwable) {
+                echo 'Failed to log' . PHP_EOL;
+            }
         }
         exit(1);
     }
@@ -1578,7 +1156,7 @@ class Core implements CoreInterface
             }
 
             define('LANGUAGE', $language);
-            define('LOCALE', $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
+            define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
 
             // Ensure $_SESSION['language'] available
             if (empty($_SESSION['language'])) {
@@ -1699,9 +1277,10 @@ class Core implements CoreInterface
     /**
      * Startup for Command Line Interface
      *
+     * @todo Move this to the CliCommand class
      * @return void
      */
-    protected static function startupCli(): void
+    protected static function startCli(): void
     {
         // Hide all command line arguments
         ArgvValidator::hideData($GLOBALS['argv']);
@@ -1777,11 +1356,6 @@ class Core implements CoreInterface
 //            'no_password_validation' => false
 //    ];
 
-        if ($argv['json']) {
-            // We received arguments in JSON format
-            $argv = static::applyJsonArguments($argv);
-        }
-
         // Check what environment we're in
         if ($argv['environment']) {
             // The Environment was manually specified on the command line
@@ -1790,21 +1364,15 @@ class Core implements CoreInterface
         } else {
             // Get environment variable from the shell environment
             $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
-
-            if (empty($env)) {
-                if (PROJECT !== 'UNKNOWN') {
-                    // If we're in auto complete mode, then we don't need an environment
-                    if (!CliAutoComplete::isActive()) {
-                        Core::exit(2, 'startup: No required cli environment specified for project "' . PROJECT . '". Use -E PROJECTNAME or check if your .bashrc file contains a line like "export PHOUNDATION_' . PROJECT . '_ENVIRONMENT=PROJECTNAME"');
-                    }
-                }
-
-                $env = '';
-            }
         }
 
         if (empty($env)) {
-            Core::exit(2, 'startup: No required cli environment specified for project "' . PROJECT . '".  Use -E PROJECTNAME or check if your .bashrc file contains a line like "export PHOUNDATION_' . PROJECT . '_ENVIRONMENT=PROJECTNAME"');
+            Core::requireCliEnvironment((bool) $argv['auto_complete']);
+        }
+
+        if ($argv['json']) {
+            // We received arguments in JSON format
+            $argv = static::applyJsonArguments($argv);
         }
 
         // Set environment and protocol
@@ -2628,13 +2196,13 @@ class Core implements CoreInterface
                     }
 
                     // The file doesn't exist, that is good. Go to setup mode
-                    error_log('Project version file "config/version" does not exist, entering setup mode');
+                    Log::errorLog('Project version file "config/version" does not exist, entering setup mode');
 
                     static::setPlatform();
-                    static::startupPlatform();
+                    static::startPlatform();
                     static::$state = 'setup';
 
-                    throw new NoProjectException(tr('Project version file ":path" cannot be read. Please ensure it exists', [
+                    throw new ProjectException(tr('Project version file ":path" cannot be read. Please ensure it exists', [
                         ':path' => DIRECTORY_ROOT . 'config/version',
                     ]));
                 }
@@ -3293,6 +2861,548 @@ class Core implements CoreInterface
         // make it take a maximum of 0.1 milliseconds
         time_nanosleep(0, abs($hash % 100000));
     }
+
+
+    /**
+     * Displays the correct "environment required" message for normal and CLI auto complete mode
+     *
+     * @param bool $auto_complete
+     *
+     * @return never
+     */
+    #[NoReturn] protected static function requireCliEnvironment(bool $auto_complete): never
+    {
+        $message = 'start: No required cli environment specified for project "' . PROJECT . '". Use -E PROJECTNAME or ensure that your ~/.bashrc file contains a line like "export PHOUNDATION_' . PROJECT . '_ENVIRONMENT=PROJECTNAME" and then execute "source ~/.bashrc"';
+
+        if ($auto_complete) {
+            Core::exit(2, str_replace(' ', '-', $message));
+        }
+
+        Core::exit(2, $message);
+    }
+
+
+    /**
+     * Registers the specified exception incident in the database
+     *
+     * @param Throwable $e
+     *
+     * @return void
+     */
+    protected static function registerUncaughtExceptionIncident(Throwable $e): void
+    {
+        // Don't register warning exceptions
+        if (!$e->isWarning()) {
+            if (defined('ENVIRONMENT')) {
+                if ($e instanceof EnvironmentNotExistsException) {
+                    // Don't register the uncaught exception incident, the exception is the environment does not exist
+                    Log::error(tr('Not attempting to register the following uncaught exception incident, environment ":environment" does not exist', [
+                        ':environment' => ENVIRONMENT
+                    ]));
+
+                } else {
+                    // Only notify and register developer incident if we're on production
+                    if (Core::isProductionEnvironment()) {
+                        // We CAN only notify after startup!
+                        if (!static::inStartupState()) {
+                            try {
+                                $e->registerDeveloperIncident();
+
+                            } catch (Throwable $f) {
+                                Log::error(tr('Failed to register uncaught exception because of the following exception'));
+                                Log::error($f);
+                            }
+
+                            try {
+                                $e->getNotificationObject()
+                                  ->send(false);
+
+                            } catch (Throwable $f) {
+                                Log::error(tr('Failed to notify developers of uncaught exception because of the following exception'));
+                                Log::error($f);
+                            }
+                        }
+                    }
+                }
+
+            } else {
+                Log::error('Not attempting to register the following uncaught exception incident, environment has not yet been defined');
+            }
+        }
+    }
+
+
+    /**
+     * Plays an exception audio file if we are on CLI platform
+     *
+     * @param Throwable $e
+     *
+     * @return void
+     */
+    protected static function playUncaughtExceptionAudio(Throwable $e): void
+    {
+        if (!defined('PLATFORM_CLI') or PLATFORM_CLI) {
+            try {
+                if (defined('ENVIRONMENT')) {
+                    if ($e instanceof Exception) {
+                        if ($e->isWarning()) {
+                            Audio::new('warning.mp3')->playLocal(true);
+
+                        } else {
+                            Audio::new('critical.mp3')->playLocal(true);
+                        }
+
+                    } else {
+                        Audio::new('critical.mp3')->playLocal(true);
+                    }
+
+                } else {
+                    Log::error('Not attempting to play exception audio, environment has not yet been defined');
+                }
+
+            } catch (Throwable $f) {
+                if (!CliAutoComplete::isActive()) {
+                    Log::warning('Failed to play uncaught exception audio because "' . $f->getMessage() . '"');
+                }
+            }
+        }
+    }
+
+
+    /**
+     * This method ensures that all required system defines are available
+     *
+     * @return void
+     */
+    protected static function ensureCoreDefines(): void
+    {
+        // Ensure that definitions exist
+        $defines = [
+            'ADMIN'      => '',
+            'PWD'        => Strings::slash(isset_get($_SERVER['PWD'])),
+            'FORCE'      => get_null(getenv('FORCE'))      ?? false,
+            'TEST'       => get_null(getenv('TEST'))       ?? false,
+            'QUIET'      => get_null(getenv('QUIET'))      ?? false,
+            'VERY_QUIET' => get_null(getenv('VERY_QUIET')) ?? false,
+            'LIMIT'      => get_null(getenv('LIMIT'))      ?? null,
+            'ORDERBY'    => get_null(getenv('ORDERBY'))    ?? null,
+            'ALL'        => get_null(getenv('ALL'))        ?? false,
+            'DELETED'    => get_null(getenv('DELETED'))    ?? false,
+            'STATUS'     => get_null(getenv('STATUS'))     ?? null,
+            'LOCALE'     => get_null(getenv('LOCALE'))     ?? 'en',
+            'LANGUAGE'   => get_null(getenv('LANGUAGE'))   ?? 'en-us'
+        ];
+
+        foreach ($defines as $key => $value) {
+            if (!defined($key)) {
+                define($key, $value);
+            }
+        }
+    }
+
+
+    /**
+     * This method processes uncaught exceptions on the command line platform
+     *
+     * @param Throwable $e
+     * @param string    $state
+     *
+     * @return never
+     */
+    #[NoReturn] protected static function processUncaughtCliException(Throwable $e, string $state): never
+    {
+        // Command line command crashed.
+        // If not using Debug::enabled() mode, then try to give nice error messages for known issues
+        if (($e instanceof ValidationFailedException) and $e->isWarning()) {
+            // This is just a simple validation warning, show warning messages in the exception data
+            Log::warning($e->getMessage(), 10);
+            Log::warning($e->getData(), 10);
+            Core::exit(255);
+        }
+
+        if (($e instanceof Exception) and $e->isWarning()) {
+            // This is just a simple general warning, no backtrace and such needed, only show the
+            // principal message
+            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
+
+            if ($e instanceof CliNoCommandSpecifiedException) {
+                if ($data = $e->getData()) {
+                    Log::information('Available methods:', 9);
+                    foreach ($data['commands'] as $file) {
+                        Log::notice($file, 10);
+                    }
+                }
+
+            } elseif ($e instanceof CliCommandNotFoundException) {
+                if ($data = $e->getData()) {
+                    Log::information('Available sub methods:', 9, echo_prefix: false);
+                    foreach ($data['commands'] as $method) {
+                        Log::notice($method, 10, echo_prefix: false);
+                    }
+                }
+            }
+
+            Core::exit(255);
+        }
+
+        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" CLI PLATFORM COMMAND ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+            ':code'        => $e->getCode(),
+            ':type'        => Request::getRequestType()->value,
+            ':state'       => static::$state,
+            ':command'     => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
+            ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
+        ]));
+
+        Log::error(tr('Exception data:'));
+        Log::error($e);
+
+        //                        Log::error();
+        //                        Log::write(tr('Extended trace:'), 'debug', 10, false);
+        //                        Log::write(print_r($e->getTrace(), true), 'debug', 10, false);
+        //                        Log::error();
+        //                        Log::write(tr('Super extended trace:'), 'debug', 10, false);
+        //                        Log::write(print_r(debug_backtrace(), true), 'debug', 10, false);
+        //                        Log::printr(debug_backtrace());
+        Core::exit(1);
+    }
+
+
+    /**
+     * This method processes uncaught exceptions on the web platform
+     *
+     * @param Throwable $e
+     * @param string    $state
+     *
+     * @return never
+     */
+    #[NoReturn] protected static function processUncaughtWebException(Throwable $e, string $state): never {
+        if ($e instanceof ValidationFailedException) {
+            // This is just a simple validation warning, show warning messages in the exception data
+            Log::warning($e->getMessage());
+            Log::warning($e->getData());
+
+            static::executeUncaughtExceptionSystemPage(400, $e);
+
+        } elseif (($e instanceof Exception) and ($e->isWarning())) {
+            // This is just a simple general warning, no backtrace and such needed, only show the principal message
+            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
+
+        } else {
+            // Log full exception data
+            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+                ':code'        => $e->getCode(),
+                ':type'        => Request::getRequestType()->value,
+                ':state'       => static::$state,
+                ':command'     => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
+                ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
+            ]));
+
+            Log::error(tr('Exception data:'));
+            Log::error($e);
+        }
+
+        // Show nice error page
+        static::executeUncaughtExceptionSystemPage(500, $e);
+
+        // Make sure the Router shutdown won't happen, so it won't send a 404
+        Core::removeShutdownCallback('route[postprocess]');
+
+        // Remove all caching headers
+        if (!headers_sent()) {
+            header_remove('ETag');
+            header_remove('Cache-Control');
+            header_remove('Expires');
+            header_remove('Content-Type');
+            Response::setHttpCode(500);
+            http_response_code(500);
+            header('Content-Type: text/html');
+            header('Content-length: 1048576'); // Required or browser won't show half the information
+        }
+
+        //
+        static::removeShutdownCallback('route_postprocess');
+
+        try {
+            if (sql(connect: false)->isConnected()) {
+                Notification::new()
+                            ->setException($e)
+                            ->send();
+            } else {
+                // System database is not available, we cannot send or store notifications!
+                Log::error('Not sending notification for this uncaught exception, the system database is not available');
+            }
+
+        } catch (OutOfBoundsException $f) {
+            Log::error('Failed to generate notification of uncaught exception, see following exception');
+            Log::exception($f);
+        }
+
+        if (static::inStartupState($state)) {
+            /*
+             * Configuration hasn't been loaded yet, we cannot even know
+             * if we are in debug mode or not!
+             *
+             * Try sending the right response code and content type
+             * headers so that at least there will be a visible page
+             * with the right mimetype
+             */
+            if (!headers_sent()) {
+                header('Content-Type: text/html', true);
+            }
+
+            if (method_exists($e, 'getMessages')) {
+                foreach ($e->getMessages() as $message) {
+                    Log::error($message);
+                }
+
+            } else {
+                Log::error($e->getMessage());
+            }
+
+            Core::exit(1, tr('System startup exception. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
+        }
+
+        if ($e->getCode() === 'validation') {
+            $e->setCode(400);
+        }
+
+        if (Debug::isEnabled()) {
+            switch (Request::getRequestType()) {
+                case EnumRequestTypes::api:
+                    // no break
+
+                case EnumRequestTypes::ajax:
+                    echo "UNCAUGHT EXCEPTION\n\n";
+                    showdie($e);
+            }
+
+            $return = ' <style>
+                                        table.exception{
+                                            font-family: sans-serif;
+                                            width:99%;
+                                            background:#AAAAAA;
+                                            border-collapse:collapse;
+                                            border-spacing:2px;
+                                            margin: 5px auto 5px auto;
+                                            border-radius: 10px;
+                                        }
+                                        td.center{
+                                            text-align: center;
+                                        }
+                                        table.exception thead{
+                                            background: #CE0000;
+                                            color: white;
+                                            font-weight: bold;
+                                        }
+                                        table.exception thead td{
+                                            border-top-left-radius: 10px;
+                                            border-top-right-radius: 10px;
+                                        }
+                                        table.exception td{
+                                            border: 0;
+                                            padding: 15px;
+                                        }
+                                        table.exception td.value{
+                                            word-break: break-all;
+                                        }
+                                        table.debug{
+                                            background:#AAAAAA !important;
+                                        }
+                                        table.debug thead{
+                                            background: #CE0000 !important;
+                                            color: white;
+                                        }
+                                        table.debug .debug-header{
+                                            display: none;
+                                        }
+                                        pre {
+                                            white-space: break-spaces;
+                                        }
+                                        </style>
+                                        <table class="exception">
+                                            <thead>
+                                                <td colspan="2" class="center">
+                                                    ' . tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE COMMAND ":command" ***', [
+                    ':code'    => $e->getCode(),
+                    ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
+                    ':type'    => Request::getRequestType()->value,
+                ]) . '
+                                                </td>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="2" class="center">
+                                                        ' . tr('An uncaught exception with code ":code" occurred in web page ":command". See the exception core dump below for more information on how to fix this issue', [
+                    ':code'    => $e->getCode(),
+                    ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
+                ]) . '
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        ' . tr('FsFileFileInterface') . '
+                                                    </td>
+                                                    <td>
+                                                        ' . $e->getFile() . '
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        ' . tr('Line') . '
+                                                    </td>
+                                                    <td>
+                                                        ' . $e->getLine() . '
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <a href="' . Url::getWww('signout') . '">Sign out</a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>';
+
+            if (!headers_sent()) {
+                header_remove('Content-Type');
+                header('Content-Type: text/html', true);
+            }
+
+            echo $return;
+
+            if ($e instanceof Exception) {
+                // Clean data
+                $e->addData(Arrays::hideSensitive(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
+            }
+
+            showdie($e);
+        }
+
+        // We're not in debug mode.
+        Notification::new()
+                    ->setException($e)
+                    ->send();
+
+        switch (Request::getRequestType()) {
+            case EnumRequestTypes::api:
+                // no break
+            case EnumRequestTypes::ajax:
+                if ($e instanceof CoreException) {
+                    Json::message($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
+                }
+
+                // Assume that all non CoreException exceptions are not warnings!
+                Json::message($e->getCode(), ['reason' => '']);
+        }
+
+        static::executeUncaughtExceptionSystemPage($e->getCode(), $e);
+    }
+
+
+    /**
+     * This method processes exceptions caused by the Core::uncaughtException() method
+     *
+     * @param Throwable $e
+     * @param Throwable $f
+     * @param string    $state
+     *
+     * @return never
+     * @throws Throwable
+     */
+    protected static function processUncaughtExceptionException(Throwable $e, Throwable $f, string $state): never
+    {
+        //                if (!isset($core)) {
+        //                    Log::error(tr('*** UNCAUGHT PRE CORE AVAILABLE EXCEPTION HANDLER CRASHED ***'));
+        //                    Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+        //                    Log::error($f->getMessage());
+        //                    exit('Pre core available exception with handling failure. Please your application or webserver error log files, or enable the first line in the exception handler file for more information');
+        //                }
+
+        if (!defined('PLATFORM') or static::inStartupState($state)) {
+            Log::error(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
+                ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
+            ]));
+            Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+            Log::exception($f);
+
+            exit('System startup exception with handling failure. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
+        }
+
+        Log::error('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!');
+        Log::error($f);
+
+        switch (PLATFORM) {
+            case 'cli':
+                Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
+                    ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
+                ]));
+                Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+
+                Debug::setEnabled(true);
+
+                show($f);
+                showdie($e);
+
+            case 'web':
+                if (!headers_sent()) {
+                    http_response_code(500);
+                    header('Content-Type: text/html');
+                }
+
+                if (!Debug::isEnabled()) {
+                    if (sql(connect: false)->isConnected()) {
+                        Notification::new()
+                                    ->setException($f)
+                                    ->send();
+
+                        Notification::new()
+                                    ->setException($e)
+                                    ->send();
+                    } else {
+                        Log::error(tr('Not sending notifications for failed uncaught exception handling, the system database is not available'));
+                    }
+
+                    static::executeUncaughtExceptionSystemPage(500, $e);
+                }
+
+                show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
+                    ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
+                ]));
+                show('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***');
+                show($f);
+                showdie($e);
+        }
+
+        exit();
+    }
+
+
+    /**
+     * Tries to execute the specified system page on the web platform, returns void if unable to do so due to Debug mode
+     *
+     * @param int       $page
+     * @param Throwable $e
+     *
+     * @return void
+     * @throws Throwable
+     */
+    protected static function executeUncaughtExceptionSystemPage(int $page, Throwable $e): void
+    {
+        // Any of these exceptions will be too severe to show a pretty error page
+        $classes = [
+            EnvironmentException::class,
+            ProjectException::class,
+        ];
+
+        if (!Debug::isEnabled()) {
+            foreach ($classes as $class) {
+                if (($e instanceof $class)) {
+                    // Don't try to display a pretty error page, this exception is too severe
+                    static::exit(1, $e->getMessage());
+                }
+            }
+
+            // Try to show a pretty error page
+            Request::executeSystem($page, $e);
+        }
+    }
 }
-
-

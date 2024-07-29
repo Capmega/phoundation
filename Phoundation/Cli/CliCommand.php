@@ -32,7 +32,7 @@ use Phoundation\Cli\Exception\CliCommandNotFoundException;
 use Phoundation\Cli\Exception\CliException;
 use Phoundation\Cli\Exception\CliNoCommandSpecifiedException;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\NoProjectException;
+use Phoundation\Core\Exception\ProjectException;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataStaticExecuted;
@@ -41,6 +41,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Date\Time;
+use Phoundation\Exception\EnvironmentException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
@@ -205,13 +206,11 @@ class CliCommand
      */
     #[NoReturn] public static function execute(): void
     {
-        // Get parameters, get the command to execute
+        // Get parameters, get the command to execute, get a run file
         $parameters = static::startup();
-        $command    = static::findCommandOrExecuteDocumentation();
 
-        // See if the command execution should be stopped for some reason. If not, setup a run file
-        static::$command  = static::limitCommand($command, isset_get($parameters['limit']), isset_get($parameters['reason']));
-        static::$run_file = new CliRunFile($command);
+        static::setCommandOrExecuteDocumentation($parameters);
+        static::$run_file = new CliRunFile(static::$command);
 
         // TODO Move this to the Request object
         static::addExecutedPath(static::$command);
@@ -262,13 +261,17 @@ class CliCommand
             // Startup the system core
             Core::startup();
 
-        } catch (SqlDatabaseDoesNotExistException) {
-            $return['limit']  = 'system/project/init';
-            $return['reason'] = tr('Core database not found, please execute "./cli system project setup"');
-
-        } catch (NoProjectException) {
+        } catch (ProjectException $e) {
             $return['limit']  = 'system/project/setup';
-            $return['reason'] = tr('Project file not found, please execute "./cli system project setup"');
+            $return['reason'] = $e;
+
+        } catch (EnvironmentException $e) {
+            $return['limit']  = 'system/project/setup';
+            $return['reason'] = $e;
+
+        } catch (SqlDatabaseDoesNotExistException $e) {
+            $return['limit']  = 'system/project/init';
+            $return['reason'] = $e;
         }
 
         static::ensureProcessUidMatchesPhoundationOwner();
@@ -444,9 +447,23 @@ class CliCommand
      */
     #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false): never
     {
-        // If something went really, really wrong...
+        // Process was killed by a TERM signal
         if ($sig_kill) {
-            exit($exit_message);
+            echo Strings::ensureEndsWith($exit_message, PHP_EOL);
+            exit($exit_code);
+        }
+
+        if (!Config::getEnvironment()) {
+            // Config class didn't get environment, this means the process died somewhere during startup.
+            // We can't log using the Log class, so die with the exit message
+            if (PLATFORM_CLI) {
+                echo Strings::ensureEndsWith($exit_message, PHP_EOL);
+                exit($exit_code);
+            }
+
+            // We won't show anything on the web platform
+            Log::errorLog($exit_message);
+            exit();
         }
 
         if (is_object($exit_code)) {
@@ -723,19 +740,22 @@ class CliCommand
     /**
      * Either finds the command to execute, or executes documentation
      *
-     * @return string
+     * @return void
      */
-    protected static function findCommandOrExecuteDocumentation(): string
+    protected static function setCommandOrExecuteDocumentation(array $parameters): void
     {
         if (CliAutoComplete::isActive()) {
-            $command = static::autoComplete();
+            static::$command = static::autoComplete();
 
         } else {
             try {
                 // Get the command file to execute
-                $command = static::findCommand();
+                static::$command = static::findCommand();
 
             } catch (CliNoCommandSpecifiedException) {
+                // See if the command execution should be stopped for some reason.
+                static::limitCommand(isset_get($parameters['limit']), isset_get($parameters['reason']));
+
                 global $argv;
                 $argv['help'] = true;
                 static::documentation();
@@ -744,7 +764,8 @@ class CliCommand
             }
         }
 
-        return $command;
+        // See if the command execution should be stopped for some reason.
+        static::limitCommand(isset_get($parameters['limit']), isset_get($parameters['reason']));
     }
 
 
@@ -1046,30 +1067,31 @@ class CliCommand
     /**
      * Limit execution of commands to the specified limit
      *
-     * @param string            $command
-     * @param array|string|null $limits
-     * @param string|null       $reason
+     * @param array|string|null     $limits
+     * @param Throwable|string|null $reason
      *
-     * @return string
+     * @return void
      */
-    protected static function limitCommand(string $command, array|string|null $limits, ?string $reason): string
+    protected static function limitCommand(array|string|null $limits, Throwable|string|null $reason): void
     {
         if ($limits) {
-            $test = Strings::from($command, 'commands/');
+            $test = Strings::from(static::$command, 'commands/');
 
             foreach (Arrays::force($limits) as $limit) {
                 if (str_starts_with($test, $limit)) {
-                    return $command;
+                    return;
                 }
             }
 
-            throw ScriptException::new(tr('Cannot execute command ":command" because :reason', [
+            if ($reason instanceof Throwable) {
+                throw $reason;
+            }
+
+            throw ScriptException::new(tr('Cannot execute command ":command" because :reason. You may need to execute "./pho system setup"', [
                 ':command' => $test,
                 ':reason'  => $reason,
-            ]))->makeWarning();
+            ]));
         }
-
-        return $command;
     }
 
 

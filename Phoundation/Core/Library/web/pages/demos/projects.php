@@ -3,7 +3,7 @@
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -86,7 +86,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -94,7 +94,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -102,7 +102,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -110,7 +110,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -131,12 +131,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= UrlBuilder::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= UrlBuilder::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -166,7 +166,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -174,7 +174,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -195,12 +195,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= UrlBuilder::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= UrlBuilder::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -230,7 +230,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -238,7 +238,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -246,7 +246,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -267,12 +267,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= UrlBuilder::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= UrlBuilder::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -302,7 +302,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -310,7 +310,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -318,7 +318,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -326,7 +326,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -347,12 +347,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= UrlBuilder::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= UrlBuilder::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -382,7 +382,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -390,7 +390,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -398,7 +398,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -419,12 +419,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= UrlBuilder::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= UrlBuilder::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -454,7 +454,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -462,7 +462,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -470,7 +470,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -478,7 +478,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -499,12 +499,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= UrlBuilder::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= UrlBuilder::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -534,7 +534,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -542,7 +542,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -563,12 +563,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= UrlBuilder::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= UrlBuilder::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -598,7 +598,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -606,7 +606,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -614,7 +614,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -635,12 +635,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= UrlBuilder::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= UrlBuilder::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -670,7 +670,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -678,7 +678,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -686,7 +686,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -694,7 +694,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <li class="list-inline-item">
                                 <?= Session::getUser()->getPicture()
                                            ->getHtmlElement()
-                                           ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                           ->setSrc(Url::getImg('img/profiles/default.png'))
                                            ->setClass('table-avatar')
                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                            ->render() ?>
@@ -715,12 +715,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= UrlBuilder::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= UrlBuilder::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit

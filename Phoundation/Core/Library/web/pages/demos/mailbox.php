@@ -1,7 +1,7 @@
 <?php
 
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 

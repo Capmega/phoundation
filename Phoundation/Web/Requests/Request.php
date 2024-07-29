@@ -65,7 +65,7 @@ use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Exception\Http404Exception;
 use Phoundation\Web\Http\Exception\Http405Exception;
 use Phoundation\Web\Http\Exception\Http409Exception;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Json\Interfaces\JsonInterface;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\RequestTypeException;
@@ -415,9 +415,11 @@ abstract class Request implements RequestInterface
     public static function accepts(string $mimetype): bool
     {
         static $headers = null;
+
         if (!$mimetype) {
             throw new OutOfBoundsException(tr('No mimetype specified'));
         }
+
         if (!$headers) {
             // Cleanup the HTTP accept headers (opera aparently puts spaces in there, wtf?), then convert them to an
             // array where the accepted headers are the keys so that they are faster to access
@@ -440,24 +442,30 @@ abstract class Request implements RequestInterface
     public static function detectRequestedLanguage(): string
     {
         $languages = Config::getArray('language.supported', []);
+
         switch (count($languages)) {
             case 0:
                 return LANGUAGE;
+
             case 1:
                 return current($languages);
+
             default:
                 // This is a multilingual website. Ensure language is supported and add language selection to the URL.
                 $requested = static::acceptsLanguages();
+
                 if (empty($requested)) {
                     // Go for default language
                     return Config::getString('languages.default', 'en');
                 }
+
                 foreach ($requested as $locale) {
                     if (in_array($locale['language'], $languages)) {
                         // This requested language exists
                         return $locale['language'];
                     }
                 }
+
                 // None of the requested languages are supported! Oh noes! Go for default language.
                 Notification::new()
                             ->setUrl('developer/incidents.html')
@@ -513,26 +521,32 @@ abstract class Request implements RequestInterface
                     'locale'   => (str_contains($default, '-') ? Strings::from($default, '-') : null),
                 ],
             ];
+
             if (empty($return['1.0']['language'])) {
                 // Specified accepts language headers contain no language
                 $return['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
             }
+
             if (empty($return['1.0']['locale'])) {
                 // Specified accept language headers contain no locale
                 $return['1.0']['locale'] = Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
             }
+
             foreach ($headers as $header) {
                 $requested = Strings::until($header, ';');
                 $requested = [
                     'language' => Strings::until($requested, '-'),
                     'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null),
                 ];
+
                 if (empty(Config::get('language.supported', [])[$requested['language']])) {
                     continue;
                 }
+
                 $return[Strings::from(Strings::from($header, ';'), 'q=')] = $requested;
             }
         }
+
         krsort($return);
 
         return $return;
@@ -582,13 +596,13 @@ abstract class Request implements RequestInterface
         if ($default) {
             if (is_bool($default)) {
                 // We don't have a referer, return the current URL instead
-                return UrlBuilder::getCurrent()
-                                 ->__toString();
+                return Url::getCurrent()
+                          ->__toString();
             }
 
             // Use the specified referrer
-            return UrlBuilder::getWww($default)
-                             ->__toString();
+            return Url::getWww($default)
+                      ->__toString();
         }
 
         // We got nothing...
@@ -973,15 +987,14 @@ abstract class Request implements RequestInterface
         if ($sig_kill) {
             exit($exit_message);
         }
+
         // POST-requests should always show a flash message for feedback!
         if (static::isPostRequestMethod()) {
-            if (
-                !Response::getFlashMessages()
-                         ?->getCount()
-            ) {
+            if (!Response::getFlashMessages()?->getCount()) {
                 Log::warning('Detected POST request without a flash message to give user feedback on what happened with this request!');
             }
         }
+
         switch (Response::getHttpCode()) {
             case 200:
                 // no break
@@ -990,6 +1003,10 @@ abstract class Request implements RequestInterface
             case 302:
                 // no break
             case 304:
+                if ($exit_message) {
+                    Log::success($exit_message);
+                }
+
                 Log::success(tr('Script(s) ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
                     ':script'    => static::getExecutedPath(true),
                     ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
@@ -998,8 +1015,13 @@ abstract class Request implements RequestInterface
                     ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
                 ]));
                 break;
+
             default:
-                Log::warning(tr('Script(s) ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
+                if ($exit_message) {
+                    Log::error($exit_message);
+                }
+
+                Log::error(tr('Script(s) ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
                     ':script'    => static::getExecutedPath(true),
                     ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
@@ -1145,9 +1167,9 @@ abstract class Request implements RequestInterface
                 $guest_redirect = 'sign-in';
             }
 
-            $current        = Response::getRedirect(UrlBuilder::getCurrent());
-            $guest_redirect = UrlBuilder::getWww($guest_redirect)
-                                        ->addQueries($current ? 'redirect=' . $current : null);
+            $current        = Response::getRedirect(Url::getCurrent());
+            $guest_redirect = Url::getWww($guest_redirect)
+                                 ->addQueries($current ? 'redirect=' . $current : null);
 
             Incident::new()
                     ->setType('401 - Unauthorized')
@@ -1182,7 +1204,7 @@ abstract class Request implements RequestInterface
                 Json::reply([
                     '__system' => [
                         'http_code' => 401,
-                        'location'  => (string) UrlBuilder::getAjax('sign-in'),
+                        'location'  => (string) Url::getAjax('sign-in'),
                     ],
                 ]);
             }
@@ -1249,6 +1271,7 @@ abstract class Request implements RequestInterface
                     ->notifyRoles('accounts')
                     ->save();
         }
+
         // This method will exit
         static::executeSystem($rights_redirect);
     }
@@ -1265,6 +1288,7 @@ abstract class Request implements RequestInterface
     protected static function hasSignKeyRestrictions(array|string $rights, string $target): void
     {
         $key = Session::getSignInKey();
+
         // User signed in with "sign-in" key that may have additional restrictions
         if (!static::isRequestType(EnumRequestTypes::html)) {
             Incident::new()
@@ -1284,20 +1308,21 @@ abstract class Request implements RequestInterface
                     ->save();
             static::executeSystem(401);
         }
-        if (!$key->signKeyAllowsUrl(UrlBuilder::getCurrent(), $target)) {
+
+        if (!$key->signKeyAllowsUrl(Url::getCurrent(), $target)) {
             Incident::new()
                     ->setType('401 - Unauthorized')
                     ->setSeverity(Severity::low)
                     ->setTitle(tr('Cannot open URL ":url", sign in key ":uuid" does not allow navigation beyond ":allow"', [
-                        ':url'   => UrlBuilder::getCurrent(),
+                        ':url'   => Url::getCurrent(),
                         ':allow' => $key->getRedirect(),
                         ':uuid'  => $key->getUuid(),
                     ]))
                     ->setDetails([
-                        ':url'      => UrlBuilder::getCurrent(),
-                        ':users_id' => $key->getUsersId(),
-                        ':allow'    => $key->getRedirect(),
-                        ':uuid'     => $key->getUuid(),
+                                     ':url'      => Url::getCurrent(),
+                                     ':users_id' => $key->getUsersId(),
+                                     ':allow'    => $key->getRedirect(),
+                                     ':uuid'     => $key->getUuid(),
                     ])
                     ->save();
             // This method will exit
@@ -1471,6 +1496,7 @@ abstract class Request implements RequestInterface
         } catch (FileNotExistException $e) {
             static::processFileNotFound($e, $target);
         }
+
         if (PLATFORM_CLI) {
             if (static::$stack_level > 0) {
                 // This is a CLI sub command, execute it directly with output buffering and return the output
@@ -1487,6 +1513,7 @@ abstract class Request implements RequestInterface
             ob_start();
             static::preparePageVariable();
             $return = static::tryCache($die);
+
             if (!$return) {
                 // Check user access rights from routing parameters
                 // Check only for non-system pages
@@ -1497,7 +1524,9 @@ abstract class Request implements RequestInterface
                 $return = static::executeWebTarget($flush);
             }
         }
+
         static::$stack_level--;
+
         if ($flush or (static::$stack_level < 0)) {
             // The stack is empty, there is nothing executing above this. Assume HTTP headers have been set by this
             // point, and send the output to the client
@@ -1525,8 +1554,10 @@ abstract class Request implements RequestInterface
             Log::warning(tr('Sub target ":target" does not exist, displaying 500 page instead', [
                 ':target' => $target,
             ]));
+
             throw $e;
         }
+
         if (static::getSystem()) {
             // This is not a normal request, this is a system request. System pages SHOULD ALWAYS EXIST, but if they
             // don't, hard fail because this method will normally execute a system page and we just saw those don't
@@ -1535,9 +1566,11 @@ abstract class Request implements RequestInterface
                 ':page' => $target,
             ]));
         }
+
         Log::warning(tr('Main target ":target" does not exist, displaying 404 page instead', [
             ':target' => $target,
         ]));
+
         Request::executeSystem(404);
     }
 
@@ -1565,6 +1598,7 @@ abstract class Request implements RequestInterface
         if (static::$system and ($system !== static::$system)) {
             throw new OutOfBoundsException(tr('This is now a system web request, this request cannot be changed into a non system web request'));
         }
+
         static::$system = $system;
     }
 
@@ -1636,6 +1670,7 @@ abstract class Request implements RequestInterface
                     Session::startup();
                 }
                 break;
+
             default:
                 Log::information(tr('Executing page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
@@ -1675,7 +1710,9 @@ abstract class Request implements RequestInterface
         if ($cache) {
             try {
                 Log::action(tr('Sending cached reply to client'), 3);
+
                 $cache = Json::decode($cache);
+
                 Response::setHttpHeaders($cache['headers']);
                 Response::addOutput($cache['output']);
                 Response::send($die);
@@ -1777,7 +1814,7 @@ abstract class Request implements RequestInterface
             EnumRequestTypes::admin,
             EnumRequestTypes::amp     => Strings::ensureStartsWith($target, 'pages/'),
             default                   => throw new OutOfBoundsException(tr('Unsupported request type ":request" for this process', [
-                ':request'            => static::getRequestType(),
+                ':request' => static::getRequestType(),
             ])),
         };
     }

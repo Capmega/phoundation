@@ -20,7 +20,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Html\Layouts\GridRow;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 
 class MetaModal extends Modal
 {
@@ -67,7 +67,7 @@ class MetaModal extends Modal
             $("table.showmeta").click(function(e) {
                 e.stopPropagation();
 
-                $.get("' . UrlBuilder::getAjax('system/meta/') . '" + id + ".html")
+                $.get("' . Url::getAjax('system/meta/') . '" + id + ".html")
                     .done(function (data, textStatus, jqXHR) {
                         $("#MetaModal").find("").innerHtml(data.html);                     
                     });

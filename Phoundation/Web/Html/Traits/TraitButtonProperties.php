@@ -18,7 +18,7 @@ namespace Phoundation\Web\Html\Traits;
 use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumButtonType;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Stringable;
 
 trait TraitButtonProperties
@@ -158,7 +158,7 @@ trait TraitButtonProperties
     public function setAnchorUrl(Stringable|string|null $anchor_url): static
     {
         $this->setElement('a');
-        $this->anchor_url  = (string) UrlBuilder::getWww($anchor_url);
+        $this->anchor_url  = (string) Url::getWww($anchor_url);
         $this->button_type = null;
 
         return $this;

@@ -144,8 +144,9 @@ class Sql implements SqlInterface
      *
      * @param ConnectorInterface|string|null $connector
      * @param bool                           $use_database
+     * @param bool                           $connect
      */
-    public function __construct(ConnectorInterface|string|null $connector = null, bool $use_database = true)
+    public function __construct(ConnectorInterface|string|null $connector = null, bool $use_database = true, bool $connect = true)
     {
         $this->uniqueid = Strings::getRandom();
 
@@ -176,7 +177,21 @@ class Sql implements SqlInterface
         $this->debug      = $this->configuration['log'] or Config::getBoolean('databases.sql.log', false);
         $this->statistics = $this->configuration['statistics'];
 
-        $this->connect($use_database);
+        if ($connect) {
+            // Auto connect to the database
+            $this->connect($use_database);
+        }
+    }
+
+
+    /**
+     * Returns true if this database interface is connected to a database server
+     *
+     * @return bool
+     */
+    public function isConnected(): bool
+    {
+        return (bool) $this->pdo;
     }
 
 
@@ -363,12 +378,14 @@ class Sql implements SqlInterface
      */
     public function query(PDOStatement|SqlQueryInterface|string $query, ?array $execute = null): PDOStatement
     {
-        static $retry = 0;
         $log = false;
 
         try {
-            if (!$query) {
-                throw new SqlException(tr('No query specified'));
+            if (!$this->pdo) {
+                throw new SqlException(tr('Cannot execute query ":query", on instance ":instance", it is not connected to a server', [
+                    ':query'    => $query,
+                    ':instance' => $this->connector,
+                ]));
             }
 
             $this->counter++;
@@ -386,6 +403,12 @@ class Sql implements SqlInterface
                 $query->execute($execute);
 
             } else {
+                $query = trim($query);
+
+                if (empty($query)) {
+                    throw new SqlException(tr('No query specified'));
+                }
+
                 // Log query?
                 if ($this->debug or ($query[0] === ' ')) {
                     $log = true;
@@ -505,7 +528,7 @@ class Sql implements SqlInterface
 //            ]), $e);
 
         // Get error data from PDO
-        $error = $this->pdo->errorInfo();
+        $error = $this->pdo?->errorInfo();
 
         // Check SQL state
         switch ($e->getSqlState()) {
@@ -742,7 +765,7 @@ class Sql implements SqlInterface
     protected function connect(bool $use_database = true): static
     {
         try {
-            if (!empty($this->pdo)) {
+            if ($this->pdo) {
                 // Already connected to requested DB
                 return $this;
             }
@@ -757,14 +780,14 @@ class Sql implements SqlInterface
 
             while (--$retries >= 0) {
                 try {
-                    $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['hostname'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['database']) ? ';dbname=' . $this->configuration['database'] : '');
-                    $this->pdo      = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], Arrays::force($this->configuration['pdo_attributes']));
+                    $connect_string  = $this->configuration['driver'] . ':host=' . $this->configuration['hostname'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['database']) ? ';dbname=' . $this->configuration['database'] : '');
+                    $this->pdo       = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], Arrays::force($this->configuration['pdo_attributes']));
                     $this->pdo->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
 
                     Log::success(static::getConnectorLogPrefix() . tr('Connected to instance ":connector" with PDO connect string ":string"', [
-                            ':connector' => $this->connector,
-                            ':string'    => $connect_string,
-                        ]), 3);
+                        ':connector' => $this->connector,
+                        ':string'    => $connect_string,
+                    ]), 3);
                     break;
 
                 } catch (Throwable $e) {
@@ -780,29 +803,38 @@ class Sql implements SqlInterface
                         case 1045:
                             // Access  denied!
                             throw SqlAccessDeniedException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user", access was denied by the database server', [
-                                    ':connector' => $this->connector,
-                                    ':string'    => isset_get($connect_string),
-                                    ':user'      => $this->configuration['username'],
-                                ]))->makeWarning();
+                                ':connector' => $this->connector,
+                                ':string'    => isset_get($connect_string),
+                                ':user'      => $this->configuration['username'],
+                            ]));
 
                         case 1049:
                             // Database doesn't exist!
-                            throw SqlDatabaseDoesNotExistException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the database ":database" does not exist', [
+                            if ($this->connector === 'system') {
+                                throw SqlDatabaseDoesNotExistException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the system database ":database" does not exist. Run "./pho system init" to initialize the system, or "./pho system sync from SOURCE_ENVIRONMENT" to copy a system database from an existing environment', [
                                     ':connector' => $this->connector,
                                     ':string'    => isset_get($connect_string),
                                     ':database'  => $this->configuration['database'],
                                     ':user'      => $this->configuration['username'],
-                                ]))->makeWarning();
+                                ]));
+                            }
+
+                            throw SqlDatabaseDoesNotExistException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the database ":database" does not exist', [
+                                ':connector' => $this->connector,
+                                ':string'    => isset_get($connect_string),
+                                ':database'  => $this->configuration['database'],
+                                ':user'      => $this->configuration['username'],
+                            ]));
 
                         case 2002:
                             // Database service not available, connection refused!
                             throw SqlServerNotAvailableException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the connection was refused. The database server may be down, or the configuration may be incorrect', [
-                                    ':connector' => $this->connector,
-                                    ':string'    => isset_get($connect_string),
-                                    ':user'      => $this->configuration['username'],
-                                ]))->makeWarning();
-
+                                ':connector' => $this->connector,
+                                ':string'    => isset_get($connect_string),
+                                ':user'      => $this->configuration['username'],
+                            ]));
                     }
+
                     if ($e->getMessage() == 'could not find driver') {
                         if ($this->configuration['driver']) {
                             throw new PhpModuleNotAvailableException(tr('Failed to connect with ":driver" driver from connector ":connector", it looks like its not available', [

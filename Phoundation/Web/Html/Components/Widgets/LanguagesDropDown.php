@@ -17,7 +17,7 @@ namespace Phoundation\Web\Html\Components\Widgets;
 
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Stringable;
 
 class LanguagesDropDown extends ElementsBlock
@@ -57,7 +57,7 @@ class LanguagesDropDown extends ElementsBlock
      */
     public function setSettingsUrl(Stringable|string|null $settings_url): static
     {
-        $this->settings_url = UrlBuilder::getWww($settings_url);
+        $this->settings_url = Url::getWww($settings_url);
 
         return $this;
     }

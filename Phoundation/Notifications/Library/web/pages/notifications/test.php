@@ -6,7 +6,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -34,4 +34,4 @@ Notification::new()
     ->send();
 
 // Redirect to the all notifications page
-Response::redirect(UrlBuilder::getPrevious('/notifications/notifications.html'));
+Response::redirect(Url::getPrevious('/notifications/notifications.html'));

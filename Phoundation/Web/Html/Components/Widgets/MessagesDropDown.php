@@ -17,7 +17,7 @@ namespace Phoundation\Web\Html\Components\Widgets;
 
 use Phoundation\Messages\Messages;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Stringable;
 
 class MessagesDropDown extends ElementsBlock
@@ -83,7 +83,7 @@ class MessagesDropDown extends ElementsBlock
      */
     public function setMessagesUrl(Stringable|string|null $messages_url): static
     {
-        $this->messages_url = UrlBuilder::getWww($messages_url);
+        $this->messages_url = Url::getWww($messages_url);
 
         return $this;
     }

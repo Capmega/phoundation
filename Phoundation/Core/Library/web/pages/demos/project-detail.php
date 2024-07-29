@@ -3,7 +3,7 @@
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -82,12 +82,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <div class="user-block">
                                     <?= Session::getUser()->getPicture()
                                                ->getHtmlElement()
-                                               ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                               ->setSrc(Url::getImg('img/profiles/default.png'))
                                                ->setClass('img-circle img-bordered-sm')
                                                ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                                ->render() ?>
                                     <span class="username">
-                      <a href="<?= UrlBuilder::getWww('/demos/profile.html'); ?>">Sven Olaf Oostenbrink</a>
+                      <a href="<?= Url::getWww('/demos/profile.html'); ?>">Sven Olaf Oostenbrink</a>
                     </span>
                                     <span class="description">Shared publicly - 7:45 PM today</span>
                                 </div>
@@ -107,7 +107,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <div class="user-block">
                                     <?= Session::getUser()->getPicture()
                                                ->getHtmlElement()
-                                               ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                               ->setSrc(Url::getImg('img/profiles/default.png'))
                                                ->setClass('img-circle img-bordered-sm')
                                                ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                                ->render() ?>
@@ -130,12 +130,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <div class="user-block">
                                     <?= Session::getUser()->getPicture()
                                                ->getHtmlElement()
-                                               ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                                               ->setSrc(Url::getImg('img/profiles/default.png'))
                                                ->setClass('img-circle img-bordered-sm')
                                                ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
                                                ->render() ?>
                                     <span class="username">
-                      <a href="<?= UrlBuilder::getWww('/demos/profile.html'); ?>">Sven Olaf Oostenbrink</a>
+                      <a href="<?= Url::getWww('/demos/profile.html'); ?>">Sven Olaf Oostenbrink</a>
                     </span>
                                     <span class="description">Shared publicly - 5 days ago</span>
                                 </div>

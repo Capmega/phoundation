@@ -23,8 +23,8 @@ use Phoundation\Notifications\Notifications;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
+use Phoundation\Web\Http\Url;
 use Stringable;
 
 class NotificationsDropDown extends ElementsBlock
@@ -43,16 +43,16 @@ class NotificationsDropDown extends ElementsBlock
     /**
      * Contains the URL for the specific notifications
      *
-     * @var UrlBuilderInterface|null $notifications_url
+     * @var UrlInterface|null $notifications_url
      */
-    protected UrlBuilderInterface|null $notifications_url = null;
+    protected UrlInterface|null $notifications_url = null;
 
     /**
      * Contains the URL for the notifications page
      *
-     * @var UrlBuilderInterface|null $notifications_all_url
+     * @var UrlInterface|null $notifications_all_url
      */
-    protected UrlBuilderInterface|null $notifications_all_url = null;
+    protected UrlInterface|null $notifications_all_url = null;
 
 
     /**
@@ -77,9 +77,9 @@ class NotificationsDropDown extends ElementsBlock
     /**
      * Returns the notifications page URL
      *
-     * @return UrlBuilderInterface|null
+     * @return UrlInterface|null
      */
-    public function getNotificationsUrl(): ?UrlBuilderInterface
+    public function getNotificationsUrl(): ?UrlInterface
     {
         return $this->notifications_url;
     }
@@ -94,7 +94,7 @@ class NotificationsDropDown extends ElementsBlock
      */
     public function setNotificationsUrl(Stringable|string|null $notifications_url): static
     {
-        $this->notifications_url = UrlBuilder::getWww($notifications_url);
+        $this->notifications_url = Url::getWww($notifications_url);
 
         return $this;
     }
@@ -103,9 +103,9 @@ class NotificationsDropDown extends ElementsBlock
     /**
      * Returns the notifications page URL
      *
-     * @return UrlBuilderInterface
+     * @return UrlInterface
      */
-    public function getAllNotificationsUrl(): UrlBuilderInterface
+    public function getAllNotificationsUrl(): UrlInterface
     {
         return $this->notifications_all_url;
     }
@@ -120,7 +120,7 @@ class NotificationsDropDown extends ElementsBlock
      */
     public function setAllNotificationsUrl(Stringable|string|null $notifications_url): static
     {
-        $this->notifications_all_url = UrlBuilder::getWww($notifications_url);
+        $this->notifications_all_url = Url::getWww($notifications_url);
 
         return $this;
     }

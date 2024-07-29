@@ -23,7 +23,6 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Http\UrlBuilder;
 
 class MetaList
 {
@@ -70,7 +69,7 @@ class MetaList
                                      ORDER BY  `meta_history`.`created_on` DESC', $in);
         foreach ($source as &$row) {
             if ($row['created_by']) {
-                $row['user'] = '<a href="' . UrlBuilder::getWww('profiles/profile+' . $row['created_by'] . '.html') . '">' . $row['user'] . '</a>';
+                $row['user'] = '<a href="' . Url::getWww('profiles/profile+' . $row['created_by'] . '.html') . '">' . $row['user'] . '</a>';
             }
             $row['data'] = Json::decode($row['data']);
             unset($row['created_by']);

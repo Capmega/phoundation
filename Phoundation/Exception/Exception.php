@@ -656,15 +656,17 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      */
     public function generateDetails(): array
     {
+        $connected = sql(connect: false)->isConnected();
+
         try {
             return [
                 'project'               => PROJECT,
                 'project_version'       => Core::getProjectVersion(),
-                'database_version'      => Version::getString(Libraries::getMaximumVersion()),
+                'database_version'      => $connected ? Version::getString(Libraries::getMaximumVersion()) : tr('NO SYSTEM DATABASE CONNECTION AVAILABLE'),
                 'environment'           => ENVIRONMENT,
                 'platform'              => PLATFORM,
                 'session'               => Session::getUUID(),
-                'user'                  => Session::getUser()->getLogId(),
+                'user'                  => $connected ? Session::getUser()->getLogId() : 'system',
                 'command'               => PLATFORM_CLI ? CliCommand::getCommandsString() : null,
                 'url'                   => PLATFORM_WEB ? Route::getRequest() : null,
                 'method'                => PLATFORM_WEB ? Route::getMethod() : null,
@@ -676,6 +678,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
         } catch (Throwable $e) {
             $e = static::ensurePhoundationException($e);
+
             Log::error(tr('Failed to generate exception detail, see following details'));
             Log::error($e);
 

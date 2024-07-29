@@ -21,7 +21,7 @@ use Phoundation\Web\Html\Forms\SignInForm;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Html\Layouts\GridRow;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 
 class SignInModal extends Modal
 {
@@ -68,7 +68,7 @@ class SignInModal extends Modal
             $("form#form-sign-in").submit(function(e) {
                 e.stopPropagation();
                 
-                $.post("' . UrlBuilder::getAjax('sign-in') . '", $(this).serialize())
+                $.post("' . Url::getAjax('sign-in') . '", $(this).serialize())
                     .done(function (data, textStatus, jqXHR) {
                         $(".image-menu").replaceWith(data.html);
                         $("#signinModal").modal("hide");                     

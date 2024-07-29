@@ -24,7 +24,7 @@ use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -72,7 +72,7 @@ $notification_card = Card::new()
     ->setContent($notification->getHtmlDataEntryFormObject()->render())
     ->setButtons(Buttons::new()
                         ->addButton(tr('Mark unread'))
-                        ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/notifications/notifications.html'), true)
+                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/notifications/notifications.html'), true)
                         ->addButton(isset_get($go)));
 
 
@@ -80,11 +80,11 @@ $notification_card = Card::new()
 $relevant = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/notifications/all.html') . '">' . tr('All notifications') . '</a><br>
-                          <a href="' . UrlBuilder::getWww('/notifications/unread.html') . '">' . tr('Unread notifications') . '</a><br>
+    ->setContent('<a href="' . Url::getWww('/notifications/all.html') . '">' . tr('All notifications') . '</a><br>
+                          <a href="' . Url::getWww('/notifications/unread.html') . '">' . tr('Unread notifications') . '</a><br>
                           <hr>
-                          <a href="' . UrlBuilder::getWww('/security/incidents.html') . '">' . tr('Security incidents') . '</a><br>
-                          <a href="' . UrlBuilder::getWww('/development/incidents.html') . '">' . tr('Development incidents') . '</a>');
+                          <a href="' . Url::getWww('/security/incidents.html') . '">' . tr('Security incidents') . '</a><br>
+                          <a href="' . Url::getWww('/development/incidents.html') . '">' . tr('Development incidents') . '</a>');
 
 
 // Build documentation

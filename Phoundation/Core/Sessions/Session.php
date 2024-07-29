@@ -28,7 +28,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Interfaces\ConfigInterface;
+use Phoundation\Core\Sessions\Interfaces\SessionConfigInterface;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStatusException;
@@ -53,7 +53,7 @@ use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessages;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Http;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
@@ -113,9 +113,9 @@ class Session implements SessionInterface
     /**
      * The user session configuration object
      *
-     * @var ConfigInterface $config
+     * @var SessionConfigInterface $config
      */
-    protected static ConfigInterface $config;
+    protected static SessionConfigInterface $config;
 
     /**
      * Stores the sign-in key, if available
@@ -1107,9 +1107,9 @@ class Session implements SessionInterface
     /**
      * Returns the user session configuration object
      *
-     * @return ConfigInterface
+     * @return SessionConfigInterface
      */
-    public static function getConfig(): ConfigInterface
+    public static function getConfig(): SessionConfigInterface
     {
         if (empty(static::$config)) {
             static::$config = new SessionConfig();
@@ -1262,7 +1262,7 @@ class Session implements SessionInterface
         // Impersonate the user
         $original_user = static::getUser();
         $_SESSION['user']['impersonate_id']  = $user->getId();
-        $_SESSION['user']['impersonate_url'] = (string) UrlBuilder::getCurrent();
+        $_SESSION['user']['impersonate_url'] = (string) Url::getCurrent();
         // Register an incident
         Incident::new()
                 ->setType('User impersonation')
@@ -1375,7 +1375,9 @@ class Session implements SessionInterface
                                                      ->getLogId(),
                             ])
                             ->save();
+
                     Session::signOut();
+
                     Response::getFlashMessages()
                            ->addWarning(tr('Something went wrong with your session, please sign in again'));
                     Response::redirect('sign-in');

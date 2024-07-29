@@ -18,7 +18,7 @@ namespace Phoundation\Web\Html\Components;
 use Phoundation\Data\Traits\TraitDataSelector;
 use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 class UploadDropZone extends ResourceElement
@@ -158,7 +158,7 @@ class UploadDropZone extends ResourceElement
                      ->setJavascriptWrapper(EnumJavascriptWrappers::window)
                      ->setContent('
               var myDropzone = new Dropzone(' . $this->selector . ', {
-                url: "' . not_empty($this->url, UrlBuilder::getWww()) . '",
+                url: "' . not_empty($this->url, Url::getWww()) . '",
                 thumbnailWidth: 80,
                 thumbnailHeight: 80,
                 parallelUploads: 20,

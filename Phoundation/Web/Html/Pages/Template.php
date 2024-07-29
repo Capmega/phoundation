@@ -21,7 +21,7 @@ use Phoundation\Data\Traits\TraitDataIteratorSource;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Pages\Interfaces\TemplateInterface;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 
 class Template implements TemplateInterface
@@ -147,7 +147,7 @@ class Template implements TemplateInterface
 
         } else {
             $sign_out = Session::isGuest() ? null : '<p>' . tr('Click :here to sign out', [
-                ':here' => '<a href="' . UrlBuilder::getWww('sign-out') . '">here</a>'
+                ':here' => '<a href="' . Url::getWww('sign-out') . '">here</a>'
             ]) . '</p>';
 
             switch ($this->page) {
@@ -161,7 +161,7 @@ class Template implements TemplateInterface
                                                 <h3><i class="fas fa-exclamation-triangle text-:type"></i> :h3</h3>
 
                                                 <p>:p</p>
-                                                <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . UrlBuilder::getCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
+                                                <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . Url::getCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
                                                 $sign_out;
 
                     if (Session::isUser()) {

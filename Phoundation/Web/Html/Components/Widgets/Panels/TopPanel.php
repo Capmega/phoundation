@@ -18,7 +18,7 @@ namespace Phoundation\Web\Html\Components\Widgets\Panels;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Iterator;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 
 class TopPanel extends Panel
 {
@@ -32,13 +32,13 @@ class TopPanel extends Panel
         // Set the default menu for top panels
         $this->source['menu'] = Menu::new()
                                     ->addSources([
-                                        tr('Home') => (string) UrlBuilder::getCurrentDomainRootUrl(),
+                                        tr('Home') => (string) Url::getCurrentDomainRootUrl(),
                                     ]);
         if (
             Session::getUser()
                    ->hasAllRights('demos')
         ) {
-            $this->source['menu']->add((string) UrlBuilder::getWww('demos.html'), tr('Demos'));
+            $this->source['menu']->add((string) Url::getWww('demos.html'), tr('Demos'));
         }
         parent::__construct($content);
         $this->elements = Iterator::new([

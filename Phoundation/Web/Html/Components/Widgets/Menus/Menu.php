@@ -20,7 +20,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 
 class Menu extends ElementsBlock implements MenuInterface
 {
@@ -61,7 +61,7 @@ class Menu extends ElementsBlock implements MenuInterface
                 }
             }
             if (array_key_exists('url', $entry)) {
-                $entry['url'] = UrlBuilder::getWww($entry['url']);
+                $entry['url'] = Url::getWww($entry['url']);
             }
             if (array_key_exists('menu', $entry)) {
                 // Recurse

@@ -24,7 +24,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
 use Phoundation\Web\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Stringable;
 
 class Form extends Element implements FormInterface
@@ -313,7 +313,7 @@ class Form extends Element implements FormInterface
      */
     public function getAction(): ?string
     {
-        return $this->action ?? (string) UrlBuilder::getWww();
+        return $this->action ?? (string) Url::getWww();
     }
 
 
@@ -327,7 +327,7 @@ class Form extends Element implements FormInterface
     public function setAction(Stringable|string|null $action): static
     {
         if ($action) {
-            $this->action = (string) UrlBuilder::getWww($action);
+            $this->action = (string) Url::getWww($action);
 
         } else {
             $this->action = null;

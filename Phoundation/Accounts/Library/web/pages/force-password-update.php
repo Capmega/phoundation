@@ -20,12 +20,12 @@ use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\ForcePasswordUpdatePage;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 // Only allow being here when it was forced by redirect
-if (!Session::getUser()->getRedirect() or (Session::getUser()->getRedirect() !== (string)UrlBuilder::getWww('/force-password-update.html'))) {
+if (!Session::getUser()->getRedirect() or (Session::getUser()->getRedirect() !== (string)Url::getWww('/force-password-update.html'))) {
     Response::redirect('prev', 302, reason_warning: tr('Force password update is only available when it was accessed using forced user redirect'));
 }
 

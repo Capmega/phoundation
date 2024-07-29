@@ -27,7 +27,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 
 class Notifications extends DataIterator implements NotificationsInterface
 {
@@ -253,7 +253,7 @@ class Notifications extends DataIterator implements NotificationsInterface
               ->setContent('   function checkNotifications(ping) {
                                         var ping = (typeof ping !== "undefined") ? ping : true;
 
-                                        $.get("' . UrlBuilder::getAjax('/system/notifications/dropdown.json') . '")
+                                        $.get("' . Url::getAjax('/system/notifications/dropdown.json') . '")
                                         .done(function(data) {
                                             if ((data.count > 0) && data.ping) {
                                                 console.log("Notification ping!");

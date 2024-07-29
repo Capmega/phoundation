@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Http\Url;
 
 trait TraitDataEntryDefaultPage
 {
@@ -40,6 +40,6 @@ trait TraitDataEntryDefaultPage
     public function setDefaultPage(?string $default_page): static
     {
 
-        return $this->set($default_page ? (string) UrlBuilder::getWww($default_page) : null, 'default_page');
+        return $this->set($default_page ? (string) Url::getWww($default_page) : null, 'default_page');
     }
 }

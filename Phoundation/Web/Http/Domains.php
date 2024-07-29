@@ -80,7 +80,7 @@ class Domains
             $domain = Request::getDomain();
 
         } else {
-            $domain = UrlBuilder::getDomainFromUrl($domain);
+            $domain = Url::getDomainFromUrl($domain);
         }
 
         $this->domain = strtolower($domain);
@@ -204,7 +204,7 @@ class Domains
         if (!static::$primary_web_domain) {
             // Build cache
             static::loadConfiguration();
-            static::$primary_web_domain = (string) UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['web']));
+            static::$primary_web_domain = (string) Url::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['web']));
 
             if (!static::$primary_web_domain) {
                 // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
@@ -232,7 +232,7 @@ class Domains
         if (!static::$primary_cdn_domain) {
             // Build cache
             static::loadConfiguration();
-            static::$primary_cdn_domain = (string) UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['cdn']));
+            static::$primary_cdn_domain = (string) Url::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['cdn']));
 
             if (!static::$primary_cdn_domain) {
                 // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
@@ -378,7 +378,7 @@ class Domains
                     ':domain' => $domain,
                 ]));
 
-                Response::redirect(UrlBuilder::getRootDomainUrl());
+                Response::redirect(Url::getRootDomainUrl());
             }
 
             // The specified domain isn't configured
