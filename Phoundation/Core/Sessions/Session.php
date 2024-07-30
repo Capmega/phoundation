@@ -32,6 +32,7 @@ use Phoundation\Core\Sessions\Interfaces\SessionConfigInterface;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStatusException;
+use Phoundation\Data\Traits\TraitDataStaticFlashMessages;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Developer\Debug;
@@ -61,6 +62,9 @@ use Throwable;
 
 class Session implements SessionInterface
 {
+    use TraitDataStaticFlashMessages;
+
+
     /**
      * Singleton
      *
@@ -104,13 +108,6 @@ class Session implements SessionInterface
     protected static ?string $domain = null;
 
     /**
-     * Session level flash messages
-     *
-     * @var FlashMessages|null $flash_messages
-     */
-    protected static ?FlashMessages $flash_messages = null;
-
-    /**
      * The user session configuration object
      *
      * @var SessionConfigInterface $config
@@ -123,6 +120,13 @@ class Session implements SessionInterface
      * @var SignInKeyInterface|null $key
      */
     protected static ?SignInKeyInterface $key = null;
+
+    /**
+     * Tracks if during this page load the user changed
+     *
+     * @var bool $user_changed
+     */
+    protected static bool $user_changed = false;
 
 
     /**
@@ -175,6 +179,17 @@ class Session implements SessionInterface
     public static function hasStartedUp(): bool
     {
         return static::$has_started_up;
+    }
+
+
+    /**
+     * Returns true if the user changed during this page load
+     *
+     * @return bool
+     */
+    public static function userChanged(): bool
+    {
+        return static::$user_changed;
     }
 
 
@@ -641,7 +656,7 @@ class Session implements SessionInterface
 
         // If any flash messages were stored in the $_SESSION, import them into the flash messages object
         if (isset($_SESSION['flash_messages'])) {
-            static::getFlashMessages()->import((array) $_SESSION['flash_messages']);
+            static::getFlashMessagesObject()->import((array) $_SESSION['flash_messages']);
             unset($_SESSION['flash_messages']);
         }
 
@@ -890,10 +905,11 @@ class Session implements SessionInterface
     public static function signIn(string $user, string $password, string $user_class = User::class): UserInterface
     {
         try {
-            static::$user = $user_class::authenticate($user, $password);
-            static::clear();
+            static::$user         = $user_class::authenticate($user, $password);
+            static::$user_changed = true;
 
             // Update the users sign-in and last sign-in information
+            static::clear();
             static::updateSignInTracking();
 
             Incident::new()
@@ -980,22 +996,6 @@ class Session implements SessionInterface
 
 
     /**
-     * Returns the page flash messages
-     *
-     * @return FlashMessagesInterface
-     * @todo Load flash messages for the session!
-     */
-    public static function getFlashMessages(): FlashMessagesInterface
-    {
-        if (!static::$flash_messages) {
-            static::$flash_messages = FlashMessages::new();
-        }
-
-        return static::$flash_messages;
-    }
-
-
-    /**
      * Shut down the session object
      *
      * @return void
@@ -1005,13 +1005,15 @@ class Session implements SessionInterface
         if (PLATFORM_WEB) {
             // If this page has flash messages that have not yet been displayed then store them in the session variable
             // so that they can be displayed on the next page load
-            static::getFlashMessages()->pullMessagesFrom(Response::getFlashMessages());
+            static::getFlashMessagesObject()->addSource(Response::getFlashMessagesObject());
 
-            if (static::$flash_messages->getCount()) {
+            if (static::$flash_messages?->getCount()) {
                 // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
                 $_SESSION['flash_messages'] = static::$flash_messages->export();
             }
         }
+
+        session_write_close();
     }
 
 
@@ -1135,10 +1137,13 @@ class Session implements SessionInterface
             case 'github':
             case 'twitter':
                 return false;
+
             case 'email':
                 return true;
+
             case 'lost-password':
                 return true;
+
             case 'signup':
                 // no break
             case 'sign-up':
@@ -1147,8 +1152,10 @@ class Session implements SessionInterface
                 // no break
             case 'registration':
                 return false;
+
             case 'copyright':
                 return true;
+
             default:
                 throw new OutOfBoundsException(tr('Unknown Session support ":method" specified', [
                     ':method' => $method,
@@ -1183,6 +1190,7 @@ class Session implements SessionInterface
                 ':user' => $user->getLogId(),
             ]));
         }
+
         if (isset($_SESSION['user']['impersonate_id'])) {
             // We are already impersonating a user!
             Incident::new()
@@ -1192,49 +1200,42 @@ class Session implements SessionInterface
                         ':user' => $user->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => static::getUser()
-                                                       ->getLogId(),
-                        'impersonating'       => User::load($_SESSION['user']['impersonate_id'], 'id')
-                                                     ->getLogId(),
+                        'user'                => static::getUser()->getLogId(),
+                        'impersonating'       => User::load($_SESSION['user']['impersonate_id'], 'id')->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->notifyRoles('accounts')
                     ->save()
                     ->throw();
         }
+
         if (!$user->canBeImpersonated()) {
             // We are already impersonating a user!
             Incident::new()
                     ->setType('User impersonation failed')
                     ->setSeverity(Severity::high)
                     ->setTitle(tr('Cannot impersonate user ":user", this user account is not able or allowed to be impersonated', [
-                        ':user' => static::getUser()
-                                         ->getLogId(),
+                        ':user' => static::getUser()->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => static::getUser()
-                                                       ->getLogId(),
+                        'user'                => static::getUser()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->notifyRoles('accounts')
                     ->save()
                     ->throw();
         }
-        if (
-            $user->getId() === static::getUser()
-                                     ->getId()
-        ) {
+
+        if ($user->getId() === static::getUser()->getId()) {
             // We are already impersonating a user!
             Incident::new()
                     ->setType('User impersonation failed')
                     ->setSeverity(Severity::high)
                     ->setTitle(tr('Cannot impersonate user ":user", the user to impersonate is this user itself', [
-                        ':user' => static::getUser()
-                                         ->getLogId(),
+                        ':user' => static::getUser()->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => static::getUser()
-                                                       ->getLogId(),
+                        'user'                => static::getUser()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->notifyRoles('accounts')
@@ -1247,22 +1248,24 @@ class Session implements SessionInterface
                     ->setType('User impersonation failed')
                     ->setSeverity(Severity::severe)
                     ->setTitle(tr('Cannot impersonate user ":user", the user to impersonate has the "god" role', [
-                        ':user' => static::getUser()
-                                         ->getLogId(),
+                        ':user' => static::getUser()->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => static::getUser()
-                                                       ->getLogId(),
+                        'user'                => static::getUser()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->notifyRoles('accounts')
                     ->save()
                     ->throw();
         }
+
         // Impersonate the user
         $original_user = static::getUser();
         $_SESSION['user']['impersonate_id']  = $user->getId();
         $_SESSION['user']['impersonate_url'] = (string) Url::getCurrent();
+
+        static::$user_changed = true;
+
         // Register an incident
         Incident::new()
                 ->setType('User impersonation')
@@ -1277,6 +1280,7 @@ class Session implements SessionInterface
                 ])
                 ->notifyRoles('accounts')
                 ->save();
+
         // Notify the target user
         Notification::new()
                     ->setUrl('profiles/profile+' . $original_user->getId() . '.html')
@@ -1378,7 +1382,7 @@ class Session implements SessionInterface
 
                     Session::signOut();
 
-                    Response::getFlashMessages()
+                    Response::getFlashMessagesObject()
                            ->addWarning(tr('Something went wrong with your session, please sign in again'));
                     Response::redirect('sign-in');
                 }
@@ -1405,8 +1409,10 @@ class Session implements SessionInterface
 
             return;
         }
+
         try {
             if (isset($_SESSION['user']['impersonate_id'])) {
+                // This session was impersonation a user. Don't sign out, just stop impersonating
                 try {
                     Incident::new()
                             ->setType('User impersonation')
@@ -1433,7 +1439,9 @@ class Session implements SessionInterface
                     unset($_SESSION['user']['impersonate_id']);
                     unset($_SESSION['user']['impersonate_url']);
 
-                    Response::getFlashMessages()
+                    static::$user_changed = true;
+
+                    Response::getFlashMessagesObject()
                            ->addSuccess(tr('You have stopped impersonating user ":user"', [
                                ':user' => User::load($users_id, 'id')
                                               ->getLogId(),
@@ -1443,9 +1451,11 @@ class Session implements SessionInterface
                 } catch (Throwable $e) {
                     // Oops?
                     Log::error($e);
+
                     Notification::new()
                                 ->setException($e)
                                 ->save();
+
                     Incident::new()
                             ->setType('User impersonation sign out failed')
                             ->setSeverity(Severity::low)
@@ -1456,6 +1466,7 @@ class Session implements SessionInterface
                             ->save();
                 }
             }
+
             Incident::new()
                     ->setType('User sign out')
                     ->setSeverity(Severity::notice)
@@ -1473,7 +1484,16 @@ class Session implements SessionInterface
             // Oops! Session sign out just completely failed for some reason. Just log, destroy the session, and continue
             Log::error($e);
         }
-        session_destroy();
+
+        static::$user_changed = !static::getUser()->isGuest();
+
+        // Destroy all in the session but the flash messages
+        $messages = isset_get($_SESSION['flash_messages']);
+        $_SESSION = [];
+
+        if ($messages) {
+            $_SESSION['flash_messages'] = $messages;
+        }
     }
 
 
