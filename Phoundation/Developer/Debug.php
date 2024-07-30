@@ -1193,6 +1193,8 @@ class Debug
     /**
      * Returns the call before the specified method (and optionally, class name)
      *
+     * Note: If multiple classes and or methods match, only the earliest one will be returned
+     *
      * @param string|null $method
      * @param string|null $class
      *
@@ -1214,12 +1216,12 @@ class Debug
                 break;
             }
 
-            if (($method === null) or ($method === $call->getFunction())) {
+            if (($method === null) or str_ends_with($call->getFunction(), $method)) {
                 if ($class === null) {
                     $next = true;
                     continue;
 
-                } elseif ($class === (string) $call->getClass()) {
+                } elseif (str_ends_with((string) $call->getClass(), $class)) {
                     $next = true;
                     continue;
                 }
@@ -1231,5 +1233,46 @@ class Debug
         }
 
         return null;
+    }
+
+
+    /**
+     * Returns the call before the specified method (and optionally, class name)
+     *
+     * Note: If multiple classes and or methods match, only the earliest one will be returned
+     *
+     * @param string|null $method
+     * @param string|null $class
+     *
+     * @return ?FunctionCallInterface
+     */
+    public static function getCall(?string $method, ?string $class = null): ?FunctionCallInterface
+    {
+        $offset = 0;
+        $return = null;
+
+        // We'll use function call caching here, make sure cache is cleared before we start
+        FunctionCall::clearCache();
+
+        while (true) {
+            try {
+                $call = new FunctionCall($offset++, true);
+
+            } catch (OutOfBoundsException) {
+                // We're out of scope, the specified method / class does not exist
+                break;
+            }
+
+            if (($method === null) or str_ends_with($call->getFunction(), $method)) {
+                if ($class === null) {
+                    $return = $call;
+
+                } elseif (str_ends_with((string) $call->getClass(), $class)) {
+                    $return = $call;
+                }
+            }
+        }
+
+        return $return;
     }
 }
