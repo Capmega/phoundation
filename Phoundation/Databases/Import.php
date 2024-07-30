@@ -156,11 +156,9 @@ class Import
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param EnumExecuteMethod $method
-     *
      * @return static
      */
-    public function import(EnumExecuteMethod $method = EnumExecuteMethod::passthru): static
+    public function import(): static
     {
         switch ($this->driver) {
             case 'mysql':
@@ -173,7 +171,7 @@ class Import
                      ->setTimeout($this->timeout)
                      ->setConnector($this->connector)
                      ->drop($this->drop ? $this->database : null)
-                     ->create($this->drop ? $this->database : null)
+                     ->create($this->database)
                      ->import($this->file);
 
                 Log::success(tr('Finished importing MySQL dump file ":file" to database ":database"', [
@@ -181,6 +179,7 @@ class Import
                     ':database' => $this->database,
                 ]));
                 break;
+
             case 'redis':
                 // no break
             case 'mongo':
@@ -209,6 +208,7 @@ class Import
     public function setConnector(ConnectorInterface|string|null $connector, bool $ignore_sql_exceptions = false): static
     {
         $this->__setConnector($connector, $ignore_sql_exceptions);
+
         if ($this->getDriver()) {
             // Driver was specified separately, must match driver for this connector
             if ($this->getDriver() !== $this->connector->getDriver()) {

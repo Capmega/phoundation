@@ -59,7 +59,7 @@ class MySql extends Command
             // Drop the requested database
             sql($this->connector, false)
                 ->getSchemaObject(false)
-                ->getDatabaseObject($database)
+                ->getDatabaseObject($database, false)
                 ->drop();
         }
 
@@ -80,7 +80,7 @@ class MySql extends Command
             // Drop the requested database
             sql($this->connector, false)
                 ->getSchemaObject(false)
-                ->getDatabaseObject($database)
+                ->getDatabaseObject($database, false)
                 ->create();
         }
 

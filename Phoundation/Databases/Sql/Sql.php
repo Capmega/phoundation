@@ -92,9 +92,9 @@ class Sql implements SqlInterface
     /**
      * Registers what database is in use
      *
-     * @var string|null $using_database
+     * @var string|null $database
      */
-    protected ?string $using_database = null;
+    protected ?string $database = null;
 
     /**
      * The PDO database interface
@@ -315,7 +315,23 @@ class Sql implements SqlInterface
      */
     public function getDatabase(): ?string
     {
-        return $this->using_database;
+        return $this->database;
+    }
+
+
+    /**
+     * Sets the name of the database that currently is in use by this database object
+     *
+     * @param string|null $database
+     * @param bool        $use
+     *
+     * @return Sql
+     */
+    public function setDatabase(?string $database, bool $use = false): static
+    {
+        $this->database = $database;
+
+        return $this;
     }
 
 
@@ -892,7 +908,7 @@ class Sql implements SqlInterface
             }
 
             // Yay, we're using the database!
-            $this->using_database = $this->configuration['database'];
+            $this->database = $this->configuration['database'];
 
             if ($this->configuration['timezones_name']) {
                 // Try to set MySQL timezone
@@ -1206,8 +1222,8 @@ class Sql implements SqlInterface
      */
     public function use(?string $database = null): static
     {
-        if ($database === '') {
-            $this->using_database = null;
+        if (empty($database)) {
+            $this->database = null;
 
             return $this;
         }
@@ -1221,7 +1237,7 @@ class Sql implements SqlInterface
 
         try {
             $this->pdo->query('USE `' . $database . '`');
-            $this->using_database = $database;
+            $this->database = $database;
 
             return $this;
 

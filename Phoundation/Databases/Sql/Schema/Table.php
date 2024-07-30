@@ -49,17 +49,17 @@ class Table extends SchemaAbstract implements TableInterface
     /**
      * Table constructor
      *
-     * @param string                $name
+     * @param string                $database
      * @param Sql                   $sql
      * @param SchemaAbstract|Schema $parent
      */
-    public function __construct(string $name, Sql $sql, SchemaAbstract|Schema $parent)
+    public function __construct(string $database, Sql $sql, SchemaAbstract|Schema $parent)
     {
-        parent::__construct($name, $sql, $parent);
+        parent::__construct($database, $sql, $parent);
 
-        if ($name) {
+        if ($database) {
             // Load this table
-            $this->load($name);
+            $this->load($database);
         }
     }
 
@@ -83,7 +83,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function define(): TableDefine
     {
-        return new TableDefine($this->name, $this->sql, $this);
+        return new TableDefine($this->database, $this->sql, $this);
     }
 
 
@@ -94,7 +94,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function alter(): TableAlter
     {
-        return new TableAlter($this->name, $this->sql, $this);
+        return new TableAlter($this->database, $this->sql, $this);
     }
 
 
@@ -107,7 +107,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function rename(string $table_name): void
     {
-        sql()->query('RENAME TABLE `' . $this->name . '` TO `' . $table_name . '`');
+        sql()->query('RENAME TABLE `' . $this->database . '` TO `' . $table_name . '`');
     }
 
 
@@ -119,7 +119,7 @@ class Table extends SchemaAbstract implements TableInterface
     public function exists(): bool
     {
         // If this query returns nothing, the table does not exist. If it returns anything, it does exist.
-        return (bool) sql()->get('SHOW TABLES LIKE :name', [':name' => $this->name]);
+        return (bool) sql()->get('SHOW TABLES LIKE :name', [':name' => $this->database]);
     }
 
 
@@ -131,12 +131,12 @@ class Table extends SchemaAbstract implements TableInterface
     public function drop(): static
     {
         Log::warning(tr('Dropping table ":table" in database ":database" for SQL instance ":instance"', [
-            ':table'    => $this->name,
+            ':table'    => $this->database,
             ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase(),
         ]), 3);
 
-        sql()->query('DROP TABLES IF EXISTS `' . $this->name . '`');
+        sql()->query('DROP TABLES IF EXISTS `' . $this->database . '`');
 
         return $this;
     }
@@ -149,8 +149,8 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function truncate(): void
     {
-        Log::warning(tr('Truncating table :table', [':table' => $this->name]));
-        sql()->query('TRUNCATE `' . $this->name . '`');
+        Log::warning(tr('Truncating table :table', [':table' => $this->database]));
+        sql()->query('TRUNCATE `' . $this->database . '`');
     }
 
 
@@ -161,7 +161,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function getCount(): int
     {
-        return sql()->getInteger('SELECT COUNT(*) as `count` FROM `' . $this->name . '`');
+        return sql()->getInteger('SELECT COUNT(*) as `count` FROM `' . $this->database . '`');
     }
 
 
@@ -172,7 +172,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function getName(): ?string
     {
-        return $this->name;
+        return $this->database;
     }
 
 
@@ -204,7 +204,7 @@ class Table extends SchemaAbstract implements TableInterface
 
         if (empty($this->columns)) {
             $columns = [];
-            $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
+            $results = sql()->listKeyValues('DESCRIBE `' . $this->database . '`');
 
             foreach ($results as $result) {
                 $columns[$result['field']] = Arrays::lowercaseKeys($result);

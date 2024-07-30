@@ -15,7 +15,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema;
 
+use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaAbstractInterface;
+use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
 use Phoundation\Databases\Sql\Sql;
 
 abstract class SchemaAbstract implements SchemaAbstractInterface
@@ -37,46 +39,58 @@ abstract class SchemaAbstract implements SchemaAbstractInterface
     /**
      * The parent object
      *
-     * @var SchemaAbstract|Schema $parent
+     * @var SchemaAbstractInterface|SchemaInterface $parent
      */
-    protected SchemaAbstract|Schema $parent;
+    protected SchemaAbstractInterface|SchemaInterface $parent;
 
     /**
      * The name for this object
      *
-     * @var string $name
+     * @var string $database
      */
-    protected string $name;
+    protected string $database;
 
 
     /**
      * SchemaAbstract class constructor
      *
-     * @param string                $name
-     * @param Sql                   $sql
-     * @param SchemaAbstract|Schema $parent
+     * @param string                                  $database
+     * @param Sql                                     $sql
+     * @param SchemaAbstractInterface|SchemaInterface $parent
      */
-    public function __construct(string $name, Sql $sql, SchemaAbstract|Schema $parent)
+    public function __construct(string $database, Sql $sql, SchemaAbstractInterface|SchemaInterface $parent)
     {
-        $this->sql           = $sql;
-        $this->name          = $name;
-        $this->parent        = $parent;
-        $this->configuration = $sql->getConfiguration();
+        $this->sql                       = $sql;
+        $this->database                  = $database;
+        $this->parent                    = $parent;
+        $this->configuration             = $sql->getConfiguration();
+        $this->configuration['database'] = $database;
     }
 
 
     /**
      * Returns a new SchemaAbstract type object
      *
-     * @param string                $name
-     * @param Sql                   $sql
-     * @param SchemaAbstract|Schema $parent
+     * @param string                                  $name
+     * @param Sql                                     $sql
+     * @param SchemaAbstractInterface|SchemaInterface $parent
      *
      * @return static
      */
-    public static function new(string $name, Sql $sql, SchemaAbstract|Schema $parent): static
+    public static function new(string $name, Sql $sql, SchemaAbstractInterface|SchemaInterface $parent): static
     {
         return new static($name, $sql, $parent);
+    }
+
+
+    /**
+     * Returns the SQL object for this schema
+     *
+     * @return SqlInterface
+     */
+    public function getSqlObject(): SqlInterface
+    {
+        return $this->sql;
     }
 
 

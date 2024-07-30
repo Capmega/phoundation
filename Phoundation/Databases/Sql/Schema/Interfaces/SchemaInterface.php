@@ -28,11 +28,12 @@ interface SchemaInterface
     /**
      * Access a new Database object
      *
-     * @param string|null $name
+     * @param string|null $database
+     * @param bool        $use
      *
      * @return DatabaseInterface
      */
-    public function getDatabaseObject(?string $name = null): DatabaseInterface;
+    public function getDatabaseObject(?string $database = null, bool $use = true): DatabaseInterface;
 
     /**
      * Returns the current database

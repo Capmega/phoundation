@@ -10,6 +10,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
 use Phoundation\Databases\Sql\Schema\Schema;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 
@@ -65,6 +66,17 @@ interface SqlInterface
      * @return string|null
      */
     public function getDatabase(): ?string;
+
+
+    /**
+     * Sets the name of the database that currently is in use by this database object
+     *
+     * @param string|null $database
+     * @param bool        $use
+     *
+     * @return Sql
+     */
+    public function setDatabase(?string $database, bool $use = false): static;
 
 
     /**

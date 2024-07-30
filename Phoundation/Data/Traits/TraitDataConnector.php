@@ -72,8 +72,8 @@ trait TraitDataConnector
             if (count($entry)) {
                 $entry['name']     = $connector;
                 $entry['seo_name'] = Seo::string($connector);
-                $this->connector = Connector::newFromSource($entry, true)
-                                            ->setReadonly(true);
+                $this->connector   = Connector::newFromSource($entry, true)
+                                              ->setReadonly(true);
             }
         }
 

@@ -16,6 +16,7 @@ interface DatabaseInterface extends SchemaAbstractInterface
      */
 
     public function getName(): ?string;
+
     /**
      * Sets the database name
      *
@@ -27,6 +28,7 @@ interface DatabaseInterface extends SchemaAbstractInterface
      */
 
     public function setName(string $name): static;
+
     /**
      * Create this database
      *

@@ -31,10 +31,10 @@ class TableAlter extends SchemaAbstract
     public function setName(string $name): static
     {
         $this->sql->query('RENAME TABLE :from TO :to', [
-            ':from' => $this->name,
+            ':from' => $this->database,
             ':tp'   => $name,
         ]);
-        $this->name = $name;
+        $this->database = $name;
 
         return $this;
     }
@@ -82,7 +82,7 @@ class TableAlter extends SchemaAbstract
         if (!$after) {
             throw new OutOfBoundsException(tr('No after column specified'));
         }
-        $this->sql->query('ALTER TABLE `' . $this->name . '` ADD COLUMN ' . Strings::ensureEndsNotWith($column, ',') . ' ' . $after);
+        $this->sql->query('ALTER TABLE `' . $this->database . '` ADD COLUMN ' . Strings::ensureEndsNotWith($column, ',') . ' ' . $after);
 
         return $this;
     }
@@ -102,7 +102,7 @@ class TableAlter extends SchemaAbstract
         }
         $column = Strings::ensureStartsNotWith($column, '`');
         $column = Strings::ensureEndsNotWith($column, '`');
-        $this->sql->query('ALTER TABLE ' . $this->name . ' DROP COLUMN `' . $column . '`');
+        $this->sql->query('ALTER TABLE ' . $this->database . ' DROP COLUMN `' . $column . '`');
 
         return $this;
     }
@@ -126,7 +126,7 @@ class TableAlter extends SchemaAbstract
         }
         $column = Strings::ensureStartsNotWith($column, '`');
         $column = Strings::ensureEndsNotWith($column, '`');
-        $this->sql->query('ALTER TABLE `' . $this->name . '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
+        $this->sql->query('ALTER TABLE `' . $this->database . '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
 
         return $this;
     }
@@ -150,7 +150,7 @@ class TableAlter extends SchemaAbstract
         }
         $column = Strings::ensureStartsNotWith($column, '`');
         $column = Strings::ensureEndsNotWith($column, '`');
-        $this->sql->query('ALTER TABLE `' . $this->name . '` CHANGE COLUMN `' . $column . '` ' . $to_definition);
+        $this->sql->query('ALTER TABLE `' . $this->database . '` CHANGE COLUMN `' . $column . '` ' . $to_definition);
 
         return $this;
     }
@@ -179,7 +179,7 @@ class TableAlter extends SchemaAbstract
         $to_column   = Strings::ensureStartsNotWith($to_column, '`');
         $to_column   = Strings::ensureEndsNotWith($to_column, '`');
 
-        $this->sql->query('ALTER TABLE `' . $this->name . '` RENAME COLUMN `' . $from_column . '` TO `' . $to_column . '`');
+        $this->sql->query('ALTER TABLE `' . $this->database . '` RENAME COLUMN `' . $from_column . '` TO `' . $to_column . '`');
 
         return $this;
     }
@@ -216,7 +216,7 @@ class TableAlter extends SchemaAbstract
     public function addIndex(string $index): static
     {
         if ($index) {
-            $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . Strings::ensureEndsNotWith($index, ','));
+            $this->sql->query('ALTER TABLE ' . $this->database . ' ADD ' . Strings::ensureEndsNotWith($index, ','));
         }
 
         return $this;
@@ -233,7 +233,7 @@ class TableAlter extends SchemaAbstract
     public function dropIndex(string $index): static
     {
         if ($index) {
-            $this->sql->query('ALTER TABLE ' . $this->name . ' DROP KEY `' . Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($index, '`'), '`') . '`');
+            $this->sql->query('ALTER TABLE ' . $this->database . ' DROP KEY `' . Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($index, '`'), '`') . '`');
         }
 
         return $this;
@@ -271,7 +271,7 @@ class TableAlter extends SchemaAbstract
     public function addForeignKey(string $foreign_key): static
     {
         if ($foreign_key) {
-            $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $foreign_key);
+            $this->sql->query('ALTER TABLE ' . $this->database . ' ADD ' . $foreign_key);
         }
 
         return $this;
@@ -288,7 +288,7 @@ class TableAlter extends SchemaAbstract
     public function dropForeignKey(string $foreign_key): static
     {
         if ($foreign_key) {
-            $this->sql->query('ALTER TABLE ' . $this->name . ' DROP FOREIGN KEY `' . Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($foreign_key, '`'), '`') . '`');
+            $this->sql->query('ALTER TABLE ' . $this->database . ' DROP FOREIGN KEY `' . Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($foreign_key, '`'), '`') . '`');
         }
 
         return $this;

@@ -91,26 +91,33 @@ class Schema implements SchemaInterface
     /**
      * Access a new Database object
      *
-     * @param string|null $name
+     * @param string|null $database
+     * @param bool        $use
      *
      * @return DatabaseInterface
      */
-    public function getDatabaseObject(?string $name = null): DatabaseInterface
+    public function getDatabaseObject(?string $database = null, bool $use = true): DatabaseInterface
     {
-        if (!$name) {
+        if (!$database) {
             // Default to system database
-            $name = Config::get('databases.sql.connectors.system.name', 'phoundation');
+            $database = Config::getString('databases.connectors.system.database');
         }
 
         // If we don't have this database yet, create it now
-        if (!array_key_exists($name, $this->databases)) {
-            $this->databases[$name] = new Database($name, $this->sql, $this);
+        if (!array_key_exists($database, $this->databases)) {
+            $this->databases[$database] = new Database($database, $this->sql, $this);
         }
 
         // Set current database and return a database object
-        $this->current_database = $name;
+        if ($use) {
+            $this->databases[$database]->getSqlObject()->use($database);
 
-        return $this->databases[$name];
+        } else {
+            $this->databases[$database]->getSqlObject()->setDatabase($database);
+        }
+
+        $this->current_database = $database;
+        return $this->databases[$database];
     }
 
 
