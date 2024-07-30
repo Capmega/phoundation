@@ -146,8 +146,12 @@ class MaxMindImport extends GeoIpImport
                 $source_directory->getRestrictions()
             )->delete(false, false, false);
 
+            $garbage  = clone $target_directory;
             $original = clone $target_directory;
-            $previous = $target_directory->movePath(DIRECTORY_DATA . 'garbage/');
+show('aaaaaaaaaaaaaaaaaaaaaa');
+show($garbage->getSource());
+            $garbage->movePath(DIRECTORY_DATA . 'garbage/');
+show($garbage->getSource());
             $shas     = [];
 
             // Perform sha256 check on all files
@@ -175,14 +179,14 @@ class MaxMindImport extends GeoIpImport
 
                 // Move the file to the target path and delete the source path
                 $source = clone $directory;
-
+show('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz');
                 $directory->getRestrictions()->addRestrictions($target_directory->getRestrictions());
                 $directory->getSingleFile('/.+?.mmdb/i')->movePath($target_directory);
                 $source->delete();
             }
 
             // Delete the previous data files from garbage
-            $previous->delete();
+            $garbage->delete();
 
         } catch (Throwable $e) {
             Log::error(tr('Failed MaxMindImport->process() with following exception. Moving original files back in place'));
@@ -190,8 +194,9 @@ class MaxMindImport extends GeoIpImport
 
             // Something borked. Move the previous data files back from the garbage to their original path so the system
             // will remain functional
-            if (isset($previous) and isset($original)) {
-                $previous->movePath($original);
+            if (isset($garbage) and isset($original)) {
+                $original->delete();
+                $garbage->movePath($original);
             }
 
             throw $e;
