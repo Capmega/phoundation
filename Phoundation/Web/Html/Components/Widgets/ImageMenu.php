@@ -19,6 +19,7 @@ use Phoundation\Content\Images\UsesImage;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 
 abstract class ImageMenu extends ElementsBlock
 {
@@ -103,16 +104,16 @@ abstract class ImageMenu extends ElementsBlock
     /**
      * Sets the URL
      *
-     * @param string|null $url
+     * @param UrlInterface|string|null $url
      *
      * @return static
      */
-    public function setUrl(?string $url): static
+    public function setUrl(UrlInterface|string|null $url): static
     {
         if ($url and $this->menu) {
             throw new OutOfBoundsException(tr('Cannot set URL for image menu, the menu has already been configured'));
         }
-        $this->url = $url;
+        $this->url = get_null((string) $url);
 
         return $this;
     }

@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Web\Http\Interfaces\UrlInterface;
+
 trait TraitDataNetworkUrl
 {
     /**
@@ -37,13 +39,13 @@ trait TraitDataNetworkUrl
     /**
      * Set the path for this object
      *
-     * @param string $url
+     * @param UrlInterface|string $url
      *
      * @return static
      */
-    public function setUrl(string $url): static
+    public function setUrl(UrlInterface|string $url): static
     {
-        $this->url = $url;
+        $this->url = get_null((string) $url);
 
         return $this;
     }

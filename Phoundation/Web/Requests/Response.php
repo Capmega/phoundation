@@ -42,6 +42,7 @@ use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\BreadCrumbsInterface;
 use Phoundation\Web\Http\Exception\HttpException;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\PageNotFoundException;
@@ -799,12 +800,12 @@ class Response implements ResponseInterface
     /**
      * Load the specified CSS file(s)
      *
-     * @param Url|array|string $urls
-     * @param bool                    $prefix If true, the scripts will be added at the beginning of the scripts list
+     * @param UrlInterface|array|string $urls
+     * @param bool                      $prefix If true, the scripts will be added at the beginning of the scripts list
      *
      * @return void
      */
-    public static function loadCss(Url|array|string $urls, bool $prefix = false): void
+    public static function loadCss(UrlInterface|array|string $urls, bool $prefix = false): void
     {
         $scripts = [];
 
@@ -1074,11 +1075,11 @@ class Response implements ResponseInterface
     /**
      * Signs the user out of the session and optionally redirects
      *
-     * @param Url|string|null $redirect
+     * @param UrlInterface|string|null $redirect
      *
      * @return void
      */
-    public static function signOut(Url|string|null $redirect = 'signin'): void
+    public static function signOut(UrlInterface|string|null $redirect = 'signin'): void
     {
         Session::signOut();
 
@@ -1093,16 +1094,16 @@ class Response implements ResponseInterface
      *
      * @note If no URL is specified, the current URL will be used
      *
-     * @param Url|string|bool|null $url
-     * @param int                         $http_code
-     * @param int|null                    $time_delay
-     * @param string|null                 $reason_warning
+     * @param UrlInterface|string|bool|null $url
+     * @param int                           $http_code
+     * @param int|null                      $time_delay
+     * @param string|null                   $reason_warning
      *
      * @return never
      * @see  Url
      * @see  Url::addQueries()
      */
-    #[NoReturn] public static function redirect(Url|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
+    #[NoReturn] public static function redirect(UrlInterface|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
     {
         if (!PLATFORM_WEB) {
             throw new ResponseRedirectException(tr('Response::redirect() can only be called on web sessions'));

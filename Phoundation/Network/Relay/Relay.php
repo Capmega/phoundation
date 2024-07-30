@@ -20,6 +20,7 @@ use Phoundation\Network\Curl\Interfaces\CurlInterface;
 use Phoundation\Network\Curl\Post;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Requests\Response;
 use Stringable;
 use Throwable;
@@ -106,11 +107,11 @@ class Relay
     /**
      * Sets the URL that will be relayed
      *
-     * @param Stringable|string|null $url
+     * @param UrlInterface|string|null $url
      *
      * @return static
      */
-    public function setUrl(Stringable|string|null $url): static
+    public function setUrl(UrlInterface|string|null $url): static
     {
         $this->curl->setUrl($url);
 
@@ -135,12 +136,16 @@ class Relay
             switch ($this->curl->getHttpCode()) {
                 case null:
                     throw new OutOfBoundsException(tr('Relay request has not yet been executed, somehow?'));
+
                 case 404:
             }
+
             throw $e;
         }
+
         $data    = $page->getResultData();
         $headers = $page->getResultHeaders();
+
         if ($this->page_replace) {
             // Search / replace the URL's
             $data = str_replace(array_keys($this->page_replace), array_values($this->page_replace), $data);

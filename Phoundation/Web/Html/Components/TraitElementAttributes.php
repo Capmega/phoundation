@@ -217,6 +217,7 @@ trait TraitElementAttributes
     {
         $this->classes    = new Iterator();
         $this->attributes = new Iterator();
+
         $this->setContent($content);
     }
 
@@ -244,6 +245,7 @@ trait TraitElementAttributes
     {
         $this->id      = $id;
         $this->real_id = Strings::until($id, '[');
+
         // By default, name and id should be equal
         if ($name_too) {
             $this->setName($id, false);
@@ -261,8 +263,7 @@ trait TraitElementAttributes
     public function getAnchor(): AInterface
     {
         if (empty($this->anchor)) {
-            $this->anchor = A::new()
-                             ->setChildElement($this);
+            $this->anchor = A::new()->setChildElement($this);
         }
 
         return $this->anchor;
@@ -280,10 +281,11 @@ trait TraitElementAttributes
     {
         if ($anchor) {
             if ($anchor instanceof UrlInterface) {
-                $anchor = A::new()
-                           ->setHref($anchor);
+                $anchor = A::new()->setHref($anchor);
             }
+
             $this->anchor = $anchor->setChildElement($this);
+
         } else {
             $this->anchor = null;
         }
@@ -311,8 +313,7 @@ trait TraitElementAttributes
     public function getOuterDiv(): DivInterface
     {
         if (empty($this->outer_div)) {
-            $this->outer_div = Div::new()
-                                  ->setChildElement($this);
+            $this->outer_div = Div::new()->setChildElement($this);
         }
 
         return $this->outer_div;
@@ -374,8 +375,7 @@ trait TraitElementAttributes
     public function getTooltip(): TooltipInterface
     {
         if (empty($this->tooltip)) {
-            $this->tooltip = Tooltip::new()
-                                    ->setSourceElement($this);
+            $this->tooltip = Tooltip::new()->setSourceElement($this);
         }
 
         return $this->tooltip;
@@ -392,8 +392,7 @@ trait TraitElementAttributes
      */
     public function addData(string|float|int|null $value, string $key): static
     {
-        $this->getData()
-             ->add($value, $key, skip_null_values: false);
+        $this->getData()->add($value, $key, skip_null_values: false);
 
         return $this;
     }
@@ -466,8 +465,7 @@ trait TraitElementAttributes
      */
     public function setAttributes(array $attributes): static
     {
-        $this->attributes = Iterator::new()
-                                    ->add($attributes);
+        $this->attributes = Iterator::new()->add($attributes);
 
         return $this;
     }
@@ -516,8 +514,7 @@ trait TraitElementAttributes
      */
     public function addAria(string|float|int|null $value, string $key): static
     {
-        $this->getAria()
-             ->add($value, $key, false, false);
+        $this->getAria()->add($value, $key, false, false);
 
         return $this;
     }
@@ -689,9 +686,11 @@ trait TraitElementAttributes
             $content   = $content->render();
             $make_safe = false;
         }
+
         if ($make_safe) {
             $content = Html::safe($content);
         }
+
         $this->content .= $content;
 
         return $this;
@@ -749,12 +748,15 @@ trait TraitElementAttributes
         if (is_object($content)) {
             // This object must be able to render HTML. Check this and then render.
             static::canRenderHtml($content);
+
             $content   = $content->render();
             $make_safe = false;
         }
+
         if ($make_safe) {
             $content = Html::safe($content);
         }
+
         $this->content = $content . $this->content;
 
         return $this;
@@ -813,6 +815,7 @@ trait TraitElementAttributes
                 ':value' => $height,
             ]));
         }
+
         $this->height = $height;
 
         return $this;
@@ -844,6 +847,7 @@ trait TraitElementAttributes
                 ':value' => $width,
             ]));
         }
+
         $this->width = $width;
 
         return $this;
@@ -861,6 +865,7 @@ trait TraitElementAttributes
     {
         if ($right) {
             $this->classes->add(true, 'float-right', exception: false);
+
         } else {
             $this->classes->removeKeys('float-right');
         }
@@ -876,8 +881,7 @@ trait TraitElementAttributes
      */
     public function getFloatRight(): bool
     {
-        return $this->getClasses()
-                    ->keyExists('float-right');
+        return $this->getClasses()->keyExists('float-right');
     }
 
 
@@ -946,9 +950,11 @@ trait TraitElementAttributes
                     ]));
                 }
             }
+
             if (!$this->name) {
                 throw new OutOfBoundsException(tr('Cannot set autofocus on element, it has no HTML element name specified yet'));
             }
+
             static::$autofocus = $this->name;
 
         } else {
@@ -960,6 +966,7 @@ trait TraitElementAttributes
                         ':name' => $this->name,
                     ]));
                 }
+
                 static::$autofocus = null;
             }
         }
@@ -1027,6 +1034,7 @@ trait TraitElementAttributes
         } else {
             $this->classes->removeKeys('disabled');
         }
+
         $this->disabled = $disabled;
 
         return $this;
@@ -1059,6 +1067,7 @@ trait TraitElementAttributes
         } else {
             $this->classes->removeKeys('readonly');
         }
+
         $this->readonly = $readonly;
 
         return $this;
@@ -1188,10 +1197,12 @@ trait TraitElementAttributes
         if ($parent_only) {
             if ($visible) {
                 $this->classes->removeKeys('d-none');
+
             } else {
                 $this->classes->add(true, 'd-none');
             }
         }
+
         $this->visible = $visible;
 
         return $this;

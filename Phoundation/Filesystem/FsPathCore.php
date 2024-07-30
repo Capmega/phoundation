@@ -3305,7 +3305,7 @@ class FsPathCore implements FsPathInterface
     {
         $this->checkRestrictions(false);
 
-        if (empty($this->source) or $reload) {
+        if (empty($this->files) or $reload) {
             $this->checkReadable('directory');
 
             if ($this->isDirectory()) {

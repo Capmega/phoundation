@@ -351,13 +351,13 @@ class Url implements UrlInterface
      * This will return either the $_GET[previous], $_GET[redirect], or $_SERVER[referer] URL. If none of these exist,
      * or if they are the current page, then the specified URL will be sent instead.
      *
-     * @param Url|string|null $or_else_url                The URL to build if no valid previous page is available
-     * @param bool            $use_configured_root        If true, the builder will not use the root URI from the
-     *                                                    routing parameters but from the static configuration
+     * @param UrlInterface|string|null $or_else_url The URL to build if no valid previous page is available
+     * @param bool            $use_configured_root  If true, the builder will not use the root URI from the
+     *                                              routing parameters but from the static configuration
      *
      * @return static
      */
-    public static function getPrevious(Url|string|null $or_else_url = null, bool $use_configured_root = false): static
+    public static function getPrevious(UrlInterface|string|null $or_else_url = null, bool $use_configured_root = false): static
     {
         if (empty($_SERVER['HTTP_REFERER'])) {
             if (empty($_GET['previous'])) {

@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
 trait TraitDataEntryUrl
@@ -33,12 +34,12 @@ trait TraitDataEntryUrl
     /**
      * Sets the url for this object
      *
-     * @param Stringable|string|null $url
+     * @param UrlInterface|string|null $url
      *
      * @return static
      */
-    public function setUrl(Stringable|string|null $url): static
+    public function setUrl(UrlInterface|string|null $url): static
     {
-        return $this->set((string) $url, 'url');
+        return $this->set(get_null((string) $url), 'url');
     }
 }

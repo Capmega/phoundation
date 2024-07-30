@@ -20,6 +20,7 @@ use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Widgets\Widget;
 use Phoundation\Web\Html\Html;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 
 abstract class Box extends Widget
 {
@@ -109,13 +110,13 @@ abstract class Box extends Widget
     /**
      * Sets the URL for this infobox
      *
-     * @param string|null $url
+     * @param UrlInterface|string|null $url
      *
      * @return static
      */
-    public function setUrl(?string $url): static
+    public function setUrl(UrlInterface|string|null $url): static
     {
-        $this->url = $url;
+        $this->url = get_null((string) $url);
 
         return $this;
     }
