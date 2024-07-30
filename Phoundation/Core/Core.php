@@ -506,6 +506,11 @@ class Core implements CoreInterface
 
         Config::setEnvironment(ENVIRONMENT);
 
+        if (str_ends_with($_SERVER['REQUEST_URI'], 'favicon.ico')) {
+            // By default, increase logger threshold on all favicon.ico requests to avoid log clutter
+            Log::setThreshold(Config::getInteger('log.levels.web.favicon', 10));
+        }
+
         // Register basic HTTP information
 //                    static::$register['http']['accepts'] = Request::accepts();
 //                    static::$register['http']['accepts_languages'] = Request::acceptsLanguages();
@@ -627,7 +632,7 @@ class Core implements CoreInterface
                 if (PLATFORM_WEB) {
                     // Kill a web page
                     Response::setHttpCode($exit_code);
-                    Request::exit($exit_message, $sig_kill);
+                    Response::exit($exit_message, $sig_kill);
                 }
 
                 // Kill a CLI command
@@ -855,6 +860,7 @@ class Core implements CoreInterface
      */
     protected static function exitCleanup(): void
     {
+        // Only cleanup if the Config object has an environment set
         if (Config::getEnvironment()) {
             if (sql(connect: false)->isConnected()) {
                 Log::action(tr('Performing exit cleanup'), 2);
@@ -3063,6 +3069,7 @@ class Core implements CoreInterface
         //                        Log::write(tr('Super extended trace:'), 'debug', 10, false);
         //                        Log::write(print_r(debug_backtrace(), true), 'debug', 10, false);
         //                        Log::printr(debug_backtrace());
+
         Core::exit(1);
     }
 

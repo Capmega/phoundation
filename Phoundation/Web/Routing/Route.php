@@ -133,11 +133,6 @@ class Route
         static::$uri    = Strings::ensureStartsNotWith($_SERVER['REQUEST_URI'], '/');
         static::$uri    = Strings::until(static::$uri, '?');
 
-        if (str_ends_with($_SERVER['REQUEST_URI'], 'favicon.ico')) {
-            // By default, increase logger threshold on all favicon.ico requests to avoid log clutter
-            Log::setThreshold(Config::getInteger('log.levels.web.favicon', 10));
-        }
-
         // Start the Core object, hide $_GET & $_POST
         try {
             if (Core::isState(null)) {
