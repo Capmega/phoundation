@@ -393,6 +393,7 @@ class Sync
         // Execute the dump on the specified server
         $this->executeHook('pre-import-connector')
              ->getPhoCommand($server, 'databases import')
+             ->setTimeout($this->timeout)
              ->addArguments([
                  '-L', Log::getThreshold(),
                  '--connector',
