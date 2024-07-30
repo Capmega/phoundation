@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\FlashMessages;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -31,24 +32,20 @@ use Throwable;
 class FlashMessages extends ElementsBlock implements FlashMessagesInterface
 {
     /**
-     * This method will move all messages from the specified FlashMessages object here.
+     * Adds the specified source(s) to the internal source
      *
-     * @param FlashMessagesInterface|null $messages
+     * @param IteratorInterface|array|string|null $source
+     * @param bool                                $clear_keys
+     * @param bool                                $exception
      *
-     * @return static
-     * @todo replace with Iterator::addSources()
+     * @return $this
      */
-    public function pullMessagesFrom(?FlashMessagesInterface $messages): static
+    public function addSource(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static
     {
-        if ($messages) {
-            foreach ($messages as $message) {
-                $this->add($message);
-            }
-            // Clear the messages from the specified FlashMessages object
-            $messages->clear();
-        }
+        parent::addSource($source, $clear_keys, $exception);
 
-        return $this;
+        // Clear the messages from the specified FlashMessages object
+        return $source->clear();
     }
 
 
@@ -84,26 +81,33 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
             // Ignore empty messages
             return $this;
         }
+
         if ($message instanceof ValidationFailedException) {
             // Title was specified as an exception, add each validation failure as a separate flash message
             $title = trim((string) $title);
+
             if (empty($title)) {
                 $title = tr('Validation failed');
             }
+
             if (str_starts_with($title, '(')) {
                 // This message is prefixed with the class name. Remove the class name as we don't want to show this to
                 // the end users.
                 $title = trim(Strings::from($title, '('));
             }
+
             if ($message->getData()) {
                 $count = 0;
+
                 foreach ($message->getData() as $message) {
                     if (!trim($message)) {
                         continue;
                     }
+
                     $count++;
                     $this->addValidationFailed($message);
                 }
+
                 if (!$count) {
                     throw new OutOfBoundsException(tr('The specified Validation exception ":e" has no or empty messages in the exception data', [
                         ':e' => $title,
@@ -112,6 +116,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
 
                 return $this;
             }
+
             $mode = EnumDisplayMode::warning;
 
         } elseif ($message instanceof Exception) {
@@ -120,25 +125,30 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
             if (empty($title)) {
                 $title = tr('Error');
             }
+
             foreach ($message->getMessages() as $message) {
                 $this->addException($message, $title);
             }
 
             return $this;
         }
+
         if ($message instanceof Throwable) {
             // Title was specified as a PHP exception, add the exception message as flash message
             $message = $message->getMessage();
+
             if (empty($title)) {
                 $title = tr('Error');
             }
         }
+
         if (!$title) {
             // Title is required tho
             throw new OutOfBoundsException(tr('No title specified for the flash message ":message"', [
                 ':message' => $message,
             ]));
         }
+
         if (!($message instanceof FlashMessageInterface)) {
             // The message was not specified as a flash message, treat it as a string and make a flash message out of it
             $message = FlashMessage::new()
@@ -222,13 +232,16 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
     public function render(): ?string
     {
         $this->render = '';
+
         foreach ($this->source as $message) {
             $this->render .= $message->renderBare();
         }
+
         // Add script tags around all the flash calls
         $this->render = Script::new()
                               ->setContent($this->render)
                               ->render();
+
         // Remove all flash messages from this object
         $this->clear();
         $this->has_rendered = true;
@@ -245,8 +258,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
     public function export(): array
     {
         $return = [];
-        Log::backtrace();
-        Log::printr($this->source);
+
         foreach ($this->source as $message) {
             $return[] = $message->export();
         }
@@ -265,8 +277,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
     public function import(array $source): void
     {
         foreach ($source as $message) {
-            $this->add(FlashMessage::new()
-                                   ->import($message));
+            $this->add(FlashMessage::new()->import($message));
         }
     }
 }

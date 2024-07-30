@@ -12,16 +12,6 @@ use Stringable;
 interface FlashMessagesInterface extends ElementsBlockInterface
 {
     /**
-     * This method will move all messages from the specified FlashMessages object here.
-     *
-     * @param FlashMessagesInterface|null $messages
-     *
-     * @return static
-     */
-    public function pullMessagesFrom(?FlashMessagesInterface $messages): static;
-
-
-    /**
      * Add a "Success!" flash message
      *
      * @param FlashMessageInterface|Exception|string|null $message
