@@ -177,12 +177,12 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     /**
      * Make this (relative) path an absolute path
      *
-     * @param string|null $prefix
-     * @param bool        $must_exist
+     * @param Stringable|string|bool|null $prefix
+     * @param bool                        $must_exist
      *
      * @return $this
      */
-    public function makeAbsolute(?string $prefix = null, bool $must_exist = true): static
+    public function makeAbsolute(Stringable|string|bool|null $prefix = null, bool $must_exist = true): static
     {
         parent::makeAbsolute($prefix, $must_exist);
 

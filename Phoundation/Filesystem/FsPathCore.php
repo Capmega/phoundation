@@ -381,12 +381,12 @@ class FsPathCore implements FsPathInterface
      *
      * Will convert
      *
-     * @param string|null $prefix
-     * @param bool        $must_exist
+     * @param Stringable|string|bool|null $prefix
+     * @param bool                        $must_exist
      *
      * @return $this
      */
-    public function makeAbsolute(?string $prefix = null, bool $must_exist = true): static
+    public function makeAbsolute(Stringable|string|bool|null $prefix = null, bool $must_exist = true): static
     {
         $this->source = static::absolutePath($this->source, $prefix, $must_exist);
 
