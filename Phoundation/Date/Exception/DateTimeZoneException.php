@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Date\Exception;
 
-
 class DateTimeZoneException extends DateException
 {
 }

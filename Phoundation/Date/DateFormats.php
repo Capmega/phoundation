@@ -19,6 +19,7 @@ use MongoDB\Exception\UnsupportedException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Date\Exception\UnsupportedDateFormatException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\ConfigurationInvalidException;
@@ -362,10 +363,40 @@ class DateFormats
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY
         if (preg_match('/^(\d+[^\d]\d+[^\d]\d+)/', $date, $matches)) {
             // This is a date
-            return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $matches[1][0]);
+            return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $matches[1]);
         }
 
         // This is a human-readable date like "tomorrow", or "-3 days", do not touch!
         return $date;
+    }
+
+
+    /**
+     * Ensures that the date format only uses $replace as element separators, will replace " ", "-", "_", "/", "\"
+     *
+     * Note: $replace defaults t0 '-'
+     *
+     * @param string $format
+     * @param string $date_replace
+     * @param string $time_replace
+     * @return string
+     */
+    public static function normalizeDateFormat(string $format, string $date_replace = '-', string $time_replace = ':'): string
+    {
+        // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II (and maybe microseconds)
+        if (preg_match_all('/(\w+[^\w]\w+[^\w]\w+)[^\w](\w{2}[^\w]\w{2}[^\w]\w{2})([^\w]\w+)?/', $format, $matches)) {
+            // This is a datetime
+            return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $matches[1][0]) . ' ' . str_replace([' ', '-', '_', '/', '\\'], $time_replace, $matches[2][0]) . $matches[3][0];
+        }
+
+        // Do we have a datetime or date? Try matching something like DD-MM-YYYY
+        if (preg_match('/(\w+[^\w]\w+[^\w]\w+)/', $format, $matches)) {
+            // This is a date
+            return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $matches[1]);
+        }
+
+        throw new UnsupportedDateFormatException(tr('Unsupported date or datetime format ":format" specified', [
+            ':format' => $format
+        ]));
     }
 }
