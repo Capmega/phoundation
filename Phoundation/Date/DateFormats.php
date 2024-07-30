@@ -353,12 +353,19 @@ class DateFormats
      */
     public static function normalizeDate(string $date, string $date_replace = '-', string $time_replace = ':'): string
     {
-        // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II
-        if (preg_match_all('/^(\d+[^\d]\d+[^\d]\d+)[^\d](\d{2}[^\d]\d{2}[^\d]\d{2})(.+)/', $date, $matches)) {
+        // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II (and maybe microseconds)
+        if (preg_match_all('/^(\d+[^\d]\d+[^\d]\d+)[^\d](\d{2}[^\d]\d{2}[^\d]\d{2})([^\d]\d+)?/', $date, $matches)) {
             // This is a datetime
             return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $matches[1][0]) . ' ' . str_replace([' ', '-', '_', '/', '\\'], $time_replace, $matches[2][0]) . $matches[3][0];
         }
 
-        return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $date);
+        // Do we have a datetime or date? Try matching something like DD-MM-YYYY
+        if (preg_match('/^(\d+[^\d]\d+[^\d]\d+)/', $date, $matches)) {
+            // This is a date
+            return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $matches[1][0]);
+        }
+
+        // This is a human-readable date like "tomorrow", or "-3 days", do not touch!
+        return $date;
     }
 }

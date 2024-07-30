@@ -57,7 +57,7 @@ ARGUMENTS
 FILE                                    The file to be created 
 
 
--s,--size SIZE                          The size of the file to allocate, either in bytes or in human readable form
+-s,--size SIZE                          The size of the file to allocate, either in bytes or in human-readable form
                                         e.g. 1024, 1KB, 1KiB, 1GB, etc.
 
 [-i,--initialize]                       Will initialize the file after allocating it with random data.  

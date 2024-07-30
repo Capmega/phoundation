@@ -85,7 +85,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
 
 
     /**
-     * Returns a unique log identifier that is both unique but also human readable
+     * Returns a unique log identifier that is both unique but also human-readable
      *
      * @return string
      */

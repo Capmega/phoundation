@@ -49,7 +49,7 @@ PATH                                    The path of which the size needs to be c
 
 
 [-h,--human-readable]                   If specified will display not the amount of bytes as an integer number, but a 
-                                        human readable size instead. Instead of 1073741824 bytes, it will display 1GiB');
+                                        human-readable size instead. Instead of 1073741824 bytes, it will display 1GiB');
 
 
 // Get arguments

@@ -522,7 +522,7 @@ trait ProcessVariables
 
 
     /**
-     * Returns the time spent on executing this process in a human readable form
+     * Returns the time spent on executing this process in a human-readable form
      *
      * @param bool $require_stop
      * @param int  $decimals

@@ -903,7 +903,7 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
-     * Sanitizes the selected value by converting human readable bytes to a positive integer number
+     * Sanitizes the selected value by converting human-readable bytes to a positive integer number
      *
      * 1KB    = 1000
      * 1MB    = 1000000

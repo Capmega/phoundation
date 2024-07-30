@@ -377,6 +377,7 @@ class Date
         throw new UnderConstructionException();
         $date = Date::convert($date, 'd-m-Y');
         $date = new DateTime($date);
+
         if (substr($interval, 0, 1) == '-') {
             $date->sub(new DateInterval(substr($interval, 1)));
 
@@ -392,33 +393,68 @@ class Date
      * Returns a string representation of how long ago the specified date was, from now
      *
      * @param Date|DateTime|string|int $date
+     * @param bool                     $microseconds
      *
      * @return string
      */
-    public static function getAge(Date|DateTime|string|int $date): string
+    public static function getAge(Date|DateTime|string|int $date, bool $microseconds = false): string
     {
         if (!is_object($date)) {
-            $date = new DateTime(strtotime($date));
+            if (is_integer($date)) {
+                $timestamp = $date;
+                $date      = new DateTime();
+                $date->setTimestamp($timestamp);
+
+            } else {
+                $date = new DateTime($date);
+            }
         }
+
         $now  = new DateTime();
         $diff = $now->diff($date);
+
         if ($diff->y) {
-            return Strings::plural($diff->y, tr(':count year', [':count' => $diff->y]), tr(':count years', [':count' => $diff->y]));
+            return Strings::plural($diff->y, tr(':count year', [':count' => $diff->y]), tr(':count years', [
+                ':count' => $diff->y
+            ]));
         }
+
         if ($diff->m) {
-            return Strings::plural($diff->m, tr(':count month', [':count' => $diff->m]), tr(':count months', [':count' => $diff->m]));
+            return Strings::plural($diff->m, tr(':count month', [':count' => $diff->m]), tr(':count months', [
+                ':count' => $diff->m
+            ]));
         }
+
         if ($diff->d) {
-            return Strings::plural($diff->d, tr(':count day', [':count' => $diff->d]), tr(':count days', [':count' => $diff->d]));
+            return Strings::plural($diff->d, tr(':count day', [':count' => $diff->d]), tr(':count days', [
+                ':count' => $diff->d
+            ]));
         }
+
         if ($diff->h) {
-            return Strings::plural($diff->h, tr(':count hour', [':count' => $diff->h]), tr(':count hours', [':count' => $diff->h]));
+            return Strings::plural($diff->h, tr(':count hour', [':count' => $diff->h]), tr(':count hours', [
+                ':count' => $diff->h
+            ]));
         }
+
         if ($diff->i) {
-            return Strings::plural($diff->i, tr(':count min', [':count' => $diff->i]), tr(':count mins', [':count' => $diff->i]));
+            return Strings::plural($diff->i, tr(':count minute', [':count' => $diff->i]), tr(':count minutes', [
+                ':count' => $diff->i
+            ]));
         }
+
         if ($diff->s) {
-            return Strings::plural($diff->s, tr(':count sec', [':count' => $diff->s]), tr(':count secs', [':count' => $diff->s]));
+            return Strings::plural($diff->s, tr(':count second', [':count' => $diff->s]), tr(':count seconds', [
+                ':count' => $diff->s
+            ]));
+        }
+
+        if ($microseconds) {
+            if (isset($diff->u) and $diff->u) {
+                return Strings::plural($diff->s, tr(':count second', [':count' => $diff->s]), tr(':count microseconds', [
+                    ':count' => $diff->s
+                ]));
+            }
         }
 
         return tr('Right now');

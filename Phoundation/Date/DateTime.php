@@ -114,7 +114,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Returns this date time as a human readable date string
+     * Returns this date time as a human-readable date string
      *
      * @return string
      */
@@ -125,7 +125,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Returns this date time as a human readable date-time string
+     * Returns this date time as a human-readable date-time string
      *
      * @return string
      */

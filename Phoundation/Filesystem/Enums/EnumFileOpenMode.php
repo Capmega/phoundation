@@ -3,7 +3,7 @@
 /**
  * Enum EnumFileOpenMode
  *
- * This enum contains all possible file modes in a human readable way
+ * This enum contains all possible file modes in a human-readable way
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

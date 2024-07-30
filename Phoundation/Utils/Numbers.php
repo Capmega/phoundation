@@ -51,7 +51,7 @@ class Numbers
 
 
     /**
-     * Returns human readable AND precise bytes
+     * Returns human-readable AND precise bytes
      *
      * @param string|float|int $amount
      * @param string           $unit
@@ -433,7 +433,7 @@ class Numbers
 
 
     /**
-     * Make the specified number human readable
+     * Make the specified number human-readable
      *
      * @param string|float|int $number
      * @param int              $thousand
