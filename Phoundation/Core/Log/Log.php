@@ -812,11 +812,9 @@ class Log
                     if (Debug::isEnabled()) {
                         // Log where this empty log message came from
                         Log::warning(tr('Encountered an empty log message at ":call"', [
-                            ':call' => Debug::getPreviousCall()->getLocation()
+                            ':call' => Debug::getCall(null, Log::class)->getLocation()
                         ]));
                     }
-
-                    return false;
                 }
 
                 // This is 0 or 0.0
@@ -1463,13 +1461,13 @@ class Log
      *
      * A checkpoint log entry will show when the checkpoint was passed where (class::function in file@line)
      *
-     * @param string|null $messages
-     * @param int         $threshold
-     * @param bool        $echo_screen
+     * @param string|float|int|null $messages
+     * @param int                   $threshold
+     * @param bool                  $echo_screen
      *
      * @return bool
      */
-    public static function checkpoint(?string $messages = null, int $threshold = 10, bool $echo_screen = true): bool
+    public static function checkpoint(string|float|int|null $messages = null, int $threshold = 10, bool $echo_screen = true): bool
     {
         $messages = Strings::log($messages);
 
