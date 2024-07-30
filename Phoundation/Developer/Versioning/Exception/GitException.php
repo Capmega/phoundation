@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Exception;
 
-
 class GitException extends VersioningException
 {
 }

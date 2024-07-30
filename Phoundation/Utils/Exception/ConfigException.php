@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils\Exception;
 
-
 class ConfigException extends UtilsException
 {
 }

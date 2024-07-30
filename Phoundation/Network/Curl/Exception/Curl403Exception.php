@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Network\Curl\Exception;
 
-
 class Curl403Exception extends CurlException
 {
 }

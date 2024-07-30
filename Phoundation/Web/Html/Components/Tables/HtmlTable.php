@@ -34,7 +34,6 @@ use Phoundation\Web\Html\Traits\TraitButtons;
 use Phoundation\Web\Http\Url;
 use Stringable;
 
-
 class HtmlTable extends ResourceElement implements HtmlTableInterface
 {
     use TraitButtons;

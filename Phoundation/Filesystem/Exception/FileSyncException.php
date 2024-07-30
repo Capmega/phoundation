@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Exception;
 
-
 class FileSyncException extends FilesystemException
 {
 }

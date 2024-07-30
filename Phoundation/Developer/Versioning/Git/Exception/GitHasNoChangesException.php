@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Exception;
 
-
 class GitHasNoChangesException extends GitException
 {
 }

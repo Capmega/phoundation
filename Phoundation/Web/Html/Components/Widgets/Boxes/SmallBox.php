@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Boxes;
 
-
 class SmallBox extends Box
 {
 }

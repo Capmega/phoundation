@@ -17,6 +17,7 @@ namespace Phoundation\Data\Validator;
 
 use PDOStatement;
 use Phoundation\Accounts\Users\Password;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
@@ -26,6 +27,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\DateFormats;
 use Phoundation\Date\DateTime;
 use Phoundation\Date\DateTimeFormats;
+use Phoundation\Date\Exception\UnsupportedDateFormatException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
@@ -1763,12 +1765,8 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            // Ensure we have formats to work with
-            if (!$formats) {
-                // Default to a number of acceptable formats
-                $formats = DateFormats::getSupportedPhp();
-            }
-
+            // Ensure we have formats to work with, default to a number of acceptable formats
+            $formats = $formats ?? DateFormats::getSupportedPhp();
             $formats = Arrays::force($formats, null);
 
             // We must be able to create a date object using the given formats without failure, and the resulting date
@@ -1797,8 +1795,8 @@ abstract class Validator implements ValidatorInterface
         foreach ($formats as $format) {
             try {
                 // Create DateTime object
-                $format = DateFormats::normalizeDate($format);
-                $value  = DateTime::createFromFormat($format, $given);
+                $format = DateFormats::normalizeDateFormat($format);
+                $value = DateTime::createFromFormat($format, $given);
 
                 if ($value) {
                     // DateTime object created successfully! Now get a dateformat, and normalize it
@@ -1811,6 +1809,10 @@ abstract class Validator implements ValidatorInterface
                 }
 
                 // Yeah, this is not a valid date, try again
+            } catch (UnsupportedDateFormatException $e) {
+                // The specified date format is invalid
+                throw new ValidatorException($e->getMessage(), $e);
+
             } catch (Throwable) {
                 // Yeah, this is not a valid date, try again
             }

@@ -16,4 +16,3 @@ declare(strict_types=1);
 
 use Phoundation\Core\Log\Log;
 
-Log::errorLog('test');

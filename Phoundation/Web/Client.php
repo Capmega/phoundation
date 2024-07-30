@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web;
 
-
 class Client
 {
     public static function detect(): void {

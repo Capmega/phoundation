@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Exception;
 
-
 class TasksException extends ProcessesException
 {
 }

@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors\Exception;
 
-
 class ConnectorNotDefinedException extends ConnectorException
 {
 }

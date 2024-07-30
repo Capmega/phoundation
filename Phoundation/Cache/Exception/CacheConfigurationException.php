@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Cache\Exception;
 
-
 class CacheConfigurationException extends CacheException
 {
 }

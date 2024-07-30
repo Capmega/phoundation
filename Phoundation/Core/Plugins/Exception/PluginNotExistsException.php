@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Plugins\Exception;
 
-
 class PluginNotExistsException extends PluginsException
 {
 }

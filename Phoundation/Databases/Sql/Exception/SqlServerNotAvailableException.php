@@ -18,7 +18,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Exception;
 
-
 class SqlServerNotAvailableException extends SqlException
 {
 }

@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Exception;
 
-
 class Http400Exception extends HttpException
 {
 }

@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
-
 class ScriptException extends Exception
 {
 }

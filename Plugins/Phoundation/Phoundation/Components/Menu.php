@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Plugins\Phoundation\Phoundation\Components;
 
-
 class Menu extends \Phoundation\Web\Html\Components\Widgets\Menus\Menu
 {
     /**

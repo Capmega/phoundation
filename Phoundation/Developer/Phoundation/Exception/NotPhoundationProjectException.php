@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Phoundation\Exception;
 
-
 class NotPhoundationProjectException extends PhoundationException
 {
 }

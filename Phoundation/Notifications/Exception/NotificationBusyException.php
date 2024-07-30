@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications\Exception;
 
-
 class NotificationBusyException extends NotificationsException
 {
 }

@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Sessions;
 
-
 class GetVariables extends HttpVariables
 {
     /**

@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Cli\Exception;
 
-
 class CliStdInException extends CliException
 {
 }

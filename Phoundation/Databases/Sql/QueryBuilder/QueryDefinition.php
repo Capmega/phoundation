@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\QueryBuilder;
 
-
 class QueryDefinition extends QueryObject
 {
     /**

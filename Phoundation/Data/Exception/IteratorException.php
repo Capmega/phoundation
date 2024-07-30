@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Exception;
 
-
 class IteratorException extends DataException
 {
 }
