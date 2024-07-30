@@ -1373,17 +1373,14 @@ class Log
 
         } else {
             // Build the message
-            $echo_prefix = strtoupper($type) . ' [' . $size . '] ';
-            $messages    = $echo_prefix . $messages;
+            $messages    = strtoupper($type) . ' [' . $size . '] ' . $messages;
         }
 
         if ($echo_header) {
-            static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
+            static::logDebugHeader('DEBUG', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        $messages = Strings::log($messages);
-
-        return static::write($messages, 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return static::write(Strings::log($messages), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
@@ -1412,12 +1409,12 @@ class Log
         }
 
         return static::write(tr('Showing debug data with :keyword :class:function() in :file@:line', [
-                ':keyword'  => $keyword,
-                ':class'    => $class,
-                ':function' => $function,
-                ':file'     => $file,
-                ':line'     => $line,
-            ]), 'debug', $threshold, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
+            ':keyword'  => $keyword,
+            ':class'    => $class,
+            ':function' => $function,
+            ':file'     => $file,
+            ':line'     => $line,
+        ]), 'debug', $threshold, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
     }
 
 
@@ -1576,8 +1573,6 @@ class Log
         if ($echo_header) {
             static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
         }
-
-        $messages = Strings::log($messages);
 
         return static::write(print_r($messages, true), 'debug', $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
     }
