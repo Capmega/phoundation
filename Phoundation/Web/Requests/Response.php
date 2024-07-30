@@ -17,6 +17,7 @@ namespace Phoundation\Web\Requests;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cache\Cache;
+use Phoundation\Cache\InstanceCache;
 use Phoundation\Core\Core;
 use Phoundation\Core\Locale\Language\Interfaces\LanguageInterface;
 use Phoundation\Core\Locale\Language\Language;
@@ -24,10 +25,12 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataStaticFlashMessages;
 use Phoundation\Data\Traits\TraitDataStaticContentType;
 use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Date\Date;
+use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\FsFile;
@@ -39,6 +42,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessages;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\BreadCrumbsInterface;
 use Phoundation\Web\Http\Exception\HttpException;
@@ -54,6 +58,7 @@ use Throwable;
 
 class Response implements ResponseInterface
 {
+    use TraitDataStaticFlashMessages;
     use TraitDataStaticContentType;
     use TraitDataStaticExecuted;
     use TraitDataStaticRestrictions;
@@ -213,13 +218,6 @@ class Response implements ResponseInterface
     protected static int $bytes_sent = 0;
 
     /**
-     * Flash messages control
-     *
-     * @var FlashMessagesInterface|null
-     */
-    protected static ?FlashMessagesInterface $flash_messages = null;
-
-    /**
      * Sets if the request should render the entire page or the contents of the page only
      *
      * @var bool $render_main_contents_only
@@ -367,38 +365,6 @@ class Response implements ResponseInterface
             static::$bread_crumbs = new BreadCrumbs();
         } else {
             static::$bread_crumbs = $bread_crumbs;
-        }
-    }
-
-
-    /**
-     * Returns the page flash messages
-     *
-     * @return FlashMessagesInterface|null
-     */
-    public static function getFlashMessages(): ?FlashMessagesInterface
-    {
-        return static::$flash_messages;
-    }
-
-
-    /**
-     * Add the specified flash messages to this Response's flash messages
-     *
-     * @param FlashMessagesInterface|null $flash_messages
-     *
-     * @return void
-     */
-    public static function addFlashMessages(?FlashMessagesInterface $flash_messages): void
-    {
-        if ($flash_messages) {
-            if (static::$flash_messages) {
-                // Merge the flash messages from sessions into page flash messages.
-                static::$flash_messages->pullMessagesFrom($flash_messages);
-
-            } else {
-                static::$flash_messages = $flash_messages;
-            }
         }
     }
 
@@ -765,12 +731,15 @@ class Response implements ResponseInterface
         if ($header === null) {
             $header = !Config::getBoolean('web.javascript.delay', true);
         }
+
         if ($header and static::$html_headers_sent) {
             Log::warning(tr('Not adding files ":files" to HTML headers as the HTML headers have already been generated', [
                 ':files' => $urls,
             ]));
         }
+
         $scripts = [];
+
         // Convert the given URL (parts) to real URLs and add it to the scripts list
         foreach (Arrays::force($urls, ',') as $url) {
             $url = static::versionFile($url, 'js');
@@ -779,10 +748,12 @@ class Response implements ResponseInterface
                 'src'  => Url::getJs($url),
             ];
         }
+
         // Add scripts to header or footer
         if ($header) {
             if ($prefix) {
                 static::$page_headers['javascript'] = array_merge($scripts, static::$page_headers['javascript']);
+
             } else {
                 static::$page_headers['javascript'] = array_merge(static::$page_headers['javascript'], $scripts);
             }
@@ -790,6 +761,7 @@ class Response implements ResponseInterface
         } else {
             if ($prefix) {
                 static::$page_footers['javascript'] = array_merge($scripts, static::$page_footers['javascript']);
+
             } else {
                 static::$page_footers['javascript'] = array_merge(static::$page_footers['javascript'], $scripts);
             }
@@ -851,18 +823,23 @@ class Response implements ResponseInterface
     public static function renderHtmlHeaders(): ?string
     {
         static::$html_headers_sent = true;
+
         $return = '<!DOCTYPE ' . static::$doctype . '>
         <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
+
         if (static::getPageTitle()) {
             $return .= '<title>' . (Core::isProductionEnvironment() ? null : '(' . ENVIRONMENT . ') ') . static::$page_title . '</title>' . PHP_EOL;
         }
+
         foreach (static::$page_headers['meta'] as $key => $value) {
             $return .= '<meta name="' . $key . '" content="' . $value . '" />' . PHP_EOL;
         }
+
         foreach (static::$page_headers['link'] as $header) {
             $header = Arrays::implodeWithKeys($header, ' ', '=', '"');
             $return .= '<link ' . $header . ' />' . PHP_EOL;
         }
+
         foreach (static::$page_headers['javascript'] as $header) {
             $header = Arrays::implodeWithKeys($header, ' ', '=', '"');
             $return .= '<script ' . $header . '></script>' . PHP_EOL;
@@ -945,10 +922,13 @@ class Response implements ResponseInterface
     public static function renderHtmlFooters(): ?string
     {
         Log::warning('TODO Reminder: static::buildFooters() should be upgraded to using Javascript / Css objects');
+
         $return = '';
+
         if (isset_get(static::$page_footers['html'])) {
             $return .= implode('', static::$page_footers['html']);
         }
+
         foreach (static::$page_footers['javascript'] as $footer) {
             if (isset($footer['src'])) {
                 $footer = Arrays::implodeWithKeys($footer, ' ', '=', '"');
@@ -974,15 +954,13 @@ class Response implements ResponseInterface
     public static function checkForceRedirect(): void
     {
         // Does this user have a forced redirect?
-        if (
-            !Session::getUser()
-                    ->isGuest()
-        ) {
-            $redirect = Session::getUser()
-                               ->getRedirect();
+        if (!Session::getUser()->isGuest()) {
+            $redirect = Session::getUser()->getRedirect();
+
             if ($redirect) {
                 // Are we at the forced redirect page? If so, we can stay
                 $current = (string) Url::getCurrent();
+
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
                     // We're at a different page. Should we redirect to the specified page?
                     if (!static::skipRedirect()) {
@@ -992,13 +970,17 @@ class Response implements ResponseInterface
                                               ->getLogId(),
                             ':url'  => $redirect,
                         ]));
+
                         // Get URL builder object, ensure that sign-in page gets a redirect=$current_url
                         $redirect = Url::getWww($redirect);
+
                         if ((string) $redirect === (string) Url::getWww('sign-in')) {
                             $redirect->addQueries('redirect=' . $current);
                         }
+
                         static::redirect($redirect);
                     }
+
                     Log::warning(tr('User ":user" has a redirect to ":url" which MAY NOT redirected to, ignoring redirect', [
                         ':user' => Session::getUser()
                                           ->getLogId(),
@@ -1062,6 +1044,7 @@ class Response implements ResponseInterface
             // Default to current URL
             $url = Url::getCurrent();
         }
+
         // Compare URLs without queries
         $url  = Strings::until((string) $url, '?');
         $skip = [
@@ -1119,6 +1102,7 @@ class Response implements ResponseInterface
         //        }
         // Build URL
         $target = Url::getWww($url);
+
         // Protect against endless redirecting.
         if (Url::isCurrent($target)) {
             // POST-requests may target to the same page as the target will change POST to GET
@@ -1126,19 +1110,35 @@ class Response implements ResponseInterface
                 // If the specified target URL was a short code like "prev" or "referer", then it was not hard coded
                 // and the system couldn't know that the short code is the same as the current URL. Redirect to domain
                 // root instead
-                $target = match ($url) {
-                    'prev', 'previous', 'referer' => Url::getCurrentDomainRootUrl(),
-                    default                       => throw new OutOfBoundsException(tr('Will NOT target to ":url", its the current page and the current request method is not POST', [
-                        ':url' => $target,
-                    ])),
+                switch ($url) {
+                    case 'prev':
+                        // no break;
+
+                    case 'previous':
+                        // no break;
+
+                    case 'referer':
+                        $target = Url::getCurrentDomainRootUrl();
+                        break;
+
+                    default:
+                        if (!Session::userChanged()) {
+                            // Redirecting to the same page for the same user may cause an endless redirect loop
+                            throw new OutOfBoundsException(tr('Will NOT redirect to ":url", its the same URL as the current page and the current request method is not POST', [
+                                ':url' => $target,
+                            ]));
+                        }
+
+                        $target = Url::getCurrentDomainRootUrl();
                 };
             }
         }
+
         if (isset_get($_GET['target'])) {
             // Add a target back query
-            $target = Url::getWww($target)
-                                ->addQueries(['target' => $_GET['target']]);
+            $target = Url::getWww($target)->addQueries(['target' => $_GET['target']]);
         }
+
         /*
          * Validate the specified http_code, must be one of
          *
@@ -1164,10 +1164,13 @@ class Response implements ResponseInterface
                     ':code' => $http_code,
                 ]));
         }
+
         static::setHttpCode($http_code);
+
         if ($reason_warning) {
             Log::warning(tr('Redirecting because: :reason', [':reason' => $reason_warning]));
         }
+
         // Redirect with time delay
         if ($time_delay) {
             Log::action(tr('Redirecting with HTTP ":http" and ":time" seconds delay to url ":url"', [
@@ -1175,6 +1178,8 @@ class Response implements ResponseInterface
                 ':time' => $time_delay,
                 ':url'  => $target,
             ]));
+
+            Response::setHttpCode($http_code);
             header('Refresh: ' . $time_delay . ';' . $target, true, $http_code);
 
         } else {
@@ -1183,8 +1188,11 @@ class Response implements ResponseInterface
                 ':http' => $http_code,
                 ':url'  => $target,
             ]));
+
+            Response::setHttpCode($http_code);
             header('Location:' . $target, true, $http_code);
         }
+
         exit();
     }
 
@@ -1321,8 +1329,17 @@ class Response implements ResponseInterface
      */
     public static function setHttpCode(int $code): void
     {
+        if (!$code) {
+            if (static::$http_code) {
+                // HTTP code was set, no code specified. Ignore this request
+                return;
+            }
+        }
+
         // Validate status code
         // TODO implement
+
+
         static::$http_code = $code;
     }
 
@@ -1441,10 +1458,13 @@ class Response implements ResponseInterface
         if (static::httpHeadersSent()) {
             return null;
         }
+
         $headers = [];
+
         // Remove incorrect or insecure headers
         header_remove('Expires');
         header_remove('Pragma');
+
         /*
          * Ensure that from this point on we have a language configuration available
          *
@@ -1454,10 +1474,13 @@ class Response implements ResponseInterface
         if (!defined('LANGUAGE')) {
             define('LANGUAGE', Config::get('http.language.default', 'en'));
         }
+
         // Create ETAG, possibly send out HTTP304 if the client sent matching ETAG
         static::cacheEtag();
+
         // What to do with the PHP signature?
         $signature = Config::get('security.expose.php-signature', false);
+
         if (!$signature) {
             // Remove the PHP signature
             header_remove('X-Powered-By');
@@ -1466,28 +1489,35 @@ class Response implements ResponseInterface
             // Send custom (fake) X-Powered-By header
             $headers[] = 'X-Powered-By: ' . $signature;
         }
+
         // Add a powered-by header
         switch (Config::getBoolString('security.expose.phoundation', 'limited')) {
             case 'limited':
                 header('Powered-By: Phoundation');
                 break;
+
             case 'full':
                 header(tr('Powered-By: Phoundation version ":version"', [
                     ':version' => Core::FRAMEWORK_CODE_VERSION,
                 ]));
                 break;
+
             case 'none':
                 // no break
+
             case '':
                 break;
+
             default:
                 throw new OutOfBoundsException(tr('Invalid configuration value ":value" for "security.signature" Please use one of "none", "limited", or "full"', [
                     ':value' => Config::getBoolString('security.expose.phoundation', 'limited'),
                 ]));
         }
+
         $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
         $headers[] = 'Content-Language: ' . LANGUAGE;
         $headers[] = 'Content-Length: ' . ob_get_length();
+
         if (static::$http_code == 200) {
             if (empty($params['last_modified'])) {
                 $headers[] = 'Last-Modified: ' . Date::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
@@ -1496,16 +1526,19 @@ class Response implements ResponseInterface
                 $headers[] = 'Last-Modified: ' . Date::convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT') . ' GMT';
             }
         }
+
         // Add noindex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
         // These pages should NEVER be indexed
         if (!Core::isProductionEnvironment() or !Request::isRequestType(EnumRequestTypes::html) or Config::get('web.noindex', false)) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
+
         // CORS headers
         if (Config::get('web.security.cors', true) or static::$cors) {
             // Add CORS / Access-Control-Allow-.... headers
             // TODO This will cause issues if configured web.cors is not an array!
             static::$cors = array_merge(Arrays::force(Config::get('web.cors', [])), static::$cors);
+
             foreach (static::$cors as $key => $value) {
                 switch ($key) {
                     case 'origin':
@@ -1553,8 +1586,10 @@ class Response implements ResponseInterface
 
             return false;
         }
+
         // Create local ETAG
         static::$etag = sha1(PROJECT . $_SERVER['SCRIPT_FILENAME'] . filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
+
         // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
         if (trim((string) isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
             if (empty($core->register['flash'])) {
@@ -1591,8 +1626,8 @@ class Response implements ResponseInterface
         if (Config::get('web.cache.enabled', 'auto') === 'auto') {
             // PHP will take care of the cache headers
             return $headers;
-
         }
+
         if (Config::get('web.cache.enabled', 'auto') === true) {
             // Place headers using phoundation algorithms
             if (!Config::get('web.cache.enabled', 'auto') or (static::$http_code != 200)) {
@@ -1605,16 +1640,21 @@ class Response implements ResponseInterface
                 switch (Request::getRequestType()) {
                     case EnumRequestTypes::api:
                         // no break
+
                     case EnumRequestTypes::ajax:
                         // no break
+
                     case EnumRequestTypes::admin:
                         break;
+
                     default:
                         // Session pages for specific users should not be stored on proxy servers either
                         if (!empty($_SESSION['user']['id'])) {
                             Config::get('web.cache.cacheability', 'private');
                         }
+
                         $headers[] = 'Cache-Control: ' . Config::get('web.cache.cacheability', 'private') . ', ' . Config::get('web.cache.expiration', 'max-age=604800') . ', ' . Config::get('web.cache.revalidation', 'must-revalidate') . Config::get('web.cache.other', 'no-transform');
+
                         if (!empty(static::$etag)) {
                             $headers[] = 'ETag: "' . static::$etag . '"';
                         }
@@ -1642,15 +1682,86 @@ class Response implements ResponseInterface
                                                       ->getSource()))
                         ->send();
         }
+
         // Track data sizes
         $length             = static::getOutputLength();
         static::$bytes_sent += $length;
+
         // Send the page to the client
         echo static::getOutput();
+
         // Log how much we sent
         Log::action(tr('Sent ":length" output data to client', [
             ':length' => Numbers::getHumanReadableBytes($length),
         ]), 4);
+    }
+
+
+    /**
+     * Kill this web page script process
+     *
+     * @note Even if $exit_message was specified, the normal shutdown functions will still be called
+     *
+     * @param string|null $exit_message If specified, this message will be displayed and the process will be terminated
+     * @param bool        $sig_kill
+     *
+     * @return never
+     * @todo Implement this and add required functionality
+     */
+    #[NoReturn] public static function exit(?string $exit_message = null, bool $sig_kill = false): never
+    {
+        // If something went really, really wrong...
+        if ($sig_kill) {
+            exit($exit_message);
+        }
+
+        // POST-requests should always show a flash message for feedback!
+        if (Request::isPostRequestMethod()) {
+            if (!Response::getFlashMessagesObject()->getCount()) {
+                Log::warning('Detected POST request without a flash message to give user feedback on what happened with this request!');
+            }
+        }
+
+        switch (Response::getHttpCode()) {
+            case 200:
+                // no break
+            case 301:
+                // no break
+            case 302:
+                // no break
+            case 304:
+                if ($exit_message) {
+                    Log::success($exit_message);
+                }
+
+                Log::success(tr('Script(s) ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
+                    ':script'    => Request::getExecutedPath(true),
+                    ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':http_code' => Response::getHttpCode(),
+                    ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
+                ]));
+                break;
+
+            default:
+                if ($exit_message) {
+                    Log::error($exit_message);
+                }
+
+                Log::error(tr('Script(s) ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
+                    ':script'    => Request::getExecutedPath(true),
+                    ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':http_code' => Response::getHttpCode(),
+                    ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
+                ]));
+        }
+
+        InstanceCache::logStatistics();
+
+        // Normal kill request
+        Log::action(tr('Killing web page process'), 2);
+        exit();
     }
 
 

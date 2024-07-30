@@ -971,74 +971,6 @@ abstract class Request implements RequestInterface
 
 
     /**
-     * Kill this web page script process
-     *
-     * @note Even if $exit_message was specified, the normal shutdown functions will still be called
-     *
-     * @param string|null $exit_message If specified, this message will be displayed and the process will be terminated
-     * @param bool        $sig_kill
-     *
-     * @return never
-     * @todo Implement this and add required functionality
-     */
-    #[NoReturn] public static function exit(?string $exit_message = null, bool $sig_kill = false): never
-    {
-        // If something went really, really wrong...
-        if ($sig_kill) {
-            exit($exit_message);
-        }
-
-        // POST-requests should always show a flash message for feedback!
-        if (static::isPostRequestMethod()) {
-            if (!Response::getFlashMessages()?->getCount()) {
-                Log::warning('Detected POST request without a flash message to give user feedback on what happened with this request!');
-            }
-        }
-
-        switch (Response::getHttpCode()) {
-            case 200:
-                // no break
-            case 301:
-                // no break
-            case 302:
-                // no break
-            case 304:
-                if ($exit_message) {
-                    Log::success($exit_message);
-                }
-
-                Log::success(tr('Script(s) ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
-                    ':script'    => static::getExecutedPath(true),
-                    ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                    ':http_code' => Response::getHttpCode(),
-                    ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
-                ]));
-                break;
-
-            default:
-                if ($exit_message) {
-                    Log::error($exit_message);
-                }
-
-                Log::error(tr('Script(s) ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
-                    ':script'    => static::getExecutedPath(true),
-                    ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                    ':http_code' => Response::getHttpCode(),
-                    ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
-                ]));
-        }
-
-        InstanceCache::logStatistics();
-
-        // Normal kill request
-        Log::action(tr('Killing web page process'), 2);
-        exit();
-    }
-
-
-    /**
      * Returns if this request is a POST method
      *
      * @return bool
@@ -1690,7 +1622,7 @@ abstract class Request implements RequestInterface
                     // Start session only for AJAX and HTML requests
                     // Initialize the flash messages
                     Session::startup();
-                    Response::addFlashMessages(Session::getFlashMessages());
+                    Response::getFlashMessagesObject()->addSource(Session::getFlashMessagesObject());
                 }
         }
     }

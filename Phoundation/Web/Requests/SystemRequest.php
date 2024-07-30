@@ -140,7 +140,7 @@ class SystemRequest
 
         // Clear flash messages
         // Clear the page buffer to ensure that whatever pages have echoed so far is gone
-        Session::getFlashMessages()->clear();
+        Session::getFlashMessagesObject()->clear();
         Response::clean();
 
         // Wait a small random time before execution (Between 0mS and 100mS) to avoid timing attacks on system pages
