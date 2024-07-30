@@ -55,7 +55,7 @@ $directories = Find::new(FsDirectory::getCommandsObject(false, 'command find'))
 
 
 // Merge files and directories and display the results
-$files->addSources($directories);
+$files->addSource($directories);
 
 if ($files->getCount()) {
     foreach ($files as $result) {

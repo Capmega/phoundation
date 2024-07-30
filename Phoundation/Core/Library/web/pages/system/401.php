@@ -34,6 +34,8 @@ Response::redirect('signin');
 //        // no break
 //    case EnumRequestTypes::api:
 //        Response::setHttpCode(401);
+
+
 //        Json::reply(['error' => tr('Unauthorized')]);
 //}
 //

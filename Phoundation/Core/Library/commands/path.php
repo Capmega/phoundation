@@ -59,7 +59,7 @@ $directories = Find::new(FsDirectory::getCommandsObject(false, 'command path'))
 
 
 // Merge files and directories and process the results
-$files->addSources($directories);
+$files->addSource($directories);
 
 
 // Display the commands and their paths

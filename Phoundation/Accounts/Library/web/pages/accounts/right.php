@@ -54,23 +54,23 @@ if (Request::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Response::getFlashMessages()->addSuccess(tr('Right ":right" has been saved', [':right' => $right->getName()]));
+                Response::getFlashMessagesObject()->addSuccess(tr('Right ":right" has been saved', [':right' => $right->getName()]));
                 Response::redirect('referer');
 
             case tr('Delete'):
                 $right->delete();
-                Response::getFlashMessages()->addSuccess(tr('The right ":right" has been deleted', [':right' => $right->getName()]));
+                Response::getFlashMessagesObject()->addSuccess(tr('The right ":right" has been deleted', [':right' => $right->getName()]));
                 Response::redirect();
 
             case tr('Undelete'):
                 $right->undelete();
-                Response::getFlashMessages()->addSuccess(tr('The right ":right" has been undeleted', [':right' => $right->getName()]));
+                Response::getFlashMessagesObject()->addSuccess(tr('The right ":right" has been undeleted', [':right' => $right->getName()]));
                 Response::redirect();
         }
 
     } catch (IncidentsException | ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Response::getFlashMessages()->addMessage($e);
+        Response::getFlashMessagesObject()->addMessage($e);
         $right->forceApply();
     }
 }

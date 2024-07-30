@@ -105,7 +105,7 @@ class Vendors extends IteratorCore implements VendorsInterface
         $return = new FsFiles();
 
         foreach ($this->source as $vendor) {
-            $return->addSources($vendor->getFiles());
+            $return->addSource($vendor->getFiles());
         }
 
         return $return;
@@ -122,7 +122,7 @@ class Vendors extends IteratorCore implements VendorsInterface
         $return = new StatusFiles($this->getDirectory());
 
         foreach ($this->source as $vendor) {
-            $return->addSources($vendor->getChangedFiles());
+            $return->addSource($vendor->getChangedFiles());
         }
 
         return $return;

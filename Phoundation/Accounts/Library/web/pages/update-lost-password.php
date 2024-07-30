@@ -63,25 +63,26 @@ if (Request::isPostRequestMethod()) {
                 ->save();
 
         // Add a flash message and redirect to the original target
-        Response::getFlashMessages()->addSuccess(tr('Your password has been updated'));
+        Response::getFlashMessagesObject()->addSuccess(tr('Your password has been updated'));
         $updated = true;
 
     } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-        Response::getFlashMessages()->addWarning(tr('Please specify at least ":count" characters for the password', [
+        Response::getFlashMessagesObject()->addWarning(tr('Please specify at least ":count" characters for the password', [
             ':count' => Config::getInteger('security.passwords.size.minimum', 10),
         ]));
 
     } catch (ValidationFailedException $e) {
-        Response::getFlashMessages()->addMessage($e);
+        Response::getFlashMessagesObject()->addMessage($e);
 
     } catch (PasswordNotChangedException $e) {
-        Response::getFlashMessages()->addWarning(tr('You provided your current password. Please update your account to have a new and secure password'));
+        Response::getFlashMessagesObject()->addWarning(tr('You provided your current password. Please update your account to have a new and secure password'));
     }
 }
 
 
 // This page will build its own body
 Response::setRenderMainWrapper(false);
+
 if (isset($updated)) {
     // Set page meta data
     Response::setPageTitle(tr('Your password has been updated, please go to the sign-in page in to continue...'));

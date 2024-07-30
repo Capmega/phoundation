@@ -24,13 +24,13 @@ if (Request::isPostRequestMethod()) {
         switch (PostValidator::new()->getSubmitButton()) {
             case tr('Scan'):
                 $count = Plugins::scan();
-                Response::getFlashMessages()->addSuccess(tr('Finished scanning for libraries, found and registered ":count" new libraries', [':count' => $count]));
+                Response::getFlashMessagesObject()->addSuccess(tr('Finished scanning for libraries, found and registered ":count" new libraries', [':count' => $count]));
                 Response::redirect('this');
         }
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Response::getFlashMessages()->addMessage($e);
+        Response::getFlashMessagesObject()->addMessage($e);
     }
 }
 

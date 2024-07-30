@@ -760,9 +760,17 @@ class IteratorCore implements IteratorInterface
      *
      * @return $this
      */
-    public function addSources(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static
+    public function addSource(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static
     {
         if ($source instanceof IteratorInterface) {
+            if ($source === $this) {
+                throw OutOfBoundsException::new(tr('Cannot add a source Iterator object that is itself, to itself, it would cause an endless loop'))
+                                          ->addData([
+                                              'this'   => $this,
+                                              'source' => $source,
+                                          ]);
+            }
+
             $source = $source->getSource();
         }
 

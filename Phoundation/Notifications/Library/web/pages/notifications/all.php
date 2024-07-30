@@ -43,7 +43,7 @@ if (Request::isPostRequestMethod()) {
     if (PostValidator::new()->getSubmitButton() === tr('Mark all as read')) {
 //        $notifications->setStatus('READ');
         sql()->query('UPDATE `notifications` SET `status` = "READ" WHERE `users_id` = :users_id', [':users_id' => Session::getUser()->getId()]);
-        Response::getFlashMessages()->addSuccess(tr('All your notifications have been marked as read'));
+        Response::getFlashMessagesObject()->addSuccess(tr('All your notifications have been marked as read'));
         Response::redirect();
     }
 }

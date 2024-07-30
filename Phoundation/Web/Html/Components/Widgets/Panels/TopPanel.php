@@ -31,7 +31,7 @@ class TopPanel extends Panel
     {
         // Set the default menu for top panels
         $this->source['menu'] = Menu::new()
-                                    ->addSources([
+                                    ->addSource([
                                         tr('Home') => (string) Url::getCurrentDomainRootUrl(),
                                     ]);
         if (

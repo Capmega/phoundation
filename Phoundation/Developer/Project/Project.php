@@ -828,10 +828,10 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         // Get and return all changes
         return $this->git
                     ->getStatusFilesObject($this->directory->addDirectory('Plugins'))
-                        ->addSources($this->git->getStatusFilesObject(
+                        ->addSource($this->git->getStatusFilesObject(
                             $this->directory->addDirectory('Templates')
                         ))
-                        ->addSources($this->git->getStatusFilesObject(
+                        ->addSource($this->git->getStatusFilesObject(
                             $this->directory->addDirectory('data/vendors')
                         ));
     }
@@ -848,8 +848,8 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     public function getVendors(bool $changed = false): ProjectVendorsInterface
     {
         return ProjectVendors::new($this, EnumRepositoryType::data, $changed)
-                             ->addSources(ProjectVendors::new($this, EnumRepositoryType::plugins, $changed))
-                             ->addSources(ProjectVendors::new($this, EnumRepositoryType::templates, $changed));
+                             ->addSource(ProjectVendors::new($this, EnumRepositoryType::plugins, $changed))
+                             ->addSource(ProjectVendors::new($this, EnumRepositoryType::templates, $changed));
     }
 
 

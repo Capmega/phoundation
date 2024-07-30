@@ -427,37 +427,37 @@ POST variables:
         switch ($this->getMode()) {
             case EnumDisplayMode::danger:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::error($this->getTitle(), echo_prefix: false);
+                Log::write($this->getTitle(), 'error', echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::error($message, echo_prefix: false);
+                Log::write($message, 'error', echo_prefix: false);
                 break;
 
             case EnumDisplayMode::warning:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::warning($this->getTitle(), echo_prefix: false);
+                Log::write($this->getTitle(), 'warning', echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::warning($message, echo_prefix: false);
+                Log::write($message, 'warning', echo_prefix: false);
                 break;
 
             case EnumDisplayMode::success:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::success($this->getTitle(), echo_prefix: false);
+                Log::write($this->getTitle(), 'success', echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::success($message, echo_prefix: false);
+                Log::write($message, 'success', echo_prefix: false);
                 break;
 
             case EnumDisplayMode::info:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::information($this->getTitle(), echo_prefix: false);
+                Log::write($this->getTitle(), 'information', echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::information($message, echo_prefix: false);
+                Log::write($message, 'information', echo_prefix: false);
                 break;
 
             default:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::notice($this->getTitle(), echo_prefix: false);
+                Log::write($this->getTitle(), 'notice', echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::notice($message, echo_prefix: false);
+                Log::write($message, 'notice', echo_prefix: false);
                 break;
         }
 

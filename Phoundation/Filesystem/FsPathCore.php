@@ -1316,6 +1316,7 @@ class FsPathCore implements FsPathInterface
      */
     public function movePath(Stringable|string $target, ?FsRestrictions $restrictions = null): static
     {
+show('MOVE ' . $this->getSource());
         $target = new FsPath($target, $restrictions ?? $this->restrictions);
         $target->makeAbsolute(must_exist: false);
 
@@ -1323,6 +1324,7 @@ class FsPathCore implements FsPathInterface
         if ($target->exists()) {
             // Target exists. It has to be a directory where we can move into, or fail!
             if (!$target->isDirectory()) {
+exit('qqqqqqqqqqqqqqqqqqqqq');
                 throw FileExistsException::new(tr('The specified target ":target" already exists', [
                     ':target' => $target,
                 ]));

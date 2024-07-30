@@ -253,7 +253,7 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return $this
      */
-    public function addSources(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static;
+    public function addSource(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static;
 
 
     /**

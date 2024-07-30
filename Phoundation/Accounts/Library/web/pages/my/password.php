@@ -43,24 +43,24 @@ if (Request::isPostRequestMethod()) {
             // Update user password
             $user->changePassword($post['password'], $post['passwordv']);
 
-            Response::getFlashMessages()->addSuccess(tr('Your password has been updated'));
+            Response::getFlashMessagesObject()->addSuccess(tr('Your password has been updated'));
             Response::redirect(Url::getWww(Url::getPrevious('/my/profile.html')));
 
         } catch (PasswordTooShortException | NoPasswordSpecifiedException) {
-            Response::getFlashMessages()->addWarning(tr('Please specify at least 10 characters for the password'));
+            Response::getFlashMessagesObject()->addWarning(tr('Please specify at least 10 characters for the password'));
 
         } catch (AuthenticationException $e) {
             // Oops! The Current password was wrong
-            Response::getFlashMessages()->addWarning(tr('Please specify at least ":count" characters for the password', [
+            Response::getFlashMessagesObject()->addWarning(tr('Please specify at least ":count" characters for the password', [
                 ':count' => Config::getInteger('security.passwords.size.minimum', 10),
             ]));
 
         } catch (ValidationFailedException $e) {
             // Oops! Show validation errors and remain on this page
-            Response::getFlashMessages()->addWarning($e);
+            Response::getFlashMessagesObject()->addWarning($e);
 
         } catch (PasswordNotChangedException $e) {
-            Response::getFlashMessages()->addWarning(tr('You provided your current password. Please update your account to have a new and secure password'));
+            Response::getFlashMessagesObject()->addWarning(tr('You provided your current password. Please update your account to have a new and secure password'));
         }
     }
 }

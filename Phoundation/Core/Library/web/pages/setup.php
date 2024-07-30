@@ -14,6 +14,8 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 throw new UnderConstructionException();
+
+
 // ONLY HERE do we allow disabling password validation in web
 $get = GetValidator::new()
                    ->select('no_password_validation')->isOptional(false)->isBoolean()
@@ -45,7 +47,7 @@ if (Request::isPostRequestMethod()) {
 
         Response::setRenderMainWrapper(false);
         ?>
-        <?= Response::getFlashMessages()->render() ?>
+        <?= Response::getFlashMessagesObject()->render() ?>
         <body class="hold-transition register-page" style="height: auto;">
         <div class="register-box">
             <div class="register-logo">
@@ -74,14 +76,14 @@ if (Request::isPostRequestMethod()) {
         return;
 
     } catch (EnvironmentExistsException | ValidationFailedException | SqlAccessDeniedException $e) {
-        Response::getFlashMessages()->addMessage($e);
+        Response::getFlashMessagesObject()->addMessage($e);
     }
 }
 
 // This page will build its own body
 Response::setRenderMainWrapper(false);
 ?>
-<?= Response::getFlashMessages()->render() ?>
+<?= Response::getFlashMessagesObject()->render() ?>
     <body class="hold-transition register-page" style="height: auto;">
     <div class="register-box">
         <div class="register-logo">

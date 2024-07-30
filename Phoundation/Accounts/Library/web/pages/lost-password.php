@@ -64,10 +64,20 @@ if (Request::isPostRequestMethod()) {
 
 //        // Setup email host configuration
 //        $mail->Host = "smtp.gmail.com";
+
+
 //        $mail->SMTPAuth = true;
+
+
 //        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+
+
 //        $mail->Username = "so.oostenbrink@gmail.com";
+
+
 //        $mail->Password = 'kzusumqvavzfmyml';
+
+
 //        $mail->Port = "587";
 
         $mail->Host = "10.10.0.9";
@@ -110,10 +120,10 @@ if (Request::isPostRequestMethod()) {
                              ])
                 ->save();
 
-        Response::getFlashMessages()->addSuccess(tr('We sent a lost password email to the specified address if it exists'));
+        Response::getFlashMessagesObject()->addSuccess(tr('We sent a lost password email to the specified address if it exists'));
 
     } catch (ValidationFailedException) {
-        Response::getFlashMessages()->addWarning(tr('Please specify a valid email'));
+        Response::getFlashMessagesObject()->addWarning(tr('Please specify a valid email'));
 
     } catch (DataEntryNotExistsException|AccessDeniedException $e) {
         // Specified email does not exist. Just ignore it because we don't want to give away if the email exists or

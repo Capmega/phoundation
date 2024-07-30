@@ -45,13 +45,13 @@ if (Request::isPostRequestMethod()) {
         switch (PostValidator::new()->getSubmitButton()) {
             case tr('Mark unread'):
                 $notification->setStatus('UNREAD');
-                Response::getFlashMessages()->addSuccess(tr('The notification ":notification" has been marked as unread', [
+                Response::getFlashMessagesObject()->addSuccess(tr('The notification ":notification" has been marked as unread', [
                     ':notification' => $notification->getTitle()
                 ]));
         }
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Response::getFlashMessages()->addMessage($e);
+        Response::getFlashMessagesObject()->addMessage($e);
     }
 }
 

@@ -14,6 +14,7 @@
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -59,18 +60,18 @@ if (Request::isPostRequestMethod()) {
             Response::redirect(Url::getRedirect($redirect, $user->getDefaultPage()));
 
         } catch (PasswordTooShortException | NoPasswordSpecifiedException) {
-            Response::getFlashMessages()->addWarning(tr('Please specify at least ":count" characters for the password', [
+            Response::getFlashMessagesObject()->addWarning(tr('Please specify at least ":count" characters for the password', [
                 ':count' => Config::getInteger('security.passwords.size.minimum', 10),
             ]));
 
             break;
 
         } catch (ValidationFailedException $e) {
-            Response::getFlashMessages()->addWarning(tr('Please specify a valid email and password'));
+            Response::getFlashMessagesObject()->addWarning(tr('Please specify a valid email and password'));
             break;
 
         } catch (AuthenticationException $e) {
-            Response::getFlashMessages()->addWarning(tr('The specified email and/or password were incorrect'));
+            Response::getFlashMessagesObject()->addWarning(tr('The specified email and/or password were incorrect'));
         }
     }
 

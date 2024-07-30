@@ -924,9 +924,9 @@ class DataIterator extends Iterator implements DataIteratorInterface
      *
      * @return $this
      */
-    public function addSources(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static
+    public function addSource(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static
     {
-        return parent::addSources($source, $clear_keys, $exception);
+        return parent::addSource($source, $clear_keys, $exception);
     }
 
 

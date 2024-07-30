@@ -869,7 +869,7 @@ throw new UnderConstructionException();
 
         foreach ($this->source as $repository) {
             if ($repository->isVendorsRepository()) {
-                $return->addSources($repository->getVendors());
+                $return->addSource($repository->getVendors());
             }
         }
 
@@ -935,7 +935,7 @@ throw new UnderConstructionException();
 
         foreach ($this->source as $repository) {
             if ($repository->isData()) {
-                $return->addSources($repository->getVendors());
+                $return->addSource($repository->getVendors());
             }
         }
 
@@ -954,7 +954,7 @@ throw new UnderConstructionException();
 
         foreach ($this->source as $repository) {
             if ($repository->isPlugins()) {
-                $return->addSources($repository->getVendors());
+                $return->addSource($repository->getVendors());
             }
         }
 
@@ -973,7 +973,7 @@ throw new UnderConstructionException();
 
         foreach ($this->source as $repository) {
             if ($repository->isTemplates()) {
-                $return->addSources($repository->getVendors());
+                $return->addSource($repository->getVendors());
             }
         }
 

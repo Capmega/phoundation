@@ -59,10 +59,20 @@ if (Request::isPostRequestMethod()) {
 
 //        // Setup email host configuration
 //        $mail->Host = "smtp.gmail.com";
+
+
 //        $mail->SMTPAuth = true;
+
+
 //        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+
+
 //        $mail->Username = "so.oostenbrink@gmail.com";
+
+
 //        $mail->Password = 'kzusumqvavzfmyml';
+
+
 //        $mail->Port = "587";
 
             $mail->Host = "10.10.0.9";
@@ -98,13 +108,13 @@ if (Request::isPostRequestMethod()) {
             // not
         }
 
-        Response::getFlashMessages()->addSuccess(tr('We sent a lost password email to the specified address if it exists'));
+        Response::getFlashMessagesObject()->addSuccess(tr('We sent a lost password email to the specified address if it exists'));
 
     } catch (ValidationFailedException) {
-        Response::getFlashMessages()->addWarning(tr('Please specify a valid email and password'));
+        Response::getFlashMessagesObject()->addWarning(tr('Please specify a valid email and password'));
 
     } catch (AuthenticationException) {
-        Response::getFlashMessages()->addWarning(tr('The specified email or password was incorrect'));
+        Response::getFlashMessagesObject()->addWarning(tr('The specified email or password was incorrect'));
     }
 }
 
@@ -113,7 +123,7 @@ if (Request::isPostRequestMethod()) {
 Response::setRenderMainWrapper(false);
 
 ?>
-<?= Response::getFlashMessages()->render() ?>
+<?= Response::getFlashMessagesObject()->render() ?>
     <body class="hold-transition login-page"
           style="background: url(<?= Url::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/lost-password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
