@@ -19,6 +19,7 @@ use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataConnector;
+use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
@@ -28,6 +29,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
 {
     use TraitInputElement;
     use TraitDataConnector;
+    use TraitDataDebug;
 
 
     /**
@@ -233,8 +235,8 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         if ($this->source_query) {
             throw new HtmlException(tr('Cannot specify source, a source query was already specified'));
         }
-        $this->source = Iterator::new()
-                                ->setSource($source);
+
+        $this->source = Iterator::new()->setSource($source);
 
         return $this;
     }
@@ -264,10 +266,13 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         if ($this->source) {
             throw new HtmlException(tr('Cannot specify source query, a source was already specified'));
         }
+
         if (is_string($source_query)) {
             // Get a PDOStatement instead by executing the query
-            $source_query = sql($this->connector)->query($source_query, $execute);
+            $source_query = sql($this->connector)->setDebug($this->debug)
+                                                 ->query($source_query, $execute);
         }
+
         $this->source_query = $source_query;
         $this->use_columns  = $use_columns;
 
@@ -315,6 +320,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     {
         // Render the body
         $this->content = $this->renderBody();
+
         if (!$this->content and $this->hide_empty) {
             return '';
         }

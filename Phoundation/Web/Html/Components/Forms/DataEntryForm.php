@@ -28,6 +28,7 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Forms\Exception\FormsException;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormRowsInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\InputHidden;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -439,12 +440,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                              ->setBeforeButtons($definition->getBeforeButtons())
                                                                              ->setAfterButtons($definition->getAfterButtons()),
 
-                                EnumInputType::button,
-                                EnumInputType::submit       => $element_class::new()
-                                                                             ->setDefinition($definition)
-                                                                             ->setHidden($definition->getHidden())
-                                                                             ->setValue($source[$column]),
-
                                 EnumInputType::select       => $element_class::new()
                                                                              ->setDefinition($definition)
                                                                              ->setHidden($definition->getHidden())
@@ -460,18 +455,34 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                              ->setValue('1')
                                                                              ->setChecked((bool)$source[$column]),
 
-                                default                     => $element_class::new()
-                                                                             ->setDefinition($definition)
-                                                                             ->setHidden($definition->getHidden())
-                                                                             ->setRequired($definition->getRequired())
-                                                                             ->setMinLength($definition->getMinLength())
-                                                                             ->setMaxLength($definition->getMaxLength())
-                                                                             ->setAutoComplete($definition->getAutoComplete())
-                                                                             ->setAutoSubmit($definition->getAutoSubmit())
-                                                                             ->setValue($source[$column])
-                                                                             ->setBeforeButtons($definition->getBeforeButtons())
-                                                                             ->setAfterButtons($definition->getAfterButtons()),
+                                default                     => null,
                             };
+
+                            if (!$component) {
+                                switch ($definition->getInputType()) {
+                                    case EnumInputType::button:
+                                        // no break
+                                    case EnumInputType::submit:
+                                        $component = Button::new()
+                                                           ->setDefinition($definition)
+                                                           ->setHidden($definition->getHidden())
+                                                           ->setValue($definition->getValue());
+                                        break;
+
+                                    default:
+                                        $component = $element_class::new()
+                                                                   ->setDefinition($definition)
+                                                                   ->setHidden($definition->getHidden())
+                                                                   ->setRequired($definition->getRequired())
+                                                                   ->setMinLength($definition->getMinLength())
+                                                                   ->setMaxLength($definition->getMaxLength())
+                                                                   ->setAutoComplete($definition->getAutoComplete())
+                                                                   ->setAutoSubmit($definition->getAutoSubmit())
+                                                                   ->setValue($source[$column])
+                                                                   ->setBeforeButtons($definition->getBeforeButtons())
+                                                                   ->setAfterButtons($definition->getAfterButtons());
+                                }
+                            }
 
                             $this->rows->add($definition, $component);
                             break;

@@ -1298,6 +1298,7 @@ class Route
             ':route' => $target,
             ':ip'    => $ip,
         ]));
+
         $route = StaticRoute::new();
 
         // TODO Implement

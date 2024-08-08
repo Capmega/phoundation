@@ -267,10 +267,10 @@ class Csrf
      * Validates the specified CSRF code. Will return false if no validation was required (Non POST requests, for
      * example), or an exception if the validation failed
      *
-     * @param string $csrf
+     * @param string|null $csrf
      * @return bool
      */
-    protected static function validateCsrf(string $csrf): bool
+    protected static function validateCsrf(?string $csrf): bool
     {
         if (!Config::get('security.web.csrf.enabled', true)) {
             // CSRF check system has been disabled
