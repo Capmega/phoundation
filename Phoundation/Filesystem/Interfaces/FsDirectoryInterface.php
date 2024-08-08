@@ -222,16 +222,6 @@ interface FsDirectoryInterface extends FsPathInterface
     public function ensureWritable(?int $mode = null): static;
 
     /**
-     * Tars this directory and returns a file object for the tar file
-     *
-     * @param FsFileInterface|null $target
-     * @param bool $compression
-     * @param int $timeout
-     * @return FsFileInterface
-     */
-    public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface;
-
-    /**
      * Returns the single one file in this directory IF there is only one file
      *
      * @param string|null $regex

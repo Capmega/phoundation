@@ -20,6 +20,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
+use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Utils\Strings;
@@ -1072,4 +1073,24 @@ interface FsPathInterface extends Stringable
      * @return string
      */
     public function getDomain(): string;
+
+    /**
+     * Zips this path and returns a file object for the tar file
+     *
+     * @param FsFileInterface|null $target
+     * @param bool $compression
+     * @param int $timeout
+     * @return FsFileInterface
+     */
+    public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface;
+
+    /**
+     * Zips this path and returns a file object for the tar file
+     *
+     * @param FsFileInterface|null $target
+     * @param int $compression
+     * @param int $timeout
+     * @return FsFileInterface
+     */
+    public function zip(?FsFileInterface $target = null, int $compression = 5, int $timeout = 600): FsFileInterface;
 }

@@ -30,6 +30,7 @@ use Phoundation\Filesystem\Exception\NotEnoughStorageSpaceAvailableException;
 use Phoundation\Filesystem\Exception\Sha256MismatchException;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Gzip;
 use Phoundation\Os\Processes\Commands\Sha256;
@@ -1177,29 +1178,15 @@ class FsFileCore extends FsPathCore implements FsFileInterface
 
 
     /**
-     * Tars this file and returns a file object for the tar file
+     * Untars this file
      *
-     * @param FsFileInterface|null $target
-     * @param bool $compression
-     * @param int $timeout
-     * @return FsFileInterface
+     * @return FsPathInterface
      */
-    public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface
-    {
-        return Tar::new()->tar($this, $target, $compression);
-    }
-
-
-    /**
-     * Untars the file
-     *
-     * @return FsDirectory
-     */
-    public function untar(): FsDirectory
+    public function untar(): FsPathInterface
     {
         Tar::new()->untar($this);
 
-        return FsDirectory::new(dirname($this->source), $this->restrictions);
+        return FsPath::new(dirname($this->source), $this->restrictions);
     }
 
 
@@ -1215,7 +1202,9 @@ class FsFileCore extends FsPathCore implements FsFileInterface
 
 
     /**
-     * Ungzips the file
+     * Ungzips this file object to the specified directory
+     *
+     * @note If no directory is specified, the file will be unzipped into the same parent directory as the file itself
      *
      * @return FsFileInterface
      */
@@ -1226,18 +1215,17 @@ class FsFileCore extends FsPathCore implements FsFileInterface
 
 
     /**
-     * Will unzip this file
+     * Unzips this file
      *
-     * @param FsDirectoryInterface|null $target_path
+     * @param FsDirectoryInterface|null $directory
      *
-     * @return static
+     * @return FsPathInterface
      */
-    public function unzip(?FsDirectoryInterface $target_path = null): static
+    public function unzip(?FsDirectoryInterface $directory = null): FsPathInterface
     {
-        Zip::new($this->restrictions)
-           ->unzip($this, $target_path);
+        $directory = $directory ?? $this->getParentDirectory();
 
-        return $this;
+        return Zip::new($directory)->unzip($this);
     }
 
 
@@ -1398,5 +1386,35 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     {
         // This is a single file!
         return filesize($this->source);
+    }
+
+
+    /**
+     * Will upload this file to the remote client
+     *
+     * @param bool $attachment
+     * @param bool $exit
+     *
+     * @return $this
+     */
+    public function upload(bool $attachment, bool $exit = true): static
+    {
+        header('Content-Type: ' . $this->getMimetype());
+        header('Content-length: ' . $this->getSize());
+
+        if ($attachment) {
+            // Instead of sending the file to the browser to display directly, send it as a file attachment that will
+            // be downloaded to their disk
+            header('Content-Disposition: attachment; filename="' . $this->getBasename() . '"');
+        }
+
+        $this->open(EnumFileOpenMode::readOnly)->fpassthru();
+        $this->close();
+
+        if ($exit) {
+            exit();
+        }
+
+        return $this;
     }
 }

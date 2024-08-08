@@ -64,6 +64,8 @@ use Phoundation\Filesystem\Traits\TraitDataIsRelative;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
+use Phoundation\Os\Processes\Commands\Tar;
+use Phoundation\Os\Processes\Commands\Zip;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
@@ -73,6 +75,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
+use ZipArchive;
 
 class FsPathCore implements FsPathInterface
 {
@@ -198,8 +201,9 @@ class FsPathCore implements FsPathInterface
                 return FsFile::new($source, $restrictions);
             }
 
-        } else {
-            $source = (string) $source;
+        }
+        else {
+            $source = (string)$source;
 
             if (is_dir($source)) {
                 return FsDirectory::new($source, $restrictions);
@@ -210,9 +214,13 @@ class FsPathCore implements FsPathInterface
             }
         }
 
-        throw new FileNotExistException(tr('The specified path ":path" does not exist', [
-            ':path' => $source,
-        ]));
+        throw new FileNotExistException(
+            tr(
+                'The specified path ":path" does not exist', [
+                ':path' => $source,
+            ]
+            )
+        );
     }
 
 
@@ -256,14 +264,18 @@ class FsPathCore implements FsPathInterface
 
         while ($path->exists()) {
             if (++$version >= 123) {
-                $prefix .= 'z';
+                $prefix  .= 'z';
                 $version = 97;
 
                 if (strlen($prefix) > 3) {
                     // WTF? Seriously? 26^3 versions available? Something is funky here...
-                    throw new OutOfBoundsException(tr('Failed to find available version for file ":path"', [
-                        ':path' => $path,
-                    ]));
+                    throw new OutOfBoundsException(
+                        tr(
+                            'Failed to find available version for file ":path"', [
+                            ':path' => $path,
+                        ]
+                        )
+                    );
                 }
             }
 
@@ -284,7 +296,7 @@ class FsPathCore implements FsPathInterface
      */
     public function appendPath(FsPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): FsPathInterface
     {
-        $path = $this->getSource() . Strings::ensureStartsNotWith((string) $path, '/');
+        $path = $this->getSource() . Strings::ensureStartsNotWith((string)$path, '/');
 
         return FsPath::new($path, $this->restrictions, $absolute_prefix);
     }
@@ -313,7 +325,8 @@ class FsPathCore implements FsPathInterface
         if ($this->isDirectory()) {
             $return = Strings::slash($this->source);
 
-        } else {
+        }
+        else {
             $return = $this->source;
         }
 
@@ -354,9 +367,10 @@ class FsPathCore implements FsPathInterface
         if ($absolute_prefix === false) {
             // No prefix specified, if the path is relative, leave it. This may be useful, for example, with relative
             // paths that may not even exist
-            $this->source = (string) $path;
+            $this->source = (string)$path;
 
-        } else {
+        }
+        else {
             // Ensure absolute paths are absolute
             $this->source = static::absolutePath($path, $absolute_prefix, $must_exist);
         }
@@ -395,6 +409,21 @@ class FsPathCore implements FsPathInterface
 
 
     /**
+     * Make this (absolute) path a relative path
+     *
+     * @param FsDirectoryInterface $from
+     *
+     * @return $this
+     */
+    public function makeRelative(FsDirectoryInterface $from): static
+    {
+        $this->source = static::relativePath($this, $from)->getSource();
+
+        return $this;
+    }
+
+
+    /**
      * Make this objects' path a normalized path
      *
      * Normalized path will have all "~/", "./", "../" resolved, symlinks will NOT be resolved. Target does not need to
@@ -418,7 +447,8 @@ class FsPathCore implements FsPathInterface
      * Real path will resolve all symlinks, requires that the path exists!
      *
      * @param Stringable|string|bool|null $absolute_prefix
-     * @param bool $must_exist
+     * @param bool                        $must_exist
+     *
      * @return $this
      */
     public function makeRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static
@@ -444,11 +474,49 @@ class FsPathCore implements FsPathInterface
 
 
     /**
-     * Returns a new Directory object with the specified restrictions starting from the specified path, applying a
-     * number of defaults
+     * Returns a path string with the specified restrictions starting from the specified path, applying a number of
+     * defaults
      *
      * . Is DIRECTORY_ROOT
      * ~ is the current shell's user home directory
+     *
+     * @param FsPathInterface      $path
+     * @param FsDirectoryInterface $from
+     *
+     * @return static
+     */
+    public function relativePath(FsPathInterface $path, FsDirectoryInterface $from): FsPathInterface
+    {
+        $relative = Strings::from($path->getSource(), $from->getSource(), needle_required: true);
+        $relative = Strings::ensureStartsNotWith($relative, '/');
+
+        if ($relative) {
+            return new FsPath($relative, $path->getRestrictions());
+        }
+
+        // Either the specified $from is exactly the same as from, or path does not start with from
+        if ($path->getSource() === $from->getSource()) {
+            throw new OutOfBoundsException(tr('Cannot make specified path ":path" relative, the specified from path ":from" is the same as the entire specified path', [
+                ':path' => $path,
+                ':from' => $from,
+            ]));
+        }
+
+        throw new OutOfBoundsException(tr('Cannot make specified path ":path" relative, it does not start with the specified path ":from"', [
+            ':path' => $path,
+            ':from' => $from,
+        ]));
+    }
+
+
+    /**
+     * Makes the specified path absolute if it's not
+     *
+     * The start character will be treated as follows:
+     *
+     * . Is DIRECTORY_START
+     * ~ is the current shell's user home directory
+     * / is considered absolute
      *
      * @param Stringable|string|null      $path
      * @param Stringable|string|bool|null $absolute_prefix
@@ -912,16 +980,14 @@ class FsPathCore implements FsPathInterface
      */
     public function checkRestrictions(bool $write): static
     {
-        if ($this->isRelative()) {
-            throw new RestrictionsException(tr('Cannot check restrictions for ":path" as it is a relative path with unknown directory prefix', [
-                ':path' => $this->source,
-            ]));
-        }
-
         if (empty($this->restrictions)) {
             throw new FilesystemNoRestrictionsSetExceptions(tr('Cannot perform action, no filesystem restrictions have been set for this ":class" object', [
                 ':class' => get_class($this)
             ]));
+        }
+
+        if ($this->isRelative()) {
+            $this->source = $this->absolutePath($this->source);
         }
 
         $this->restrictions->check($this->source, $write);
@@ -958,6 +1024,8 @@ class FsPathCore implements FsPathInterface
      */
     public function truncate(int $size): static
     {
+        $this->checkOpen('truncate', EnumFileOpenMode::readWrite);
+
         $result = ftruncate($this->stream, $size);
 
         if (!$result) {
@@ -978,9 +1046,9 @@ class FsPathCore implements FsPathInterface
      */
     public function fpassthru(): int
     {
-        $size = fpassthru($this->stream);
+        $this->checkOpen('fpassthru');
 
-        return $size;
+        return fpassthru($this->stream);
     }
 
 
@@ -2652,7 +2720,9 @@ exit('qqqqqqqqqqqqqqqqqqqqq');
                 ]));
             }
         }
+
         fclose($this->stream);
+
         $this->stream    = null;
         $this->open_mode = null;
 
@@ -2889,7 +2959,7 @@ exit('qqqqqqqqqqqqqqqqqqqqq');
      */
     public function sync(): static
     {
-        $this->checkOpen('sync');
+        $this->checkOpen('sync', EnumFileOpenMode::readWrite);
 
         if (!fsync($this->stream)) {
             throw new FileSyncException(tr('Failed to sync file ":file"', [
@@ -2910,7 +2980,7 @@ exit('qqqqqqqqqqqqqqqqqqqqq');
     {
         $this->checkOpen('syncData');
 
-        if (!fdatasync($this->stream)) {
+        if (!fdatasync($this->stream, EnumFileOpenMode::readWrite)) {
             throw new FileSyncException(tr('Failed to data sync file ":file"', [
                 ':file' => $this->source,
             ]));
@@ -3455,7 +3525,8 @@ exit('qqqqqqqqqqqqqqqqqqqqq');
      */
     public function write(string $data, ?int $length = null): static
     {
-        $this->checkOpen('write');
+        $this->checkOpen('write', EnumFileOpenMode::readWrite);
+
         fwrite($this->stream, $data, $length);
 
         return $this;
@@ -3978,5 +4049,44 @@ exit('qqqqqqqqqqqqqqqqqqqqq');
         throw new PathNotDomainException(tr('Cannot return domain from path ":path", it is not a domain path', [
             ':path' => $this->source
         ]));
+    }
+
+
+    /**
+     * Tars this file and returns a file object for the tar file
+     *
+     * @param FsFileInterface|null $target
+     * @param bool $compression
+     * @param int $timeout
+     * @return FsFileInterface
+     */
+    public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface
+    {
+        return Tar::new()->tar($this, $target, $compression, $timeout);
+    }
+
+
+    /**
+     * Zips this file and returns a file object for the tar file
+     *
+     * @param FsFileInterface|null $target
+     * @param int                  $compression
+     * @param int                  $timeout
+     *
+     * @return FsFileInterface
+     */
+    public function zip(?FsFileInterface $target = null, int $compression = 5, int $timeout = 600): FsFileInterface
+    {
+        return Zip::new($this->getParentDirectory())->zip($this, $target);
+
+//        $zip = new ZipArchive();
+//        $zip->open($target->getSource(), ZipArchive::CREATE);
+//
+//        $this->each(function (FsPathInterface $path) use ($zip) {
+//            static::addToZip($zip, $path);
+//        });
+//
+//        $zip->close();
+//        return $target;
     }
 }

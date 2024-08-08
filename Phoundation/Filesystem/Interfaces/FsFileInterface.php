@@ -288,21 +288,20 @@ interface FsFileInterface extends FsPathInterface
     public function checkSha256(string $sha256, bool $ignore_sha_fail = false): static;
 
     /**
-     * Tars this file and returns a file object for the tar file
-     *
-     * @param FsFileInterface|null $target
-     * @param bool $compression
-     * @param int $timeout
-     * @return FsFileInterface
-     */
-    public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface;
-
-    /**
      * Untars the file
      *
-     * @return FsDirectory
+     * @return FsPathInterface
      */
-    public function untar(): FsDirectory;
+    public function untar(): FsPathInterface;
+
+    /**
+     * Unzips the file
+     *
+     * @param FsDirectoryInterface|null $directory
+     *
+     * @return FsPathInterface
+     */
+    public function unzip(FsDirectoryInterface|null $directory = null): FsPathInterface;
 
     /**
      * Gzips the file
@@ -317,15 +316,6 @@ interface FsFileInterface extends FsPathInterface
      * @return FsFileInterface
      */
     public function gunzip(): FsFileInterface;
-
-    /**
-     * Will unzip this file
-     *
-     * @param FsDirectoryInterface|null $target_path
-     *
-     * @return static
-     */
-    public function unzip(?FsDirectoryInterface $target_path = null): static;
 
     /**
      * Ensure that the line endings in this file are as specified
@@ -344,4 +334,14 @@ interface FsFileInterface extends FsPathInterface
      * @return static
      */
     public function create(bool $force = false): static;
+
+    /**
+     * Will upload this file to the remote client
+     *
+     * @param bool $attachment
+     * @param bool $exit
+     *
+     * @return $this
+     */
+    public function upload(bool $attachment, bool $exit = true): static;
 }

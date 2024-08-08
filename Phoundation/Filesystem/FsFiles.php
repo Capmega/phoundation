@@ -17,9 +17,11 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsFilesInterface;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Os\Processes\Commands\Zip;
 
 class FsFiles extends FsFilesCore implements FsFilesInterface
 {
