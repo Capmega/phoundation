@@ -66,7 +66,7 @@ class GeoIp
         try {
             $provider = null;
             $enabled  = Config::get('geo.ip.enabled', true);
-            $provider = Config::get('geo.ip.provider', null, $provider);
+            $provider = Config::get('geo.ip.provider', '', $provider);
 
             if (!$enabled) {
                 // GeoIP detection has been disabled
@@ -74,6 +74,11 @@ class GeoIp
             }
 
             switch ($provider) {
+                case '':
+                    throw ConfigPathDoesNotExistsException::new(tr('GeoIP is enabled, but the configuration path "geo.ip.provider" has not been specified. Please check Please check "production.yaml" and -if not on production ENVIRONMENT- "ENVIRONMENT.yaml"', [
+                        ':provider' => $provider,
+                    ]))->makeWarning();
+
                 case 'maxmind':
                     return new MaxMind();
 
@@ -90,6 +95,7 @@ class GeoIp
             if (Core::isProductionEnvironment()) {
                 throw $e;
             }
+
             Log::warning($e->makeWarning());
         }
 
