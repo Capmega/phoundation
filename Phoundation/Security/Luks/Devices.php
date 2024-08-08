@@ -39,7 +39,7 @@ class Devices
         $devices = FsMountedStorageDevices::new()->scan();
 
         foreach ($devices as $device) {
-            if (str_starts_with($device, 'dm-uuid-CRYPT-LUKS2-')) {
+            if (str_starts_with($device->getSource(), 'dm-uuid-CRYPT-LUKS2-')) {
                 $return[] = $device;
             }
         }
