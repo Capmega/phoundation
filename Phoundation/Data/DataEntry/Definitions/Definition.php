@@ -2554,7 +2554,7 @@ class Definition implements DefinitionInterface
         }
 
         // Set the data entry id, the column prefix, and select the column
-        $validator->setId($this->data_entry->getId())
+        $validator->setId($this->data_entry?->getId())
                   ->setColumnPrefix($prefix)
                   ->select($column, !$bool);
 

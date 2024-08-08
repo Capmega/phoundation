@@ -33,7 +33,7 @@ trait TraitDataDatabaseConnector
      *
      * @return ConnectorInterface
      */
-    public function getDatabaseConnector(): ConnectorInterface
+    public function getConnectorObject(): ConnectorInterface
     {
         return Connector::load($this->database_connector);
     }
@@ -44,7 +44,7 @@ trait TraitDataDatabaseConnector
      *
      * @return string
      */
-    public function getDatabaseConnectorName(): string
+    public function getConnectorObjectName(): string
     {
         return $this->database_connector;
     }

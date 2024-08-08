@@ -281,4 +281,20 @@ interface DataIteratorInterface extends IteratorInterface
      * @return DataEntry|null
      */
     #[ReturnTypeWillChange] public function getRandom(): ?DataEntryInterface;
+
+    /**
+     * Returns the debug value
+     *
+     * @return bool
+     */
+    public function getDebug(): bool;
+
+    /**
+     * Sets the debug value
+     *
+     * @param bool $debug
+     *
+     * @return static
+     */
+    public function setDebug(bool $debug): static;
 }

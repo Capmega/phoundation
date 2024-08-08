@@ -163,6 +163,8 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
+use Phoundation\Databases\Connectors\Connector;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
@@ -448,6 +450,17 @@ class DataEntry extends EntryCore implements DataEntryInterface
     public static function getConnector(): string
     {
         return 'system';
+    }
+
+
+    /**
+     * Returns a database connector for this DataEntry object
+     *
+     * @return ConnectorInterface
+     */
+    public static function getConnectorObject(): ConnectorInterface
+    {
+        return new Connector(static::getConnector());
     }
 
 
@@ -882,7 +895,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
     {
         if (!$identifier) {
             // No identifier specified, an identifier is required to load a DataEntry
-            throw DataEntryNotExistsException::new(tr('The specified ":class" class column ":column" with identifier ":identifier" was empty', [
+            throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, specified column ":column" (with identifier ":identifier") was empty', [
                 ':class'      => static::getClassName(),
                 ':column'     => static::determineColumn($identifier, $column),
                 ':identifier' => $identifier,
@@ -937,7 +950,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
             }
 
             // Throw the DataEntry does not exist exception
-            throw DataEntryNotExistsException::new(tr('The ":class" class column ":column" with identifier ":identifier" does not exist', [
+            throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, specified column ":column" with identifier ":identifier" does not exist', [
                 ':class'      => static::getClassName(),
                 ':column'     => static::determineColumn($identifier, $column),
                 ':identifier' => $identifier,
@@ -950,7 +963,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
         if ($entry->isDeleted() and !$force) {
             // This entry has been deleted and can only be viewed by user with the "access_deleted" right
             if (!Session::getUser()->hasAllRights('access_deleted')) {
-                throw DataEntryDeletedException::new(tr('The ":class" class column ":column" with identifier ":identifier" is deleted', [
+                throw DataEntryDeletedException::new(tr('Cannot load ":class" class object, specified column ":column" with identifier ":identifier" is deleted', [
                     ':class'      => static::getClassName(),
                     ':column'     => static::determineColumn($identifier, $column),
                     ':identifier' => $identifier,

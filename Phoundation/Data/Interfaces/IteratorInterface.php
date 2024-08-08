@@ -9,11 +9,13 @@ use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Stringable;
+use Throwable;
 
 interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
 {
@@ -821,4 +823,18 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return $this
      */
     public function unique(int $flags = null): static;
+
+    /**
+     * Copies the value of the specified $from_key to the specified $to_key
+     *
+     * Note: $from_key must exist, or an OutOfBoundsException will be thrown
+     * Note: If the specified key $to_key already exist, its value will be overwritten
+     *
+     * @param Stringable|string|int|null $from_key
+     * @param Stringable|string|int|null $to_key
+     *
+     * @return $this
+     * @throws OutOfBoundsException|Throwable
+     */
+    public function copyValue(Stringable|string|int|null $from_key, Stringable|string|int|null $to_key): static;
 }

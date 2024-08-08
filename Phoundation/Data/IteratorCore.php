@@ -54,6 +54,7 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
+use Throwable;
 
 class IteratorCore implements IteratorInterface
 {
@@ -752,6 +753,39 @@ class IteratorCore implements IteratorInterface
 
 
     /**
+     * Copies the value of the specified $from_key to the specified $to_key
+     *
+     * Note: $from_key must exist, or an OutOfBoundsException will be thrown
+     * Note: If the specified key $to_key already exist, its value will be overwritten
+     *
+     * @param Stringable|string|int|null $from_key
+     * @param Stringable|string|int|null $to_key
+     *
+     * @return $this
+     * @throws OutOfBoundsException|Throwable
+     */
+    public function copyValue(Stringable|string|int|null $from_key, Stringable|string|int|null $to_key): static
+    {
+        try {
+            $this->source[$to_key] = $this->source[$from_key];
+
+        } catch (Throwable $e) {
+            if (array_key_exists($from_key, $this->source)) {
+                // No idea what went wrong here
+                throw $e;
+            }
+
+            throw new OutOfBoundsException(tr('The specified from_key ":from_key" does not exist in this ":class" Iterator', [
+                ':from_key' => $from_key,
+                ':class'    => static::class
+            ]), $e);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Adds the specified source(s) to the internal source
      *
      * @param IteratorInterface|array|string|null $source
@@ -1349,6 +1383,10 @@ class IteratorCore implements IteratorInterface
         if (is_string($columns)) {
             $columns = Arrays::force($columns);
             $columns = Arrays::initialize($columns, 'total');
+        }
+
+        if (!$this->source) {
+            return array_keys($columns);
         }
 
         // Get the first entry to use for columns, and remove the ID column
