@@ -369,6 +369,13 @@ class Config implements ConfigInterface
                 // The requested key does not exist
                 if ($default === null) {
                     // We have no default configuration either
+                    if (ENVIRONMENT === 'production') {
+                        throw ConfigPathDoesNotExistsException::new(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml"', [
+                            ':section'     => $section,
+                            ':path'        => Strings::force($path, '.'),
+                        ]));
+                    }
+
                     throw ConfigPathDoesNotExistsException::new(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
                         ':environment' => ENVIRONMENT,
                         ':section'     => $section,
