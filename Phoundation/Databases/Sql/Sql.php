@@ -153,7 +153,7 @@ class Sql implements SqlInterface
         if ($connector instanceof ConnectorInterface) {
             // Connector specified directly. Take configuration from connector and connect
             $this->connector     = $connector->getName();
-            $this->configuration = $connector->getSource();
+            $this->configuration = static::readConfiguration($connector);
 
         } else {
             // Connector specified by name (or null, default)
@@ -202,17 +202,24 @@ class Sql implements SqlInterface
      *
      * @return array
      */
-    public function readConfiguration(string $connector): array
+    public function readConfiguration(ConnectorInterface|string $connector): array
     {
-        // Read in the entire SQL configuration for the specified instance
-        $this->connector = $connector;
+        if ($connector instanceof ConnectorInterface) {
+            $configuration = $connector->getSource();
 
-        if ($connector === 'system') {
-            $configuration = Config::getArray('databases.connectors.' . $connector);
-            return $this->applyConfigurationTemplate($configuration);
+        } else {
+            // Read in the entire SQL configuration for the specified instance
+            $this->connector = $connector;
+
+            if ($connector === 'system') {
+                $configuration = Config::getArray('databases.connectors.' . $connector);
+
+            } else {
+                $configuration = Connector::load($connector)->getSource();
+            }
         }
 
-        return Connector::load($connector)->getSource();
+        return $this->applyConfigurationTemplate($configuration);
     }
 
 
@@ -238,6 +245,7 @@ class Sql implements SqlInterface
 
                 // Build up ATTR_INIT_COMMAND
                 $command = 'SET @@SESSION.TIME_ZONE="+00:00"; ';
+
                 if ($configuration['charset']) {
                     // Set the default character set to use
                     $command .= 'SET NAMES ' . strtoupper($configuration['charset'] . '; ');
