@@ -245,7 +245,7 @@ class Plugins extends DataIterator implements PluginsInterface
                     Log::action(tr('Starting plugin ":vendor/:plugin"', [
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
-                    ]), 5);
+                    ]), 4);
 
                     include_once(DIRECTORY_ROOT . $plugin['directory'] . 'Library/Plugin.php');
                     $plugin['class']::start();
