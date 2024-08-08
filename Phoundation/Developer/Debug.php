@@ -587,9 +587,16 @@ class Debug
 
                     } else {
                         $value = print_r($value, true);
-                        $value = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
-                        $value = preg_replace('/(\[.*?pass.*?]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
+
+                        if ($value === null) {
+                            // print_r() crashed for some reason?
+                            $value = var_export($value, true);
+                        }
+
+                        $value = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/ims', '*** HIDDEN ***', (string) $value);
+                        $value = preg_replace('/(\[.*?pass.*?]\s+=>\s+).+/', '$1*** HIDDEN ***', (string) $value);
                     }
+
                     $return = '<pre>' . $value . '</pre>';
 
                     return '<tr>
