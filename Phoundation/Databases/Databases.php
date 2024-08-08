@@ -16,8 +16,10 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Exception;
+use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Exception\ConnectorException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
@@ -60,6 +62,13 @@ class Databases
      */
     protected static array $null_db = [];
 
+    /**
+     * Database connectors handler
+     *
+     * @var ConnectorsInterface $connectors
+     */
+    protected static ConnectorsInterface $connectors;
+
 
     /**
      * Returns an array with the available drivers
@@ -76,6 +85,21 @@ class Databases
             'elastic',
             'elasticsearch',
         ];
+    }
+
+
+    /**
+     * Returns the database connectors object
+     *
+     * @return ConnectorsInterface
+     */
+    public static function getConnectorsObject(): ConnectorsInterface
+    {
+        if (empty(static::$connectors)) {
+            static::$connectors = Connectors::new()->load();
+        }
+
+        return static::$connectors;
     }
 
 

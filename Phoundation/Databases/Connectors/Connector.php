@@ -37,6 +37,7 @@ use Phoundation\Databases\Databases;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -293,23 +294,32 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * Returns the pdo_attributes for this connector
      *
-     * @return string|null
+     * @return array|null
      */
-    public function getPdoAttributes(): ?string
+    public function getPdoAttributes(): ?array
     {
-        return $this->getTypesafe('string', 'pdo_attributes');
+        return $this->getTypesafe('array', 'pdo_attributes');
     }
 
 
     /**
      * Sets the pdo_attributes for this connector
      *
-     * @param string|null $pdo_attributes
+     * @param array|string|null $pdo_attributes
      *
      * @return static
      */
-    public function setPdoAttributes(?string $pdo_attributes): static
+    public function setPdoAttributes(array|string|null $pdo_attributes): static
     {
+        if (is_string($pdo_attributes)) {
+            if ($pdo_attributes) {
+                $pdo_attributes = Json::decode($pdo_attributes);
+
+            } else {
+                $pdo_attributes = [];
+            }
+        }
+
         return $this->set($pdo_attributes, 'pdo_attributes');
     }
 

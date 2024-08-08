@@ -16,11 +16,13 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Connectors;
 
 use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Config;
+use Stringable;
 
 class Connectors extends DataIterator implements ConnectorsInterface
 {
@@ -84,10 +86,11 @@ class Connectors extends DataIterator implements ConnectorsInterface
                 throw $e;
             }
         }
+
         // Get connectors from the configuration
-        $connectors = Config::getArray(Connector::new()
-                                                ->getConfigurationPath());
+        $connectors = Config::getArray(Connector::new()->getConfigurationPath());
         $count      = 0;
+
         // Load all connectors by type
         foreach ($connectors as $name => &$connector) {
             if (!is_array($connector)) {
@@ -95,17 +98,47 @@ class Connectors extends DataIterator implements ConnectorsInterface
                     ':connector' => $name,
                 ]));
             }
+
             if (empty($connector['driver'])) {
                 throw new DatabasesConnectorException(tr('Invalid configuration encountered for connector ":connector", it has no type specified', [
                     ':connector' => $name,
                 ]));
             }
+
             $connector['id']       = --$count;
             $connector['name']     = $name;
             $connector['seo_name'] = Seo::string($name);
-            $this->source[$count] = Connector::newFromSource($connector, true);
+            $this->source[$name]   = Connector::newFromSource($connector, true);
         }
 
         return $this;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function copyConnector(Stringable|int|string|null $from_connector, Stringable|int|string|null $to_connector): static
+    {
+        $this->copyValue($from_connector, $to_connector);
+
+        // Update the database for this connector
+        $this->source[$to_connector]->setDatabase($to_connector);
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the specified connector but with the specified database selected instead of its default one
+     *
+     * ConnectorInterface
+     */
+    public function getConnectorWithDatabase(string|int $connector, string $database): ConnectorInterface
+    {
+        $connector = $this->get($connector);
+        $connector->setDatabase($database);
+
+        return $connector;
     }
 }

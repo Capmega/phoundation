@@ -7,6 +7,7 @@ namespace Phoundation\Databases\Sql\Interfaces;
 use PDO;
 use PDOStatement;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
 use Phoundation\Databases\Sql\Schema\Schema;
@@ -14,7 +15,7 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 
-interface SqlInterface
+interface SqlInterface extends DatabaseInterface
 {
     /**
      * Returns the configuration for this SQL object

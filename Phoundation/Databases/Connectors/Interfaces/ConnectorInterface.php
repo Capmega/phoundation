@@ -53,19 +53,19 @@ interface ConnectorInterface
     /**
      * Returns the pdo_attributes for this connector
      *
-     * @return string|null
+     * @return array|null
      */
-    public function getPdoAttributes(): ?string;
+    public function getPdoAttributes(): ?array;
 
 
     /**
      * Sets the pdo_attributes for this connector
      *
-     * @param string|null $pdo_attributes
+     * @param array|string|null $pdo_attributes
      *
      * @return static
      */
-    public function setPdoAttributes(?string $pdo_attributes): static;
+    public function setPdoAttributes(array|string|null $pdo_attributes): static;
 
 
     /**
