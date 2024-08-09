@@ -102,6 +102,7 @@ class Meta implements MetaInterface
             static::$buffer     = Config::getBoolean('meta.buffer.enabled', false);
             static::$max_buffer = Config::getInteger('meta.buffer.max-size', 100);
         }
+
         if ($id) {
             if ($load) {
                 // Load the specified metadata
@@ -119,6 +120,7 @@ class Meta implements MetaInterface
             } else {
                 // create a new metadata entry
                 $retry = 0;
+
                 while ($retry++ < 5) {
                     try {
                         $this->id = random_int(0, PHP_INT_MAX);
@@ -136,6 +138,7 @@ class Meta implements MetaInterface
                         // If we got here we have a duplicate entry, try with a different random number
                     }
                 }
+
                 throw new MetaException(tr('Failed to create meta record after 5 retries, see previous exception why'), $e);
             }
         }
@@ -152,6 +155,7 @@ class Meta implements MetaInterface
     protected function load(int $id): void
     {
         $this->id = sql()->getInteger('SELECT `id` FROM `meta` WHERE `id` = :id', [':id' => $id]);
+
         if (!$this->id) {
             throw new DataEntryNotExistsException(tr('The specified meta id ":id" does not exist', [
                 ':id' => $id,
@@ -217,10 +221,10 @@ class Meta implements MetaInterface
      */
     public static function purge(DateTime|string $before, int $limit = 10_000): void
     {
-        Validate::new($limit)
-                ->isMoreThan(0);
-        $before = \Phoundation\Date\DateTime::new($before)
-                                            ->format('mysql');
+        Validate::new($limit)->isMoreThan(0);
+
+        $before = \Phoundation\Date\DateTime::new($before)->format('mysql');
+
         sql()->list('DELETE FROM `meta_history` WHERE `created_on` < :created_on' . ($limit ? ' LIMIT ' . $limit : null), [
             ':created_on' => $before,
         ]);
@@ -251,9 +255,10 @@ class Meta implements MetaInterface
     public static function deorphan(int $limit = 1_000_000): int
     {
         throw new UnderConstructionException();
-        Validate::new($limit)
-                ->isMoreThan(0);
+        Validate::new($limit)->isMoreThan(0);
+
         $ids = [];
+
         if ($ids) {
             static::eraseEntries($ids);
         }
@@ -323,6 +328,7 @@ class Meta implements MetaInterface
                     ':comments_' . static::$pointer   => $comments,
                     ':data_' . static::$pointer       => $data,
                 ];
+
             } else {
                 // Insert the action in the meta_history table
                 sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
@@ -337,6 +343,7 @@ class Meta implements MetaInterface
                 ]);
             }
         }
+
         if (static::$pointer > static::$max_buffer) {
             static::flush();
         }
@@ -367,16 +374,20 @@ class Meta implements MetaInterface
             if (static::$updates) {
                 Log::action(tr('Flushing ":count" meta entries to database', [
                     ':count' => count(static::$updates),
-                ]), 4);
+                ]), 3);
+
                 $values  = ' (:meta_id_:ID , :created_by_:ID , :action_:ID , :source_:ID , :comments_:ID , :data_:ID)';
                 $execute = [];
+
                 // Build query and execute arrays
                 foreach (static::$updates as $pointer => $update) {
                     $query[] = str_replace(':ID', (string) $pointer, $values);
                     $execute = array_merge($execute, $update);
                 }
+
                 // Complete query
                 $query = 'INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) VALUES ' . implode(', ', $query);
+
                 // Flush!
                 sql()->query($query, $execute);
                 static::$updates = [];
@@ -406,6 +417,7 @@ class Meta implements MetaInterface
             ':database' => sql()->getDatabase(),
             ':table'    => 'meta',
         ]);
+
         $history_size = sql()->getColumn('SELECT `data_length` + `index_length` AS `size`
                                                 FROM   `information_schema`.`TABLES`
                                                 WHERE  `table_schema` = :database
@@ -413,6 +425,7 @@ class Meta implements MetaInterface
             ':database' => sql()->getDatabase(),
             ':table'    => 'meta_history',
         ]);
+
         $return = [
             'tracked_objects' => sql()->getColumn('SELECT COUNT(*) FROM `meta`'),
             'history_entries' => sql()->getColumn('SELECT COUNT(*) FROM `meta_history`'),
@@ -444,6 +457,7 @@ class Meta implements MetaInterface
         if (empty($this->id)) {
             throw new OutOfBoundsException(tr('Cannot erase this meta object, it does not yet exist in the database'));
         }
+
         static::eraseEntries($this->id);
     }
 
@@ -459,6 +473,8 @@ class Meta implements MetaInterface
     {
         // Create and return the table
         return HtmlTable::new()
-                        ->setSourceQuery('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [':meta_id' => $this->id]);
+                        ->setSourceQuery('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [
+                            ':meta_id' => $this->id
+                        ]);
     }
 }
