@@ -207,25 +207,31 @@ class SqlQueries
      *
      * @return string
      */
-    public static function is(string $column, array|string|int|float|null $values, string $label, ?array &$execute = null, string $glue = 'AND'): string
+    public static function is(string $column, array|string|int|float|null $values, ?string $label = null, ?array &$execute = null, string $glue = 'AND'): string
     {
         Arrays::ensure($execute);
-        $label  = Strings::ensureStartsWith($label, ':');
+
+        $label  = Strings::ensureStartsWith($label ?? $column, ':');
         $return = [];
+
         if (is_array($values)) {
             $in    = [];
             $notin = [];
+
             foreach ($values as $value) {
                 $not = false;
+
                 if (str_starts_with((string) $value, '!')) {
                     // Make comparison NOT by prefixing ! to $value
                     $value = substr($value, 1);
                     $not   = true;
                 }
+
                 if (($value === null) or (strtoupper(substr((string) $value, -4, 4)) === 'NULL')) {
                     $null = ($not ? '!NULL' : 'NULL');
                     continue;
                 }
+
                 if ($not) {
                     $notin[] = $value;
 
@@ -233,14 +239,17 @@ class SqlQueries
                     $in[] = $value;
                 }
             }
+
             if ($in) {
                 $in       = static::in($in);
                 $execute  = array_merge((array) $execute, $in);
                 $return[] = ' ' . $column . ' IN (' . implode(', ', array_keys($in)) . ')';
             }
+
             if ($notin) {
                 $notin   = static::in($notin, start: count($execute));
                 $execute = array_merge((array) $execute, $notin);
+
                 if (!isset($null)) {
                     // (My)Sql curiosity: When comparing != string, NULL values are NOT evaluated
                     $return[] = ' (' . $column . ' NOT IN (' . implode(', ', array_keys($notin)) . ') OR ' . $column . ' IS NULL)';
@@ -248,6 +257,7 @@ class SqlQueries
                     $return[] = ' ' . $column . ' NOT IN (' . implode(', ', array_keys($notin)) . ')';
                 }
             }
+
             if (isset($null)) {
                 $return[] = static::isSingle($column, $null, $label, $execute);
             }
@@ -295,23 +305,29 @@ class SqlQueries
     public static function isSingle(string $column, string|int|float|null $value, string $label, ?array &$execute = null): string
     {
         $not = false;
+
         if (str_starts_with((string) $value, '!')) {
             // Make comparison opposite of $not by prepending the value with a ! sign
             $value = substr($value, 1);
             $not   = true;
         }
+
         if (strtoupper(substr((string) $value, -4, 4)) === 'NULL') {
             $value = null;
         }
+
         if ($value === null) {
             $null = $not;
         }
+
         if (isset($null)) {
             // We have to do a NULL comparison
             return ' ' . $column . ' IS ' . ($null ? 'NOT ' : '') . 'NULL ';
         }
+
         // Add the label
         $execute[$label] = $value;
+
         if ($not) {
             // (My)Sql curiosity: When comparing != string, NULL values are NOT evaluated
             return ' (' . $column . ' != ' . Strings::ensureStartsWith($label, ':') . ' OR ' . $column . ' IS NULL)';
