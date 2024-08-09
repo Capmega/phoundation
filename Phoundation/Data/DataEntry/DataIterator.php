@@ -39,6 +39,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
@@ -836,6 +837,55 @@ class DataIterator extends Iterator implements DataIteratorInterface
         }
 
         return parent::add($value, $key, $skip_null_values, $exception);
+    }
+
+
+    /**
+     * Clears all entries in this DataIterator, but also all entries in this iterator from the table
+     *
+     * @note: Clearing means that the entries will NOT be deleted, it will set the status for all entries to "deleted"
+     *        and update the unique column to NULL
+     *
+     * @return $this
+     */
+    public function clearIteratorFromTable(): static
+    {
+        foreach ($this->source as $entry) {
+            $this->ensureDataEntry($entry)
+                     ->setStatus('deleted')
+                     ->setUniqueColumnValue(null)
+                     ->save();
+        }
+
+        return parent::clear();
+    }
+
+
+    /**
+     * Clears all entries in this DataIterator, but also ALL entries from the table
+     *
+     * @param string|bool|null $status
+     *
+     * @return $this
+     */
+    public function clearAllFromTable(string|bool|null $status = false): static
+    {
+        if ($status === false) {
+            $results = sql()->query('SELECT `id` FROM `' . static::getTable() . '`');
+
+        } else {
+            $execute = [':status' => $status];
+            $results = sql()->query('SELECT `id` FROM `' . static::getTable() . '` WHERE' . SqlQueries::is('status', $status, 'status', $execute), $execute);
+        }
+
+        foreach ($results as $entry) {
+            $this->ensureDataEntry($entry['id'])
+                 ->setStatus('deleted')
+                 ->setUniqueColumnValue(null)
+                 ->save();
+        }
+
+        return parent::clear();
     }
 
 

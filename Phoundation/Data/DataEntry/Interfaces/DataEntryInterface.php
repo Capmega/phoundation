@@ -613,4 +613,14 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return array
      */
     public function getChanges(): array;
+
+    /**
+     * Returns the value of the unique column
+     *
+     * @param mixed $value
+     * @param bool  $force
+     *
+     * @return $this
+     */
+    public function setUniqueColumnValue(mixed $value, bool $force = false): static;
 }

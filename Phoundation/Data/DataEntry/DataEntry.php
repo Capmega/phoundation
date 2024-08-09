@@ -337,8 +337,16 @@ class DataEntry extends EntryCore implements DataEntryInterface
      * @param bool|null                          $meta_enabled
      * @param bool                               $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = false)
     {
+        if (!isset($this->meta_columns)) {
+            $this->meta_columns = static::getDefaultMetaColumns();
+        }
+
+        // Set up the columns for this object
+        $this->setMetaDefinitions();
+        $this->setDefinitions($this->definitions);
+
         if ($init) {
             $this->init($identifier, $column, $meta_enabled);
         }
@@ -367,17 +375,9 @@ class DataEntry extends EntryCore implements DataEntryInterface
      */
     public function init(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null): static
     {
-        if (!isset($this->meta_columns)) {
-            $this->meta_columns = static::getDefaultMetaColumns();
-        }
-
         $this->columns_filter_on_insert = [static::getIdColumn()];
         $this->database_connector       = static::getConnector();
         $column                         = static::determineColumn($identifier, $column);
-
-        // Set up the columns for this object
-        $this->setMetaDefinitions();
-        $this->setDefinitions($this->definitions);
 
         if ($identifier) {
             if ($identifier instanceof DataEntryInterface) {
@@ -710,6 +710,19 @@ class DataEntry extends EntryCore implements DataEntryInterface
     }
 
 
+    /**
+     * Returns the value of the unique column
+     *
+     * @param mixed $value
+     * @param bool  $force
+     *
+     * @return $this
+     */
+    public function setUniqueColumnValue(mixed $value, bool $force = false): static
+    {
+        return $this->set($value, static::getUniqueColumn(), $force);
+    }
+
 
     /**
      * Returns the value for the specified data key
@@ -807,7 +820,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
             return $this;
         }
 
-        //        if ($this->is_applying and !$force) {
+//        if ($this->is_applying and !$force) {
 //            if ($definition->getReadonly() or $definition->getDisabled()) {
 //                // The data is being set through DataEntry::apply() but this column is readonly
 //                Log::debug('FIELD "' . $column . '" IS READONLY', 10);
@@ -860,6 +873,7 @@ class DataEntry extends EntryCore implements DataEntryInterface
     public function getKeys(bool $filter_meta = false): array
     {
         $keys = array_keys($this->source);
+
         if ($filter_meta) {
             return Arrays::removeValues($keys, $this->meta_columns);
         }
@@ -917,8 +931,8 @@ class DataEntry extends EntryCore implements DataEntryInterface
         }
 
         try {
-            // Try to load the DataEntry from database with the given identifier and column
-            $entry = new static($identifier, $column, $meta_enabled);
+            // Try to load the DataEntry from the database with the given identifier and column
+            $entry = new static($identifier, $column, $meta_enabled, true);
 
         } catch (SqlTableDoesNotExistException $e) {
             // The table for this object does not exist. This means that we're missing an init, perhaps, or maybe
@@ -959,10 +973,10 @@ class DataEntry extends EntryCore implements DataEntryInterface
             ]);
         }
 
-        // This entry exists in database, yay! Is it not deleted, though?
-        if ($entry->isDeleted() and !$force) {
+        // This entry exists in the database, yay! Is it not deleted, though?
+        if ($entry->isDeleted()) {
             // This entry has been deleted and can only be viewed by user with the "access_deleted" right
-            if (!Session::getUser()->hasAllRights('access_deleted')) {
+            if (!$force or !Session::getUser()->hasAllRights('access_deleted')) {
                 throw DataEntryDeletedException::new(tr('Cannot load ":class" class object, specified column ":column" with identifier ":identifier" is deleted', [
                     ':class'      => static::getClassName(),
                     ':column'     => static::determineColumn($identifier, $column),
