@@ -19,6 +19,7 @@ namespace Phoundation\Accounts\Users;
 use DateTimeInterface;
 use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
+use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Roles\Role;
@@ -227,7 +228,7 @@ class User extends DataEntry implements UserInterface
      */
     public function isSystem(): bool
     {
-        return (array_get_safe($this->source, 'email') === 'system');
+        return (array_get_safe($this->source, 'status') === 'system');
     }
 
 
@@ -623,6 +624,37 @@ class User extends DataEntry implements UserInterface
 
 
     /**
+     * Returns true if the user has SOME of the specified rights
+     *
+     * @param array|string $rights
+     *
+     * @return bool
+     */
+    public function hasSomeRights(array|string $rights): bool
+    {
+        if (!$rights) {
+            return true;
+        }
+
+        $contains = $this->getRightsObject()->containsKeys($rights, false, 'god');
+
+        if (!$contains) {
+            if ($this->getRightsObject()->getCount()) {
+                Rights::ensure($this->getMissingRights($rights));
+
+            } else {
+                if ($this->isSystem()) {
+                    // System user has all rights
+                    return true;
+                }
+            }
+        }
+
+        return $contains;
+    }
+
+
+    /**
      * Returns true if the user has ALL the specified rights
      *
      * @param array|string $rights
@@ -637,8 +669,16 @@ class User extends DataEntry implements UserInterface
 
         $contains = $this->getRightsObject()->containsKeys($rights, true, 'god');
 
-        if (!$contains and $this->getRightsObject()->getCount()) {
-            Rights::ensure($this->getMissingRights($rights));
+        if (!$contains) {
+            if ($this->getRightsObject()->getCount()) {
+                Rights::ensure($this->getMissingRights($rights));
+
+            } else {
+                if ($this->isSystem()) {
+                    // System user has all rights
+                    return true;
+                }
+            }
         }
 
         return $contains;
@@ -668,7 +708,6 @@ class User extends DataEntry implements UserInterface
                                       ->load($order);
 
             } else {
-                // This is the guest user or a new user. Either way, this user has no rights
                 $this->rights = Rights::new()->setParentObject($this);
             }
         }
@@ -1690,29 +1729,6 @@ class User extends DataEntry implements UserInterface
         }
 
         return $this->phones;
-    }
-
-
-    /**
-     * Returns true if the user has SOME of the specified rights
-     *
-     * @param array|string $rights
-     *
-     * @return bool
-     */
-    public function hasSomeRights(array|string $rights): bool
-    {
-        if (!$rights) {
-            return true;
-        }
-
-        $contains = $this->getRightsObject()->containsKeys($rights, false, 'god');
-
-        if (!$contains and $this->getRightsObject()->getCount()) {
-            Rights::ensure($this->getMissingRights($rights));
-        }
-
-        return $contains;
     }
 
 
