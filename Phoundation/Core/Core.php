@@ -972,7 +972,11 @@ class Core implements CoreInterface
             // This basically means that the unhandledException handler also is causing uncaught exceptions,
             // which should be impossible as it catches Throwable for the entire method. This extra check is just added
             // to ensure we never get in an endless loop for some unforseen reason
-            exit('uncaught exception handler loop detected, please check logs');
+            if (CliAutoComplete::isActive()) {
+                exit('uncaught-exception-handler-loop-detected-please-check-logs' . PHP_EOL);
+            }
+
+            exit('uncaught exception handler loop detected, please check logs' . PHP_EOL);
         }
 
         $executed = true;
