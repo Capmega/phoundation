@@ -99,7 +99,6 @@ class Html
         if ($html === null) {
             return null;
         }
-
         if ($enabled) {
             return trim(htmlspecialchars((string) $html));
         }

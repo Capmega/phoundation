@@ -30,7 +30,6 @@ use Phoundation\Web\Html\Components\ResourceElement;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
-use Phoundation\Web\Html\Html;
 use Phoundation\Web\Html\Traits\TraitButtons;
 use Phoundation\Web\Http\Url;
 use Stringable;
@@ -778,7 +777,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         } else {
             if ($this->process_entities and $params['htmlentities'] and empty($params['skiphtmlentities'][$column])) {
-                $value = Html::safe($value);
+                $value = htmlspecialchars($value);
                 $value = str_replace(PHP_EOL, '<br>', $value);
             }
         }
