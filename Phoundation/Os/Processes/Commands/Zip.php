@@ -82,8 +82,7 @@ class Zip extends Command
                 $target = new FsFile($parent . $path->getBasename() . '.zip', $parent->getRestrictions());
             }
 
-            $this->setDebug(true)
-                 ->setCommand('zip')
+            $this->setCommand('zip')
                  ->addArguments('-rp')
                  ->addArguments($target)
                  ->addArguments($path->makeRelative($this->getExecutionDirectory()))
