@@ -12,6 +12,7 @@
  * @package   Phoundations\Messages
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Messages;
@@ -19,6 +20,7 @@ namespace Phoundation\Messages;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+
 
 class Messages extends DataIterator
 {
@@ -36,11 +38,11 @@ class Messages extends DataIterator
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Message::class;
     }

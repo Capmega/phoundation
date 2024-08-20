@@ -11,6 +11,7 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Cdn;
@@ -19,6 +20,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
+
 
 class Cdn
 {
@@ -54,8 +56,7 @@ class Cdn
      * @return string The result
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   system
+         * @package   system
      * @see       domain()
      * @see       mapped_domain()
      * @version   2.4.9: Added documentation

@@ -34,7 +34,7 @@ interface NotificationsInterface extends DataIteratorInterface
     /**
      * Marks the severity column with a color class
      *
-     * @return $this
+     * @return static
      */
     public function markSeverityColumn(): static;
 
@@ -42,7 +42,7 @@ interface NotificationsInterface extends DataIteratorInterface
     /**
      * Have the client perform automated update checks for notifications
      *
-     * @return $this
+     * @return static
      */
     public function autoUpdate(): static;
 

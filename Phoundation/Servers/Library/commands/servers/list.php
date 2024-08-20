@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command servers/list
+ * Command servers list
  *
  * This command will list the available servers on this system
  *
@@ -11,11 +11,13 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Servers\Servers;
+
 
 CliDocumentation::setUsage('./pho servers list [OPTIONS]
 ./pho system servers list -D');

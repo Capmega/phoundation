@@ -11,6 +11,7 @@
  * @package   Plugins\Phoundation
  */
 
+
 declare(strict_types=1);
 
 namespace Plugins\Phoundation\Phoundation\Library;
@@ -18,6 +19,7 @@ namespace Plugins\Phoundation\Phoundation\Library;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 use Phoundation\Web\Requests\Request;
 use Plugins\Phoundation\Phoundation\Components\ProfileImageMenu;
+
 
 class Plugin extends \Phoundation\Core\Plugins\Plugin
 {

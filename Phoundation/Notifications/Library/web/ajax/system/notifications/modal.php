@@ -11,12 +11,16 @@
  * @package   Phoundation\Accounts
  */
 
+
+declare(strict_types=1);
+
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Url;
+
 
 // Validate the ID
 $get = GetValidator::new()

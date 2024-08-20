@@ -12,12 +12,14 @@
  * @package   Phoundations\Messages
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Messages;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+
 
 class Message extends DataEntry
 {
@@ -73,7 +75,7 @@ class Message extends DataEntry
 //
 //        // Ensure the name doesn't exist yet as it is a unique identifier
 //        if ($data['name']) {
-//            static::notExists($data['name'], 'name', $this->getId(), true);
+//            static::notExists(['name' => $data['name']], $this->getId(), true);
 //        }
 //
 //        return $data;

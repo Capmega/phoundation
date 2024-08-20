@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command servers/accounts/modify
+ * Command servers accounts modify
  *
  * This command will create a new account with the specified properties
  *
@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 
@@ -20,6 +21,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Servers\SshAccount;
+
 
 CliDocumentation::setAutoComplete(SshAccount::getAutoComplete([
                                                                   'positions' => [

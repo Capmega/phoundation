@@ -11,6 +11,7 @@
  * @package   Phoundation/Geo
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo;
@@ -28,6 +29,7 @@ use Phoundation\Os\Processes\Commands\Wget;
 use Phoundation\Utils\Config;
 use Stringable;
 use Throwable;
+
 
 class Import extends \Phoundation\Developer\Project\Import
 {
@@ -82,7 +84,7 @@ class Import extends \Phoundation\Developer\Project\Import
                  ->execute();
         }
         Log::action(tr('Moving Geo files to target directory ":directory"', [':directory' => $directory]));
-        $tmp_path->movePath($directory);
+        $tmp_path->move($directory);
 
         return $directory;
     }
@@ -168,7 +170,7 @@ class Import extends \Phoundation\Developer\Project\Import
             FsFile::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/', true))
                 ->delete();
             $previous = FsDirectory::new($target_path, $restrictions)
-                                   ->movePath(DIRECTORY_DATA . 'garbage/');
+                                   ->move(DIRECTORY_DATA . 'garbage/');
             // Prepare and import each file
             foreach (static::getGeoNamesFiles() as $file => $data) {
                 Log::action(tr('Processing GeoNames file ":file"', [':file' => $file]));
@@ -187,7 +189,7 @@ class Import extends \Phoundation\Developer\Project\Import
                 foreach ($data['files'] as $target_file) {
                     FsFile::new($source_path . $target_file, $restrictions)
                         ->checkReadable()
-                        ->movePath($target_path);
+                        ->move($target_path);
                 }
             }
             // Delete the previous data files from garbage
@@ -197,7 +199,7 @@ class Import extends \Phoundation\Developer\Project\Import
             // Something borked. Move the previous data files back from the garbage to their original path so the system
             // will remain functional
             if (isset($previous)) {
-                $previous->movePath($target_path);
+                $previous->move($target_path);
             }
             throw $e;
         }

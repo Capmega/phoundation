@@ -32,12 +32,14 @@
  *
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes\Ingresses;
 
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Virtualization\Kubernetes\ObjectFile;
+
 
 class IngressFile extends ObjectFile
 {

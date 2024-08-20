@@ -11,6 +11,7 @@
  * @package   Phoundation\Virtualization
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Docker;
@@ -22,6 +23,7 @@ use Phoundation\Filesystem\FsFile;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Virtualization\Traits\TraitDataImage;
+
 
 class DockerFile
 {
@@ -70,7 +72,7 @@ class DockerFile
      *
      * @param string $from
      *
-     * @return $this
+     * @return static
      */
     public function setFrom(string $from): static
     {
@@ -83,7 +85,7 @@ class DockerFile
     /**
      * Create configuration files for docker
      *
-     * @return $this
+     * @return static
      */
     public function writeConfig(): static
     {

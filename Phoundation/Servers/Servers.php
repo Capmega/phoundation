@@ -12,6 +12,7 @@
  * @package   Phoundation\Business
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Servers;
@@ -24,6 +25,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
+
 
 class Servers extends DataIterator
 {
@@ -52,11 +54,11 @@ class Servers extends DataIterator
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Server::class;
     }
@@ -112,7 +114,7 @@ class Servers extends DataIterator
     /**
      * @inheritDoc
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
         throw new UnderConstructionException();
         $this->source = sql()->list('SELECT `servers`.`id`, `servers`.`hostname`, `servers`.`created_on`, `servers`.`status` 

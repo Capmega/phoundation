@@ -11,6 +11,7 @@
  * @package   Phoundation\Virtualization
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes\KubernetesNamespaces;
@@ -19,6 +20,7 @@ use Phoundation\Data\Traits\TraitDataName;
 use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 use Phoundation\Virtualization\Kubernetes\Traits\TraitDataReplicas;
 use Phoundation\Virtualization\Traits\TraitDataImage;
+
 
 class KubernetesNamespace extends KubernetesObject
 {

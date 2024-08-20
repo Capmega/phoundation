@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command image/convert
+ * Command image convert
  *
  * This script can apply various conversions to the specified image
  *
@@ -11,13 +11,15 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Content\Images\Image;
+use Phoundation\Content\Images\ImageFile;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\FsDirectory;
+
 
 CliDocumentation::setUsage('./pho image convert IMAGE');
 
@@ -32,7 +34,7 @@ $argv = ArgvValidator::new()
 
 
 // Get image and crop it
-Image::new($argv['file'])
+ImageFile::new($argv['file'])
      ->convert()
      ->crop();
 

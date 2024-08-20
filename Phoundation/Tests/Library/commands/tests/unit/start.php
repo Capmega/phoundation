@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command tests/unit/start
+ * Command tests unit start
  *
  * This command will start PHP unit testing
  *
@@ -11,10 +11,12 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Tests\Tests;
+
 
 // Validate arguments, there should be none.
 ArgvValidator::new()->validate();

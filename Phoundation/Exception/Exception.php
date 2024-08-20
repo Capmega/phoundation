@@ -11,6 +11,7 @@
  * @package   Phoundation\Exception
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Exception;
@@ -40,6 +41,7 @@ use Phoundation\Utils\Utils;
 use Phoundation\Web\Routing\Route;
 use RuntimeException;
 use Throwable;
+
 
 class Exception extends RuntimeException implements Interfaces\ExceptionInterface
 {
@@ -217,7 +219,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @param mixed $data
      *
-     * @return $this
+     * @return static
      */
     public function setData(mixed $data): static
     {
@@ -232,7 +234,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @param int $line
      *
-     * @return $this
+     * @return static
      */
     public function setLine(int $line): static
     {
@@ -247,7 +249,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @param string $file
      *
-     * @return $this
+     * @return static
      */
     public function setFile(string $file): static
     {
@@ -666,7 +668,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
                 'environment'           => ENVIRONMENT,
                 'platform'              => PLATFORM,
                 'session'               => Session::getUUID(),
-                'user'                  => $connected ? Session::getUser()->getLogId() : 'system',
+                'user'                  => $connected ? Session::getUserObject()->getLogId() : 'system',
                 'command'               => PLATFORM_CLI ? CliCommand::getCommandsString() : null,
                 'url'                   => PLATFORM_WEB ? Route::getRequest() : null,
                 'method'                => PLATFORM_WEB ? Route::getMethod() : null,

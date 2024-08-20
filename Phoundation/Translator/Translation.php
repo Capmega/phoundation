@@ -12,12 +12,14 @@
  * @package   Phoundation\Translator
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Translator;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+
 
 class Translation extends DataEntry
 {

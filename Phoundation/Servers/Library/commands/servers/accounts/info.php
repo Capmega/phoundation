@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command servers/accounts/info
+ * Command servers accounts info
  *
  * This script displays information about the specified account.
  *
@@ -11,11 +11,13 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Servers\SshAccount;
+
 
 CliDocumentation::setUsage('./pho servers accounts info IDENTIFIER');
 

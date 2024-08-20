@@ -11,6 +11,7 @@
  * @package   \Phoundation\Notifications
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Notifications\PushNotifications;
@@ -19,6 +20,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\PushNotifications\Interfaces\PushNotificationInterface;
 use Phoundation\Utils\Config;
 use Serhiy\Pushover\Recipient;
+
 
 // TODO Right now for simplicities sake, this class will just extend PushOver, which extends Serhiy\Pushover\Application
 // TODO directly. This needs to be updated that it hides Serhiy\Pushover\Application away and passes the data on
@@ -54,6 +56,7 @@ class PushNotification extends PushOver implements PushNotificationInterface
      */
     public function __construct()
     {
+        parent::__construct();
     }
 
 
@@ -85,7 +88,7 @@ class PushNotification extends PushOver implements PushNotificationInterface
      * @param string|null $driver
      * @param string|null $token
      *
-     * @return $this
+     * @return static
      */
     public function setDriver(?string $driver, ?string $token): static
     {
@@ -112,10 +115,12 @@ class PushNotification extends PushOver implements PushNotificationInterface
     /**
      * Sends the actual notification
      *
-     * @return $this
+     * @param string $receiver_token
+     *
+     * @return static
      */
     public function push(string $receiver_token): static
     {
-        $recipient   = new Recipient($receiver_token);
+        $recipient = new Recipient($receiver_token);
     }
 }

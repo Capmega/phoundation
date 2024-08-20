@@ -11,6 +11,7 @@
  * @package   Phoundation\Virtualization
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes;
@@ -19,7 +20,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataArrayData;
 use Phoundation\Data\Traits\TraitDataArrayOutput;
 use Phoundation\Data\Traits\TraitDataName;
-use Phoundation\Data\Traits\TraitUsesNewName;
+use Phoundation\Data\Traits\TraitStaticMethodNewWithName;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
@@ -27,6 +28,7 @@ use Phoundation\Virtualization\Kubernetes\Traits\TraitDataAnnotations;
 use Phoundation\Virtualization\Kubernetes\Traits\TraitDataLabels;
 use Phoundation\Virtualization\Kubernetes\Traits\TraitDataNamespace;
 use Phoundation\Virtualization\Kubernetes\Traits\TraitUsesKubeCtl;
+
 
 class KubernetesObject
 {
@@ -37,7 +39,7 @@ class KubernetesObject
     use TraitDataName;
     use TraitDataNamespace;
     use TraitUsesKubeCtl;
-    use TraitUsesNewName;
+    use TraitStaticMethodNewWithName;
 
     /**
      * The configuration file for this object
@@ -71,11 +73,13 @@ class KubernetesObject
     /**
      * Load the deployment description
      *
-     * @param bool $clear
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
         if ($this->getName()) {
             $output = Process::new('kubectl')

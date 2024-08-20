@@ -12,6 +12,7 @@
  * @package   Phoundation\Servers
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Servers;
@@ -46,6 +47,7 @@ use Phoundation\Servers\Traits\TraitDataEntrySshAccount;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
+
 class Server extends DataEntry implements ServerInterface
 {
     use TraitDataEntryCountry;
@@ -59,19 +61,19 @@ class Server extends DataEntry implements ServerInterface
     use TraitDataEntryProvider;
     use TraitDataEntrySshAccount;
 
+
     /**
      * Server class constructor
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool|null                          $meta_enabled
-     * @param bool                               $init
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
         $this->configuration_path = 'servers';
 
-        parent::__construct($identifier, $column, $meta_enabled, $init);
+        parent::__construct($identifier, $meta_enabled, $init);
     }
 
 

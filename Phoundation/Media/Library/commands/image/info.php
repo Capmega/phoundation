@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command image/info
+ * Command image info
  *
  *
  *
@@ -11,13 +11,15 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Content\Images\Image;
+use Phoundation\Content\Images\ImageFile;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setUsage('./pho image info IMAGE_FILE_NAME');
 
@@ -32,4 +34,4 @@ $argv = ArgvValidator::new()
 
 // Display image information
 Log::information(tr('Displaying image information for ":file"', [':file' => $argv['file']]));
-Cli::displayTable(Image::new($argv['file'])->getInformation());
+Cli::displayTable(ImageFile::new($argv['file'])->getInformation());

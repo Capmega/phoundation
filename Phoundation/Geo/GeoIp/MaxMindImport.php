@@ -11,6 +11,7 @@
  * @package   Phoundation/Geo
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;
@@ -27,6 +28,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
+
 
 class MaxMindImport extends GeoIpImport
 {
@@ -150,7 +152,7 @@ class MaxMindImport extends GeoIpImport
             $original = clone $target_directory;
 show('aaaaaaaaaaaaaaaaaaaaaa');
 show($garbage->getSource());
-            $garbage->movePath(DIRECTORY_DATA . 'garbage/');
+            $garbage->move(DIRECTORY_DATA . 'garbage/');
 show($garbage->getSource());
             $shas     = [];
 
@@ -196,7 +198,7 @@ show('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz');
             // will remain functional
             if (isset($garbage) and isset($original)) {
                 $original->delete();
-                $garbage->movePath($original);
+                $garbage->move($original);
             }
 
             throw $e;

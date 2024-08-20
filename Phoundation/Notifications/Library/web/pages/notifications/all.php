@@ -5,11 +5,12 @@
  *
  * This page displays all notifications
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
+
 
 declare(strict_types=1);
 
@@ -28,13 +29,14 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
+
 // Get new notifications object
 $notifications = Notifications::new()
     ->markSeverityColumn();
 
 $notifications->getQueryBuilder()
     ->addSelect('`id`, `title`, `status`, `mode` AS `severity`, `priority`, `created_on`')
-    ->addWhere('`users_id` = :users_id', [':users_id' => Session::getUser()->getId()])
+    ->addWhere('`users_id` = :users_id', [':users_id' => Session::getUserObject()->getId()])
     ->addOrderBy('`created_by` ASC');
 
 
@@ -42,7 +44,7 @@ $notifications->getQueryBuilder()
 if (Request::isPostRequestMethod()) {
     if (PostValidator::new()->getSubmitButton() === tr('Mark all as read')) {
 //        $notifications->setStatus('READ');
-        sql()->query('UPDATE `notifications` SET `status` = "READ" WHERE `users_id` = :users_id', [':users_id' => Session::getUser()->getId()]);
+        sql()->query('UPDATE `notifications` SET `status` = "READ" WHERE `users_id` = :users_id', [':users_id' => Session::getUserObject()->getId()]);
         Response::getFlashMessagesObject()->addSuccess(tr('All your notifications have been marked as read'));
         Response::redirect();
     }

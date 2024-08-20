@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Servers\Traits;
@@ -108,6 +109,6 @@ trait TraitDataEntryServer
      */
     public function setServersHostname(?string $hostname): static
     {
-        return $this->setServer(Server::load($hostname, 'hostname'));
+        return $this->setServer(Server::load($hostname));
     }
 }

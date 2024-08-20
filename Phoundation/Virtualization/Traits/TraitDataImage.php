@@ -11,9 +11,11 @@
  * @package   Phoundation\Virtualization
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Traits;
+
 
 trait TraitDataImage
 {
@@ -36,7 +38,7 @@ trait TraitDataImage
      *
      * @param string $image
      *
-     * @return $this
+     * @return static
      */
     public function setImage(string $image): static
     {

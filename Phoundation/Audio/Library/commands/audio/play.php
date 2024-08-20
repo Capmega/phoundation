@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command image/convert
+ * Command image convert
  *
  * This script can apply various conversions to the specified image
  *
@@ -11,12 +11,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Audio\Audio;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setUsage('./pho audio play FILENAME
 ./pho system audio play PATH/FILE');

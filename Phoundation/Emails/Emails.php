@@ -11,11 +11,13 @@
  * @package   Plugins\Emails
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Emails;
 
 use Phoundation\Data\DataEntry\DataIterator;
+
 
 class Emails extends DataIterator
 {
@@ -32,7 +34,7 @@ class Emails extends DataIterator
     /**
      * @inheritDoc
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Email::class;
     }

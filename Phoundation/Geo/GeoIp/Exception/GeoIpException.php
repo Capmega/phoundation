@@ -11,11 +11,13 @@
  * @package   Phoundation\Geo
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp\Exception;
 
 use Phoundation\Geo\Exception\GeoException;
+
 
 class GeoIpException extends GeoException
 {

@@ -11,11 +11,13 @@
  * @package   Phoundation\Virtualization
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Kubernetes\Exception;
 
 use Phoundation\Virtualization\Exception\VirtualizationException;
+
 
 class KubernetesException extends VirtualizationException
 {

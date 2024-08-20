@@ -48,7 +48,7 @@
  * name: mongo
  * resources: {}
  * terminationMessagePath: /dev/termination-log
- * terminationMessagePolicy: FsFileFileInterface
+ * terminationMessagePolicy: File
  * dnsPolicy: ClusterFirst
  * restartPolicy: Always
  * schedulerName: default-scheduler
@@ -57,11 +57,13 @@
  *
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes\Deployments;
 
 use Phoundation\Virtualization\Kubernetes\ObjectFile;
+
 
 class DeploymentFile extends ObjectFile
 {

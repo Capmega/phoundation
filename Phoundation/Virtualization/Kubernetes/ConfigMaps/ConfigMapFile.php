@@ -31,11 +31,13 @@
  *
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes\ConfigMaps;
 
 use Phoundation\Virtualization\Kubernetes\ObjectFile;
+
 
 class ConfigMapFile extends ObjectFile
 {

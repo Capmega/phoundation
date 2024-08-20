@@ -12,6 +12,7 @@
  * @package   Phoundation\Geo
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo\Cities;
@@ -24,6 +25,7 @@ use Phoundation\Geo\Counties\County;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\States\State;
 use Phoundation\Geo\Timezones\Timezone;
+
 
 class City extends DataEntry
 {
@@ -138,7 +140,7 @@ class City extends DataEntry
 //
 //        // Ensure the name doesn't exist yet as it is a unique identifier
 //        if ($data['name']) {
-//            static::notExists($data['name'], 'name', $this->getId(), true);
+//            static::notExists(['name' => $data['name']], $this->getId(), true);
 //        }
 //
 //        return $data;

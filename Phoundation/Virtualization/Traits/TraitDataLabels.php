@@ -11,9 +11,11 @@
  * @package   Phoundation\Virtualization
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Traits;
+
 
 trait TraitDataLabels
 {
@@ -41,7 +43,7 @@ trait TraitDataLabels
      *
      * @param array $labels
      *
-     * @return $this
+     * @return static
      */
     public function setLabels(array $labels): static
     {
@@ -54,7 +56,7 @@ trait TraitDataLabels
     /**
      * Clears the labels
      *
-     * @return $this
+     * @return static
      */
     public function clearLabels(): static
     {
@@ -69,7 +71,7 @@ trait TraitDataLabels
      *
      * @param array|string $labels
      *
-     * @return $this
+     * @return static
      */
     public function addLabels(array|string $labels): static
     {

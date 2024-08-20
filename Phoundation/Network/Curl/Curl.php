@@ -11,6 +11,7 @@
  * @package   Phoundation\Network
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Network\Curl;
@@ -88,7 +89,7 @@ abstract class Curl implements CurlInterface
     protected ?string $log_directory = null;
 
     /**
-     * FsFileFileInterface access restrictions for logging
+     * File access restrictions for logging
      *
      * @var FsRestrictions|null $log_restrictions
      */
@@ -373,7 +374,7 @@ abstract class Curl implements CurlInterface
      * @param int   $option
      * @param mixed $value
      *
-     * @return $this
+     * @return static
      */
     public function setOpt(int $option, mixed $value): static
     {

@@ -12,6 +12,7 @@
  * @package   Phoundation\Geo
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo\States;
@@ -23,6 +24,7 @@ use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Html\Components\Input\InputSelect;
+
 
 class State extends DataEntry
 {
@@ -137,7 +139,7 @@ class State extends DataEntry
 //
 //        // Ensure the name doesn't exist yet as it is a unique identifier
 //        if ($data['name']) {
-//            static::notExists($data['name'], 'name', $this->getId(), true);
+//            static::notExists(['name' => $data['name']], $this->getId(), true);
 //        }
 //
 //        return $data;

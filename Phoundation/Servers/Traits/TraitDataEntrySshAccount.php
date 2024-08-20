@@ -11,6 +11,7 @@
  * @package   Phoundation\Servers
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Servers\Traits;
@@ -104,7 +105,7 @@ trait TraitDataEntrySshAccount
     public function setSshAccountsName(?string $ssh_accounts_name): static
     {
         if ($ssh_accounts_name) {
-            $this->ssh_account = SshAccount::load($ssh_accounts_name, 'name');
+            $this->ssh_account = SshAccount::load($ssh_accounts_name);
 
             return $this->set($this->ssh_account->getId(), 'ssh_accounts_id');
 

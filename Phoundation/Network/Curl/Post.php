@@ -11,6 +11,7 @@
  * @package   Phoundation\Network
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Network\Curl;
@@ -21,6 +22,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Network\Curl\Exception\CurlPostException;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Stringable;
+
 
 class Post extends Get
 {

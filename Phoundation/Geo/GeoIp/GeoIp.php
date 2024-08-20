@@ -11,6 +11,7 @@
  * @package   Phoundation/Geo
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;
@@ -23,6 +24,7 @@ use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Throwable;
+
 
 class GeoIp
 {

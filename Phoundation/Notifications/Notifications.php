@@ -12,6 +12,7 @@
  * @package   Phoundations\Notifications
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Notifications;
@@ -29,6 +30,7 @@ use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Http\Url;
 
+
 class Notifications extends DataIterator implements NotificationsInterface
 {
     /**
@@ -41,7 +43,7 @@ class Notifications extends DataIterator implements NotificationsInterface
                                WHERE    `users_id` = :users_id 
                                  AND    `status`   = "UNREAD" 
                                ORDER BY `created_by` ASC', [
-            ':users_id' => Session::getUser()
+            ':users_id' => Session::getUserObject()
                                   ->getId(),
         ]);
         parent::__construct();
@@ -49,11 +51,11 @@ class Notifications extends DataIterator implements NotificationsInterface
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Notification::class;
     }
@@ -139,7 +141,7 @@ class Notifications extends DataIterator implements NotificationsInterface
 //    /**
 //     * @inheritDoc
 //     */
-//    public function load(bool $clear = true, bool $only_if_empty = false): static
+//    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
 //    {
 //        $this->source = sql()->list('SELECT `notifications`.`id`, `notifications`.`title`
 //                                   FROM     `notifications`
@@ -209,7 +211,7 @@ class Notifications extends DataIterator implements NotificationsInterface
     /**
      * Marks the severity column with a color class
      *
-     * @return $this
+     * @return static
      */
     public function markSeverityColumn(): static
     {
@@ -242,7 +244,7 @@ class Notifications extends DataIterator implements NotificationsInterface
     /**
      * Have the client perform automated update checks for notifications
      *
-     * @return $this
+     * @return static
      */
     public function autoUpdate(): static
     {
@@ -280,10 +282,10 @@ class Notifications extends DataIterator implements NotificationsInterface
     {
         $hash = $this->getHash();
         if (
-            $hash !== Session::getUser()
+            $hash !== Session::getUserObject()
                              ->getNotificationsHash()
         ) {
-            Session::getUser()
+            Session::getUserObject()
                    ->setNotificationsHash($hash);
 
             // Return true only if there was any hash

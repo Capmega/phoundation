@@ -11,6 +11,7 @@
  * @package   Phoundation\Translator
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Translator;
@@ -21,14 +22,15 @@ use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
+
 class Translations extends DataIterator
 {
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Translation::class;
     }

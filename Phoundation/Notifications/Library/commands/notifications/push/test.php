@@ -5,11 +5,12 @@
  *
  * Push notifications test script. This script will send push notifications to the specified user
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Notifications
  */
+
 
 declare(strict_types=1);
 
@@ -28,6 +29,7 @@ use Serhiy\Pushover\Application;
 use Serhiy\Pushover\Client\Response\MessageResponse;
 use Serhiy\Pushover\Recipient;
 
+
 // Get arguments
 $count = 0;
 $argv  = ArgvValidator::new()
@@ -38,7 +40,7 @@ $argv  = ArgvValidator::new()
 
 if ($argv['users']) {
     foreach ($argv['users'] as $user) {
-        $user = User::load($user, 'email');
+        $user = User::load($user);
 
         // Send the test notification to all specified users
         Notification::new()
@@ -82,6 +84,7 @@ if ($argv['users']) {
 // instantiate pushover application and recipient of the notification (can be injected into service using Dependency Injection)
 $application = new Application("replace_with_pushover_application_api_token");
 $recipient = new Recipient("replace_with_pushover_user_key");
+
 
 // if required, specify devices, otherwise  notification will be sent to all devices
 $recipient->addDevice("android");

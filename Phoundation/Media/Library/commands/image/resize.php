@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command image/convert
+ * Command image convert
  *
  * This script can apply various conversions to the specified image
  *
@@ -11,13 +11,15 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Content\Images\Image;
+use Phoundation\Content\Images\ImageFile;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\FsDirectory;
+
 
 CliDocumentation::setUsage('./pho image resize IMAGE_FILE_NAME -x 500 -y 500 -m scale');
 
@@ -51,7 +53,7 @@ Log::information(tr('Resizing image ":file" to ":xx:y"', [
 
 
 // Get image object, make a backup of this image and show it
-$image  = Image::new($argv['file']);
+$image  = ImageFile::new($argv['file']);
 $backup = $image->backup();
 $backup->view();
 

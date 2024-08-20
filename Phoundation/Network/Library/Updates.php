@@ -12,6 +12,7 @@
  * @package   Phoundation\Network
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Network\Library;

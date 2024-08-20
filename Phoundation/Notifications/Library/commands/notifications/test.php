@@ -5,11 +5,12 @@
  *
  * Notifications test script. This script will send test notifications to the specified users or roles
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Notifications
  */
+
 
 declare(strict_types=1);
 
@@ -20,6 +21,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
+
 // Get arguments
 $count = 0;
 $argv  = ArgvValidator::new()
@@ -29,7 +31,7 @@ $argv  = ArgvValidator::new()
 
 if ($argv['users']) {
     foreach ($argv['users'] as $user) {
-        $user = User::load($user, 'email');
+        $user = User::load($user);
 
         // Send the test notification to all specified users
         Notification::new()

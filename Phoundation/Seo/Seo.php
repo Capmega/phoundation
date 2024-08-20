@@ -11,6 +11,7 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Seo;
@@ -18,6 +19,7 @@ namespace Phoundation\Seo;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+
 
 class Seo
 {

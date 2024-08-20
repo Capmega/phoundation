@@ -10,6 +10,7 @@
  * @package   Phoundation\Audio
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Audio;
@@ -28,6 +29,7 @@ use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Stringable;
+
 
 class Audio extends FsFile
 {
@@ -53,13 +55,9 @@ class Audio extends FsFile
         if (Config::getBoolean('audio.local.enabled', true)) {
             if (!defined('NOAUDIO') or !NOAUDIO) {
                 try {
-                    Mpg123::new(
-                        new FsDirectory(
-                            DIRECTORY_DATA . 'audio',
-                            FsRestrictions::getReadonly(DIRECTORY_DATA . 'audio', 'Audio::playLocal()')
-                        )
-                    )->setFile($this->makeAbsolute(DIRECTORY_DATA . 'audio'))
-                     ->play($background);
+                    Mpg123::new(new FsDirectory(DIRECTORY_DATA . 'audio', FsRestrictions::getData()))
+                          ->setFile($this->makeAbsolute(DIRECTORY_DATA . 'audio'))
+                          ->play($background);
 
                 } catch (FileNotExistException | ProcessesException $e) {
                     if ((defined('NOWARNINGS') and NOWARNINGS) or !Config::getBoolean('debug.exceptions.warnings', true)) {

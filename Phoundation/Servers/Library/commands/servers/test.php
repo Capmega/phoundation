@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command servers/authenticate
+ * Command servers authenticate
  *
  * This script can be used to test the authentication for the specified server
  *
@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
@@ -18,6 +19,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setUsage('./pho servers authenticate USER');
 

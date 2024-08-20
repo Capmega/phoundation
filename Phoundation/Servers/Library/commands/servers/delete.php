@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command servers/delete
+ * Command servers delete
  *
  * This script can delete servers
  *
@@ -11,11 +11,13 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Servers\Server;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setUsage('./pho servers delete USER_EMAIL');
 

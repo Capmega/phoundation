@@ -17,6 +17,7 @@
  * @package   Phoundation\Servers
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Servers;
@@ -37,6 +38,7 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Servers\Interfaces\SshAccountInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
+
 class SshAccount extends DataEntry implements SshAccountInterface
 {
     use TraitDataRestrictions;
@@ -48,17 +50,16 @@ class SshAccount extends DataEntry implements SshAccountInterface
     /**
      * SshAccount class constructor
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool|null                          $meta_enabled
-     * @param bool                               $init
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
         $this->configuration_path = 'ssh.accounts';
         $this->restrictions       = FsRestrictions::getFilesystemRoot();
 
-        parent::__construct($identifier, $column, $meta_enabled, $init);
+        parent::__construct($identifier, $meta_enabled, $init);
     }
 
 
@@ -170,6 +171,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
     {
         $definitions->add(DefinitionFactory::getName($this)
                                            ->setSize(6)
+                                           ->setUnique(true)
                                            ->setHelpGroup(tr('Identification'))
                                            ->setHelpText(tr('The name for this account')))
 

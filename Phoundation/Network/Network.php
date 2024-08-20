@@ -11,6 +11,7 @@
  * @package   Phoundation\Network
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Network;
@@ -21,6 +22,7 @@ use Phoundation\Network\Curl\Get;
 use Phoundation\Network\Exception\NetworkException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
+
 
 class Network
 {

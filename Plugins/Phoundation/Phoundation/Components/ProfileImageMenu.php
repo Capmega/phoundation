@@ -11,11 +11,13 @@
  * @package   PLugins\Phoundation
  */
 
+
 declare(strict_types=1);
 
 namespace Plugins\Phoundation\Phoundation\Components;
 
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
+
 
 class ProfileImageMenu extends Menu
 {

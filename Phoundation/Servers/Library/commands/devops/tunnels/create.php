@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Command medinet devops tunnels firewall enable
+ * Command devops tunnels create
  *
- * This command will enable the medinet firewall SSH tunnel
+ * This command will create an SSH tunnel to another server
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -11,13 +11,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+
 
 CliDocumentation::setAutoComplete([
                                       'arguments' => [

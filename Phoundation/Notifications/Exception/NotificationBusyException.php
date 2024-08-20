@@ -12,6 +12,7 @@
  * @package   Phoundation\Filesystem
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Notifications\Exception;

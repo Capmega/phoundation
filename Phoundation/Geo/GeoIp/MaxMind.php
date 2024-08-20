@@ -11,6 +11,7 @@
  * @package   Phoundation/Geo
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;
@@ -28,6 +29,7 @@ use Phoundation\Network\Network;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
 use Throwable;
+
 
 class MaxMind extends GeoIp
 {
@@ -82,7 +84,7 @@ class MaxMind extends GeoIp
      *
      * @param string|null $ip_address
      *
-     * @return $this
+     * @return static
      * @throws AddressNotFoundException
      * @throws InvalidDatabaseException
      */

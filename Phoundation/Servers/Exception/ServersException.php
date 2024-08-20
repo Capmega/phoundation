@@ -11,11 +11,13 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Servers\Exception;
 
 use Phoundation\Exception\Exception;
+
 
 class ServersException extends Exception
 {

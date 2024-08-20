@@ -5,11 +5,12 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Templates
  */
+
 
 declare(strict_types=1);
 
@@ -20,6 +21,7 @@ use Phoundation\Storage\Page;
 use Phoundation\Templates\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Http\Url;
+
 
 class Template extends Page implements TemplateInterface
 {
@@ -132,7 +134,7 @@ class Template extends Page implements TemplateInterface
                                             <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . Url::getCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
                                             $sign_out;
 
-                if (!Session::getUser()->isGuest()) {
+                if (!Session::getUserObject()->isGuest()) {
                     $html .= '              <form class="search-form" method="post" action=":action">
                                                 ' . Csrf::getHiddenElement() . '
                                                 <div class="input-group">

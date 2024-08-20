@@ -12,6 +12,7 @@
  * @package   Phoundation\Notification
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Notifications;
@@ -53,6 +54,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Throwable;
+
 
 class Notification extends DataEntry implements NotificationInterface
 {
@@ -115,12 +117,11 @@ class Notification extends DataEntry implements NotificationInterface
     /**
      * Notification class constructor
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool|null                          $meta_enabled
-     * @param bool                               $init
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
         static::$auto_log = Config::getBoolean('notifications.auto-log', false);
 
@@ -132,7 +133,7 @@ class Notification extends DataEntry implements NotificationInterface
 //                EnumDisplayMode::info, EnumDisplayMode::notice    => 'info-circle',
 //                default                                           => 'question-circle',
 
-        parent::__construct($identifier, $column, $meta_enabled, $init);
+        parent::__construct($identifier, $meta_enabled, $init);
     }
 
 
@@ -563,7 +564,7 @@ POST variables:
      *
      * @param UserInterface|int|null $user
      *
-     * @return $this
+     * @return static
      */
     protected function sendTo(UserInterface|int|null $user): static
     {
@@ -592,7 +593,7 @@ POST variables:
      *
      * @param UserInterface|int|null $user
      *
-     * @return $this
+     * @return static
      */
     protected function saveFor(UserInterface|int|null $user): static
     {
@@ -762,7 +763,7 @@ POST variables:
                                     ->setOptional(true)
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::text)
-                                    ->setLabel(tr('FsFileFileInterface'))
+                                    ->setLabel(tr('File'))
                                     ->setMaxlength(255)
                                     ->setSize(8))
 

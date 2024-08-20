@@ -12,6 +12,7 @@
  * @package   Phoundation\Business
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Servers;
@@ -25,6 +26,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
+
 
 class SshAccounts extends DataIterator
 {
@@ -51,11 +53,11 @@ class SshAccounts extends DataIterator
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return SshAccount::class;
     }
@@ -112,9 +114,9 @@ class SshAccounts extends DataIterator
     /**
      * @inheritDoc
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
-        parent::load($clear, $only_if_empty);
+        parent::load($identifiers, $clear, $only_if_empty);
 
         // If any of the accounts have the "file" key, replace that key with ssh_key value
         foreach ($this->source as &$entry) {

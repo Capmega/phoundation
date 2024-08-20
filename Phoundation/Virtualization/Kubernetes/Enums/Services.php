@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Virtualization\Kubernetes\Enums;
-
 /**
  * Enum Services
  *
@@ -14,6 +10,12 @@ namespace Phoundation\Virtualization\Kubernetes\Enums;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Virtualization
  */
+
+
+declare(strict_types=1);
+
+namespace Phoundation\Virtualization\Kubernetes\Enums;
+
 enum Services: string
 {
     case minikube = 'minikube';

@@ -11,6 +11,7 @@
  * @package   Phoundation/Geo
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;

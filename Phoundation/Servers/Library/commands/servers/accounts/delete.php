@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command servers/accounts/delete
+ * Command servers accounts delete
  *
  * This script can delete accounts
  *
@@ -11,12 +11,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Accounts\Account;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Servers\SshAccount;
+
 
 CliDocumentation::setUsage('./pho servers accounts delete NAME');
 

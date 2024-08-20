@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command servers/modify
+ * Command servers modify
  *
  * This command will modify a server with the specified properties
  *
@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -18,6 +19,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Servers\Server;
+
 
 CliDocumentation::setAutoComplete(Server::getAutoComplete([
                                                               'positions' => [

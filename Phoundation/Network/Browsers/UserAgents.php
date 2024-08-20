@@ -11,11 +11,13 @@
  * @package   Phoundation\Network
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Network\Browsers;
 
 use Phoundation\Utils\Arrays;
+
 
 class UserAgents
 {

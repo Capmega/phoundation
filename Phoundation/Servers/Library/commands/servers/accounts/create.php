@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command servers/accounts/create
+ * Command servers accounts create
  *
  * This command will create a new account with the specified properties
  *
@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 
@@ -22,6 +23,7 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Servers\SshAccount;
+
 
 CliDocumentation::setAutoComplete(SshAccount::getAutoComplete());
 
@@ -40,7 +42,7 @@ $argv = ArgvValidator::new()
 
 
 // Check if the account already exists
-SshAccount::notExists($argv['username'], 'name', null, true);
+SshAccount::notExists(['name' => $argv['username']], null, true);
 
 
 // Add password for this account

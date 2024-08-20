@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command email/send
+ * Command email send
  *
  * This script can send out emails
  *
@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -19,6 +20,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Emails\Emails;
 use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+
 
 CliDocumentation::setAutoComplete([
                                       'arguments' => [
@@ -38,12 +40,12 @@ ARGUMENTS
 
 -l, --limit LIMIT                      The maximum number of mails to send
 
--r, --auto-restart                     If specified and there are more mails than the maximim specified limit, the
+-r, --auto-restart                     If specified, and there are more mails than the maximim specified limit, the
                                        command will automatically restart. Each restart will also pass along the
                                        --auto-restart so the process will continue with new processes each time the
                                        limit has reached until all emails have been sent
 
--b, --background                       If specified in combination with --auto-restart, the command will auto restart
+-b, --background                       If specified, in combination with --auto-restart, the command will auto restart
                                        and continue as a background process');
 
 

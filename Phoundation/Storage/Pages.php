@@ -11,6 +11,7 @@
  * @package   Phoundation\Pages
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Storage;
@@ -18,6 +19,7 @@ namespace Phoundation\Storage;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Storage\Interfaces\PagesInterface;
 use Phoundation\Web\Requests\Request;
+
 
 class Pages extends DataIterator implements PagesInterface
 {
@@ -33,7 +35,7 @@ class Pages extends DataIterator implements PagesInterface
     /**
      * @inheritDoc
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Request::class;
     }

@@ -11,6 +11,7 @@
  * @package   Plugins\Emails
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Emails;
@@ -20,6 +21,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
+
 
 class EmailAttachment extends DataEntry
 {

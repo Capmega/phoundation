@@ -11,8 +11,12 @@
  * @package   Phoundation\Accounts
  */
 
+
+declare(strict_types=1);
+
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Widgets\NotificationsDropDown;
+
 
 // Gets the notification dropdown
 $dropdown = NotificationsDropDown::new()

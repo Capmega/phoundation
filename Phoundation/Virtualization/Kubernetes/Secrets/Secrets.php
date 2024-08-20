@@ -11,11 +11,13 @@
  * @package   Phoundation\Virtualization
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes\Secrets;
 
 use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
+
 
 class Secrets extends KubernetesObjects
 {

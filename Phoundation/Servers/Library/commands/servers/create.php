@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command servers/create
+ * Command servers create
  *
  * This command will create a new server with the specified properties
  *
@@ -11,11 +11,13 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Servers\Server;
+
 
 CliDocumentation::setAutoComplete(Server::getAutoComplete());
 

@@ -11,6 +11,7 @@
  * @package   Phoundation\Network
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Network\Curl;
@@ -33,6 +34,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Stringable;
 use Throwable;
+
 
 class Get extends Curl
 {
@@ -141,7 +143,7 @@ class Get extends Curl
                 'url' => $this->url,
             ]);
             sql()->insert('network_curl_cache', [
-                'created_by' => Session::getUser()
+                'created_by' => Session::getUserObject()
                                        ->getId(),
                 'url'        => $this->url,
                 'data'       => Json::encode($this->result_data),

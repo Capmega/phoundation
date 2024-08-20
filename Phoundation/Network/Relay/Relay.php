@@ -9,6 +9,7 @@
  * @package   Plugins\Grafana
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Network\Relay;
@@ -24,6 +25,7 @@ use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Requests\Response;
 use Stringable;
 use Throwable;
+
 
 class Relay
 {

@@ -11,11 +11,13 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Notifications;
 
 use Phoundation\Web\Html\Components\Widgets\Modals\LargeModal;
+
 
 class Modal extends LargeModal
 {
