@@ -52,7 +52,7 @@ class Import extends \Phoundation\Developer\Project\Import
             Log::notice('Ignoring "demo" mode for Languages, this does not do anything for this library');
         }
 
-        $file  = FsFile::new(DIRECTORY_DATA . 'sources/languages/languages', FsRestrictions::getReadonly(DIRECTORY_DATA, 'Core\\Languages\\Import::execute()'))
+        $file  = FsFile::new(DIRECTORY_DATA . 'sources/languages/languages', FsRestrictions::getReadonly(DIRECTORY_DATA))
                        ->open(EnumFileOpenMode::readOnly);
 
         $table = sql()->getSchemaObject()

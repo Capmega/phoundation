@@ -48,4 +48,7 @@ ARGUMENTS
 
 // Validate arguments
 ArgvValidator::new()->validate();
+
+
+// Disable maintenance mode
 Core::setMaintenanceMode(true);

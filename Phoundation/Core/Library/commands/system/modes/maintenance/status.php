@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Command system modes maintenance disable
+ * Command system modes maintenance status
  *
- * This command will disable maintenance mode
+ * This command will display the current maintenance mode status
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -16,12 +16,14 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
-CliDocumentation::setUsage('./pho system modes maintenance disable');
+CliDocumentation::setUsage('./pho system modes maintenance status');
 
-CliDocumentation::setHelp('This command will disable maintenance mode
+CliDocumentation::setHelp('This command will display the current maintenance mode status
 
 When maintenance mode is enabled, all web requests will immediately be blocked until maintenance mode has been disabled.
 Most CLI commands will too be blocked. The only commands available will be commands under ./pho system
@@ -50,5 +52,16 @@ ARGUMENTS
 ArgvValidator::new()->validate();
 
 
-// Disable maintenance mode
-Core::setMaintenanceMode(false);
+// Get maintenance mode data
+$mode = Core::getMaintenanceMode();
+
+if ($mode) {
+    Log::warning(tr('The system is in ":mode" mode, set by ":user" on ":date"', [
+        ':mode' => $mode->getMode(),
+        ':user' => $mode->getUserObject()?->getLogId(),
+        ':date' => $mode->getDateTime()->format('Y-m-d H:i:s')
+    ]));
+
+} else {
+    Log::success(tr('The system is NOT in maintenance mode'));
+}

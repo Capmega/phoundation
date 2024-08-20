@@ -40,14 +40,18 @@ CliDocumentation::setAutoComplete([
 CliDocumentation::setUsage('./pho system sync from ENVIRONMENT
 ./pho system sync -l -i --to ENVIRONMENT');
 
-CliDocumentation::setHelp('This command will synchronize either the specified environment to your local environment or vice versa.
-With this, a production environment can easily be tested locally, for example
+CliDocumentation::setHelp('This command will synchronize either the specified environment to your local environment 
+or vice versa. With this, a production environment can easily be tested locally, for example
 
 
 ARGUMENTS
 
 
 ENVIRONMENT                             The single source environment to which the data will be synced
+
+
+OPTIONAL ARGUMENTS
+
 
 [-i / --no-init]                        If specified, will NOT execute the system initialization right after the sync
                                         process has finished

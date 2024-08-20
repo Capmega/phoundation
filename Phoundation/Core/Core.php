@@ -36,6 +36,8 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
+use Phoundation\Core\Modes\Interfaces\ModeInterface;
+use Phoundation\Core\Modes\Mode;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\Traits\TraitDataStaticIsExecutedPath;
@@ -349,6 +351,9 @@ class Core implements CoreInterface
             static::setPlatform();
             static::setProject();
             static::startPlatform();
+
+            // Check if we're in readonly mode
+            static::$readonly = (bool) static::getReadonlyMode();
 
         } catch (Throwable $e) {
             Config::allowNoEnvironment();
@@ -1680,7 +1685,7 @@ class Core implements CoreInterface
      * @param array $argv
      * @return array
      */
-    protected function applyJsonArguments(array $argv): array
+    protected static function applyJsonArguments(array $argv): array
     {
         $json = Json::decode($argv['json']);
         unset($argv['json']);
@@ -2015,7 +2020,8 @@ class Core implements CoreInterface
      */
     public static function setMaintenanceMode(bool $enable): void
     {
-        $enabled = static::getMaintenanceMode();
+        $enabled   = static::getMaintenanceMode();
+        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'maintenance', FsRestrictions::getSystem(true));
 
         if ($enable) {
             // Enable maintenance mode
@@ -2027,11 +2033,8 @@ class Core implements CoreInterface
                 return;
             }
 
-            FsDirectory::new(DIRECTORY_DATA . 'system/maintenance', FsRestrictions::new(DIRECTORY_DATA, true))
-                     ->ensure();
+            $directory->ensure()->addFile(Session::getUserObject()->getEmail() ?? get_current_user())->touch();
 
-            touch(DIRECTORY_DATA . 'system/maintenance/' . (Session::getUserObject()
-                                                                           ->getEmail() ?? get_current_user()));
             Log::warning(tr('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
 
             return;
@@ -2044,7 +2047,7 @@ class Core implements CoreInterface
             return;
         }
 
-        FsFile::new(DIRECTORY_DATA . 'system/maintenance', FsRestrictions::getData(true))->delete();
+        $directory->delete();
 
         Log::warning(tr('System has been relieved from maintenance mode. All web requests will now again be answered, all commands are available'), 10);
     }
@@ -2058,9 +2061,9 @@ class Core implements CoreInterface
      * This method will return an email address if the system is in maintenance mode. The email address will be the
      * email for the person who placed the system in maintenance mode
      *
-     * @return string|null
+     * @return ModeInterface|null
      */
-    public static function getMaintenanceMode(): ?string
+    public static function getMaintenanceMode(): ?ModeInterface
     {
         static $maintenance = null;
 
@@ -2068,16 +2071,18 @@ class Core implements CoreInterface
             return $maintenance;
         }
 
-        if (file_exists(DIRECTORY_DATA . 'system/maintenance')) {
+        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'maintenance', FsRestrictions::getSystem());
+
+        if ($directory->exists()) {
             // The system is in maintenance mode, show who put it there
-            $files = FsDirectory::new(DIRECTORY_DATA . 'system/maintenance')->scan();
+            $files = $directory->scan();
 
             if ($files->getCount()) {
-                $maintenance = $files->getFirstValue();
+                return new Mode('maintenance', $files->getFirstValue());
             }
 
             // ??? The maintenance directory is empty? It should contain a file with the email address of who locked it
-            $maintenance = tr('Unknown');
+            $maintenance = new Mode('maintenance', $files->getFirstValue());
         }
 
         return $maintenance;
@@ -2097,7 +2102,8 @@ class Core implements CoreInterface
      */
     public static function setReadonlyMode(bool $enable): void
     {
-        $enabled = static::getReadonlyMode();
+        $enabled   = static::getReadonlyMode();
+        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'readonly', FsRestrictions::getSystem(true));
 
         if ($enable) {
             // Enable readonly mode
@@ -2109,12 +2115,7 @@ class Core implements CoreInterface
                 return;
             }
 
-            FsDirectory::new(
-                DIRECTORY_DATA . 'system/readonly',
-                FsRestrictions::new(DIRECTORY_DATA, true)
-            )->ensure();
-
-            touch(DIRECTORY_DATA . 'system/readonly/' . (Session::getUserObject()->getEmail() ?? get_current_user()));
+            $directory->ensure()->addFile(Session::getUserObject()->getEmail() ?? get_current_user())->touch();
 
             Log::warning(tr('System has been placed in readonly mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
 
@@ -2126,7 +2127,7 @@ class Core implements CoreInterface
             Log::warning(tr('Cannot disable readonly mode, the system is not in readonly mode'));
 
         } else {
-            FsFile::new(DIRECTORY_DATA . 'system/readonly', FsRestrictions::getData(true))->delete();
+            $directory->delete();
 
             Log::warning(tr('System has been relieved from readonly mode. All web POST requests will now again be processed, queries can write data again'), 10);
         }
@@ -2141,23 +2142,31 @@ class Core implements CoreInterface
      * This method will return an email address if the system is in maintenance mode. The email address will be the
      * email for the person who placed the system in readonly mode
      *
-     * @return string|null
+     * @return ModeInterface|null
      */
-    public static function getReadonlyMode(): ?string
+    public static function getReadonlyMode(): ?ModeInterface
     {
-        if (file_exists(DIRECTORY_DATA . 'system/readonly')) {
-            // System is in maintenance mode, show who put it there
-            $files = FsDirectory::new(DIRECTORY_DATA . 'system/readonly')->scan();
+        static $readonly = null;
 
-            if ($files->getCount()) {
-                return $files->getFirstValue();
-            }
-
-            // ??? The maintenance directory is empty? It should contain a file with the email address of who locked it
-            return tr('Unknown');
+        if ($readonly) {
+            return $readonly;
         }
 
-        return null;
+        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'readonly', FsRestrictions::getSystem());
+
+        if ($directory->exists()) {
+            // The system is in readonly mode, show who put it there
+            $files = $directory->scan();
+
+            if ($files->getCount()) {
+                return new Mode('readonly', $files->getFirstValue());
+            }
+
+            // ??? The readonly directory is empty? It should contain a file with the email address of who locked it
+            $readonly = new Mode('readonly', $files->getFirstValue());
+        }
+
+        return $readonly;
     }
 
 
@@ -2169,11 +2178,22 @@ class Core implements CoreInterface
     public static function resetModes(): void
     {
         $restrictions = FsRestrictions::getSystem(true);
+        $maintenance  = static::getMaintenanceMode();
+        $readonly     = static::getReadonlyMode();
 
-        FsFile::new(DIRECTORY_DATA . 'system/maintenace', $restrictions)->delete();
-        FsFile::new(DIRECTORY_DATA . 'system/readonly'  , $restrictions)->delete();
+        if ($maintenance) {
+            FsFile::new(DIRECTORY_SYSTEM . 'maintenance', $restrictions)->delete();
+            Log::warning(tr('System has been relieved from maintenace mode. All web requests will now again be processed, all commands are available'), 10);
+        }
 
-        Log::warning(tr('System has been relieved from readonly mode. All web requests will now again be answered, all commands are available'), 10);
+        if ($readonly) {
+            FsFile::new(DIRECTORY_SYSTEM . 'readonly'  , $restrictions)->delete();
+            Log::warning(tr('System has been relieved from readonly mode. All write requests will now again be answered, all commands are available'), 10);
+        }
+
+        if (!$maintenance and !$readonly) {
+            Log::success(tr('System was neither in maintenance or readonly mode'));
+        }
     }
 
 
@@ -3079,7 +3099,6 @@ class Core implements CoreInterface
             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
         ]));
 
-        Log::error(tr('Exception data:'));
         Log::error($e);
 
         //                        Log::error();

@@ -231,8 +231,6 @@ class Log
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
 
         } catch (Throwable $e) {
-            static::errorLog(tr('Configuration read failed with ":e"', [':e' => $e->getMessage()]));
-
             // Likely configuration read failed. Set defaults
             static::$restrictions = FsRestrictions::new(DIRECTORY_DATA . 'log/', true, 'Log');
             static::setThreshold(10);
@@ -709,7 +707,27 @@ class Log
             // Do not log anything while locked, initializing, or while dealing with a Log internal failure
             if (static::$screen_enabled and static::$file_enabled) {
                 foreach (Arrays::force($messages, null) as $message) {
-                    static::errorLog('Phoundation: ' . Strings::force($message));
+                    if ($message instanceof Throwable) {
+                        static::errorLog('Phoundation: exception class    : ' . get_class($message));
+                        static::errorLog('Phoundation: exception message  : ' . $message->getMessage());
+                        static::errorLog('Phoundation: exception location : ' . $message->getFile() . '@' . $message->getLine());
+
+                        $trace = Debug::formatBackTrace($message->getTrace());
+                        foreach ($trace as $step)
+                        static::errorLog('Phoundation: exception trace    : ' . $step);
+
+                        if ($message instanceof Exception) {
+                            static::errorLog('Phoundation: exception data     : ' . Strings::force($message->getData()));
+                        }
+
+                        if ($message->getPrevious()) {
+                            static::errorLog('Phoundation: previous exception : ');
+                            static::write($message->getPrevious());
+                        }
+
+                    } else {
+                        static::errorLog('Phoundation: ' . Strings::force($message));
+                    }
                 }
             }
 
@@ -833,11 +851,12 @@ class Log
             $messages .= ($echo_newline ? PHP_EOL : null);
 
             // Build message prefix
+            // TODO Check max process id in /proc/sys/kernel/pid_max and use that as max length instead of static 7
             if (is_bool($echo_prefix)) {
                 // Build the log message with the default prefix
                 $prefix = DateTime::new(null, 'server')->format('Y-m-d H:i:s.v') . ' ' .
                           ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
-                          getmypid() . ' ' .
+                          Strings::size(getmypid(), 7, ' ', true) . ' ' .
                           Core::getGlobalId() . ' / ' . Core::getLocalId() . (Core::isShuttingDown() ? '#' : ' ');
             } else {
                 $prefix = $echo_prefix;
@@ -913,8 +932,6 @@ class Log
         } catch (Throwable $e) {
             // Crap, we could not get a Log instance
             static::$failed = true;
-            static::errorLog('Log constructor failed with the following message. Until the following issue has been resolved, all log entries will be written to the PHP system log only');
-            static::errorLog($e->getMessage());
         }
     }
 

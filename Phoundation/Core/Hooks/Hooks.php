@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Hooks;
 
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Data\DataEntry\DataIterator;
 
 
@@ -52,5 +53,27 @@ class Hooks extends DataIterator
     public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
+    }
+
+
+    /**
+     * Instructs the Libraries class to clear the commands cache
+     *
+     * @return void
+     */
+    public static function clearCache(): void
+    {
+        Libraries::clearWebCache();
+    }
+
+
+    /**
+     * Instructs the Libraries class to have each library rebuild its command cache
+     *
+     * @return void
+     */
+    public static function rebuildCache(): void
+    {
+        Libraries::rebuildWebCache();
     }
 }

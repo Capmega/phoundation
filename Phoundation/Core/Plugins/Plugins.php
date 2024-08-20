@@ -116,7 +116,7 @@ class Plugins extends DataIterator implements PluginsInterface
     {
         foreach (static::scanPluginsPath() as $name => $class) {
             try {
-                $plugin = $class::new($name, 'name');
+                $plugin = $class::new(['name' => $name]);
 
                 if ($plugin->isNew()) {
                     $plugin->register();

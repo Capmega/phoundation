@@ -430,7 +430,7 @@ class Libraries
 
             // Library paths MUST be directories
             if (is_dir($file)) {
-                $return[$file] = new Library(new FsDirectory($file, FsRestrictions::getReadonly(DIRECTORY_ROOT, 'Core\\Libraries::listLibraryDirectories()')));
+                $return[$file] = new Library(new FsDirectory($file, FsRestrictions::getReadonly(DIRECTORY_ROOT)));
             }
         }
 
@@ -846,7 +846,7 @@ class Libraries
         $cache->replaceWithPath($temporary)
               ->symlinkTargetFromThis(FsPath::new(
                   DIRECTORY_ROOT . 'tests',
-                  FsRestrictions::getWritable(DIRECTORY_ROOT . 'tests', 'Libraries::rebuildTestsCache() 2')
+                  FsRestrictions::getWritable(DIRECTORY_ROOT . 'tests')
               )->delete());
 
         Log::success(tr('Finished rebuilding tests cache'));
@@ -926,7 +926,7 @@ class Libraries
 
         Find::new(FsDirectory::new(
             $path,
-            FsRestrictions::getReadonly($path, 'Libraries::loadAllPhoundationClassesIntoMemory()')
+            FsRestrictions::getReadonly($path)
         ))->setType('f')
           ->setName('*.php')
           ->setCallback(function ($file) {
@@ -982,7 +982,7 @@ class Libraries
 
             Find::new(FsDirectory::new(
                 $path,
-                FsRestrictions::getReadonly($path, 'Libraries::loadAllPluginClassesIntoMemory()')
+                FsRestrictions::getReadonly($path)
             ))->setType('f')
               ->setName('*.php')
               ->setCallback(function ($file) {
