@@ -11,6 +11,7 @@
  * @package   Phoundation\Date
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Date;
@@ -29,6 +30,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
+
 
 class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInterface
 {
@@ -588,7 +590,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Returns a new DateTime object with the specified timezone
      *
-     * @return $this
+     * @return static
      */
     public function setTimezone(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
     {
@@ -605,7 +607,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @param DateTimeSegment $segment
      *
-     * @return $this
+     * @return static
      */
     public function round(DateTimeSegment $segment): static
     {
@@ -668,7 +670,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Makes this date at the start of the day
      *
-     * @return $this
+     * @return static
      */
     public function makeDayStart(): static
     {
@@ -685,7 +687,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Makes this date at the end of the day
      *
-     * @return $this
+     * @return static
      */
     public function makeDayEnd(): static
     {
@@ -702,7 +704,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Makes this date have the current time
      *
-     * @return $this
+     * @return static
      */
     public function makeCurrentTime(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
     {
@@ -712,5 +714,133 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
         $this->setTime((int) $time[0], (int) $time[1], (int) $time[2], (int) $time[3]);
 
         return $this;
+    }
+
+
+    /**
+     * Returns the current year
+     *
+     * @param DateTime|string|null      $datetime
+     * @param \DateTimeZone|string|null $timezone
+     *
+     * @return int
+     */
+    public static function getYear(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    {
+        return (int) DateTime::new($datetime, $timezone)->format('Y');
+    }
+
+
+    /**
+     * Returns the current month of the year
+     *
+     * @param DateTime|string|null      $datetime
+     * @param \DateTimeZone|string|null $timezone
+     *
+     * @return int
+     */
+    public static function getMonth(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    {
+        return (int) DateTime::new($datetime, $timezone)->format('m');
+    }
+
+
+    /**
+     * Returns the current week of the year
+     *
+     * @param DateTime|string|null      $datetime
+     * @param \DateTimeZone|string|null $timezone
+     *
+     * @return int
+     */
+    public static function getWeek(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    {
+        return (int) DateTime::new($datetime, $timezone)->format('W');
+    }
+
+
+    /**
+     * Returns the current day of the month
+     *
+     * @param DateTime|string|null      $datetime
+     * @param \DateTimeZone|string|null $timezone
+     *
+     * @return int
+     */
+    public static function getDay(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    {
+        return (int) DateTime::new($datetime, $timezone)->format('d');
+    }
+
+
+    /**
+     * Returns the current hour of the day
+     *
+     * @note will return the hour in 24 hours format
+     *
+     * @param DateTime|string|null      $datetime
+     * @param \DateTimeZone|string|null $timezone
+     *
+     * @return int
+     */
+    public static function getHour(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    {
+        return (int) DateTime::new($datetime, $timezone)->format('H');
+    }
+
+
+    /**
+     * Returns the current minute of the hour
+     *
+     * @param DateTime|string|null      $datetime
+     * @param \DateTimeZone|string|null $timezone
+     *
+     * @return int
+     */
+    public static function getMinute(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    {
+        return (int) DateTime::new($datetime, $timezone)->format('i');
+    }
+
+
+    /**
+     * Returns the current second of the minute
+     *
+     * @param DateTime|string|null      $datetime
+     * @param \DateTimeZone|string|null $timezone
+     *
+     * @return int
+     */
+    public static function getSecond(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    {
+        return (int) DateTime::new($datetime, $timezone)->format('s');
+    }
+
+
+    /**
+     * Returns the current millisecond of the second
+     *
+     * @param DateTime|string|null      $datetime
+     * @param \DateTimeZone|string|null $timezone
+     *
+     * @return int
+     */
+    public static function getMillisecond(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    {
+        return (int) DateTime::new($datetime, $timezone)->format('v');
+    }
+
+
+    /**
+     * Returns the current microsecond of the second
+     *
+     * @param DateTime|string|null      $datetime
+     * @param \DateTimeZone|string|null $timezone
+     *
+     * @return int
+     */
+    public static function getMicroSecond(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    {
+        return (int) DateTime::new($datetime, $timezone)->format('u');
     }
 }

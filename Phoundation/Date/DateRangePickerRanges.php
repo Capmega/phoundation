@@ -11,6 +11,7 @@
  * @package   Phoundation\Date
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Date;
@@ -20,12 +21,13 @@ use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
+
 class DateRangePickerRanges extends Iterator implements DateRangePickerRangesInterface
 {
     /**
      * Set the default daterangepicker ranges
      *
-     * @return $this
+     * @return static
      */
     public function useDefault(): static
     {

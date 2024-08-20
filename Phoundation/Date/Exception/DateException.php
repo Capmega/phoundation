@@ -11,11 +11,13 @@
  * @package   Phoundation\Date
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Date\Exception;
 
 use Phoundation\Exception\Exception;
+
 
 class DateException extends Exception
 {

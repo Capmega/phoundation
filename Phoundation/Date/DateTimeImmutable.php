@@ -11,6 +11,7 @@
  * @package   Phoundation\Date
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Date;
@@ -18,6 +19,7 @@ namespace Phoundation\Date;
 use DateTimeInterface;
 use Exception;
 use Stringable;
+
 
 class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interfaces\DateTimeInterface
 {
@@ -137,7 +139,7 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
     /**
      * Returns a new DateTime object with the specified timezone
      *
-     * @return $this
+     * @return static
      */
     public function setTimezone(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
     {

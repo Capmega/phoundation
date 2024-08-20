@@ -11,7 +11,7 @@ interface DateRangePickerRangesInterface extends IteratorInterface
     /**
      * Set the default daterangepicker ranges
      *
-     * @return $this
+     * @return static
      */
     public function useDefault(): static;
 }

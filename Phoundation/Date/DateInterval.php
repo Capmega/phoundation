@@ -12,6 +12,7 @@
  * @package   Phoundation\Date
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Date;
@@ -21,6 +22,7 @@ use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Stringable;
+
 
 class DateInterval extends \DateInterval implements Stringable
 {
@@ -135,7 +137,7 @@ class DateInterval extends \DateInterval implements Stringable
             }
 
         } elseif (is_int($date_interval)) {
-            // Diff will always give a tiny amount of micro/milliseconds difference. Since we're on seconds resolution
+            // Diff will always give a tiny number of micro/milliseconds difference. Since we're on seconds resolution
             // here, we can round that off
             $round_up      = not_null($round_up, true);
             $date_interval = DateTime::new($date_interval . ' seconds')
@@ -189,7 +191,7 @@ class DateInterval extends \DateInterval implements Stringable
     /**
      * Rounds up the microseconds to whole seconds
      *
-     * @return $this
+     * @return static
      */
     public function roundUp(): static
     {

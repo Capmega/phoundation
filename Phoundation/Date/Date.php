@@ -8,6 +8,7 @@
  * @deprecated Use Phoundation\Date\DateTime instead
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Date;
@@ -25,6 +26,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Throwable;
+
 
 class Date
 {
@@ -177,7 +179,7 @@ class Date
          * Create date in specified timezone (if specifed)
          * Return formatted date
          *
-         * If specified date is already a DateTime object, then from_timezone will not work
+         * If specified, date is already a DateTime object, then from_timezone will not work
          */
         if (is_scalar($date)) {
             $date = new DateTime($date, ($from_timezone ? new DateTimeZone($from_timezone) : null));

@@ -11,6 +11,7 @@
  * @package   Phoundation\Date
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Date;
@@ -21,6 +22,7 @@ use Phoundation\Date\Exception\DateTimeZoneException;
 use Phoundation\Date\Interfaces\DateTimeZoneInterface;
 use Phoundation\Utils\Config;
 use Throwable;
+
 
 class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
 {
@@ -46,7 +48,7 @@ class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
                     // no break
                 case 'display':
                     // The timezone requested by the user
-                    $detected = Session::getUser()
+                    $detected = Session::getUserObject()
                                        ->getTimezone();
                     $detected = 'PDT';
                     break;
