@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors;
@@ -23,6 +24,7 @@ use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Config;
 use Stringable;
+
 
 class Connectors extends DataIterator implements ConnectorsInterface
 {
@@ -48,7 +50,7 @@ class Connectors extends DataIterator implements ConnectorsInterface
     /**
      * @inheritDoc
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Connector::class;
     }
@@ -66,16 +68,17 @@ class Connectors extends DataIterator implements ConnectorsInterface
     /**
      * Load the id list from the database
      *
-     * @param bool $clear
-     * @param bool $only_if_empty
-     * @param bool $ignore_sql_exceptions
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
+     * @param bool       $ignore_sql_exceptions
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
     {
         try {
-            parent::load($clear, $only_if_empty);
+            parent::load($identifiers, $clear, $only_if_empty);
 
         } catch (SqlException $e) {
             if (!$ignore_sql_exceptions) {

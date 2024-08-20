@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Exception;
@@ -18,6 +19,7 @@ namespace Phoundation\Databases\Sql\Exception;
 use PDOStatement;
 use Phoundation\Databases\Exception\DatabasesException;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
+
 
 class SqlException extends DatabasesException implements SqlExceptionInterface
 {
@@ -37,7 +39,7 @@ class SqlException extends DatabasesException implements SqlExceptionInterface
      *
      * @param string|null $state
      *
-     * @return $this
+     * @return static
      */
     public function setSqlState(?string $state): static
     {
@@ -61,7 +63,7 @@ class SqlException extends DatabasesException implements SqlExceptionInterface
      *
      * @param PDOStatement|string|null $query
      *
-     * @return $this
+     * @return static
      */
     public function setQuery(PDOStatement|string|null $query): static
     {
@@ -85,7 +87,7 @@ class SqlException extends DatabasesException implements SqlExceptionInterface
      *
      * @param array|null $execute
      *
-     * @return $this
+     * @return static
      */
     public function setExecute(?array $execute): static
     {

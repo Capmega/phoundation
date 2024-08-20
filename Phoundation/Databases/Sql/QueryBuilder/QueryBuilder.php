@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\QueryBuilder;
@@ -20,6 +21,7 @@ use Phoundation\Data\Traits\TraitDataDatabaseConnector;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
+
 
 class QueryBuilder extends QueryObject implements QueryBuilderInterface
 {

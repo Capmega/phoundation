@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -24,6 +25,7 @@ use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Utils;
+
 
 $restrictions = FsRestrictions::getReadonly( [
                                            DIRECTORY_DATA . 'sources/',
@@ -64,8 +66,8 @@ CliDocumentation::setAutoComplete([
                                               'noword' => function ()      use ($restrictions) { return FsDirectory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.{sql,sql.gz}'); },
                                           ],
                                           '-c,--connector' => [
-                                              'word'   => function ($word) { return Arrays::keepValues(Connectors::new()->load(true, true)->keepMatchingValues('sys', Utils::MATCH_STARTS_WITH, 'name')->getAllRowsSingleColumn('name'), $word); },
-                                              'noword' => function () { return Connectors::new()->load(true, true)->keepMatchingValues('sys', Utils::MATCH_STARTS_WITH, 'name')->getAllRowsSingleColumn('name'); },
+                                              'word'   => function ($word) { return Arrays::keepValues(Connectors::new()->load(null, true, true)->keepMatchingValues('sys', Utils::MATCH_STARTS_WITH, 'name')->getAllRowsSingleColumn('name'), $word); },
+                                              'noword' => function () { return Connectors::new()->load(null, true, true)->keepMatchingValues('sys', Utils::MATCH_STARTS_WITH, 'name')->getAllRowsSingleColumn('name'); },
                                           ],
                                           '-b,--database'  => [
                                               'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },
@@ -84,7 +86,7 @@ $argv = ArgvValidator::new()
                      ->select('-f,--file', true)->sanitizeFile([FsDirectory::getDataSourcesObject(), FsDirectory::getDataTmpObject()])
                      ->select('-b,--database', true)->isVariable()
                      ->select('--comments', true)->isOptional()->isPrintable()
-                     ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true, true)->getAllRowsSingleColumn('name'))
+                     ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(null, true, true, true)->getAllRowsSingleColumn('name'))
                      ->select('-t,--timeout', true)->isOptional(3600)->isNatural(true)
                      ->select('--no-drop')->isOptional(false)->isBoolean()
                      ->select('--no-init')->isOptional(false)->isBoolean()

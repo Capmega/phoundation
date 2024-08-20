@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema;
@@ -46,25 +47,25 @@ abstract class SchemaAbstract implements SchemaAbstractInterface
     /**
      * The name for this object
      *
-     * @var string $database
+     * @var string $name
      */
-    protected string $database;
+    protected string $name;
 
 
     /**
      * SchemaAbstract class constructor
      *
-     * @param string                                  $database
+     * @param string                                  $name
      * @param Sql                                     $sql
      * @param SchemaAbstractInterface|SchemaInterface $parent
      */
-    public function __construct(string $database, Sql $sql, SchemaAbstractInterface|SchemaInterface $parent)
+    public function __construct(string $name, Sql $sql, SchemaAbstractInterface|SchemaInterface $parent)
     {
         $this->sql                       = $sql;
-        $this->database                  = $database;
+        $this->name                      = $name;
         $this->parent                    = $parent;
         $this->configuration             = $sql->getConfiguration();
-        $this->configuration['database'] = $database;
+        $this->configuration['database'] = $name;
     }
 
 

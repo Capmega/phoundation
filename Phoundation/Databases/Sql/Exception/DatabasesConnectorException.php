@@ -11,11 +11,13 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Exception;
 
 use Phoundation\Databases\Exception\DatabasesException;
+
 
 class DatabasesConnectorException extends DatabasesException
 {

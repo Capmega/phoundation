@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql;
@@ -58,6 +59,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Throwable;
+
 
 class Sql implements SqlInterface
 {
@@ -427,15 +429,15 @@ class Sql implements SqlInterface
                 $query->execute($execute);
 
             } else {
+                // Log query?
+                if ($this->debug or ($query[0] === ' ')) {
+                    $log = true;
+                }
+
                 $query = trim($query);
 
                 if (empty($query)) {
                     throw new SqlException(tr('No query specified'));
-                }
-
-                // Log query?
-                if ($this->debug or ($query[0] === ' ')) {
-                    $log = true;
                 }
 
                 $timer = Timers::new('sql', static::getConnectorLogPrefix() . $query);

@@ -11,100 +11,100 @@ interface QueryBuilderInterface
     /**
      * Make this a SELECT query by adding the select clause here
      *
-     * @param string     $select
-     * @param array|null $execute
+     * @param string|null $select
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addSelect(string $select, ?array $execute = null): static;
+    public function addSelect(?string $select, ?array $execute = null): static;
 
 
     /**
      * Make this a DELETE query by adding the select clause here
      *
-     * @param string     $delete
-     * @param array|null $execute
+     * @param string|null $delete
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addDelete(string $delete, ?array $execute = null): static;
+    public function addDelete(?string $delete, ?array $execute = null): static;
 
 
     /**
      * Make this a UPDATE query by adding the select clause here
      *
-     * @param string     $update
-     * @param array|null $execute
+     * @param string|null $update
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addUpdate(string $update, ?array $execute = null): static;
+    public function addUpdate(?string $update, ?array $execute = null): static;
 
 
     /**
      * Add the FROM part of the query
      *
-     * @param string     $from
-     * @param array|null $execute
+     * @param string|null $from
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addFrom(string $from, ?array $execute = null): static;
+    public function addFrom(?string $from, ?array $execute = null): static;
 
 
     /**
      * Add a JOIN part of the query
      *
-     * @param string     $join
-     * @param array|null $execute
+     * @param string|null $join
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addJoin(string $join, ?array $execute = null): static;
+    public function addJoin(?string $join, ?array $execute = null): static;
 
 
     /**
      * Add a WHERE part of the query
      *
-     * @param string     $where
-     * @param array|null $execute
+     * @param string|null $where
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addWhere(string $where, ?array $execute = null): static;
+    public function addWhere(?string $where, ?array $execute = null): static;
 
 
     /**
      * Add a GROUP BY part of the query
      *
-     * @param string     $group_by
-     * @param array|null $execute
+     * @param string|null $group_by
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addGroupBy(string $group_by, ?array $execute = null): static;
+    public function addGroupBy(?string $group_by, ?array $execute = null): static;
 
 
     /**
      * Add a HAVING part of the query
      *
-     * @param string     $having
-     * @param array|null $execute
+     * @param string|null $having
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addHaving(string $having, ?array $execute = null): static;
+    public function addHaving(?string $having, ?array $execute = null): static;
 
 
     /**
      * Add a ORDER BY part of the query
      *
-     * @param string     $order_by
-     * @param array|null $execute
+     * @param string|null $order_by
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addOrderBy(string $order_by, ?array $execute = null): static;
+    public function addOrderBy(?string $order_by, ?array $execute = null): static;
 
 
     /**

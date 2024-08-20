@@ -11,11 +11,13 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql;
 
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
+
 
 class SqlQuery implements SqlQueryInterface
 {

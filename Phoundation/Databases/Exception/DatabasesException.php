@@ -11,12 +11,14 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Exception;
 
 use Phoundation\Databases\Exception\Interfaces\DatabasesExceptionInterface;
 use Phoundation\Exception\Exception;
+
 
 class DatabasesException extends Exception implements DatabasesExceptionInterface
 {

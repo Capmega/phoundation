@@ -11,6 +11,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors;
@@ -18,6 +19,7 @@ namespace Phoundation\Databases\Connectors;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Web\Html\Enums\EnumElement;
+
 
 class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {

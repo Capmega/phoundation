@@ -11,11 +11,13 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
 use Phoundation\Databases\Interfaces\DatabaseInterface;
+
 
 class NullDb implements DatabaseInterface
 {

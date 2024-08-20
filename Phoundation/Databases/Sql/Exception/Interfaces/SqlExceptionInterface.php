@@ -22,7 +22,7 @@ interface SqlExceptionInterface extends DatabasesExceptionInterface
      *
      * @param string|null $state
      *
-     * @return $this
+     * @return static
      */
     public function setSqlState(?string $state): static;
 
@@ -40,7 +40,7 @@ interface SqlExceptionInterface extends DatabasesExceptionInterface
      *
      * @param PDOStatement|string|null $query
      *
-     * @return $this
+     * @return static
      */
     public function setQuery(PDOStatement|string|null $query): static;
 
@@ -58,7 +58,7 @@ interface SqlExceptionInterface extends DatabasesExceptionInterface
      *
      * @param array|null $execute
      *
-     * @return $this
+     * @return static
      */
     public function setExecute(?array $execute): static;
 }

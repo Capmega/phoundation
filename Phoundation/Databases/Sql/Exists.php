@@ -8,9 +8,9 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation/Databases
  */
+
 
 declare(strict_types=1);
 
@@ -26,8 +26,7 @@ class SqlExists
      *                         exclamation mark (!), the query will be executed if the database does NOT exist
      *
      * @return boolean True if the specified index exists, false otherwise
-     * @category  Function reference
-     * @package   sql-exists
+         * @package   sql-exists
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -78,8 +77,7 @@ class SqlExists
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @category  Function reference
-     */
+         */
     public static function tableExists($table, $query = null, $connector = null)
     {
         global $pdo;
@@ -113,7 +111,7 @@ class SqlExists
      * If query is specified, the query will be executed only if the specified function exists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
@@ -158,7 +156,7 @@ class SqlExists
      * If query is specified, the query will be executed only if the specified function exists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
@@ -203,7 +201,7 @@ class SqlExists
      * If query is specified, the query will be executed only if the specified function exists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
@@ -257,7 +255,7 @@ class SqlExists
      * If query is specified, the query will be executed only if the specified function exists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
@@ -309,7 +307,7 @@ class SqlExists
     /*
      * Returns the tables that have foreign keys to the specified table / column
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference

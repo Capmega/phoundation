@@ -11,12 +11,14 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\QueryBuilder;
 
 use Phoundation\Data\Iterator;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
+
 
 class QueryDefinitions extends Iterator implements QueryDefinitionsInterface
 {

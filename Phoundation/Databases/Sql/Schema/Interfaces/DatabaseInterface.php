@@ -61,20 +61,27 @@ interface DatabaseInterface extends SchemaAbstractInterface
      */
     public function table(string $name): Table;
 
+
     /**
      * Load the table parameters from the database
      *
-     * @param bool $clear
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static;
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static;
+
 
     /**
      * Renames this database
      *
      * @see https://www.atlassian.com/data/admin/how-to-rename-a-database-in-mysql
-     * @return $this
+     *
+     * @param string $database_name
+     *
+     * @return static
      */
     public function rename(string $database_name): static;
 

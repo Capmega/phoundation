@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command databases/connectors/test
+ * Command databases connectors test
  *
  * General database connector test script
  *
@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 

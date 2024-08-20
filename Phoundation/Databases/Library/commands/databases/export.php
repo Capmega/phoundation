@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -21,6 +22,7 @@ use Phoundation\Databases\Export;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
+
 
 $restrictions = FsRestrictions::getWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP], tr('command databases mysql export'));
 
@@ -66,13 +68,13 @@ CliDocumentation::setAutoComplete([
           '-c,--connector' => [
               'word'   => function ($word) {
                   return Connectors::new()
-                                   ->load(true, true)
+                                   ->load(null, true, true)
                                    ->keepMatchingValuesStartingWith($word, column: 'name')
                                    ->getAllRowsSingleColumn('name');
               },
               'noword' => function () {
                   return Connectors::new()
-                                   ->load(true, true)
+                                   ->load(null, true, true)
                                    ->getAllRowsSingleColumn('name');
               },
           ],
@@ -93,7 +95,7 @@ $argv = ArgvValidator::new()
                      ->select('-g,--gzip')->isOptional(false)->isBoolean()
                      ->select('--timeout', true)->isOptional(3600)->isInteger()->isMoreThan(0)
                      ->select('-f,--file', true)->isOptional()->sanitizeFile([FsDirectory::getDataSourcesObject(), FsDirectory::getTemporaryObject()])
-                     ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getAllRowsSingleColumn('name'))
+                     ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(null, true, true)->getAllRowsSingleColumn('name'))
                      ->select('-b,--database', true)->isVariable()
                      ->validate();
 

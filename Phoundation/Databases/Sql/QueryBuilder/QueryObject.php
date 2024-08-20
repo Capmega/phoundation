@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\QueryBuilder;
@@ -21,6 +22,7 @@ use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryObjectInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
+
 
 class QueryObject implements QueryObjectInterface
 {
@@ -140,12 +142,12 @@ class QueryObject implements QueryObjectInterface
     /**
      * Add the FROM part of the query
      *
-     * @param string     $from
-     * @param array|null $execute
+     * @param string|null $from
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addFrom(string $from, ?array $execute = null): static
+    public function addFrom(?string $from, ?array $execute = null): static
     {
         $this->from[] = $from;
 
@@ -208,12 +210,12 @@ class QueryObject implements QueryObjectInterface
     /**
      * Make this a SELECT query by adding the select clause here
      *
-     * @param string     $select
-     * @param array|null $execute
+     * @param string|null $select
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function setSelect(string $select, ?array $execute = null): static
+    public function setSelect(?string $select, ?array $execute = null): static
     {
         $this->select = [];
 
@@ -224,12 +226,12 @@ class QueryObject implements QueryObjectInterface
     /**
      * Make this a SELECT query by adding the select clause here
      *
-     * @param string     $select
-     * @param array|null $execute
+     * @param string|null $select
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addSelect(string $select, ?array $execute = null): static
+    public function addSelect(?string $select, ?array $execute = null): static
     {
         if ($this->delete) {
             throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add SELECT'));
@@ -239,11 +241,13 @@ class QueryObject implements QueryObjectInterface
             throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add SELECT'));
         }
 
-        if (!$this->select) {
-            $select = 'SELECT ' . $select;
-        }
+        if ($select) {
+            if (!$this->select) {
+                $select = 'SELECT ' . $select;
+            }
 
-        $this->select[] = $select;
+            $this->select[] = $select;
+        }
 
         return $this->addExecuteArray($execute);
     }
@@ -252,12 +256,12 @@ class QueryObject implements QueryObjectInterface
     /**
      * Make this a DELETE query by adding the select clause here
      *
-     * @param string     $delete
-     * @param array|null $execute
+     * @param string|null $delete
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addDelete(string $delete, ?array $execute = null): static
+    public function addDelete(?string $delete, ?array $execute = null): static
     {
         if ($this->select) {
             throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add DELETE'));
@@ -267,25 +271,27 @@ class QueryObject implements QueryObjectInterface
             throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add DELETE'));
         }
 
-        if (!$this->delete) {
-            $delete = 'DELETE ' . $delete;
-        }
+        if ($delete) {
+            if (!$this->delete) {
+                $delete = 'DELETE ' . $delete;
+            }
 
-        $this->delete[] = $delete;
+            $this->delete[] = $delete;
+        }
 
         return $this->addExecuteArray($execute);
     }
 
 
     /**
-     * Make this a UPDATE query by adding the select clause here
+     * Make this an UPDATE query by adding the select clause here
      *
-     * @param string     $update
-     * @param array|null $execute
+     * @param string|null $update
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addUpdate(string $update, ?array $execute = null): static
+    public function addUpdate(?string $update, ?array $execute = null): static
     {
         if ($this->select) {
             throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add UPDATE'));
@@ -295,7 +301,9 @@ class QueryObject implements QueryObjectInterface
             throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add UPDATE'));
         }
 
-        $this->update[] = $update;
+        if ($update) {
+            $this->update[] = $update;
+        }
 
         return $this->addExecuteArray($execute);
     }
@@ -304,12 +312,12 @@ class QueryObject implements QueryObjectInterface
     /**
      * Add a JOIN part of the query
      *
-     * @param string     $join
-     * @param array|null $execute
+     * @param string|null $join
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addJoin(string $join, ?array $execute = null): static
+    public function addJoin(?string $join, ?array $execute = null): static
     {
         if ($join) {
             $this->joins[] = $join;
@@ -322,12 +330,12 @@ class QueryObject implements QueryObjectInterface
     /**
      * Add a WHERE part of the query
      *
-     * @param string     $where
-     * @param array|null $execute
+     * @param string|null $where
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addWhere(string $where, ?array $execute = null): static
+    public function addWhere(?string $where, ?array $execute = null): static
     {
         if ($where) {
             $this->wheres[] = $where;
@@ -340,12 +348,12 @@ class QueryObject implements QueryObjectInterface
     /**
      * Add a GROUP BY part of the query
      *
-     * @param string     $group_by
-     * @param array|null $execute
+     * @param string|null $group_by
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addGroupBy(string $group_by, ?array $execute = null): static
+    public function addGroupBy(?string $group_by, ?array $execute = null): static
     {
         if ($group_by) {
             $this->group_by[] = $group_by;
@@ -358,12 +366,12 @@ class QueryObject implements QueryObjectInterface
     /**
      * Add a HAVING part of the query
      *
-     * @param string     $having
-     * @param array|null $execute
+     * @param string|null $having
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addHaving(string $having, ?array $execute = null): static
+    public function addHaving(?string $having, ?array $execute = null): static
     {
         if ($having) {
             $this->having[] = $having;
@@ -376,12 +384,12 @@ class QueryObject implements QueryObjectInterface
     /**
      * Add a ORDER BY part of the query
      *
-     * @param string     $order_by
-     * @param array|null $execute
+     * @param string|null $order_by
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function addOrderBy(string $order_by, ?array $execute = null): static
+    public function addOrderBy(?string $order_by, ?array $execute = null): static
     {
         if ($order_by) {
             $this->order_by[] = $order_by;

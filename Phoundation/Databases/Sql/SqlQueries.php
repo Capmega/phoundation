@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql;
@@ -24,6 +25,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+
 
 class SqlQueries
 {
@@ -42,7 +44,9 @@ class SqlQueries
             // The source has already been prepared, return it
             return $source;
         }
+
         $return = [];
+
         foreach ($source as $key => $value) {
             switch ($key) {
                 case $id_column:
@@ -73,11 +77,14 @@ class SqlQueries
         if (!$where) {
             return '';
         }
+
         if (is_string($where)) {
             // The Source has already been prepared, return it
             return $where;
         }
+
         $return = [];
+
         foreach ($where as $key => $value) {
             switch ($key) {
                 case 'meta_id':
@@ -103,12 +110,15 @@ class SqlQueries
     public static function filterColumns(array $source, string $separator = ' AND '): string
     {
         $return = [];
+
         foreach ($source as $key => $value) {
             if (is_array($value)) {
                 $list = [];
+
                 foreach ($value as $subkey => $subvalue) {
                     $list[] = ':' . $key . $subkey;
                 }
+
                 $return[] = '`' . $key . '` IN (' . implode(',', $list) . ') ';
 
             } else {
@@ -131,6 +141,7 @@ class SqlQueries
     public static function getPrefixedColumns(array $source, ?string $prefix = null): string
     {
         $return = [];
+
         foreach ($source as $key => $value) {
             $return[] = '`' . $prefix . $key . '`';
         }
@@ -150,9 +161,11 @@ class SqlQueries
     public static function getBoundKeys(array|string $source, ?string $prefix = null): string
     {
         $return = [];
+
         foreach ($source as $key => $value) {
             $return[':' . $prefix . $key] = $value;
         }
+
         $return = array_keys($return);
         $return = implode(', ', $return);
 
@@ -173,15 +186,18 @@ class SqlQueries
     public static function getBoundValues(array $source, ?string $prefix = null, bool $insert = false, ?array $skip = null): array
     {
         $return = [];
+
         foreach ($source as $key => $value) {
             if (($key === 'meta_id') and !$insert) {
                 // Only process meta_id on insert operations
                 continue;
             }
+
             if ($skip and in_array($key, $skip)) {
                 // Don't make a bound variable for this one
                 continue;
             }
+
             if (is_array($value)) {
                 foreach ($value as $subkey => $subvalue) {
                     $return[':' . $prefix . $key . $subkey] = $subvalue;
@@ -201,7 +217,7 @@ class SqlQueries
      *
      * @param string                      $column
      * @param array|string|int|float|null $values
-     * @param string                      $label
+     * @param string|null                 $label
      * @param array|null                  $execute
      * @param string                      $glue
      *
@@ -285,6 +301,7 @@ class SqlQueries
         if (empty($source)) {
             throw new OutOfBoundsException(tr('Specified source is empty'));
         }
+
         $column = Strings::ensureStartsWith($column, ':');
         $source = Arrays::force($source);
 
@@ -348,6 +365,7 @@ class SqlQueries
     public static function getQueryStringLimit(?int $limit = null, ?int $page = null): string
     {
         $limit = Paging::getLimit($limit);
+
         if (!$limit) {
             // No limits, so show all
             return '';
@@ -370,13 +388,16 @@ class SqlQueries
     public static function show(string|PDOStatement $query, ?array $execute = null, bool $return_only = false): mixed
     {
         $query = static::renderQueryString($query, $execute, true);
+
         if ($return_only) {
             return $query;
         }
+
         if (!Core::readRegister('debug', 'clean')) {
             $query = str_replace("\n", ' ', $query);
             $query = Strings::replaceDouble($query, ' ', '\s');
         }
+
         // Debug::enabled() already logs the query, don't log it again
         if (!Debug::isEnabled()) {
             Log::debug(static::getLogPrefix() . Strings::ensureEndsWith($query, ';'));
@@ -404,10 +425,13 @@ class SqlQueries
             // Query to be logged is a PDO statement, extract the query
             $query = $query->queryString;
         }
+
         $query = trim($query);
+
         if ($clean) {
             $query = Strings::cleanWhiteSpace($query);
         }
+
         // Apply execution variables
         if (is_array($execute)) {
             /*
@@ -422,6 +446,7 @@ class SqlQueries
              * Would cause the query to look like `category` = "test", `category_id` = "test"_id
              */
             krsort($execute);
+
             foreach ($execute as $key => $value) {
                 if (is_string($value)) {
                     $value = addslashes($value);
@@ -441,6 +466,7 @@ class SqlQueries
                             ':query' => $query,
                         ]));
                     }
+
                     $query = str_replace((string) $key, (string) $value, $query);
                 }
             }
@@ -463,7 +489,9 @@ class SqlQueries
         if (is_object($query)) {
             $query = $query->queryString;
         }
+
         $query = strtolower(substr(trim($query), 0, 10));
+
         if (!str_starts_with($query, 'select') and !str_starts_with($query, 'show')) {
             throw new SqlException(tr('Query ":query" is not a SELECT or SHOW query and as such cannot return results', [
                 ':query' => Strings::log(static::getLogPrefix() . Log::sql($query, $execute), 4096),
@@ -483,8 +511,7 @@ class SqlQueries
      *
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     */
+         */
     public static function inColumns(array $in, string|int|null $column_starts_with = null): string
     {
         if ($column_starts_with) {
@@ -512,6 +539,7 @@ class SqlQueries
         $query = trim($query);
         $query = substr(trim($query), 0, 10);
         $query = strtolower($query);
+
         if (str_starts_with($query, 'insert') or str_starts_with($query, 'update')) {
             // This is a write query, check if we're not in readonly mode
             Core::checkReadonly('write query');

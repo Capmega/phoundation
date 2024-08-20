@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql;
@@ -29,6 +30,7 @@ use Phoundation\Databases\Sql\Interfaces\SqlDataIteratorInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
+
 
 class SqlDataIterator implements SqlDataIteratorInterface
 {

@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors;
@@ -41,6 +42,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
+
 class Connector extends DataEntry implements ConnectorInterface
 {
     use TraitDataEntryNameDescription;
@@ -64,16 +66,15 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * DataEntry class constructor
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool|null                          $meta_enabled
-     * @param bool                               $init
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
         $this->configuration_path = 'databases.connectors';
 
-        parent::__construct($identifier, $column, $meta_enabled, $init);
+        parent::__construct($identifier, $meta_enabled, $init);
 
         if (!$identifier) {
             // No identifier specified? This is a new object, apply defaults
@@ -171,27 +172,22 @@ class Connector extends DataEntry implements ConnectorInterface
      * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
      *       DataEntry::getId(), which should return a valid database id
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool                               $meta_enabled
-     * @param bool                               $force
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool                                     $meta_enabled
+     * @param bool                                     $force
      *
      * @return Connector
-     * @throws SqlExceptionInterface
+     * @throws \Exception
      */
-    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
     {
-        if (($column === 'id') or (($column === null) and is_numeric($identifier))) {
-            if ($identifier < 0) {
-                // Negative identifier is a configured connector!
-                return Connector::newFromSource(Connectors::new()
-                                                          ->load()
-                                                          ->get($identifier));
-            }
+        if (is_numeric($identifier) and ($identifier < 0)) {
+            // Negative identifier is a configured connector!
+            return Connector::newFromSource(Connectors::new()->load()->get($identifier));
         }
 
         try {
-            return parent::load($identifier, $column, $meta_enabled, $force);
+            return parent::load($identifier, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsException $e) {
             throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [
@@ -543,7 +539,7 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * Tests this connector by connecting to the database and executing a test query
      *
-     * @return $this
+     * @return static
      */
     public function test(): static
     {
@@ -668,7 +664,7 @@ class Connector extends DataEntry implements ConnectorInterface
                                                          ->isName()
                                                          ->isTrue(function ($value) {
                                                              // This timezone must exist.
-                                                             return Timezone::exists($value, 'name');
+                                                             return Timezone::exists(['name' => $value]);
                                                          }, tr('The specified timezone does not exist'));
                                            }))
                     ->add(Definition::new($this, 'ssh_tunnels_id')

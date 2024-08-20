@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema;
@@ -21,6 +22,7 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
+
 
 class TableDefine extends SchemaAbstract
 {
@@ -265,7 +267,7 @@ class TableDefine extends SchemaAbstract
     public function create(): void
     {
         if ($this->parent->exists()) {
-            throw new SqlException(tr('Cannot create table ":name", it already exists', [':name' => $this->database]));
+            throw new SqlException(tr('Cannot create table ":name", it already exists', [':name' => $this->name]));
         }
 
         // Prepare indices and FKs
@@ -273,7 +275,7 @@ class TableDefine extends SchemaAbstract
         $foreign_keys = implode(",\n", $this->foreign_keys) . "\n";
 
         // Build and execute query
-        $query = 'CREATE TABLE `' . $this->database . '` (';
+        $query = 'CREATE TABLE `' . $this->name . '` (';
         $query .= Strings::ensureEndsNotWith(trim(implode(",\n", $this->columns)), ',');
 
         if ($this->indices) {
@@ -287,7 +289,7 @@ class TableDefine extends SchemaAbstract
         $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . Config::get('databases.sql.connectors.system.auto-increment', 1) . ' DEFAULT CHARSET="' . Config::get('databases.sql.connectors.system.charset', 'utf8mb4') . '" COLLATE="' . Config::get('databases.sql.connectors.system.collate', 'utf8mb4_general_ci') . '";';
 
         Log::warning(tr('Creating table ":table" in database ":database" for SQL instance ":instance"', [
-            ':table'    => $this->database,
+            ':table'    => $this->name,
             ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase(),
         ]), 3);
@@ -306,7 +308,7 @@ class TableDefine extends SchemaAbstract
      */
     protected function setName(string $name): static
     {
-        $this->database = $name;
+        $this->name = $name;
 
         return $this;
     }

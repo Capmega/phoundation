@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema;
@@ -22,6 +23,7 @@ use Phoundation\Databases\Sql\Schema\Interfaces\TableInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Config;
+
 
 class Schema implements SchemaInterface
 {

@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql;
@@ -37,6 +38,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+
 
 class SqlDataEntry implements SqlDataEntryInterface
 {
@@ -231,7 +233,7 @@ class SqlDataEntry implements SqlDataEntryInterface
                 if ($column === $this->id_column) {
                     // Duplicate ID, try with a different random number
                     Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry ":rowid" encountered for insert in table ":table", retrying', [
-                            ':rowid' => $insert_row[$this->id_column],
+                            ':rowid' => $insert[$this->id_column],
                             ':table' => $this->table,
                         ]));
                     continue;
@@ -320,7 +322,7 @@ class SqlDataEntry implements SqlDataEntryInterface
         }
 
         if ($this->data_entry->isMetaColumn('created_by')) {
-            $row['created_by'] = Session::getUser()->getId();
+            $row['created_by'] = Session::getUserObject()->getId();
         }
 
         if ($this->data_entry->isMetaColumn('meta_state')) {

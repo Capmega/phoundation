@@ -233,7 +233,7 @@ interface ConnectorInterface
     /**
      * Tests this connector by connecting to the database and executing a test query
      *
-     * @return $this
+     * @return static
      */
     public function test(): static;
 }

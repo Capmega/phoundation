@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema;
@@ -21,6 +22,8 @@ use Phoundation\Data\Iterator;
 use Phoundation\Databases\Sql\Schema\Interfaces\TableInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
+
 
 class Table extends SchemaAbstract implements TableInterface
 {
@@ -45,21 +48,28 @@ class Table extends SchemaAbstract implements TableInterface
      */
     protected array $foreign_keys = [];
 
+    /**
+     * The indices for this table
+     *
+     * @var array $indices
+     */
+    protected array $indices = [];
+
 
     /**
      * Table constructor
      *
-     * @param string                $database
+     * @param string                $name
      * @param Sql                   $sql
      * @param SchemaAbstract|Schema $parent
      */
-    public function __construct(string $database, Sql $sql, SchemaAbstract|Schema $parent)
+    public function __construct(string $name, Sql $sql, SchemaAbstract|Schema $parent)
     {
-        parent::__construct($database, $sql, $parent);
+        parent::__construct($name, $sql, $parent);
 
-        if ($database) {
+        if ($name) {
             // Load this table
-            $this->load($database);
+            $this->load($name);
         }
     }
 
@@ -83,7 +93,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function define(): TableDefine
     {
-        return new TableDefine($this->database, $this->sql, $this);
+        return new TableDefine($this->name, $this->sql, $this);
     }
 
 
@@ -94,7 +104,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function alter(): TableAlter
     {
-        return new TableAlter($this->database, $this->sql, $this);
+        return new TableAlter($this->name, $this->sql, $this);
     }
 
 
@@ -107,7 +117,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function rename(string $table_name): void
     {
-        sql()->query('RENAME TABLE `' . $this->database . '` TO `' . $table_name . '`');
+        sql()->query('RENAME TABLE `' . $this->name . '` TO `' . $table_name . '`');
     }
 
 
@@ -119,7 +129,7 @@ class Table extends SchemaAbstract implements TableInterface
     public function exists(): bool
     {
         // If this query returns nothing, the table does not exist. If it returns anything, it does exist.
-        return (bool) sql()->get('SHOW TABLES LIKE :name', [':name' => $this->database]);
+        return (bool) sql()->get('SHOW TABLES LIKE :name', [':name' => $this->name]);
     }
 
 
@@ -131,12 +141,12 @@ class Table extends SchemaAbstract implements TableInterface
     public function drop(): static
     {
         Log::warning(tr('Dropping table ":table" in database ":database" for SQL instance ":instance"', [
-            ':table'    => $this->database,
+            ':table'    => $this->name,
             ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase(),
         ]), 3);
 
-        sql()->query('DROP TABLES IF EXISTS `' . $this->database . '`');
+        sql()->query('DROP TABLES IF EXISTS `' . $this->name . '`');
 
         return $this;
     }
@@ -149,8 +159,8 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function truncate(): void
     {
-        Log::warning(tr('Truncating table :table', [':table' => $this->database]));
-        sql()->query('TRUNCATE `' . $this->database . '`');
+        Log::warning(tr('Truncating table :table', [':table' => $this->name]));
+        sql()->query('TRUNCATE `' . $this->name . '`');
     }
 
 
@@ -161,7 +171,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function getCount(): int
     {
-        return sql()->getInteger('SELECT COUNT(*) as `count` FROM `' . $this->database . '`');
+        return sql()->getInteger('SELECT COUNT(*) as `count` FROM `' . $this->name . '`');
     }
 
 
@@ -172,7 +182,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function getName(): ?string
     {
-        return $this->database;
+        return $this->name;
     }
 
 
@@ -180,12 +190,13 @@ class Table extends SchemaAbstract implements TableInterface
      * Returns true if the specified column exists in this table
      *
      * @param string $column
+     * @param bool   $cache
      *
      * @return bool
      */
-    public function columnExists(string $column): bool
+    public function columnExists(string $column, bool $cache = true): bool
     {
-        return $this->getColumns()->keyExists($column);
+        return $this->getColumns($cache)->keyExists($column);
     }
 
 
@@ -204,7 +215,7 @@ class Table extends SchemaAbstract implements TableInterface
 
         if (empty($this->columns)) {
             $columns = [];
-            $results = sql()->listKeyValues('DESCRIBE `' . $this->database . '`');
+            $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
 
             foreach ($results as $result) {
                 $columns[$result['field']] = Arrays::lowercaseKeys($result);
@@ -218,12 +229,103 @@ class Table extends SchemaAbstract implements TableInterface
 
 
     /**
+     * Returns true if the specified foreign key exists in this table
+     *
+     * @param string $key
+     * @param bool   $cache
+     *
+     * @return bool
+     */
+    public function foreignKeyExists(string $key, bool $cache = true): bool
+    {
+        return $this->getForeignKeys($cache)->keyExists($key);
+    }
+
+
+    /**
      * Returns the table foreign_keys
      *
-     * @return array
+     * @param bool $cache
+     *
+     * @return IteratorInterface
      */
-    public function getForeignKeys(): array
+    public function getForeignKeys(bool $cache = true): IteratorInterface
     {
-        return $this->foreign_keys;
+        if (!$cache) {
+            unset($this->foreign_keys);
+        }
+
+        if (empty($this->foreign_keys)) {
+            $results = sql()->listKeyValues('SHOW CREATE TABLE `' . $this->name . '`');
+            $results = $results[$this->name]['create table'];
+
+            // Parse all foreign keys from the resulting query
+            do {
+                $foreign_key = Strings::cut($results, 'CONSTRAINT ', ',');
+
+                if (!$foreign_key) {
+                    break;
+                }
+
+                preg_match_all('/`?([a-z_]+)`?\s+FOREIGN\s+KEY\s+\(`?([a-z_]+)`?\)\s+REFERENCES\s+`?([a-z_]+)`?\s+\(`?([a-z_]+)`?\)/i', $foreign_key, $matches);
+
+                $this->foreign_keys[$matches[1][0]] = [
+                    'key'              => $matches[1][0],
+                    'column'           => $matches[2][0],
+                    'reference_table'  => $matches[3][0],
+                    'reference_column' => $matches[4][0]
+                ];
+
+                $results = Strings::from($results, 'CONSTRAINT ');
+                $results = Strings::from($results, ',');
+
+            } while (true);
+        }
+
+        return Iterator::new($this->foreign_keys);
+    }
+
+
+    /**
+     * Returns true if the specified index exists in this table
+     *
+     * @param string $key
+     * @param bool   $cache
+     *
+     * @return bool
+     */
+    public function indexExists(string $key, bool $cache = true): bool
+    {
+        return $this->getIndices($cache)->keyExists($key);
+    }
+
+
+    /**
+     * Returns the table indices
+     *
+     * @param bool $cache
+     *
+     * @return IteratorInterface
+     */
+    public function getIndices(bool $cache = true): IteratorInterface
+    {
+        if (!$cache) {
+            unset($this->indices);
+        }
+
+        if (empty($this->indices)) {
+            $indices = [];
+            $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
+
+            foreach ($results as $result) {
+                if ($result['key']) {
+                    $indices[$result['field']] = strtolower($result['key']);
+                }
+            }
+
+            $this->indices = $indices;
+        }
+
+        return Iterator::new($this->indices);
     }
 }

@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases;
@@ -29,6 +30,7 @@ use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Exception\ConfigurationInvalidException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Throwable;
+
 
 class Mc implements DatabaseInterface
 {
@@ -484,7 +486,7 @@ class Mc implements DatabaseInterface
      *
      * @param int $delay
      *
-     * @return $this
+     * @return static
      */
     public function flush(int $delay = 0): static
     {

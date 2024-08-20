@@ -11,6 +11,7 @@
  * @package   Phoundation\Databases
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema;
@@ -25,6 +26,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Web\Html\Components\P;
+
 
 class Database extends SchemaAbstract implements DatabaseInterface
 {
@@ -175,11 +177,13 @@ class Database extends SchemaAbstract implements DatabaseInterface
     /**
      * Load the table parameters from the database
      *
-     * @param bool $clear
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
         // Load columns & indices data
         // TODO Implement
