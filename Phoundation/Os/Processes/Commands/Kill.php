@@ -11,12 +11,14 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+
 
 class Kill extends Command
 {
@@ -35,14 +37,17 @@ class Kill extends Command
             if (($signal < 1) or ($signal > 64)) {
                 throw new OutOfBoundsException(tr('Specified signal ":signal" is invalid, ensure it is an integer number between 1 and 64', [':signal' => $signal]));
             }
+
             foreach ($pids as $pid) {
                 if (!is_integer($pid)) {
                     throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 2 or higher', [':pid' => $pid]));
                 }
+
                 if (($pid < 2)) {
                     throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 2 or higher', [':pid' => $pid]));
                 }
             }
+
             $this->setCommand('kill')
                  ->addArgument('-' . $signal)
                  ->addArguments($pids)
@@ -71,14 +76,17 @@ class Kill extends Command
             if (($signal < 1) or ($signal > 64)) {
                 throw new OutOfBoundsException(tr('Specified signal ":signal" is invalid, ensure it is an integer number between 1 and 64', [':signal' => $signal]));
             }
+
             foreach ($processes as $process) {
                 if (!is_scalar($process)) {
                     throw new OutOfBoundsException(tr('Specified process ":process" is invalid, it should be a string', [':process' => $process]));
                 }
+
                 if (strlen($process) < 2) {
                     throw new OutOfBoundsException(tr('Specified process ":process" is invalid, it should be 2 characters or more', [':process' => $process]));
                 }
             }
+
             $this->setCommand('pkill')
                  ->addArgument('-' . $signal)
                  ->addArguments($processes)

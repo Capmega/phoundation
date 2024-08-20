@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command tasks/execute
+ * Command tasks execute
  *
  * This command will display detailed information about the current framework, project, database ,etc.
  *
@@ -11,11 +11,13 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Os\Processes\Task;
+
 
 CliDocumentation::setAutoComplete(Task::getAutoComplete());
 

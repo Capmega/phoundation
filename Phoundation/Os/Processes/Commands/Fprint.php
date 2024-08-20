@@ -11,12 +11,14 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+
 
 class Fprint extends Command
 {

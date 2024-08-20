@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command workers/execute
+ * Command workers execute
  *
  * This command will execute a parent worker that will execute its task through multiple parallel child workers
  *
@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 
@@ -20,6 +21,7 @@ use Phoundation\Os\Processes\Exception\NoTasksPendingExceptions;
 use Phoundation\Os\Processes\Exception\TaskAlreadyExecutedException;
 use Phoundation\Os\Processes\Task;
 use Phoundation\Os\Processes\Tasks;
+
 
 CliDocumentation::setUsage('./pho workers execute');
 

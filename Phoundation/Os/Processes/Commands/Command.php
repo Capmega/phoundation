@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -43,8 +44,8 @@ abstract class Command extends ProcessCore implements CommandInterface
 
         // Ensure that the run files directory is available
         FsDirectory::new(
-            DIRECTORY_ROOT . 'data/run/',
-            FsRestrictions::new(DIRECTORY_DATA . 'run', true)
+            DIRECTORY_SYSTEM . 'run/',
+            FsRestrictions::new(DIRECTORY_SYSTEM . 'run', true)
         )->ensure();
 
         if ($operating_system or $packages) {

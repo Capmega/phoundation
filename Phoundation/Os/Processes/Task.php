@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
@@ -51,6 +52,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
+
 
 class Task extends DataEntry implements TaskInterface
 {
@@ -585,7 +587,7 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Does the actual execution part of executing the task
      *
-     * @return $this
+     * @return static
      */
     protected function doExecute(): static
     {
@@ -1098,7 +1100,7 @@ class Task extends DataEntry implements TaskInterface
      * @param bool        $force
      * @param string|null $comments
      *
-     * @return $this
+     * @return static
      */
     public function save(bool $force = false, ?string $comments = null): static
     {

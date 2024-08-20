@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -18,6 +19,7 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+
 
 class Which extends Command
 {
@@ -37,7 +39,7 @@ class Which extends Command
         }
         $this->setCommand('which', false)
              ->addArgument($command)
-             ->setRegisterRunfile(false)
+             ->setUseRunfile(false)
              ->setTimeout(1);
         try {
             $output   = $this->executeReturnArray();
@@ -57,7 +59,7 @@ class Which extends Command
 
         } catch (ProcessFailedException $e) {
             // The command which failed, likely it could not find the requested command
-            static::handleException('which', $e, function ($first_line, $last_line, $e) use ($command) {
+            static::handleException('which', $e, function ($e, $first_line, $last_line) use ($command) {
                 if ($e->getCode() == 1) {
                     if (!$e->getData()['output']) {
                         throw new CommandNotFoundException(tr('Could not find command ":command"', [

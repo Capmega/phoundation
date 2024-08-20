@@ -11,11 +11,13 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+
 
 class Ping extends Command
 {
@@ -42,7 +44,7 @@ class Ping extends Command
 
         } catch (ProcessFailedException $e) {
             // The command failed
-            static::handleException('ping', $e, function ($first_line, $last_line, $e) use ($file, $mode) {
+            static::handleException('ping', $e, function ($e, $first_line, $last_line) use ($file, $mode) {
                 if ($e->getCode() == 1) {
 //                    if (str_contains($last_line, 'no such file or directory')) {
 //                        throw new CommandsException(tr('Failed to chmod file ":file" to ":mode", it does not exist', [':file' => $file, ':mode' => $mode]));

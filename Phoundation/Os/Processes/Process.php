@@ -12,6 +12,7 @@
  * @uses      ProcessVariables
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
@@ -26,6 +27,8 @@ use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Utils\Arrays;
+use Throwable;
+
 
 class Process extends ProcessCore implements ProcessInterface
 {
@@ -71,12 +74,12 @@ class Process extends ProcessCore implements ProcessInterface
      * Command exception handler
      *
      * @param string        $command
-     * @param Exception     $e
+     * @param Throwable     $e
      * @param callable|null $function
      *
      * @return void
      */
-    protected static function handleException(string $command, Exception $e, ?callable $function = null): void
+    protected static function handleException(string $command, Throwable $e, ?callable $function = null): void
     {
         if ($e->getData()['output']) {
             $data       = $e->getData()['output'];

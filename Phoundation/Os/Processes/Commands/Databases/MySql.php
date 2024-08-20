@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Databases;
@@ -38,6 +39,7 @@ use Phoundation\Servers\Servers;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Throwable;
+
 
 class MySql extends Command
 {
@@ -215,7 +217,7 @@ class MySql extends Command
 
 
     /**
-     * @return $this
+     * @return static
      */
     protected function deletePasswordFile(): static
     {

@@ -11,11 +11,13 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Exception;
 
 use Phoundation\Os\Processes\Exception\ProcessesException;
+
 
 class CommandsException extends ProcessesException
 {

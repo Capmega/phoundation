@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -18,6 +19,7 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Strings;
+
 
 class Ps extends Command
 {
@@ -35,24 +37,18 @@ class Ps extends Command
             if ($pid < 1) {
                 throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 1 or higher', [':pid' => $pid]));
             }
+
             $output = $this->setCommand('ps')
-                           ->addArguments([
-                               '-p',
-                               $pid,
-                               '--no-headers',
-                               '-o',
-                               'pid,ppid,comm,cmd,args',
-                           ])
+                           ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid,ppid,comm,cmd,args'])
                            ->setTimeout(1)
-                           ->setAcceptedExitCodes([
-                               0,
-                               1,
-                           ])
+                           ->setAcceptedExitCodes([0, 1])
                            ->executeReturnArray();
+
             if (count($output) < 1) {
                 // Only the top line was returned, so the specified PID was not found
                 return null;
             }
+
             $output = array_pop($output);
 
             return [
@@ -97,10 +93,12 @@ class Ps extends Command
                            ])
                            ->setTimeout(1)
                            ->executeReturnArray();
+
             if (count($output) < 1) {
                 //only the top line was returned, so the specified PID was not found
                 return null;
             }
+
             $output = array_pop($output);
             $return = [];
             $return['pid']        = trim(Strings::until($output, ' '));
@@ -128,6 +126,7 @@ class Ps extends Command
             $return['vsize']      = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
             $return['rss']        = trim(Strings::until($output = trim(Strings::from($output, ' ')), ' '));
             $return['args']       = trim(Strings::from($output = trim(Strings::from($output, ' ')), ' '));
+
             // Fix datatypes
             $return['pid']    = (int) $return['pid'];
             $return['ppid']   = (int) $return['ppid'];
@@ -143,6 +142,7 @@ class Ps extends Command
             $return['rss']    = (int) $return['rss'];
             $return['%cpu']   = (float) $return['%cpu'];
             $return['%mem']   = (float) $return['%mem'];
+
             $return['state_label'] = match ($return['state']) {
                 'D'     => tr('uninterruptible sleep (usually IO)'),
                 'I'     => tr('Idle kernel thread'),

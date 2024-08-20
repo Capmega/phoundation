@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -18,6 +19,7 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+
 
 class Id extends Command
 {
@@ -35,12 +37,15 @@ class Id extends Command
                 ':section' => $section,
             ]));
         }
+
         $this->setCommand('id')
              ->addArgument('-' . $section)
              ->setTimeout(1);
+
         try {
             $output = $this->executeReturnArray();
             $result = reset($output);
+
             if (!is_numeric($result)) {
                 // So which gave us a path that doesn't exist or that we can't access
                 throw new CommandsException(tr('Failed to get id'));

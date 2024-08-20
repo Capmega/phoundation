@@ -26,7 +26,7 @@ interface TasksInterface extends DataIteratorInterface
     /**
      * Execute the tasks in this list
      *
-     * @return $this
+     * @return static
      */
     public function execute(): static;
 }

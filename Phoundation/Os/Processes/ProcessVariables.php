@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
@@ -18,10 +19,13 @@ namespace Phoundation\Os\Processes;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Date\DateTime;
+use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
@@ -123,7 +127,7 @@ trait ProcessVariables
     protected ?int $exit_code = null;
 
     /**
-     * The maximum amount of time in seconds that a command is allowed to run before it will time out. Zero to disable,
+     * The maximum number of time in seconds that a command is allowed to run before it will time out. Zero to disable,
      * defaults to 30
      *
      * @var int $timeout
@@ -331,6 +335,13 @@ trait ProcessVariables
      */
     protected array|string|null $output = null;
 
+    /**
+     * Tracks when this command executed
+     *
+     * @var DateTime|null $executed_on
+     */
+    protected ?DateTime $executed_on = null;
+
 
     /**
      * Process class constructor
@@ -342,7 +353,6 @@ trait ProcessVariables
         // Ensure that the run files directory is available
         // Set server filesystem restrictions
         $this->setUseRunFile(FsDirectory::getWriteEnabled());
-        $this->setRunDirectory(DIRECTORY_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/');
 
         if ($execution_directory_or_restrictions) {
             if ($execution_directory_or_restrictions instanceof FsRestrictions) {
@@ -617,7 +627,6 @@ trait ProcessVariables
             $ionice_class = EnumIoNiceClass::none;
 
         } elseif (is_int($ionice_class)) {
-
             $ionice_class = EnumIoNiceClass::from($ionice_class);
         }
 
@@ -721,7 +730,7 @@ trait ProcessVariables
 
 
     /**
-     * Returns if this process will register pid information or not
+     * Returns if this process registers pid information or not
      *
      * @return bool
      */
@@ -732,7 +741,7 @@ trait ProcessVariables
 
 
     /**
-     * Sets if this process will register pid information or not
+     * Sets if this process registers pid information or not
      *
      * @param bool $register_run_file
      *
@@ -768,7 +777,7 @@ trait ProcessVariables
     {
         $this->cached_command_line = null;
         $this->execution_directory = $execution_directory;
-        $this->restrictions        = $execution_directory?->getRestrictions();
+        $this->restrictions        = $execution_directory?->getRestrictions() ?? FsRestrictions::new();
 
         return $this;
     }
@@ -822,46 +831,35 @@ trait ProcessVariables
      *
      * @param string|null $run_directory
      *
-     * @return $this
+     * @return static
      */
     protected function setRunDirectory(?string $run_directory): static
     {
-        static::$run_directory = $run_directory;
+        $identifier            = $this->setIdentifier();
+        $this->log_file        = DIRECTORY_DATA . 'log/' . $identifier;
+        static::$run_directory = $run_directory . $identifier . '/';
 
         if ($this->use_run_file) {
-            FsDirectory::new(
-                static::$run_directory,
-                FsRestrictions::new(DIRECTORY_DATA . 'run', true, 'processes runfile')
-            )->ensure();
+            // Make sure the run file directory exists
+            FsDirectory::new(static::$run_directory, FsRestrictions::getSystem(true))->ensure();
         }
 
         return $this;
     }
 
 
-// TODO Document why this was commented out
-//    /**
-//     * Returns the log file where the process output will be redirected to
-//     *
-//     * @param string $directory
-//     * @return static This process so that multiple methods can be chained
-//     */
-//    public function setLogFile(string $directory): static
-//    {
-//        $this->cached_command_line = null;
-//
-//        if (!$directory) {
-//            // Set the default log path
-//            $directory = DIRECTORY_DATA . 'log/';
-//        }
-//
-//        // Ensure the path ends with a slash and that it is writable
-//        $directory = Strings::slash($directory);
-//        $directory = FsFileFileInterface::new($directory)->ensureWritable();
-//        $this->log_file = $directory;
-//
-//        return $this;
-//    }
+    /**
+     * Deletes the run directory for all subprocesses, if it exists
+     *
+     * @return void
+     */
+    public static function deleteRunDirectory(): void
+    {
+        if (static::$run_directory) {
+            FsDirectory::new(static::$run_directory, FsRestrictions::getSystem(true))->delete(false, use_run_file: false);
+        }
+    }
+
 
     /**
      * Returns the run file path
@@ -885,26 +883,12 @@ trait ProcessVariables
      */
     protected function setRunFile(): static
     {
+        $this->setRunDirectory(DIRECTORY_SYSTEM . 'run/pids/');
+
         $this->cached_command_line = null;
-        $this->run_file            = static::$run_directory ? static::$run_directory . $this->getIdentifier() : null;
+        $this->run_file            = static::$run_directory ? static::$run_directory . basename($this->command) : null;
 
         return $this;
-    }
-
-
-    /**
-     * Return the process identifier
-     *
-     * @return string
-     * @throws ProcessException
-     */
-    public function getIdentifier(): string
-    {
-        if (!$this->command) {
-            throw new ProcessException(tr('Cannot generate process identifier, no command has been specified yet'));
-        }
-
-        return getmypid() . '-' . Strings::fromReverse($this->command, '/');
     }
 
 
@@ -933,6 +917,31 @@ trait ProcessVariables
 
         return $this;
     }
+
+
+// TODO Document why this was commented out
+//    /**
+//     * Returns the log file where the process output will be redirected to
+//     *
+//     * @param string $directory
+//     * @return static This process so that multiple methods can be chained
+//     */
+//    public function setLogFile(string $directory): static
+//    {
+//        $this->cached_command_line = null;
+//
+//        if (!$directory) {
+//            // Set the default log path
+//            $directory = DIRECTORY_DATA . 'log/';
+//        }
+//
+//        // Ensure the path ends with a slash and that it is writable
+//        $directory = Strings::slash($directory);
+//        $directory = FsFile::new($directory)->ensureWritable();
+//        $this->log_file = $directory;
+//
+//        return $this;
+//    }
 
 
     /**
@@ -978,12 +987,12 @@ trait ProcessVariables
 //
 //        if (!$directory) {
 //            // Set the default log path
-//            $directory = DIRECTORY_DATA . 'run/';
+//            $directory = DIRECTORY_SYSTEM . 'run/';
 //        }
 //
 //        // Ensure the path ends with a slash and that it is writable
 //        $directory = Strings::slash($directory);
-//        $directory = FsFileFileInterface::new($directory)->ensureWritable();
+//        $directory = FsFile::new($directory)->ensureWritable();
 //        $this->run_file = $directory;
 //
 //        return $this;
@@ -1205,8 +1214,6 @@ trait ProcessVariables
         $this->command      = escapeshellcmd($command);
         $this->real_command = escapeshellcmd($real_command);
 
-        $this->setIdentifier();
-
         if ($clear_arguments) {
             $this->clearArguments();
         }
@@ -1216,22 +1223,36 @@ trait ProcessVariables
 
 
     /**
-     * Sets the process identifier
+     * Return the process identifier
      *
-     * @return static This process so that multiple methods can be chained
+     * @return string
      * @throws ProcessException
      */
-    protected function setIdentifier(): static
+    public function getIdentifier(): string
     {
-        $identifier = $this->getIdentifier();
+        if (!$this->command) {
+            throw new ProcessException(tr('Cannot generate process identifier, no command has been specified yet'));
+        }
 
-        $this->cached_command_line = null;
+        return getmypid() . '-' . Core::getLocalId();
+    }
+
+
+    /**
+     * Sets the process identifier
+     *
+     * @return string
+     * @throws ProcessException
+     */
+    protected function setIdentifier(): string
+    {
+        $identifier                = $this->getIdentifier();
         $this->log_file            = DIRECTORY_DATA . 'log/' . $identifier;
-        $this->run_file            = static::$run_directory . $identifier;
+        $this->cached_command_line = null;
 
         Log::notice(tr('Set process identifier ":identifier"', [':identifier' => $identifier]), 2);
 
-        return $this;
+        return $identifier;
     }
 
 
@@ -2000,57 +2021,74 @@ trait ProcessVariables
 
 
     /**
-     * Get the process PID file from the run_file and remove the file
+     * Sets the process PID file from the run_file and remove the file, or from specified output if command was run in
+     * background
      *
-     * @param string|null $output
+     * @param string|array|null $output
      *
      * @return void
      */
-    protected function setPid(?string $output = null): void
+    protected function setPid(string|array|null $output = null): void
     {
         if (!$this->register_run_file) {
             // Don't register PID information
             return;
         }
 
-        // Get PID info from run_file
-        if (!$this->run_file) {
-            throw new ProcessException(tr('Failed to set process PID, no PID specified and run_file has not been set'));
-        }
-
         // Get the PID and remove the run file
         if ($this->use_run_file) {
+            // Get PID info from run_file
+            if (!$this->run_file) {
+                throw new ProcessException(tr('Failed to set process PID, no PID specified and run_file has not been set'));
+            }
+
             $file = $this->run_file;
             $pid  = file_get_contents($file);
             $pid  = trim($pid);
 
-            // Delete the run file but don't clean up as when the process terminates, cleanup will happen automatically
-            FsFile::new($this->run_file, FsRestrictions::new(DIRECTORY_DATA . 'run/pids/', true))
-                ->delete(false);
-
-        } else {
-            if (!$output) {
-                throw new ProcessException(tr('Background executed command output returned no PID'));
+            if (!$pid) {
+                throw new ProcessException(tr('Run file ":file" for command ":command" was empty', [
+                    ':file'    => $file,
+                    ':command' => $this->command
+                ]));
             }
 
-            // We have no run file so get the PID from the specified PID
-            $pid = $output;
+            if (!is_numeric($pid)) {
+                throw new ProcessException(tr('Run file ":file" for command ":command" contains invalid data ":data"', [
+                    ':file'    => $file,
+                    ':data'    => $pid,
+                    ':command' => $this->command
+                ]));
+            }
+
+            // Delete the run file but don't clean up as when the process terminates, cleanup will happen automatically
+            FsFile::new($this->run_file, FsRestrictions::new(DIRECTORY_SYSTEM . 'run/pids/', true))
+                  ->delete(false, use_run_file: false);
+
+        } elseif ($this->wasExecutedInBackground()) {
+            // The command was executed in the background, PID was returned as output
+            $pid = Strings::force($output);
+
+            if (empty($pid)) {
+                throw new ProcessException(tr('Background executed command ":command" output returned no PID', [
+                    ':command' => $this->command
+                ]));
+            }
+
+            if (!is_numeric($pid)) {
+                throw new ProcessException(tr('Background executed command ":command" output returned invalid PID ":pid"', [
+                    ':command' => $this->command,
+                    ':pid'     => $pid
+                ]));
+            }
+
+        } else {
+            // Run files were disabled for normal execution. We can't know the PID
+            $pid = -1;
         }
 
         $this->run_file = null;
-
-        if (!$pid) {
-            throw new ProcessException(tr('Run file ":file" was empty', [':file' => $file]));
-        }
-
-        if (!is_numeric($pid)) {
-            throw new ProcessException(tr('Run file ":file" contains invalid data ":data"', [
-                ':file' => $file,
-                ':data' => $pid,
-            ]));
-        }
-
-        $this->pid = (int) $pid;
+        $this->pid      = (int) $pid;
     }
 
 
@@ -2091,10 +2129,45 @@ trait ProcessVariables
      */
     protected function setExecutionMethod(?EnumExecuteMethod $method): static
     {
-        if ($this->method === null) {
-            $this->method = $method;
+        if ($this->method) {
+            return $this;
         }
 
+        $this->executed_on = DateTime::new();
+        $this->method      = $method;
         return $this;
+    }
+
+
+    /**
+     * Returns the datetime when this command executed, or null if it has not yet executed
+     *
+     * @return DateTimeInterface|null
+     */
+    public function getExecutedOn(): ?DateTimeInterface
+    {
+        return $this->executed_on;
+    }
+
+
+    /**
+     * Returns true if this command has executed
+     *
+     * @return bool
+     */
+    public function hasBeenExecuted(): bool
+    {
+        return (bool) $this->executed_on;
+    }
+
+
+    /**
+     * Returns true if this command was executed in the background
+     *
+     * @return bool
+     */
+    public function wasExecutedInBackground(): bool
+    {
+        return $this->method === EnumExecuteMethod::background;
     }
 }

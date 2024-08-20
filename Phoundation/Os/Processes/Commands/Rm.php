@@ -12,6 +12,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -19,6 +20,7 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+
 
 class Rm extends Command
 {
@@ -44,7 +46,7 @@ class Rm extends Command
                      ($recurse_down ? '-r' : ''),
                  ])
                  ->setTimeout($timeout)
-                 ->setRegisterRunfile(false)
+                 ->setUseRunfile(false)
                  ->executeReturnArray();
             if ($recurse_up) {
                 // Delete upwards as well as long as the parent directories are empty!
@@ -61,12 +63,13 @@ class Rm extends Command
 
         } catch (ProcessFailedException $e) {
             // The command rm failed, most of the time either $file doesn't exist, or we don't have access to change the mode
-            static::handleException('rm', $e, function ($first_line, $last_line, $e) use ($file) {
+            static::handleException('rm', $e, function ($e, $first_line, $last_line) use ($file) {
                 if ($e->getCode() == 1) {
                     if (str_contains($last_line, 'no such file or directory')) {
                         // The specified file does not exist, that is okay, we wanted it gone anyway
                         return;
                     }
+
                     if (str_contains($last_line, 'is a directory')) {
                         throw new CommandsException(tr('Failed to delete file ":file" to ":mode", it is a directory and $recurse_down was not specified', [':file' => $file]));
                     }

@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -18,6 +19,7 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Strings;
+
 
 class Chmod extends Command
 {
@@ -45,7 +47,7 @@ class Chmod extends Command
 
         } catch (ProcessFailedException $e) {
             // The command chmod failed, most of the time either $file doesn't exist, or we don't have access to change the mode
-            static::handleException('chmod', $e, function ($first_line, $last_line, $e) use ($file, $mode) {
+            static::handleException('chmod', $e, function ($e, $first_line, $last_line) use ($file, $mode) {
                 if ($e->getCode() == 1) {
                     if (str_contains($last_line, 'no such file or directory')) {
                         throw new CommandsException(tr('Failed to chmod file ":file" to ":mode", it does not exist', [
@@ -53,6 +55,7 @@ class Chmod extends Command
                             ':mode' => $mode,
                         ]));
                     }
+
                     if (str_contains($last_line, 'operation not permitted')) {
                         throw new CommandsException(tr('Failed to chmod file ":file" to ":mode", permission denied', [
                             ':file' => $file,

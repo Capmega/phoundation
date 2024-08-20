@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class zip
+ * Class Zip
  *
- * This class contains various "zip" commands
+ * This class contains various "zip" methods
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -11,21 +11,31 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
+use Phoundation\Data\Traits\TraitDataCompressionLevel;
+use Phoundation\Data\Traits\TraitDataSourcePath;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Os\Processes\Commands\Interfaces\ZipInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Utils\Config;
 use Stringable;
 
-class Zip extends Command
+
+class Zip extends Command implements ZipInterface
 {
+    use TraitDataCompressionLevel;
+    use TraitDataSourcePath;
+
+
     /**
      * Zip class constructor
      *
@@ -36,31 +46,33 @@ class Zip extends Command
     public function __construct(FsDirectoryInterface|FsRestrictionsInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null)
     {
         parent::__construct($execution_directory, $operating_system, $packages);
-        $this->timeout = 120;
+
+        $this->timeout = 300;
+        $this->compression_level = Config::getInteger('filesystem.compression.zip.level.default', 6);
     }
 
 
     /**
      * Unzips the specified file
      *
-     * @param FsFileInterface           $file The file to be unzipped.
-     * @param FsDirectoryInterface|null $target
+     * @param FsDirectoryInterface $target
      *
      * @return FsDirectoryInterface
      */
-    public function unzip(FsFileInterface $file): FsDirectoryInterface
+    public function unzip(FsDirectoryInterface $target): FsDirectoryInterface
     {
         try {
-            $this->setCommand('unzip')
-                 ->addArguments($file)
+            $this->setSourcePath($target)
+                 ->setCommand('unzip')
+                 ->addArguments($this->source_path)
                  ->executeNoReturn();
 
             return $this->getExecutionDirectory();
 
         } catch (ProcessFailedException $e) {
             // The command unzip failed, most of the time either $file doesn't exist, or we don't have access
-            static::handleException('unzip', $e, function () use ($file) {
-                FsFile::new($file)->checkReadable();
+            static::handleException('unzip', $e, function () use ($target) {
+                FsFile::new($target)->checkReadable();
             });
         }
     }
@@ -69,31 +81,30 @@ class Zip extends Command
     /**
      * Zips the specified path
      *
-     * @param FsPathInterface      $path The file to be unzipped.
      * @param FsFileInterface|null $target
      *
      * @return FsFileInterface
      */
-    public function zip(FsPathInterface $path, ?FsFileInterface $target = null): FsFileInterface
+    public function zip(?FsFileInterface $target = null): FsFileInterface
     {
         try {
             if (!$target) {
-                $parent = $path->getParentDirectory();
-                $target = new FsFile($parent . $path->getBasename() . '.zip', $parent->getRestrictions());
+                $parent = $this->source_path->getParentDirectory();
+                $target = new FsFile($parent . $this->source_path->getBasename() . '.zip', $parent->getRestrictions());
             }
 
             $this->setCommand('zip')
-                 ->addArguments('-rp')
+                 ->addArguments('-rp' . $this->compression_level)
                  ->addArguments($target)
-                 ->addArguments($path->makeRelative($this->getExecutionDirectory()))
+                 ->addArguments($this->source_path->makeRelative($this->source_path->getParentDirectory()))
                  ->executeNoReturn();
 
             return $target;
 
         } catch (ProcessFailedException $e) {
             // The command zip failed, most of the time either $file doesn't exist, or we don't have access
-            static::handleException('zip', $e, function () use ($path) {
-                FsPath::new($path)->checkReadable();
+            static::handleException('zip', $e, function ($e) {
+                FsPath::new($this->source_path)->checkReadable('zip', $e);
             });
         }
     }

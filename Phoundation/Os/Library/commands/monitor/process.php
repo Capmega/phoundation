@@ -1,15 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Os\Processes\Commands\Pgrep;
-use Phoundation\Os\Processes\Exception\MonitorException;
-
-
 /**
- * Command monitor/process
+ * Command monitor process
  *
  * This command will monitor the specified process (by name) and alert and restart when it stops
  *
@@ -18,6 +10,16 @@ use Phoundation\Os\Processes\Exception\MonitorException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Os\Processes\Commands\Pgrep;
+use Phoundation\Os\Processes\Exception\MonitorException;
+
+
 CliDocumentation::setUsage('./pho monitor process PROCESS_NAME');
 
 CliDocumentation::setHelp('This command will monitor the specified process (by name) and alert and restart it when it stops');

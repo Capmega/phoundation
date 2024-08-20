@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
@@ -27,6 +28,7 @@ use Phoundation\Os\Processes\Interfaces\TasksInterface;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+
 
 class Tasks extends DataIterator implements TasksInterface
 {
@@ -59,11 +61,11 @@ class Tasks extends DataIterator implements TasksInterface
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Task::class;
     }
@@ -138,7 +140,7 @@ class Tasks extends DataIterator implements TasksInterface
     /**
      * Execute the tasks in this list
      *
-     * @return $this
+     * @return static
      */
     public function execute(): static
     {

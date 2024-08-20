@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Devices\Storage;
@@ -28,6 +29,7 @@ use Phoundation\Os\Processes\Commands\Mount;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
+
 
 class Device extends FsFile implements DeviceInterface
 {
@@ -97,7 +99,7 @@ class Device extends FsFile implements DeviceInterface
     /**
      * Scrambles this storage device with random data
      *
-     * @return $this
+     * @return static
      */
     public function scramble(): static
     {
@@ -142,7 +144,7 @@ class Device extends FsFile implements DeviceInterface
      * @param string|null          $key
      * @param FsFileInterface|null $key_file
      *
-     * @return $this
+     * @return static
      */
     public function encrypt(?string $key, ?FsFileInterface $key_file = null): static
     {

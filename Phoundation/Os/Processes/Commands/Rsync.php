@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -29,6 +30,7 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Utils\Arrays;
 use Stringable;
 
+
 class Rsync extends Command implements RsyncInterface
 {
     use TraitDataDebug;
@@ -37,6 +39,7 @@ class Rsync extends Command implements RsyncInterface
     use TraitDataSourceServer;
     use TraitDataTarget;
     use TraitDataTargetServer;
+
 
     /**
      * Show progress of larger files

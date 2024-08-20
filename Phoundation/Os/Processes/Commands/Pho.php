@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -22,6 +23,7 @@ use Phoundation\Os\Processes\Commands\Interfaces\PhoInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\WorkersCore;
 use Phoundation\Utils\Arrays;
+
 
 class Pho extends WorkersCore implements PhoInterface
 {
@@ -48,7 +50,7 @@ class Pho extends WorkersCore implements PhoInterface
         }
 
         // Ensure that the run files directory is available
-        FsDirectory::new(DIRECTORY_ROOT . 'data/run/', FsRestrictions::new(DIRECTORY_DATA . 'run'))
+        FsDirectory::new(DIRECTORY_SYSTEM . 'run/', FsRestrictions::new(DIRECTORY_SYSTEM . 'run'))
             ->ensure();
 
         // Generate the process

@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Packages;
@@ -24,6 +25,7 @@ use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Stringable;
+
 
 class Packages extends Iterator implements PackagesInterface
 {
@@ -59,7 +61,7 @@ class Packages extends Iterator implements PackagesInterface
      *
      * @param Stringable|string|null $operating_system
      *
-     * @return $this
+     * @return static
      */
     public function install(Stringable|string|null $operating_system = null): static
     {

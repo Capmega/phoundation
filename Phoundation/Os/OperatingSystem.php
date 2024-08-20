@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os;
@@ -22,6 +23,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryVersion;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Os\Interfaces\OperatingSystemInterface;
+
 
 class OperatingSystem extends DataEntry implements OperatingSystemInterface
 {

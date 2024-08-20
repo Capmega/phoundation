@@ -5,11 +5,12 @@
  *
  *
  * @note      On Ubuntu requires packages nfs-utils cifs-utils psmisc
- * * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
  */
+
 
 declare(strict_types=1);
 
@@ -24,6 +25,7 @@ use Phoundation\Filesystem\Mounts\Exception\UnmountBusyException;
 use Phoundation\Filesystem\Mounts\FsMounts;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Stringable;
+
 
 class UnMount extends Command
 {

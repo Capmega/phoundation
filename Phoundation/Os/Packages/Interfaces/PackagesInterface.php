@@ -25,7 +25,7 @@ interface PackagesInterface extends IteratorInterface
      *
      * @param Stringable|string|null $operating_system
      *
-     * @return $this
+     * @return static
      */
     public function install(Stringable|string|null $operating_system = null): static;
 

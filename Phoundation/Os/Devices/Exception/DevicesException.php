@@ -11,11 +11,13 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Devices\Exception;
 
 use Phoundation\Exception\Exception;
+
 
 class DevicesException extends Exception
 {

@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -20,6 +21,7 @@ use Phoundation\Data\Traits\TraitDataFile;
 use Phoundation\Data\Traits\TraitDataValue;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+
 
 class Grep extends Command
 {

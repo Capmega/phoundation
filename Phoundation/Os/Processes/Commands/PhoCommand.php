@@ -11,17 +11,19 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Os\Processes\Commands\Interfaces\PhoCommandCoreInterface;
+use Phoundation\Os\Processes\Commands\Interfaces\PhoCommandInterface;
 use Phoundation\Os\Processes\WorkersCore;
 use Phoundation\Utils\Arrays;
 
-class PhoCommand extends WorkersCore implements PhoCommandCoreInterface
+
+class PhoCommand extends WorkersCore implements PhoCommandInterface
 {
     /**
      * PhoCommand class constructor.
@@ -36,7 +38,7 @@ class PhoCommand extends WorkersCore implements PhoCommandCoreInterface
         }
 
         // Ensure that the run files directory is available
-        FsDirectory::new(DIRECTORY_ROOT . 'data/run/', FsRestrictions::new(DIRECTORY_DATA . 'run'))
+        FsDirectory::new(DIRECTORY_SYSTEM . 'run/', FsRestrictions::new(DIRECTORY_SYSTEM . 'run'))
                  ->ensure();
 
         parent::__construct(FsRestrictions::new(DIRECTORY_ROOT . 'pho'));

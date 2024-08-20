@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -18,6 +19,7 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Data\Traits\TraitDataFile;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+
 
 class Mpg123 extends Command
 {

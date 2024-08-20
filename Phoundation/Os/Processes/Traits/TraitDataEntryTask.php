@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Traits;
@@ -108,6 +109,6 @@ trait TraitDataEntryTask
      */
     public function setTasksCode(?string $code): static
     {
-        return $this->setTask(Task::load($code, 'code'));
+        return $this->setTask(Task::load($code));
     }
 }

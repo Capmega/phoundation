@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -23,6 +24,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Plugins\Phoundation\Hardware\Devices\Interfaces\ProfileInterface;
 use Plugins\Phoundation\Scanners\Exception\ScannersException;
+
 
 class ScanImage extends Command
 {
@@ -419,7 +421,7 @@ class ScanImage extends Command
      *
      * @param ProfileInterface $profile
      *
-     * @return $this
+     * @return static
      */
     public function setProfile(ProfileInterface $profile): static
     {
@@ -461,7 +463,7 @@ class ScanImage extends Command
      *
      * @param ProfileInterface $profile
      *
-     * @return $this
+     * @return static
      */
     public function applyProfile(ProfileInterface $profile): static
     {

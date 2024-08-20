@@ -641,7 +641,7 @@ interface TaskInterface extends DataEntryInterface
      * @param bool                          $clear_source
      * @param array|ValidatorInterface|null $source
      *
-     * @return $this
+     * @return static
      * @throws \Exception
      */
     public function apply(bool $clear_source = true, array|ValidatorInterface|null &$source = null): static;

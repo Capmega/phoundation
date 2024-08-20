@@ -11,11 +11,13 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Devices\Storage\Exception;
 
 use Phoundation\Exception\Exception;
+
 
 class StorageException extends Exception
 {

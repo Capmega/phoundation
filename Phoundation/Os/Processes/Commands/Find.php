@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -31,6 +32,7 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
+
 
 class Find extends Command implements FindInterface
 {
@@ -206,7 +208,7 @@ class Find extends Command implements FindInterface
      *
      * @param FsPathInterface|null $path
      *
-     * @return $this
+     * @return static
      */
     public function setPath(FsPathInterface|null $path): static
     {
@@ -368,7 +370,7 @@ class Find extends Command implements FindInterface
      *
      * @param Stringable|string $size
      *
-     * @return $this
+     * @return static
      */
     public function setSize(Stringable|string $size): static
     {
@@ -400,7 +402,7 @@ class Find extends Command implements FindInterface
      *
      * @param Stringable|string $mtime
      *
-     * @return $this
+     * @return static
      */
     public function setMtime(Stringable|string $mtime): static
     {
@@ -432,7 +434,7 @@ class Find extends Command implements FindInterface
      *
      * @param Stringable|string $atime
      *
-     * @return $this
+     * @return static
      */
     public function setAtime(Stringable|string $atime): static
     {
@@ -464,7 +466,7 @@ class Find extends Command implements FindInterface
      *
      * @param Stringable|string $ctime
      *
-     * @return $this
+     * @return static
      */
     public function setCtime(Stringable|string $ctime): static
     {
@@ -496,7 +498,7 @@ class Find extends Command implements FindInterface
      *
      * @param Stringable|array|string $types
      *
-     * @return $this
+     * @return static
      */
     public function setTypes(Stringable|array|string $types): static
     {
@@ -542,7 +544,7 @@ class Find extends Command implements FindInterface
      *
      * @param string|null $regex
      *
-     * @return $this
+     * @return static
      */
     public function setRegex(?string $regex): static
     {
@@ -568,7 +570,7 @@ class Find extends Command implements FindInterface
      *
      * @param bool $depth
      *
-     * @return $this
+     * @return static
      */
     public function setDepth(bool $depth): static
     {
@@ -594,7 +596,7 @@ class Find extends Command implements FindInterface
      *
      * @param int|null $min_depth
      *
-     * @return $this
+     * @return static
      */
     public function setMinDepth(?int $min_depth): static
     {
@@ -620,7 +622,7 @@ class Find extends Command implements FindInterface
      *
      * @param int|null $max_depth
      *
-     * @return $this
+     * @return static
      */
     public function setMaxDepth(?int $max_depth): static
     {
@@ -646,7 +648,7 @@ class Find extends Command implements FindInterface
      *
      * @param callable|null $callback
      *
-     * @return $this
+     * @return static
      */
     public function setCallback(?callable $callback): static
     {
@@ -675,7 +677,7 @@ class Find extends Command implements FindInterface
      *
      * @param string|null $exec
      *
-     * @return $this
+     * @return static
      */
     public function setExec(?string $exec = null): static
     {
@@ -724,7 +726,7 @@ class Find extends Command implements FindInterface
      *
      * @param string $type
      *
-     * @return $this
+     * @return static
      */
     public function setType(#[ExpectedValues([
         'b',

@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Os\Processes\Enum;
-
-use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
-
 /**
  * Enum EnumIoNice
  *
@@ -16,6 +10,14 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Processes
  */
+
+
+declare(strict_types=1);
+
+namespace Phoundation\Os\Processes\Enum;
+
+use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
+
 enum EnumIoNiceClass: int implements EnumIoNiceClassInterface
 {
     case none        = 0;

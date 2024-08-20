@@ -16,7 +16,7 @@ interface FindInterface extends CommandInterface
      *
      * @param FsPathInterface|null $path
      *
-     * @return $this
+     * @return static
      */
     public function setPath(FsPathInterface|null $path): static;
 
@@ -130,7 +130,7 @@ interface FindInterface extends CommandInterface
      *
      * @param Stringable|string $size
      *
-     * @return $this
+     * @return static
      */
     public function setSize(Stringable|string $size): static;
 
@@ -148,7 +148,7 @@ interface FindInterface extends CommandInterface
      *
      * @param Stringable|string $mtime
      *
-     * @return $this
+     * @return static
      */
     public function setMtime(Stringable|string $mtime): static;
 
@@ -166,7 +166,7 @@ interface FindInterface extends CommandInterface
      *
      * @param Stringable|string $atime
      *
-     * @return $this
+     * @return static
      */
     public function setAtime(Stringable|string $atime): static;
 
@@ -184,7 +184,7 @@ interface FindInterface extends CommandInterface
      *
      * @param Stringable|string $ctime
      *
-     * @return $this
+     * @return static
      */
     public function setCtime(Stringable|string $ctime): static;
 
@@ -202,7 +202,7 @@ interface FindInterface extends CommandInterface
      *
      * @param Stringable|array|string $types
      *
-     * @return $this
+     * @return static
      */
     public function setTypes(Stringable|array|string $types): static;
 
@@ -220,7 +220,7 @@ interface FindInterface extends CommandInterface
      *
      * @param string|null $regex
      *
-     * @return $this
+     * @return static
      */
     public function setRegex(?string $regex): static;
 
@@ -238,7 +238,7 @@ interface FindInterface extends CommandInterface
      *
      * @param bool $depth
      *
-     * @return $this
+     * @return static
      */
     public function setDepth(bool $depth): static;
 
@@ -256,7 +256,7 @@ interface FindInterface extends CommandInterface
      *
      * @param int|null $min_depth
      *
-     * @return $this
+     * @return static
      */
     public function setMinDepth(?int $min_depth): static;
 
@@ -274,7 +274,7 @@ interface FindInterface extends CommandInterface
      *
      * @param int|null $max_depth
      *
-     * @return $this
+     * @return static
      */
     public function setMaxDepth(?int $max_depth): static;
 
@@ -292,7 +292,7 @@ interface FindInterface extends CommandInterface
      *
      * @param callable|null $callback
      *
-     * @return $this
+     * @return static
      */
     public function setCallback(?callable $callback): static;
 
@@ -310,7 +310,7 @@ interface FindInterface extends CommandInterface
      *
      * @param string|null $exec
      *
-     * @return $this
+     * @return static
      */
     public function setExec(?string $exec = null): static;
 
@@ -339,7 +339,7 @@ interface FindInterface extends CommandInterface
      *
      * @param string $type
      *
-     * @return $this
+     * @return static
      */
     public function setType(string $type): static;
 

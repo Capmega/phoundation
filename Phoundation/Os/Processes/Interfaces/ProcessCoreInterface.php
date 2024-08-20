@@ -25,7 +25,7 @@ interface ProcessCoreInterface extends Stringable
      *
      * @param ServerInterface|string|null $server
      *
-     * @return $this
+     * @return static
      */
     public function setServer(ServerInterface|string|null $server): static;
 

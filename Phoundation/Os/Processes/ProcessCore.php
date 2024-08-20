@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
@@ -34,6 +35,8 @@ use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessVariablesInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Throwable;
+
 
 abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInterface
 {
@@ -74,12 +77,12 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
      * Command exception handler
      *
      * @param string        $command
-     * @param Exception     $e
+     * @param Throwable     $e
      * @param callable|null $function
      *
      * @return void
      */
-    protected static function handleException(string $command, Exception $e, ?callable $function = null): void
+    protected static function handleException(string $command, Throwable $e, ?callable $function = null): void
     {
         if ($e->getData()['output']) {
             $data       = $e->getData()['output'];
@@ -90,7 +93,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
             // Process specified handlers
             if ($function) {
-                $function($first_line, $last_line, $e);
+                $function($e, $first_line, $last_line);
             }
 
             // Handlers were unable to make a clear exception out of this, show the standard command exception
@@ -102,7 +105,15 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
         // The process generated no output. Process specified handlers
         if ($function) {
-            $function(null, null, $e);
+            try {
+                $function($e);
+
+            } catch (Throwable $f) {
+                // Throw the new exception but add the previous one. Since PHP exceptions are rather locked down to
+                // extending, we have to use a work-around
+                $class = get_class($f);
+                throw new $class($f->getMessage(), $f->getCode(), $e);
+            }
         }
 
         // Something else went wrong, no CLI output available
@@ -144,13 +155,13 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
             case EnumExecuteMethod::noReturn:
                 $this->executeNoReturn();
-
                 return null;
-            default:
-                throw new OutOfBoundsException(tr('Unknown execute method ":method" specified', [
-                    ':method' => $method,
-                ]));
         }
+
+        // This never should and never could happen as we switched all possible EnumExecuteMethod values
+        throw new OutOfBoundsException(tr('Unknown execute method ":method" specified', [
+            ':method' => $method,
+        ]));
     }
 
 
@@ -445,12 +456,12 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
      *
      * This method will check if the specified exit code is accepted and if not, throw a Process exception
      *
-     * @param int               $exit_code
+     * @param int|null          $exit_code
      * @param string|array|null $output
      *
-     * @return int
+     * @return static
      */
-    protected function setExitCode(int $exit_code, string|array|null $output = null): int
+    protected function setExitCode(?int $exit_code, string|array|null $output = null): static
     {
         if (empty($output)) {
             // Output was redirected to log file, get output from there
@@ -460,6 +471,8 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
                 }
             }
         }
+
+        $this->setPid($output);
 
         $this->stop      = microtime(true);
         $this->exit_code = $exit_code;
@@ -505,7 +518,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         }
 
         // All okay, yay!
-        return $exit_code;
+        return $this;
     }
 
 
@@ -516,7 +529,9 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
      */
     public function executeBackground(): int
     {
-        $this->setExecutionMethod(EnumExecuteMethod::background);
+        // Background execution will NOT use a runfile.
+        $this->setExecutionMethod(EnumExecuteMethod::background)
+             ->use_run_file = false;
 
         // Ensure that this background command uses a terminal,
         $this->setTerm('xterm', true);
@@ -545,8 +560,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         }
 
         // Set the process id and exit code for the nohup command
-        $this->setPid(implode(PHP_EOL, $output));
-        $exit_code = $this->setExitCode(0);
+        $this->setExitCode(null, $output);
 
         Log::success(tr('Executed background command ":command" with PID ":pid"', [
             ':command' => $this->real_command,
@@ -673,7 +687,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * Kill this (backgroun) process
+     * Kill this (background) process
      *
      * @param int $signal
      *

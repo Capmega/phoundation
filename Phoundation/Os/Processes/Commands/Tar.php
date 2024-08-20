@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
@@ -20,6 +21,7 @@ use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+
 
 class Tar extends Command
 {
@@ -50,7 +52,7 @@ class Tar extends Command
 
         } catch (ProcessFailedException $e) {
             // The command tar failed, most of the time either $file doesn't exist, or we don't have access
-            static::handleException('tar', $e, function ($source_file, $source_line, $e) use ($file) {
+            static::handleException('tar', $e, function ($e) use ($file) {
                 FsFile::new($file)->checkReadable($e);
             });
         }
@@ -86,7 +88,7 @@ class Tar extends Command
 
         } catch (ProcessFailedException $e) {
             // The command tar failed, most of the time either $file doesn't exist, or we don't have access
-            static::handleException('tar', $e, function ($file, $line, $e) use ($path) {
+            static::handleException('tar', $e, function ($e, $file, $line) use ($path) {
                 FsFile::new($path)->checkReadable('tar', $e);
             });
         }

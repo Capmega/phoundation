@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Command monitor service
+ *
+ * This command will monitor the specified service (by name) and alert and restart when it stops
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Scripts
+ */
+
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -16,16 +28,6 @@ use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
 
-/**
- * Command monitor/service
- *
- * This command will monitor the specified service (by name) and alert and restart when it stops
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Scripts
- */
 CliDocumentation::setUsage('./pho monitor service PROCESS_NAME');
 
 CliDocumentation::setHelp('This command will monitor the specified service (by name) and alert and restart it when it stops');

@@ -12,12 +12,14 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+
 
 class Pgrep extends Command
 {
@@ -65,13 +67,12 @@ class Pgrep extends Command
             if ($pid < 0) {
                 throw new OutOfBoundsException(tr('The specified process id ":pid" is invalid. Please specify a positive integer', [':pid' => $pid]));
             }
+
             $output = $this->setCommand('pgrep')
-                           ->addArguments([
-                               '-P',
-                               $pid,
-                           ])
+                           ->addArguments(['-P', $pid])
                            ->setTimeout(1)
                            ->executeReturnArray();
+
             // Remove the pgrep command PID
             unset($output[0]);
 

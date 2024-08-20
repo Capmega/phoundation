@@ -11,6 +11,7 @@
  * @package   Phoundation\Os
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Databases;
@@ -28,6 +29,7 @@ use Phoundation\Os\Processes\Commands\Interfaces\MysqlDumpInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+
 
 class MysqlDump extends Command implements MysqlDumpInterface
 {
