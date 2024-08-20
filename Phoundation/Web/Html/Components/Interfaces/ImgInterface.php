@@ -7,7 +7,7 @@ namespace Phoundation\Web\Html\Components\Interfaces;
 use Phoundation\Web\Html\Components\Img;
 use Stringable;
 
-interface ImgInterface
+interface ImgInterface extends SpanInterface
 {
     /**
      * Sets the HTML alt element attribute
@@ -50,7 +50,7 @@ interface ImgInterface
      *
      * @return bool
      */
-    public function getExternal(): bool;
+    public function isExternal(): bool;
 
 
     /**

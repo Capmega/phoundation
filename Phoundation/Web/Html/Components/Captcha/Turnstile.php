@@ -12,6 +12,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Captcha;
@@ -24,6 +25,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Script;
+
 
 class Turnstile extends Captcha
 {

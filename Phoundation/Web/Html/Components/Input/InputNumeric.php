@@ -11,11 +11,13 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Web\Html\Enums\EnumInputType;
+
 
 class InputNumeric extends Input
 {
@@ -47,7 +49,7 @@ class InputNumeric extends Input
      *
      * @param int|null $max
      *
-     * @return $this
+     * @return static
      */
     public function setMax(?int $max): static
     {
@@ -71,7 +73,7 @@ class InputNumeric extends Input
      *
      * @param int|null $min
      *
-     * @return $this
+     * @return static
      */
     public function setMin(?int $min): static
     {
@@ -95,7 +97,7 @@ class InputNumeric extends Input
      *
      * @param int|null $step
      *
-     * @return $this
+     * @return static
      */
     public function setStep(?int $step): static
     {

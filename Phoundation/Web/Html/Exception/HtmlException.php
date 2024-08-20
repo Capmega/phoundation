@@ -11,11 +11,13 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Exception;
 
 use Phoundation\Web\Exception\WebException;
+
 
 class HtmlException extends WebException
 {

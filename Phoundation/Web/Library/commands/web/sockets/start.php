@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Web\Sockets\Test;

@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Template;
@@ -18,6 +19,7 @@ namespace Phoundation\Web\Html\Template;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Interfaces\TemplateRendererInterface;
+
 
 class TemplateRenderer implements TemplateRendererInterface
 {
@@ -59,7 +61,7 @@ class TemplateRenderer implements TemplateRendererInterface
      *
      * @param RenderInterface|null $component
      *
-     * @return $this
+     * @return static
      */
     public static function new(RenderInterface|null $component): static
     {

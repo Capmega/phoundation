@@ -11,11 +11,13 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
 
 use JetBrains\PhpStorm\ExpectedValues;
+
 
 class Flash
 {

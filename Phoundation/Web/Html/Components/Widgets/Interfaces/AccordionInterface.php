@@ -21,7 +21,7 @@ interface AccordionInterface extends WidgetInterface
      *
      * @param bool $selectors
      *
-     * @return $this
+     * @return static
      */
     public function setSelectors(bool $selectors): static;
 
@@ -37,7 +37,7 @@ interface AccordionInterface extends WidgetInterface
      *
      * @param Stringable|string|float|int|null $open
      *
-     * @return $this
+     * @return static
      */
     public function setOpen(Stringable|string|float|int|null $open): static;
 

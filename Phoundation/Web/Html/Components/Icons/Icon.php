@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Icons;
@@ -19,6 +20,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
 use Phoundation\Web\Html\Traits\TraitMode;
+
 
 class Icon extends Element implements IconInterface
 {

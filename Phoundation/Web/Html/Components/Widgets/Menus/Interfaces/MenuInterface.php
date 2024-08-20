@@ -11,6 +11,7 @@
  * @package   Phoundation/Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Menus\Interfaces;
@@ -27,7 +28,7 @@ interface MenuInterface extends ElementsBlockInterface
      * @param IteratorInterface|PDOStatement|array|string|null $source
      * @param array|null                                       $execute
      *
-     * @return $this
+     * @return static
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 }

@@ -11,9 +11,11 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Traits;
+
 
 trait TraitElementAttributeType
 {

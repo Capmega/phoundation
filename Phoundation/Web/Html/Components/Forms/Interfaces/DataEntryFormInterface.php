@@ -23,7 +23,7 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      *
      * @param string|null $auto_focus_id
      *
-     * @return $this
+     * @return static
      */
     public function setAutoFocusId(?string $auto_focus_id): static;
 

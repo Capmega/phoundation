@@ -11,12 +11,14 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Non200Urls;
 
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Exception\OutOfBoundsException;
+
 
 class Non200Urls extends DataIterator
 {
@@ -32,7 +34,7 @@ class Non200Urls extends DataIterator
     /**
      * @inheritDoc
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Non200Url::class;
     }

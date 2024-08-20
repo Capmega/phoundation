@@ -11,12 +11,13 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html;
 
 use PDOStatement;
-use Phoundation\Content\Images\Image;
+use Phoundation\Content\Images\ImageFile;
 use Phoundation\Core\Core;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\FsFile;
@@ -27,6 +28,7 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Stringable;
 use Throwable;
+
 
 class Html
 {
@@ -145,7 +147,7 @@ class Html
      *
      * This function will generate the entrire HTML header, from <!DOCTYPE> until </head><body>
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -298,7 +300,7 @@ class Html
     /*
      * Generate all <meta> tags
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -340,7 +342,7 @@ class Html
     /*
      * Generate all open graph <meta> tags
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -468,7 +470,7 @@ class Html
      *
      * This function should be called in your c_page() function
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -564,7 +566,7 @@ class Html
      *
      * This function should be called in your c_page() function
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -611,7 +613,7 @@ class Html
 //     *
 //     * This function will scan the $_SESSION[flash] array for messages to be displayed as flash messages. If $class is specified, only messages that have the specified class will be displayed. If multiple flash messages are available, all will be returned. Messages that are returned will be removed from the $_SESSION[flash] array.
 //     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
@@ -784,7 +786,7 @@ class Html
 //     *
 //     * Each message requires a type, which can be one of info, warning, error, or success. Depending on the type, the shown flash message will be one of those four types
 //     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
@@ -1001,7 +1003,7 @@ class Html
      *
      * This function is the go-to function when <select> boxes must be created.
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1079,7 +1081,7 @@ class Html
      *
      * This function returns only the body (<option> tags) for a <select> list. Typically, html_select() would be used, but this function is useful in situations where only the <option> tags would be required, like for example a web page that dynamically wants to change the contents of a <select> box using an AJAX call
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1092,7 +1094,7 @@ class Html
      * @param string $params[none] If specified, and no <option> is selected due to "selected", this text will be shown. Defaults to "None selected"
      * @param string $params[empty] If specified, and the resource is empty, this text will be shown. Defaults to "None available"
      * @param string $params[selected] If specified, the <option> that has the specified key will be selected
-     * @param boolean $params[auto_select] If specified and the resource contains only one item, this item will be autmatically selected
+     * @param boolean $params[auto_select] If specified, and the resource contains only one item, this item will be autmatically selected
      * @param mixed $params[resource] The resource for the contents of the <select>. May be a key => value array (where each value must be of scalar datatype) or a PDO statement from a query that selects 2 columns, where the first column will be the key and the second column the value.
      * @param mixed $params[data_resource]
      * @return string The body HTML for a <select> tag, containing all <option> tags
@@ -1138,7 +1140,7 @@ class Html
     /*
      * Generate HTML <script> tags, and depending on load_delayed, return them immediately or attach them to $core->resource[footer]
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1587,8 +1589,7 @@ class Html
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   image
+         * @package   image
      * @version   2.5.161: Added function and documentation
      *
      */
@@ -2052,7 +2053,7 @@ class Html
                             FsFile::new()
                                 ->executeMode(dirname($file_src), 0770, function () use ($file_src, $file_target, $params) {
                                     global $_CONFIG;
-                                    Image::convert([
+                                    ImageFile::convert([
                                         'method' => 'resize',
                                         'source' => $file_src,
                                         'target' => $file_target,
@@ -2380,7 +2381,7 @@ class Html
 //     * Returns an HTML <form> tag with (if configured so) a hidden CSRF variable
 //     * attached
 //     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
@@ -2437,7 +2438,7 @@ class Html
 //    /*
 //     * Returns the current global tabindex and automatically increases it
 //     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
@@ -2454,7 +2455,7 @@ class Html
 //    /*
 //     * Set the base URL for CDN requests from javascript
 //     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
@@ -2471,7 +2472,7 @@ class Html
     /*
      * Filter the specified tags from the specified HTML
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -2520,7 +2521,7 @@ class Html
      *
      * This function typically should be executed in the c_page_header() call, and the HTML output of this function should be inserted at the beginning of the HTML that that function generates. This way, the loader screen will be the first thing (right after the <body> tag) that the browser will render, hiding all the other elements that are buiding up.
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -2646,7 +2647,7 @@ class Html
      *
      * This function will strip all attributes except for those attributes specified in $allowed_attributes
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -2663,7 +2664,7 @@ class Html
     {
         $allowed_attributes = Arrays::force($allowed_attributes);
         /*
-         * If specified source string is empty, then we're done right away
+         * If specified, source string is empty, then we're done right away
          */
         if (!$source) {
             return '';

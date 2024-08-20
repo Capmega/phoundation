@@ -11,11 +11,13 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html;
 
 use Phoundation\Utils\Arrays;
+
 
 class Css
 {
@@ -125,8 +127,8 @@ class Css
 //        $arguments       = array('--css', $css_file, '--content', $html, '--out', DIRECTORY_TMP);
 //
 //        // Ensure that any previous version is deleted
-//        FsFileFileInterface::new($purged_css_file)->delete();
-//        FsFileFileInterface::new(DIRECTORY_WEB . LANGUAGE . '/pub/css')->delete();
+//        FsFile::new($purged_css_file)->delete();
+//        FsFile::new(DIRECTORY_WEB . LANGUAGE . '/pub/css')->delete();
 //
 //        // Add list of selectors that should be whitelisted
 //        if (!empty($_CONFIG['css']['whitelist'][$core->register['script']])) {

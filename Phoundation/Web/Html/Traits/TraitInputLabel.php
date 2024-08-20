@@ -13,6 +13,7 @@
 
 namespace Phoundation\Web\Html\Traits;
 
+
 trait TraitInputLabel
 {
     /**

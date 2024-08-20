@@ -11,6 +11,7 @@
  * @package   Phoundation/Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Menus;
@@ -22,6 +23,7 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Http\Url;
 
+
 class Menu extends ElementsBlock implements MenuInterface
 {
     /**
@@ -30,7 +32,7 @@ class Menu extends ElementsBlock implements MenuInterface
      * @param IteratorInterface|PDOStatement|array|string|null $source
      * @param array|null                                       $execute
      *
-     * @return $this
+     * @return static
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
@@ -52,7 +54,7 @@ class Menu extends ElementsBlock implements MenuInterface
             }
             if (array_key_exists('rights', $entry)) {
                 if (
-                    !Session::getUser()
+                    !Session::getUserObject()
                             ->hasAllRights($entry['rights'])
                 ) {
                     // User doesn't have access

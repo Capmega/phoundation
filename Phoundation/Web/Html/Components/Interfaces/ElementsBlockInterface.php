@@ -45,7 +45,7 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      *
      * @param bool $enable
      *
-     * @return $this
+     * @return static
      */
     public function setRenderContentsOnly(bool $enable): static;
 

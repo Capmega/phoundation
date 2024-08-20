@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Buttons;
@@ -18,6 +19,7 @@ namespace Phoundation\Web\Html\Components\Input\Buttons;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Exception\HtmlException;
+
 
 class InputSelectSubmit extends InputSelect
 {

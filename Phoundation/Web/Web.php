@@ -11,12 +11,14 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web;
 
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Sessions\Session;
+
 
 class Web
 {
@@ -200,7 +202,7 @@ class Web
 //    /**
 //     * Return complete URL for the specified AJAX URL section with HTTP and all
 //     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference

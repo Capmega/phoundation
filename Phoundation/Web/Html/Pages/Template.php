@@ -11,6 +11,7 @@
  * @package   Phoundation\Templates
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages;
@@ -23,6 +24,7 @@ use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Pages\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
+
 
 class Template implements TemplateInterface
 {

@@ -11,15 +11,17 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
 
-use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 use Phoundation\Web\Requests\Request;
+
 
 class ProfileImage extends ImageMenu
 {
@@ -32,10 +34,10 @@ class ProfileImage extends ImageMenu
     {
         // Set up the default image URL
 //        $this->setUrl('sign-in');
-        $this->setImage(Session::getUser()
-                               ->getPicture());
+        $this->setImage(Session::getUserObject()
+                               ->getImageFileObject());
         if (
-            Session::getUser()
+            Session::getUserObject()
                    ->isGuest()
         ) {
             // This is a guest user, make sure that the profile image shows the sign in modal
@@ -52,11 +54,11 @@ class ProfileImage extends ImageMenu
     /**
      * ProfileImage class constructor
      *
-     * @param ImageInterface|string|null $image
+     * @param ImageFileInterface|string|null $image
      *
      * @return ProfileImage
      */
-    public function setImage(ImageInterface|string|null $image = null): static
+    public function setImage(ImageFileInterface|string|null $image = null): static
     {
         // Ensure we have a default profile image
         if (!is_object($image)) {
@@ -83,7 +85,7 @@ class ProfileImage extends ImageMenu
     public function setMenu(?MenuInterface $menu): static
     {
         if (
-            Session::getUser()
+            Session::getUserObject()
                    ->isGuest()
         ) {
             // Don't show menu

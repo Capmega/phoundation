@@ -19,7 +19,7 @@ interface SpanInterface extends ElementInterface
      *
      * @param ElementInterface|null $parent
      *
-     * @return $this
+     * @return static
      */
     public function setChildElement(?ElementInterface $parent): static;
 }

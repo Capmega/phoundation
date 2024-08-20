@@ -12,6 +12,7 @@
  * @see       InputSelect
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
@@ -22,6 +23,7 @@ use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Requests\Response;
+
 
 class Script extends Element implements ScriptInterface
 {
@@ -417,7 +419,7 @@ class Script extends Element implements ScriptInterface
 //                    } elseif (($_CONFIG['cdn']['cache_max_age'] > 60) and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())) {
 //                        // External cached file is too old
 //                        Log::warning(tr('Deleting externally cached javascript file ":file" because the file cache time expired', [':file' => $file.'.js']));
-//                        FsFileFileInterface::new([$file.'.js', $file.'.min.js'], FsRestrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->delete();
+//                        FsFile::new([$file.'.js', $file.'.min.js'], FsRestrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->delete();
 //                    }
 //                }
 //

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\Panels\Interfaces;
 
 use PDOStatement;
-use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Components\Widgets\ImageMenu;
@@ -77,11 +77,11 @@ interface PanelInterface extends ElementsBlockInterface
     /**
      * Sets the panel profile image
      *
-     * @param ImageInterface|string $logo
+     * @param ImageFileInterface|string $logo
      *
      * @return static
      */
-    public function setLogo(ImageInterface|string $logo): static;
+    public function setLogo(ImageFileInterface|string $logo): static;
 
 
     /**

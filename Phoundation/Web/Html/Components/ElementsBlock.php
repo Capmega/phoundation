@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
@@ -211,7 +212,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
      *
      * @param bool $enable
      *
-     * @return $this
+     * @return static
      */
     public function setRenderContentsOnly(bool $enable): static
     {

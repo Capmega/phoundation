@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms;
@@ -36,6 +37,7 @@ use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 use Throwable;
+
 
 class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 {
@@ -294,11 +296,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     $field_name = '';
                 }
 
-                // Hidden objects have size 0
-                if ($definition->getHidden()) {
-                    $definition->setSize(0);
-                }
-
                 // Ensure security column values are never sent in the form
                 switch ($column) {
                     case 'password':
@@ -371,7 +368,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 // Build the form elements unless a component or content was specified manually
                 if (!$definition->getContent() and !$definition->getContent()) {
                     switch ($definition->getElement()) {
-                        case 'input':
+                        case EnumElement::input:
                             if (!$definition->getInputType()) {
                                 throw new OutOfBoundsException(tr('No input type specified for column ":column / :field_name"', [
                                     ':field_name' => $field_name,
@@ -487,10 +484,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             $this->rows->add($definition, $component);
                             break;
 
-                        case 'text':
-                            // no break
-
-                        case 'textarea':
+                        case EnumElement::textarea:
                             // If we have a source query specified, then get the actual value from the query
                             if ($definition->getDataSource()) {
                                 $source[$column] = sql()->getColumn($definition->getDataSource(), $execute);
@@ -511,11 +505,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             $this->rows->add($definition, $component);
                             break;
 
-                        case 'div':
+                        case EnumElement::div:
                             // no break;
 
-                        case 'span':
-                            $element_class = Strings::capitalize($definition->getElement());
+                        case EnumElement::span:
+                            $element_class = Strings::capitalize($definition->getElement()->value);
 
                             // If we have a source query specified, then get the actual value from the query
                             if ($definition->getDataSource()) {
@@ -530,8 +524,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             $this->rows->add($definition, $component);
                             break;
 
-                        case 'button':
-                            $element_class = Strings::capitalize($definition->getElement());
+                        case EnumElement::button:
+                            $element_class = Strings::capitalize($definition->getElement()->value);
                             $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\Buttons\\' . $element_class);
                             $component     = $element_class::new()
                                                            ->setDefinition($definition)
@@ -539,7 +533,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             $this->rows->add($definition, $component);
                             break;
 
-                        case 'select':
+                        case EnumElement::select:
                             // Get the class for this element and ensure the library file is loaded
                             $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputSelect');
                             $component     = $element_class::new()
@@ -558,14 +552,15 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             $this->rows->add($definition, $component);
                             break;
 
-                        case 'inputmultibuttontext':
+                        case EnumElement::inputmultibuttontext:
                             // Get the class for this element and ensure the library file is loaded
                             $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputMultiButtonText');
-                            $input         = $element_class::new()
-                                                           ->setSource($definition->getDataSource());
+                            $input         = $element_class::new()->setSource($definition->getDataSource());
+
                             $input->getButton()
                                   ->setMode(EnumDisplayMode::from($definition->getMode()))
                                   ->setContent($definition->getLabel());
+
                             $component = $input->getInput()
                                                ->setDefinition($definition)
                                                ->setHidden($definition->getHidden())
@@ -576,27 +571,22 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             $this->rows->add($definition, $component);
                             break;
 
-                        case '':
+                        case null:
                             throw new OutOfBoundsException(tr('No element specified for key ":key"', [
                                 ':key' => $column,
                             ]));
 
                         default:
-                            if (!is_callable($definition->getElement())) {
-                                if (!$definition->getElement()) {
-                                    throw new OutOfBoundsException(tr('No element specified for key ":key"', [
-                                        ':key' => $column,
-                                    ]));
-                                }
-
-                                throw new OutOfBoundsException(tr('Unknown element ":element" specified for key ":key"', [
-                                    ':element' => $definition->getElement(),
-                                    ':key'     => $column,
+                            if (!$definition->getElement()) {
+                                throw new OutOfBoundsException(tr('No element specified for key ":key"', [
+                                    ':key' => $column,
                                 ]));
                             }
 
-                            // Execute this to get the element
-                            $this->rows->add($definition, $definition->getElement()($column, $definition, $source));
+                            throw new OutOfBoundsException(tr('Unknown or unsupported element ":element" specified for key ":key"', [
+                                ':element' => $definition->getElement()->value,
+                                ':key'     => $column,
+                            ]));
                     }
 
                 } elseif ($definition->getContent()) {
@@ -740,7 +730,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      *
      * @param string|null $auto_focus_id
      *
-     * @return $this
+     * @return static
      */
     public function setAutoFocusId(?string $auto_focus_id): static
     {

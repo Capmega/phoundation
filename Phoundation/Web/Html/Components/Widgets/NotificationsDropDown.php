@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
@@ -26,6 +27,7 @@ use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Stringable;
+
 
 class NotificationsDropDown extends ElementsBlock
 {
@@ -62,7 +64,7 @@ class NotificationsDropDown extends ElementsBlock
      *
      * @param string|null $status
      *
-     * @return $this
+     * @return static
      */
     public function setStatus(?string $status): static
     {
@@ -162,7 +164,7 @@ class NotificationsDropDown extends ElementsBlock
             if ($this->status) {
                 $this->notifications->getQueryBuilder()
                                     ->addWhere('`users_id` = :users_id AND ' . SqlQueries::is('`status`', $this->status, 'status'), [
-                                        ':users_id' => Session::getUser()
+                                        ':users_id' => Session::getUserObject()
                                                               ->getId(),
                                         ':status'   => $this->status,
                                     ]);

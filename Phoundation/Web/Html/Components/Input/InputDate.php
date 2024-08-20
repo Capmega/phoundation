@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
@@ -18,6 +19,7 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Date\DateTime;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
+
 
 class InputDate extends InputText
 {
@@ -67,7 +69,7 @@ class InputDate extends InputText
      *
      * @param DateTime|Stringable|string|null $max
      *
-     * @return $this
+     * @return static
      */
     public function setMax(DateTime|Stringable|string|null $max): static
     {
@@ -95,7 +97,7 @@ class InputDate extends InputText
      *
      * @param DateTime|Stringable|string|null $min
      *
-     * @return $this
+     * @return static
      */
     public function setMin(DateTime|Stringable|string|null $min): static
     {

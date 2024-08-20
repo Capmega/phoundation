@@ -12,6 +12,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
@@ -19,6 +20,7 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+
 
 class InputMultiButtonText extends ElementsBlock
 {

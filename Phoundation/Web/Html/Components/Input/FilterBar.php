@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
@@ -18,10 +19,11 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Requests\Response;
 
+
 class FilterBar extends InputSelect
 {
     /**
-     * Render and return the HTML for this AutoSuggest Input Element
+     * Render and return the HTML for this FilterBar Input Element
      *
      * @return string|null
      */

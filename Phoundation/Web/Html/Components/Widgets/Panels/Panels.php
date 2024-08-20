@@ -11,6 +11,7 @@
  * @package   Phoundation/Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Panels;
@@ -20,6 +21,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelInterface;
 use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelsInterface;
 use Stringable;
+
 
 class Panels extends Iterator implements PanelsInterface
 {

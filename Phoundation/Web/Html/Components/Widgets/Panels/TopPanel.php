@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Panels;
@@ -19,6 +20,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Iterator;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 use Phoundation\Web\Http\Url;
+
 
 class TopPanel extends Panel
 {
@@ -35,7 +37,7 @@ class TopPanel extends Panel
                                         tr('Home') => (string) Url::getCurrentDomainRootUrl(),
                                     ]);
         if (
-            Session::getUser()
+            Session::getUserObject()
                    ->hasAllRights('demos')
         ) {
             $this->source['menu']->add((string) Url::getWww('demos.html'), tr('Demos'));

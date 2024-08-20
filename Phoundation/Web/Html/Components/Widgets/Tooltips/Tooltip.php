@@ -14,6 +14,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Tooltips;
@@ -34,6 +35,7 @@ use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumToolti
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipTriggerInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
+
 
 class Tooltip extends Element implements TooltipInterface
 {

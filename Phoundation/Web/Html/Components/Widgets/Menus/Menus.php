@@ -11,6 +11,7 @@
  * @package   Phoundation/Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Menus;
@@ -20,6 +21,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenusInterface;
+
 
 class Menus extends Iterator implements IteratorInterface, MenusInterface
 {
@@ -153,12 +155,13 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
     /**
      * Load the menu contents from the database
      *
-     * @param bool $clear
-     * @param bool $only_if_empty
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
         throw new UnderConstructionException();
 //        if (Core::stateIs('setup')) {

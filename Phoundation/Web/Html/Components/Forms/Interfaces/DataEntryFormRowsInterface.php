@@ -23,7 +23,7 @@ interface DataEntryFormRowsInterface
      *
      * @param int $count
      *
-     * @return $this
+     * @return static
      */
     public function setColumnCount(int $count): static;
 
@@ -34,7 +34,7 @@ interface DataEntryFormRowsInterface
      * @param DefinitionInterface|null    $definition
      * @param RenderInterface|string|null $component
      *
-     * @return $this
+     * @return static
      */
     public function add(?DefinitionInterface $definition = null, RenderInterface|string|null $component = null): static;
 
@@ -44,7 +44,7 @@ interface DataEntryFormRowsInterface
      *
      * @param DataEntryFormColumn $column
      *
-     * @return $this
+     * @return static
      */
     public function addColumn(DataEntryFormColumn $column): static;
 

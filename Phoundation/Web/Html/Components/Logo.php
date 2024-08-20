@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
@@ -18,6 +19,7 @@ namespace Phoundation\Web\Html\Components;
 use Phoundation\Core\Core;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Http\Url;
+
 
 class Logo extends Img
 {
@@ -29,9 +31,10 @@ class Logo extends Img
     public function __construct(?string $content = null)
     {
         parent::__construct(null);
+
         $this->src = Url::getCdn('img/logos/' . Core::getProjectSeoName() . '/large.webp');
-        $this->getAnchor()
-             ->setHref(Url::getWww('index'));
+
+        $this->getAnchor()->setHref(Url::getWww('index'));
     }
 
 

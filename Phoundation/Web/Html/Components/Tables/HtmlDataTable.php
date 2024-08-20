@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Tables;
@@ -32,6 +33,7 @@ use Phoundation\Web\Html\Enums\EnumPagingType;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Requests\Response;
+
 
 class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
 {
@@ -265,7 +267,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param ButtonsInterface|array|string|null $buttons
      *
-     * @return $this
+     * @return static
      */
     public function setButtons(ButtonsInterface|array|string|null $buttons): static
     {
@@ -312,7 +314,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setResponsiveEnabled(?bool $enabled): static
     {
@@ -483,7 +485,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param string|null $date_format
      *
-     * @return $this
+     * @return static
      */
     public function setJsDateFormat(?string $date_format): static
     {
@@ -513,7 +515,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param string|null $php_date_format
      *
-     * @return $this
+     * @return static
      */
     public function setPhpDateFormat(?string $php_date_format): static
     {
@@ -540,7 +542,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param array|null $breakpoints
      *
-     * @return $this
+     * @return static
      */
     public function setResponsiveBreakpoints(?array $breakpoints): static
     {
@@ -587,7 +589,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setInfoEnabled(?bool $enabled): static
     {
@@ -613,7 +615,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setSearchingEnabled(?bool $enabled): static
     {
@@ -639,7 +641,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setSearchCaseInsensitiveEnabled(?bool $enabled): static
     {
@@ -665,7 +667,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setSearchRegexEnabled(?bool $enabled): static
     {
@@ -691,7 +693,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setSearchSmartEnabled(?bool $enabled): static
     {
@@ -717,7 +719,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setSearchReturnEnabled(?bool $enabled): static
     {
@@ -743,7 +745,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param string|null $search
      *
-     * @return $this
+     * @return static
      */
     public function setSearch(?string $search): static
     {
@@ -769,7 +771,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setPagingEnabled(?bool $enabled): static
     {
@@ -795,7 +797,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param EnumPagingType $type
      *
-     * @return $this
+     * @return static
      */
     public function setPagingType(EnumPagingType $type): static
     {
@@ -821,7 +823,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param array|null $length_menu
      *
-     * @return $this
+     * @return static
      */
     public function setLengthMenu(?array $length_menu): static
     {
@@ -851,7 +853,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setLengthChangeEnabled(?bool $enabled): static
     {
@@ -877,7 +879,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param int $length
      *
-     * @return $this
+     * @return static
      */
     public function setPageLength(int $length): static
     {
@@ -903,7 +905,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setAutoWidthEnabled(?bool $enabled): static
     {
@@ -929,7 +931,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setDeferRenderEnabled(?bool $enabled): static
     {
@@ -955,7 +957,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param int $start
      *
-     * @return $this
+     * @return static
      */
     public function setDisplayStart(int $start): static
     {
@@ -985,7 +987,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      * @param array|null $order
      * @todo Add support for named columns that translate to numerical columns
      *
-     * @return $this
+     * @return static
      */
     public function setOrder(?array $order): static
     {
@@ -1054,7 +1056,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param array|null $order
      *
-     * @return $this
+     * @return static
      */
     public function setOrderFixed(?array $order): static
     {
@@ -1081,7 +1083,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      * @param array|null $columns
      * @todo Add support for named columns that translate to numerical columns
      *
-     * @return $this
+     * @return static
      */
     public function setColumnsOrderable(?array $columns): static
     {
@@ -1121,7 +1123,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setOrderingEnabled(?bool $enabled): static
     {
@@ -1147,7 +1149,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setOrderClassesEnabled(?bool $enabled): static
     {
@@ -1173,7 +1175,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setOrderMultiEnabled(?bool $enabled): static
     {

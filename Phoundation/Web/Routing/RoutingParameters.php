@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Routing;
@@ -29,6 +30,7 @@ use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Templates\Phoundation\AdminLte\AdminLte;
+
 
 class RoutingParameters implements RoutingParametersInterface
 {

@@ -23,7 +23,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param ButtonsInterface|array|string|null $buttons
      *
-     * @return $this
+     * @return static
      */
     public function setButtons(ButtonsInterface|array|string|null $buttons): static;
 
@@ -41,7 +41,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setResponsiveEnabled(?bool $enabled): static;
 
@@ -59,7 +59,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param array|null $breakpoints
      *
-     * @return $this
+     * @return static
      */
     public function setResponsiveBreakpoints(?array $breakpoints): static;
 
@@ -77,7 +77,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setInfoEnabled(?bool $enabled): static;
 
@@ -95,7 +95,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setSearchingEnabled(?bool $enabled): static;
 
@@ -113,7 +113,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setSearchCaseInsensitiveEnabled(?bool $enabled): static;
 
@@ -131,7 +131,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setSearchRegexEnabled(?bool $enabled): static;
 
@@ -149,7 +149,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setSearchSmartEnabled(?bool $enabled): static;
 
@@ -167,7 +167,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setSearchReturnEnabled(?bool $enabled): static;
 
@@ -185,7 +185,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param string|null $search
      *
-     * @return $this
+     * @return static
      */
     public function setSearch(?string $search): static;
 
@@ -203,7 +203,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setPagingEnabled(?bool $enabled): static;
 
@@ -221,7 +221,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param EnumPagingType $type
      *
-     * @return $this
+     * @return static
      */
     public function setPagingType(EnumPagingType $type): static;
 
@@ -239,7 +239,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param array|null $length_menu
      *
-     * @return $this
+     * @return static
      */
     public function setLengthMenu(?array $length_menu): static;
 
@@ -257,7 +257,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setLengthChangeEnabled(?bool $enabled): static;
 
@@ -275,7 +275,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param int $length
      *
-     * @return $this
+     * @return static
      */
     public function setPageLength(int $length): static;
 
@@ -293,7 +293,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setAutoWidthEnabled(?bool $enabled): static;
 
@@ -311,7 +311,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setDeferRenderEnabled(?bool $enabled): static;
 
@@ -329,7 +329,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param int $start
      *
-     * @return $this
+     * @return static
      */
     public function setDisplayStart(int $start): static;
 
@@ -347,7 +347,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param array|null $order
      *
-     * @return $this
+     * @return static
      */
     public function setOrder(?array $order): static;
 
@@ -365,7 +365,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param array|null $order
      *
-     * @return $this
+     * @return static
      */
     public function setOrderFixed(?array $order): static;
 
@@ -383,7 +383,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param array|null $columns
      *
-     * @return $this
+     * @return static
      */
     public function setColumnsOrderable(?array $columns): static;
 
@@ -401,7 +401,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setOrderingEnabled(?bool $enabled): static;
 
@@ -419,7 +419,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setOrderClassesEnabled(?bool $enabled): static;
 
@@ -437,7 +437,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param bool|null $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setOrderMultiEnabled(?bool $enabled): static;
 
@@ -608,7 +608,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @param string|null $date_format
      *
-     * @return $this
+     * @return static
      */
     public function setJsDateFormat(?string $date_format): static;
 }

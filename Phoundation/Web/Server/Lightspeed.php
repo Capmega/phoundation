@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Class Lightspeed
  *
@@ -12,6 +10,13 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
+
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Server;
+
+
 class Lightspeed
 {
 

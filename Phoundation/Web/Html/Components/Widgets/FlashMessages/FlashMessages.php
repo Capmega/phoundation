@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\FlashMessages;
@@ -29,6 +30,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Stringable;
 use Throwable;
 
+
 class FlashMessages extends ElementsBlock implements FlashMessagesInterface
 {
     /**
@@ -38,7 +40,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      * @param bool                                $clear_keys
      * @param bool                                $exception
      *
-     * @return $this
+     * @return static
      */
     public function addSource(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static
     {
@@ -56,7 +58,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      * @param string|null                                 $icon
      * @param int|null                                    $auto_close
      *
-     * @return $this
+     * @return static
      */
     public function addSuccess(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
     {
@@ -73,7 +75,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      * @param string|null                                            $icon
      * @param int|null                                               $auto_close
      *
-     * @return $this
+     * @return static
      */
     public function addMessage(FlashMessageInterface|Exception|Stringable|string|null $message, ?string $title = null, ?EnumDisplayMode $mode = EnumDisplayMode::error, string $icon = null, ?int $auto_close = 5000): static
     {
@@ -171,7 +173,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      * @param string|null                                 $icon
      * @param int|null                                    $auto_close
      *
-     * @return $this
+     * @return static
      */
     public function addValidationFailed(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
     {
@@ -186,7 +188,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      * @param string|null                                 $icon
      * @param int|null                                    $auto_close
      *
-     * @return $this
+     * @return static
      */
     public function addException(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static
     {
@@ -201,7 +203,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      * @param string|null                                 $icon
      * @param int|null                                    $auto_close
      *
-     * @return $this
+     * @return static
      */
     public function addWarning(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static
     {
@@ -216,7 +218,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      * @param string|null                                 $icon
      * @param int|null                                    $auto_close
      *
-     * @return $this
+     * @return static
      */
     public function addNoticeMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static
     {

@@ -12,6 +12,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages;
@@ -66,7 +67,7 @@ abstract class Page extends ElementsBlock
      * Sets GET data for this page
      *
      * @param array|null $get
-     * @return $this
+     * @return static
      */
     public function setGetData(?array $get): static
     {
@@ -95,7 +96,7 @@ abstract class Page extends ElementsBlock
      * Sets POST data for this page
      *
      * @param array|null $post
-     * @return $this
+     * @return static
      */
     public function setPostData(?array $post): static
     {

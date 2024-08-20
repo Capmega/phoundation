@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Routing;
@@ -20,6 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Stringable;
+
 
 class RoutingParametersList
 {
@@ -50,7 +52,7 @@ class RoutingParametersList
      *
      * @param RoutingParametersInterface $parameters
      *
-     * @return $this
+     * @return static
      */
     public function add(RoutingParametersInterface $parameters): static
     {

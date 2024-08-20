@@ -114,7 +114,7 @@ interface ResourceElementInterface extends ElementInterface
      * @param PDOStatement|string|null $source_query
      * @param array|string|null        $execute
      *
-     * @return $this
+     * @return static
      */
     public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null): static;
 

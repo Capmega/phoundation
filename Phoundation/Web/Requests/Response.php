@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Requests;
@@ -35,16 +36,22 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Traits\TraitDataStaticRestrictions;
 use Phoundation\Notifications\Notification;
+use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
+use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessages;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\BreadCrumbsInterface;
+use Phoundation\Web\Html\Enums\EnumAttachJavascript;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
@@ -53,8 +60,11 @@ use Phoundation\Web\Requests\Exception\PageNotFoundException;
 use Phoundation\Web\Requests\Exception\ResponseHeadersException;
 use Phoundation\Web\Requests\Exception\ResponseRedirectException;
 use Phoundation\Web\Requests\Interfaces\ResponseInterface;
+use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
+use Phoundation\Web\Uploads\UploadHandlers;
 use Stringable;
 use Throwable;
+
 
 class Response implements ResponseInterface
 {
@@ -211,7 +221,7 @@ class Response implements ResponseInterface
     protected static array $page_headers;
 
     /**
-     * Tracks the total amount of bytes sent
+     * Tracks the total number of bytes sent
      *
      * @var int $bytes_sent
      */
@@ -259,7 +269,7 @@ class Response implements ResponseInterface
 
 
     /**
-     * Returns the total amount of bytes sent to the client
+     * Returns the total number of bytes sent to the client
      *
      * @return int
      */
@@ -562,14 +572,16 @@ class Response implements ResponseInterface
                 $url  = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
                 $url  = static::versionFile($url, 'img');
                 $file = FsPath::absolutePath(LANGUAGE . '/' . $url, DIRECTORY_CDN);
+
                 static::$page_headers['link'][$url] = [
                     'rel'  => 'icon',
                     'href' => Url::getImg($url),
-                    'type' => FsFile::new($file)
-                                    ->getMimetype(),
+                    'type' => FsFile::new($file, FsRestrictions::getCdn())->getMimetype(),
                 ];
+
             } else {
                 $url = static::versionFile($url, 'img');
+
                 // Unknown (likely remote?) link
                 static::$page_headers['link'][$url] = [
                     'rel'  => 'icon',
@@ -742,7 +754,9 @@ class Response implements ResponseInterface
 
         // Convert the given URL (parts) to real URLs and add it to the scripts list
         foreach (Arrays::force($urls, ',') as $url) {
-            $url = static::versionFile($url, 'js');
+            $url           = Strings::ensureEndsNotWith($url, '.js');
+            $url           = Strings::ensureEndsNotWith($url, '.min');
+            $url           = static::versionFile($url, 'js');
             $scripts[$url] = [
                 'type' => 'text/javascript',
                 'src'  => Url::getJs($url),
@@ -783,6 +797,8 @@ class Response implements ResponseInterface
 
         // Convert the given URL (parts) to real URLs
         foreach (Arrays::force($urls, '') as $url) {
+            $url           = Strings::ensureEndsNotWith($url, '.css');
+            $url           = Strings::ensureEndsNotWith($url, '.min');
             $url           = static::versionFile($url, 'css');
             $scripts[$url] = [
                 'rel'  => 'stylesheet',
@@ -954,8 +970,8 @@ class Response implements ResponseInterface
     public static function checkForceRedirect(): void
     {
         // Does this user have a forced redirect?
-        if (!Session::getUser()->isGuest()) {
-            $redirect = Session::getUser()->getRedirect();
+        if (!Session::getUserObject()->isGuest()) {
+            $redirect = Session::getUserObject()->getRedirect();
 
             if ($redirect) {
                 // Are we at the forced redirect page? If so, we can stay
@@ -966,7 +982,7 @@ class Response implements ResponseInterface
                     if (!static::skipRedirect()) {
                         // No, it's not, redirect!
                         Log::action(tr('User ":user" has a redirect to ":url", redirecting there instead', [
-                            ':user' => Session::getUser()
+                            ':user' => Session::getUserObject()
                                               ->getLogId(),
                             ':url'  => $redirect,
                         ]));
@@ -982,7 +998,7 @@ class Response implements ResponseInterface
                     }
 
                     Log::warning(tr('User ":user" has a redirect to ":url" which MAY NOT redirected to, ignoring redirect', [
-                        ':user' => Session::getUser()
+                        ':user' => Session::getUserObject()
                                           ->getLogId(),
                         ':url'  => $redirect,
                     ]));
@@ -1361,15 +1377,19 @@ class Response implements ResponseInterface
                     'output'  => static::getOutput(false),
                     'headers' => static::$page_headers,
                 ], 'WebResponse ' . Request::getUri());
+
                 $length = static::sendHttpHeaders();
+
                 Log::success(tr('Cached ":length" bytes of HTTP to client', [':length' => $length]), 3);
             }
+
             // Filter output out for certain HTTP codes, then send headers & output
             static::clearOutputForHttpCodesAndMethods();
             static::generateHttpHeaders();
             static::sendHttpHeaders();
             static::sendOutput();
         }
+
         if ($exit) {
             exit();
         }
@@ -1614,8 +1634,7 @@ class Response implements ResponseInterface
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   http
+         * @package   http
      * @see       htt_noCache()
      * @see       https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
      * @see       https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
@@ -1759,6 +1778,9 @@ class Response implements ResponseInterface
 
         InstanceCache::logStatistics();
 
+        // Remove subprocess run directory
+        Process::deleteRunDirectory();
+
         // Normal kill request
         Log::action(tr('Killing web page process'), 2);
         exit();
@@ -1819,8 +1841,7 @@ class Response implements ResponseInterface
      * @return void
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   http
+         * @package   http
      * @see       Http::cache()
      * @version   2.5.92: Added function and documentation
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -1831,5 +1852,37 @@ class Response implements ResponseInterface
         header('Cache-Control: post-check=0, pre-check=0', true);
         header('Pragma: no-cache', true);
         header('Expires: Wed, 10 Jan 2000 07:00:00 GMT', true);
+    }
+
+
+    /**
+     * Adds the specified script to the rendered output
+     *
+     * @param ScriptInterface|string $script
+     * @param EnumJavascriptWrappers $wrapper
+     * @param EnumAttachJavascript   $attach
+     *
+     * @return string|null
+     */
+    public static function addScript(ScriptInterface|string $script, EnumJavascriptWrappers $wrapper = EnumJavascriptWrappers::dom_content, EnumAttachJavascript $attach = EnumAttachJavascript::footer): ?string
+    {
+        if (is_string($script)) {
+            $script = new Script($script);
+        }
+
+        return $script->setJavascriptWrapper($wrapper)
+                      ->setAttach($attach)
+                      ->render();
+    }
+
+
+    /**
+     * Returns the upload handlers object for this response
+     *
+     * @return UploadHandlersInterface
+     */
+    public static function getFileUploadHandlersObject(): UploadHandlersInterface
+    {
+        return Request::getFileUploadHandlersObject();
     }
 }

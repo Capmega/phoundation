@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces;
 
-use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
 interface FlashMessageInterface extends ElementsBlockInterface
@@ -22,7 +22,7 @@ interface FlashMessageInterface extends ElementsBlockInterface
      *
      * @param string $message
      *
-     * @return $this
+     * @return static
      */
     public function setMessage(string $message): static;
 
@@ -41,7 +41,7 @@ interface FlashMessageInterface extends ElementsBlockInterface
      * @param string|null $title
      * @param bool        $make_safe
      *
-     * @return $this
+     * @return static
      */
     public function setTitle(?string $title, bool $make_safe = true): static;
 
@@ -59,7 +59,7 @@ interface FlashMessageInterface extends ElementsBlockInterface
      *
      * @param string $sub_title
      *
-     * @return $this
+     * @return static
      */
     public function setSubTitle(string $sub_title): static;
 
@@ -77,7 +77,7 @@ interface FlashMessageInterface extends ElementsBlockInterface
      *
      * @param string|null $icon
      *
-     * @return $this
+     * @return static
      */
     public function setIcon(?string $icon): static;
 
@@ -85,20 +85,20 @@ interface FlashMessageInterface extends ElementsBlockInterface
     /**
      * Returns the flash image contents
      *
-     * @return ImageInterface
+     * @return ImageFileInterface
      */
-    public function getImage(): ImageInterface;
+    public function getImage(): ImageFileInterface;
 
 
     /**
      * Sets the flash image contents
      *
-     * @param ImageInterface|string|null $image
-     * @param string|null                $alt
+     * @param ImageFileInterface|string|null $image
+     * @param string|null                    $alt
      *
-     * @return $this
+     * @return static
      */
-    public function setImage(ImageInterface|string|null $image, ?string $alt = null): static;
+    public function setImage(ImageFileInterface|string|null $image, ?string $alt = null): static;
 
 
     /**
@@ -114,7 +114,7 @@ interface FlashMessageInterface extends ElementsBlockInterface
      *
      * @param bool $left
      *
-     * @return $this
+     * @return static
      */
     public function setLeft(bool $left): static;
 
@@ -132,7 +132,7 @@ interface FlashMessageInterface extends ElementsBlockInterface
      *
      * @param bool $top
      *
-     * @return $this
+     * @return static
      */
     public function setTop(bool $top): static;
 
@@ -150,7 +150,7 @@ interface FlashMessageInterface extends ElementsBlockInterface
      *
      * @param int|null $auto_close
      *
-     * @return $this
+     * @return static
      */
     public function setAutoClose(?int $auto_close): static;
 
@@ -168,7 +168,7 @@ interface FlashMessageInterface extends ElementsBlockInterface
      *
      * @param bool $can_close
      *
-     * @return $this
+     * @return static
      */
     public function setCanClose(bool $can_close): static;
 
@@ -194,7 +194,7 @@ interface FlashMessageInterface extends ElementsBlockInterface
      *
      * @param array $source
      *
-     * @return $this
+     * @return static
      */
     public function import(array $source): static;
 

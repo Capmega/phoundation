@@ -11,6 +11,7 @@
  * @package   Phoundation\Templates
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages\Interfaces;

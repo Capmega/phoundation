@@ -30,7 +30,7 @@ interface AInterface extends SpanInterface
      *
      * @param string|null $href
      *
-     * @return $this
+     * @return static
      */
     public function setHref(?string $href): static;
 
@@ -48,7 +48,7 @@ interface AInterface extends SpanInterface
      *
      * @param EnumAnchorTarget|null $target
      *
-     * @return $this
+     * @return static
      */
     public function setTarget(?EnumAnchorTarget $target): static;
 }

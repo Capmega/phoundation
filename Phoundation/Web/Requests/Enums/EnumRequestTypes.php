@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Requests\Enums;
-
 /**
  * Enum EnumRequestTypes
  *
@@ -37,6 +33,12 @@ namespace Phoundation\Web\Requests\Enums;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
+
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Requests\Enums;
+
 enum EnumRequestTypes: string
 {
     case api         = 'api';

@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
@@ -19,6 +20,7 @@ use Phoundation\Data\Traits\TraitDataInline;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Traits\TraitInputChecked;
 use Phoundation\Web\Html\Traits\TraitInputCheckboxRadioRender;
+
 
 class InputRadio extends Input
 {
@@ -47,7 +49,7 @@ class InputRadio extends Input
      * @param string|null $name
      * @param bool        $id_too
      *
-     * @return $this
+     * @return static
      */
     public function setName(?string $name, bool $id_too = true): static
     {

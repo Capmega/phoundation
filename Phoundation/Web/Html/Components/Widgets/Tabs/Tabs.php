@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Tabs;
@@ -25,6 +26,7 @@ use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Traits\TraitButtons;
 use Stringable;
+
 
 class Tabs extends ElementsBlock implements TabsInterface
 {
@@ -87,7 +89,7 @@ class Tabs extends ElementsBlock implements TabsInterface
      * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
-     * @return $this
+     * @return static
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {

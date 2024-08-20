@@ -11,12 +11,14 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Modals;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
+
 
 class Modals extends ElementsBlock
 {
@@ -26,13 +28,15 @@ class Modals extends ElementsBlock
 //     * @var array|null $required
 //     */
 //    protected ?array $required = null;
+
+
     /**
      * Add a new modal
      *
      * @param string $identifier
      * @param Modal  $modal
      *
-     * @return $this
+     * @return static
      */
     public function addModal(string $identifier, Modal $modal): static
     {

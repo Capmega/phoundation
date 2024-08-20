@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Interfaces;
@@ -54,7 +55,7 @@ interface InputSelectInterface extends ResourceElementInterface
      *
      * @param bool $auto_complete
      *
-     * @return $this
+     * @return static
      */
     public function setAutoComplete(bool $auto_complete): static;
 

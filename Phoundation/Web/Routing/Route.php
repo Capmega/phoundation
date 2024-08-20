@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Routing;
@@ -42,7 +43,9 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Routing\Interfaces\MappingInterface;
+use Phoundation\Web\Uploads\UploadHandlers;
 use Throwable;
+
 
 class Route
 {
@@ -127,24 +130,27 @@ class Route
         //
         // Deny URI's larger than 255 characters. If these are specified, automatically 404 because this is a hard coded        // limit. The reason for this is that the routes_static table columns currently only hold 255 characters and at
         // the moment I see no reason why anyone would want more than 255 characters in their URL.
-        static::$method = ($_POST ? 'POST' : 'GET');
+        static::$method = $_SERVER['REQUEST_METHOD'];
         static::$ip     = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
         static::$query  = Strings::from($_SERVER['REQUEST_URI'], '?');
         static::$uri    = Strings::ensureStartsNotWith($_SERVER['REQUEST_URI'], '/');
         static::$uri    = Strings::until(static::$uri, '?');
 
-        // Start the Core object, hide $_GET & $_POST
+        // Start the Core object, hide $_GET & $_POST & FILES
         try {
             if (Core::isState(null)) {
                 Core::startup();
                 GetValidator::hideData();
                 PostValidator::hideData();
+                UploadHandlers::hideData();
             }
 
         } catch (SqlException) {
             // Either we have no project or no system database
             GetValidator::hideData();
             PostValidator::hideData();
+            UploadHandlers::hideData();
+
             static::execute('setup.php', false);
         }
 
@@ -519,7 +525,7 @@ class Route
      * @throws RouteException|\Throwable
      * @package Web
      * @see     Request::executeSystem()
-     * @see     Route::executeSystem()
+     * @see     Request::executeSystem()
      * @see     Route::execute()
      * @see     domain()
      * @see     Route::map()
@@ -1001,14 +1007,14 @@ class Route
                         $right = get_null(isset_get($matches[1][0]));
                         $page  = get_null(isset_get($matches[2][0]));
 
-                        if (Session::getUser()->isGuest()) {
+                        if (Session::getUserObject()->isGuest()) {
                             Log::warning(tr('Denied guest user access to resource because signed in user is required'));
                             static::executeSystem(401);
                         }
 
-                        if (!Session::getUser()->hasAllRights($right)) {
+                        if (!Session::getUserObject()->hasAllRights($right)) {
                             Log::warning(tr('Denied user ":user" access to resource because of missing right ":right"', [
-                                ':user'  => Session::getUser()
+                                ':user'  => Session::getUserObject()
                                                    ->getLogId(),
                                 ':right' => $right,
                             ]));

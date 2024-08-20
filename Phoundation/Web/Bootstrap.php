@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web;
@@ -18,6 +19,7 @@ namespace Phoundation\Web;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Enums\EnumContainerTier;
 use Phoundation\Web\Interfaces\BootstrapInterface;
+
 
 class Bootstrap implements BootstrapInterface
 {

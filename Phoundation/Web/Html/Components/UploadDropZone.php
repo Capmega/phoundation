@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
@@ -20,6 +21,7 @@ use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
+
 
 class UploadDropZone extends ResourceElement
 {
@@ -110,7 +112,7 @@ class UploadDropZone extends ResourceElement
      *
      * @param string|null $selector
      *
-     * @return $this
+     * @return static
      */
     public function setStartButtonSelector(?string $selector): static
     {
@@ -136,7 +138,7 @@ class UploadDropZone extends ResourceElement
      *
      * @param string|null $selector
      *
-     * @return $this
+     * @return static
      */
     public function setAddButtonSelector(?string $selector): static
     {

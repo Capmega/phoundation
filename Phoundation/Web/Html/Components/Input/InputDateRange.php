@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
@@ -26,6 +27,7 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Requests\Response;
+
 
 class InputDateRange extends InputText
 {
@@ -79,7 +81,7 @@ class InputDateRange extends InputText
      *
      * @param string|null $selector
      *
-     * @return $this
+     * @return static
      */
     public function setParentSelector(?string $selector): static
     {
@@ -94,7 +96,7 @@ class InputDateRange extends InputText
      *
      * @param string $ranges
      *
-     * @return $this
+     * @return static
      */
     public function useRanges(string $ranges): static
     {

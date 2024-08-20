@@ -11,11 +11,13 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Api;
 
 use Phoundation\Accounts\Users\User;
+
 
 class Users extends \Phoundation\Accounts\Users\Users
 {
@@ -34,7 +36,7 @@ class Users extends \Phoundation\Accounts\Users\Users
             ':key' => $key,
         ]);
         if ($users_id) {
-            return User::load($users_id, 'id');
+            return User::load($users_id);
         }
 
         return null;

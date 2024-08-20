@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
@@ -20,6 +21,7 @@ use Phoundation\Web\Html\Components\Interfaces\AInterface;
 use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
+
 
 class A extends Span implements AInterface
 {
@@ -51,7 +53,7 @@ class A extends Span implements AInterface
      *
      * @param UrlInterface|string|null $href
      *
-     * @return $this
+     * @return static
      */
     public function setHref(UrlInterface|string|null $href): static
     {
@@ -78,7 +80,7 @@ class A extends Span implements AInterface
      *
      * @param EnumAnchorTarget|null $target
      *
-     * @return $this
+     * @return static
      */
     public function setTarget(?EnumAnchorTarget $target): static
     {

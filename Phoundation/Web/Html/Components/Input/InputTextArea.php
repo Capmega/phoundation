@@ -11,12 +11,14 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Utils\Strings;
+
 
 class InputTextArea extends Input
 {
@@ -65,7 +67,7 @@ class InputTextArea extends Input
      *
      * @param int|null $cols
      *
-     * @return $this
+     * @return static
      */
     public function setCols(?int $cols): static
     {
@@ -91,7 +93,7 @@ class InputTextArea extends Input
      *
      * @param int|null $rows
      *
-     * @return $this
+     * @return static
      */
     public function setRows(?int $rows): static
     {
@@ -117,7 +119,7 @@ class InputTextArea extends Input
      *
      * @param int|null $minlength
      *
-     * @return $this
+     * @return static
      */
     public function setMinLength(?int $minlength): static
     {
@@ -141,7 +143,7 @@ class InputTextArea extends Input
      *
      * @param int|null $maxlength
      *
-     * @return $this
+     * @return static
      */
     public function setMaxLength(?int $maxlength): static
     {
@@ -165,7 +167,7 @@ class InputTextArea extends Input
      *
      * @param bool $auto_complete
      *
-     * @return $this
+     * @return static
      */
     public function setAutoComplete(bool $auto_complete): static
     {

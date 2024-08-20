@@ -11,6 +11,7 @@
  * @package   Phoundation/Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
@@ -19,6 +20,7 @@ use Phoundation\Data\Traits\TraitDataInline;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Traits\TraitInputChecked;
 use Phoundation\Web\Html\Traits\TraitInputCheckboxRadioRender;
+
 
 class InputCheckbox extends Input
 {

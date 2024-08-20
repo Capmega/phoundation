@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
@@ -27,6 +28,7 @@ use Phoundation\Web\Html\Components\ResourceElement;
 use Phoundation\Web\Html\Traits\TraitBeforeAfterButtons;
 use Stringable;
 use Throwable;
+
 
 class InputSelect extends ResourceElement implements InputSelectInterface, InputInterface
 {
@@ -354,7 +356,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      *
      * @param bool $auto_complete
      *
-     * @return $this
+     * @return static
      */
     public function setAutoComplete(bool $auto_complete): static
     {

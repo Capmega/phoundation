@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
@@ -25,4 +26,8 @@ enum EnumElement: string
     case span     = 'span';
     case label    = 'label';
     case p        = 'p';
+
+    // Pseudo elements
+    case inputmultibuttontext = 'inputmultibuttontext';
+    case tooltip              = 'tooltip';
 }

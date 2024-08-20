@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
@@ -25,6 +26,7 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\AccordionInterface;
 use Phoundation\Web\Html\Html;
 use Stringable;
+
 
 class Accordion extends Widget implements AccordionInterface
 {
@@ -77,7 +79,7 @@ class Accordion extends Widget implements AccordionInterface
      * Sets if this accordion should use selectors or not
      *
      * @param bool $selectors
-     * @return $this
+     * @return static
      */
     public function setSelectors(bool $selectors): static
     {
@@ -102,7 +104,7 @@ class Accordion extends Widget implements AccordionInterface
      *
      * @param Stringable|string|float|int|null $open
      *
-     * @return $this
+     * @return static
      */
     public function setOpen(Stringable|string|float|int|null $open): static
     {

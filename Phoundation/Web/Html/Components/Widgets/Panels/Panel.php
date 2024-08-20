@@ -11,13 +11,14 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Panels;
 
 use PDOStatement;
-use Phoundation\Content\Images\Image;
-use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Content\Images\ImageFile;
+use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Web\Html\Components\Avatar;
@@ -319,14 +320,14 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     /**
      * Sets the panel profile image
      *
-     * @param ImageInterface|string $logo
+     * @param ImageFileInterface|string $logo
      *
      * @return static
      */
-    public function setLogo(ImageInterface|string $logo): static
+    public function setLogo(ImageFileInterface|string $logo): static
     {
         if (is_string($logo)) {
-            $logo = Image::new($logo);
+            $logo = ImageFile::new($logo);
         }
         $this->source['logo'] = $logo;
 

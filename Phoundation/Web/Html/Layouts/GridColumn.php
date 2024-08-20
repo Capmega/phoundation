@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Layouts;
@@ -22,6 +23,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Traits\TraitUsesSize;
 use Phoundation\Web\Html\Traits\TraitUsesTier;
 use Stringable;
+
 
 class GridColumn extends Layout
 {

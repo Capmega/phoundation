@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Routing;
@@ -19,6 +20,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Routing\Interfaces\MapInterface;
 use Phoundation\Web\Routing\Interfaces\MappingInterface;
+
 
 class Mapping implements MappingInterface
 {
@@ -95,7 +97,7 @@ class Mapping implements MappingInterface
      * @param string       $regex
      * @param MapInterface ...$maps
      *
-     * @return $this
+     * @return static
      */
     public function add(string $regex, MapInterface ...$maps): static
     {

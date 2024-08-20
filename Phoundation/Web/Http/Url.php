@@ -12,6 +12,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
@@ -34,6 +35,7 @@ use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Stringable;
+
 
 class Url implements UrlInterface
 {
@@ -250,7 +252,7 @@ class Url implements UrlInterface
         } else {
             $cloak = Strings::getRandom(32);
             sql()->insert('url_cloaks', [
-                'created_by' => Session::getUser()
+                'created_by' => Session::getUserObject()
                                        ->getId(),
                 'cloak'      => $cloak,
                 'url'        => $this->url,

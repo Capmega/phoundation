@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms;
@@ -21,6 +22,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormColumnInterfac
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormRowsInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+
 
 class DataEntryFormRows implements DataEntryFormRowsInterface
 {
@@ -104,7 +106,7 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
      *
      * @param int $count
      *
-     * @return $this
+     * @return static
      */
     public function setColumnCount(int $count): static
     {
@@ -125,7 +127,7 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
      * @param DefinitionInterface|null    $definition
      * @param RenderInterface|string|null $component
      *
-     * @return $this
+     * @return static
      */
     public function add(?DefinitionInterface $definition = null, RenderInterface|string|null $component = null): static
     {
@@ -140,7 +142,7 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
      *
      * @param DataEntryFormColumnInterface $column
      *
-     * @return $this
+     * @return static
      */
     public function addColumn(DataEntryFormColumnInterface $column): static
     {
@@ -194,7 +196,7 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
                 if (($definition->getSize() <= 0) or ($definition->getSize() > 12)) {
                     throw new OutOfBoundsException(tr('Cannot render DataEntryForm ":class" because the definition for column ":column" has invalid size ":size", it must be an integer number between 1 and 12', [
                         ':size'   => $definition->getSize(),
-                        ':column' => $column,
+                        ':column' => $definition->getColumn(),
                         ':class'  => get_class($this->render_object),
                     ]));
                 }

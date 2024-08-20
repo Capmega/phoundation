@@ -11,11 +11,13 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms\Exception;
 
 use Phoundation\Web\Html\Components\Exception\ComponentsException;
+
 
 class FormsException extends ComponentsException
 {

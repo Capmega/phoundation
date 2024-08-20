@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Routing;
@@ -18,6 +19,7 @@ namespace Phoundation\Web\Routing;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Routing\Interfaces\MapInterface;
+
 
 class Map implements MapInterface
 {

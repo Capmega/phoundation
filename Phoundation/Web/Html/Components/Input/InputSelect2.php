@@ -11,12 +11,14 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Requests\Response;
+
 
 class InputSelect2 extends InputSelect
 {

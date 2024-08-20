@@ -11,12 +11,14 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
+
 
 class InputText extends Input
 {
@@ -48,7 +50,7 @@ class InputText extends Input
      *
      * @param int|null $minlength
      *
-     * @return $this
+     * @return static
      */
     public function setMinLength(?int $minlength): static
     {
@@ -72,7 +74,7 @@ class InputText extends Input
      *
      * @param int|null $maxlength
      *
-     * @return $this
+     * @return static
      */
     public function setMaxLength(?int $maxlength): static
     {
@@ -96,7 +98,7 @@ class InputText extends Input
      *
      * @param bool $auto_complete
      *
-     * @return $this
+     * @return static
      */
     public function setAutoComplete(bool $auto_complete): static
     {

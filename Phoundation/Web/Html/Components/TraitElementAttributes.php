@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
@@ -210,15 +211,11 @@ trait TraitElementAttributes
 
     /**
      * Class constructor
-     *
-     * @param string|null $content
      */
-    public function __construct(?string $content = null)
+    public function __construct()
     {
         $this->classes    = new Iterator();
         $this->attributes = new Iterator();
-
-        $this->setContent($content);
     }
 
 
@@ -1091,7 +1088,7 @@ trait TraitElementAttributes
      *
      * @param DefinitionInterface|null $definition
      *
-     * @return $this
+     * @return static
      */
     public function setDefinition(?DefinitionInterface $definition): static
     {

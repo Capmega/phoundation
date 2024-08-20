@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
@@ -259,7 +260,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      * @param PDOStatement|string|null $source_query
      * @param array|string|null        $execute
      *
-     * @return $this
+     * @return static
      */
     public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null, ?array $use_columns = null): static
     {

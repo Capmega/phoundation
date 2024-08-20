@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Ajax;
@@ -18,6 +19,7 @@ namespace Phoundation\Web\Ajax;
 use Phoundation\Web\Ajax\Interfaces\AjaxInterface;
 use Phoundation\Web\Json\Json;
 use Phoundation\Web\Requests\Response;
+
 
 class Ajax extends Json implements AjaxInterface
 {

@@ -45,7 +45,7 @@ use Phoundation\Filesystem\Traits\TraitDataStaticRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
 use Phoundation\Security\Incidents\Incident;
-use Phoundation\Security\Incidents\Severity;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
@@ -74,7 +74,9 @@ use Phoundation\Web\Requests\Interfaces\RequestInterface;
 use Phoundation\Web\Requests\Traits\TraitDataStaticRouteParameters;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlerInterface;
+use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
 use Phoundation\Web\Uploads\UploadHandler;
+use Phoundation\Web\Uploads\UploadHandlers;
 use Stringable;
 use Templates\Phoundation\AdminLte\AdminLte;
 use Throwable;
@@ -197,9 +199,9 @@ abstract class Request implements RequestInterface
     /**
      * The upload handler for this request
      *
-     * @var UploadHandlerInterface $upload_handler
+     * @var UploadHandlersInterface $upload_handlers
      */
-    protected static UploadHandlerInterface $upload_handler;
+    protected static UploadHandlersInterface $upload_handlers;
 
     /**
      * Tracks if the current request is executing a system page or not
@@ -490,8 +492,7 @@ abstract class Request implements RequestInterface
      * @return array The list of accepted languages and locales as specified by the HTTP client
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   system
+         * @package   system
      * @see       accepts()
      * @note      : This function is called by the startup system and its output stored in
      *            $core->register['accept_language']. There is typically no need to execute this function on any other
@@ -702,7 +703,7 @@ abstract class Request implements RequestInterface
     public static function checkRequireGuestUser(string|int|null $new_target = 'index'): void
     {
         if (
-            Session::getUser()
+            Session::getUserObject()
                    ->isGuest()
         ) {
             throw AuthenticationException::new(tr('You have to sign out to view this page'))
@@ -724,7 +725,7 @@ abstract class Request implements RequestInterface
     {
         static::checkRequireNotGuestUser($guest_target);
         if (
-            !Session::getUser()
+            !Session::getUserObject()
                     ->hasAllRights($rights)
         ) {
             throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
@@ -743,7 +744,7 @@ abstract class Request implements RequestInterface
     public static function checkRequireNotGuestUser(string|int|null $new_target = '401'): void
     {
         if (
-            Session::getUser()
+            Session::getUserObject()
                    ->isGuest()
         ) {
             throw AuthenticationException::new(tr('You have to sign in to view this page'))
@@ -765,7 +766,7 @@ abstract class Request implements RequestInterface
     {
         static::checkRequireNotGuestUser($guest_target);
         if (
-            !Session::getUser()
+            !Session::getUserObject()
                     ->hasSomeRights($rights)
         ) {
             throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
@@ -1074,7 +1075,7 @@ abstract class Request implements RequestInterface
      */
     protected static function hasRightsOrRedirects(array|string $rights, string|int|null $rights_redirect = null, string|int|null $guest_redirect = null): void
     {
-        if (Session::getUser()->hasAllRights($rights)) {
+        if (Session::getUserObject()->hasAllRights($rights)) {
 
             if (Session::getSignInKey() === null) {
                 // Well, then, all fine and dandy!
@@ -1093,7 +1094,7 @@ abstract class Request implements RequestInterface
         }
 
         // Is this a guest? Guests have no rights and can only see system pages and pages that require no rights
-        if (Session::getUser()->isGuest()) {
+        if (Session::getUserObject()->isGuest()) {
             // This user has no rights at all, send to sign-in page
             if (!$guest_redirect) {
                 $guest_redirect = 'sign-in';
@@ -1105,7 +1106,7 @@ abstract class Request implements RequestInterface
 
             Incident::new()
                     ->setType('401 - Unauthorized')
-                    ->setSeverity(Severity::low)
+                    ->setSeverity(EnumSeverity::low)
                     ->setTitle(tr('Guest user has no access to target page'))
                     ->setBody(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to ":redirect"', [
                         ':target'      => static::$target->getSource('web'),
@@ -1155,8 +1156,8 @@ abstract class Request implements RequestInterface
             // One or more of the rights do not exist
             Incident::new()
                     ->setType('Non existing rights')
-                    ->setSeverity(in_array('admin', Session::getUser()
-                                                           ->getMissingRights($rights)) ? Severity::high : Severity::medium)
+                    ->setSeverity(in_array('admin', Session::getUserObject()
+                                                           ->getMissingRights($rights)) ? EnumSeverity::high : EnumSeverity::medium)
                     ->setTitle(tr('Requested rights ":rights" do not exist on this system and was not automatically created', [
                         ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
                     ]))
@@ -1167,7 +1168,7 @@ abstract class Request implements RequestInterface
                         ':redirect'    => $rights_redirect,
                     ]))
                     ->setDetails([
-                        'user'           => Session::getUser()->getLogId(),
+                        'user'           => Session::getUserObject()->getLogId(),
                         'uri'            => static::getUri(),
                         'target'         => static::$target->getSource('web'),
                         'real_target'    => static::$main_target->getSource('web'),
@@ -1181,24 +1182,24 @@ abstract class Request implements RequestInterface
             // Registered user does not have the required rights
             Incident::new()
                     ->setType('403 - Forbidden')
-                    ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
+                    ->setSeverity(in_array('admin', Session::getUserObject()->getMissingRights($rights)) ? EnumSeverity::high : EnumSeverity::medium)
                     ->setTitle(tr('User ":user" does not have the required rights ":rights"', [
-                        ':user'        => Session::getUser()->getLogId(),
-                        ':rights'      => Session::getUser()->getMissingRights($rights),
+                        ':user'        => Session::getUserObject()->getLogId(),
+                        ':rights'      => Session::getUserObject()->getMissingRights($rights),
                     ]))
                     ->setBody(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
-                        ':user'        => Session::getUser()->getLogId(),
-                        ':rights'      => Session::getUser()->getMissingRights($rights),
+                        ':user'        => Session::getUserObject()->getLogId(),
+                        ':rights'      => Session::getUserObject()->getMissingRights($rights),
                         ':target'      => static::$target->getSource('web'),
                         ':real_target' => static::$main_target->getSource('web'),
                         ':redirect'    => $rights_redirect,
                     ]))
                     ->setDetails([
-                        'user'        => Session::getUser()->getLogId(),
+                        'user'        => Session::getUserObject()->getLogId(),
                         'uri'         => static::getUri(),
                         'target'      => static::$target->getSource('web'),
                         'real_target' => static::$main_target->getSource('web'),
-                        'rights'      => Session::getUser()->getMissingRights($rights),
+                        'rights'      => Session::getUserObject()->getMissingRights($rights),
                     ])
                     ->notifyRoles('accounts')
                     ->save();
@@ -1225,7 +1226,7 @@ abstract class Request implements RequestInterface
         if (!static::isRequestType(EnumRequestTypes::html)) {
             Incident::new()
                     ->setType('401 - Unauthorized')
-                    ->setSeverity(Severity::low)
+                    ->setSeverity(EnumSeverity::low)
                     ->setTitle(tr('Session keys cannot be used on ":type" requests', [
                         ':type' => static::getRequestType(),
                     ]))
@@ -1244,7 +1245,7 @@ abstract class Request implements RequestInterface
         if (!$key->signKeyAllowsUrl(Url::getCurrent(), $target)) {
             Incident::new()
                     ->setType('401 - Unauthorized')
-                    ->setSeverity(Severity::low)
+                    ->setSeverity(EnumSeverity::low)
                     ->setTitle(tr('Cannot open URL ":url", sign in key ":uuid" does not allow navigation beyond ":allow"', [
                         ':url'   => Url::getCurrent(),
                         ':allow' => $key->getRedirect(),
@@ -1275,7 +1276,7 @@ abstract class Request implements RequestInterface
 
 
     /**
-     * Attempts to set the request type to the
+     * Attempts to set the request type to the specified type
      *
      * @param EnumRequestTypes $request_type
      *
@@ -1444,6 +1445,7 @@ abstract class Request implements RequestInterface
         } else {
             ob_start();
             static::preparePageVariable();
+
             $return = static::tryCache($die);
 
             if (!$return) {
@@ -1453,6 +1455,7 @@ abstract class Request implements RequestInterface
                     static::hasRightsOrRedirects(static::$parameters->getRequiredRights(static::$target));
                     Response::checkForceRedirect();
                 }
+
                 $return = static::executeWebTarget($flush);
             }
         }
@@ -1697,7 +1700,7 @@ abstract class Request implements RequestInterface
 
             Log::warning(tr('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
                 ':target' => static::$target,
-                ':user'   => Session::getUser()
+                ':user'   => Session::getUserObject()
                                     ->getDisplayId(),
                 ':new'    => $new_target,
             ]));
@@ -1755,14 +1758,14 @@ abstract class Request implements RequestInterface
     /**
      * Returns the upload handler for this request
      *
-     * @return UploadHandlerInterface
+     * @return UploadHandlersInterface
      */
-    public function getUploadHandler(): UploadHandlerInterface
+    public static function getFileUploadHandlersObject(): UploadHandlersInterface
     {
-        if (empty(static::$upload_handler)) {
-            static::$upload_handler = new UploadHandler();
+        if (empty(static::$upload_handlers)) {
+            static::$upload_handlers = new UploadHandlers();
         }
 
-        return static::$upload_handler;
+        return static::$upload_handlers;
     }
 }

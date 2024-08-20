@@ -9,13 +9,6 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 interface UploadHandlerInterface
 {
     /**
-     * Returns a list of all upload handlers
-     *
-     * @return IteratorInterface
-     */
-    public function getHandlersObject(): IteratorInterface;
-
-    /**
      * Returns the maximum number of files that will be allowed to be uploaded
      *
      * @return int

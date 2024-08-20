@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms;
@@ -21,6 +22,7 @@ use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\Url;
 use ReturnTypeWillChange;
 use Stringable;
+
 
 class FilterForm extends DataEntryForm
 {
@@ -46,7 +48,7 @@ class FilterForm extends DataEntryForm
      *
      * @param bool $clear_source
      *
-     * @return $this
+     * @return static
      */
     public function apply(bool $clear_source = true): static
     {

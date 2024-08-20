@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
@@ -22,6 +23,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Exception\HttpException;
+
 
 class Http
 {
@@ -60,8 +62,7 @@ class Http
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   http
+         * @package   http
      * @version   2.8.29: Added function and documentation
      *
      */
@@ -90,8 +91,7 @@ class Http
      * @return void
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   http
+         * @package   http
      * @note      This function is called by all HTTP type startup sequences, there should be no need to run this
      *            anywhere else
      * @version   1.26.1: Added function and documentation
@@ -342,8 +342,7 @@ class Http
      * @return mixed The value found in $_POST['dosubmit']
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   http
+         * @package   http
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      */
@@ -385,7 +384,7 @@ class Http
 //     *
 //     * If $mimetype is not specified, the function will return the first mimetype that was specified in the HTTP ACCEPT header
 //     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
@@ -449,7 +448,7 @@ class Http
 //    /*
 //     * Parse the HTTP_ACCEPT_LANGUAGES header and return requested / available languages by priority and return a list of languages / locales accepted by the HTTP client
 //     *
-//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference

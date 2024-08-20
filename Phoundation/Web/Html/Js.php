@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html;
@@ -19,6 +20,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+
 
 class Js
 {
@@ -42,8 +44,7 @@ class Js
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   html
+         * @package   html
      * @see       html_generate_js()
      * @see       html_load_css()
      * @see       html_headers()
@@ -61,30 +62,34 @@ class Js
                 ':files' => $files,
             ]));
         }
+
         $config = &$_CONFIG['cdn']['js'];
+
         foreach (Arrays::force($files) as $file) {
             if (str_contains($file, '://')) {
                 // Compatibility code: ALL LOCAL JS FILES SHOULD ALWAYS BE SPECIFIED WITHOUT .js OR .min.js!!
                 if (str_ends_with($file, '.js')) {
                     $file = substr($file, 0, -3);
+
                     Notification::new()
                                 ->setUrl('developer/incidents.html')
                                 ->setMode(EnumDisplayMode::exception)
                                 ->setCode('not-exists')
                                 ->setRoles('developer')
                                 ->setTitle(tr('html_load_js() issue detected'))
-                                ->setMessage(tr('FsFileFileInterface ":file" was specified with ".js"', [':file' => $file]))
+                                ->setMessage(tr('File ":file" was specified with ".js"', [':file' => $file]))
                                 ->send();
 
                 } elseif (str_ends_with($file, '.min.js')) {
                     $file = substr($file, 0, -7);
+
                     Notification::new()
                                 ->setMode(EnumDisplayMode::exception)
                                 ->setUrl('developer/incidents.html')
                                 ->setCode('not-exists')
                                 ->setRoles('developer')
                                 ->setTitle(tr('html_load_js() issue detected'))
-                                ->setMessage(tr('FsFileFileInterface ":file" was specified with ".min.js', [':file' => $file]))
+                                ->setMessage(tr('File ":file" was specified with ".min.js', [':file' => $file]))
                                 ->send();
                 }
             }
@@ -132,8 +137,7 @@ class Js
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   html
+         * @package   html
      * @see       html_load_js()
      * @see       html_generate_css()
      * @see       html_headers()

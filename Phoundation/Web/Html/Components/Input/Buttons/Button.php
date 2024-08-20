@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Buttons;
@@ -21,6 +22,7 @@ use Phoundation\Web\Html\Components\Input\Input;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Traits\TraitButtonProperties;
 use Stringable;
+
 
 class Button extends Input implements ButtonInterface
 {

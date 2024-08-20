@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Tables;
@@ -33,6 +34,7 @@ use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Html\Traits\TraitButtons;
 use Phoundation\Web\Http\Url;
 use Stringable;
+
 
 class HtmlTable extends ResourceElement implements HtmlTableInterface
 {

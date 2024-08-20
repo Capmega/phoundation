@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Api;
@@ -18,6 +19,7 @@ namespace Phoundation\Web\Api;
 use Phoundation\Web\Api\Interfaces\ApiInterface;
 use Phoundation\Web\Json\Json;
 use Phoundation\Web\Requests\Response;
+
 
 class Api extends Json implements ApiInterface
 {

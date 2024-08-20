@@ -11,12 +11,14 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html;
 
 use Minify_HTML;
 use Phoundation\Core\Log\Log;
+
 
 class Minifier
 {

@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
@@ -27,6 +28,7 @@ use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Stringable;
+
 
 class DateNavigator extends ElementsBlock
 {
@@ -88,7 +90,7 @@ class DateNavigator extends ElementsBlock
      *
      * @param Stringable|string $link
      *
-     * @return $this
+     * @return static
      */
     public function setPrevLink(Stringable|string $link): static
     {
@@ -114,7 +116,7 @@ class DateNavigator extends ElementsBlock
      *
      * @param Stringable|string $link
      *
-     * @return $this
+     * @return static
      */
     public function setSelectorLink(Stringable|string $link): static
     {
@@ -140,7 +142,7 @@ class DateNavigator extends ElementsBlock
      *
      * @param Stringable|string $link
      *
-     * @return $this
+     * @return static
      */
     public function setNextLink(Stringable|string $link): static
     {
@@ -166,7 +168,7 @@ class DateNavigator extends ElementsBlock
      *
      * @param bool $disabled
      *
-     * @return $this
+     * @return static
      */
     public function setNextDisabled(bool $disabled): static
     {

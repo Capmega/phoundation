@@ -11,6 +11,7 @@
  * @package   Phoundation\Web
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Non200Urls;
@@ -32,6 +33,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Routing\Route;
+
 
 class Non200Url extends DataEntry
 {
@@ -78,7 +80,7 @@ class Non200Url extends DataEntry
      * @param int         $http_code
      * @param string|null $reason
      *
-     * @return $this
+     * @return static
      */
     public function generate(int $http_code, ?string $reason = null): static
     {
@@ -96,7 +98,7 @@ class Non200Url extends DataEntry
     /**
      * Process this non HTTP-200 URL and see if it wasn't naughty
      *
-     * @return $this
+     * @return static
      */
     public function process(): static
     {
