@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
@@ -23,6 +24,7 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Os\Processes\Process;
+
 
 class Branches extends IteratorCore implements BranchesInterface
 {

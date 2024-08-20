@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Project;
@@ -30,6 +31,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Throwable;
+
 
 class Deploy implements DeployInterface
 {
@@ -151,7 +153,7 @@ class Deploy implements DeployInterface
     /**
      * Start the deployment process
      *
-     * @return $this
+     * @return static
      */
     public function execute(): static
     {
@@ -353,7 +355,7 @@ class Deploy implements DeployInterface
      *
      * @param array|string $hooks
      *
-     * @return $this
+     * @return static
      */
     protected function executeHook(array|string $hooks): static
     {
@@ -372,7 +374,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setCompress(?bool $do, ?bool $dont): static
     {
@@ -387,7 +389,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     protected function setModifier(string $modifier, ?bool $do, ?bool $dont): static
     {
@@ -418,7 +420,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setExecuteHooks(?bool $do, ?bool $dont): static
     {
@@ -432,7 +434,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setContentCheck(?bool $do, ?bool $dont): static
     {
@@ -446,7 +448,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setInit(?bool $do, ?bool $dont): static
     {
@@ -460,7 +462,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setNotify(?bool $do, ?bool $dont): static
     {
@@ -474,7 +476,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setPush(?bool $do, ?bool $dont): static
     {
@@ -488,7 +490,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setParallel(?bool $do, ?bool $dont): static
     {
@@ -502,7 +504,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setUpdateSitemap(?bool $do, ?bool $dont): static
     {
@@ -516,7 +518,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setTranslate(?bool $do, ?bool $dont): static
     {
@@ -530,7 +532,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setBomCheck(?bool $do, ?bool $dont): static
     {
@@ -544,7 +546,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setBackup(?bool $do, ?bool $dont): static
     {
@@ -558,7 +560,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setStash(?bool $do, ?bool $dont): static
     {
@@ -572,7 +574,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setTestSyntax(?bool $do, ?bool $dont): static
     {
@@ -586,7 +588,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setTestUnit(?bool $do, ?bool $dont): static
     {
@@ -600,7 +602,7 @@ class Deploy implements DeployInterface
      * @param bool|null $do
      * @param bool|null $dont
      *
-     * @return $this
+     * @return static
      */
     public function setIgnoreChanges(?bool $do, ?bool $dont): static
     {

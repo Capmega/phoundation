@@ -20,6 +20,7 @@ use Phoundation\Developer\Traits\TraitDataProject;
 use Phoundation\Developer\Vendor;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 
+
 class ProjectVendor extends Vendor implements ProjectVendorInterface
 {
     use TraitDataProject;

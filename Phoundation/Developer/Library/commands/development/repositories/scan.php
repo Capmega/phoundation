@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Core\Log\Log;
@@ -18,6 +19,7 @@ use Phoundation\Developer\Phoundation\Repositories\Repositories;
 use Phoundation\Developer\Phoundation\Repositories\Repository;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Strings;
+
 
 $repositories = Repositories::new()->scan();
 

@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
@@ -34,6 +35,7 @@ use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Stringable;
+
 
 class Git extends Versioning implements GitInterface
 {
@@ -95,7 +97,7 @@ class Git extends Versioning implements GitInterface
     /**
      * Clone the specified URL to this directory
      *
-     * @return $this
+     * @return static
      */
     public function clone(string $url): static
     {
@@ -311,7 +313,7 @@ class Git extends Versioning implements GitInterface
      */
     public function commit(string $message, bool $signed = null): static
     {
-        $signed = $signed ?? Config::getBoolean('versioning.git.commit.signed', false);
+        $signed = $signed ?? Config::getBoolean('versioning.git.sign', false);
         $output = $this->git->clearArguments()
                             ->addArgument('commit')
                             ->addArgument('-m')

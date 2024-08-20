@@ -12,14 +12,14 @@ interface RepositoriesInterface {
      * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
-     * @return $this
+     * @return static
      */
     public function add(mixed $repository, float|Stringable|int|string|null $name = null, bool $skip_null_values = true, bool $exception = true): static;
 
     /**
      * Scans for available phoundation and or phoundation plugin and or phoundation template repositories
      *
-     * @return $this
+     * @return static
      */
     public function scan(): static;
 }

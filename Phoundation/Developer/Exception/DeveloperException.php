@@ -11,11 +11,13 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Exception;
 
 use Phoundation\Exception\Exception;
+
 
 class DeveloperException extends Exception
 {

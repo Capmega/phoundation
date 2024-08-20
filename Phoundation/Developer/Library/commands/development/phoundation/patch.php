@@ -9,9 +9,9 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Development
  */
+
 
 declare(strict_types=1);
 
@@ -23,6 +23,7 @@ use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Phoundation\Plugins;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Utils\Arrays;
+
 
 // TODO Improve autocomplete, --branch should show branch options
 CliDocumentation::setAutoComplete([
@@ -54,18 +55,18 @@ ARGUMENTS
 
 [-m,--message MESSAGE]                  The git commit message for this update. If not specified, a default will be used
 
-[-c,--no-checkout]                      If specified will not automatically checkout (and thus remove) the local changes
+[-c,--no-checkout]                      If specified, will not automatically checkout (and thus remove) the local changes
 
-[--no-phoundation]                      If specified will not patch the Phoundation core libraries
+[--no-phoundation]                      If specified, will not patch the Phoundation core libraries
 
-[-n,--no-plugins]                       If specified will not patch the plugins
+[-n,--no-plugins]                       If specified, will not patch the plugins
 
-[-u,--no-update]                        If specified will not perform a system update before executing the patching
+[-u,--no-update]                        If specified, will not perform a system update before executing the patching
                                         process
 
-[-p,--phoundation PATH]                 If specified should contain the path to your local Phoundation installation
+[-p,--phoundation PATH]                 If specified, should contain the path to your local Phoundation installation
 
-[-s,--signed]                           If specified will make a signed commit. This requires your git setup to be
+[-s,--signed]                           If specified, will make a signed commit. This requires your git setup to be
                                         configured correctly for this');
 
 

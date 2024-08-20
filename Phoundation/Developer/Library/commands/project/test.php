@@ -11,11 +11,13 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Validator;
+
 
 CliDocumentation::setUsage('./pho info');
 

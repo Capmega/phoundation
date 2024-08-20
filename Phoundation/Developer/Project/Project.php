@@ -11,6 +11,7 @@
  * @package   \Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Project;
@@ -52,6 +53,7 @@ use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Throwable;
+
 
 class Project implements ProjectInterface
 {
@@ -539,20 +541,29 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                ->addArguments(['ug+w', './pho', ])
                ->executePassthru();
 
-        // Writable directories: data/tmp, data/log, data/run, data/cookies, data/content,
+        // Readable directories: data/,
         Process::new('chmod')
                ->setExecutionDirectory($directory)
                ->setSudo(true)
                ->addArguments([
                    '-x,ug+r,g-w,o-rwx',
-                   DIRECTORY_DATA . 'tmp',
-                   DIRECTORY_DATA . 'log',
-                   DIRECTORY_DATA . 'run',
-                   DIRECTORY_DATA . 'cookies',
-                   DIRECTORY_DATA . 'cookies',
+                   DIRECTORY_DATA,
                    '-R',
                ])
                ->executePassthru();
+
+        // Writable directories: data/system, data/log
+        Process::new('chmod')
+               ->setExecutionDirectory($directory)
+               ->setSudo(true)
+               ->addArguments([
+                   '-ug+w',
+                   DIRECTORY_SYSTEM,
+                   DIRECTORY_DATA . 'log',
+                   '-R',
+               ])
+               ->executePassthru();
+
 
         // Fix file ownership
         Process::new('chown')
@@ -641,7 +652,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     /**
      * Resets the git pointer to HEAD for this project
      *
-     * @return $this
+     * @return static
      */
     public function resetHead(): static
     {

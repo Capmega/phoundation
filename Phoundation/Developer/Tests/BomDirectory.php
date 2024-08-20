@@ -12,11 +12,13 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Tests;
 
 use Phoundation\Filesystem\FsDirectory;
+
 
 class BomDirectory extends FsDirectory
 {

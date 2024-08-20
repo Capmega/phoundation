@@ -11,6 +11,7 @@
  * @package   \Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Phoundation\Repositories;
@@ -37,6 +38,7 @@ use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Strings;
 use Stringable;
+
 
 class Repository extends FsDirectory implements RepositoryInterface
 {
@@ -535,7 +537,7 @@ class Repository extends FsDirectory implements RepositoryInterface
      * @param VendorInterface   $o_vendor
      * @param IteratorInterface $stash
      *
-     * @return $this
+     * @return static
      */
     public function patch(VendorInterface $o_vendor, IteratorInterface $stash): static
     {

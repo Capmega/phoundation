@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
@@ -25,6 +26,7 @@ use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Os\Processes\Process;
 use ReturnTypeWillChange;
 use Stringable;
+
 
 class RemoteRepositories extends IteratorCore implements RemoteRepositoriesInterface
 {

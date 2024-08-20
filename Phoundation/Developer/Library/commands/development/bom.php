@@ -12,6 +12,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -20,6 +21,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Tests\BomFile;
 use Phoundation\Developer\Tests\Exception\BomException;
 use Phoundation\Filesystem\FsDirectory;
+
 
 CliDocumentation::setHelp('The bom script can search for and clear the BOM (Byte Order Mark) from all PHP files found in the specified path.
 

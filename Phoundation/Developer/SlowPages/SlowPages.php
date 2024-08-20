@@ -11,11 +11,13 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\SlowPages;
 
 use Phoundation\Developer\Incidents\Incidents;
+
 
 class SlowPages extends Incidents
 {

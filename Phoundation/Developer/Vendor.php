@@ -11,6 +11,7 @@
  * @package   \Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer;
@@ -27,6 +28,7 @@ use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsFilesInterface;
 use Phoundation\Utils\Arrays;
+
 
 class Vendor implements VendorInterface
 {

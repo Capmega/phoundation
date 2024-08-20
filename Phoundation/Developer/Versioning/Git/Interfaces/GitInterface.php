@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
@@ -41,7 +42,7 @@ interface GitInterface
     /**
      * Clone the specified URL to this path
      *
-     * @return $this
+     * @return static
      */
     public function clone(string $url): static;
 

@@ -11,12 +11,14 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Developer\Versioning\Git\Exception\GitUnknownStatusException;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
+
 
 class Status implements StatusInterface
 {

@@ -12,6 +12,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer;
@@ -39,6 +40,7 @@ use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+
 
 class Sync
 {
@@ -377,7 +379,7 @@ class Sync
      * @param string               $file
      * @param ConnectorInterface   $connector
      *
-     * @return $this
+     * @return static
      */
     public function importConnector(?ServerInterface $server, string $file, ConnectorInterface $connector): static
     {
@@ -433,7 +435,7 @@ class Sync
      *
      * @param ServerInterface|null $server
      *
-     * @return $this
+     * @return static
      */
     protected function clearTemporaryPath(?ServerInterface $server): static
     {
@@ -909,7 +911,7 @@ class Sync
      *
      * @param ServerInterface|null $server
      *
-     * @return $this
+     * @return static
      */
     protected function initTemporaryPath(?ServerInterface $server): static
     {

@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
@@ -21,6 +22,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Interfaces\StashInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Developer\Versioning\Versioning;
+
 
 class Stash extends Versioning implements StashInterface
 {

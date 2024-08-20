@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Phoundation;
@@ -38,6 +39,7 @@ use Phoundation\Os\Processes\Commands\Cp;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
+
 
 class Phoundation extends Project
 {
@@ -204,7 +206,7 @@ class Phoundation extends Project
      *
      * @param string|null $branch
      *
-     * @return $this
+     * @return static
      */
     public function switchBranch(?string $branch = null): static
     {

@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
@@ -33,6 +34,7 @@ use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Strings;
+
 
 class StatusFiles extends FsFilesCore implements StatusFilesInterface
 {
@@ -138,7 +140,7 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
             $list[$file] = ['status' => $status];
         }
 
-        Cli::displayTable($list, ['file'   => tr('FsFileFileInterface'),
+        Cli::displayTable($list, ['file'   => tr('File'),
                                   'status' => tr('Status'),
         ], 'file');
     }
@@ -163,7 +165,7 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
 
             if ($patch_file) {
                 Git::new($target_path)->apply($patch_file);
-                FsFile::new($patch_file, FsRestrictions::getTmp(true, 'StatusFiles::patch()'))->delete();
+                FsFile::new($patch_file, FsRestrictions::getTemporary(true, 'StatusFiles::patch()'))->delete();
             }
 
             return $this;

@@ -11,6 +11,7 @@
  * @package   \Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Phoundation\Repositories;
@@ -20,7 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\IteratorCore;
-use Phoundation\Data\Traits\TraitNewSource;
+use Phoundation\Data\Traits\TraitStaticMethodNewWithSource;
 use Phoundation\Developer\Enums\EnumRepositoryType;
 use Phoundation\Developer\Interfaces\VendorInterface;
 use Phoundation\Developer\Phoundation\Exception\RepositoryNotFoundException;
@@ -42,10 +43,11 @@ use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Utils\Config;
 use Stringable;
 
+
 class Repositories extends IteratorCore implements RepositoriesInterface
 {
     use TraitDataProject;
-    use TraitNewSource {
+    use TraitStaticMethodNewWithSource {
         __construct as protected ___construct;
     }
     use TraitDataBranch {
@@ -125,7 +127,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
      *
      * @param ProjectInterface|null $project
      *
-     * @return $this
+     * @return static
      */
     public function setProject(?ProjectInterface $project): static
     {
@@ -305,7 +307,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
      *
      * @param string|null $branch
      *
-     * @return $this
+     * @return static
      */
     public function setBranch(?string $branch): static
     {
@@ -340,7 +342,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
      * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
-     * @return $this
+     * @return static
      */
     public function add(mixed $repository, float|Stringable|int|string|null $path = null, bool $skip_null_values = true, bool $exception = true): static
     {
@@ -369,7 +371,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
     /**
      * Scans for available phoundation and or phoundation plugin and or phoundation template repositories
      *
-     * @return $this
+     * @return static
      */
     public function scan(): static
     {
@@ -433,7 +435,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
     /**
      * Scans for available phoundation and or phoundation plugin and or phoundation template repositories
      *
-     * @return $this
+     * @return static
      */
     protected function scanDirectories(IteratorInterface|array $directories, bool $recurse = false): static
     {
@@ -651,7 +653,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
     /**
      * Try to patch all loaded repositories according to the configured rules
      *
-     * @return $this
+     * @return static
      */
     public function patch(bool $force = false): static
     {
@@ -702,7 +704,7 @@ showdie('Woah, from here we start patching!!');
     /**
      * Will copy modified files directly to the repositories
      *
-     * @return $this
+     * @return static
      */
     public function copyModified(FsFileInterface|array|null $files = null): static
     {

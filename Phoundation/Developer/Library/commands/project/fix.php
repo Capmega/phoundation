@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command project/fix
+ * Command project fix
  *
  * This command will fix project issues.
  *
@@ -11,12 +11,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
+
 
 CliDocumentation::setUsage('./pho project fix');
 

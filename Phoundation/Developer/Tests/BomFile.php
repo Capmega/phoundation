@@ -12,6 +12,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Tests;
@@ -23,6 +24,7 @@ use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\FsPath;
 use Stringable;
+
 
 class BomFile extends FsFile
 {
@@ -41,7 +43,7 @@ class BomFile extends FsFile
     /**
      * Will scan for and if found, clear the file of the BOM
      *
-     * @return $this
+     * @return static
      */
     public function clearBom(): static
     {

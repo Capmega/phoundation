@@ -24,25 +24,29 @@ interface StatusFileInterface extends FsFileInterface
      * @return FsFileInterface
      */
     public function getFile(): FsFileInterface;
-/**
+
+    /**
      * Returns the target file
      *
      * @return FsFileInterface|null
      */
     public function getGitTarget(): ?FsFileInterface;
-/**
+
+    /**
      * Returns the status for this file
      *
      * @return StatusInterface
      */
     public function getStatusObject(): StatusInterface;
-/**
+
+    /**
      * Returns true if this file has a git conflict
      *
      * @return bool
      */
     public function hasConflict(): bool;
-/**
+
+    /**
      * Applies the patch for this file on the specified target file
      *
      * @param FsPathInterface $target_path
@@ -50,7 +54,8 @@ interface StatusFileInterface extends FsFileInterface
      * @return static
      */
     public function patch(FsPathInterface $target_path): static;
-/**
+
+    /**
      * Generates a diff patch file for this file and returns the file name for the patch file
      *
      * @return FsFileInterface

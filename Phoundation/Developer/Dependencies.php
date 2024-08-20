@@ -11,12 +11,14 @@
  * @package   Phoundation\Dependencies
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
+
 
 class Dependencies
 {

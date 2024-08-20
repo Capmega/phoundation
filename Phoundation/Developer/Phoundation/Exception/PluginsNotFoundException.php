@@ -11,12 +11,14 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Phoundation\Exception;
 
 use Phoundation\Developer\Exception\DeveloperException;
 use Throwable;
+
 
 class PluginsNotFoundException extends DeveloperException
 {

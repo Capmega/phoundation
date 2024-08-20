@@ -12,6 +12,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Incidents;
@@ -27,6 +28,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
+
 
 class Incident extends DataEntry
 {
@@ -86,15 +88,19 @@ class Incident extends DataEntry
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isName(16);
                                     }))
+
                     ->add(DefinitionFactory::getTitle($this)
                                            ->setSize(6))
+
                     ->add(Definition::new($this, 'url')
                                     ->setOptional(true)
                                     ->setReadonly(true)
                                     ->setLabel('URL')
                                     ->setSize(12)
                                     ->setMaxlength(2048))
+
                     ->add(DefinitionFactory::getDescription($this))
+
                     ->add(Definition::new($this, 'exception')
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -104,6 +110,7 @@ class Incident extends DataEntry
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isPrintable();
                                     }))
+
                     ->add(Definition::new($this, 'data')
                                     ->setOptional(true)
                                     ->setReadonly(true)

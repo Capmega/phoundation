@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
@@ -22,6 +23,7 @@ use Phoundation\Filesystem\FsFileCore;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+
 
 class StatusFile extends FsFileCore implements StatusFileInterface
 {

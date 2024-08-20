@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
@@ -21,6 +22,7 @@ use Phoundation\Data\IteratorCore;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
+
 
 class RemoteRepository extends IteratorCore
 {
@@ -284,7 +286,7 @@ class RemoteRepository extends IteratorCore
     /**
      * Displays the repository information
      *
-     * @return $this
+     * @return static
      */
     public function CliDisplayForm(): static
     {

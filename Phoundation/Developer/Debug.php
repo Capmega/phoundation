@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer;
@@ -23,6 +24,8 @@ use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Interfaces\FunctionCallInterface;
@@ -38,6 +41,7 @@ use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Throwable;
+
 
 class Debug
 {
@@ -608,11 +612,27 @@ class Debug
                 }
 
                 // This is an object that has a $value::__toArray() method, convert it to array and display it as such
-                $value = [
-                    ''         => 'Arreable object',
-                    'class'    => get_class($value),
-                    'contents' => $value->__toArray(),
-                ];
+                if ($value instanceof DataEntry) {
+                    $value = [
+                        ''         => 'DataEntry object',
+                        'class'    => get_class($value),
+                        'contents' => $value->__toArray(),
+                    ];
+
+                } elseif ($value instanceof DataIterator) {
+                    $value = [
+                        ''         => 'DataIterator object',
+                        'class'    => get_class($value),
+                        'contents' => $value->__toArray(),
+                    ];
+
+                } else {
+                    $value = [
+                        ''         => 'Arreable object',
+                        'class'    => get_class($value),
+                        'contents' => $value->__toArray(),
+                    ];
+                }
                 // no break
 
             case 'array':
@@ -813,14 +833,18 @@ class Debug
         $class    = static::currentClass($trace + 1, null);
         $function = static::currentFunction($trace + 1, null);
         $return   = static::currentFile($trace) . '@' . static::currentLine($trace);
+
         switch ($function) {
             case null:
                 // no break
+
             case 'include':
                 // no break
+
             case 'require':
                 // Just file@line
-                return 'FsFileFileInterface ' . $return;
+                return 'File ' . $return;
+
             default:
                 if ($class) {
                     $function = $class . '::' . $function;
@@ -1033,7 +1057,7 @@ class Debug
      * other keys to be filtered out if specified
      *
      * @param mixed   $filters  A list of keys that should be filtered from the debug_backtrace() output
-     * @param boolean $skip_own If specified as true, will skip the debug_trace() call and its handler inclusion from
+     * @param boolean $skip_own If specified, as true, will skip the debug_trace() call and its handler inclusion from
      *                          the trace
      *
      * @return array The debug_backtrace() output with the specified keys filtered out
@@ -1075,7 +1099,7 @@ class Debug
         }
         if ($enabled === 'limited') {
             if (
-                empty($_SESSION['user']['id']) or !Session::getUser()
+                empty($_SESSION['user']['id']) or !Session::getUserObject()
                                                           ->hasAllRights("debug")
             ) {
                 /*
@@ -1160,7 +1184,7 @@ class Debug
                         <thead>
                             <tr>
                                 <th>' . tr('Number') . '</th>
-                                <th>' . tr('FsFileFileInterface') . '</th>
+                                <th>' . tr('File') . '</th>
                             </tr>
                         </thead>
                         <tbody>';

@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
@@ -20,6 +21,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\TagInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Utils\Config;
+
 
 class Tag implements TagInterface
 {
@@ -50,11 +52,12 @@ class Tag implements TagInterface
      * @param string|null $commit
      * @param bool|null   $signed
      *
-     * @return $this
+     * @return static
      */
     public function tag(string $message, string $annotation, ?string $commit = null, ?bool $signed = null): static
     {
         $signed = $signed ?? Config::getBoolean('versioning.git.sign', true);
+
         $this->git->clearArguments()
                   ->addArgument('tag')
                   ->addArguments([

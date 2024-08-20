@@ -11,11 +11,13 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer\SlowPages;
 
 use Phoundation\Developer\Incidents\Incidents;
+
 
 class SlowProcesses extends Incidents
 {
@@ -44,11 +46,11 @@ class SlowProcesses extends Incidents
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return SlowProcess::class;
     }

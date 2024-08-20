@@ -16,7 +16,7 @@ interface TagInterface
      * @param string|null $commit
      * @param bool|null   $signed
      *
-     * @return $this
+     * @return static
      */
     public function tag(string $message, string $annotation, ?string $commit = null, ?bool $signed = null): static;
 

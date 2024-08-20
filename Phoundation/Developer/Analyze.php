@@ -18,6 +18,7 @@ use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
 
+
 class Analyze
 {
     use TraitDataPathInterface {
@@ -55,7 +56,7 @@ class Analyze
     /**
      *
      *
-     * @return $this
+     * @return static
      */
     public function all(): static
     {
@@ -65,7 +66,7 @@ class Analyze
     /**
      *
      *
-     * @return $this
+     * @return static
      */
     public function phpStan(): static
     {
@@ -75,7 +76,7 @@ class Analyze
     /**
      *
      *
-     * @return $this
+     * @return static
      */
     public function phan(): static
     {
@@ -85,7 +86,7 @@ class Analyze
     /**
      *
      *
-     * @return $this
+     * @return static
      */
     public function tuli(): static
     {
@@ -95,7 +96,7 @@ class Analyze
     /**
      *
      *
-     * @return $this
+     * @return static
      */
     public function exaKat(): static
     {

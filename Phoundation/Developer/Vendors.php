@@ -11,6 +11,7 @@
  * @package   \Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Developer;
@@ -28,6 +29,7 @@ use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Filesystem\FsFiles;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFilesInterface;
+
 
 class Vendors extends IteratorCore implements VendorsInterface
 {
