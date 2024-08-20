@@ -13,13 +13,12 @@
 
 namespace Phoundation\Web\Requests;
 
-use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Cache\Cache;
-use Phoundation\Cache\InstanceCache;
+use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
@@ -34,7 +33,6 @@ use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -49,7 +47,6 @@ use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
-use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Ajax\Ajax;
 use Phoundation\Web\Api\Api;
@@ -65,6 +62,7 @@ use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Exception\Http404Exception;
 use Phoundation\Web\Http\Exception\Http405Exception;
 use Phoundation\Web\Http\Exception\Http409Exception;
+use Phoundation\Web\Http\Exception\Http503Exception;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Json\Interfaces\JsonInterface;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
@@ -73,9 +71,7 @@ use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
 use Phoundation\Web\Requests\Interfaces\RequestInterface;
 use Phoundation\Web\Requests\Traits\TraitDataStaticRouteParameters;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
-use Phoundation\Web\Uploads\Interfaces\UploadHandlerInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
-use Phoundation\Web\Uploads\UploadHandler;
 use Phoundation\Web\Uploads\UploadHandlers;
 use Stringable;
 use Templates\Phoundation\AdminLte\AdminLte;
@@ -1710,11 +1706,14 @@ abstract class Request implements RequestInterface
         } catch (Http404Exception|DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             static::executeSystem(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
 
-        } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
+        } catch (Http405Exception|DataEntryReadonlyExceptionInterface $e) {
             static::executeSystem(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
 
         } catch (Http409Exception $e) {
             static::executeSystem(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+
+        } catch (Http503Exception|CoreReadonlyExceptionInterface $e) {
+            static::executeSystem(503, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
         }
     }
 

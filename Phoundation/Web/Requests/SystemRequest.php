@@ -126,9 +126,12 @@ class SystemRequest
 
         } else {
             if (Config::getBoolean('security.web.monitor.urls.non-200', true)) {
-                Non200Url::new()
-                         ->generate($http_code)
-                         ->save();
+                if (!Core::getReadonly()) {
+                    Non200Url::new()
+                        ->generate($http_code)
+                        ->save();
+                }
+
                 Log::warning('Registered request as non HTTP-200 URL');
             }
         }

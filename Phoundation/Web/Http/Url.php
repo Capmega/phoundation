@@ -289,7 +289,13 @@ class Url implements UrlInterface
             $base = Domains::getRootUrl();
 
         } elseif (PLATFORM_WEB) {
-            $base = Request::getRoutingParameters()->getRootUrl();
+            try {
+                $base = Request::getRoutingParameters()->getRootUrl();
+
+            } catch (OutOfBoundsException $e) {
+                // Routing parameters are not yet available, assume /
+                $base = '/';
+            }
 
         } else {
             $base = Domains::getRootUrl();

@@ -118,6 +118,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `size` bigint NOT NULL,
                     `error` int NOT NULL,
                     `hash` varchar(128) NULL,
+                    `comments` text NULL DEFAULT NULL,
                 ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),

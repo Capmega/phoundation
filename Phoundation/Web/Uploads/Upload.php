@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Uploads;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -31,7 +30,6 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Web\Uploads\Interfaces\UploadInterface;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat\Wizard\Number;
 
 
 class Upload extends DataEntry implements UploadInterface
@@ -255,7 +253,7 @@ class Upload extends DataEntry implements UploadInterface
      *
      * @return static
      */
-    protected function addComments(?string $comments): static
+    public function addComment(?string $comments): static
     {
         $existing = $this->getComments();
 
@@ -274,7 +272,7 @@ class Upload extends DataEntry implements UploadInterface
      *
      * @return static
      */
-    protected function setComments(?string $comments): static
+    public function setComments(?string $comments): static
     {
         return $this->set($comments, 'Comments');
     }
@@ -331,6 +329,34 @@ class Upload extends DataEntry implements UploadInterface
 
 
     /**
+     * Returns the error message for the specified error code
+     *
+     * @param int|null $error
+     *
+     * @return string
+     */
+    public function getUploadErrorMessage(?int $error = null): string
+    {
+        if ($error === null) {
+            $error = $this->getError();
+        }
+
+        return match ($error) {
+            UPLOAD_ERR_OK         => tr('There is no error, the file uploaded with success'),
+            UPLOAD_ERR_INI_SIZE   => tr('The uploaded file exceeds the upload_max_filesize directive with value ":value" in php.ini', [
+                ':value' => ini_get('upload_max_filesize')
+            ]),
+            UPLOAD_ERR_FORM_SIZE  => tr('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form'),
+            UPLOAD_ERR_PARTIAL    => tr('The uploaded file was only partially uploaded'),
+            UPLOAD_ERR_NO_FILE    => tr('No file was uploaded'),
+            UPLOAD_ERR_NO_TMP_DIR => tr('Missing a temporary folder'),
+            UPLOAD_ERR_CANT_WRITE => tr('Failed to write file to disk'),
+            UPLOAD_ERR_EXTENSION  => tr('A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help')
+        };
+    }
+
+
+    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
@@ -347,7 +373,7 @@ class Upload extends DataEntry implements UploadInterface
                                            ->setMaxlength(2048)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getFile($this, new FsDirectory('/tmp/', FsRestrictions::getWritable('/tmp/')), 'tmp_name')
+                    ->add(DefinitionFactory::getFile($this, new FsDirectory('/tmp/', FsRestrictions::getWritable('/tmp/')))
                                            ->setLabel(tr('Temporary file name'))
                                            ->setMaxlength(255)
                                            ->setReadonly(true))
@@ -371,6 +397,8 @@ class Upload extends DataEntry implements UploadInterface
                     ->add(DefinitionFactory::getCode($this, 'hash')
                                            ->setLabel(tr('File hash'))
                                            ->setMaxlength(128)
-                                           ->setReadonly(true));
+                                           ->setReadonly(true))
+
+                    ->add(DefinitionFactory::getComments($this));
     }
 }

@@ -101,7 +101,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
             if ($message->getData()) {
                 $count = 0;
 
-                foreach ($message->getData() as $message) {
+                foreach ($message->getDataKey('failures') as $message) {
                     if (!trim($message)) {
                         continue;
                     }

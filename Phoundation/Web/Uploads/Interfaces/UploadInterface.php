@@ -72,4 +72,38 @@ interface UploadInterface
      * @return $this
      */
     public function save(bool $force = false, ?string $comments = null): static;
+
+    /**
+     * Returns the Comments for this uploaded file
+     *
+     * @return string|null
+     */
+    public function getComments(): ?string;
+
+    /**
+     * Sets the Comments for this uploaded file
+     *
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function addComment(?string $comments): static;
+
+    /**
+     * Sets the Comments for this uploaded file
+     *
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function setComments(?string $comments): static;
+
+    /**
+     * Returns the error message for the specified error code
+     *
+     * @param int|null $error
+     *
+     * @return string
+     */
+    public function getUploadErrorMessage(?int $error = null): string;
 }
