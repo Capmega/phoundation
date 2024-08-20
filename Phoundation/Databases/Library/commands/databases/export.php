@@ -24,7 +24,7 @@ use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 
 
-$restrictions = FsRestrictions::getWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP], tr('command databases mysql export'));
+$restrictions = FsRestrictions::getWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP]));
 
 CliDocumentation::setUsage('./pho databases export -d mysql -b system -f system.sql');
 

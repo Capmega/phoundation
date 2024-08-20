@@ -71,7 +71,7 @@ class Import
      */
     public function __construct(?FsRestrictionsInterface $restrictions = null)
     {
-        $this->restrictions = FsRestrictions::getRestrictionsOrDefault($restrictions, FsRestrictions::getWritable('/', 'Mysql exporter'));
+        $this->restrictions = FsRestrictions::getRestrictionsOrDefault($restrictions, FsRestrictions::getWritable('/'));
     }
 
 
