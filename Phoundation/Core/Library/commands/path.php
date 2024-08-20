@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -23,6 +24,7 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Strings;
 
+
 CliDocumentation::setUsage('./pho path');
 
 CliDocumentation::setHelp('The find script will find the exact command you are looking for and display the path where 
@@ -32,7 +34,7 @@ the PHP file for that command is located
 ARGUMENTS
 
 
-[-l,--like]                             If specified will return all commands that appear like *filter*');
+[-l,--like]                             If specified, will return all commands that appear like *filter*');
 
 
 $argv = ArgvValidator::new()

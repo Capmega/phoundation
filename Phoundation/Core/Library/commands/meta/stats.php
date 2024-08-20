@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command meta/stats
+ * Command meta stats
  *
  * This script can be used to display meta data statistics
  *
@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 
@@ -20,6 +21,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Date\DateTime;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
+
 
 CliDocumentation::setUsage('./pho meta stats
 ');

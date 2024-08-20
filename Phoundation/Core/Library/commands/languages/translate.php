@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command languages/translate
+ * Command languages translate
  *
  * This command will translate your project into the various configured translations
  *
@@ -11,11 +11,13 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setUsage('./pho languages translate');
 

@@ -12,6 +12,7 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Locale\Language;
@@ -19,6 +20,7 @@ namespace Phoundation\Core\Locale\Language;
 use Phoundation\Core\Locale\Language\Interfaces\LanguagesInterface;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+
 
 class Languages extends DataIterator implements LanguagesInterface
 {
@@ -47,11 +49,11 @@ class Languages extends DataIterator implements LanguagesInterface
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Language::class;
     }
@@ -91,11 +93,13 @@ class Languages extends DataIterator implements LanguagesInterface
     /**
      * Load the id list from the database
      *
-     * @param bool $clear
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
         $this->source = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name`
                                    FROM     `core_languages`

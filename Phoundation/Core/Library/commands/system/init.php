@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system/init
+ * Command system init
  *
  * This is the init script for the project. Run this script to ensure that the database is running with the same version
  * as the code
@@ -9,9 +9,9 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Core
  */
+
 
 declare(strict_types=1);
 
@@ -21,6 +21,7 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Utils\Strings;
+
 
 CliDocumentation::setAutoComplete([
     'arguments' => [
@@ -94,7 +95,7 @@ $argv = ArgvValidator::new()
                      ->select('-p,--plugins')->isOptional(false)->isBoolean()
                      ->select('-s,--system')->isOptional(false)->isBoolean()
                      ->select('-t,--templates')->isOptional(false)->isBoolean()
-                     ->select('-v,--set-version', true)->isOptional()->hasMaxCharacters(2048)->sanitizeForceArray()->each()->matchesRegex('/[a-z0-9-_]+\/\d{1,3}\.\d{1,3}\.\d{1,3}/i')
+                     ->select('-v,--set-version', true)->isOptional()->hasMaxCharacters(2048)->sanitizeForceArray()->each()->matchesRegex('/^[a-z0-9-_]+\/v?\d{1,4}\.\d{1,4}\.\d{1,4}$/i')
                      ->validate();
 
 
@@ -107,8 +108,10 @@ if ($argv['drop']) {
 // Update the version for specified libraries
 if ($argv['set_version']) {
     foreach ($argv['set_version'] as $lib_version) {
-        $library = Strings::until($lib_version, '/');
-        $version = Strings::from($lib_version, '/');
+        $lib_version = strtolower($lib_version);
+        $library     = Strings::until($lib_version, '/');
+        $version     = Strings::from($lib_version, '/');
+        $version     = Strings::from($version, 'v');
 
         Library::get($library)->setVersion($version);
     }

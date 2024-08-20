@@ -11,11 +11,13 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Hooks\Exception;
 
 use Phoundation\Core\Exception\CoreException;
+
 
 class HooksException extends CoreException
 {

@@ -11,6 +11,7 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Sessions;
@@ -44,7 +45,7 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Incident;
-use Phoundation\Security\Incidents\Severity;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
@@ -59,6 +60,7 @@ use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Throwable;
+
 
 class Session implements SessionInterface
 {
@@ -415,19 +417,20 @@ class Session implements SessionInterface
         try {
             if (Config::getBoolean('web.sessions.enabled', true)) {
                 // Force session cookie configuration
-                ini_set('session.gc_maxlifetime', Config::getBoolString('web.sessions.timeout', true));
+                ini_set('session.gc_maxlifetime' , Config::getBoolString('web.sessions.timeout', true));
                 ini_set('session.cookie_lifetime', Config::getInteger('web.sessions.cookies.lifetime', 0));
                 ini_set('session.use_strict_mode', Config::getBoolean('web.sessions.cookies.strict_mode', true));
-                ini_set('session.name', Config::getString('web.sessions.cookies.name', 'phoundation'));
+                ini_set('session.name'           , Config::getString('web.sessions.cookies.name', 'phoundation'));
                 ini_set('session.cookie_httponly', Config::getBoolean('web.sessions.cookies.http-only', true));
-                ini_set('session.cookie_secure', Config::getBoolean('web.sessions.cookies.secure', true));
+                ini_set('session.cookie_secure'  , Config::getBoolean('web.sessions.cookies.secure', true));
                 ini_set('session.cookie_samesite', Config::getBoolean('web.sessions.cookies.same-site', true));
-                ini_set('session.save_handler', Config::getString('sessions.handler', 'files'));
-                ini_set('session.save_path', Config::getString('sessions.path', DIRECTORY_DATA . 'data/sessions/'));
+                ini_set('session.save_handler'   , Config::getString('sessions.handler', 'files'));
+                ini_set('session.save_path'      , Config::getString('sessions.path', DIRECTORY_SYSTEM . 'sessions/'));
 
                 if (Config::getBoolean('web.sessions.check-referrer', true)) {
                     ini_set('session.referer_check', static::$domain);
                 }
+
                 if (Debug::isEnabled() or !Config::getBoolean('cache.http.enabled', true)) {
                     ini_set('session.cache_limiter', 'nocache');
 
@@ -526,11 +529,14 @@ class Session implements SessionInterface
         // What handler to use?
         switch (Config::getString('web.sessions.handler', 'files')) {
             case 'files':
-                $directory = FsDirectory::new(Config::getString('web.sessions.path', DIRECTORY_DATA . 'sessions/'), FsRestrictions::new([
-                    DIRECTORY_DATA,
-                    '/var/lib/php/sessions/',
-                ],                                                                                                                      true, 'system/sessions'))
-                                        ->ensure();
+                $directory = FsDirectory::new(
+                    Config::getString('web.sessions.path', DIRECTORY_SYSTEM . 'sessions/'),
+                    FsRestrictions::new([
+                        DIRECTORY_DATA,
+                        '/var/lib/php/sessions/',
+                    ], true)
+                )->ensure();
+
                 session_save_path($directory->getSource());
                 break;
 
@@ -568,7 +574,7 @@ class Session implements SessionInterface
 
             Log::success(tr('Resumed session ":session" for user ":user" from IP ":ip"', [
                 ':session' => session_id(),
-                ':user'    => static::getUser()->getLogId(),
+                ':user'    => static::getUserObject()->getLogId(),
                 ':ip'      => $_SERVER['REMOTE_ADDR'],
             ]));
         }
@@ -673,7 +679,7 @@ class Session implements SessionInterface
     {
         Log::success(tr('Created new session ":session" for user ":user"', [
             ':session' => session_id(),
-            ':user'    => static::getUser()->getLogId(),
+            ':user'    => static::getUserObject()->getLogId(),
         ]));
 
         // Initialize the session
@@ -699,7 +705,7 @@ class Session implements SessionInterface
                 $_SESSION['user']['timezone'] = Config::get('timezone.display', 'UTC');
                 Notification::new()
                             ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
-                                ':user'     => static::getUser()->getLogId(),
+                                ':user'     => static::getUserObject()->getLogId(),
                                 ':timezone' => $_SESSION['user']['timezone'],
                             ]), $e)->makeWarning())
                             ->send();
@@ -718,35 +724,45 @@ class Session implements SessionInterface
      *
      * @return UserInterface
      */
-    public static function getUser(): UserInterface
+    public static function getUserObject(): UserInterface
     {
-        return static::returnUser(false);
+        return static::getImpersonatedUserObject();
     }
 
 
     /**
-     * Returns the user for this session
+     * Returns the user for this session, impersonated if available, else the real user
      *
      * @param bool $real_user
      *
      * @return UserInterface
      * @todo Add caching for real_user
      */
-    protected static function returnUser(bool $real_user): UserInterface
+    protected static function getImpersonatedUserObject(): UserInterface
     {
-        if (!$real_user) {
-            // We can return impersonated user IF exists
-            if (!empty($_SESSION['user']['impersonate_id'])) {
-                // Return impersonated user
-                if (empty(static::$impersonated_user)) {
-                    // Load impersonated user into cache variable
-                    static::$impersonated_user = static::loadUser($_SESSION['user']['impersonate_id']);
-                }
-
-                return static::$impersonated_user;
+        // We can return impersonated user IF exists
+        if (!empty($_SESSION['user']['impersonate_id'])) {
+            // Return impersonated user
+            if (empty(static::$impersonated_user)) {
+                // Load impersonated user into cache variable
+                static::$impersonated_user = static::loadUser($_SESSION['user']['impersonate_id']);
             }
+
+            return static::$impersonated_user;
         }
 
+        return static::getRealUserObject();
+    }
+
+
+    /**
+     * Returns the real user for this session
+     *
+     * @return UserInterface
+     * @todo Add caching for real_user
+     */
+    public static function getRealUserObject(): UserInterface
+    {
         // Return the real user
         if (empty(static::$user)) {
             // User object does not yet exist
@@ -772,6 +788,23 @@ class Session implements SessionInterface
 
 
     /**
+     * Reloads the user data
+     *
+     * @return void
+     */
+    public static function reloadUser(): void
+    {
+        if (empty($_SESSION['user']['id'])) {
+            throw new OutOfBoundsException(tr('Cannot reload user for session ":session", this session has no user', [
+                ':session' => session_id(),
+            ]));
+        }
+
+        static::loadUser($_SESSION['user']['id']);
+    }
+
+
+    /**
      * Load the userdata into this session
      *
      * @param int $users_id
@@ -783,7 +816,7 @@ class Session implements SessionInterface
         // Create a new user object and ensure it's still good to go
         try {
             // This user is loaded by the session object and should NOT use meta-tracking!
-            $user = User::load($users_id, 'id');
+            $user = User::load($users_id);
 
             if (!$user->getStatus()) {
                 return $user;
@@ -815,35 +848,6 @@ class Session implements SessionInterface
 
         return new GuestUser();
     }
-
-
-//    /*
-//     * Read value for specified key from $_SESSION[cache][$key]
-//     *
-//     * If $_SESSION[cache][$key] does not exist, then execute the callback and
-//     * store the resulting value in $_SESSION[cache][$key]
-//     */
-//    function session_cache($key, $callback)
-//    {
-//        try {
-//            if (empty($_SESSION)) {
-//                return null;
-//            }
-//
-//            if (!isset($_SESSION['cache'])) {
-//                $_SESSION['cache'] = array();
-//            }
-//
-//            if (!isset($_SESSION['cache'][$key])) {
-//                $_SESSION['cache'][$key] = $callback();
-//            }
-//
-//            return $_SESSION['cache'][$key];
-//
-//        } catch (Exception $e) {
-//            throw new OutOfBoundsException(tr('session_cache(): Failed'), $e);
-//        }
-//    }
 
 
     /**
@@ -914,7 +918,7 @@ class Session implements SessionInterface
 
             Incident::new()
                     ->setType(tr('User sign in'))
-                    ->setSeverity(Severity::notice)
+                    ->setSeverity(EnumSeverity::notice)
                     ->setTitle(tr('The user ":user" signed in', [':user' => static::$user->getLogId()]))
                     ->setDetails(['user' => static::$user->getLogId()])
                     ->save();
@@ -931,7 +935,7 @@ class Session implements SessionInterface
                     case 'User':
                         Incident::new()
                                 ->setType('User does not exist')
-                                ->setSeverity(Severity::low)
+                                ->setSeverity(EnumSeverity::low)
                                 ->setTitle(tr('The specified user ":user" does not exist', [':user' => $user]))
                                 ->setDetails(['user' => $user])
                                 ->notifyRoles('accounts')
@@ -1024,7 +1028,7 @@ class Session implements SessionInterface
      */
     public static function getRealUser(): UserInterface
     {
-        return static::returnUser(true);
+        return static::getImpersonatedUserObject(true);
     }
 
 
@@ -1093,6 +1097,7 @@ class Session implements SessionInterface
         // Check what languages are accepted by the client (in order of importance) and see if we support any of those
         $supported_languages = Arrays::force(Config::get('language.supported', []));
         $requested_languages = Request::acceptsLanguages();
+
         foreach ($requested_languages as $requested_language) {
             if (in_array($requested_language['language'], $supported_languages)) {
                 static::$language = $requested_language['language'];
@@ -1195,13 +1200,13 @@ class Session implements SessionInterface
             // We are already impersonating a user!
             Incident::new()
                     ->setType('User impersonation failed')
-                    ->setSeverity(Severity::high)
+                    ->setSeverity(EnumSeverity::high)
                     ->setTitle(tr('Cannot impersonate user ":user", we are already impersonating', [
                         ':user' => $user->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => static::getUser()->getLogId(),
-                        'impersonating'       => User::load($_SESSION['user']['impersonate_id'], 'id')->getLogId(),
+                        'user'                => static::getUserObject()->getLogId(),
+                        'impersonating'       => User::load($_SESSION['user']['impersonate_id'])->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->notifyRoles('accounts')
@@ -1213,12 +1218,12 @@ class Session implements SessionInterface
             // We are already impersonating a user!
             Incident::new()
                     ->setType('User impersonation failed')
-                    ->setSeverity(Severity::high)
+                    ->setSeverity(EnumSeverity::high)
                     ->setTitle(tr('Cannot impersonate user ":user", this user account is not able or allowed to be impersonated', [
-                        ':user' => static::getUser()->getLogId(),
+                        ':user' => static::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => static::getUser()->getLogId(),
+                        'user'                => static::getUserObject()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->notifyRoles('accounts')
@@ -1226,16 +1231,16 @@ class Session implements SessionInterface
                     ->throw();
         }
 
-        if ($user->getId() === static::getUser()->getId()) {
+        if ($user->getId() === static::getUserObject()->getId()) {
             // We are already impersonating a user!
             Incident::new()
                     ->setType('User impersonation failed')
-                    ->setSeverity(Severity::high)
+                    ->setSeverity(EnumSeverity::high)
                     ->setTitle(tr('Cannot impersonate user ":user", the user to impersonate is this user itself', [
-                        ':user' => static::getUser()->getLogId(),
+                        ':user' => static::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => static::getUser()->getLogId(),
+                        'user'                => static::getUserObject()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->notifyRoles('accounts')
@@ -1246,12 +1251,12 @@ class Session implements SessionInterface
             // Can't impersonate a god level user!
             Incident::new()
                     ->setType('User impersonation failed')
-                    ->setSeverity(Severity::severe)
+                    ->setSeverity(EnumSeverity::severe)
                     ->setTitle(tr('Cannot impersonate user ":user", the user to impersonate has the "god" role', [
-                        ':user' => static::getUser()->getLogId(),
+                        ':user' => static::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => static::getUser()->getLogId(),
+                        'user'                => static::getUserObject()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->notifyRoles('accounts')
@@ -1260,7 +1265,7 @@ class Session implements SessionInterface
         }
 
         // Impersonate the user
-        $original_user = static::getUser();
+        $original_user = static::getUserObject();
         $_SESSION['user']['impersonate_id']  = $user->getId();
         $_SESSION['user']['impersonate_url'] = (string) Url::getCurrent();
 
@@ -1269,7 +1274,7 @@ class Session implements SessionInterface
         // Register an incident
         Incident::new()
                 ->setType('User impersonation')
-                ->setSeverity(Severity::medium)
+                ->setSeverity(EnumSeverity::medium)
                 ->setTitle(tr('The user ":user" started impersonating user ":impersonate"', [
                     ':user'        => $original_user->getLogId(),
                     ':impersonate' => $user->getLogId(),
@@ -1316,6 +1321,7 @@ class Session implements SessionInterface
     {
         static::$key  = $key;
         static::$user = $key->getUser();
+
         static::clear();
 
         // Update the users sign-in and last sign-in information
@@ -1325,7 +1331,7 @@ class Session implements SessionInterface
         Signin::detect()->save();
 
         Incident::new()
-                ->setSeverity(Severity::notice)
+                ->setSeverity(EnumSeverity::notice)
                 ->setType(tr('User sign in'))
                 ->setTitle(tr('The user ":user" signed in using UUID key ":key"', [
                     ':key'  => $key->getUuid(),
@@ -1370,12 +1376,12 @@ class Session implements SessionInterface
                     // This session key doesn't exist, WTF? If it exists in session, it should exist in the DB. Since it
                     // does not exist, assume the session contains invalid data. Drop the session
                     Incident::new()
-                            ->setSeverity(Severity::medium)
+                            ->setSeverity(EnumSeverity::medium)
                             ->setType(tr('Invalid session data'))
                             ->setTitle(tr('Session has sign-key that does not exist, session will be dropped'))
                             ->setDetails([
                                 'sign-key' => $_SESSION['sign-key'],
-                                'users_id' => Session::getUser()
+                                'users_id' => Session::getUserObject()
                                                      ->getLogId(),
                             ])
                             ->save();
@@ -1403,7 +1409,7 @@ class Session implements SessionInterface
         if (!session_id()) {
             Incident::new()
                     ->setType('User sign out')
-                    ->setSeverity(Severity::low)
+                    ->setSeverity(EnumSeverity::low)
                     ->setTitle(tr('User sign out requested on non existing session'))
                     ->save();
 
@@ -1416,17 +1422,17 @@ class Session implements SessionInterface
                 try {
                     Incident::new()
                             ->setType('User impersonation')
-                            ->setSeverity(Severity::low)
+                            ->setSeverity(EnumSeverity::low)
                             ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
-                                ':user'        => User::load($_SESSION['user']['id'], 'id')
+                                ':user'        => User::load($_SESSION['user']['id'])
                                                       ->getLogId(),
-                                ':impersonate' => User::load($_SESSION['user']['impersonate_id'], 'id')
+                                ':impersonate' => User::load($_SESSION['user']['impersonate_id'])
                                                       ->getLogId(),
                             ]))
                             ->setDetails([
-                                'user'        => User::load($_SESSION['user']['id'], 'id')
+                                'user'        => User::load($_SESSION['user']['id'])
                                                      ->getLogId(),
-                                'impersonate' => User::load($_SESSION['user']['impersonate_id'], 'id')
+                                'impersonate' => User::load($_SESSION['user']['impersonate_id'])
                                                      ->getLogId(),
                             ])
                             ->notifyRoles('accounts')
@@ -1443,7 +1449,7 @@ class Session implements SessionInterface
 
                     Response::getFlashMessagesObject()
                            ->addSuccess(tr('You have stopped impersonating user ":user"', [
-                               ':user' => User::load($users_id, 'id')
+                               ':user' => User::load($users_id)
                                               ->getLogId(),
                            ]));
                     Response::redirect($url);
@@ -1458,7 +1464,7 @@ class Session implements SessionInterface
 
                     Incident::new()
                             ->setType('User impersonation sign out failed')
-                            ->setSeverity(Severity::low)
+                            ->setSeverity(EnumSeverity::low)
                             ->setTitle(tr('User impersonation sign out failed users id ":id", impersonate id ":impersonate_id", closing sessions', [
                                 ':id'             => isset_get($_SESSION['user']['id']),
                                 ':impersonate_id' => isset_get($_SESSION['user']['impersonate_id']),
@@ -1469,13 +1475,13 @@ class Session implements SessionInterface
 
             Incident::new()
                     ->setType('User sign out')
-                    ->setSeverity(Severity::notice)
+                    ->setSeverity(EnumSeverity::notice)
                     ->setTitle(tr('The user ":user" signed out', [
-                        ':user' => static::getUser()
+                        ':user' => static::getUserObject()
                                          ->getLogId(),
                     ]))
                     ->setDetails([
-                        'user' => static::getUser()
+                        'user' => static::getUserObject()
                                         ->getLogId(),
                     ])
                     ->save();
@@ -1485,7 +1491,7 @@ class Session implements SessionInterface
             Log::error($e);
         }
 
-        static::$user_changed = !static::getUser()->isGuest();
+        static::$user_changed = !static::getUserObject()->isGuest();
 
         // Destroy all in the session but the flash messages
         $messages = isset_get($_SESSION['flash_messages']);
@@ -1504,7 +1510,7 @@ class Session implements SessionInterface
      */
     public static function isGuest(): bool
     {
-        return static::getUser()->isGuest();
+        return static::getUserObject()->isGuest();
     }
 
 
@@ -1516,5 +1522,18 @@ class Session implements SessionInterface
     public static function isUser(): bool
     {
         return !static::isGuest();
+    }
+
+
+    /**
+     * Returns true if the current session user is the same as the specified user
+     *
+     * @param UserInterface $user
+     *
+     * @return bool
+     */
+    public static function isOfUser(UserInterface $user): bool
+    {
+        return static::getUserObject()->getId() === $user->getId();
     }
 }

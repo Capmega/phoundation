@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system/modes/readonly/enable
+ * Command system modes readonly enable
  *
  * This command will enable readonly mode
  *
@@ -11,11 +11,13 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Core;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setUsage('./pho system modes readonly enable');
 

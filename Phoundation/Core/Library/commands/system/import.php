@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system/import
+ * Command system import
  *
  * This command will import all data to get your system going. Currently this script will import:
  *
@@ -15,12 +15,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
+
 
 CliDocumentation::setUsage('./pho system import');
 

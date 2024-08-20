@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system/clean
+ * Command system clean
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -19,6 +20,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Date\DateTime;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
+
 
 CliDocumentation::setUsage('./pho system clean [OPTIONS]
 ');
@@ -70,10 +72,11 @@ if ($argv['date']) {
 
 // Define paths and clean them
 $paths = [
-    DIRECTORY_DATA . 'tmp',
-    DIRECTORY_DATA . 'run',
-    DIRECTORY_DATA . 'log',
-    DIRECTORY_DATA . 'sessions',
+    DIRECTORY_SYSTEM . 'tmp/',
+    DIRECTORY_SYSTEM . 'run/',
+    DIRECTORY_SYSTEM . 'sessions/',
+    DIRECTORY_SYSTEM . 'cache/files/',
+    DIRECTORY_DATA   . 'log/',
 ];
 
 foreach ($paths as $path) {

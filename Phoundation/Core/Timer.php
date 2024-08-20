@@ -14,6 +14,7 @@
  * @see       Timers
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core;
@@ -21,6 +22,7 @@ namespace Phoundation\Core;
 use Phoundation\Core\Exception\TimerException;
 use Phoundation\Core\Interfaces\TimerInterface;
 use Phoundation\Exception\OutOfBoundsException;
+
 
 class Timer implements TimerInterface
 {

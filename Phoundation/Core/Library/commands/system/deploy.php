@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command project/check
+ * Command project check
  *
  * This command will check for - and report - (and optionally fix) the project and its systems
  *
@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -19,6 +20,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;$restrictions = FsRestrictions::getReadonly([DIRECTORY_ROOT . 'config/deploy/'], tr('Deploy'));
+
 
 CliDocumentation::setAutoComplete([
                                       'positions' => [

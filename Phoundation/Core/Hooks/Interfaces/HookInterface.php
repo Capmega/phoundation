@@ -9,9 +9,10 @@ interface HookInterface
     /**
      * Attempts to execute the specified hooks
      *
-     * @param array|string $hooks
+     * @param string     $hook
+     * @param array|null $arguments
      *
-     * @return $this
+     * @return mixed
      */
-    public function execute(array|string $hooks, ?array $source = null): static;
+    public function execute(string $hook, ?array $arguments = null): mixed;
 }

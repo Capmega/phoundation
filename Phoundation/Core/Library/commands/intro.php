@@ -11,9 +11,11 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
+
 
 CliDocumentation::setUsage('./pho intro');
 
@@ -55,7 +57,7 @@ form -a letter, preceded by a single dash- which is documented as well. When bot
 may be documented as follows: [-p, --parameter [VALUE]] This is an optional parameter "parameter" with an optional value
 that may be indicated with --parameter, but also with -p
 
-Phoundation typically outputs a lot of extra information to both screen and log files. You can modify the amount of
+Phoundation typically outputs a lot of extra information to both screen and log files. You can modify the number of
 information logged using --log-level. The higher the number, the higher the log threshold and the less information is
 printed on screen. The --quiet option will also remove startup and shutdown messages and -G will remove prefix data,
 printing only the output. Output typically is colored, but the --no-color option will print all output in plain text.
@@ -113,25 +115,25 @@ The following arguments are available to ALL commands
                                         run unless you specify the environment manually using these flags. The
                                         environment has to exist as a ROOT/config/ENVIRONMENT.yaml file
 
-[-F, --force]                           If specified will run the CLI command in FORCE mode, which will override certain
+[-F, --force]                           If specified, will run the CLI command in FORCE mode, which will override certain
                                         restrictions. See --help for information on how specific commands deal with this
                                         flag
 
-[-H, --help]                            If specified will display the help page for the typed command
+[-H, --help]                            If specified, will display the help page for the typed command
 
 [-J, --json JSON]                       Allows argument to be specified in JSON format. The system will decode the 
                                         arguments and add them to the rest of the argument list without overwriting 
                                         arguments that were already specified on the command line
 
-[-L, --log-level LEVEL]                 If specified will set the minimum threshold level for log messages to appear.
+[-L, --log-level LEVEL]                 If specified, will set the minimum threshold level for log messages to appear.
                                         Any message with a threshold level below the indicated amount will not appear in
                                         the logs. Defaults to 5.
 
-[-O, --order-by "COLUMN ASC|DESC"]      If specified and used by the command (only commands that display tables) will
+[-O, --order-by "COLUMN ASC|DESC"]      If specified, and used by the command (only commands that display tables) will
                                         order the table contents on the specified column in the specified direction.
                                         Defaults to nothing
 
-[-P, --page PAGE]                       If specified and used by the command (only commands that display tables) will
+[-P, --page PAGE]                       If specified, and used by the command (only commands that display tables) will
                                         show the table on the specified page. Defaults to 1
 
 [-Q, --quiet]                           Will have the system run in quiet mode, suppressing log startup and shutdown
@@ -141,7 +143,7 @@ The following arguments are available to ALL commands
 [-G, --no-prefix]                       Will suppress the DATETIME - LOGLEVEL - PROCESS ID - GLOBAL PROCESS ID prefix
                                         that normally begins each log line output
 
-[-S, --status STATUS]                   If specified will only display DataEntry entries with the specified status
+[-S, --status STATUS]                   If specified, will only display DataEntry entries with the specified status
 
 [-T, --test]                            Will run the system in test mode. Different commands may change their behaviour
                                         depending on this flag, see their --help output for more information.

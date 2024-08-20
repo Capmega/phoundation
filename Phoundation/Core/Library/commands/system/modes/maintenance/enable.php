@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system/modes/maintenance/enable
+ * Command system modes maintenance enable
  *
  * This command will enable maintenance mode
  *
@@ -11,11 +11,13 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Core;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setUsage('./pho system modes maintenance enable');
 

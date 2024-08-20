@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command languages/import
+ * Command languages import
  *
  * This command will import data into the languages table from the data/sources/languages/languages file
  *
@@ -11,11 +11,13 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Locale\Language\Import;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setUsage('./pho languages import');
 

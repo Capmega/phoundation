@@ -11,11 +11,13 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core;
 
 use Phoundation\Exception\OutOfBoundsException;
+
 
 class CoreLocale
 {
@@ -72,7 +74,7 @@ class CoreLocale
     /*
      * Set PHP locale data from specified configuration. If no configuration was specified, use $_CONFIG[locale] instead
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference

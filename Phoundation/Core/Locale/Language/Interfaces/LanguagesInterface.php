@@ -21,12 +21,15 @@ interface LanguagesInterface
      */
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
 
+
     /**
      * Load the id list from the database
      *
-     * @param bool $clear
-     * @param bool $only_if_empty
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
+     *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static;
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static;
 }

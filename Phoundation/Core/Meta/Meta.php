@@ -11,6 +11,7 @@
  * @package   \Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Meta;
@@ -37,6 +38,7 @@ use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Http\Url;
 use Throwable;
+
 
 class Meta implements MetaInterface
 {
@@ -321,7 +323,7 @@ class Meta implements MetaInterface
             if (static::$buffer) {
                 static::$updates[++static::$pointer] = [
                     ':meta_id_' . static::$pointer    => $this->id,
-                    ':created_by_' . static::$pointer => Session::getUser()
+                    ':created_by_' . static::$pointer => Session::getUserObject()
                                                                 ->getId(),
                     ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? Url::getCurrent() : CliCommand::getExecutedPath()),
                     ':action_' . static::$pointer     => $action,
@@ -334,7 +336,7 @@ class Meta implements MetaInterface
                 sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
                                     VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
                     ':meta_id'    => $this->id,
-                    ':created_by' => Session::getUser()
+                    ':created_by' => Session::getUserObject()
                                             ->getId(),
                     ':source'     => (string) (PLATFORM_WEB ? Url::getCurrent() : CliCommand::getExecutedPath()),
                     ':action'     => $action,

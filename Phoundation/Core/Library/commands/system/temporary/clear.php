@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system/temporary/clear
+ * Command system temporary clear
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -19,6 +20,7 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Strings;
+
 
 CliDocumentation::setUsage('./pho system temporary clear PATH [OPTIONS]
 ./pho system temporary clear PATH --public

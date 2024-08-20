@@ -11,6 +11,7 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core;
@@ -21,6 +22,7 @@ use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Numbers;
+
 
 class ProcessControlSignals
 {

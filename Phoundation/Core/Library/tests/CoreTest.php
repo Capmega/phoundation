@@ -4,12 +4,14 @@
  * \Phoundation\Core\Core test class
  */
 
+
 declare(strict_types=1);
 
 namespace Core;
 
 use Phoundation\Core\Core;
 use PHPUnit\Framework\TestCase;
+
 
 class CoreTest extends TestCase
 {

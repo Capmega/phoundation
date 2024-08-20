@@ -10,9 +10,9 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Core
  */
+
 
 declare(strict_types=1);
 
@@ -23,6 +23,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\OutOfBoundsException;
+
 
 CliDocumentation::setUsage('./pho system setup [OPTIONS]
 ./pho system setup --no-password-validation

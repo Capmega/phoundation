@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system/clear
+ * Command system clear
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 
@@ -20,6 +21,7 @@ use Phoundation\Date\DateTime;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
+
 
 CliDocumentation::setUsage('./pho system clear [OPTIONS]
 ');

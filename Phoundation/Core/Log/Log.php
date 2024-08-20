@@ -11,6 +11,7 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Log;
@@ -35,6 +36,7 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -43,6 +45,7 @@ use Phoundation\Web\Requests\Request;
 use Stringable;
 use Throwable;
 use Traversable;
+
 
 class Log
 {
@@ -111,7 +114,7 @@ class Log
      *
      * @var bool $echo_prefix
      */
-    protected static string|bool $echo_prefix = true;
+    protected static string|bool $echo_prefix = false;
 
     /**
      * The current file where the log class will write to.
@@ -156,11 +159,11 @@ class Log
     protected static bool $filter_double = false;
 
     /**
-     * FsFileFileInterface access restrictions
+     * Log file access restrictions
      *
-     * @var FsRestrictions $restrictions
+     * @var FsRestrictionsInterface $restrictions
      */
-    protected static FsRestrictions $restrictions;
+    protected static FsRestrictionsInterface $restrictions;
 
     /**
      * Tracks whether the syslog filter ini setting has been applied
@@ -223,7 +226,7 @@ class Log
                 static::setThreshold($threshold);
             }
 
-            static::$restrictions = FsRestrictions::new(DIRECTORY_DATA . 'log/', true, 'Log');
+            static::$restrictions = FsRestrictions::getWritable(DIRECTORY_DATA . 'log/');
             static::setFile(Config::get('log.file', DIRECTORY_ROOT . 'data/log/syslog'));
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
 
@@ -313,9 +316,13 @@ class Log
      * Log to PHP error console
      *
      * @param IteratorInterface|array|string $messages
-     * @todo Improve handling of logging that does not go through syslog
+     * @param int                            $message_type
+     * @param string|null                    $destination
+     * @param string|null                    $additional_headers
      *
      * @return void
+     * @todo Improve handling of logging that does not go through syslog
+     *
      */
     public static function errorLog(IteratorInterface|array|string $messages, int $message_type = 4, ?string $destination = null, ?string $additional_headers = null): void
     {
@@ -822,45 +829,64 @@ class Log
             }
 
             // Add coloring for easier reading
-            $messages = CliColor::apply((string) $messages, $class);
+            $messages  = CliColor::apply((string) $messages, $class);
+            $messages .= ($echo_newline ? PHP_EOL : null);
 
-            // Build message string that should be written to log and (possibly) screen
-            if (static::$echo_prefix and $echo_prefix) {
-                if (is_bool($echo_prefix)) {
-                    // Build the log message with the default prefix
-                    $messages = DateTime::new(null, 'server')->format('Y-m-d H:i:s.v') . ' ' .
-                                ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
-                                getmypid() . ' ' .
-                                Core::getGlobalId() . ' / ' . Core::getLocalId() . (Core::isShuttingDown() ? '#' : ' ') .
-                                $messages .
-                                ($echo_newline ? PHP_EOL : null);
-
-                } else {
-                    // Build the log message using the specified prefix instead of the default one
-                    $messages = $echo_prefix . $messages . ($echo_newline ? PHP_EOL : null);
-                }
-
+            // Build message prefix
+            if (is_bool($echo_prefix)) {
+                // Build the log message with the default prefix
+                $prefix = DateTime::new(null, 'server')->format('Y-m-d H:i:s.v') . ' ' .
+                          ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
+                          getmypid() . ' ' .
+                          Core::getGlobalId() . ' / ' . Core::getLocalId() . (Core::isShuttingDown() ? '#' : ' ');
             } else {
-                // Build the log message without a prefix
-                $messages = $messages . ($echo_newline ? PHP_EOL : null);
+                $prefix = $echo_prefix;
             }
 
-            // Write the message to the log file
-            if (static::getFileEnabled()) {
-                static::$streams[static::$file]->write($messages);
-            }
-
-            // In Command Line mode, if requested, always log to the screen too but not during PHPUnit test!
-            if ($echo_screen and (PHP_SAPI === 'cli') and static::getScreenEnabled()) {
-                echo $messages;
-            }
-
+            // Write the log message to screen and file
+            static::writeMessage($prefix, $messages, $echo_prefix, $echo_screen);
             static::$lock = false;
 
             return true;
 
         } catch (Throwable $e) {
             return static::writeExceptionHandler($e, $messages, $threshold);
+        }
+    }
+
+
+    /**
+     * Writes the log message to screen and file
+     *
+     * @param string $prefix
+     * @param string $message
+     * @param bool   $echo_prefix
+     * @param bool   $echo_screen
+     *
+     * @return void
+     */
+    protected static function writeMessage(string $prefix, string $message, bool $echo_prefix, bool $echo_screen): void
+    {
+        // Write the message to screen
+        if ($echo_screen and (PHP_SAPI === 'cli') and static::getScreenEnabled()) {
+            if (static::$echo_prefix and $echo_prefix) {
+                echo $prefix, $message;
+
+            } else {
+                echo $message;
+            }
+        }
+
+        // Write the message to the log file
+        if (static::getFileEnabled()) {
+            if ($echo_prefix) {
+                // Write the message to the log file
+                static::$streams[static::$file]->write($prefix . $message);
+
+            } else {
+                // Write the message to the log file
+                static::$streams[static::$file]->write($message);
+            }
         }
     }
 
@@ -1262,7 +1288,7 @@ class Log
                 }
 
             } catch (Throwable $g) {
-                // Okay this is messed up, we can't even log to system logs.
+                // Okay, this is messed up, we can't even log to system logs.
                 static::errorLog('Failed to log message because: ' . $g->getMessage());
             }
 
@@ -1371,14 +1397,18 @@ class Log
 
         } else {
             // Build the message
-            $messages    = strtoupper($type) . ' [' . $size . '] ' . $messages;
+            $messages = strtoupper($type) . ' [' . $size . '] ' . $messages;
         }
 
         if ($echo_header) {
             static::logDebugHeader('DEBUG', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        return static::write(Strings::log($messages), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        if (empty($messages)) {
+            $messages = '-';
+        }
+
+        return static::write(Strings::log($messages, ensure_visible: true), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
@@ -1463,15 +1493,24 @@ class Log
      *
      * @param string|float|int|null $messages
      * @param int                   $threshold
+     * @param string|bool           $echo_prefix
      * @param bool                  $echo_screen
      *
      * @return bool
      */
-    public static function checkpoint(string|float|int|null $messages = null, int $threshold = 10, bool $echo_screen = true): bool
+    public static function checkpoint(string|float|int|null $messages = null, int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
+        // Get the class, method, file and line data.
+        $trace    = 0;
         $messages = Strings::log($messages);
+        $file     = Strings::from(Debug::currentFile($trace), DIRECTORY_ROOT);
+        $line     = Debug::currentLine($trace);
 
-        return static::logDebugHeader('CHECKPOINT ' . $messages, 1, $threshold, echo_screen: $echo_screen);
+        return static::write(tr(':message in :file@:line', [
+            ':message'  => trim('CHECKPOINT ' . $messages),
+            ':file'     => $file,
+            ':line'     => $line,
+        ]), 'debug', $threshold, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
     }
 
 
@@ -1570,6 +1609,10 @@ class Log
     {
         if ($echo_header) {
             static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
+        }
+
+        if (empty($messages)) {
+            $messages = '-';
         }
 
         return static::write(print_r($messages, true), 'debug', $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);

@@ -12,6 +12,7 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Library;
@@ -19,6 +20,7 @@ namespace Phoundation\Core\Library;
 use Phoundation\Core\Libraries;
 use Phoundation\Core\Locale\Language\Import;
 use Phoundation\Core\Log\Log;
+
 
 class Updates extends Libraries\Updates
 {

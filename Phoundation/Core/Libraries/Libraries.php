@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries;
@@ -37,6 +38,7 @@ use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Throwable;
+
 
 class Libraries
 {
@@ -307,7 +309,7 @@ class Libraries
         }
 
         // Rebuild the command cache
-        static::rebuildCommandCache();
+        static::rebuildCommandsCache();
 
         if (!$update_count) {
             // No libraries were updated
@@ -496,7 +498,7 @@ class Libraries
      *
      * @return void
      */
-    public static function rebuildCommandCache(): void
+    public static function rebuildCommandsCache(): void
     {
         static::clearCommandsCache();
 
@@ -508,7 +510,7 @@ class Libraries
                                                                       DIRECTORY_COMMANDS,
                                                                       DIRECTORY_TMP,
                                                                       DIRECTORY_ROOT . 'commands/'
-                                                                  ], 'Core\\Libraries::rebuildCommandCache() 1'));
+                                                                  ]));
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
@@ -517,14 +519,13 @@ class Libraries
         }
 
         foreach (static::listLibraries() as $library) {
-            $library->rebuildCommandCache($cache, $temporary);
+            $library->rebuildCommandsCache($cache, $temporary);
         }
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
               ->symlinkTargetFromThis(FsPath::new(DIRECTORY_ROOT . 'commands', FsRestrictions::getWritable(
-                  DIRECTORY_ROOT . 'commands',
-                  'Core\\Libraries::rebuildCommandCache() 2'
+                  DIRECTORY_ROOT . 'commands'
               ))->delete());
 
         static::$cache_has_been_rebuilt = true;
@@ -542,11 +543,73 @@ class Libraries
     {
         Log::action(tr('Clearing commands caches'), 3);
 
-        $cache = FsDirectory::new(DIRECTORY_COMMANDS, FsRestrictions::getWritable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))
+        $cache = FsDirectory::new(DIRECTORY_COMMANDS, FsRestrictions::getWritable(DIRECTORY_COMMANDS))
                             ->clearTreeSymlinks(true);
 
         if (!$cache->exists()) {
-            FsPath::new(DIRECTORY_ROOT . '/commands', FsRestrictions::getWritable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
+            FsPath::new(DIRECTORY_ROOT . '/commands', FsRestrictions::getWritable(DIRECTORY_ROOT))
+                ->delete();
+        }
+
+        static::$cache_has_been_cleared = true;
+    }
+
+
+    /**
+     * Rebuilds the PHO hook cache
+     *
+     * @return void
+     */
+    public static function rebuildHookCache(): void
+    {
+        static::clearHooksCache();
+
+        Log::action(tr('Rebuilding hook cache'), 4);
+
+        // Get temporary directory to build cache and the current cache directory
+        $temporary = FsDirectory::getTemporaryObject();
+        $cache     = FsDirectory::new(DIRECTORY_HOOKS, FsRestrictions::getWritable([
+            DIRECTORY_HOOKS,
+            DIRECTORY_TMP,
+            DIRECTORY_ROOT . 'hooks/'
+        ]));
+
+        if ($cache->exists()) {
+            // Replace the temporary directory with the cache directory contents
+            $temporary = $temporary->delete();
+            $cache->copy($temporary);
+        }
+
+        foreach (static::listLibraries() as $library) {
+            $library->rebuildHookCache($cache, $temporary);
+        }
+
+        // Move the old out of the way, push the new in and ensure we have a root directory link
+        $cache->replaceWithPath($temporary)
+            ->symlinkTargetFromThis(FsPath::new(DIRECTORY_ROOT . 'hooks', FsRestrictions::getWritable(
+                DIRECTORY_ROOT . 'hooks'
+            ))->delete());
+
+        static::$cache_has_been_rebuilt = true;
+
+        Log::success(tr('Finished rebuilding hook cache'));
+    }
+
+
+    /**
+     * Deletes the PHO hooks cache
+     *
+     * @return void
+     */
+    public static function clearHooksCache(): void
+    {
+        Log::action(tr('Clearing hooks caches'), 3);
+
+        $cache = FsDirectory::new(DIRECTORY_HOOKS, FsRestrictions::getWritable(DIRECTORY_HOOKS))
+            ->clearTreeSymlinks(true);
+
+        if (!$cache->exists()) {
+            FsPath::new(DIRECTORY_ROOT . '/hooks', FsRestrictions::getWritable(DIRECTORY_ROOT))
                 ->delete();
         }
 
@@ -644,21 +707,21 @@ class Libraries
 
         if ($system) {
             // Get statistics for all system libraries
-            $return['system'] = FsDirectory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, FsRestrictions::getReadonly([LIBRARIES::CLASS_DIRECTORY_SYSTEM]), 'Libraries::getPhpStatistics()')
+            $return['system'] = FsDirectory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, FsRestrictions::getReadonly([LIBRARIES::CLASS_DIRECTORY_SYSTEM]))
                                            ->getPhpStatistics(true);
             $return['totals'] = Arrays::addValues($return['totals'], $return['system']);
         }
 
         if ($plugin) {
             // Get statistics for all plugin libraries
-            $return['plugins'] = FsDirectory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, FsRestrictions::getReadonly([LIBRARIES::CLASS_DIRECTORY_PLUGINS]), 'Libraries::getPhpStatistics()')
+            $return['plugins'] = FsDirectory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, FsRestrictions::getReadonly([LIBRARIES::CLASS_DIRECTORY_PLUGINS]))
                                             ->getPhpStatistics(true);
             $return['totals']  = Arrays::addValues($return['totals'], $return['plugins']);
         }
 
         if ($template) {
             // Get statistics for all template libraries
-            $return['templates'] = FsDirectory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, FsRestrictions::getReadonly([LIBRARIES::CLASS_DIRECTORY_TEMPLATES]), 'Libraries::getPhpStatistics()')
+            $return['templates'] = FsDirectory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, FsRestrictions::getReadonly([LIBRARIES::CLASS_DIRECTORY_TEMPLATES]))
                                               ->getPhpStatistics(true);
             $return['totals']    = Arrays::addValues($return['totals'], $return['templates']);
         }
@@ -705,7 +768,7 @@ class Libraries
                                                                  DIRECTORY_WEB,
                                                                  DIRECTORY_TMP,
                                                                  DIRECTORY_ROOT . 'web/'
-                                                             ], 'Core\\Libraries::rebuildWebCache() 1'));
+                                                             ]));
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
@@ -720,8 +783,7 @@ class Libraries
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
               ->symlinkTargetFromThis(FsPath::new(DIRECTORY_ROOT . 'web', FsRestrictions::getWritable(
-                  DIRECTORY_ROOT . 'web',
-                  'Core\\Libraries::rebuildWebCache() 2'
+                  DIRECTORY_ROOT . 'web'
               ))->delete());
 
         Log::success(tr('Finished rebuilding web cache'));
@@ -739,13 +801,13 @@ class Libraries
 
         $cache = FsDirectory::new(
             DIRECTORY_WEB,
-            FsRestrictions::getWritable(DIRECTORY_WEB, 'Libraries::clearWebCache() 1')
+            FsRestrictions::getWritable(DIRECTORY_WEB)
         )->clearTreeSymlinks(true);
 
         if (!$cache->exists()) {
             FsPath::new(
                 DIRECTORY_ROOT . 'web',
-                FsRestrictions::getWritable(DIRECTORY_ROOT, 'Libraries::clearWebCache() 2')
+                FsRestrictions::getWritable(DIRECTORY_ROOT)
             )->delete();
         }
     }
@@ -764,8 +826,8 @@ class Libraries
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = FsDirectory::getTemporaryObject();
-        $cache     = FsDirectory::new(DIRECTORY_DATA . 'system/cache/tests', FsRestrictions::getWritable([
-                                                                                         DIRECTORY_DATA . 'system/cache/tests',
+        $cache     = FsDirectory::new(DIRECTORY_SYSTEM . 'cache/system/tests', FsRestrictions::getWritable([
+                                                                                         DIRECTORY_SYSTEM . 'cache/system/tests',
                                                                                          DIRECTORY_TMP,
                                                                                          DIRECTORY_ROOT . 'tests/'
                                                                                      ], 'Libraries::rebuildTestsCache() 1'));
@@ -801,14 +863,14 @@ class Libraries
         Log::action(tr('Clearing test caches'), 3);
 
         $cache = FsDirectory::new(
-            DIRECTORY_DATA . 'system/cache/tests',
-            FsRestrictions::getWritable(DIRECTORY_DATA . 'system/cache/tests', 'Libraries::clearTestsCache() 1')
+            DIRECTORY_SYSTEM . 'cache/system/tests',
+            FsRestrictions::getWritable(DIRECTORY_SYSTEM . 'cache/system/tests')
         )->clearTreeSymlinks(true);
 
         if (!$cache->exists()) {
             FsPath::new(
                 DIRECTORY_ROOT . '/tests',
-                FsRestrictions::getWritable(DIRECTORY_ROOT . '/tests', 'Libraries::clearWebCache() 2')
+                FsRestrictions::getWritable(DIRECTORY_ROOT . '/tests')
             )->delete();
         }
     }

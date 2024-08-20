@@ -6,7 +6,7 @@
  * This class can manage and (attempt to) execute specified hook scripts.
  *
  * Hook scripts are optional scripts that will be executed if they exist. Hook scripts are located in
- * DIRECTORY_DATA/system/hooks/HOOK and DIRECTORY_DATA/system/hooks/CLASS/HOOK. CLASS is an identifier for multiple hook
+ * DIRECTORY_DATA/system/hooks/HOOK and DIRECTORY_DATA/hooks/CLASS/HOOK. CLASS is an identifier for multiple hook
  * scripts that all have to do with the same system, to group them together. HOOK is the script to be executed
  *
  * @see       \Phoundation\Data\DataEntry\DataEntry
@@ -15,6 +15,7 @@
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
+
 
 declare(strict_types=1);
 
@@ -28,9 +29,11 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Throwable;
+
 
 class Hook implements HookInterface
 {
@@ -53,7 +56,7 @@ class Hook implements HookInterface
      *
      * @var array
      */
-    protected static array $source;
+    protected static array $arguments;
 
 
     /**
@@ -63,7 +66,7 @@ class Hook implements HookInterface
      */
     public function __construct(?string $class = null)
     {
-        $this->directory = new FsDirectory(DIRECTORY_DATA . 'hooks/', FsRestrictions::getReadonly(DIRECTORY_DATA . 'hooks/'));
+        $this->directory = new FsDirectory(DIRECTORY_HOOKS, FsRestrictions::getHooks());
         $this->class     = Strings::ensureEndsNotWith(trim($class), '/') . '/';
 
         if ($this->class) {
@@ -86,70 +89,94 @@ class Hook implements HookInterface
 
 
     /**
+     * Returns true if the specified hook exists, false otherwise
+     *
+     * @param string $hook
+     *
+     * @return mixed
+     */
+    public function exists(string $hook): bool
+    {
+        return $this->directory->addFile($hook . '.php')->exists();
+    }
+
+
+    /**
+     * Returns the FsFileInterface file object for the specified hook
+     *
+     * @param string $hook
+     *
+     * @return mixed
+     */
+    public function getFile(string $hook): FsFileInterface
+    {
+        return $this->directory->addFile($hook . '.php');
+    }
+
+
+    /**
      * Attempts to execute the specified hooks
      *
-     * @param array|string $hooks
-     * @param array|null   $source
+     * @param string     $hook
+     * @param array|null $arguments
      *
-     * @return static
+     * @return mixed
      */
-    public function execute(array|string $hooks, ?array $source = []): static
+    public function execute(string $hook, ?array $arguments = []): mixed
     {
         if (Core::inInitState()) {
             // Do not execute hooks during system initialization, too many unexpected side effects are possible!
-            Log::warning(tr('Not executing hooks ":hooks" due to system being in init state', [
-                ':hooks' => $hooks
+            Log::warning(tr('Not executing hook ":hook" due to system being in init state', [
+                ':hook' => $hook
             ]), 3);
 
             return $this;
         }
 
-        foreach (Arrays::force($hooks) as $hook) {
-            $file = $this->directory->addFile($hook . '.php');
+        static::$arguments = $arguments;
+        $file              = $this->getFile($hook);
 
-            if (!$file->exists()) {
-                // Only execute existing files
-                continue;
-            }
-
-            // Ensure its readable, not a path, within the filesystem restrictions, etc...
-            try {
-                $file->checkReadable();
-
-            } catch (FilesystemException $e) {
-                Log::Warning(tr('Failed to execute hook ":hook". The file exists, but is not readable', [
-                    ':hook' => $hook,
-                ]));
-            }
-
-            // Try executing it!
-            try {
-                Log::action(tr('Executing hook ":hook"', [
-                    ':hook' => $this->class . $hook,
-                ]));
-
-                static::$source = $source;
-
-                try {
-                    execute_hook($file->getSource());
-
-                } catch (Throwable $e) {
-                    Log::error(tr('Execution of hook ":hook" failed with the following exception', [
-                        ':hook' => $file
-                    ]));
-
-                    Log::error($e);
-                }
-
-            } catch (Throwable $e) {
-                Log::error(tr('Hook ":hook" failed to execute with the following exception', [
-                    ':hook' => $hook,
-                ]));
-                Log::error($e);
-            }
+        if (!$file->exists()) {
+            // Only execute existing files
+            return null;
         }
 
-        return $this;
+        // Ensure its readable, not a path, within the filesystem restrictions, etc...
+        try {
+            $file->checkReadable();
+
+        } catch (FilesystemException $e) {
+            Log::Warning(tr('Failed to execute hook ":hook". The file exists, but is not readable', [
+                ':hook' => $hook,
+            ]));
+        }
+
+        // Try executing it!
+        try {
+            Log::action(tr('Executing hook ":hook"', [
+                ':hook' => $this->class . $hook,
+            ]));
+
+            try {
+                return execute_hook($file->getSource());
+
+            } catch (Throwable $e) {
+                Log::error(tr('Execution of hook ":hook" failed with the following exception', [
+                    ':hook' => $file
+                ]));
+
+                Log::error($e);
+            }
+
+        } catch (Throwable $e) {
+            Log::error(tr('Hook ":hook" failed to execute with the following exception', [
+                ':hook' => $hook,
+            ]));
+
+            Log::error($e);
+        }
+
+        return null;
     }
 
 
@@ -162,8 +189,8 @@ class Hook implements HookInterface
      */
     public static function get(string $key): mixed
     {
-        if (array_key_exists($key, static::$source)) {
-            return static::$source[$key];
+        if (array_key_exists($key, static::$arguments)) {
+            return static::$arguments[$key];
         }
 
         throw new OutOfBoundsException(tr('The specified hook parameter key ":key" does not exist', [
@@ -173,12 +200,25 @@ class Hook implements HookInterface
 
 
     /**
-     * Returns all source parameters
+     * Returns all source argumentS
      *
      * @return mixed
      */
-    public static function getSource(): array
+    public static function getArguments(): array
     {
-        return static::$source;
+        return static::$arguments;
+    }
+
+
+    /**
+     * Returns the requested source argument
+     *
+     * @param string|int $key
+     *
+     * @return mixed
+     */
+    public static function getArgument(string|int $key): mixed
+    {
+        return isset_get(static::$arguments[$key]);
     }
 }

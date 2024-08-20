@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command config/create-default
+ * Command config create-default
  *
  * This command will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration
  * paths and their default values
@@ -12,12 +12,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Utils\Config;
+
 
 CliDocumentation::setUsage('./pho config create-default');
 

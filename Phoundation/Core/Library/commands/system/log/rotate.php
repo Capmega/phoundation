@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system/log/rotate
+ * Command system log rotate
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -11,12 +11,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Exception\FileExistsException;
+
 
 CliDocumentation::setUsage('./pho system log rotate
 ');

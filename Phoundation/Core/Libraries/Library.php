@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries;
@@ -35,6 +36,7 @@ use Phoundation\Os\Processes\Commands\Cp;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Throwable;
+
 
 class Library implements LibraryInterface
 {
@@ -721,17 +723,42 @@ class Library implements LibraryInterface
      * @return void
      * @todo Add support for command sharing!
      */
-    public function rebuildCommandCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
+    public function rebuildCommandsCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
     {
         Log::action(tr('Rebuilding command cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/commands/';
-        $restrictions = FsRestrictions::getWritable(
-            [$path, DIRECTORY_TMP],
-            'Core\\Library::rebuildCommandCache(' . $this->getName() . ')'
-        );
+        $restrictions = FsRestrictions::getWritable([$path, DIRECTORY_TMP]);
+        $path         = FsDirectory::new($path, $restrictions);
+
+        if (!$path->exists()) {
+            // This library does not have a web/ directory, we're fine
+            return;
+        }
+
+        $path->symlinkTreeToTarget($cache, $tmp, rename: true);
+    }
+
+
+    /**
+     * Ensure that the Library/hooks is symlinked
+     *
+     * @param FsDirectoryInterface $cache
+     * @param FsDirectoryInterface $tmp
+     *
+     * @return void
+     * @todo Add support for hook sharing!
+     */
+    public function rebuildHookCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
+    {
+        Log::action(tr('Rebuilding hook cache for library ":library"', [
+            ':library' => $this->getName(),
+        ]), 3);
+
+        $path         = Strings::slash($this->directory) . 'Library/hooks/';
+        $restrictions = FsRestrictions::getWritable([$path, DIRECTORY_TMP]);
         $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
@@ -759,10 +786,7 @@ class Library implements LibraryInterface
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/web/';
-        $restrictions = FsRestrictions::getWritable(
-            [$path, DIRECTORY_TMP],
-            'Core\\Library::rebuildWebCache(' . $this->getName() . ')'
-        );
+        $restrictions = FsRestrictions::getWritable([$path, DIRECTORY_TMP]);
         $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
@@ -775,7 +799,7 @@ class Library implements LibraryInterface
 
 
     /**
-     * Ensures that the Library/tests directory contents are symlinked in DIRECTORY_DATA/cache/system/tests
+     * Ensures that the Library/tests directory contents are symlinked in DIRECTORY_SYSTEM/cache/system/tests
      *
      * @param FsDirectoryInterface $cache
      * @param FsDirectoryInterface $tmp
@@ -790,10 +814,7 @@ class Library implements LibraryInterface
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/tests/';
-        $restrictions = FsRestrictions::getWritable(
-            [$path, DIRECTORY_TMP],
-            'Core\\Library::rebuildTestsCache(' . $this->getName() . ')'
-        );
+        $restrictions = FsRestrictions::getWritable([$path, DIRECTORY_TMP]);
         $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {

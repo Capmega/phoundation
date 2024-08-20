@@ -12,6 +12,7 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Locale\Language;
@@ -23,6 +24,7 @@ use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Web\Html\Enums\EnumInputType;
+
 
 class Language extends DataEntry implements LanguageInterface
 {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system/update
+ * Command system update
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 
@@ -21,6 +22,7 @@ use Phoundation\Developer\Phoundation\Exception\PhoundationBranchNotExistExcepti
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Filesystem\FsDirectory;
+
 
 CliDocumentation::setAutoComplete([
                                       'arguments' => [
@@ -57,27 +59,27 @@ ARGUMENTS
 
 -b / --branch                           The branch from which to update.
 
-[-c / --check]                          If specified will only check for available updates.
+[-c / --check]                          If specified, will only check for available updates.
 
-[-l / --local]                          If specified update from a local Phoundation core repository.
+[-l / --local]                          If specified, update from a local Phoundation core repository.
 
 [-m / --message]                        The git commit message for this update. If not specified, a default will be used
 
-[--no-caching]                          If specified will skip caching all Phoundation libraries which is normally done
+[--no-caching]                          If specified, will skip caching all Phoundation libraries which is normally done
                                         to avoid loading incomplete library classes against each other during and after
                                         the update has been finished. This may want to be skipped if a current library
                                         has a bug, or a new functionality executing during the finishing phase of the
                                         update system actually is expected or required.
 
-[--no-commit]                           If specified will not commit after updating.
+[--no-commit]                           If specified, will not commit after updating.
 
-[--no-phoundation]                      If specified will not update phoundation core files.
+[--no-phoundation]                      If specified, will not update phoundation core files.
 
-[-n / --no-plugins]                     If specified will not update the plugins.
+[-n / --no-plugins]                     If specified, will not update the plugins.
 
-[-p / --phoundation]                    If specified should contain the path to your local Phoundation installation.
+[-p / --phoundation]                    If specified, should contain the path to your local Phoundation installation.
 
-[-s / --signed]                         If specified will make a signed commit. This requires your git setup to be
+[-s / --signed]                         If specified, will make a signed commit. This requires your git setup to be
                                         configured correctly for this. See the section "--signoff" in "git help commit"
                                         for more information on this subject.');
 

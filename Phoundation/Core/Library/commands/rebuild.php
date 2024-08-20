@@ -3,7 +3,7 @@
 /**
  * Command rebuild
  *
- * This command can find other commands in the commands structure
+ * This command will rebuild internal caches
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -11,14 +11,14 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
+use Phoundation\Cache\Cache;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Libraries\Libraries;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Versioning\Git\Git;
-use Phoundation\Utils\Config;
+
 
 CliDocumentation::setUsage('./pho rebuild [OPTIONS]
 ./pho rebuild
@@ -27,46 +27,41 @@ CliDocumentation::setUsage('./pho rebuild [OPTIONS]
 ');
 
 CliDocumentation::setHelp('This command will rebuild all the system caches and automatically commit the updated
-cache to git
+system caches to git
 
 
 ARGUMENTS
 
 
--c,--commit                             If specified will commit the update to git, even if configured not to
+[-c, --auto-commit]                     If specified, will commit the update to git, even if configured not to
 
--s,--sign                               If specified will sign the commit, even if configured not to
+[-s, --sign]                            If specified, will sign the commit, even if configured not to
+
+[-m, --message MESSAGE]                 If specified, this message will be used  
 ');
 
 CliDocumentation::setAutoComplete([
     'arguments' => [
-        '-s,--sign'   => false,
-        '-c,--commit' => false,
+        '-s,--sign'        => false,
+        '-c,--auto-commit' => false,
+        '-m,--message'     => true,
     ],
 ]);
 
 
 // Get command arguments
 $argv = ArgvValidator::new()
-                     ->select('-c,--commit')->isOptional(false)->isBoolean()
-                     ->select('-s,--sign')->isOptional(false)->isBoolean()
+                     ->select('-c,--auto-commit')->isOptional()->isBoolean()
+                     ->select('-s,--sign')->isOptional()->requiresNotEmpty('--auto-commit')->isBoolean()
+                     ->select('-m,--message', true)->isOptional()->requiresNotEmpty('--auto-commit')->isDescription()
                      ->validate();
 
 
 // Rebuild commands and web cache
+Libraries::rebuildCommandsCache();
+Libraries::rebuildTestsCache();
 Libraries::rebuildWebCache();
-Libraries::rebuildCommandCache();
 
 
 // Commit the system web cache?
-$git = Git::new(DIRECTORY_DATA . 'system/cache/');
-
-if ($git->getStatusFilesObject()->getCount()) {
-    if (Config::getBoolean('cache.system.commit.auto', false) or $argv['commit']) {
-        // Commit the system cache
-        $git->add(DIRECTORY_DATA . 'system/cache/')
-            ->commit(tr('Rebuilt system cache'), Config::getBoolean('cache.system.commit.signed', false) or $argv['signed']);
-
-        Log::success(tr('Committed system cache update to git'));
-    }
-}
+Cache::systemAutoGitCommit(null, $argv['auto_commit'], $argv['sign'], $argv['message']);

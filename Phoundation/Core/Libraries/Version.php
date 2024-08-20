@@ -11,6 +11,7 @@
  * @package   Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries;
@@ -18,6 +19,7 @@ namespace Phoundation\Core\Libraries;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
+
 
 class Version
 {

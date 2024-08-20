@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system/sync/from
+ * Command system sync from
  *
  * This command will synchronize either the specified environment to your local environment or vice versa.
  *
@@ -13,6 +13,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -20,6 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Sync;
+
 
 CliDocumentation::setAutoComplete([
     'positions' => [

@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliColor;
@@ -25,6 +26,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+
 
 CliDocumentation::setUsage('./pho version');
 

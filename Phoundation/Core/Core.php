@@ -11,6 +11,7 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core;
@@ -22,7 +23,6 @@ use Phoundation\Cache\Cache;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Cli\CliCommand;
-use Phoundation\Cli\Exception\CliArgumentsException;
 use Phoundation\Cli\Exception\CliCommandNotFoundException;
 use Phoundation\Cli\Exception\CliNoCommandSpecifiedException;
 use Phoundation\Core\Exception\CoreException;
@@ -74,6 +74,7 @@ use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Throwable;
+
 
 class Core implements CoreInterface
 {
@@ -260,23 +261,32 @@ class Core implements CoreInterface
         // Set local and global process identifiers
         // TODO Implement support for global process identifier
         static::setLocalId(substr(uniqid(), -8, 8));
-        static::setGlobalId('');
+        static::setGlobalId(substr(uniqid(), -8, 8));
 
         // Define a unique process request ID
         // Define project paths.
-        // DIRECTORY_START  is the CWD from the moment this process started
-        // DIRECTORY_ROOT   is the root directory of this project, and should be used as the root for all other paths
-        // DIRECTORY_TMP    is a private temporary directory
-        // DIRECTORY_PUBTMP is a public (accessible by web server) temporary directory
+
+        // DIRECTORY_START    is the CWD from the moment this process started
+        // DIRECTORY_ROOT     is the root directory of this project, and should be used as the root for all other paths
+        // DIRECTORY_SYSTEM   is a system directory in which one typically should not have to work around
+        // DIRECTORY_TMP      is a private temporary directory
+        // DIRECTORY_PUBTMP   is a public (accessible by web server) temporary directory
+        // DIRECTORY_WEB      is the system cache location for all web pages
+        // DIRECTORY_COMMANDS is the system cache location for all commands
+
         define('REQUEST'           , substr(uniqid(), 7));
         define('DIRECTORY_START'   , Strings::slash(getcwd()));
         define('DIRECTORY_ROOT'    , realpath(__DIR__ . '/../..') . '/');
         define('DIRECTORY_DATA'    , DIRECTORY_ROOT . 'data/');
+        define('DIRECTORY_SYSTEM'  , DIRECTORY_DATA . 'system/');
+
         define('DIRECTORY_CDN'     , DIRECTORY_DATA . 'content/cdn/');
-        define('DIRECTORY_COMMANDS', DIRECTORY_DATA . 'system/cache/commands/');
-        define('DIRECTORY_PUBTMP'  , DIRECTORY_DATA . 'content/cdn/tmp/');
-        define('DIRECTORY_TMP'     , DIRECTORY_DATA . 'tmp/');
-        define('DIRECTORY_WEB'     , DIRECTORY_DATA . 'system/cache/web/');
+        define('DIRECTORY_PUBTMP'  , DIRECTORY_CDN . 'content/cdn/tmp/');
+
+        define('DIRECTORY_TMP'     , DIRECTORY_SYSTEM . 'tmp/');
+        define('DIRECTORY_COMMANDS', DIRECTORY_SYSTEM . 'cache/system/commands/');
+        define('DIRECTORY_HOOKS'   , DIRECTORY_SYSTEM . 'cache/system/hooks/');
+        define('DIRECTORY_WEB'     , DIRECTORY_SYSTEM . 'cache/system/web/');
 
         // Setup error handling, report ALL errors, setup shutdown functions
         static::setErrorHandling(true);
@@ -318,12 +328,10 @@ class Core implements CoreInterface
 
 
     /**
-     * The core::startup() method will start up the core class
-     *
-     * This method starts the correct call type handler
+     * This method will start up the core class and with it the entire system
      *
      * @return void
-     * @throws CoreStartupFailedExceptionInterface
+     * @throws CoreStartupFailedException
      */
     public static function startup(): void
     {
@@ -349,18 +357,18 @@ class Core implements CoreInterface
             if (defined('PLATFORM_WEB')) {
                 if (PLATFORM_WEB and headers_sent($file, $line)) {
                     if (preg_match('/debug-.+\.php$/', $file)) {
-                        throw new CoreException(tr('Failed because headers were already sent on ":location", so probably some added debug code caused this issue', [
+                        throw new CoreStartupFailedException(tr('Core::startup() failed because headers were already sent on ":location", so probably some added debug code caused this issue', [
                             ':location' => $file . '@' . $line,
                         ]), $e);
                     }
 
-                    throw new CoreException(tr('Failed because headers were already sent on ":location"', [
+                    throw new CoreStartupFailedException(tr('Core::startup() Failed because headers were already sent on ":location"', [
                         ':location' => $file . '@' . $line,
                     ]), $e);
                 }
             }
 
-            throw $e;
+            throw new CoreStartupFailedException(tr('Core::startup() failed'), $e);
         }
     }
 
@@ -381,6 +389,10 @@ class Core implements CoreInterface
     /**
      * Detect and set the project name
      *
+     * The project name is configured in the project file, located in config/project
+     *
+     * A valid project name matches regex /^[a-z_]+$/i
+     *
      * @return void
      */
     protected static function setProject(): void
@@ -391,6 +403,11 @@ class Core implements CoreInterface
 
             if (!$project) {
                 throw new OutOfBoundsException('No project definition found in DIRECTORY_ROOT/config/project file');
+            }
+
+            if (!preg_match('/^[A-Z_]+$/', $project)) {
+                // Invalid project name
+                throw new OutOfBoundsException('The project name "' . $project . '" specified in config/project is invalid. Please make sure it matches the regular expression /^[a-z_]+$/');
             }
 
             define('PROJECT', $project);
@@ -678,7 +695,7 @@ class Core implements CoreInterface
     /**
      * Returns true if the system state (or the specified state) is "boot"
      *
-     * @param string|null $state If specified will return the startup state for the specified state instead of the
+     * @param string|null $state If specified, will return the startup state for the specified state instead of the
      *                           internal Core state
      *
      * @return bool
@@ -694,7 +711,7 @@ class Core implements CoreInterface
     /**
      * Returns true if the system state (or the specified state) is "startup"
      *
-     * @param string|null $state If specified will return the startup state for the specified state instead of the
+     * @param string|null $state If specified, will return the startup state for the specified state instead of the
      *                           internal Core state
      *
      * @return bool
@@ -952,8 +969,8 @@ class Core implements CoreInterface
      * If that gives you nothing, then try uncommenting the first line in the method. This will force display the error
      *
      * The reason that this is normally commented out and that logging or displaying your errors might fail is for
-     * security, as Phoundation may not know at the point where your error occurred if it is on a production environment
-     * or not.
+     * security. Phoundation may not know at the point where your error occurred if it is in a production environment
+     * or not. Either way, you should never need this unless shit somehow really has hit the fan.
      *
      * @param Throwable $e
      *
@@ -995,7 +1012,7 @@ class Core implements CoreInterface
         // Ensure the exception is a Phoundation exception
         $e = Exception::ensurePhoundationException($e);
 
-        // When in CLI auto complete mode, just log and display a standard exception message
+        // When in CLI auto complete mode, log and display a standard exception message
         if (CliAutoComplete::isActive()) {
             Log::error($e, 10, echo_screen: false);
             echo 'auto-complete-failed-see-system-log';
@@ -1045,6 +1062,7 @@ class Core implements CoreInterface
                 echo 'Failed to log' . PHP_EOL;
             }
         }
+
         exit(1);
     }
 
@@ -1111,8 +1129,7 @@ class Core implements CoreInterface
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   system
+         * @package   system
      * @see       exit()
      * @see       Core::addShutdownCallback()
      * @version   1.27.0: Added function and documentation
@@ -1315,7 +1332,7 @@ class Core implements CoreInterface
                              ->select('-P,--page', true)->isOptional(1)->isDbId()
                              ->select('-Q,--quiet')->isOptional(false)->isBoolean()
                              ->select('-R,--very-quiet')->isOptional(false)->isBoolean()
-                             ->select('-G,--no-prefix')->isOptional(false)->isBoolean()
+                             ->select('-G,--prefix')->isOptional(false)->isBoolean()
                              ->select('-M,--timeout', true)->isOptional(false)->isInteger()
                              ->select('-N,--no-audio')->isOptional(false)->isBoolean()
                              ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
@@ -1347,7 +1364,7 @@ class Core implements CoreInterface
 //            'page'                   => 1,
 //            'quiet'                  => false,
 //            'very_quiet'             => false,
-//            'no_prefix'              => false,
+//            'prefix'                 => false,
 //            'no_sound'               => false,
 //            'status'                 => false,
 //            'test'                   => false,
@@ -1448,8 +1465,8 @@ class Core implements CoreInterface
             Log::setThreshold($argv['log_level']);
         }
 
-        if ($argv['no_prefix']) {
-            Log::setEchoPrefix(false);
+        if ($argv['prefix']) {
+            Log::setEchoPrefix(true);
         }
 
         // Process command line system arguments if we have no exception so far
@@ -2013,7 +2030,7 @@ class Core implements CoreInterface
             FsDirectory::new(DIRECTORY_DATA . 'system/maintenance', FsRestrictions::new(DIRECTORY_DATA, true))
                      ->ensure();
 
-            touch(DIRECTORY_DATA . 'system/maintenance/' . (Session::getUser()
+            touch(DIRECTORY_DATA . 'system/maintenance/' . (Session::getUserObject()
                                                                            ->getEmail() ?? get_current_user()));
             Log::warning(tr('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
 
@@ -2027,8 +2044,7 @@ class Core implements CoreInterface
             return;
         }
 
-        FsFile::new(DIRECTORY_DATA . 'system/maintenance', FsRestrictions::getData(true, 'Core\\Core::setMaintenanceMode()'))
-            ->delete();
+        FsFile::new(DIRECTORY_DATA . 'system/maintenance', FsRestrictions::getData(true))->delete();
 
         Log::warning(tr('System has been relieved from maintenance mode. All web requests will now again be answered, all commands are available'), 10);
     }
@@ -2098,7 +2114,7 @@ class Core implements CoreInterface
                 FsRestrictions::new(DIRECTORY_DATA, true)
             )->ensure();
 
-            touch(DIRECTORY_DATA . 'system/readonly/' . (Session::getUser()->getEmail() ?? get_current_user()));
+            touch(DIRECTORY_DATA . 'system/readonly/' . (Session::getUserObject()->getEmail() ?? get_current_user()));
 
             Log::warning(tr('System has been placed in readonly mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
 
@@ -2110,10 +2126,7 @@ class Core implements CoreInterface
             Log::warning(tr('Cannot disable readonly mode, the system is not in readonly mode'));
 
         } else {
-            FsFile::new(
-                DIRECTORY_DATA . 'system/readonly',
-                FsRestrictions::getData(true, 'Core\\Core::setReadonlyMode()')
-            )->delete();
+            FsFile::new(DIRECTORY_DATA . 'system/readonly', FsRestrictions::getData(true))->delete();
 
             Log::warning(tr('System has been relieved from readonly mode. All web POST requests will now again be processed, queries can write data again'), 10);
         }
@@ -2155,7 +2168,7 @@ class Core implements CoreInterface
      */
     public static function resetModes(): void
     {
-        $restrictions = FsRestrictions::getData(true, 'Core\\Core::resetModes()');
+        $restrictions = FsRestrictions::getSystem(true);
 
         FsFile::new(DIRECTORY_DATA . 'system/maintenace', $restrictions)->delete();
         FsFile::new(DIRECTORY_DATA . 'system/readonly'  , $restrictions)->delete();
@@ -2485,7 +2498,7 @@ class Core implements CoreInterface
     /**
      * Returns true if the system is shutting down
      *
-     * @param string|null $state If specified will return the startup state for the specified state instead of the
+     * @param string|null $state If specified, will return the startup state for the specified state instead of the
      *                           internal Core state
      *
      * @return bool
@@ -2501,7 +2514,7 @@ class Core implements CoreInterface
     /**
      * Returns true if the system is executing a script
      *
-     * @param string|null $state If specified will return the startup state for the specified state instead of the
+     * @param string|null $state If specified, will return the startup state for the specified state instead of the
      *                           internal Core state
      *
      * @return bool
@@ -2542,7 +2555,7 @@ class Core implements CoreInterface
     /**
      * Returns true if the system has finished starting up
      *
-     * @param string|null $state If specified will return the startup state for the specified state instead of the
+     * @param string|null $state If specified, will return the startup state for the specified state instead of the
      *                           internal Core state
      *
      * @return bool
@@ -3025,8 +3038,11 @@ class Core implements CoreInterface
         // If not using Debug::enabled() mode, then try to give nice error messages for known issues
         if (($e instanceof ValidationFailedException) and $e->isWarning()) {
             // This is just a simple validation warning, show warning messages in the exception data
-            Log::warning($e->getMessage(), 10);
-            Log::warning($e->getData(), 10);
+            if (Debug::isEnabled()) {
+                Log::warning($e->getMessage(), 10);
+                Log::printr($e->getData(), 10);
+            }
+
             Core::exit(255);
         }
 
@@ -3251,7 +3267,7 @@ class Core implements CoreInterface
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        ' . tr('FsFileFileInterface') . '
+                                                        ' . tr('File') . '
                                                     </td>
                                                     <td>
                                                         ' . $e->getFile() . '

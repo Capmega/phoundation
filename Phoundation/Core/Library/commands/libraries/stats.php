@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command libraries/info
+ * Command libraries info
  *
  * This command will display detailed information about the specified library
  *
@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 
@@ -23,6 +24,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+
 
 CliDocumentation::setUsage('./pho libraries info LIBRARY_NAME');
 
@@ -43,12 +45,12 @@ if ($argv['library']) {
     }
 
     foreach ($argv['library'] as $library) {
-        $library = Library::get($library);
+        $library    = Library::get($library);
         $statistics = $library->getPhpStatistics();
 
-        Log::cli(CliColor::apply(Strings::size(tr('Name:'), 28), 'white') . ' ' . $library->getName());
-        Log::cli(CliColor::apply(Strings::size(tr('Version:'), 28), 'white') . ' ' . $library->getVersion());
-        Log::cli(CliColor::apply(Strings::size(tr('Path:'), 28), 'white') . ' ' . $library->getDirectory());
+        Log::cli(CliColor::apply(Strings::size(tr('Name:')       , 28), 'white') . ' ' . $library->getName());
+        Log::cli(CliColor::apply(Strings::size(tr('Version:')    , 28), 'white') . ' ' . $library->getVersion());
+        Log::cli(CliColor::apply(Strings::size(tr('Path:')       , 28), 'white') . ' ' . $library->getDirectory());
         Log::cli(CliColor::apply(Strings::size(tr('Description:'), 28), 'white') . ' ' . $library->getDescription());
 
         Log::cli();
@@ -110,6 +112,6 @@ if ($argv['library']) {
         Log::cli(' ');
         Log::cli(CliColor::apply(tr('Statistics for ":type" libraries:', [':type' => $type]), 'white'));
         Cli::displayForm($statistics[$type]['total_statistics']);
-        Log::cli();
+        Log::cli(' ');
     }
 }

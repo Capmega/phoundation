@@ -11,11 +11,13 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Plugins\Exception;
 
 use Phoundation\Core\Exception\CoreException;
+
 
 class PluginsException extends CoreException
 {

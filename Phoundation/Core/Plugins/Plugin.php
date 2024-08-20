@@ -12,6 +12,7 @@
  * @package   Phoundation\Core
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Plugins;
@@ -37,6 +38,7 @@ use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
+
 
 class Plugin extends DataEntry implements PluginInterface
 {
@@ -111,16 +113,15 @@ class Plugin extends DataEntry implements PluginInterface
      *       returned class will be Plugins\Phoundation\Phoundation\Library\Plugin, instead of
      *       Phoundation\Core\Plugins\Plugin
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool                               $meta_enabled
-     * @param bool                               $force
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool                                     $meta_enabled
+     * @param bool                                     $force
      *
      * @return static
      */
-    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
     {
-        $plugin = parent::load($identifier, $column, $meta_enabled, $force);
+        $plugin = parent::load($identifier, $meta_enabled, $force);
         $file   = DIRECTORY_ROOT . $plugin->getDirectory() . 'Library/Plugin.php';
         $class  = Library::getClassPath($file);
         $class  = Library::includeClassFile($class);
@@ -329,7 +330,7 @@ class Plugin extends DataEntry implements PluginInterface
             ]), 3);
         }
 
-        if (static::exists($this->getName(), 'name')) {
+        if (static::exists(['name' => $this->getName()])) {
             // This plugin is already registered
             Log::warning(tr('Not registering plugin ":vendor/:plugin", it is already registered', [
                 ':vendor' => $this->getVendor(),

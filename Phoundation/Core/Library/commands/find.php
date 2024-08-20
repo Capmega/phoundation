@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
@@ -19,6 +20,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Strings;
+
 
 CliDocumentation::setUsage('./pho find');
 
@@ -29,7 +31,7 @@ command as an argument and the find script will show all commands that have that
 ARGUMENTS
 
 
-[-l,--like]                             If specified will return all commands that appear like *filter*');
+[-l,--like]                             If specified, will return all commands that appear like *filter*');
 
 
 // Get arguments

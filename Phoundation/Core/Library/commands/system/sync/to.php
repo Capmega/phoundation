@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system/sync
+ * Command system sync
  *
  * This command will synchronize either the specified environment to your local environment or vice versa.
  *
@@ -13,12 +13,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Sync;
+
 
 CliDocumentation::setUsage('./pho system sync ENVIRONMENT
 ./pho system sync -l -i --to ENVIRONMENT');
