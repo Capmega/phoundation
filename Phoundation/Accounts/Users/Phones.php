@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
@@ -32,6 +33,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Stringable;
+
 
 class Phones extends DataIterator implements PhonesInterface
 {
@@ -65,11 +67,11 @@ class Phones extends DataIterator implements PhonesInterface
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Phone::class;
     }
@@ -108,15 +110,17 @@ class Phones extends DataIterator implements PhonesInterface
 
 
     /**
-     * Returns Phones list object with phones for the specified user.
+     * Returns a Phones Iterator object with phones for the specified user.
      *
-     * @param bool $clear
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
-        $this->parent  = User::load($this->parent, 'seo_name');
+        $this->parent  = User::load($this->parent);
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
@@ -227,7 +231,7 @@ class Phones extends DataIterator implements PhonesInterface
             $diff = Arrays::valueDiff($this->getAllRowsSingleColumn('phone'), array_keys($phones), true);
             $diff = Arrays::deleteDiff($diff, $phones);
             foreach ($diff['delete'] as $id => $phone) {
-                Phone::load($id, 'id')
+                Phone::load($id)
                      ->setPhone(null)
                      ->save()
                      ->erase();
@@ -243,7 +247,7 @@ class Phones extends DataIterator implements PhonesInterface
             }
             // Update all other phone numbers
             foreach ($diff['keep'] as $id => $phone) {
-                Phone::load($id, 'id')
+                Phone::load($id)
                      ->apply(false, $phones[$phone])
                      ->setUsersId($this->parent->getId())
                      ->save();

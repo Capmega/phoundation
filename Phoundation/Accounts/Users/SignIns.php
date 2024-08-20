@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
@@ -22,6 +23,7 @@ use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
+
 
 class SignIns extends DataIterator
 {
@@ -44,7 +46,7 @@ class SignIns extends DataIterator
                                ON        `accounts_signins`.`cities_id`    = `geo_cities`.`id` 
                                WHERE     `accounts_signins`.`created_by`   = :created_by 
                                ORDER BY  `created_on`', [
-            ':created_by' => Session::getUser()
+            ':created_by' => Session::getUserObject()
                                     ->getId(),
         ]);
         parent::__construct();
@@ -63,11 +65,11 @@ class SignIns extends DataIterator
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return SignIn::class;
     }
@@ -119,7 +121,7 @@ class SignIns extends DataIterator
                                                    `accounts_signins`.`' . $value_column . '`,
                                          WHERE     `created_by` = :created_by 
                                          ORDER BY  `created_on`', [
-                              ':created_by' => Session::getUser()
+                              ':created_by' => Session::getUserObject()
                                                       ->getId(),
                           ])
                           ->setName('sign_ins_id')

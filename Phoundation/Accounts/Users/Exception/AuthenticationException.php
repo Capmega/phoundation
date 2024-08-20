@@ -11,6 +11,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users\Exception;
@@ -18,6 +19,7 @@ namespace Phoundation\Accounts\Users\Exception;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Data\Traits\TraitDataNewTarget;
 use Throwable;
+
 
 class AuthenticationException extends UsersException implements AuthenticationExceptionInterface
 {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/roles/info
+ * Command accounts roles info
  *
  * This script displays information about the specified role.
  *
@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 
@@ -22,6 +23,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Paging;
 use Phoundation\Utils\Arrays;
+
 
 CliDocumentation::setAutoComplete([
                                       'positions' => [

@@ -11,6 +11,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
@@ -34,30 +35,30 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
+
 class Password extends DataEntry implements PasswordInterface
 {
     /**
      * DataEntry class constructor
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool|null                          $meta_enabled
-     * @param bool                               $init
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot instantiate Password object, a valid user ID is required'));
         }
 
         // TODO Should this constructor not pass all variables to the parent:: call?
-        if (User::notExists($identifier, 'id')) {
+        if (User::notExists($identifier)) {
             throw new OutOfBoundsException(tr('Cannot instantiate Password object, the specified user ID ":id" does not exist', [
                 ':id' => $identifier,
             ]));
         }
 
-        parent::__construct();
+        parent::__construct($identifier, $meta_enabled, $init);
     }
 
 
@@ -425,56 +426,6 @@ class Password extends DataEntry implements PasswordInterface
 
     /**
      * Sets and returns the field definitions for the data fields in this DataEntry object
-     *
-     * Format:
-     *
-     * [
-     *   field => [key => value],
-     *   field => [key => value],
-     *   field => [key => value],
-     * ]
-     *
-     * "field" should be the database table column name
-     *
-     * Field keys:
-     *
-     * FIELD          DATATYPE           DEFAULT VALUE  DESCRIPTION
-     * value          mixed              null           The value for this entry
-     * visible        boolean            true           If false, this key will not be shown on web, and be readonly
-     * virtual        boolean            false          If true, this key will be visible and can be modified but it
-     *                                                  won't exist in database. It instead will be used to generate
-     *                                                  a different field
-     * element        string|null        "input"        Type of element, input, select, or text or callable function
-     * type           string|null        "text"         Type of input element, if element is "input"
-     * readonly       boolean            false          If true, will make the input element readonly
-     * disabled       boolean            false          If true, the field will be displayed as disabled
-     * label          string|null        null           If specified, will show a description label in HTML
-     * size           int [1-12]         12             The HTML boilerplate column size, 1 - 12 (12 being the whole
-     *                                                  row)
-     * source         array|string|null  null           Array or query source to get contents for select, or single
-     *                                                  value for text inputs
-     * execute        array|null         null           Bound execution variables if specified "source" is a query
-     *                                                  string
-     * complete       array|bool|null    null           If defined must be bool or contain array with key "noword"
-     *                                                  and "word". each key must contain a callable function that
-     *                                                  returns an array with possible words for shell auto
-     *                                                  completion. If bool, the system will generate this array
-     *                                                  automatically from the rows for this field
-     * cli            string|null        null           If set, defines the alternative column name definitions for
-     *                                                  use with CLI. For example, the column may be name, whilst
-     *                                                  the cli column name may be "-n,--name"
-     * optional       boolean            false          If true, the field is optional and may be left empty
-     * title          string|null        null           The title attribute which may be used for tooltips
-     * placeholder    string|null        null           The placeholder attribute which typically shows an example
-     * maxlength      string|null        null           The maxlength attribute which typically shows an example
-     * pattern        string|null        null           The pattern the value content should match in browser client
-     * min            string|null        null           The minimum amount for numeric inputs
-     * max            string|null        null           The maximum amount for numeric inputs
-     * step           string|null        null           The up / down step for numeric inputs
-     * default        mixed              null           If "value" for entry is null, then default will be used
-     * null_disabled  boolean            false          If "value" for entry is null, then use this for "disabled"
-     * null_readonly  boolean            false          If "value" for entry is null, then use this for "readonly"
-     * null_type      boolean            false          If "value" for entry is null, then use this for "type"
      *
      * @param DefinitionsInterface $definitions
      */

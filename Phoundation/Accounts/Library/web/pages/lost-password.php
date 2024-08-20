@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * Page lost-password
+ *
+ * This page assists a user with recovering access to the system after they lost their password
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   \Phoundation\Core
+ */
+
+
+declare(strict_types=1);
+
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
@@ -9,7 +23,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Incident;
-use Phoundation\Security\Incidents\Severity;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\LostPasswordPage;
 use Phoundation\Web\Http\Url;
@@ -17,8 +31,9 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use PHPMailer\PHPMailer\PHPMailer;
 
+
 // Only show sign-in page if we're a guest user
-if (!Session::getUser()->isGuest()) {
+if (!Session::getUserObject()->isGuest()) {
     Response::redirect('prev', 302, reason_warning: tr('Lost password page is only available to guest users'));
 }
 
@@ -37,13 +52,13 @@ if (Request::isPostRequestMethod()) {
                              ->select('email')->isEmail()
                              ->validate();
 
-        $user = User::load($post['email'], 'email');
+        $user = User::load($post['email']);
 
         if ($user->isLocked() or $user->isDeleted()) {
             // Yikes, this cannot be impersonated!
             Incident::new()
                     ->setType('Lost password request denied')
-                    ->setSeverity(Severity::medium)
+                    ->setSeverity(EnumSeverity::medium)
                     ->setTitle(tr('Cannot perform a lost password process for user ":user", this user account is locked or deleted', [
                         ':user' => $user->getLogId(),
                     ]))
@@ -110,13 +125,13 @@ if (Request::isPostRequestMethod()) {
 
         // Register a security incident
         Incident::new()
-                ->setSeverity(Severity::low)
+                ->setSeverity(EnumSeverity::low)
                 ->setType(tr('User lost password request'))
                 ->setTitle(tr('A lost password request was sent to user ":user"', [
-                    ':user' => Session::getUser()->getLogId(),
+                    ':user' => Session::getUserObject()->getLogId(),
                 ]))
                 ->setDetails([
-                                 ':user' => Session::getUser()->getLogId(),
+                                 ':user' => Session::getUserObject()->getLogId(),
                              ])
                 ->save();
 

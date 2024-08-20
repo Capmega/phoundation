@@ -11,11 +11,13 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Exception;
 
 use Phoundation\Exception\Exception;
+
 
 class AccountsException extends Exception
 {

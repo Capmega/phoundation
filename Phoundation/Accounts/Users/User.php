@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
@@ -19,7 +20,6 @@ namespace Phoundation\Accounts\Users;
 use DateTimeInterface;
 use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
-use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Roles\Role;
@@ -33,6 +33,10 @@ use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\SystemUserInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
+use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
+use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
+use Phoundation\Accounts\Users\ProfileImages\ProfileImages;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Hooks\Hook;
@@ -60,7 +64,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryGeo;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryLanguage;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryLastNames;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryPhone;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryPicture;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryImageFileObject;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryType;
@@ -75,10 +79,11 @@ use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Incident;
-use Phoundation\Security\Incidents\Severity;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Arrays;
@@ -90,9 +95,11 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Domains;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Stringable;
 use Throwable;
+
 
 class User extends DataEntry implements UserInterface
 {
@@ -107,7 +114,7 @@ class User extends DataEntry implements UserInterface
     use TraitDataEntryFirstNames;
     use TraitDataEntryGeo;
     use TraitDataEntryPhone;
-    use TraitDataEntryPicture;
+    use TraitDataEntryImageFileObject;
     use TraitDataEntryLanguage;
     use TraitDataEntryLastNames;
     use TraitDataEntryTimezone;
@@ -163,16 +170,22 @@ class User extends DataEntry implements UserInterface
      */
     protected ?UserInterface $remote_user = null;
 
+    /**
+     * Tracks the available profile images for this user
+     *
+     * @var ProfileImagesInterface $profile_images
+     */
+    protected ProfileImagesInterface $profile_images;
+
 
     /**
      * DataEntry class constructor
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool|null                          $meta_enabled
-     * @param bool                               $init
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
         if (empty($this->protected_columns)) {
             $this->protected_columns = [
@@ -181,27 +194,21 @@ class User extends DataEntry implements UserInterface
             ];
         }
 
-        // Process system users
-        switch ($column) {
-            case null:
-                // break
-            case 'email':
-                // System users may be requested either by column "email" or column NULL.
-                // Accepted identifiers are "system" or "guest"
-                switch ($identifier) {
-                    case 'guest':
-                        parent::__construct('guest', 'email', false, true);
-                        $this->initGuestUser();
-                        return;
 
-                    case 'system':
-                        parent::__construct('system', 'email', false, false);
-                        $this->initSystemUser();
-                        return;
-                }
+        // Process system users. Possible identifiers for system users are "system" or "guest"
+        switch ($identifier) {
+            case 'guest':
+                parent::__construct('guest', false, true);
+                $this->initGuestUser();
+                return;
+
+            case 'system':
+                parent::__construct('system', false, false);
+                $this->initSystemUser();
+                return;
         }
 
-        parent::__construct($identifier, $column, $meta_enabled, $init);
+        parent::__construct($identifier, $meta_enabled, $init);
 
         if ($this->hasStatus('system')) {
             // This is the guest user loaded manually
@@ -271,28 +278,27 @@ class User extends DataEntry implements UserInterface
             ]));
         }
 
-        return static::load($id, 'id');
+        return static::load($id);
     }
 
 
     /**
      * Returns a single user object for a single user that has the specified alternate email address.
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool                               $meta_enabled
-     * @param bool                               $force
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool                                     $meta_enabled
+     * @param bool                                     $force
      *
      * @return static
      */
-    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
     {
         try {
-            return parent::load($identifier, $column, $meta_enabled, $force);
+            return parent::load($identifier, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsException $e) {
             if ((static::getConnector() === 'system') and (static::getTable() === 'accounts_users')) {
-                if ($column === 'email') {
+                if (static::determineColumn($identifier) === 'email') {
                     // Try to find the user by alternative email address
                     $user = sql()->get('SELECT `users_id`, `verified_on`
                                               FROM   `accounts_emails` 
@@ -303,7 +309,7 @@ class User extends DataEntry implements UserInterface
 
                     if ($user) {
                         if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
-                            $user = static::load($user['users_id'], 'id', $meta_enabled);
+                            $user = static::load($user['users_id'], $meta_enabled);
 
                             Log::warning(tr('Identified user ":user" with alternate email ":email"', [
                                 ':user'  => $user->getLogId(),
@@ -378,6 +384,49 @@ class User extends DataEntry implements UserInterface
      */
     public static function authenticate(string|int $identifier, string $password, ?string $domain = null): UserInterface
     {
+        $hook = Hook::new('phoundation/accounts/authentication');
+        $user = $hook->execute('authenticate', [
+            'identifier' => $identifier,
+            'password'   => $password,
+            'domain'     => $domain,
+        ]);
+
+        if (empty($user)) {
+            if ($hook->exists('authenticate')) {
+                throw new OutOfBoundsException(tr('Cannot perform user authentication, hook script ":hook" returned no data', [
+                    ':hook'  => $hook->getFile('authenticate')->getRootname(),
+                ]));
+            }
+
+            $user = User::authenticateInternal(Hook::getArgument('identifier'), Hook::getArgument('password'), Hook::getArgument('domain'));
+
+        } elseif (!$user instanceof UserInterface) {
+            throw new OutOfBoundsException(tr('Cannot perform user authentication, the hook script ":hook" returned a non UserInterface value ":value"', [
+                ':hook'  => $hook->getFile('authenticate')->getRootname(),
+                ':value' => $user,
+            ]));
+        }
+
+        Log::warning(tr('Authenticated user ":user" with account authentication hook ":hook"', [
+            ':user'  => $user->getLogId(),
+            ':hook'  => $hook->getFile('authenticate')->getRootname(),
+        ]));
+
+        return $user;
+    }
+
+
+    /**
+     * Authenticates the specified user id / email with its password
+     *
+     * @param string|int  $identifier
+     * @param string      $password
+     * @param string|null $domain
+     *
+     * @return UserInterface
+     */
+    public static function authenticateInternal(string|int $identifier, string $password, ?string $domain = null): UserInterface
+    {
         return static::doAuthenticate($identifier, $password, $domain);
     }
 
@@ -389,13 +438,14 @@ class User extends DataEntry implements UserInterface
      * @param string      $password
      * @param string|null $domain
      * @param bool        $test
-     * @param string      $non_id_column
      *
      * @return static
+     *
+     * @throws AuthenticationException
      */
-    protected static function doAuthenticate(string|int $identifier, string $password, ?string $domain = null, bool $test = false, string $non_id_column = 'email'): static
+    protected static function doAuthenticate(string|int $identifier, string $password, ?string $domain = null, bool $test = false): static
     {
-        $user = static::load($identifier, (is_numeric($identifier) ? 'id' : $non_id_column));
+        $user = static::load($identifier);
 
         if ($user->passwordMatch($password)) {
             if ($user->getDomain()) {
@@ -408,7 +458,7 @@ class User extends DataEntry implements UserInterface
                     if (!$test) {
                         Incident::new()
                                 ->setType('Domain access disallowed')
-                                ->setSeverity(Severity::medium)
+                                ->setSeverity(EnumSeverity::medium)
                                 ->setTitle(tr('The user ":user" is not allowed to have access to domain ":domain"', [
                                     ':user'   => $user->getLogId(),
                                     ':domain' => $domain,
@@ -440,7 +490,7 @@ class User extends DataEntry implements UserInterface
         if (!$test) {
             Incident::new()
                     ->setType('Incorrect password')
-                    ->setSeverity(Severity::low)
+                    ->setSeverity(EnumSeverity::low)
                     ->setTitle(tr('The specified password for user ":user" is incorrect', [':user' => $user->getLogId()]))
                     ->setDetails(['user' => $user->getLogId()])
                     ->save();
@@ -496,19 +546,19 @@ class User extends DataEntry implements UserInterface
 
         // Can this information be changed? If this user has god right, the executing user MUST have god right as well!
         if (!$this->isNew() and $this->hasAllRights('god')) {
-            if (PLATFORM_WEB and !Session::getUser()->hasAllRights('god')) {
+            if (PLATFORM_WEB and !Session::getUserObject()->hasAllRights('god')) {
                 // Oops...
                 Incident::new()
                         ->setType('Blocked user update')
-                        ->setSeverity(Severity::severe)
+                        ->setSeverity(EnumSeverity::severe)
                         ->setTitle(tr('The user ":user" attempted to modify god level user ":modify" without having the "god" right itself.', [
                             ':modify' => $this->getLogId(),
-                            ':user'   => Session::getUser()
+                            ':user'   => Session::getUserObject()
                                                 ->getLogId(),
                         ]))
                         ->setDetails([
                             ':modify' => $this->getLogId(),
-                            ':user'   => Session::getUser()
+                            ':user'   => Session::getUserObject()
                                                 ->getSource(),
                         ])
                         ->notifyRoles('accounts')
@@ -527,7 +577,7 @@ class User extends DataEntry implements UserInterface
                 if ($meta_id) {
                     Incident::new()
                             ->setType('Accounts change')
-                            ->setSeverity(Severity::low)
+                            ->setSeverity(EnumSeverity::low)
                             ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
                                 ':user'    => $this->getLogId(),
                                 ':meta_id' => $meta_id,
@@ -539,7 +589,7 @@ class User extends DataEntry implements UserInterface
                 } else {
                     Incident::new()
                             ->setType('Accounts change')
-                            ->setSeverity(Severity::low)
+                            ->setSeverity(EnumSeverity::low)
                             ->setTitle(tr('The user ":user" was created', [
                                 ':user' => $this->getLogId(),
                             ]))
@@ -548,6 +598,11 @@ class User extends DataEntry implements UserInterface
                             ->save();
                 }
             }
+        }
+
+        // Save was successful! If we're saving the current user, then update the session
+        if (Session::isOfUser($this)) {
+            Session::reloadUser();
         }
 
         return $this;
@@ -705,7 +760,7 @@ class User extends DataEntry implements UserInterface
             if ($this->getId()) {
                 $this->rights = Rights::new()
                                       ->setParentObject($this)
-                                      ->load($order);
+                                      ->load($order ? ['$order' => ['name' => 'asc']] : null);
 
             } else {
                 $this->rights = Rights::new()->setParentObject($this);
@@ -754,13 +809,13 @@ class User extends DataEntry implements UserInterface
      */
     public function getSessionObject(): SessionInterface
     {
-        if ($this->getId() === Session::getUser()->getId()) {
+        if ($this->getId() === Session::getUserObject()->getId()) {
             return Session::getInstance();
         }
 
         throw new SessionException(tr('Cannot access session data for user ":user", that user is not the current session user ":session"', [
             ':user'    => $this->getId(),
-            ':session' => Session::getUser()->getLogId(),
+            ':session' => Session::getUserObject()->getLogId(),
         ]));
     }
 
@@ -768,7 +823,11 @@ class User extends DataEntry implements UserInterface
     /**
      * Easy access to adding a role to this user
      *
-     * @return $this
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool                             $skip_null_values
+     *
+     * @return static
      */
     public function addRoles(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true): static
     {
@@ -916,6 +975,19 @@ class User extends DataEntry implements UserInterface
 
 
     /**
+     * Sets the username for this user
+     *
+     * @param string|null $username
+     *
+     * @return static
+     */
+    public function setUsername(?string $username): static
+    {
+        return $this->set($username, 'username');
+    }
+
+
+    /**
      * Sets the nickname for this user
      *
      * @param string|null $nickname
@@ -929,45 +1001,33 @@ class User extends DataEntry implements UserInterface
         // Ensure nickname isn't system or guest
         switch (strtolower($nickname)) {
             case 'guest':
-                if ($this instanceof GuestUserInterface) {
+                if ($this->isGuest()) {
                     break;
                 }
 
+                $e = 'guest';
                 break;
 
             case 'system':
-                if ($this instanceof SystemUserInterface) {
+                if ($this->isSystem()) {
                     break;
                 }
 
+                $e = 'system';
                 break;
-
-            default:
-                return $this->set(get_null($nickname), 'nickname');
         }
 
-        if ($this->hasStatus('system')) {
-            // GuestUser or SystemUser object in a User object, this is ok
-            return $this->set(get_null($nickname), 'nickname');
+        if (isset($e)) {
+            // This is a non system user with a reserved name, this is not allowed!
+            throw new ValidationFailedException(tr('The nickname ":name" can only be used for ":e" accounts', [
+                ':name' => $nickname,
+                ':e'    => $e
+            ]));
         }
 
-        // This is a non system user with a reserved name, this is not allowed!
-        throw new ValidationFailedException(tr('The nickname ":name" can only be used for system accounts', [
-            ':name' => $nickname
-        ]));
-    }
+        // GuestUser or SystemUser object in a User object, this is ok
+        return $this->set(get_null($nickname), 'nickname');
 
-
-    /**
-     * Sets the username for this user
-     *
-     * @param string|null $username
-     *
-     * @return static
-     */
-    public function setUsername(?string $username): static
-    {
-        return $this->set($username, 'username');
     }
 
 
@@ -1807,9 +1867,9 @@ class User extends DataEntry implements UserInterface
             // Cannot impersonate while we are already impersonating
             if (!Session::isImpersonated()) {
                 // We can only impersonate if we have the right to do so
-                if (Session::getUser()->hasAllRights('impersonate')) {
+                if (Session::getUserObject()->hasAllRights('impersonate')) {
                     // We must have the right and we cannot impersonate ourselves
-                    if ($this->getId() !== Session::getUser()->getId()) {
+                    if ($this->getId() !== Session::getUserObject()->getId()) {
                         // Cannot impersonate god level users
                         if (!$this->isDeleted() and !$this->isLocked()) {
                             if (!$this->hasAllRights('god')) {
@@ -1848,7 +1908,7 @@ class User extends DataEntry implements UserInterface
     {
         // We cannot status change ourselves, we cannot status change god users nor system users, we cannot change
         // readonly users
-        if ($this->getId() !== Session::getUser()->getId()) {
+        if ($this->getId() !== Session::getUserObject()->getId()) {
             // Cannot change status for god right users
             if (!$this->hasAllRights('god')) {
                 // Cannot change status for new users
@@ -1951,6 +2011,171 @@ class User extends DataEntry implements UserInterface
     protected function getDataForValidation(): array
     {
         return Arrays::removeKeys(parent::getDataForValidation(), ['password']);
+    }
+
+
+    /**
+     * Returns the name for this user
+     *
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        return trim($this->getTypesafe('string', 'first_names') . ' ' . $this->getTypesafe('string', 'last_names'));
+    }
+
+
+    /**
+     * Returns true if this is a new entry that hasn't been written to the database yet
+     *
+     * @return bool
+     */
+    public function isNew(): bool
+    {
+        $new = $this->getId() === null;
+
+        if ($new) {
+            // System and Guest users are never new!
+            if ($this->isGuest() or $this->isSystem()) {
+                return false;
+            }
+        }
+
+        return $new;
+    }
+
+
+    /**
+     * Initializes a Guest user object
+     *
+     * @return void
+     */
+    protected function initGuestUser(): void
+    {
+        $this->source['redirect'] = null;
+        $this->source['status']   = 'system';
+        $this->source['nickname'] = tr('Guest');
+
+        if ($this->isNew()) {
+            // Guest user does not yet exist, save it now
+            $this->save();
+        }
+
+        $this->setReadonly(true);
+    }
+
+
+    /**
+     * Initializes a System user object
+     *
+     * @return void
+     */
+    protected function initSystemUser(): void
+    {
+        $this->source['id']       = null;
+        $this->source['redirect'] = null;
+        $this->source['status']   = 'system';
+        $this->source['nickname'] = tr('System');
+
+        $this->setReadonly(true);
+    }
+
+
+    /**
+     * Returns the profile image for this user
+     *
+     * @return string|null
+     */
+    public function getProfileImage(): ?string
+    {
+        return $this->getTypesafe('string', 'profile_image');
+    }
+
+
+    /**
+     * Sets the profile image for this user
+     *
+     * @param string|null $profile_image
+     *
+     * @return static
+     */
+    public function setProfileImage(string|null $profile_image): static
+    {
+        return $this->set($profile_image, 'profile_image');
+    }
+
+
+    /**
+     * Returns the profile_images_id for this user
+     *
+     * @return int|null
+     */
+    public function getProfileImagesId(): ?int
+    {
+        return $this->getTypesafe('int', 'profile_images_id');
+    }
+
+
+    /**
+     * Sets the profile_images_id for this user
+     *
+     * @param int|null $profile_images_id
+     *
+     * @return static
+     */
+    public function setProfileImagesId(int|null $profile_images_id): static
+    {
+        return $this->set($profile_images_id, 'profile_images_id');
+    }
+
+
+    /**
+     * Returns the profile image for this user
+     *
+     * @return ProfileImageInterface
+     */
+    public function getProfileImageObject(): ProfileImageInterface
+    {
+        $profile_images_id = $this->getTypesafe('int', 'profile_images_id');
+
+        if ($profile_images_id) {
+            // Return the user's profile image
+            return ProfileImage::load($profile_images_id);
+        }
+
+        // No profile image was set, return the default
+        return ProfileImage::new()
+                           ->setUserObject($this)
+                           ->setFile(DIRECTORY_CDN . LANGUAGE . '/img/profiles/default.png');
+    }
+
+
+    /**
+     * Sets the profile image for this user
+     *
+     * @param ProfileImageInterface|string|null $profile_image
+     *
+     * @return static
+     */
+    public function setProfileImageObject(ProfileImageInterface|string|null $profile_image): static
+    {
+        return $this->set($profile_image->getId()                          , 'profile_images_id')
+                    ->set($profile_image->getImageFileObject()->getSource(), 'profile_image');
+    }
+
+
+    /**
+     * Returns the list of profile images for this user
+     *
+     * @return ProfileImagesInterface
+     */
+    public function getProfileImagesObject(): ProfileImagesInterface
+    {
+        if (empty($this->profile_images)) {
+            $this->profile_images = new ProfileImages($this);
+        }
+
+        return $this->profile_images;
     }
 
 
@@ -2380,7 +2605,7 @@ class User extends DataEntry implements UserInterface
                                     ->setRender(false))
 
                     ->add(Definition::new($this, 'notifications_hash')
-                        // This hash is set directly so it won't really be touched by DataEntry
+                                    // This hash is set directly so it won't really be touched by DataEntry
                                     ->setOptional(true)
                                     ->setDirectUpdate(true)
                                     ->setRender(false)
@@ -2399,80 +2624,29 @@ class User extends DataEntry implements UserInterface
                                         $validator->isStrongPassword();
                                     }))
 
-                    ->add(Definition::new($this, 'picture')
-                                    // TODO Implement
-                                    ->setNoValidation(true)
-                                    ->setOptional(true)
-                                    ->setRender(false))
+                    ->add(DefinitionFactory::getId($this, 'profile_images_id')
+                                           ->setOptional(true)
+                                           ->setRender(false)
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isTrue(ProfileImage::exists($validator->getSelectedValue()), 'profile image must exist');
+                                            }))
+
+                    ->add(DefinitionFactory::getFile($this, null, 'profile_image')
+                                           ->setLabel('Profile image')
+                                           ->setOptional(true)
+                                           ->setRender(false)
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               if ($validator->getSelectedValue() and $this->isNew()) {
+                                                   // Cannot save a profile image with a user that does not yet exist in the database
+                                                   $validator->addFailure(tr('requires that the user is saved first'));
+                                               }
+
+                                               $validator->isFile(
+                                                   FsDirectory::getCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
+                                                   prefix: FsDirectory::getCdnObject()
+                                               );
+                                           }))
 
                     ->add(DefinitionFactory::getData($this, 'data'));
-    }
-
-
-    /**
-     * Returns the name for this user
-     *
-     * @return string|null
-     */
-    public function getName(): ?string
-    {
-        return trim($this->getTypesafe('string', 'first_names') . ' ' . $this->getTypesafe('string', 'last_names'));
-    }
-
-
-    /**
-     * Returns true if this is a new entry that hasn't been written to the database yet
-     *
-     * @return bool
-     */
-    public function isNew(): bool
-    {
-        $new = $this->getId() === null;
-
-        if ($new) {
-            // System and Guest users are never new!
-            if ($this->isGuest() or $this->isSystem()) {
-                return false;
-            }
-        }
-
-        return $new;
-    }
-
-
-    /**
-     * Initializes a Guest user object
-     *
-     * @return void
-     */
-    protected function initGuestUser(): void
-    {
-        $this->source['redirect'] = null;
-        $this->source['status']   = 'system';
-        $this->source['nickname'] = tr('Guest');
-
-        if ($this->isNew()) {
-            // Guest user does not yet exist, save it now
-            $this->save();
-        }
-
-        $this->setReadonly(true);
-    }
-
-
-    /**
-     * Initializes a System user object
-     *
-     * @return void
-     */
-    public function initSystemUser(): void
-    {
-
-        $this->source['id']       = null;
-        $this->source['redirect'] = null;
-        $this->source['status']   = 'system';
-        $this->source['nickname'] = tr('System');
-
-        $this->setReadonly(true);
     }
 }

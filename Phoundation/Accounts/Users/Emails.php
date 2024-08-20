@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
@@ -31,6 +32,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Stringable;
+
 
 class Emails extends DataIterator implements EmailsInterface
 {
@@ -64,11 +66,11 @@ class Emails extends DataIterator implements EmailsInterface
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Email::class;
     }
@@ -107,15 +109,17 @@ class Emails extends DataIterator implements EmailsInterface
 
 
     /**
-     * Returns Emails list object with emails for the specified user.
+     * Returns an Emails Iterator object with emails for the specified user.
      *
-     * @param bool $clear
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
-        $this->parent  = User::load($this->parent, 'seo_name');
+        $this->parent  = User::load($this->parent);
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
@@ -212,7 +216,7 @@ class Emails extends DataIterator implements EmailsInterface
             $diff = Arrays::deleteDiff($diff, $emails);
 
             foreach ($diff['delete'] as $id => $email) {
-                Email::load($id, 'id')
+                Email::load($id)
                      ->setEmail(null)
                      ->save()
                      ->erase();
@@ -230,7 +234,7 @@ class Emails extends DataIterator implements EmailsInterface
 
             // Update all other email addresses
             foreach ($diff['keep'] as $id => $email) {
-                Email::load($id, 'id')
+                Email::load($id)
                      ->apply(false, $emails[$email])
                      ->setUsersId($this->parent->getId())
                      ->save();
@@ -290,7 +294,7 @@ class Emails extends DataIterator implements EmailsInterface
                 ]));
             }
 
-            $value = Email::new($value, 'email')
+            $value = Email::new($value)
                           ->setAccountType('other');
         }
 

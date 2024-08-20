@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Page accounts/user.php
+ *
+ * This is the primary user management page where we can manage all the basic information about a user account
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Accounts
+ */
+
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
@@ -20,18 +32,6 @@ use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-
-
-/**
- * Page accounts/user.php
- *
- * This is the primary user management page where we can manage all the basic information about a user account
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Accounts
- */
 
 
 // Validate GET and get the requested user
@@ -57,6 +57,7 @@ if (Request::isPostRequestMethod()) {
                 $user->getRolesObject()->setRoles($post['roles_id']);
                 $user->getEmailsObject()->apply(false)->save();
                 $user->getPhonesObject()->apply()->save();
+
 
 // TODO Implement timers
 //showdie(Timers::get('query'));

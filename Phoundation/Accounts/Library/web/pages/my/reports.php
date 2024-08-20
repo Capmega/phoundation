@@ -1,11 +1,5 @@
 <?php
 
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
-use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Url;
-use Phoundation\Web\Requests\Response;
-
-
 /**
  * Page timesheets/redirect
  *
@@ -14,6 +8,15 @@ use Phoundation\Web\Requests\Response;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+
+declare(strict_types=1);
+
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Response;
+
 
 // Set page meta data
 Response::setHeaderTitle(tr('My reports page'));

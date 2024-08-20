@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/users/lock
+ * Command accounts users lock
  *
  * This script can lock users
  *
@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
@@ -18,6 +19,7 @@ use Phoundation\Accounts\Users\Users;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
+
 
 CliDocumentation::setAutoComplete(User::getAutoComplete([
                                                             'positions' => [
@@ -52,8 +54,8 @@ if (ALL) {
         throw new OutOfBoundsException(tr('Cannot lock all users (due to --all option), this requires --force as well'));
     }
 
-    // Lock all users
-    Users::new()->load($argv['user'])->lock();
+    // Lock all users, DANGEROUS
+    Users::new()->load()->lock();
 
 } else {
     // Lock this user

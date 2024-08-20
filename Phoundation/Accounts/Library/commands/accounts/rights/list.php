@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/rights/list
+ * Command accounts rights list
  *
  * This command will list the available rights on this system
  *
@@ -11,12 +11,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\SqlQueries;
+
 
 CliDocumentation::setUsage('./pho accounts rights list [OPTIONS]
 ./pho system accounts rights list -d -r god');

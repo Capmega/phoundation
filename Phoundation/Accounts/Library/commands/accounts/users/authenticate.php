@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/users/authenticate
+ * Command accounts users authenticate
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
@@ -19,6 +20,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setUsage('./pho accounts users authenticate USER');
 

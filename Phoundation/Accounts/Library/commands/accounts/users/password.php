@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/users/authenticate
+ * Command accounts users authenticate
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 
@@ -22,6 +23,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Security\Passwords\Exception\PasswordFailedException;
+
 
 CliDocumentation::setAutoComplete(User::getAutoComplete([
     'positions' => [

@@ -11,9 +11,13 @@
  * @package   Phoundation\Web
  */
 
+
+declare(strict_types=1);
+
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Json\AutoSuggestRequest;
+
 
 // Ensure we'll have auto suggest data
 AutoSuggestRequest::init(true);

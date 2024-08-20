@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/roles/add-right
+ * Command accounts roles add-right
  *
  * This command will create a new role with the specified properties
  *
@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Rights\Right;
@@ -19,6 +20,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setUsage('./pho accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
 ./pho system accounts roles add-right -n test -d "This is a test role!"');

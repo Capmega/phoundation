@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/roles/list
+ * Command accounts roles list
  *
  * This command will list the available roles on this system
  *
@@ -11,12 +11,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\SqlQueries;
+
 
 CliDocumentation::setUsage('./pho accounts roles list [OPTIONS]
 ./pho system accounts roles list -d -r god');

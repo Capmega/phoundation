@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Rights;
@@ -32,6 +33,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
+
 class Right extends DataEntry implements RightInterface
 {
     use TraitDataEntryNameLowercaseDash;
@@ -40,14 +42,13 @@ class Right extends DataEntry implements RightInterface
     /**
      * Right class constructor
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool|null                          $meta_enabled
-     * @param bool                               $init
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
-        return parent::__construct(static::convertToLowerCaseDash($identifier), $column, $meta_enabled);
+        return parent::__construct(static::convertToLowerCaseDash($identifier), $meta_enabled, $init);
     }
 
 
@@ -91,17 +92,16 @@ class Right extends DataEntry implements RightInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool                               $meta_enabled
-     * @param bool                               $force
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool                                     $meta_enabled
+     * @param bool                                     $force
      *
      * @return Right
      */
-    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
     {
         try {
-            return parent::load(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force);
+            return parent::load(static::convertToLowerCaseDash($identifier), $meta_enabled, $force);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RightNotExistsException($e);

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/rights/create
+ * Command accounts rights create
  *
  * This command will create a new right with the specified properties
  *
@@ -11,12 +11,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setUsage('./pho accounts right create -n NAME [OPTIONS]
 ./pho system accounts right create -n test -d "This is a test right!"');
@@ -44,8 +46,8 @@ $argv = ArgvValidator::new()
 $right = Right::load($argv['right']);
 
 if ($argv['name']) {
-    // If changing name, ensure it doesn't exist yet as its a unique identifier
-    Right::notExists($argv['name'], 'name', $right->getId(), true);
+    // If changing name, ensure it doesn't exist yet as it's a unique identifier
+    Right::notExists(['name' => $argv['name']], $right->getId(), true);
 }
 
 $right->apply(false, $argv)->save();

@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
@@ -28,7 +29,8 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryAccountType;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryPhone;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryUser;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsersEmail;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsersId;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryVerificationCode;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryVerifiedOn;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -38,30 +40,32 @@ use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 
+
 class Phone extends DataEntry implements PhoneInterface
 {
-    use TraitDataEntryUser;
+    use TraitDataEntryUsersEmail;
+    use TraitDataEntryUsersId;
     use TraitDataEntryPhone;
     use TraitDataEntryVerifiedOn;
     use TraitDataEntryAccountType;
     use TraitDataEntryDescription;
     use TraitDataEntryVerificationCode;
 
+
     /**
      * DataEntry class constructor
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool|null                          $meta_enabled
-     * @param bool                               $init
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
         $identifier = Sanitize::new($identifier)
                               ->phoneNumber()
                               ->getSource();
 
-        parent::__construct($identifier, $column, $meta_enabled, $init);
+        parent::__construct($identifier, $meta_enabled, $init);
     }
 
 
@@ -105,17 +109,16 @@ class Phone extends DataEntry implements PhoneInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool                               $meta_enabled
-     * @param bool                               $force
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool                                     $meta_enabled
+     * @param bool                                     $force
      *
      * @return Phone
      */
-    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
     {
         try {
-            return parent::load($identifier, $column, $meta_enabled, $force);
+            return parent::load($identifier, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new PhoneNotExistsException($e);
@@ -126,45 +129,43 @@ class Phone extends DataEntry implements PhoneInterface
     /**
      * Returns true if an entry with the specified identifier exists
      *
-     * @param Stringable|string|int $identifier      The unique identifier, but typically not the database id, usually
-     *                                               the seo_email, or seo_name
-     * @param string|null           $column
-     * @param int|null              $not_id
-     * @param bool                  $throw_exception If the entry does not exist, instead of returning false will throw
-     *                                               a DataEntryNotExistsException
+     * @param array|Stringable|string|int $identifier      The unique identifier, but typically not the database id, usually
+     *                                                     the seo_email, or seo_name
+     * @param int|null                    $not_id
+     * @param bool                        $throw_exception If the entry does not exist, instead of returning false will throw
+     *                                                     a DataEntryNotExistsException
      *
      * @return bool
      */
-    public static function exists(Stringable|string|int $identifier, ?string $column = null, ?int $not_id = null, bool $throw_exception = false): bool
+    public static function exists(array|Stringable|string|int $identifier, ?int $not_id = null, bool $throw_exception = false): bool
     {
         $identifier = Sanitize::new($identifier)
                               ->phoneNumber()
                               ->getSource();
 
-        return parent::notExists($identifier, $column, $not_id, $throw_exception);
+        return parent::notExists($identifier, $not_id, $throw_exception);
     }
 
 
     /**
      * Returns true if an entry with the specified identifier does not exist
      *
-     * @param Stringable|string|int $identifier      The unique identifier, but typically not the database id, usually
-     *                                               the seo_email, or seo_name
-     * @param string|null           $column
-     * @param int|null              $id              If specified, will ignore the found entry if it has this ID as it
-     *                                               will be THIS object
-     * @param bool                  $throw_exception If the entry exists (and does not match id, if specified), instead
-     *                                               of returning false will throw a DataEntryNotExistsException
+     * @param array|Stringable|string|int $identifier      The unique identifier, but typically not the database id, usually
+     *                                                     the seo_email, or seo_name
+     * @param int|null                    $id              If specified, will ignore the found entry if it has this ID as it
+     *                                                     will be THIS object
+     * @param bool                        $throw_exception If the entry exists (and does not match id, if specified), instead
+     *                                                     of returning false will throw a DataEntryNotExistsException
      *
      * @return bool
      */
-    public static function notExists(Stringable|string|int $identifier, ?string $column = null, ?int $id = null, bool $throw_exception = false): bool
+    public static function notExists(array|Stringable|string|int $identifier, ?int $id = null, bool $throw_exception = false): bool
     {
         $identifier = Sanitize::new($identifier)
                               ->phoneNumber()
                               ->getSource();
 
-        return parent::notExists($identifier, $column, $id, $throw_exception);
+        return parent::notExists($identifier, $id, $throw_exception);
     }
 
 
@@ -178,6 +179,7 @@ class Phone extends DataEntry implements PhoneInterface
     public function setUsersId(?int $users_id): static
     {
         $current = $this->getUsersId();
+
         if ($current and ($current !== $users_id)) {
             throw new ValidationFailedException(tr('Cannot assign additional phone to ":to" from ":from" , only unassigned phones can be assigned', [
                 ':from' => $current,
@@ -199,6 +201,7 @@ class Phone extends DataEntry implements PhoneInterface
     public function setUsersEmail(?string $users_email): static
     {
         $current = $this->getUsersEmail();
+
         if ($current and ($current !== $users_email)) {
             throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from" , only unassigned emails can be assigned', [
                 ':from' => $current,

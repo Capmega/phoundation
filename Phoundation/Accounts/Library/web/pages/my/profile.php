@@ -1,11 +1,27 @@
 <?php
 
+/**
+ * Page my/profile.php
+ *
+ * This is the user profile page where the user can manage their own profile data
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
+
 declare(strict_types=1);
 
+use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
+use Phoundation\Content\Images\ImageFile;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Interfaces\FileValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Web\Html\Components\Img;
+use Phoundation\Filesystem\Interfaces\FsUploadedFileInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -16,9 +32,38 @@ use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Uploads\UploadHandler;
+
+
+// Define and process the upload handling
+Request::getFileUploadHandlersObject()
+       ->add(UploadHandler::new('image')
+                          ->setSelector('#profile-picture')
+                          ->addValidationFunction(function (FileValidatorInterface $validator) {
+                              $validator->isImage('jpg,png')
+                                        ->isSmallerThan('10MB');
+                          })
+                          ->setFunction(function(FsUploadedFileInterface $file) {
+                              // Set this image as the profile image
+                              ProfileImage::newFromImageFile(new ImageFile($file))
+                                          ->setUserObject(Session::getUserObject())
+                                          ->save()
+                                          ->setDefault();
+                          })
+       )->process();
+
+
+if (Request::getFileUploadHandlersObject()->hasUploadedFiles()) {
+    // Convert to AJAX request instead
+
+    Log::warning('IMPLEMENT SWITCHING TO AJAX REPLY');
+//    Request::setRequestType(EnumRequestTypes::ajax);
+    exit();
+}
+
 
 // Get the user and alter the default user form
-$user        = Session::getUser();
+$user        = Session::getUserObject();
 $definitions = $user->getDefinitionsObject();
 
 $definitions->get('last_sign_in')
@@ -139,8 +184,7 @@ if (Request::isPostRequestMethod()) {
 
 
 // Build the buttons
-$buttons = Buttons::new()
-                  ->addButton('Submit');
+$buttons = Buttons::new()->addButton('Submit');
 
 
 // Build the user form
@@ -161,11 +205,12 @@ $column = GridColumn::new()
 // Build profile picture card
 $picture = Card::new()
                ->setTitle(tr('My profile picture'))
-               ->setContent(Img::new()
-                               ->addClasses('w100')
-                               ->setSrc($user->getPicture())
-                               ->setSrc(Url::getImg('img/profiles/default.png'))
-                               ->setAlt(tr('My profile picture')));
+               ->setId('profile-picture')
+               ->setContent(Session::getUserObject()
+                                   ->getProfileImageObject()
+                                       ->getHtmlImgObject()
+                                           ->addClasses('w100')
+                                           ->setAlt(tr('My profile picture')));
 
 
 // Build relevant links
@@ -173,9 +218,9 @@ $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
                 ->setContent('<a href="' . Url::getWww('/my/password.html') . '">' . tr('Change Your password') . '</a><br>
-                         <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage Your settings') . '</a><br>
-                         <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage Your API access') . '</a><br>
-                         <a href="' . Url::getWww('/my/sign-in-history.html') . '">' . tr('Review Your sign-in history') . '</a>');
+                                      <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage Your settings') . '</a><br>
+                                      <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage Your API access') . '</a><br>
+                                      <a href="' . Url::getWww('/my/sign-in-history.html') . '">' . tr('Review Your sign-in history') . '</a>');
 
 
 // Build documentation
@@ -183,14 +228,16 @@ $documentation = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Documentation'))
                      ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
-                         <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
-                         <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
+                                           <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
+                                           <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
 // Build and render the page grid
 $grid = Grid::new()
             ->addColumn($column)
-            ->addColumn($picture->render() . '<br>' . $relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($picture->render() . '<br>' .
+                               $relevant->render() . '<br>' .
+                               $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

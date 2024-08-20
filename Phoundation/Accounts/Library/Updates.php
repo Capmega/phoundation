@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Library;
@@ -21,7 +22,6 @@ use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Core\Log\Log;
 use Phoundation\Seo\Seo;
-
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -31,7 +31,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.3.1';
+        return '0.4.1';
     }
 
 
@@ -661,7 +661,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $entries = sql()->query('SELECT `id`, `rights_id`, `name` FROM `accounts_users_rights`');
 
             foreach ($entries as $entry) {
-                $right = Right::load($entry['rights_id'], 'id');
+                $right = Right::load($entry['rights_id']);
 
                 sql()->update('accounts_users_rights', [
                     'name'     => $right->getName(),
@@ -680,94 +680,94 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.2.1', function () {
             // Ensure Guest user is available
-            GuestUser::new('guest', 'email');
+            GuestUser::new('guest');
 
             // Create default rights and roles
-            $god = Right::new('God', 'name')
+            $god = Right::new(['name' => 'God'])
                         ->setName('God')
                         ->setDescription('This right will give the user access to everything, everywhere')
                         ->save();
 
-            $admin = Right::new('Admin', 'name')
+            $admin = Right::new(['name' => 'Admin'])
                           ->setName('Admin')
                           ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
                           ->save();
 
-            $developer = Right::new('Developer', 'name')
+            $developer = Right::new(['name' => 'Developer'])
                               ->setName('Developer')
                               ->setDescription('This right will give the user access to the developer area of the site')
                               ->save();
 
-            $accounts = Right::new('Accounts', 'name')
+            $accounts = Right::new(['name' => 'Accounts'])
                              ->setName('Accounts')
                              ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
                              ->save();
 
-            $security = Right::new('Security', 'name')
+            $security = Right::new(['name' => 'Security'])
                              ->setName('Security')
                              ->setDescription('This right will give the user access to the administrative security pages of the site')
                              ->save();
 
-            $phoundation = Right::new('Phoundation', 'name')
+            $phoundation = Right::new(['name' => 'Phoundation'])
                                 ->setName('Phoundation')
                                 ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
                                 ->save();
 
-            $audit = Right::new('Audit', 'name')
+            $audit = Right::new(['name' => 'Audit'])
                           ->setName('Audit')
                           ->setDescription('This right will give the user access to the audit information system of the site')
                           ->save();
 
-            $test = Right::new('Test', 'name')
+            $test = Right::new(['name' => 'Test'])
                          ->setDescription('This right will make certain pages run in test mode. Information from this user may, for example, not show up in reports as it is a test user, generating test data')
                          ->save();
 
-            $demo = Right::new('Demo', 'name')
+            $demo = Right::new(['name' => 'Demo'])
                          ->setDescription('This right will make certain pages run in demo mode. Information from this user may, for example, not show up in reports as it is a demonstration user, generating demo data')
                          ->save();
 
-            Role::new('Test', 'name')
+            Role::new(['name' => 'Test'])
                 ->setDescription('This role gives the user the test right. See demo right for more information.')
                 ->save()
                 ->getRights()
                 ->add($test);
 
-            Role::new('Demo', 'name')
+            Role::new(['name' => 'Demo'])
                 ->setDescription('This role gives the user the demo right. See demo right for more information.')
                 ->save()
                 ->getRights()
                 ->add($demo);
 
             // Define basic roles
-            Role::new('God', 'name')
+            Role::new(['name' => 'God'])
                 ->setName('God')
                 ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
                 ->save()
                 ->getRights()
                 ->add($god);
 
-            Role::new('Audit', 'name')
+            Role::new(['name' => 'Audit'])
                 ->setName('Audit')
                 ->setDescription('This role will give the user access to the audit system')
                 ->save()
                 ->getRights()
                 ->add($audit);
 
-            Role::new('Accounts', 'name')
+            Role::new(['name' => 'Accounts'])
                 ->setName('Accounts')
                 ->setDescription('This role will give the user access to the accounts management system')
                 ->save()
                 ->getRights()
                 ->add($accounts);
 
-            Role::new('Security', 'name')
+            Role::new(['name' => 'Security'])
                 ->setName('Security')
                 ->setDescription('This role will give the user access to the security system')
                 ->save()
                 ->getRights()
                 ->add($security);
 
-            Role::new('Administrator', 'name')
+            Role::new(['name' => 'Administrator'])
                 ->setName('Administrator')
                 ->setDescription('This role gives access to all the administrative pages except user account management')
                 ->save()
@@ -785,14 +785,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->add($admin)
                 ->add($accounts);
 
-            Role::new('Developer', 'name')
+            Role::new(['name' => 'Developer'])
                 ->setName('Developer')
                 ->setDescription('This role will give the user access to the developer pages of the site')
                 ->save()
                 ->getRights()
                 ->add($developer);
 
-            Role::new('Moderator', 'name')
+            Role::new(['name' => 'Moderator'])
                 ->setName('Moderator')
                 ->setDescription('This role will give the user basic access to the administrative pages of the site')
                 ->save()
@@ -813,8 +813,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add default rights
             foreach ($rights as $right) {
-                if (!Right::exists($right, 'name')) {
-                    Right::new($right, 'name')
+                if (!Right::exists(['name' => $right])) {
+                    Right::new(['name' => $right])
                          ->setName($right)
                          ->save();
                 }
@@ -822,8 +822,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add default roles and assign the default rights to them
             foreach ($rights as $role) {
-                if (!Role::exists($role, 'name')) {
-                    Role::new($role, 'name')
+                if (!Role::exists(['name' => $role])) {
+                    Role::new(['name' => $role])
                         ->setName($role)
                         ->save()
                         ->getRights()
@@ -833,13 +833,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Various rights go together...
             Role::load('Audit')->getRights()->add('Admin');
-
             Role::load('Security')->getRights()->add('Admin');
-
             Role::load('Impersonate')
                 ->getRights()
-                ->add('Admin')
-                ->add('Accounts');
+                    ->add('Admin')
+                    ->add('Accounts');
 
         })->addUpdate('0.2.2', function () {
             // Data is a general storage of JSON data
@@ -902,6 +900,68 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.3.1', function () {
             // Guest user will have status "guest" as well.
             sql()->query('UPDATE `accounts_users` SET `status` = "system" WHERE `email` = "guest"');
+
+        })->addUpdate('0.4.0', function () {
+            $table = sql()->getSchemaObject()->getTableObject('accounts_users');
+
+            if ($table->foreignKeyExists('fk_accounts_users_profile_images_id')) {
+                $table->alter()->dropForeignKey('fk_accounts_users_profile_images_id');
+            }
+
+            if ($table->indexExists('profile_images_id')) {
+                $table->alter()->dropIndex('profile_images_id');
+            }
+
+            if ($table->columnExists('profile_images_id')) {
+                $table->alter()->dropColumn('profile_images_id');
+            }
+
+            // Create the accounts_profile_images table.
+            sql()->getSchemaObject()->getTableObject('accounts_profile_images')->drop()->define()
+                ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `users_id` bigint NOT NULL,
+                    `uploads_id` bigint NULL DEFAULT NULL,
+                    `file` varchar(2048) NOT NULL,
+                    `description` TEXT NULL,
+                ')->setIndices('                
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `users_id` (`users_id`),
+                    KEY `uploads_id` (`uploads_id`),
+                ')->setForeignKeys('
+                    CONSTRAINT `fk_accounts_profile_images_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_accounts_profile_images_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_profile_images_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_profile_images_uploads_id` FOREIGN KEY (`uploads_id`) REFERENCES `web_uploads` (`id`) ON DELETE RESTRICT
+                ')->create();
+
+            sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
+                ->addColumn('`profile_images_id` bigint NULL DEFAULT NULL', 'AFTER `status`')
+                ->addIndex('KEY `profile_images_id` (`profile_images_id`)')
+                ->addForeignKey('CONSTRAINT `fk_accounts_users_profile_images_id` FOREIGN KEY (`profile_images_id`) REFERENCES `accounts_profile_images` (`id`) ON DELETE RESTRICT');
+
+        })->addUpdate('0.4.1', function () {
+            $table = sql()->getSchemaObject()->getTableObject('accounts_users');
+
+            // Fix the mess with picture column may or may not exist as picture, or profile_image, or not at all?
+            if ($table->columnExists('picture')) {
+                $table->alter()->changeColumn('`picture`', '`profile_image` varchar(2048) CHARACTER SET latin1 DEFAULT NULL');
+
+            } elseif ($table->columnExists('profile_image')) {
+                $table->alter()->changeColumn('`profile_image`', '`profile_image` varchar(2048) CHARACTER SET latin1 DEFAULT NULL');
+
+            } else {
+                $table->alter()->addColumn('`profile_image` varchar(2048) CHARACTER SET latin1 DEFAULT NULL', 'AFTER `nickname`');
+            }
         });
     }
 }

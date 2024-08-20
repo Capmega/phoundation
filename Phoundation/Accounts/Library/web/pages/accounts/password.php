@@ -21,12 +21,13 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
+
 // Validate GET and get requested user and password
 $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId()
                    ->validate();
 
-$user     = User::load($get['id'], 'id');
+$user     = User::load($get['id']);
 $password = $user->getPassword();
 
 

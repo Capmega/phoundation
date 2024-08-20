@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
@@ -39,6 +40,7 @@ use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Routing\Route;
 use Stringable;
 
+
 class SignInKey extends DataEntry implements SignInKeyInterface
 {
     use TraitDataUrl;
@@ -46,17 +48,17 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     use TraitDataEntryUuid;
     use TraitDataEntryRedirect;
 
+
     /**
      * SignInKey class constructor
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool|null                          $meta_enabled
-     * @param bool                               $init
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
-        parent::__construct($identifier, $column, $meta_enabled, $init);
+        parent::__construct($identifier, $meta_enabled, $init);
         $this->setAllowNavigation(false);
     }
 
@@ -182,7 +184,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     /**
      * Apply this sign-in key
      *
-     * @return $this
+     * @return static
      */
     #[NoReturn] public function execute(): static
     {

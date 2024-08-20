@@ -1,14 +1,5 @@
 <?php
 
-use Phoundation\Accounts\Users\Users;
-use Phoundation\Core\Sessions\Session;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
-use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Html;
-use Phoundation\Web\Http\Url;
-use Phoundation\Web\Requests\Response;
-
-
 /**
  * Contacts page
  *
@@ -19,6 +10,17 @@ use Phoundation\Web\Requests\Response;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
+
+
+declare(strict_types=1);
+
+use Phoundation\Accounts\Users\Users;
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Response;
 
 
 // Set page meta data
@@ -47,12 +49,13 @@ $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch 
                           </ul>
                         </div>
                         <div class="col-5 text-center">
-                        ' . Session::getUser()->getPicture()
-                                   ->getHtmlElement()
-                                   ->setSrc(Url::getImg("img/profiles/default.png"))
-                                   ->setClass("img-circle img-fluid")
-                                   ->setAlt(tr("Profile picture for :user", [":user" => Html::safe(Session::getUser()->getDisplayName())]))
-                                   ->render() . '                          
+                        ' . Session::getUserObject()
+                                   ->getImageFileObject()
+                                       ->getImgObject()
+                                           ->setSrc(Url::getImg("img/profiles/default.png"))
+                                           ->setClass("img-circle img-fluid")
+                                           ->setAlt(tr("Profile picture for :user", [":user" => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                           ->render() . '                          
                         </div>
                       </div>
                     </div>

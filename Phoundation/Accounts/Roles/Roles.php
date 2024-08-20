@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Roles;
@@ -30,6 +31,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
+
 
 class Roles extends DataIterator implements RolesInterface
 {
@@ -78,6 +80,17 @@ class Roles extends DataIterator implements RolesInterface
 
 
     /**
+     * Returns the class for a single DataEntry in this Iterator object
+     *
+     * @return string|null
+     */
+    public static function getDefaultContentDataTypes(): ?string
+    {
+        return Role::class;
+    }
+
+
+    /**
      * Set the new roles for the current parents to the specified list
      *
      * @param array|null  $list
@@ -95,7 +108,7 @@ class Roles extends DataIterator implements RolesInterface
 
             foreach ($list as $role) {
                 if ($role) {
-                    $roles_list[] = static::getEntryClass()::get($role)
+                    $roles_list[] = static::getDefaultContentDataTypes()::get($role)
                                           ->getSeoName();
                 }
             }
@@ -113,17 +126,6 @@ class Roles extends DataIterator implements RolesInterface
         }
 
         return $this;
-    }
-
-
-    /**
-     * Returns the name of this DataEntry class
-     *
-     * @return string|null
-     */
-    public static function getEntryClass(): ?string
-    {
-        return Role::class;
     }
 
 
@@ -362,11 +364,13 @@ class Roles extends DataIterator implements RolesInterface
     /**
      * Load the data for this roles list into the object
      *
-     * @param bool $clear
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
 
         if ($this->parent) {

@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
@@ -28,7 +29,8 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryAccountType;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryEmail;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryUser;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsersEmail;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsersId;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryVerificationCode;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryVerifiedOn;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -37,14 +39,17 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
+
 class Email extends DataEntry implements EmailInterface
 {
-    use TraitDataEntryUser;
+    use TraitDataEntryUsersEmail;
+    use TraitDataEntryUsersId;
     use TraitDataEntryEmail;
     use TraitDataEntryVerifiedOn;
     use TraitDataEntryAccountType;
     use TraitDataEntryDescription;
     use TraitDataEntryVerificationCode;
+
 
     /**
      * Returns the table name used by this object
@@ -214,17 +219,16 @@ class Email extends DataEntry implements EmailInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool                               $meta_enabled
-     * @param bool                               $force
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool                                     $meta_enabled
+     * @param bool                                     $force
      *
      * @return Email
      */
-    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
     {
         try {
-            return parent::load($identifier, $column, $meta_enabled, $force);
+            return parent::load($identifier, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new EmailNotExistsException($e);

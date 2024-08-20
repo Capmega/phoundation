@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Roles;
@@ -39,22 +40,23 @@ use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
+
 class Role extends DataEntry implements RoleInterface
 {
     use TraitDataEntryNameLowercaseDash;
     use TraitDataEntryDescription;
 
+
     /**
      * Role class constructor
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool|null                          $meta_enabled
-     * @param bool                               $init
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
-        return parent::__construct(static::convertToLowerCaseDash($identifier), $column, $meta_enabled);
+        return parent::__construct(static::convertToLowerCaseDash($identifier), $meta_enabled, $init);
     }
 
 
@@ -147,7 +149,7 @@ class Role extends DataEntry implements RoleInterface
      * @param RoleInterface|string|int|null $from_identifier
      * @param string|null                   $column
      *
-     * @return $this
+     * @return static
      * @throws OutOfBoundsExceptionInterface|RoleNotExistsExceptionInterface
      */
     public function mergeFrom(RoleInterface|string|int|null $from_identifier = null, ?string $column = null): static
@@ -183,17 +185,16 @@ class Role extends DataEntry implements RoleInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool                               $meta_enabled
-     * @param bool                               $force
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool                                     $meta_enabled
+     * @param bool                                     $force
      *
      * @return Role
      */
-    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
     {
         try {
-            return parent::load(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force);
+            return parent::load(static::convertToLowerCaseDash($identifier), $meta_enabled, $force);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RoleNotExistsException($e);
@@ -236,7 +237,9 @@ class Role extends DataEntry implements RoleInterface
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }))
+
                     ->add(DefinitionFactory::getSeoName($this))
+
                     ->add(DefinitionFactory::getDescription($this)
                                            ->setHelpText(tr('The description for this role')));
     }

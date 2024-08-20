@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/users/unlock
+ * Command accounts users unlock
  *
  * This script can unlock users
  *
@@ -11,12 +11,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
+
 
 CliDocumentation::setAutoComplete(User::getAutoComplete([
                                                             'positions' => [

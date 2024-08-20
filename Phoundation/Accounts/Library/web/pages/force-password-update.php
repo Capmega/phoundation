@@ -12,6 +12,9 @@
  * @package   Phoundation\Web
  */
 
+
+declare(strict_types=1);
+
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
@@ -24,8 +27,9 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
+
 // Only allow being here when it was forced by redirect
-if (!Session::getUser()->getRedirect() or (Session::getUser()->getRedirect() !== (string)Url::getWww('/force-password-update.html'))) {
+if (!Session::getUserObject()->getRedirect() or (Session::getUserObject()->getRedirect() !== (string)Url::getWww('/force-password-update.html'))) {
     Response::redirect('prev', 302, reason_warning: tr('Force password update is only available when it was accessed using forced user redirect'));
 }
 
@@ -39,7 +43,7 @@ if (Request::isPostRequestMethod()) {
                              ->validate();
 
         // Update the password for this sessions user and remove the forced redirect to this page
-        Session::getUser()
+        Session::getUserObject()
                ->changePassword($post['password'], $post['passwordv'])
                ->setRedirect()
                ->save();
@@ -68,5 +72,5 @@ Response::setPageTitle(tr('Please update your password before continuing...'));
 
 // Render the page
 echo ForcePasswordUpdatePage::new()
-                            ->setEmail(Session::getUser()->getEmail())
+                            ->setEmail(Session::getUserObject()->getEmail())
                             ->render();

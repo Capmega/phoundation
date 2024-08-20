@@ -1,15 +1,16 @@
 <?php
 
 /**
- * Command accounts/roles/add-roles
+ * Command accounts roles add-roles
  *
  * This command will create a new role with the specified properties
  *
- * @author   Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license  http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyrole Copyrole (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package  Phoundation\Scripts
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 
@@ -20,6 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
+
 
 CliDocumentation::setAutoComplete([
                                       'positions' => [

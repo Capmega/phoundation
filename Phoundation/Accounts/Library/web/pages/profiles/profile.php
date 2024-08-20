@@ -11,6 +11,9 @@
  * @package   Phoundation\Web
  */
 
+
+declare(strict_types=1);
+
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -27,6 +30,7 @@ use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+
 
 // Get parameters
 $get = GetValidator::new()
@@ -49,7 +53,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                                        ]));
 
 
-if (Session::getUser()->hasAllRights(['accounts'])) {
+if (Session::getUserObject()->hasAllRights(['accounts'])) {
 // Validate POST and submit
     if (Request::isPostRequestMethod()) {
         try {
@@ -130,14 +134,15 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
                 <div class="card card-primary card-outline">
                     <div class="card-body box-profile">
                         <div class="text-center">
-                            <?= Session::getUser()->getPicture()
-                                       ->getHtmlElement()
-                                       ->setSrc(Url::getImg('img/profiles/default.png'))
-                                       ->setClass('profile-user-img img-fluid img-circle')
-                                       ->setAlt(tr('Profile picture for :user', [
-                                           ':user' => Html::safe(Session::getUser()->getDisplayName()),
-                                       ]))
-                                       ->render() ?>
+                            <?= Session::getUserObject()
+                                       ->getImageFileObject()
+                                           ->getImgObject()
+                                               ->setSrc(Url::getImg('img/profiles/default.png'))
+                                               ->setClass('profile-user-img img-fluid img-circle')
+                                               ->setAlt(tr('Profile picture for :user', [
+                                                   ':user' => Html::safe(Session::getUserObject()->getDisplayName()),
+                                               ]))
+                                               ->render() ?>
                         </div>
 
                         <h3 class="profile-username text-center"><?= $user->getDisplayName() ?></h3>

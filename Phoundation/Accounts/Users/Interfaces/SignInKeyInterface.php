@@ -76,7 +76,7 @@ interface SignInKeyInterface extends DataEntryInterface
     /**
      * Apply this sign-in key
      *
-     * @return $this
+     * @return static
      */
     public function execute(): static;
 

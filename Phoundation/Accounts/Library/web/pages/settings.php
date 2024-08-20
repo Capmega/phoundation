@@ -17,7 +17,8 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
-$user = User::load(Session::getUser()->getId());
+$user = User::load(Session::getUserObject()->getId());
+
 
 // Validate POST and submit
 if (Request::isPostRequestMethod()) {

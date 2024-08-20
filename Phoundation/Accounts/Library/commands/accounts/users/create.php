@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/users/create
+ * Command accounts users create
  *
  * This command will create a new user with the specified properties
  *
@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 

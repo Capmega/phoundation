@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
@@ -32,6 +33,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
+
 
 class Users extends DataIterator implements UsersInterface
 {
@@ -101,7 +103,7 @@ class Users extends DataIterator implements UsersInterface
 
             foreach ($list as $user) {
                 if ($user) {
-                    $users_list[] = static::getEntryClass()::get($user)
+                    $users_list[] = static::getDefaultContentDataTypes()::get($user)
                                           ->getId();
                 }
             }
@@ -123,11 +125,11 @@ class Users extends DataIterator implements UsersInterface
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return User::class;
     }
@@ -504,7 +506,7 @@ class Users extends DataIterator implements UsersInterface
      */
     public function loadForRole(RoleInterface|Stringable|string $role): static
     {
-        $role = Role::load($role, 'seo_name');
+        $role = Role::load($role);
         $this->getQueryBuilder()
              ->addSelect('`accounts_users`.*')
              ->addJoin('JOIN `accounts_users_roles` ON `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
@@ -518,12 +520,13 @@ class Users extends DataIterator implements UsersInterface
     /**
      * Load the data for this users list into the object
      *
-     * @param bool $clear
-     * @param bool $only_if_empty
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
 
         if ($this->parent) {
@@ -565,7 +568,7 @@ class Users extends DataIterator implements UsersInterface
      * Update the status of ALL users in this Users object
      *
      * @param string|null $current_status
-     * @return $this
+     * @return static
      */
     public function lock(?string $current_status = null): static
     {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/users/list
+ * Command accounts users list
  *
  * This command will list the available users on this system
  *
@@ -11,12 +11,14 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\SqlQueries;
+
 
 CliDocumentation::setUsage('./pho accounts users list [OPTIONS]
 ./pho system accounts users list -d -r god');

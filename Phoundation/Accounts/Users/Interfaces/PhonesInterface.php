@@ -19,13 +19,16 @@ interface PhonesInterface extends DataIteratorInterface
      */
     public function setParentObject(DataEntryInterface $parent): static;
 
+
     /**
-     * Returns Phones list object with phones for the specified user.
+     * Returns a Phones Iterator object with phones for the specified user.
      *
-     * @param bool $clear
-     * @param bool $only_if_empty
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
+     *
      * @return static
      * @throws SqlMultipleResultsException , NotExistsException
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static;
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static;
 }

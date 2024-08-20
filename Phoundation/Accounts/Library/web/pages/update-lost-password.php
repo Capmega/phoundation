@@ -12,11 +12,14 @@
  * @package   Phoundation\Web
  */
 
+
+declare(strict_types=1);
+
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Incident;
-use Phoundation\Security\Incidents\Severity;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
@@ -26,8 +29,9 @@ use Phoundation\Web\Html\Pages\UpdateLostPasswordPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
+
 // Only allow being here when it was forced by redirect
-if (Session::getUser()->isGuest()) {
+if (Session::getUserObject()->isGuest()) {
     Response::redirect('prev', 302, reason_warning: tr('Update lost password page is only available to registered users'));
 }
 
@@ -46,19 +50,19 @@ if (Request::isPostRequestMethod()) {
                              ->validate();
 
         // Update the password for this session user
-        Session::getUser()->changePassword($post['password'], $post['passwordv'])->save();
+        Session::getUserObject()->changePassword($post['password'], $post['passwordv'])->save();
 
         // Register a security incident
         Incident::new()
-                ->setSeverity(Severity::medium)
+                ->setSeverity(EnumSeverity::medium)
                 ->setType(tr('User lost password update'))
                 ->setTitle(tr('The user ":user" updated their lost password using UUID key ":key"', [
                     ':key'  => Session::getSignInKey(),
-                    ':user' => Session::getUser()->getLogId(),
+                    ':user' => Session::getUserObject()->getLogId(),
                 ]))
                 ->setDetails([
                                  ':key'  => Session::getSignInKey(),
-                                 ':user' => Session::getUser()->getLogId(),
+                                 ':user' => Session::getUserObject()->getLogId(),
                              ])
                 ->save();
 
@@ -90,7 +94,7 @@ if (isset($updated)) {
 
     // Render the page
     LostPasswordUpdatedPage::new()
-                           ->setEmail(Session::getUser()->getEmail())
+                           ->setEmail(Session::getUserObject()->getEmail())
                            ->render();
 
 } else {
@@ -100,6 +104,6 @@ if (isset($updated)) {
 
     // Render the page
     UpdateLostPasswordPage::new()
-                          ->setEmail(Session::getUser()->getEmail())
+                          ->setEmail(Session::getUserObject()->getEmail())
                           ->render();
 }

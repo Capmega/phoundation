@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/roles/create
+ * Command accounts roles create
  *
  * This command will create a new role with the specified properties
  *
@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Rights\Right;
@@ -18,6 +19,7 @@ use Phoundation\Accounts\Roles\Role;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setUsage('./pho accounts roles create -n NAME [OPTIONS]
 ./pho system accounts roles create -n test -d "This is a test role!"');
@@ -58,8 +60,8 @@ if ($argv['rights']) {
 $role = Role::load($argv['role']);
 
 if ($argv['name']) {
-    // If changing name, ensure it doesn't exist yet as its a unique identifier
-    Role::notExists($argv['name'], 'name', $role->getId(), true);
+    // If changing name, ensure it doesn't exist yet as it's a unique identifier
+    Role::notExists(['name' => $argv['name']], $role->getId(), true);
 }
 
 $role->apply(false, $argv)->save();

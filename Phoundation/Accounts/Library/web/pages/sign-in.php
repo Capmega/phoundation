@@ -11,6 +11,9 @@
  * @package   Phoundation\Web
  */
 
+
+declare(strict_types=1);
+
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
@@ -28,8 +31,9 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
+
 // Only show sign-in page if we're a guest user
-if (!Session::getUser()->isGuest()) {
+if (!Session::getUserObject()->isGuest()) {
     Response::redirect('prev', 302, reason_warning: tr('Sign-in page is only available to guest users'));
 }
 

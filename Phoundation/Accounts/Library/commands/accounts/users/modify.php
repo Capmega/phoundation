@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/users/modify
+ * Command accounts users modify
  *
  * This command will modify a user with the specified properties
  *
@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Role;
@@ -18,6 +19,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+
 
 CliDocumentation::setAutoComplete(User::getAutoComplete([
                                                             'positions' => [

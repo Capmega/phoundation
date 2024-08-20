@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/roles/add-email
+ * Command accounts roles add-email
  *
  * This command will create a new role with the specified properties
  *
@@ -10,6 +10,7 @@
  * @copyemail Copyemail (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
 
 declare(strict_types=1);
 
@@ -20,6 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
+
 
 CliDocumentation::setAutoComplete([
                                       'positions' => [

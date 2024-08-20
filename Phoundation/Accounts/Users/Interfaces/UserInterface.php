@@ -7,6 +7,9 @@ namespace Phoundation\Accounts\Users\Interfaces;
 use DateTimeInterface;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
+use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
+use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
+use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Date\DateTime;
@@ -787,4 +790,27 @@ interface UserInterface extends DataEntryInterface
      * @return bool
      */
     public function isLocked(): bool;
+
+    /**
+     * Returns the profile image for this user
+     *
+     * @return ProfileImageInterface
+     */
+    public function getProfileImageObject(): ProfileImageInterface;
+
+    /**
+     * Sets the profile image for this user
+     *
+     * @param ProfileImageInterface|string|null $profile_image
+     *
+     * @return static
+     */
+    public function setProfileImageObject(ProfileImageInterface|string|null $profile_image): static;
+
+    /**
+     * Returns the list of profile images for this user
+     *
+     * @return ProfileImagesInterface
+     */
+    public function getProfileImagesObject(): ProfileImagesInterface;
 }

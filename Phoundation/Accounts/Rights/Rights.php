@@ -12,6 +12,7 @@
  * @package   Phoundation\Accounts
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Accounts\Rights;
@@ -28,12 +29,13 @@ use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Security\Incidents\Incident;
-use Phoundation\Security\Incidents\Severity;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
+
 
 class Rights extends DataIterator implements RightsInterface
 {
@@ -110,6 +112,7 @@ class Rights extends DataIterator implements RightsInterface
      *
      * @param array $rights
      *
+     * @todo Make this more efficient by storing up all the rights that failed, and then with one query checking which exists and which don't
      * @return void
      */
     public static function ensure(array $rights): void
@@ -130,13 +133,13 @@ class Rights extends DataIterator implements RightsInterface
                 ]));
             }
 
-            if (Right::notExists($right, 'name')) {
+            if (Right::notExists(['name' => $right])) {
                 Right::new()
                      ->setName($right)
                      ->save();
 
                 Incident::new()
-                        ->setSeverity(Severity::medium)
+                        ->setSeverity(EnumSeverity::medium)
                         ->setType('Right created automatically')
                         ->setTitle(tr('Automatically created new right ":right"', [':right' => $right]))
                         ->setDetails(['right' => $right])
@@ -211,7 +214,7 @@ class Rights extends DataIterator implements RightsInterface
             $rights_list = [];
             foreach ($list as $right) {
                 if ($right) {
-                    $rights_list[] = static::getEntryClass()::get($right)
+                    $rights_list[] = static::getDefaultContentDataTypes()::get($right)
                                            ->getSeoName();
                 }
             }
@@ -230,11 +233,11 @@ class Rights extends DataIterator implements RightsInterface
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Right::class;
     }
@@ -452,11 +455,13 @@ class Rights extends DataIterator implements RightsInterface
     /**
      * Load the data for this rights list into the object
      *
-     * @param bool $clear
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
         if ($this->parent) {
             // Load only rights for specified parent

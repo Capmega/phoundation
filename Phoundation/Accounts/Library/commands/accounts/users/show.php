@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts/users/show
+ * Command accounts users show
  *
  * This script displays information about the specified user.
  *
@@ -11,6 +11,7 @@
  * @package   Phoundation\Scripts
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
@@ -18,6 +19,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
+
 
 CliDocumentation::setAutoComplete(User::getAutoComplete([
     'positions' => [

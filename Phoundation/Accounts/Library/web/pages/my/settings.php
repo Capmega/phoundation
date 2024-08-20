@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Page my/settings.php
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Accounts
+ */
+
+
 declare(strict_types=1);
 
 use Phoundation\Core\Sessions\Session;
@@ -14,18 +26,6 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
-/**
- * Page my/settings.php
- *
- *
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Accounts
- */
-
-
 // Validate
 $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId()
@@ -33,7 +33,7 @@ $get = GetValidator::new()
 
 
 // Build the settings card
-$user = Session::getUser();
+$user = Session::getUserObject();
 $form = $user->getSettings()->getHtmlDataEntryFormObject();
 $card = Card::new()
             ->setTitle(tr('Edit data for right :name', [':name' => $user->getName()]))
