@@ -20,6 +20,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Stringable;
 
+
 class InstanceCache
 {
     /**
@@ -37,21 +38,21 @@ class InstanceCache
     protected static mixed $last_checked = null;
 
     /**
-     * Tracks the amount of time the cache was hit
+     * Tracks the number of time the cache was hit
      *
      * @var int $cache_hits
      */
     protected static int $cache_hits = 0;
 
     /**
-     * Tracks the amount of time the cache was missed
+     * Tracks the number of time the cache was missed
      *
      * @var int $cache_miss
      */
     protected static int $cache_miss = 0;
 
     /**
-     * Tracks the amount of time the cache was checked
+     * Tracks the number of time the cache was checked
      *
      * @var int $cache_checks
      */
