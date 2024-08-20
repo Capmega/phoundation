@@ -1,9 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Exception\PhpModuleNotAvailableException;
-
 /**
  * Extra mb functions
  *
@@ -21,9 +17,16 @@ use Phoundation\Exception\PhpModuleNotAvailableException;
  * @copyright Copyright(c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
+
+
+declare(strict_types=1);
+
+use Phoundation\Exception\PhpModuleNotAvailableException;
+
 define('UTF8_ENCODED_CHARLIST', 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ');
 define('UTF8_DECODED_CHARLIST', mb_convert_encoding('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ', 'UTF-8', 'ISO-8859-1'));
-/**
+
+    /**
  *
  */
 if (!function_exists('mb_init')) {

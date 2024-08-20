@@ -10,9 +10,18 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category  Function reference
  * @package   functions
  */
+
+/**
+ * Returns true if the specified string is a version, or false if it is not
+ *
+ * @param string $version The version to be validated
+ *
+ * @return boolean True if the specified $version is an N.N.N version string
+ * @version 2.5.46: Added function and documentation
+ */
+
 
 declare(strict_types=1);
 
@@ -40,16 +49,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
-
-
-/**
- * Returns true if the specified string is a version, or false if it is not
- *
- * @param string $version The version to be validated
- *
- * @return boolean True if the specified $version is an N.N.N version string
- * @version 2.5.46: Added function and documentation
- */
 function is_version(string $version): bool
 {
     $return = preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
@@ -61,6 +60,24 @@ function is_version(string $version): bool
     }
 
     return (bool) $return;
+}
+
+
+/**
+ * Returns if this is a scalar with usable data
+ *
+ * @param mixed $source
+ * @param bool  $allow_null
+ *
+ * @return bool
+ */
+function is_data_scalar(mixed $source, bool $allow_null = false): bool
+{
+    if ($allow_null){
+        return is_string($source) || is_int($source) || is_float($source) || is_null($source);
+    }
+
+    return is_string($source) || is_int($source) || is_float($source);
 }
 
 
@@ -420,6 +437,13 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
                 case 'object':
                     if (is_object($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'enum':
+                    if (is_enum($variable)) {
                         return $variable;
                     }
 
@@ -1025,11 +1049,11 @@ function execute(): ?string
  *
  * @param string $__file
  *
- * @return void
+ * @return mixed
  */
-function execute_hook(string $__file): void
+function execute_hook(string $__file): mixed
 {
-    include($__file);
+    return include($__file);
 }
 
 
