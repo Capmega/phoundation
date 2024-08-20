@@ -12,6 +12,7 @@
  * @package   Phoundation\Utils
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Utils;
@@ -28,6 +29,7 @@ use Phoundation\Notifications\Notification;
 use StephenHill\Base58;
 use Stringable;
 use Throwable;
+
 
 class Strings extends Utils
 {
@@ -449,7 +451,7 @@ class Strings extends Utils
 
 
     /**
-     * Return if specified source is a valid version or not
+     * Return if the specified source is a valid version or not
      *
      * @param Stringable|string $source
      *
@@ -853,8 +855,7 @@ throw new UnderConstructionException();
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   strings
+         * @package   strings
      * @version   2.6.25: Added function and documentation
      * @example
      *            code
@@ -974,8 +975,7 @@ throw new UnderConstructionException();
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   str
+         * @package   str
      * @see       Strings::from()
      * @see       Strings::until()
      * @version   2.0.0: Moved to system library, added documentation
@@ -991,9 +991,9 @@ throw new UnderConstructionException();
      * /code
      *
      */
-    public static function cut(Stringable|string|int|null $source, Stringable|string|int $start, Stringable|string|int $stop): string
+    public static function cut(Stringable|string|int|null $source, Stringable|string|int $start, Stringable|string|int $stop, bool $needles_required = true): string
     {
-        return static::until(static::from($source, $start), $stop);
+        return static::until(static::from($source, $start, needle_required: $needles_required), $stop, needle_required: $needles_required);
     }
 
 
@@ -1455,7 +1455,7 @@ throw new UnderConstructionException();
      * @return string The string, truncated if required, according to the specified truncating rules
      * @see       Strings::truncate()
      */
-    public static function log(mixed $source, int $truncate = 8192, bool $ensure_visible = false): string
+    public static function log(mixed $source, int $truncate = 65536, bool $ensure_visible = false): string
     {
         if ($source === null) {
             if ($ensure_visible) {
@@ -1507,12 +1507,12 @@ throw new UnderConstructionException();
             // Shows something like "Resource #43"
             $source = (string) $source;
 
+        } elseif (is_enum($source)) {
+            $source = $source->value;
+
         } elseif (is_object($source)) {
             // Return the objects class name
             $source = 'object: ' . get_class($source);
-
-        } elseif (is_enum($source)) {
-            $source = $source->value;
 
         } else {
             // Anything else just cast
@@ -2186,7 +2186,7 @@ throw new UnderConstructionException();
             return substr($source, 0, $size);
         }
 
-        // The specified size is larger than the source string, enlarge it. First calculate the amount of filler blocks
+        // The specified size is larger than the source string, enlarge it. First calculate the number of filler blocks
         // and the fraction block
         $fill_size   = $size - $strlen;
         $block_size  = strlen($fill_string);

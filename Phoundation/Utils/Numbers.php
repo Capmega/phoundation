@@ -12,6 +12,7 @@
  * @package   Phoundation\Utils
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Utils;
@@ -20,6 +21,7 @@ use Exception;
 use Phoundation\Core\Exception\NumbersException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
+
 
 class Numbers
 {
@@ -261,7 +263,7 @@ class Numbers
         $amount = (int) ceil((float) $amount);
 
         if ($amount < 0) {
-            throw new OutOfBoundsException(tr('Specified amount of bytes ":bytes" is negative, must be positive', [
+            throw new OutOfBoundsException(tr('Specified number of bytes ":bytes" is negative, must be positive', [
                 ':bytes' => $bytes
             ]));
         }
@@ -276,8 +278,7 @@ class Numbers
      * @return string The step that can be used in the html <input type="number">
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   numbers
+         * @package   numbers
      * @version   2.2.7: Added function and documentation
      * @example
      *            code

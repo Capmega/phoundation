@@ -11,6 +11,7 @@
  * @package   Phoundation\Utils
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Utils;
@@ -30,6 +31,7 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 use Stringable;
 use Throwable;
+
 
 class Json
 {
@@ -311,8 +313,7 @@ class Json
             }
         }
 
-        $data = Arrays::force($data);
-        Json::reply($data, ($result ? $result : 'ERROR'), $http_code);
+        Json::reply(Arrays::force($data), ($result ? $result : 'ERROR'), $http_code);
     }
 
 
@@ -392,7 +393,9 @@ class Json
         if ($source === null) {
             return '';
         }
+
         $return = json_encode($source, $options, $depth);
+
         if (json_last_error()) {
             throw new JsonException(tr('JSON encoding failed with :error', [':error' => json_last_error_msg()]));
         }
@@ -467,7 +470,9 @@ class Json
         if ($source === null) {
             return null;
         }
+
         $return = json_decode($source, $as_array, $depth, $options);
+
         if (json_last_error()) {
             throw new JsonException(tr('JSON decoding failed with ":error"', [':error' => json_last_error_msg()]));
         }
@@ -498,24 +503,30 @@ class Json
                 // We're already done, no need for more!
                 return $source;
             }
+
             $string = $source;
             $array  = static::decode($source, $options, $depth);
+
         } else {
             $array  = $source;
             $string = static::encode($source, $options, $depth);
         }
+
         if ($max_size < 64) {
             throw new OutOfBoundsException(tr('Cannot truncate JSON string to ":size" characters, the minimum is 64 characters', [
                 ':size' => $max_size,
             ]));
         }
+
         while (strlen($string) > $max_size) {
             // Okay, we're over max size
             $keys    = count($source);
             $average = floor((strlen($string) / $keys) - ($keys * 8));
+
             if ($average < 1) {
                 $average = 10;
             }
+
             // Truncate and re-encode the truncated array and check size again
             $array  = Arrays::truncate($array, $average, $fill, $method, $on_word);
             $string = Json::encode($array);

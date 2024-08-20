@@ -11,6 +11,7 @@
  * @package   Phoundation\Utils
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Utils;
@@ -24,6 +25,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Stringable;
 use Throwable;
 use UnitEnum;
+
 
 class Arrays extends Utils
 {
@@ -442,7 +444,7 @@ class Arrays extends Utils
 
 
     /**
-     * Return an array with the specified amount of random key/values from the specified array
+     * Return an array with the specified number of random key/values from the specified array
      *
      * @param array $source
      * @param int   $count
@@ -1623,7 +1625,7 @@ class Arrays extends Utils
     /**
      * Ensures the source is split into an array.
      *
-     * If specified source is an array, the method will assume it has already been split
+     * If specified, source is an array, the method will assume it has already been split
      *
      * @param array|Stringable|string $source
      * @param int                     $length

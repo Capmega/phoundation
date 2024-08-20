@@ -73,7 +73,7 @@ trait TraitVersion
     /**
      * Decreases the major version
      *
-     * @return $this
+     * @return static
      */
     public function decreaseMajor(): static
     {
@@ -91,7 +91,7 @@ trait TraitVersion
     /**
      * Increases the major version
      *
-     * @return $this
+     * @return static
      */
     public function increaseMajor(): static
     {
@@ -109,7 +109,7 @@ trait TraitVersion
     /**
      * Decreases the minor version
      *
-     * @return $this
+     * @return static
      */
     public function decreaseMinor(): static
     {
@@ -127,7 +127,7 @@ trait TraitVersion
     /**
      * Increases the minor version
      *
-     * @return $this
+     * @return static
      */
     public function increaseMinor(): static
     {
@@ -145,7 +145,7 @@ trait TraitVersion
     /**
      * Decreases the revision version
      *
-     * @return $this
+     * @return static
      */
     public function decreaseRevision(): static
     {
@@ -163,7 +163,7 @@ trait TraitVersion
     /**
      * Increases the revision version
      *
-     * @return $this
+     * @return static
      */
     public function increaseRevision(): static
     {

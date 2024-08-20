@@ -3,14 +3,14 @@
 /**
  * Class Version
  *
- * This class is a FsFileFileInterface class specifically for version files
+ * This class handles version files
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
 
 declare(strict_types=1);
 
@@ -20,6 +20,7 @@ use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Utils\Traits\TraitVersion;
+
 
 class Version
 {
@@ -52,6 +53,7 @@ class Version
     {
         $this->file    = new FsFile($file, $restrictions);
         $this->version = $this->file->getContentsAsString();
+
         $this->___construct($this->version);
     }
 

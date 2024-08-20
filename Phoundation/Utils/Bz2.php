@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Class Bz2
  *
@@ -12,6 +10,13 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Utils
  */
+
+
+declare(strict_types=1);
+
+namespace Phoundation\Utils;
+
+
 class Bz2
 {
 

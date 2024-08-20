@@ -11,6 +11,7 @@
  * @package   Phoundation\Utils
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Utils\Exception;

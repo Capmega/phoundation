@@ -13,6 +13,7 @@
  * @package   Phoundation\Utils
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Utils;
@@ -34,6 +35,7 @@ use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
 use Phoundation\Utils\Exception\ConfigParseFailedException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Throwable;
+
 
 class Config implements ConfigInterface
 {

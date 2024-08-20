@@ -4,12 +4,14 @@
  * \Phoundation\Utils\Numbers test class
  */
 
+
 declare(strict_types=1);
 
 namespace Core;
 
 use Phoundation\Utils\Numbers;
 use PHPUnit\Framework\TestCase;
+
 
 class NumbersTest extends TestCase
 {

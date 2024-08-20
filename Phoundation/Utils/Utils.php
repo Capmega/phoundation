@@ -11,6 +11,7 @@
  * @package   Phoundation\Utils
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Utils;
@@ -20,6 +21,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Throwable;
+
 
 class Utils
 {
