@@ -1,15 +1,16 @@
 <?php
 
 /**
- * Class RunFile
+ * Class CliRunFile
  *
  * This class manages run files for Phoundation command processes
  *
- * Phoundation command processes are all commands that are available in the ROOT/system/commands/ directory
+ * Phoundation command processes are all commands that are available in the ROOT/system/cache/commands/ directory
  *
- * Run files are stored as ROOT/system/run/PROCESS/PROCESSID
+ * Run files are stored as ROOT/data/system/run/PROCESS/PROCESSID
  *
- * If PROCESS is "accounts/users/create" with PID 6345 then the run file is ROOT/system/run/accounts/users/create/6345
+ * If PROCESS is "accounts/users/create" with PID 6345 then the run file is
+ * ROOT/data/system/run/phoundation/accounts/users/create/6345
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,11 +18,13 @@
  * @package   Phoundation\Cli
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Cli;
 
 use Phoundation\Cli\Interfaces\CliRunFileInterface;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
@@ -33,6 +36,7 @@ use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Os\Processes\Commands\Ps;
 use Phoundation\Utils\Strings;
+
 
 class CliRunFile extends FsFileCore implements CliRunFileInterface
 {
@@ -72,10 +76,10 @@ class CliRunFile extends FsFileCore implements CliRunFileInterface
      */
     public function __construct(string $command)
     {
-        $this->restrictions = FsRestrictions::new(DIRECTORY_ROOT . 'data/run/', true, 'CliRunFile::__construct()');
+        $this->restrictions = FsRestrictions::new(DIRECTORY_SYSTEM . 'run/', true);
 
         static::$directory = FsDirectory::new(
-            DIRECTORY_ROOT . 'data/run/',
+            DIRECTORY_SYSTEM . 'run/',
             $this->restrictions
         );
 
@@ -214,9 +218,9 @@ showdie($cmd);
                         if ($cmd !== $command) {
                             // The PID exists, but its a different command. Remove the runfile and all PID files
                             FsFile::new($runfile, static::$directory->getRestrictions())
-                                  ->delete(DIRECTORY_DATA . 'run/');
+                                  ->delete(DIRECTORY_SYSTEM . 'run/');
                             FsFile::new(static::$directory . 'pids/' . $pid, static::$directory->getRestrictions())
-                                  ->delete(DIRECTORY_DATA . 'run/pids/');
+                                  ->delete(DIRECTORY_SYSTEM . 'run/pids/');
                         }
                    });
 
@@ -249,7 +253,7 @@ showdie($cmd);
             ':pid' => $pid,
         ]));
 
-        FsFile::new($file, static::$directory->getRestrictions())->delete(DIRECTORY_DATA . 'run/');
+        FsFile::new($file, static::$directory->getRestrictions())->delete(DIRECTORY_SYSTEM . 'run/');
 
         return false;
     }
@@ -372,9 +376,28 @@ showdie($cmd);
 
         // Build PID > MTIME array
         foreach ($pids as $pid) {
-            $return[$pid] = stat((String) $pid)['mtime'];
+            $return[(string) $pid] = stat((String) $pid)['mtime'];
         }
 
         return $return;
+    }
+
+
+    /**
+     * Deletes this run file, but also all run files for all subprocesses
+     *
+     * @param bool|string $clean_path
+     * @param bool        $sudo
+     * @param bool        $escape
+     * @param bool        $use_run_file
+     *
+     * @return static
+     */
+    public function delete(bool|string $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
+    {
+        // Delete all subprocess run files for this PID, then delete this run file
+        FsDirectory::new(DIRECTORY_SYSTEM . 'run/pids/' . Core::getProcessUid(), FsRestrictions::getSystem(true))->delete();
+
+        return parent::delete($clean_path, $sudo, $escape, $use_run_file);
     }
 }

@@ -11,11 +11,13 @@
  * @package   Phoundation\Cli
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Cli\Exception;
 
 use Throwable;
+
 
 class CliArgumentsException extends CliException
 {

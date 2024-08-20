@@ -11,6 +11,7 @@
  * @package   Phoundation\Cli
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Cli;
@@ -23,6 +24,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+
 
 class Cli
 {

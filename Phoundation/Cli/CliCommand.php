@@ -19,6 +19,7 @@
  * @package   Phoundation\Cli
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Cli;
@@ -50,6 +51,7 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
+use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
@@ -57,6 +59,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Requests\Request;
 use Throwable;
+
 
 class CliCommand
 {
@@ -564,6 +567,9 @@ class CliCommand
             system('stty echo');
         }
 
+        // Remove subprocess run directory
+        Process::deleteRunDirectory();
+
         exit($exit_code);
     }
 
@@ -622,7 +628,7 @@ class CliCommand
      * Ensure that the current command file cannot be run twice
      *
      * This function will ensure that the current command file cannot be run twice. In order to do this, it will create
-     * a run file in data/run/SCRIPTNAME with the current process id. If, upon starting, the command file already
+     * a run file in data/system/run/SCRIPTNAME with the current process id. If, upon starting, the command file already
      * exists, it will check if the specified process id is available, and if its process name matches the current
      * command name. If so, then the system can be sure that this command is already running, and the function will
      * throw an exception
@@ -651,7 +657,7 @@ class CliCommand
         static $executed = false;
         throw new UnderConstructionException();
 //        try {
-//            $run_dir = DIRECTORY_ROOT . 'data/run/';
+//            $run_dir = DIRECTORY_ROOT . 'data/system/run/';
 //            $command = $core->register['command'];
 //
 //            FsDirectory::ensure(dirname($run_dir . $command));
@@ -664,7 +670,7 @@ class CliCommand
 //
 //                file_delete([
 //                    'patterns'     => $run_dir . $command,
-//                    'restrictions' => DIRECTORY_ROOT . 'data/run/',
+//                    'restrictions' => DIRECTORY_ROOT . 'data/system/run/',
 //                    'clean_path'   => false,
 //                ]);
 //
@@ -714,12 +720,12 @@ class CliCommand
 //                        }
 //                    }
 //                }
-//                // FsFileFileInterface exists, or contains invalid data, but PID either doesn't exist, or is used by a different
+//                // FsFile exists, or contains invalid data, but PID either doesn't exist, or is used by a different
 //                // process. Remove the PID file
 //                Log::warning(tr('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir . $command]));
 //                file_delete([
 //                    'patterns'     => $run_dir . $command,
-//                    'restrictions' => DIRECTORY_ROOT . 'data/run/',
+//                    'restrictions' => DIRECTORY_ROOT . 'data/system/run/',
 //                    'clean_path'   => false,
 //                ]);
 //            }
@@ -838,7 +844,7 @@ class CliCommand
                 ':path' => $file,
             ]), 3);
             // Rebuild the command cache
-            Libraries::rebuildCommandCache();
+            Libraries::rebuildCommandsCache();
         }
 
         // Is any command specified at all?
@@ -1034,7 +1040,7 @@ class CliCommand
      */
     public static function rebuildCache(): void
     {
-        Libraries::rebuildCommandCache();
+        Libraries::rebuildCommandsCache();
     }
 
 

@@ -11,11 +11,13 @@
  * @package   Phoundation\Cli
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Cli\Exception;
 
 use Phoundation\Exception\OutOfBoundsException;
+
 
 class CliInvalidArgumentsException extends OutOfBoundsException
 {

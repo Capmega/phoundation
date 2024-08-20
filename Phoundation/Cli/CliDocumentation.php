@@ -10,12 +10,14 @@
  * @package   Phoundation\Cli
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Cli;
 
 use Phoundation\Core\Log\Log;
 use Throwable;
+
 
 class CliDocumentation
 {

@@ -13,11 +13,13 @@
  * @package   Phoundation\Cli
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Cli;
 
 use Phoundation\Cli\Exception\CliColorException;
+
 
 class CliColor
 {
