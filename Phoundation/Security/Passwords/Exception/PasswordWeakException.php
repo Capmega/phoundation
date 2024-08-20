@@ -11,12 +11,14 @@
  * @package   Phoundation\Security
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Security\Passwords\Exception;
 
 use Phoundation\Accounts\Users\Exception\UsersException;
 use Throwable;
+
 
 class PasswordWeakException extends UsersException
 {

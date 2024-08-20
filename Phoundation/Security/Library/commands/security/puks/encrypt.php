@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command puks/encrypt
+ * Command puks encrypt
  *
  * This command will encrypt the specified data using the PUKS system
  *
@@ -11,11 +11,13 @@
  * @package   Phoundation\Puks
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Security\Puks\Puks;
+
 
 CliDocumentation::setAutoComplete();
 

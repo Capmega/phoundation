@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command security/non200urls/process
+ * Command security non200urls process
  *
  * This command will process Non HTTP-200 URL's and check for any illicit activities
  *
@@ -11,11 +11,13 @@
  * @package   Phoundation\Security
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Web\Non200Urls\Non200Urls;
+
 
 CliDocumentation::setAutoComplete([
                                       'arguments' => [

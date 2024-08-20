@@ -15,6 +15,7 @@
  *            the incident AND throw the exception
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Security\Incidents;
@@ -32,7 +33,6 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Security\Incidents\Exception\Interfaces\SeverityInterface;
 use Phoundation\Security\Incidents\Interfaces\IncidentInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
@@ -40,6 +40,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
+
 
 class Incident extends DataEntry implements IncidentInterface
 {
@@ -175,14 +176,14 @@ class Incident extends DataEntry implements IncidentInterface
     /**
      * Sets the severity for this object
      *
-     * @param SeverityInterface|string $severity
+     * @param EnumSeverity|string $severity
      *
      * @return static
      */
-    public function setSeverity(SeverityInterface|string $severity): static
+    public function setSeverity(EnumSeverity|string $severity): static
     {
         if (is_string($severity)) {
-            $severity = Severity::from($severity);
+            $severity = EnumSeverity::from($severity);
         }
 
         return $this->set($severity->value, 'severity');
@@ -190,7 +191,7 @@ class Incident extends DataEntry implements IncidentInterface
 
 
     /**
-     * Saves the incident to a database
+     * Saves the incident to the database
      *
      * @param bool        $force
      * @param string|null $comments
@@ -271,7 +272,7 @@ class Incident extends DataEntry implements IncidentInterface
      */
     public function getSeverity(): string
     {
-        return $this->getTypesafe('string', 'severity', Severity::unknown->value);
+        return $this->getTypesafe('string', 'severity', EnumSeverity::unknown->value);
     }
 
 
@@ -315,11 +316,11 @@ class Incident extends DataEntry implements IncidentInterface
                                     ->setSize(6)
                                     ->setMaxlength(6)
                                     ->setDataSource([
-                                        Severity::notice->value => tr('Notice'),
-                                        Severity::low->value    => tr('Low'),
-                                        Severity::medium->value => tr('Medium'),
-                                        Severity::high->value   => tr('High'),
-                                        Severity::severe->value => tr('Severe'),
+                                        EnumSeverity::notice->value => tr('Notice'),
+                                        EnumSeverity::low->value    => tr('Low'),
+                                        EnumSeverity::medium->value => tr('Medium'),
+                                        EnumSeverity::high->value   => tr('High'),
+                                        EnumSeverity::severe->value => tr('Severe'),
                                     ]))
 
                     ->add(Definition::new($this, 'title')

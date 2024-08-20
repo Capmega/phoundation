@@ -11,6 +11,7 @@
  * @package   Phoundation\Security
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Security\Incidents\Exception;
@@ -19,6 +20,7 @@ use Phoundation\Data\Traits\TraitDataNewTarget;
 use Phoundation\Security\Exception\SecurityException;
 use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
 use Throwable;
+
 
 class IncidentsException extends SecurityException implements IncidentsExceptionInterface
 {

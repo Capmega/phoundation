@@ -11,11 +11,13 @@
  * @package   Phoundation\Security
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Security\Exception;
 
 use Phoundation\Exception\Exception;
+
 
 class SecurityException extends Exception
 {

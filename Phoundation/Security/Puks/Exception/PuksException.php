@@ -11,11 +11,13 @@
  * @package   Phoundation\Security
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Puks\Exception;
 
 use Phoundation\Exception\Exception;
+
 
 class PuksException extends Exception
 {

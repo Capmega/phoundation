@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Security\Incidents\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Security\Incidents\Exception\Interfaces\SeverityInterface;
 use Phoundation\Security\Incidents\Incident;
+use Phoundation\Security\Incidents\EnumSeverity;
+
 
 interface IncidentInterface
 {
@@ -67,11 +68,11 @@ interface IncidentInterface
     /**
      * Sets the severity for this object
      *
-     * @param SeverityInterface|string $severity
+     * @param EnumSeverity|string $severity
      *
      * @return static
      */
-    public function setSeverity(SeverityInterface|string $severity): static;
+    public function setSeverity(EnumSeverity|string $severity): static;
 
 
     /**

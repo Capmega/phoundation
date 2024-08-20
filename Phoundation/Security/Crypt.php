@@ -11,6 +11,7 @@
  * @package   Phoundation\Security
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Security;
@@ -20,6 +21,7 @@ use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+
 
 class Crypt
 {

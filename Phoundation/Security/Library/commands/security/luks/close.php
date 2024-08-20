@@ -11,11 +11,13 @@
  * @package Phoundation\Security
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Security\Luks\Device;
+
 
 CliDocumentation::setUsage('./pho security luks close -d DEVICE
 echo PASSWORD | ./pho security luks close -d DEVICE');

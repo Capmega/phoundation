@@ -11,6 +11,7 @@
  * @package Phoundation\Security
  */
 
+
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
@@ -20,6 +21,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Security\Luks\Device;
+
 
 CliDocumentation::setUsage('./pho security luks open -f FILE -d DEVICE
 echo PASSWORD | ./pho security luks open -f FILE -d DEVICE');

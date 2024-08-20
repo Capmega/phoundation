@@ -36,6 +36,7 @@ use Phoundation\Security\Luks\Exception\LuksNoOpenDeviceException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
+
 class Device extends FsFile
 {
     /**
@@ -476,7 +477,7 @@ class Device extends FsFile
     /**
      * Checks if a path has been specified
      *
-     * @return $this
+     * @return static
      */
     protected function luksCheckPath(): static
     {
@@ -491,7 +492,7 @@ class Device extends FsFile
     /**
      * Checks if a device has been specified
      *
-     * @return $this
+     * @return static
      */
     protected function luksCheckDevice(): static
     {

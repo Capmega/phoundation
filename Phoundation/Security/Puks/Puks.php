@@ -11,6 +11,7 @@
  * @package   Phoundation\Security
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Security\Puks;
@@ -18,6 +19,7 @@ namespace Phoundation\Security\Puks;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Puks\Exception\PuksException;
 use Phoundation\Utils\Json;
+
 
 class Puks
 {
@@ -37,7 +39,7 @@ class Puks
     public function __construct(string $user_key)
     {
         if (
-            !Session::getUser()
+            !Session::getUserObject()
                     ->getId()
         ) {
             throw new PuksException(tr('Puks security is only available for registered users'));
@@ -98,7 +100,7 @@ class Puks
     protected function getKey(): ?string
     {
         $key = sql()->getColumn('SELECT `key` FROM `security_puks_keys` WHERE `created_by` = :created_by', [
-            ':created_by' => Session::getUser()
+            ':created_by' => Session::getUserObject()
                                     ->getId(),
         ]);
         if ($key) {

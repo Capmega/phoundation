@@ -11,11 +11,13 @@
  * @package   Phoundation\Security
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Security\Luks\Exception;
 
 use Phoundation\Security\Exception\SecurityException;
+
 
 class LuksException extends SecurityException
 {

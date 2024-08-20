@@ -13,12 +13,14 @@
  * @package   Phoundation\Security
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Security\Incidents;
 
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+
 
 class Incidents extends DataIterator
 {
@@ -47,11 +49,11 @@ class Incidents extends DataIterator
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the class for a single DataEntry in this Iterator object
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Incident::class;
     }
