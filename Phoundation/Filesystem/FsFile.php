@@ -42,7 +42,7 @@ class FsFile extends FsFileCore
     {
         $directory = FsDirectory::getTemporaryObject($public, $persist);
         $name      = ($name ?? Strings::getUuid());
-        $file      = static::new($directory->getSource() . $name, FsRestrictions::getWritable($directory->getSource() . $name, tr('persistent temporary file')));
+        $file      = static::new($directory->getSource() . $name, FsRestrictions::getWritable($directory->getSource() . $name));
 
         if ($create) {
             $file->create();

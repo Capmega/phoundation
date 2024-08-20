@@ -14,6 +14,8 @@
 namespace Phoundation\Filesystem\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Date\DateTime;
+use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Filesystem\Enums\EnumExtensionMode;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
@@ -378,11 +380,31 @@ interface FsPathInterface extends Stringable
     public function getTypeName(): string;
 
     /**
-     * Returns the stat data for the object file
+     * Returns all the stat data for the object file, or if key is specified, the value for said key
      *
-     * @return array
+     * $key can have one of the following values. If a different value is specified, an OutOfBoundsException will be
+     * thrown
+     *
+     * 0  dev     device number ***
+     * 1  ino     inode number ****
+     * 2  mode    inode protection mode *****
+     * 3  nlink   number of links
+     * 4  uid     userid of owner *
+     * 5  gid     groupid of owner *
+     * 6  rdev    device type, if inode device
+     * 7  size    size in bytes
+     * 8  atime   time of last access (Unix timestamp)
+     * 9  mtime   time of last modification (Unix timestamp)
+     * 10 ctime   time of last inode change (Unix timestamp)
+     * 11 blksize blocksize of filesystem IO **
+     * 12 blocks  number of 512-byte blocks allocated **
+     *
+     * @param string|null $key
+     *
+     * @return array|int
+     * @throws Throwable
      */
-    public function getStat(): array;
+    public function getStat(?string $key = null): array|int;
 
     /**
      * Update the object file owner and group
@@ -1162,4 +1184,25 @@ interface FsPathInterface extends Stringable
      * @return static
      */
     public function checkReadAccess(?Throwable $e = null): static;
+
+    /**
+     * Returns the mtime (file access time) for this path
+     *
+     * @return DateTimeInterface
+     */
+    public function getAtime(): DateTimeInterface;
+
+    /**
+     * Returns the mtime (file modification time) for this path
+     *
+     * @return DateTimeInterface
+     */
+    public function getMtime(): DateTimeInterface;
+
+    /**
+     * Returns the ctime (inode change time of file) for this path
+     *
+     * @return DateTimeInterface
+     */
+    public function getCtime(): DateTimeInterface;
 }

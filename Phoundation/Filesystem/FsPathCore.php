@@ -24,6 +24,8 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Date\DateTime;
+use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
@@ -1682,23 +1684,62 @@ class FsPathCore implements FsPathInterface
 
 
     /**
-     * Returns the stat data for the object file
+     * Returns all the stat data for the object file, or if key is specified, the value for said key
      *
-     * @return array
+     * $key can have one of the following values. If a different value is specified, an OutOfBoundsException will be
+     * thrown
+     *
+     * 0  dev     device number ***
+     * 1  ino     inode number ****
+     * 2  mode    inode protection mode *****
+     * 3  nlink   number of links
+     * 4  uid     userid of owner *
+     * 5  gid     groupid of owner *
+     * 6  rdev    device type, if inode device
+     * 7  size    size in bytes
+     * 8  atime   time of last access (Unix timestamp)
+     * 9  mtime   time of last modification (Unix timestamp)
+     * 10 ctime   time of last inode change (Unix timestamp)
+     * 11 blksize block size of filesystem IO **
+     * 12 blocks  number of 512-byte blocks allocated **
+     *
+     * @param string|null $key
+     *
+     * @return array|int
+     * @throws Throwable
      */
-    public function getStat(): array
+    public function getStat(?string $key = null): array|int
     {
         // Check filesystem restrictions
         $this->checkRestrictions(false);
 
         try {
             $stat = stat($this->source);
+
             if ($stat) {
+                if ($key) {
+                    if (array_key_exists($key, $stat)) {
+                        return $stat[$key];
+                    }
+
+                    throw new OutOfBoundsException(tr('Specified stat key ":key" does not exist for file ":file"', [
+                        ':key'  => $key,
+                        ':file' => $this->source,
+                    ]));
+                }
+
                 return $stat;
             }
 
-            return [];
+            throw new FilesystemException(tr('Failed to read stat data for file ":file"', [
+                ':file' => $this->source,
+            ]));
+
         } catch (Throwable $e) {
+            if ($e instanceof OutOfBoundsException) {
+                throw $e;
+            }
+
             $this->checkReadable(null, $e);
             // static::checkReadable() will have thrown an exception, but throw this anyway just to be sure
             throw $e;
@@ -1905,7 +1946,7 @@ class FsPathCore implements FsPathInterface
      */
     public static function realPath(string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string
     {
-        $real = FsPath::new($path, FsRestrictions::getWritable('/'))->makeAbsolute($absolute_prefix, $must_exist);
+        $real = FsPath::new($path, FsRestrictions::getWritable($path))->makeAbsolute($absolute_prefix, $must_exist);
 
         if ($real->isOnDomain()) {
             // This is a domain:/file URL, we can't make this real
@@ -4255,6 +4296,39 @@ class FsPathCore implements FsPathInterface
     public function isOnDomain(): bool
     {
         return static::onDomain($this->source);
+    }
+
+
+    /**
+     * Returns the mtime (file access time) for this path
+     *
+     * @return DateTimeInterface
+     */
+    public function getAtime(): DateTimeInterface
+    {
+        return DateTime::new()->setTimestamp($this->getStat('atime'));
+    }
+
+
+    /**
+     * Returns the mtime (file modification time) for this path
+     *
+     * @return DateTimeInterface
+     */
+    public function getMtime(): DateTimeInterface
+    {
+        return DateTime::new()->setTimestamp(filemtime($this->source));
+    }
+
+
+    /**
+     * Returns the ctime (inode change time of file) for this path
+     *
+     * @return DateTimeInterface
+     */
+    public function getCtime(): DateTimeInterface
+    {
+        return DateTime::new()->setTimestamp(filemtime($this->source));
     }
 
 

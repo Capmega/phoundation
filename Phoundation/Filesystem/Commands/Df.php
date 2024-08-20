@@ -119,7 +119,7 @@ class Df extends Command
 
         foreach ($results as $filesystem => $result) {
             if (str_starts_with($filesystem, '/dev/')) {
-                $filesystem = FsFile::new($filesystem, FsRestrictions::getReadonly('/dev/', 'Df::getResults()'))
+                $filesystem = FsFile::new($filesystem, FsRestrictions::getReadonly('/dev/'))
                                     ->followLink(true)
                                     ->getSource();
             }

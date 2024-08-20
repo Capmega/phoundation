@@ -66,35 +66,39 @@ class FsUploadedFile extends FsFileCore implements FsUploadedFileInterface
         // Process errors
         if ($source->getError()) {
             throw new FileUploadException(tr('Upload of file ":file" failed because ":e"', [
-                ':e'    => $this->getUploadErrorMessage($source['error']),
-                ':file' => $source['name']
+                ':e'    => $source->getUploadErrorMessage(),
+                ':file' => $source->getError()
             ]));
         }
 
         // Verify the size and mimetype
-        if ($this->getSize() != $source['size']) {
+        if ($this->getSize() != $source->getSize()) {
             throw new FileUploadException(tr('Upload of file ":file" failed because found file size ":size" does not match indicated file size ":indicated"', [
-                ':file'      => $source['name'],
-                ':size'      => $source['size'],
+                ':file'      => $source->getName(),
+                ':size'      => $source->getSize(),
                 ':indicated' => $this->getSize()
             ]));
         }
 
-        if ($this->getMimetype() != $source['type']) {
+        if ($this->getMimetype() != $source->getType()) {
             // Fix the mimetype. If the new filetype is not supported, it will be ignored anyway
             Incident::new()
                     ->setSeverity(EnumSeverity::medium)
                     ->setTitle(tr('Uploaded file ":file" was specified as mimetype ":indicated" but has mimetype ":detected", correcting mimetype to what was detected', [
-                        ':file'      => $source['name'],
-                        ':indicated' => $source['type'],
+                        ':file'      => $source->getName(),
+                        ':indicated' => $source->getType(),
                         ':detected'  => $this->getMimetype()
                     ]))
+                    ->setDetails([
+                        'file'       => $source->getSource(),
+                    ])
                     ->save();
 
-            $source->setError($this->getError() . ' / ' . tr('Fixed mimetype from indicated ":indicated" to detected ":detected"', [
-                ':indicated' => $source['type'],
+            // Add the comment to the Upload object too
+            $source->addComment($this->getError() . ' / ' . tr('Fixed mimetype from indicated ":indicated" to detected ":detected"', [
+                ':indicated' => $source->getType(),
                 ':detected'  => $this->getMimetype()
-            ]));
+            ]))->save();
         }
 
         // Move the uploaded file to the Phoundation temporary directory
@@ -172,30 +176,6 @@ class FsUploadedFile extends FsFileCore implements FsUploadedFileInterface
     public function getRealName(): string
     {
         return $this->real_name;
-    }
-
-
-    /**
-     * Returns the error message for the specified error code
-     *
-     * @param int $error
-     *
-     * @return string
-     */
-    protected function getUploadErrorMessage(int $error): string
-    {
-        return match ($error) {
-            UPLOAD_ERR_OK         => tr('There is no error, the file uploaded with success'),
-            UPLOAD_ERR_INI_SIZE   => tr('The uploaded file exceeds the upload_max_filesize directive with value ":value" in php.ini', [
-                ':value' => ini_get('upload_max_filesize')
-            ]),
-            UPLOAD_ERR_FORM_SIZE  => tr('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form'),
-            UPLOAD_ERR_PARTIAL    => tr('The uploaded file was only partially uploaded'),
-            UPLOAD_ERR_NO_FILE    => tr('No file was uploaded'),
-            UPLOAD_ERR_NO_TMP_DIR => tr('Missing a temporary folder'),
-            UPLOAD_ERR_CANT_WRITE => tr('Failed to write file to disk'),
-            UPLOAD_ERR_EXTENSION  => tr('A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help')
-        };
     }
 }
 

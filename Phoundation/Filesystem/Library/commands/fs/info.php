@@ -22,7 +22,7 @@ use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\FsRestrictions;
 
 
-$restrictions = FsRestrictions::getReadonly('/', 'command fs info');
+$restrictions = FsRestrictions::getReadonly('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [

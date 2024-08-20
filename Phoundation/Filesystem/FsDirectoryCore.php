@@ -57,18 +57,32 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     }
 
     /**
-     * Temporary directory (public data), if set
+     * Temporary process  directory (public data), if set
      *
-     * @var FsDirectoryInterface|null $temp_directory_private
+     * @var FsDirectoryInterface|null $process_temporary_private
      */
-    protected static ?FsDirectoryInterface $temp_directory_private = null;
+    protected static ?FsDirectoryInterface $process_temporary_private = null;
 
     /**
-     * Temporary directory (private data), if set
+     * Temporary process directory (private data), if set
      *
-     * @var FsDirectoryInterface|null $temp_directory_public
+     * @var FsDirectoryInterface|null $process_temporary_public
      */
-    protected static ?FsDirectoryInterface $temp_directory_public = null;
+    protected static ?FsDirectoryInterface $process_temporary_public = null;
+
+    /**
+     * Temporary session directory (public data), if set
+     *
+     * @var FsDirectoryInterface|null $session_temporary_private
+     */
+    protected static ?FsDirectoryInterface $session_temporary_private = null;
+
+    /**
+     * Temporary session directory (private data), if set
+     *
+     * @var FsDirectoryInterface|null $session_temporary_public
+     */
+    protected static ?FsDirectoryInterface $session_temporary_public = null;
 
 
     /**
@@ -82,7 +96,19 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public static function getProcessTemporaryPath(bool $public = false): FsDirectoryInterface
     {
-        return static::getTemporaryPath(Core::getLocalId(), $public);
+        if ($public) {
+            if (empty(static::$process_temporary_public)) {
+                static::$process_temporary_public = static::getTemporaryPath(Core::getLocalId(), $public);
+            }
+
+            return static::$process_temporary_public;
+        }
+
+        if (empty(static::$process_temporary_private)) {
+            static::$process_temporary_private = static::getTemporaryPath(Core::getLocalId(), $public);
+        }
+
+        return static::$process_temporary_private;
     }
 
 
@@ -97,7 +123,19 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public static function getSessionTemporaryPath(bool $public = false): FsDirectoryInterface
     {
-        return static::getTemporaryPath(Session::getUUID(), $public);
+        if ($public) {
+            if (empty(static::$session_temporary_public)) {
+                static::$session_temporary_public = static::getTemporaryPath(Session::getUUID(), $public);
+            }
+
+            return static::$session_temporary_public;
+        }
+
+        if (empty(static::$session_temporary_private)) {
+            static::$session_temporary_private = static::getTemporaryPath(Session::getUUID(), $public);
+        }
+
+        return static::$session_temporary_private;
     }
 
 
@@ -106,41 +144,23 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      *
      * The temporary directory returned will always be the same within one session
      *
-     * @param bool $public
+     * @param string $identifier
+     * @param bool   $public
      *
      * @return FsDirectoryInterface
      */
     protected static function getTemporaryPath(string $identifier, bool $public = false): FsDirectoryInterface
     {
-        if ($public) {
-            // Return public temp directory
-            if (empty(static::$temp_directory_public)) {
-                // Initialize public temp directory first
-                $path                          = DIRECTORY_PUBTMP . $identifier;
-                static::$temp_directory_public = static::new($path, FsRestrictions::getWritable($path))
-                    ->delete()
-                    ->ensure();
+        // Initialize private temp directory and return
+        $path = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $identifier;
+        $path = FsDirectory::new($path, FsRestrictions::getWritable($path))
+                           ->delete()
+                           ->ensure();
 
-                // Put lock file to avoid delete directory auto cleanup removing this session directory
-                touch(static::$temp_directory_public->getSource() . '.lock');
-            }
+        // Put lock file to avoid delete directory auto cleanup removing this temporary directory
+        $path->addFile('.lock')->touch();
 
-            return static::$temp_directory_public;
-        }
-
-        // Return private temp directory
-        if (empty(static::$temp_directory_private)) {
-            // Initialize private temp directory first
-            $path                           = DIRECTORY_TMP . $identifier;
-            static::$temp_directory_private = static::new($path, FsRestrictions::getWritable($path))
-                ->delete()
-                ->ensure();
-
-            // Put lock file to avoid delete directory auto cleanup removing this session directory
-            touch(static::$temp_directory_private->getSource() . '.lock');
-        }
-
-        return static::$temp_directory_private;
+        return $path;
     }
 
 
@@ -156,23 +176,41 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         Core::ExecuteIfNotInTestMode(function () {
             $action = false;
 
-            if (static::$temp_directory_private) {
-                FsFile::new(static::$temp_directory_private, FsRestrictions::new(DIRECTORY_TMP, true))
-                    ->delete();
+            if (static::$process_temporary_private) {
+                FsFile::new(static::$process_temporary_private, FsRestrictions::new(DIRECTORY_TMP, true))
+                      ->delete();
+
                 $action = true;
             }
 
-            if (static::$temp_directory_public) {
-                FsFile::new(static::$temp_directory_public, FsRestrictions::new(DIRECTORY_PUBTMP, true))
-                    ->delete();
+            if (static::$process_temporary_public) {
+                FsFile::new(static::$process_temporary_public, FsRestrictions::new(DIRECTORY_PUBTMP, true))
+                      ->delete();
+
+                $action = true;
+            }
+
+            if (static::$session_temporary_public) {
+                FsFile::new(static::$session_temporary_public, FsRestrictions::new(DIRECTORY_TMP, true))
+                      ->delete();
+
+                $action = true;
+            }
+
+            if (static::$session_temporary_private) {
+                FsFile::new(static::$session_temporary_private, FsRestrictions::new(DIRECTORY_PUBTMP, true))
+                      ->delete();
+
                 $action = true;
             }
 
             return $action;
 
-        }, tr('Cleaned up temporary directories: private ":private" and public ":public"', [
-            ':private' => not_empty(Strings::from(static::$temp_directory_private, DIRECTORY_ROOT), '-'),
-            ':public'  => not_empty(Strings::from(static::$temp_directory_public, DIRECTORY_ROOT), '-'),
+        }, tr('Cleaned up temporary directories: private ":process_private", ":session_private" and public ":process_public", ":session_public"', [
+            ':process_private' => not_empty(Strings::from(static::$process_temporary_private, DIRECTORY_ROOT), '-'),
+            ':process_public'  => not_empty(Strings::from(static::$process_temporary_public , DIRECTORY_ROOT), '-'),
+            ':session_private' => not_empty(Strings::from(static::$session_temporary_private, DIRECTORY_ROOT), '-'),
+            ':session_public'  => not_empty(Strings::from(static::$session_temporary_public , DIRECTORY_ROOT), '-'),
         ]));
     }
 
@@ -1219,7 +1257,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                     }
 
                     // Add the file for the found match and continue to the next file
-                    $file = $this->source . $file;
+                    $file          = $this->source . $file;
                     $return[$file] = $file;
 
                     break;
@@ -1406,7 +1444,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function mount(Stringable|string|null $source, ?string $filesystem = null, ?array $options = null): static
     {
-        FsMounts::mount(FsFile::new($source, FsRestrictions::getReadonly($source, 'FsDirectoryCore::mount()')), $this,
+        FsMounts::mount(FsFile::new($source, FsRestrictions::getReadonly($source)), $this,
                         $filesystem, $options);
 
         return $this;

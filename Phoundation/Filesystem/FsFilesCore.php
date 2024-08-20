@@ -16,7 +16,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFilesInterface;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
@@ -37,6 +40,19 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
      * @var FsDirectoryInterface|null
      */
     protected FsDirectoryInterface|null $parent_directory = null;
+
+
+    /**
+     * @param IteratorInterface|array|string|PDOStatement|null $source
+     * @param array|null                                       $execute
+     *
+     * @return $this
+     */
+    public function setSource(IteratorInterface|array|string|PDOStatement|null $source = null, ?array $execute = null): static
+    {
+        parent::setSource($source);
+        return $this->init();
+    }
 
 
     /**
@@ -117,53 +133,93 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
 
 
     /**
-     * Returns the current file
-     *
-     * @return FsPathInterface
+     * @inheritDoc
      */
     #[ReturnTypeWillChange] public function current(): FsPathInterface
     {
-        $current = current($this->source);
+        return parent::current();
+    }
 
-        if (is_string($current)) {
-            while (true) {
-                switch ($current) {
+
+    /**
+     * @inheritDoc
+     */
+    #[ReturnTypeWillChange] public function get(Stringable|int|string $key, bool $exception = true): FsPathInterface
+    {
+        return parent::get($key, $exception);
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    #[ReturnTypeWillChange] public function getFirstValue(): FsPathInterface
+    {
+        return parent::getFirstValue();
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    #[ReturnTypeWillChange] public function getLastValue(): FsPathInterface
+    {
+        return parent::getLastValue();
+    }
+
+
+    /**
+     * Initializes the source files, ensures all files are FsPathInterface objects
+     *
+     * @return static
+     */
+    protected function init(): static
+    {
+        foreach ($this->source as $key => &$file) {
+            if (is_string($file)) {
+                switch ($file) {
                     case '.':
                         // No break
 
                     case '..':
                         // Skip the "." and ".." directories
-                        $this->next();
-                        $current = current($this->source);
-                        break;
-
-                    default:
-                        break 2;
+                        unset($this->source[$key]);
+                        continue 2;
                 }
+
+                if (!str_starts_with($file, '/')) {
+                    // Prefix the file with the parent path ONLY IF it's not absolute and a parent was specified
+                    $file = $this->parent_directory?->getSource() . $file;
+                }
+
+                if (is_dir($file)) {
+                    $file = FsDirectory::new($file, $this->restrictions);
+
+                } elseif (file_exists($file)) {
+                    $file = FsFile::new($file, $this->restrictions);
+
+                } else {
+                    // Non-existing file, just return the path
+                    $file = FsPath::new($file, $this->restrictions);
+                }
+
+                continue;
             }
 
-            if (!str_starts_with($current, '/')) {
-                // Prefix the file with the parent path ONLY IF it's not absolute and a parent was specified
-                $current = $this->parent_directory?->getSource() . $current;
+            if ($file instanceof FsPathInterface) {
+                // Ensure $file is an absolute path
+                $file->makeAbsolute($this->parent_directory?->getSource(), false);
+                continue;
             }
 
-            if (is_dir($current)) {
-                return FsDirectory::new($current, $this->restrictions);
-            }
-
-            if (file_exists($current)) {
-                return FsFile::new($current, $this->restrictions);
-            }
-
-            // Non-existing file, just return the path
-            return FsPath::new($current, $this->restrictions);
+            throw new OutOfBoundsException(tr('Iterator ":class" key ":key" contains unsupported data ":data"', [
+                'class' => get_class($this),
+                'key'   => $key,
+                'data'  => $file,
+            ]));
         }
 
-        // The file is already stored in an FsPathInterface object
-        $file = current($this->source);
-        $file->makeAbsolute($this->parent_directory?->getSource(), false);
-
-        return $file;
+        return $this;
     }
 
 

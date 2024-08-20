@@ -23,7 +23,7 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Numbers;
 
 
-$restrictions = FsRestrictions::getReadonly('/', 'command fs size');
+$restrictions = FsRestrictions::getReadonly('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [

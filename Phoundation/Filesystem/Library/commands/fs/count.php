@@ -21,7 +21,7 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 
 
-$restrictions = FsRestrictions::getReadonly('/', 'command fs count');
+$restrictions = FsRestrictions::getReadonly('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [

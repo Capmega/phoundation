@@ -130,7 +130,7 @@ class Mounts extends DataIterator implements MountsInterface
     protected static function listMounts(string $key): static
     {
         $return = static::new();
-        $mounts = FsFile::new('/proc/mounts', FsRestrictions::getReadonly('/proc/', 'FsMounts::ListMounts()'))
+        $mounts = FsFile::new('/proc/mounts', FsRestrictions::getReadonly('/proc/'))
                         ->getContentsAsArray();
 
         foreach ($mounts as $mount) {

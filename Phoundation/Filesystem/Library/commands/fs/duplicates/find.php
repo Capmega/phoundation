@@ -22,7 +22,7 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 
 
-$restrictions = FsRestrictions::getReadonly('/', 'command fs duplicates find');
+$restrictions = FsRestrictions::getReadonly('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [
