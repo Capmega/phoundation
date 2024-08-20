@@ -234,7 +234,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * @param bool|null                                $meta_enabled
      * @param bool                                     $init
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = false)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
         if (!isset($this->meta_columns)) {
             $this->meta_columns = static::getDefaultMetaColumns();
@@ -1232,7 +1232,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         if (is_array($identifier)) {
             // Filter on multiple columns, multi column filter always pretends filtered column was id column
             static::buildManualQuery($identifier, $where, $joins, $group, $order, $execute);
-            $column  = static::getIdColumn();
 
         } else {
             // For single column queries, determine the column we should use
@@ -1262,8 +1261,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         // If this is a new entry, assign the identifier by default (NOT id though, since that is a DB identifier
         // meaning that it would HAVE to exist!)
-        if ($this->isNew() and $column !== static::getIdColumn()) {
-            $this->setColumnValueWithObjectSetter($column, $identifier, false, $this->definitions->get($column));
+        if (is_array($identifier)) {
+            if ($this->isNew()) {
+                foreach ($identifier as $column => $value) {
+                    if ($column !== static::getIdColumn()) {
+                        $this->setColumnValueWithObjectSetter($column, $value, false, $this->definitions->get($column));
+                    }
+                }
+            }
+
+        } else {
+            if ($this->isNew() and $column !== static::getIdColumn()) {
+                $this->setColumnValueWithObjectSetter($column, $identifier, false, $this->definitions->get($column));
+            }
         }
     }
 

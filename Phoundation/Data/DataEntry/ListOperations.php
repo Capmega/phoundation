@@ -68,7 +68,7 @@ class ListOperations implements ListOperationsInterface
         $count = 0;
         foreach (Arrays::force($ids) as $id) {
             $count++;
-            $entry = $this->parent::getEntryClass()::new($id, 'id');
+            $entry = $this->parent::getEntryClass()::new($id);
             $entry->setStatus($status);
         }
 
@@ -102,7 +102,7 @@ class ListOperations implements ListOperationsInterface
         // Delete the meta data entries
         foreach (Arrays::force($ids) as $id) {
             $count++;
-            $entry = $this->parent::getEntryClass()::new($id, 'id');
+            $entry = $this->parent::getEntryClass()::new($id);
             $entry->erase();
         }
 

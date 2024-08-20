@@ -71,31 +71,41 @@ trait TraitDataEntryNameLowercaseDash
     /**
      * Converts the given string to lowercase, dash separated string by replacing spaces and underscores to dashes
      *
-     * @param DataEntryInterface|string|int|null $source
+     * @param array|DataEntryInterface|string|int|null $identifier
      *
-     * @return DataEntryInterface|string|int|null
+     * @return array|DataEntryInterface|string|int|null
      */
-    protected static function convertToLowerCaseDash(DataEntryInterface|string|int|null $source): DataEntryInterface|string|int|null
+    protected static function convertToLowerCaseDash(array|DataEntryInterface|string|int|null $identifier): array|DataEntryInterface|string|int|null
     {
-        if (!$source) {
+        if (!$identifier) {
             // NULL or "", return it
-            return $source;
+            return $identifier;
         }
 
-        if (is_numeric($source)) {
+        if (is_numeric($identifier)) {
             // This is a database id, return it
-            return $source;
+            return $identifier;
         }
 
-        if ($source instanceof DataEntryInterface) {
+        if (is_array($identifier)) {
+            // This is an array identifier.
+            if (array_key_exists('name', $identifier)) {
+                $identifier['name'] = strtolower($identifier['name']);
+                $identifier['name'] = str_replace([' ', '_'], '-', $identifier['name']);
+            }
+
+            return $identifier;
+        }
+
+        if ($identifier instanceof DataEntryInterface) {
             // This is a DataEntry object, return it
-            return $source;
+            return $identifier;
         }
 
-        $source = strtolower($source);
-        $source = str_replace([' ', '_'], '-', $source);
+        $identifier = strtolower($identifier);
+        $identifier = str_replace([' ', '_'], '-', $identifier);
 
-        return $source;
+        return $identifier;
     }
 
 
