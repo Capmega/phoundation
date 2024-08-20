@@ -149,15 +149,19 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         parent::__construct($message, 0, $previous);
 
         // Log all exceptions EXCEPT LogExceptions as those can cause endless loops
-        if ($this instanceof LogException) {
-            Log::warning('Exception: ' . $message, 2, echo_screen: !CliAutoComplete::isActive());
-        }
+        if (!$this instanceof LogException) {
+            if (Debug::isEnabled()) {
+                if (Config::getBoolean('debug.exceptions.log.auto.enabled', true)) {
+                    if (Config::getBoolean('debug.exceptions.log.auto.full', true)) {
+                        Log::error($this, 2);
 
-        if (Debug::isEnabled()) {
-            if (Config::getBoolean('debug.exceptions.auto.full', true)) {
-                Log::error($this, 2);
+                    } else {
+                        Log::warning('Exception: ' . $message, 2, echo_screen: !CliAutoComplete::isActive());
+                    }
+                }
             }
         }
+
 // print_r($this); die();
     }
 
