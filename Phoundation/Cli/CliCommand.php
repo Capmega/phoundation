@@ -224,7 +224,7 @@ class CliCommand
 
         // Execute the command and finish execution
         try {
-            Request::setRestrictions(FsRestrictions::getReadonly(DIRECTORY_COMMANDS, 'CLI command execution'));
+            Request::setRestrictions(FsRestrictions::getReadonly(DIRECTORY_COMMANDS));
             Request::execute(static::$command . '.php');
 
         } catch (SqlNoTimezonesException $e) {
