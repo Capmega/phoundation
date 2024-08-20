@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
@@ -19,10 +20,13 @@ use Phoundation\Accounts\Users\Password;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Utils\Strings;
+
 
 class Validate
 {
     use TraitDataMaxStringSize;
+
 
     /**
      * The source data that will be validated
@@ -256,28 +260,32 @@ class Validate
     /**
      * Validates if the selected field is a valid version number
      *
-     * @param int  $characters
-     * @param bool $allow_post If true, the version "post" will be allowed as a valid version
+     * @param int|null $characters
+     * @param bool     $allow_post_versions If true, the versions "post_once" and "post_always" will be allowed as a
+     *                                      valid version
      *
      * @return static
      */
-    public function isVersion(int $characters = 11, bool $allow_post = false): static
+    public function isVersion(?int $characters = 11, bool $allow_post_versions = false): static
     {
         $this->hasMaxCharacters($characters);
-        if (!preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}/', $this->source)) {
+
+        if (!Strings::isVersion($this->source)) {
             switch ($this->source) {
                 case 'post_once':
                     // no break
+
                 case 'post_always':
-                    if ($allow_post) {
+                    if ($allow_post_versions) {
                         break;
                     }
+
                 // no break
                 default:
                     throw new ValidationFailedException(tr('The specified value must contain a valid version number'));
             }
 
-            // This is a valid "post" version, and it's allowed. Continue!
+            // This is considered a valid version, and it's allowed. Continue!
         }
 
         return $this;
@@ -371,12 +379,14 @@ class Validate
     {
         // This value must be scalar
         $this->isScalar();
+
         if ($regex) {
             if (!preg_match($string, $this->source)) {
                 throw new ValidationFailedException(tr('The specified value must match regex ":value"', [
                     ':value' => $string,
                 ]));
             }
+
         } else {
             if (!str_contains($this->source, $string)) {
                 throw new ValidationFailedException(tr('The specified value must contain ":value"', [
@@ -414,6 +424,7 @@ class Validate
     public function hasMinCharacters(int $characters): static
     {
         $this->isString();
+
         if (strlen($this->source) < $characters) {
             throw new ValidationFailedException(tr('The specified value must have ":count" characters or more', [
                 ':count' => $characters,

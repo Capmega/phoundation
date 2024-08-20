@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Interfaces;
@@ -25,6 +26,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\DateTime;
+use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
@@ -34,13 +36,12 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
     /**
      * Initializes the DataEntry object
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool|null                          $meta_enabled
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
      *
-     * @return $this
+     * @return static
      */
-    public function init(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null): static;
+    public function init(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null): static;
 
     /**
      * Returns the default database connector to use for this table
@@ -86,6 +87,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      */
     public static function getUniqueColumn(): ?string;
 
+
     /**
      * Returns a DataEntry object matching the specified identifier
      *
@@ -93,14 +95,13 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool                               $meta_enabled
-     * @param bool                               $force
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool                                     $meta_enabled
+     * @param bool                                     $force
      *
      * @return DataEntryInterface
      */
-    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static;
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static;
 
     /**
      * Returns if this DataEntry validates data before saving
@@ -112,7 +113,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
     /**
      * Sets if this DataEntry validates data before saving
      *
-     * @return $this
+     * @return static
      */
     public function setValidate(bool $validate): static;
 
@@ -305,15 +306,15 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return UserInterface|null
      */
-    public function getCreatedByObject(): ?UserInterface;
+    public function getCreatedByUserObject(): ?UserInterface;
 
     /**
      * Returns the object that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
-     * @return DateTime|null
+     * @return DateTimeInterface|null
      */
-    public function getCreatedOnObject(): ?DateTime;
+    public function getCreatedOnDateTimeObject(): ?DateTimeInterface;
 
     /**
      * Returns the meta-information for this entry
@@ -366,7 +367,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
     /**
      * Will validate the source data of this DataEntry object
      *
-     * @return $this
+     * @return static
      */
     public function validate(): static;
 
@@ -478,7 +479,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @param DataEntryInterface $data_entry
      *
-     * @return $this
+     * @return static
      */
     public function appendDataEntry(DataEntryInterface $data_entry): static;
 
@@ -488,7 +489,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @param DataEntryInterface $data_entry
      *
-     * @return $this
+     * @return static
      */
     public function prependDataEntry(DataEntryInterface $data_entry): static;
 
@@ -501,7 +502,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @param bool               $after
      * @param bool               $strip_meta
      *
-     * @return $this
+     * @return static
      */
     public function injectDataEntry(string $at_key, DataEntryInterface $data_entry, bool $after = true, bool $strip_meta = true): static;
 
@@ -514,7 +515,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @param DefinitionInterface|array|null          $definition
      * @param bool                                    $after
      *
-     * @return $this
+     * @return static
      * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at
      *       the front
      */
@@ -620,7 +621,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @param mixed $value
      * @param bool  $force
      *
-     * @return $this
+     * @return static
      */
     public function setUniqueColumnValue(mixed $value, bool $force = false): static;
 }

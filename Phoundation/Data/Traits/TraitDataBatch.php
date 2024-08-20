@@ -11,9 +11,11 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
+
 
 trait TraitDataBatch
 {
@@ -39,7 +41,7 @@ trait TraitDataBatch
      *
      * @param bool $batch
      *
-     * @return $this
+     * @return static
      */
     public function setBatch(bool $batch): static
     {

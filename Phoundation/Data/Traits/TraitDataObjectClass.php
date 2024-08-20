@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitSourceObjectClass
+ * Trait TraitDataObjectClass
  *
  *
  *
@@ -11,18 +11,20 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-trait TraitSourceObjectClass
+
+trait TraitDataObjectClass
 {
     /**
      * The data entry class
      *
-     * @var string|null $source_object_class
+     * @var string|null $object_class
      */
-    protected ?string $source_object_class = null;
+    protected ?string $object_class = null;
 
 
     /**
@@ -30,22 +32,22 @@ trait TraitSourceObjectClass
      *
      * @return string
      */
-    public function getSourceObjectClass(): string
+    public function getObjectClass(): string
     {
-        return $this->source_object_class;
+        return $this->object_class;
     }
 
 
     /**
      * Sets the data entry class
      *
-     * @param string|null $source_object_class
+     * @param string|null $object_class
      *
      * @return static
      */
-    public function setSourceObjectClass(?string $source_object_class): static
+    public function setObjectClass(?string $object_class): static
     {
-        $this->source_object_class = $source_object_class;
+        $this->object_class = $object_class;
 
         return $this;
     }

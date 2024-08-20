@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
@@ -108,6 +109,6 @@ trait TraitDataEntryRole
      */
     public function setRolesName(?string $name): static
     {
-        return $this->setRole(Role::load($name, 'name'));
+        return $this->setRole(Role::load(['name' => $name]));
     }
 }

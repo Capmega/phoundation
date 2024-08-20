@@ -11,14 +11,16 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+
 trait TraitDataConfigPath
 {
     /**
-     * If specified tracks from which configuration path this DataEntry object can be loaded
+     * If specified, tracks from which configuration path this DataEntry object can be loaded
      *
      * @var ?string $configuration_path
      */

@@ -22,6 +22,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data;
@@ -29,7 +30,7 @@ namespace Phoundation\Data;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Utils\Arrays;
-use Throwable;
+
 
 class Iterator extends IteratorCore
 {
@@ -43,6 +44,8 @@ class Iterator extends IteratorCore
         if ($source) {
             $this->setSource($source);
         }
+
+        $this->setAcceptedDataTypes(static::getDefaultContentDataTypes());
     }
 
 

@@ -13,48 +13,90 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Data\Validator\Interfaces\FileValidatorInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Utils\Numbers;
 
-class FileValidator
+
+class FileValidator implements FileValidatorInterface
 {
-    use TraitValidatorCore;
+    /**
+     * The file being validated
+     *
+     * @var FsFileInterface
+     */
+    protected FsFileInterface $source;
+
 
     /**
      * FileValidator constructor
      *
-     * @param string                  $source
-     * @param ValidatorInterface|null $parent
-     */
-    public function __construct(string $source, ?ValidatorInterface $parent = null)
+     * @param FsFileInterface $source
+\     */
+    public function __construct(FsFileInterface $source)
     {
-        if (!$source) {
-            throw new OutOfBoundsException(tr('No source file specified'));
-        }
         $this->source = &$source;
-        $this->parent = $parent;
     }
 
 
     /**
-     * Validates that the file is a file
+     * Returns a new FileValidator object
+     *
+     * @param FsFileInterface $source
      *
      * @return FileValidator
      */
-    public function isFile(): FileValidator
+    public static function new(FsFileInterface $source): static
     {
-        if ($this->process_value_failed) {
-            // Validation already failed, don't test anything more
-            return $this;
-        }
-        if (!is_file($this->source)) {
-            $this->addFailure(tr('must be a file'));
+        return static($source);
+    }
+
+
+    /**
+     * Validates that the file has the specified mime type
+     *
+     * @param string      $primary
+     * @param string|null $secondary
+     *
+     * @return FileValidator
+     */
+    public function isMimeType(string $primary, ?string $secondary = null): FileValidator
+    {
+        if ($secondary) {
+            $primary .= '/' . $secondary;
         }
 
+        if (!$this->source->hasMimetype($primary)) {
+            $this->addFailure(tr());
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Validates that the file is a compressed file
+     *
+     * @return FileValidator
+     */
+    public function isCompressed(): FileValidator
+    {
+        return $this;
+    }
+
+
+    /**
+     * Validates that the file is a ZIP compressed file
+     *
+     * @return FileValidator
+     */
+    public function isZip(): FileValidator
+    {
         return $this;
     }
 
@@ -73,9 +115,22 @@ class FileValidator
     /**
      * Validates that the file is an image
      *
+     * @param string|null $allowed_mimetypes
+     *
      * @return FileValidator
      */
-    public function isImage(): FileValidator
+    public function isImage(?string $allowed_mimetypes = null): FileValidator
+    {
+        return $this;
+    }
+
+
+    /**
+     * Validates that the file is a (text) document
+     *
+     * @return FileValidator
+     */
+    public function isDocument(): FileValidator
     {
         return $this;
     }
@@ -93,14 +148,51 @@ class FileValidator
 
 
     /**
-     * Validates that the file is smaller than the specified number of bytes
-     *
-     * @param int $size
+     * Validates that the file is a PNG image
      *
      * @return FileValidator
      */
-    public function isSmallerThan(int $size): FileValidator
+    public function isPng(): FileValidator
     {
+        return $this;
+    }
+
+
+    /**
+     * Validates that the file is a PDF file
+     *
+     * @return FileValidator
+     */
+    public function isPdf(): FileValidator
+    {
+        return $this;
+    }
+
+
+    /**
+     * Validates that the file is smaller than the specified number of bytes
+     *
+     * @param string|int $size
+     *
+     * @return FileValidator
+     */
+    public function isSmallerThan(string|int $size): FileValidator
+    {
+        return $this;
+    }
+
+
+    /**
+     * Validates that the file is larger than the specified number of bytes
+     *
+     * @param string|int $size
+     *
+     * @return FileValidator
+     */
+    public function isLargerThan(string|int $size): FileValidator
+    {
+        $size = Numbers::fromBytes($size);
+
         return $this;
     }
 }

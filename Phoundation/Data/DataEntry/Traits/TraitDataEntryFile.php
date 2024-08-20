@@ -11,16 +11,21 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 
 trait TraitDataEntryFile
 {
+    use TraitDataRestrictions;
+
+
     /**
      * Returns the file for this object
      *
@@ -55,6 +60,6 @@ trait TraitDataEntryFile
             }
         }
 
-        return $this->set($file, 'file');
+        return $this->set(get_null((string) $file), 'file');
     }
 }

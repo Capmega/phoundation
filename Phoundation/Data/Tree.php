@@ -20,6 +20,7 @@ use Phoundation\Data\Interfaces\TreeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 
+
 class Tree extends Iterator implements TreeInterface
 {
     /**
@@ -92,7 +93,7 @@ class Tree extends Iterator implements TreeInterface
     /**
      * Sets the source of this tree from the specified JSON data
      *
-     * @return $this
+     * @return static
      */
     public function setJson(?string $json): static
     {

@@ -211,7 +211,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param Stringable|string|int|null $before
      * @param bool                       $strict
      *
-     * @return $this
+     * @return static
      */
     public function moveBeforeKey(Stringable|string|int|null $key, Stringable|string|int|null $before, bool $strict = true): static;
 
@@ -222,7 +222,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param Stringable|string|int|null $after
      * @param bool                       $strict
      *
-     * @return $this
+     * @return static
      */
     public function moveAfterKey(Stringable|string|int|null $key, Stringable|string|int|null $after, bool $strict = true): static;
 
@@ -233,7 +233,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param bool                                $clear_keys
      * @param bool                                $exception
      *
-     * @return $this
+     * @return static
      */
     public function addSource(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static;
 
@@ -263,7 +263,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param IteratorInterface|PDOStatement|array|string|null $source
      * @param array|null                                       $execute
      * @param string|null                                      $separator
-     * @return $this
+     * @return static
      */
     public function setKeyValueSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, ?string $separator = null): static;
 
@@ -272,7 +272,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param IteratorInterface|array ...$sources
      *
-     * @return $this
+     * @return static
      */
     public function appendSource(IteratorInterface|array ...$sources): static;
 
@@ -281,7 +281,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param IteratorInterface|array ...$sources
      *
-     * @return $this
+     * @return static
      */
     public function prependSource(IteratorInterface|array ...$sources): static;
 
@@ -291,6 +291,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return array|null
      */
     public function getAcceptedDataTypes(): ?array;
+
     /**
      * Sets the datatype restrictions for all elements in this iterator, NULL if none
      *
@@ -418,7 +419,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param ArrayableInterface|array|string|int|null $needles
      * @param bool                                     $strict
      *
-     * @return $this
+     * @return static
      */
     public function keepKeys(ArrayableInterface|array|string|int|null $needles, bool $strict = false): static;
 
@@ -428,7 +429,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param Stringable|array|string|int $keys
      * @param bool                        $strict
      *
-     * @return $this
+     * @return static
      */
     public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static;
 
@@ -436,10 +437,9 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * Keep source values on the specified needles with the specified match mode
      *
      * @param ArrayableInterface|array|string|int|null $needles
-     * @param string|null                              $column
      * @param bool                                     $strict
      *
-     * @return $this
+     * @return static
      */
     public function keepValues(ArrayableInterface|array|string|int|null $needles, ?string $column = null, bool $strict = false): static;
 
@@ -447,10 +447,9 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * Remove source values on the specified needles with the specified match mode
      *
      * @param ArrayableInterface|array|string|int|null $needles
-     * @param string|null                              $column
      * @param bool                                     $strict
      *
-     * @return $this
+     * @return static
      */
     public function removeValues(ArrayableInterface|array|string|int|null $needles, ?string $column = null, bool $strict = false): static;
 
@@ -460,7 +459,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param ArrayableInterface|array|string|int|null $needles
      * @param int                                      $flags
      *
-     * @return $this
+     * @return static
      */
     public function keepMatchingKeys(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static;
 
@@ -469,9 +468,8 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param ArrayableInterface|array|string|int|null $needles
      * @param int                                      $flags
-     * @param string|null                              $column
      *
-     * @return $this
+     * @return static
      */
     public function keepMatchingValues(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static;
 
@@ -481,7 +479,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param ArrayableInterface|array|string|int|null $needles
      * @param int                                      $flags
      *
-     * @return $this
+     * @return static
      */
     public function removeMatchingKeys(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static;
 
@@ -490,9 +488,8 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param ArrayableInterface|array|string|int|null $needles
      * @param int                                      $flags
-     * @param string|null                              $column
      *
-     * @return $this
+     * @return static
      */
     public function removeMatchingValues(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static;
 
@@ -502,7 +499,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param ArrayableInterface|array|string|int|null $needles
      * @param int                                      $flags
      *
-     * @return $this
+     * @return static
      */
     public function getMatchingKeys(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface;
 
@@ -512,7 +509,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param ArrayableInterface|array|string|int|null $needles
      * @param int                                      $flags
      *
-     * @return $this
+     * @return static
      */
     public function getMatchingValues(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface;
 
@@ -521,7 +518,6 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param ArrayableInterface|array|string|int|null $needles
      * @param int                                      $flags
-     * @param string|null                              $column
      *
      * @return IteratorInterface
      */
@@ -552,7 +548,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param string|null $message
      * @param bool        $header
      *
-     * @return $this
+     * @return static
      */
     public function displayCliMessage(?string $message = null, bool $header = false): static;
 
@@ -581,35 +577,35 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     /**
      * Sorts the Iterator source in ascending order
      *
-     * @return $this
+     * @return static
      */
     public function sort(): static;
 
     /**
      * Sorts the Iterator source in descending order
      *
-     * @return $this
+     * @return static
      */
     public function rsort(): static;
 
     /**
      * Sorts the Iterator source keys in ascending order
      *
-     * @return $this
+     * @return static
      */
     public function ksort(): static;
 
     /**
      * Sorts the Iterator source keys in descending order
      *
-     * @return $this
+     * @return static
      */
     public function krsort(): static;
 
     /**
      * Sorts the Iterator source using the specified callback
      *
-     * @return $this
+     * @return static
      */
     public function uasort(callable $callback): static;
 
@@ -618,14 +614,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param callable $callback
      *
-     * @return $this
+     * @return static
      */
     public function uksort(callable $callback): static;
 
     /**
-     * Will limit the amount of entries in the source of this DataIterator to the
+     * Will limit the number of entries in the source of this DataIterator to the
      *
-     * @return $this
+     * @return static
      */
     public function limitAutoComplete(): static;
 
@@ -791,7 +787,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     /**
      * Executes the specified callback function on each
      *
-     * @return $this
+     * @return static
      */
     public function each(callable $callback): static;
 
@@ -807,7 +803,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     /**
      * Removes all empty values from this Iterator object
      *
-     * @return $this
+     * @return static
      */
     public function removeEmptyValues(): static;
 
@@ -820,7 +816,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *                        SORT_STRING - compare items as strings
      *                        SORT_LOCALE_STRING - compare items as strings, based on the current locale
      *
-     * @return $this
+     * @return static
      */
     public function unique(int $flags = null): static;
 
@@ -833,7 +829,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param Stringable|string|int|null $from_key
      * @param Stringable|string|int|null $to_key
      *
-     * @return $this
+     * @return static
      * @throws OutOfBoundsException|Throwable
      */
     public function copyValue(Stringable|string|int|null $from_key, Stringable|string|int|null $to_key): static;

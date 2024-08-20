@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
@@ -37,7 +38,7 @@ trait TraitDataGeoIp
      *
      * @param GeoIp|null $geo_ip
      *
-     * @return $this
+     * @return static
      */
     public function setGeoIp(?GeoIp $geo_ip): static
     {

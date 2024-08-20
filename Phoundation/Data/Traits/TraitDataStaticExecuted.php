@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
@@ -63,13 +64,16 @@ trait TraitDataStaticExecuted
         if (empty(static::$executed_path)) {
             return '_none_';
         }
+
         $return = static::$executed_path;
+
         if ($from_root) {
             foreach ($return as &$path) {
                 $path = Strings::from($path, DIRECTORY_DATA);
                 $path = Strings::from($path, 'data/system/cache/');
             }
         }
+
         unset($path);
 
         return implode(', ', $return);
@@ -88,7 +92,9 @@ trait TraitDataStaticExecuted
         if (empty(static::$executed_path)) {
             return '_none_';
         }
+
         $path = end(static::$executed_path);
+
         if ($from_root) {
             $path = Strings::from($path, DIRECTORY_DATA);
             $path = Strings::from($path, 'data/system/cache/');
@@ -108,6 +114,7 @@ trait TraitDataStaticExecuted
     protected static function addExecutedPath(string $executed): void
     {
         $executed = Strings::from($executed, DIRECTORY_ROOT);
+
         static::$executed_path[] = $executed;
         static::$executed_file[] = Strings::fromReverse($executed, '/');
     }

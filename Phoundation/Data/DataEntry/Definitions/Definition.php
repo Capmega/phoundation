@@ -11,13 +11,14 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
 
 use PDOStatement;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Definitions\Exception\DefinitionsException;
+use Phoundation\Data\DataEntry\Definitions\Exception\DefinitionException;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -40,6 +41,7 @@ use Phoundation\Web\Html\Traits\TraitBeforeAfterButtons;
 use Stringable;
 use Throwable;
 use ValueError;
+
 
 class Definition implements DefinitionInterface
 {
@@ -248,7 +250,7 @@ class Definition implements DefinitionInterface
      *
      * @param callable $callback
      *
-     * @return $this
+     * @return static
      */
     public function modifyQueryBuilder(callable $callback): static
     {
@@ -279,6 +281,30 @@ class Definition implements DefinitionInterface
     public function setPrefix(?string $prefix): static
     {
         return $this->setKey($prefix, 'prefix', false);
+    }
+
+
+    /**
+     * Returns if this column should have unique entries or not
+     *
+     * @return bool
+     */
+    public function getUnique(): bool
+    {
+        return isset_get_typed('bool', $this->source['unique'], false);
+    }
+
+
+    /**
+     * Sets if this column should have unique entries or not
+     *
+     * @param bool $prefix
+     *
+     * @return static
+     */
+    public function setUnique(bool $prefix): static
+    {
+        return $this->setKey($prefix, 'unique');
     }
 
 
@@ -641,7 +667,7 @@ class Definition implements DefinitionInterface
     /**
      * @param ScriptInterface $script
      *
-     * @return $this
+     * @return static
      */
     public function addScript(ScriptInterface $script): static
     {
@@ -880,11 +906,40 @@ class Definition implements DefinitionInterface
     /**
      * Returns the HTML client element to be used for this column
      *
-     * @return string|null
+     * @return EnumElement|null
      */
-    public function getElement(): string|null
+    public function getElement(): EnumElement|null
     {
-        return isset_get_typed('string', $this->source['element']);
+        return isset_get_typed('enum', $this->source['element']);
+    }
+
+
+    /**
+     * Sets the HTML element to be used for this column
+     *
+     * @param EnumElement|null $value
+     *
+     * @return static
+     */
+    public function setElement(EnumElement|null $value): static
+    {
+        switch ($value) {
+            case EnumElement::textarea:
+                $this->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->sanitizeTrim();
+                    // Validate textarea strings
+
+                    if ($this->getMinlength()) {
+                        $validator->hasMinCharacters($this->getMinlength());
+                    }
+
+                    if ($this->getMaxlength()) {
+                        $validator->hasMaxCharacters($this->getMaxlength());
+                    }
+                });
+        }
+
+        return $this->setKey($value, 'element');
     }
 
 
@@ -937,6 +992,8 @@ class Definition implements DefinitionInterface
      * Sets the type of input element.
      *
      * @return EnumInputType
+     *
+     * @throws DefinitionException
      */
     public function getInputType(): EnumInputType
     {
@@ -954,8 +1011,11 @@ class Definition implements DefinitionInterface
                 // So the input type is not from InputTypeInterface, it must be from EnumInputType
                 return EnumInputType::from($return);
             }
+
             // WTF else could possibly have happened?
-            throw $e;
+            throw new DefinitionException(tr('Encountered invalid EnumInputType ":value"', [
+                'value' => $return
+            ]), $e);
         }
     }
 
@@ -1259,7 +1319,7 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::text;
 
                 if (empty($this->in_directories) and empty($this->restrictions)) {
-                    throw new DefinitionsException(tr('Cannot use EnumInputType::path without having first specified either "Definition::setInDirectories()" or "Definition::setRestrictions()"', [
+                    throw new DefinitionException(tr('Cannot use EnumInputType::path without having first specified either "Definition::setInDirectories()" or "Definition::setRestrictions()"', [
                         ':path'             => ':path',
                         ':setInDirectories' => ':setInDirectories',
                         ':setRestrictions'  => ':setRestrictions'
@@ -1277,7 +1337,7 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::text;
 
                 if (empty($this->in_directories) and empty($this->restrictions)) {
-                    throw new DefinitionsException(tr('Cannot use EnumInputType::path without having first specified either "Definition::setInDirectories()" or "Definition::setRestrictions()"', [
+                    throw new DefinitionException(tr('Cannot use EnumInputType::path without having first specified either "Definition::setInDirectories()" or "Definition::setRestrictions()"', [
                         ':path'             => ':path',
                         ':setInDirectories' => ':setInDirectories',
                         ':setRestrictions'  => ':setRestrictions'
@@ -1296,7 +1356,7 @@ class Definition implements DefinitionInterface
 
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
-                         $validator->isCode();
+                         $validator->isCode(null, null);
                      });
                 break;
 
@@ -1423,43 +1483,6 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the HTML client element to be used for this column
-     *
-     * @param EnumElement|null $value
-     *
-     * @return static
-     */
-    public function setElement(EnumElement|null $value): static
-    {
-        if ($value and $value != EnumElement::input) {
-            $this->setInputType(null);
-        }
-
-        switch ($value) {
-            case '':
-                $value = null;
-                break;
-
-            case EnumElement::textarea:
-                $this->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->sanitizeTrim();
-                    // Validate textarea strings
-
-                    if ($this->getMinlength()) {
-                        $validator->hasMinCharacters($this->getMinlength());
-                    }
-
-                    if ($this->getMaxlength()) {
-                        $validator->hasMaxCharacters($this->getMaxlength());
-                    }
-                });
-        }
-
-        return $this->setKey($value?->value, 'element');
-    }
-
-
-    /**
      * Clears all currently existing validation functions for this definition
      *
      * @return static
@@ -1558,11 +1581,11 @@ class Definition implements DefinitionInterface
             return;
         }
 
-        if (isset_get($this->source['element'], 'input') !== 'input') {
-            throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":element" element, :attribute can only be used for "number" type input elements', [
+        if (isset_get($this->source['element'], EnumElement::input) !== EnumElement::input) {
+            throw new OutOfBoundsException(tr('Cannot set attribute ":attribute" with value ":value" for column ":column", it is an ":element" element, attribute ":attribute" can only be used for "number" type input elements', [
                 ':attribute' => $key,
                 ':column'    => $this->getColumn(),
-                ':element'   => $this->source['element'],
+                ':element'   => $this->source['element']->value,
                 ':value'     => $value,
             ]));
         }
@@ -1667,24 +1690,64 @@ class Definition implements DefinitionInterface
      */
     public function setHidden(?bool $value): static
     {
+        // Hidden objects have no size
+        if ($value) {
+            $this->setSize(null);
+        }
+
         return $this->setKey((bool) $value, 'hidden');
     }
 
 
     /**
-     * If true, will enable browser auto suggest for this input control
+     * If true, will enable browser auto-complete for this input control
      *
-     * @note Defaults to false
      * @return bool
      */
     public function getAutoComplete(): bool
     {
-        return isset_get_typed('bool', $this->source['autocomplete'], true);
+        return isset_get_typed('bool', $this->source['autocomplete'], false);
     }
 
 
     /**
-     * If true, will enable browser auto suggest for this input control
+     * If true, will enable browser auto-complete for this input control
+     *
+     * @param array|bool|null $value
+     *
+     * @return static
+     */
+    public function setAutoComplete(bool|null $value): static
+    {
+        return $this->setKey($value, 'autocomplete');
+    }
+
+
+    /**
+     * Returns the cli auto-completion queries for this column
+     *
+     * @return array|bool|null
+     */
+    public function getCliAutoComplete(): array|bool|null
+    {
+        return isset_get_typed('array|bool', $this->source['cli_auto_complete']);
+    }
+
+
+    /**
+     * If true, will enable browser auto-suggest for this input control
+     *
+     * @note Defaults to false
+     * @return bool
+     */
+    public function getAutoSuggest(): bool
+    {
+        return isset_get_typed('bool', $this->source['autosuggest'], true);
+    }
+
+
+    /**
+     * If true, will enable browser auto-suggest for this input control
      *
      * @note Defaults to false
      *
@@ -1692,9 +1755,9 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    public function setAutoComplete(?bool $value): static
+    public function setAutoSuggest(?bool $value): static
     {
-        return $this->setKey((bool) $value, 'autocomplete');
+        return $this->setKey((bool) $value, 'autosuggest');
     }
 
 
@@ -1757,7 +1820,7 @@ class Definition implements DefinitionInterface
      */
     public function setSize(?int $value): static
     {
-        if ($value) {
+        if ($value !== null) {
             if (($value < 1) or ($value > 12)) {
                 throw new OutOfBoundsException(tr('Invalid size ":value" specified for column ":column", it must be an integer number between 1 and 12', [
                     ':column' => $this->getColumn(),
@@ -1908,17 +1971,6 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the cli auto-completion queries for this column
-     *
-     * @return array|bool|null
-     */
-    public function getCliAutoComplete(): array|bool|null
-    {
-        return isset_get_typed('array|bool', $this->source['cli_auto_complete']);
-    }
-
-
-    /**
      * Sets the cli auto-completion queries for this column
      *
      * @param array|bool|null $value
@@ -1932,13 +1984,16 @@ class Definition implements DefinitionInterface
                 ':column' => $this->getColumn(),
             ]));
         }
+
         if (is_array($value)) {
             if (count($value) !== 2) {
                 $fail = true;
             }
+
             if (!array_key_exists('word', $value) or !array_key_exists('noword', $value)) {
                 $fail = true;
             }
+
             if (isset($fail)) {
                 throw new OutOfBoundsException(tr('Invalid value ":value" specified for column ":column", it must be "TRUE" or an array with only the keys "word" and "noword"', [
                     ':column' => $this->getColumn(),
@@ -2056,31 +2111,30 @@ class Definition implements DefinitionInterface
         }
 
         switch (isset_get($this->source['element'])) {
-            case 'textarea':
+            case EnumElement::textarea:
                 // no break
-            case 'select':
+
+            case EnumElement::select:
                 // no break
-            case 'div':
+
+            case EnumElement::div:
                 // no break
-            case 'span':
+
+            case EnumElement::span:
                 // no break
-            case 'tooltip': // This is a pseudo-element
+
+            case EnumElement::tooltip: // This is a pseudo-element
                 break;
+
             case null:
                 // This is the default, so "input"
-            case 'input':
-                if (
-                    !array_key_exists('type', $this->source) or in_array($this->source['type'], [
-                        'text',
-                        'email',
-                        'url',
-                        'password',
-                    ])
-                ) {
+
+            case EnumElement::input:
+                if (!array_key_exists('type', $this->source) or in_array($this->source['type'], ['text', 'email', 'url', 'password'])) {
                     break;
                 }
 
-                throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":type" type input element, :attribute can only be used for textarea elements or input elements with "text" type', [
+                throw new OutOfBoundsException(tr('Cannot set attribute ":attribute" with value ":value" for column ":column", it is an ":type" type input element, and attribute ":attribute" can only be used for textarea elements or input elements with "text" type', [
                     ':attribute' => $key,
                     ':column'    => $this->getColumn(),
                     ':type'      => $this->source['type'] ?? 'text',
@@ -2088,10 +2142,10 @@ class Definition implements DefinitionInterface
                 ]));
 
             default:
-                throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":element" element, :attribute can only be used for textarea elements or input elements with "text" type', [
+                throw new OutOfBoundsException(tr('Cannot set attribute ":attribute" with value ":value" for column ":column", it is an ":element" element, and attribute ":attribute" can only be used for textarea elements or input elements with "text" type', [
                     ':attribute' => $key,
                     ':column'    => $this->getColumn(),
-                    ':element'   => $this->source['element'],
+                    ':element'   => $this->source['element']->value,
                     ':value'     => $value,
                 ]));
         }
@@ -2240,10 +2294,10 @@ class Definition implements DefinitionInterface
     {
         $this->ensureElement(EnumElement::textarea);
 
-        if (isset_get($this->source['element']) !== 'textarea') {
+        if (isset_get($this->source['element']) !== EnumElement::textarea) {
             throw new OutOfBoundsException(tr('Cannot define rows for column ":column", the element is a ":element" but should be a "textarea', [
                 ':column'  => $this->getColumn(),
-                ':element' => $this->source['element'],
+                ':element' => $this->source['element']->value,
             ]));
         }
 
@@ -2418,7 +2472,7 @@ class Definition implements DefinitionInterface
     public function setDbNullInputType(?EnumInputType $value): static
     {
         if (empty($this->source['element'])) {
-            $this->source['element'] = 'input';
+            $this->source['element'] = EnumElement::input;
         }
 
         return $this->setKey($value->value, 'type');
@@ -2519,7 +2573,7 @@ class Definition implements DefinitionInterface
         }
 
         // Checkbox inputs always are boolean and does this column have a prefix?
-        $bool   = ($this->getInputType()?->value === 'checkbox');
+        $bool = ($this->getInputType()?->value === 'checkbox');
 
         if ($validator instanceof ArgvValidatorInterface) {
             // These are arguments directly from the command line, we need to interpret the keys using CLI definitions
@@ -2577,6 +2631,10 @@ class Definition implements DefinitionInterface
             // Apply default validations
             if ($this->getOptional()) {
                 $validator->isOptional($this->getDefault());
+            }
+
+            if ($this->getUnique()) {
+                $validator->isUnique();
             }
 
             // Apply all other validations

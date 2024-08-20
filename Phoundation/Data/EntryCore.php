@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data;
@@ -22,6 +23,7 @@ use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Stringable;
+
 
 class EntryCore implements EntryInterface
 {

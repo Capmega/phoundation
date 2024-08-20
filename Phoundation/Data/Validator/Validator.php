@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
@@ -125,9 +126,9 @@ abstract class Validator implements ValidatorInterface
         if (!array_key_exists($from_key, $this->source)) {
             if ($exception) {
                 throw new OutOfBoundsException(tr('Cannot rename ":class" key from ":from" to ":to", the ":original" key does not exist', [
-                    ':class'    => get_class($this),
-                    ':from'     => $from_key,
-                    ':to'       => $to_key,
+                    ':class' => get_class($this),
+                    ':from' => $from_key,
+                    ':to' => $to_key,
                     ':original' => $from_key,
                 ]));
             }
@@ -149,6 +150,81 @@ abstract class Validator implements ValidatorInterface
         unset($this->source[$from_key]);
 
         return $this;
+    }
+
+
+    /**
+     * Requires that the specified keys are available for this key to be valid
+     *
+     * @note This test does not count as an "executed test" to be able to select the next key. If only this test was
+     *       executed for the selected key, and a next key will be selected, an ValidationFailedException exception will
+     *       still be thrown
+     *
+     * @note This test requires that the specified keys have already been tested before, as it does not know what keys
+     *       will be tested after, and if they will default or not
+     *
+     * @note This test will not test for the existence of the specified key, as they SHOULD exist (See previous note) so
+     *       it will test if they are not empty. If the specified keys are empty, the field will fail.
+     *
+     * @note This will only require the specified keys are not empty if the currently selected field is not default,
+     *       unless $also_if_selected_is_default is true
+     *
+     * @param IteratorInterface|array|string $keys
+     * @param bool                           $also_if_selected_is_default
+     *
+     * @return static
+     */
+    public function requiresNotEmpty(IteratorInterface|array|string $keys, bool $also_if_selected_is_default = false): static
+    {
+        $keys = Arrays::force($keys);
+
+        if (empty($keys)) {
+            throw new OutOfBoundsException(tr('Cannot test field ":field" for required keys, no keys were specified', [
+                ':field' => $this->selected_field
+            ]));
+        }
+
+        return $this->validateValues(function (&$value) use ($keys, $also_if_selected_is_default) {
+            $requires = [];
+
+            if (!$this->checkIsOptional($value) or $also_if_selected_is_default) {
+                // Ensure we have clean keys to test, test all keys
+                foreach ($keys as $key) {
+                    $clean_key = Strings::ensureStartsNotWith($key, '-');
+                    $clean_key = str_replace('-', '_', $clean_key);
+
+                    // This key likely WILL exist (because if not specified, it would be defaulted or already failed)
+                    // So do not test with array_key_exists() but with empty() instead, NULL or "" or false will be used as
+                    // "not specified"
+                    if (empty($this->source[$clean_key])) {
+                        $requires[] = $key;
+                    }
+                }
+
+                // Any keys missing?
+                switch (count($requires)) {
+                    case 0:
+                        // All required fields are there, yay!
+                        break;
+
+                    case 1:
+                        // 1 field failed
+                        $value = [];
+                        $this->addFailure(tr('requires that the field ":key" is specified as well', [
+                            ':key' => current($requires),
+                        ]));
+
+                        break;
+
+                    default:
+                        // Multiple fields failed
+                        $value = [];
+                        $this->addFailure(tr('requires that the fields ":key" are specified as well', [
+                            ':key' => Strings::force($requires, ', '),
+                        ]));
+                }
+            }
+        });
     }
 
 
@@ -223,7 +299,7 @@ abstract class Validator implements ValidatorInterface
     /**
      * This method will allow the currently selected key to pass without performing any validation tests
      *
-     * @return $this
+     * @return static
      */
     public function doNotValidate(): static
     {
@@ -481,7 +557,7 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
-     * Validates that the specified value is either an integer number, or a valid amount of bytes
+     * Validates that the specified value is either an integer number, or a valid number of bytes
      *
      * 1KB    = 1000
      * 1MB    = 1000000
@@ -668,10 +744,10 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates that the selected field is the specified value
      *
-     * @param mixed $validate_value
-     * @param bool  $strict If true, will perform a strict check
-     * @param bool  $secret If specified the $validate_value will not be shown
-     * @param bool  $ignore_case
+     * @param mixed $validate_value The value that should not be matched
+     * @param bool  $strict         If true, will perform a strict check
+     * @param bool  $secret         If true, the $validate_value will not be shown
+     * @param bool  $ignore_case    If true, a case-insensitive comparison will be performed
      *
      * @return static
      * @todo Change these individual flag parameters to one bit flag parameter
@@ -752,22 +828,23 @@ abstract class Validator implements ValidatorInterface
      * This method ensures that the specified array key is a valid code
      *
      * @param string|null $until
-     * @param int         $max_characters
+     * @param int|null    $max_characters
+     * @param int|null    $min_characters
      *
      * @return static
      */
-    public function isCode(?string $until = null, int $max_characters = 64): static
+    public function isCode(?string $until = null, ?int $max_characters = 64, ?int $min_characters = 1): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($until, $max_characters) {
+        return $this->validateValues(function (&$value) use ($until, $min_characters, $max_characters) {
             if ($until) {
                 // Truncate the code at one of the specified characters
                 $value = Strings::until($value, $until);
                 $value = trim($value);
             }
 
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
+            $this->sanitizeTrim()->hasMinCharacters($min_characters)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -782,15 +859,15 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates that the selected field is equal or shorter than the specified number of characters
      *
-     * @param int|null $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function hasMaxCharacters(?int $characters = null): static
+    public function hasMaxCharacters(?int $max_characters = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($characters) {
+        return $this->validateValues(function (&$value) use ($max_characters) {
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -799,20 +876,20 @@ abstract class Validator implements ValidatorInterface
             }
 
             // Validate the maximum number of characters
-            $characters = $this->getMaxStringSize($characters);
+            $max_characters = $this->getMaxStringSize($max_characters);
 
-            if ($characters <= 0) {
-                if (!$characters) {
-                    throw new ValidatorException(tr('Cannot check max characters, the amount of maximum characters specified is 0'));
+            if ($max_characters <= 0) {
+                if (!$max_characters) {
+                    throw new ValidatorException(tr('Cannot check max characters, the number of maximum characters specified is 0'));
                 }
 
-                throw new ValidatorException(tr('Cannot check max characters, the specified amount of maximum characters ":characters" is negative', [
-                    ':characters' => $characters,
+                throw new ValidatorException(tr('Cannot check max characters, the specified number of maximum characters ":characters" is negative', [
+                    ':characters' => $max_characters,
                 ]));
             }
 
-            if (strlen($value) > $characters) {
-                $this->addFailure(tr('must have ":count" characters or less', [':count' => $characters]));
+            if (strlen($value) > $max_characters) {
+                $this->addFailure(tr('must have ":count" characters or less', [':count' => $max_characters]));
             }
         });
     }
@@ -1263,14 +1340,15 @@ abstract class Validator implements ValidatorInterface
      *
      * @param string $string
      * @param bool   $regex
+     * @param bool   $not
      *
      * @return static
      */
-    public function contains(string $string, bool $regex = false): static
+    public function contains(string $string, bool $regex = false, bool $not = false): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($string, $regex) {
+        return $this->validateValues(function (&$value) use ($string, $regex, $not) {
             // This value must be scalar
             $this->isScalar();
 
@@ -1281,9 +1359,10 @@ abstract class Validator implements ValidatorInterface
 
             if ($regex) {
                 try {
-                    if (!preg_match($string, (string) $value)) {
+                    if ($not xor !preg_match($string, (string) $value)) {
                         $this->addFailure(tr('must match regex ":value"', [':value' => $string]));
                     }
+
                 } catch (Throwable $e) {
                     if (str_contains($e->getMessage(), 'preg_match')) {
                         throw new ValidatorException(tr('Specified regex ":regex" is invalid', [
@@ -1295,11 +1374,79 @@ abstract class Validator implements ValidatorInterface
                 }
 
             } else {
-                if (!str_contains((string) $value, $string)) {
+                if ($not xor !str_contains((string) $value, $string)) {
                     $this->addFailure(tr('must contain ":value"', [':value' => $string]));
                 }
             }
         });
+    }
+
+
+    /**
+     * Ensures that the value has the specified string
+     *
+     * This method ensures that the specified array key contains the specified string
+     *
+     * @param string $string
+     * @param bool   $regex
+     * @param bool   $not
+     *
+     * @return static
+     */
+    public function containsNot(string $string, bool $regex = false, bool $not = false): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($string, $regex, $not) {
+            // This value must be scalar
+            $this->isScalar();
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            if ($regex) {
+                if ($not xor preg_match($string, $value)) {
+                    $this->addFailure(tr('must not contain ":value"', [':value' => $string]));
+                }
+
+            } else {
+                if ($not xor str_contains($value, $string)) {
+                    $this->addFailure(tr('must not contain ":value"', [':value' => $string]));
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Validates that the selected field matches the specified regex
+     *
+     * @param string $regex
+     * @param bool   $not
+     *
+     * @return static
+     */
+    public function matchesRegex(string $regex, bool $not = false): static
+    {
+        return $this->contains($regex, true, $not);
+    }
+
+
+    /**
+     * Validates that the selected field NOT matches the specified regex
+     *
+     * @param string $regex
+     * @param bool   $not
+     *
+     * @return static
+     */
+    public function matchesNotRegex(string $regex, bool $not = false): static
+    {
+        $this->test_count++;
+
+        return $this->containsNot($regex, true, $not);
     }
 
 
@@ -1405,58 +1552,6 @@ abstract class Validator implements ValidatorInterface
 
             if (strlen($value) != $characters) {
                 $this->addFailure(tr('must have exactly ":count" characters', [':count' => $characters]));
-            }
-        });
-    }
-
-
-    /**
-     * Validates that the selected field NOT matches the specified regex
-     *
-     * @param string $regex
-     *
-     * @return static
-     */
-    public function matchesNotRegex(string $regex): static
-    {
-        $this->test_count++;
-
-        return $this->containsNot($regex, true);
-    }
-
-
-    /**
-     * Ensures that the value has the specified string
-     *
-     * This method ensures that the specified array key contains the specified string
-     *
-     * @param string $string
-     * @param bool   $regex
-     *
-     * @return static
-     */
-    public function containsNot(string $string, bool $regex = false): static
-    {
-        $this->test_count++;
-
-        return $this->validateValues(function (&$value) use ($string, $regex) {
-            // This value must be scalar
-            $this->isScalar();
-
-            if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
-                return;
-            }
-
-            if ($regex) {
-                if (preg_match($string, $value)) {
-                    $this->addFailure(tr('must not contain ":value"', [':value' => $string]));
-                }
-
-            } else {
-                if (str_contains($value, $string)) {
-                    $this->addFailure(tr('must not contain ":value"', [':value' => $string]));
-                }
             }
         });
     }
@@ -1690,7 +1785,7 @@ abstract class Validator implements ValidatorInterface
      *
      * @param mixed $validate_value
      * @param bool  $strict If true, will perform a strict check
-     * @param bool  $secret If specified the $validate_value will not be shown
+     * @param bool  $secret If specified, the $validate_value will not be shown
      * @param bool  $ignore_case
      *
      * @return static
@@ -2286,19 +2381,6 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
-     * Validates that the selected field matches the specified regex
-     *
-     * @param string $regex
-     *
-     * @return static
-     */
-    public function matchesRegex(string $regex): static
-    {
-        return $this->contains($regex, true);
-    }
-
-
-    /**
      * Validates if the selected field is a valid gender
      *
      * @return static
@@ -2323,16 +2405,16 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid name
      *
-     * @param int $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isName(int $characters = 128): static
+    public function isName(?int $max_characters = 128): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($characters) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters($characters);
+        return $this->validateValues(function (&$value) use ($max_characters) {
+            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -2371,16 +2453,16 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid name
      *
-     * @param int $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isUsername(int $characters = 64): static
+    public function isUsername(?int $max_characters = 64): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($characters) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($characters);
+        return $this->validateValues(function (&$value) use ($max_characters) {
+            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -2463,16 +2545,16 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid variable name or label
      *
-     * @param int $length
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isVariableName(int $length = 128): static
+    public function isVariableName(?int $max_characters = 128): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($length) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($length);
+        return $this->validateValues(function (&$value) use ($max_characters) {
+            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -2485,18 +2567,38 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Checks if the value is a valid filename
+     *
+     * @param int|null $max_characters
+     *
+     * @return static
+     */
+    public function isFilename(?int $max_characters = 2048): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($max_characters) {
+            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
+
+            $this->matchesRegex('/\//i');
+        });
+    }
+
+
+    /**
      * Checks if the specified path exists in one the required directories or not, and if its of the correct type
      *
-     * @param string                          $path
-     * @param FsDirectoryInterface|array|null $exists_in_directories
-     * @param bool                            $must_be_directory
-     * @param bool|null                       $exist
+     * @param string                      $path
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool                        $must_be_directory
+     * @param bool|null                   $require_exist
+     * @param Stringable|string|bool|null $prefix
      *
      * @return FsPathInterface
      */
-    protected function validatePath(string $path, FsDirectoryInterface|array|null $exists_in_directories, ?bool $must_be_directory, ?bool $exist): FsPathInterface
+    protected function validatePath(string $path, FsDirectoryInterface|array $exists_in_directories, ?bool $must_be_directory, ?bool $require_exist, Stringable|string|bool|null $prefix = null): FsPathInterface
     {
-        // Determine type, if any
+        // Determine filetype, if any
         if ($must_be_directory) {
             $type  = 'directory';
             $class = FsDirectory::class;
@@ -2510,11 +2612,6 @@ abstract class Validator implements ValidatorInterface
             $class = FsPath::class;
         }
 
-        // Is the path required to exist anywhere?
-        if (!$exists_in_directories) {
-            return new $class($path, $this->restrictions);
-        }
-
         // Was a path specified? We need a path here!
         if (!$path) {
             // Some value must be specified
@@ -2523,7 +2620,8 @@ abstract class Validator implements ValidatorInterface
             return new $class($path, $this->restrictions);
         }
 
-        $path = FsPath::realPath($path);
+        // Get the absolute path, file does not need to exist here, we'll check that later
+        $path = FsPath::realPath($path, $prefix, false);
 
         foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
             if (!$exists_in_directory instanceof FsDirectoryInterface) {
@@ -2547,12 +2645,12 @@ abstract class Validator implements ValidatorInterface
 
         if (empty($does_exist)) {
             // The file, whatever it is, does NOT exist
-            if ($exist) {
-                // FsFileFileInterface does NOT exist, but should exist
+            if ($require_exist) {
+                // File does NOT exist, but should exist
                 if ($type) {
                     $this->addFailure(tr('must be an existing ":type" in paths ":paths"', [
                         ':type'  => $type,
-                        ':paths' => $exists_in_directories
+                        ':paths' => Strings::force($exists_in_directories, ', ')
                     ]));
 
                 } else {
@@ -2562,7 +2660,7 @@ abstract class Validator implements ValidatorInterface
                 }
 
             } else {
-                // FsFileFileInterface should not exist, and does not exist, but ensure the parent path will exist!
+                // File should not exist, and does not exist, but ensure the parent path will exist!
                 if (empty($parent_exists)) {
                     $path->getParentDirectory()->ensure();
                 }
@@ -2570,10 +2668,12 @@ abstract class Validator implements ValidatorInterface
 
         } else {
             // The file, whatever it is, does exist
-            if ($exist === false) {
+            if ($require_exist === false) {
                 // The file exists, but should NOT exist
                 $this->addFailure(tr('must not exist'));
             }
+
+            // The file exists, but that is okay, yay!
 
             if ($must_be_directory) {
                 // The file should be a directory
@@ -2596,16 +2696,17 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file path
      *
-     * @param FsDirectoryInterface|array|null $exists_in_directories
-     * @param bool                            $exists
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool|null                   $require_exists
+     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isPath(FsDirectoryInterface|array|null $exists_in_directories = null, bool $exists = true): static
+    public function isPath(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $exists) {
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $prefix) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -2614,7 +2715,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             // Check the path
-            $this->validatePath($value, $exists_in_directories, null, $exists);
+            $this->validatePath($value, $exists_in_directories, null, $require_exists, $prefix);
         });
     }
 
@@ -2622,16 +2723,17 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param FsDirectoryInterface|array|null $exists_in_directories
-     * @param bool                            $exists
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool|null                   $require_exists
+     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isDirectory(FsDirectoryInterface|array|null $exists_in_directories = null, bool $exists = true): static
+    public function isDirectory(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $exists) {
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $prefix) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -2640,7 +2742,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             // Check the directory
-            $this->validatePath($value, $exists_in_directories, true, $exists);
+            $this->validatePath($value, $exists_in_directories, true, $require_exists, $prefix);
         });
     }
 
@@ -2648,16 +2750,17 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file
      *
-     * @param FsDirectoryInterface|array|null $exists_in_directories
-     * @param bool|null                       $exists
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool|null                   $require_exists
+     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isFile(FsDirectoryInterface|array|null $exists_in_directories = null, ?bool $exists = true): static
+    public function isFile(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $exists) {
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $prefix) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -2666,7 +2769,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             // Check the file
-            $this->validatePath($value, $exists_in_directories, false, $exists);
+            $this->validatePath($value, $exists_in_directories, false, $require_exists, $prefix);
         });
     }
 
@@ -2674,16 +2777,17 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file path and converts the value into FsPath object
      *
-     * @param FsDirectoryInterface|array $exists_in_directories
-     * @param bool                       $exists
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool|null                   $require_exists
+     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizePath(FsDirectoryInterface|array $exists_in_directories, bool $exists = true): static
+    public function sanitizePath(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $exists) {
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $prefix) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -2692,7 +2796,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             // Check the path and convert into FsPath object
-            $value = $this->validatePath($value, $exists_in_directories, null, $exists);
+            $value = $this->validatePath($value, $exists_in_directories, null, $require_exists, $prefix);
         });
     }
 
@@ -2700,16 +2804,17 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid directory and converts the value into FsDirectory object
      *
-     * @param FsDirectoryInterface|array $exists_in_directories
-     * @param bool                       $exists
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool|null                   $require_exists
+     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeDirectory(FsDirectoryInterface|array $exists_in_directories, bool $exists = true): static
+    public function sanitizeDirectory(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $exists) {
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $prefix) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -2718,7 +2823,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             // Check the directory and convert into FsDirectory object
-            $value = $this->validatePath($value, $exists_in_directories, true, $exists);
+            $value = $this->validatePath($value, $exists_in_directories, true, $require_exists, $prefix);
         });
     }
 
@@ -2726,16 +2831,17 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file and converts the value into an FsFile object
      *
-     * @param FsDirectoryInterface|array $exists_in_directories
-     * @param bool|null                  $exists
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool|null                   $require_exists
+     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeFile(FsDirectoryInterface|array $exists_in_directories, ?bool $exists = true): static
+    public function sanitizeFile(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $exists) {
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $prefix) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -2744,7 +2850,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             // Check the file and convert into FsFile object
-            $value = $this->validatePath($value, $exists_in_directories, false, $exists);
+            $value = $this->validatePath($value, $exists_in_directories, false, $require_exists, $prefix);
         });
     }
 
@@ -2752,16 +2858,16 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid description
      *
-     * @param int $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isDescription(int $characters = 16_777_200): static
+    public function isDescription(?int $max_characters = 16_777_200): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($characters) {
-            $this->sanitizeTrim()->hasMaxCharacters($characters);
+        return $this->validateValues(function (&$value) use ($max_characters) {
+            $this->sanitizeTrim()->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -2839,16 +2945,16 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid email address
      *
-     * @param int $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isColor(int $characters = 6): static
+    public function isColor(?int $max_characters = 6): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($characters) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($characters);
+        return $this->validateValues(function (&$value) use ($max_characters) {
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -2888,16 +2994,16 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid email address
      *
-     * @param int $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isEmail(int $characters = 2048): static
+    public function isEmail(?int $max_characters = 2048): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($characters) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($characters);
+        return $this->validateValues(function (&$value) use ($max_characters) {
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -2914,16 +3020,16 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid email address
      *
-     * @param int $max_size
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isUrl(int $max_size = 2048): static
+    public function isUrl(?int $max_characters = 2048): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($max_size) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_size);
+        return $this->validateValues(function (&$value) use ($max_characters) {
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -3196,23 +3302,23 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the selected field is a valid version number
      *
-     * @param int $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isVersion(int $characters = 11): static
+    public function isVersion(?int $max_characters = 11): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($characters) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($max_characters) {
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
-            if (!preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}/', $value)) {
+            if (!Strings::isVersion($value)) {
                 $this->addFailure(tr('must contain a valid version number'));
             }
         });
@@ -3222,23 +3328,30 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the specified function returns TRUE for this value
      *
-     * @param callable $function
-     * @param string   $failure
+     * @param callable|bool $value_or_function
+     * @param string        $failure
      *
      * @return static
      */
-    public function isTrue(callable $function, string $failure): static
+    public function isTrue(callable|bool $value_or_function, string $failure): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($function, $failure) {
+        return $this->validateValues(function (&$value) use ($value_or_function, $failure) {
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
-            if (!$function($value, $this->source)) {
-                $this->addFailure($failure);
+            if (is_callable($value_or_function)) {
+                if (!$value_or_function($value, $this->source)) {
+                    $this->addFailure($failure);
+                }
+
+            } else {
+                if (!$value_or_function) {
+                    $this->addFailure($failure);
+                }
             }
         });
     }
@@ -3247,23 +3360,30 @@ abstract class Validator implements ValidatorInterface
     /**
      * Validates if the specified function returns FALSE for this value
      *
-     * @param callable $function
-     * @param string   $failure
+     * @param callable|bool $value_or_function
+     * @param string        $failure
      *
      * @return static
      */
-    public function isFalse(callable $function, string $failure): static
+    public function isFalse(callable|bool $value_or_function, string $failure): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($function, $failure) {
+        return $this->validateValues(function (&$value) use ($value_or_function, $failure) {
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
-            if ($function($value, $this->source)) {
-                $this->addFailure($failure);
+            if (is_callable($value_or_function)) {
+                if ($value_or_function($value, $this->source)) {
+                    $this->addFailure($failure);
+                }
+
+            } else {
+                if ($value_or_function) {
+                    $this->addFailure($failure);
+                }
             }
         });
     }
@@ -4067,7 +4187,7 @@ abstract class Validator implements ValidatorInterface
      *
      * @param string|null $field_prefix
      *
-     * @return $this
+     * @return static
      */
     public function setColumnPrefix(?string $field_prefix): static
     {
@@ -4093,7 +4213,7 @@ abstract class Validator implements ValidatorInterface
      *
      * @param string|null $table
      *
-     * @return $this
+     * @return static
      */
     public function setTable(?string $table): static
     {
@@ -4104,7 +4224,7 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
-     * Returns the amount of tests performed on the current column
+     * Returns the number of tests performed on the current column
      *
      * @return int
      */

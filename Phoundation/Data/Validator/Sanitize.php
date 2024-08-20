@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
@@ -18,6 +19,7 @@ namespace Phoundation\Data\Validator;
 use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Utils\Strings;
+
 
 class Sanitize
 {

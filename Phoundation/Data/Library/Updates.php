@@ -12,6 +12,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Library;
@@ -27,7 +28,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.5';
+        return '0.0.20';
     }
 
 
@@ -40,9 +41,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.3', function () {
             // Create the categories table.
-            sql()->getSchemaObject()->getTableObject('categories')->drop();
-
-            sql()->getSchemaObject()->getTableObject('categories')->define()
+            sql()->getSchemaObject()->getTableObject('categories')->drop()->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -79,9 +78,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ');
         })->addUpdate('0.0.12', function () {
             // Create the entities table.
-            sql()->getSchemaObject()->getTableObject('entities')->drop();
-
-            sql()->getSchemaObject()->getTableObject('entities')->define()
+            sql()->getSchemaObject()->getTableObject('entities')->drop()->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -89,9 +86,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `first_names` varchar(128) DEFAULT NULL,
-                    `last_names` varchar(128) DEFAULT NULL,
-                    `nickname` varchar(128) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
                     `picture` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
                     `email` varchar(128) DEFAULT NULL,
                     `code` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -116,8 +111,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `gender` varchar(16) DEFAULT NULL,
                     `birthdate` date DEFAULT NULL,
                     `url` varchar(2048) DEFAULT NULL,
-                    `verified_on` datetime NULL DEFAULT NULL,
-                    `verification_code` varchar(128) DEFAULT NULL,
                     `description` text DEFAULT NULL,
                     `comments` mediumtext DEFAULT NULL
                 ')->setIndices('                
@@ -129,16 +122,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`),
                     KEY `email` (`email`),
-                    KEY `verified_on` (`verified_on`),
                     KEY `languages_id` (`languages_id`),
                     KEY `latitude` (`latitude`),
                     KEY `longitude` (`longitude`),
                     KEY `birthdate` (`birthdate`),
                     KEY `code` (`code`),
-                    KEY `type` (`type`),
                     KEY `phones` (`phones`),
-                    KEY `is_leader` (`is_leader`),
-                    KEY `leaders_id` (`leaders_id`),
                     KEY `name` (`name`),
                     KEY `cities_id` (`cities_id`),
                     KEY `states_id` (`states_id`),

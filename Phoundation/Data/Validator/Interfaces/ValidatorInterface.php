@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Validator\Interfaces;
@@ -27,7 +28,7 @@ use UnitEnum;
 interface ValidatorInterface
 {
     /**
-     * Returns the amount of tests performed on the current column
+     * Returns the number of tests performed on the current column
      *
      * @return int
      */
@@ -45,7 +46,7 @@ interface ValidatorInterface
     /**
      * This method will act as a "fake test" making sure that this selected value requires no testing
      *
-     * @return $this
+     * @return static
      */
     public function doNotValidate(): static;
 
@@ -188,17 +189,19 @@ interface ValidatorInterface
      */
     public function isDbId(bool $allow_zero = false): static;
 
+
     /**
      * Validates the datatype for the selected field
      *
      * This method ensures that the specified array key is a valid code
      *
      * @param string|null $until
-     * @param int         $max_characters
+     * @param int|null    $max_characters
+     * @param int|null    $min_characters
      *
      * @return static
      */
-    public function isCode(?string $until = null, int $max_characters = 64): static;
+    public function isCode(?string $until = null, ?int $max_characters = 64, ?int $min_characters = 1): static;
 
     /**
      * Validates the datatype for the selected field
@@ -294,10 +297,11 @@ interface ValidatorInterface
      *
      * @param string $string
      * @param bool   $regex
+     * @param bool   $not
      *
      * @return static
      */
-    public function contains(string $string, bool $regex = false): static;
+    public function contains(string $string, bool $regex = false, bool $not = false): static;
 
     /**
      * Ensures that the value has the specified string
@@ -306,10 +310,11 @@ interface ValidatorInterface
      *
      * @param string $string
      * @param bool   $regex
+     * @param bool   $not
      *
      * @return static
      */
-    public function containsNot(string $string, bool $regex = false): static;
+    public function containsNot(string $string, bool $regex = false, bool $not = false): static;
 
     /**
      * Validates the datatype for the selected field
@@ -393,29 +398,31 @@ interface ValidatorInterface
     /**
      * Validates that the selected field is equal or shorter than the specified number of characters
      *
-     * @param int|null $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function hasMaxCharacters(?int $characters = null): static;
+    public function hasMaxCharacters(?int $max_characters = null): static;
 
     /**
      * Validates that the selected field matches the specified regex
      *
      * @param string $regex
+     * @param bool   $not
      *
      * @return static
      */
-    public function matchesRegex(string $regex): static;
+    public function matchesRegex(string $regex, bool $not = false): static;
 
     /**
      * Validates that the selected field NOT matches the specified regex
      *
      * @param string $regex
+     * @param bool   $not
      *
      * @return static
      */
-    public function matchesNotRegex(string $regex): static;
+    public function matchesNotRegex(string $regex, bool $not = false): static;
 
     /**
      * Validates that the selected field starts with the specified string
@@ -518,7 +525,7 @@ interface ValidatorInterface
      *
      * @param mixed $validate_value
      * @param bool  $strict If true, will perform a strict check
-     * @param bool  $secret If specified the $validate_value will not be shown
+     * @param bool  $secret If specified, the $validate_value will not be shown
      * @param bool  $ignore_case
      *
      * @return static
@@ -664,20 +671,20 @@ interface ValidatorInterface
     /**
      * Validates if the selected field is a valid name
      *
-     * @param int $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isName(int $characters = 128): static;
+    public function isName(?int $max_characters = 128): static;
 
     /**
      * Validates if the selected field is a valid name
      *
-     * @param int $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isUsername(int $characters = 64): static;
+    public function isUsername(?int $max_characters = 64): static;
 
     /**
      * Validates if the selected field is a valid word
@@ -693,74 +700,86 @@ interface ValidatorInterface
      */
     public function isVariable(): static;
 
+
     /**
      * Validates if the selected field is a valid path
      *
-     * @param FsDirectoryInterface|array|null $exists_in_directories
-     * @param bool                            $exists
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool|null                   $require_exists
+     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isPath(FsDirectoryInterface|array|null $exists_in_directories = null, bool $exists = true): static;
+    public function isPath(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+
 
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param FsDirectoryInterface|array|null $exists_in_directories
-     * @param bool                            $exists
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool|null                   $require_exists
+     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isDirectory(FsDirectoryInterface|array|null $exists_in_directories = null, bool $exists = true): static;
+    public function isDirectory(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+
 
     /**
      * Validates if the selected field is a valid file
      *
-     * @param FsDirectoryInterface|array|null $exists_in_directories
-     * @param bool                            $exists
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool|null                   $require_exists
+     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isFile(FsDirectoryInterface|array|null $exists_in_directories = null, bool $exists = true): static;
+    public function isFile(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+
 
     /**
      * Validates if the selected field is a valid path and converts the value into FsPath object
      *
-     * @param FsDirectoryInterface|array $exists_in_directories
-     * @param bool                       $exists
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool|null                   $require_exists
+     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizePath(FsDirectoryInterface|array $exists_in_directories, bool $exists = true): static;
+    public function sanitizePath(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+
 
     /**
      * Validates if the selected field is a valid directory and converts the value into FsDirectory object
      *
-     * @param FsDirectoryInterface|array $exists_in_directories
-     * @param bool                       $exists
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool|null                   $require_exists
+     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeDirectory(FsDirectoryInterface|array $exists_in_directories, bool $exists = true): static;
+    public function sanitizeDirectory(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+
 
     /**
      * Validates if the selected field is a valid file and converts the value into FsFile object
      *
-     * @param FsDirectoryInterface|array $exists_in_directories
-     * @param bool                       $exists
+     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param bool|null                   $require_exists
+     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeFile(FsDirectoryInterface|array $exists_in_directories, bool $exists = true): static;
+    public function sanitizeFile(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
 
     /**
      * Validates if the selected field is a valid description
      *
-     * @param int $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isDescription(int $characters = 16_777_200): static;
+    public function isDescription(?int $max_characters = 16_777_200): static;
 
     /**
      * Validates if the selected field is a valid password
@@ -779,29 +798,29 @@ interface ValidatorInterface
     /**
      * Validates if the selected field is a valid email address
      *
-     * @param int $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isColor(int $characters = 6): static;
+    public function isColor(?int $max_characters = 6): static;
 
     /**
      * Validates if the selected field is a valid email address
      *
-     * @param int $characters
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isEmail(int $characters = 2048): static;
+    public function isEmail(?int $max_characters = 2048): static;
 
     /**
      * Validates if the selected field is a valid email address
      *
-     * @param int $max_size
+     * @param int|null $max_characters
      *
      * @return static
      */
-    public function isUrl(int $max_size = 2048): static;
+    public function isUrl(?int $max_characters = 2048): static;
 
     /**
      * Validates if the selected field is a valid domain name
@@ -879,25 +898,27 @@ interface ValidatorInterface
      */
     public function isBase64(): static;
 
+
     /**
      * Validates if the specified function returns TRUE for this value
      *
-     * @param callable $function
-     * @param string   $failure
+     * @param callable|bool $function
+     * @param string        $failure
      *
      * @return static
      */
-    public function isTrue(callable $function, string $failure): static;
+    public function isTrue(callable|bool $function, string $failure): static;
+
 
     /**
      * Validates if the specified function returns FALSE for this value
      *
-     * @param callable $function
-     * @param string   $failure
+     * @param callable|bool $value_or_function
+     * @param string        $failure
      *
      * @return static
      */
-    public function isFalse(callable $function, string $failure): static;
+    public function isFalse(callable|bool $value_or_function, string $failure): static;
 
     /**
      * Validates the value is unique in the table
@@ -1176,7 +1197,7 @@ interface ValidatorInterface
      *
      * @param string|null $field_prefix
      *
-     * @return $this
+     * @return static
      */
     public function setColumnPrefix(?string $field_prefix): static;
 
@@ -1192,7 +1213,7 @@ interface ValidatorInterface
      *
      * @param string|null $table
      *
-     * @return $this
+     * @return static
      */
     public function setTable(?string $table): static;
 
@@ -1255,4 +1276,23 @@ interface ValidatorInterface
      * @return static
      */
     public function setId(?int $id): static;
+
+    /**
+     * Validates if the selected field is a valid version number
+     *
+     * @param int|null $max_characters
+     *
+     * @return static
+     */
+    public function isVersion(?int $max_characters = 11): static;
+
+    /**
+     * Add the specified failure message to the failure list
+     *
+     * @param string      $failure
+     * @param string|null $field
+     *
+     * @return void
+     */
+    public function addFailure(string $failure, ?string $field = null): void;
 }

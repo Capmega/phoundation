@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
@@ -94,7 +95,7 @@ trait TraitDataCallbacks
      * @param EnumTableRowType        $type
      * @param                         $params
      *
-     * @return $this
+     * @return static
      */
     protected function executeCallbacks(IteratorInterface|array &$row, EnumTableRowType $type, &$params): static
     {

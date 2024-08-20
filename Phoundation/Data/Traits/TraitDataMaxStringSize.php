@@ -11,11 +11,14 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Exception\OutOfBoundsException;
+
 
 trait TraitDataMaxStringSize
 {
@@ -30,29 +33,38 @@ trait TraitDataMaxStringSize
     /**
      * Returns the maximum strings size we're able to handle
      *
-     * @param int|null $characters
+     * @param int|null $max_size
      *
      * @return int
      */
-    public function getMaxStringSize(?int $characters = null): int
+    public function getMaxStringSize(?int $max_size = null): int
     {
         // Ensure we have a valid default value
         $this->max_string_size = ($this->max_string_size ?? 1_073_741_824);
-        if ($characters === null) {
+
+        if (!$max_size) {
             // Return the maximum size
             return $this->max_string_size;
         }
-        if ($characters > $this->max_string_size) {
+
+        if ($max_size > $this->max_string_size) {
             Log::warning(tr('The specified number of maximum characters ":specified" surpasses the configured maximum number of ":configured". Forcing configured maximum amount instead', [
-                ':specified'  => $characters,
+                ':specified'  => $max_size,
                 ':configured' => $this->max_string_size,
             ]));
 
             return $this->max_string_size;
         }
 
+        if ($max_size < 0) {
+            // ? We can't do negative sizes...
+            throw new OutOfBoundsException(tr('Encountered invalid $max_size value ":value", it must be 0 or higher', [
+                ':value' => $max_size,
+            ]));
+        }
+
         // Yeah, this is okay
-        return $characters;
+        return $max_size;
     }
 
 

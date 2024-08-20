@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
@@ -23,6 +24,7 @@ use Phoundation\Data\Traits\TraitDataPrefix;
 use Phoundation\Data\Traits\TraitDataTable;
 use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
+
 
 class Definitions extends Iterator implements DefinitionsInterface
 {
@@ -71,7 +73,7 @@ class Definitions extends Iterator implements DefinitionsInterface
      * @param bool                             $skip_null_values
      * @param bool                             $exception
      *
-     * @return $this
+     * @return static
      */
     public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {

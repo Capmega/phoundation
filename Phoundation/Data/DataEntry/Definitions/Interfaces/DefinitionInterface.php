@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
@@ -54,7 +55,7 @@ interface DefinitionInterface
      *
      * @param callable $callback
      *
-     * @return $this
+     * @return static
      */
     public function modifyQueryBuilder(callable $callback): static;
 
@@ -301,7 +302,7 @@ interface DefinitionInterface
     /**
      * @param ScriptInterface $script
      *
-     * @return $this
+     * @return static
      */
     public function addScript(ScriptInterface $script): static;
 
@@ -468,9 +469,9 @@ interface DefinitionInterface
     /**
      * Returns the HTML client element to be used for this column
      *
-     * @return string|null
+     * @return EnumElement|null
      */
-    public function getElement(): string|null;
+    public function getElement(): EnumElement|null;
 
 
     /**
@@ -563,7 +564,7 @@ interface DefinitionInterface
 
 
     /**
-     * If true, will enable browser auto suggest for this input control
+     * If true, will enable browser auto-complete for this input control
      *
      * @note Defaults to false
      * @return bool
@@ -572,7 +573,7 @@ interface DefinitionInterface
 
 
     /**
-     * If true, will enable browser auto suggest for this input control
+     * If true, will enable browser auto-complete for this input control
      *
      * @note Defaults to false
      *
@@ -580,7 +581,49 @@ interface DefinitionInterface
      *
      * @return static
      */
-    public function setAutoComplete(?bool $value): static;
+    public function setAutoComplete(bool|null $value): static;
+
+
+    /**
+     * If true, will enable browser auto-complete for this input control
+     *
+     * @note Defaults to false
+     * @return array|bool|null
+     */
+    public function getCliAutoComplete(): array|bool|null;
+
+
+    /**
+     * If true, will enable browser auto-complete for this input control
+     *
+     * @note Defaults to false
+     *
+     * @param array|bool|null $value
+     *
+     * @return static
+     */
+    public function setCliAutoComplete(array|bool|null $value): static;
+
+
+    /**
+     * If true, will enable browser auto-suggest for this input control
+     *
+     * @note Defaults to false
+     * @return bool
+     */
+    public function getAutoSuggest(): bool;
+
+
+    /**
+     * If true, will enable browser auto-suggest for this input control
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setAutoSuggest(?bool $value): static;
 
 
     /**
@@ -713,24 +756,6 @@ interface DefinitionInterface
      * @return static
      */
     public function setExecute(array|string|null $value): static;
-
-
-    /**
-     * Returns the cli auto-completion queries for this column
-     *
-     * @return array|bool|null
-     */
-    public function getCliAutoComplete(): array|bool|null;
-
-
-    /**
-     * Sets the cli auto-completion queries for this column
-     *
-     * @param array|bool|null $value
-     *
-     * @return static
-     */
-    public function setCliAutoComplete(array|bool|null $value): static;
 
 
     /**
@@ -1343,7 +1368,7 @@ interface DefinitionInterface
     public function getRestrictions(): FsRestrictionsInterface;
 
     /**
-     * Sets the server and filesystem restrictions for this FsFileFileInterface object
+     * Sets the server and filesystem restrictions for this object
      *
      * @param FsRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
      * @param bool                                      $write        If $restrictions is not specified as a

@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
@@ -27,6 +28,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+
 
 class ArgvValidator extends Validator implements ArgvValidatorInterface
 {
@@ -1016,7 +1018,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *
      * @param string $key
      *
-     * @return $this
+     * @return static
      */
     public function addStdInStreamAsKey(string $key): static
     {

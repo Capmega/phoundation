@@ -12,9 +12,11 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
+
 
 trait TraitDataEntryNameDescription
 {

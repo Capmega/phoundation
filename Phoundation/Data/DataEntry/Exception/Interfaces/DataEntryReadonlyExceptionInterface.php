@@ -11,7 +11,7 @@ interface DataEntryReadonlyExceptionInterface extends DataEntryExceptionInterfac
      *
      * @param string|array $allow
      *
-     * @return $this
+     * @return static
      */
     public function setAllow(string|array $allow): static;
 

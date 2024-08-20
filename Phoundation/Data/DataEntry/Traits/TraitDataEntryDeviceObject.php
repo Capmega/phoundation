@@ -11,6 +11,7 @@
  * @package   Plugins\Hardware
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;

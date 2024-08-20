@@ -13,6 +13,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
@@ -28,6 +29,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Web;
+
 
 class PostValidator extends Validator
 {
@@ -431,7 +433,7 @@ class PostValidator extends Validator
     /**
      * Enables CSRF testing
      *
-     * @return $this
+     * @return static
      */
     public function enableCsrf(): static
     {
@@ -444,7 +446,7 @@ class PostValidator extends Validator
     /**
      * Disables CSRF testing
      *
-     * @return $this
+     * @return static
      */
     public function disableCsrf(): static
     {
@@ -457,7 +459,7 @@ class PostValidator extends Validator
     /**
      * Checks if the CSRF code
      *
-     * @return $this
+     * @return static
      */
     protected function checkCsrf(): static
     {

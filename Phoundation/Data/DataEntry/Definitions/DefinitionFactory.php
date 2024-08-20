@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
@@ -27,6 +28,7 @@ use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
@@ -37,6 +39,7 @@ use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Servers\Servers;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
+
 
 class DefinitionFactory
 {
@@ -529,7 +532,7 @@ class DefinitionFactory
                                        ->isDbId()
                                        ->isTrue(function ($value) {
                                            // This timezone must exist.
-                                           return Timezone::exists($value, 'name');
+                                           return Timezone::exists(['name' => $value]);
                                        }, tr('The specified timezone does not exist'));
                          });
     }
@@ -583,6 +586,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
+                         ->setElement(EnumElement::select)
                          ->setInputType(EnumInputType::number)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Countries::getHtmlCountriesSelect()
@@ -801,6 +805,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
+                         ->setRender(false)
                          ->setInputType(EnumInputType::dbid)
                          ->setSize(3)
                          ->setCliAutoComplete(true)
@@ -817,6 +822,25 @@ class DefinitionFactory
                              $validator->isDbId()
                                        ->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$' . $column]);
                          });
+    }
+
+
+    /**
+     * Returns a Definition object for column id
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string                  $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function getId(?DataEntryInterface $data_entry, string $column): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+                         ->setOptional(true)
+                         ->setRender(false)
+                         ->setInputType(EnumInputType::dbid)
+                         ->setSize(3)
+                         ->setCliAutoComplete(true);
     }
 
 
@@ -851,6 +875,26 @@ class DefinitionFactory
                              $validator->orColumn('users_id')
                                        ->setColumnFromQuery('users_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email', [':email' => '$email']);
                          });
+    }
+
+
+    /**
+     * Returns a Definition object for column users_id
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function getUsername(?DataEntryInterface $data_entry, ?string $column = 'username'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+            ->setOptional(true)
+            ->setRender(true)
+            ->setInputType(EnumInputType::name)
+            ->setCliColumn('-u,--username NAME')
+            ->setLabel(tr('Username'))
+            ->setCliAutoComplete(true);
     }
 
 
@@ -938,10 +982,7 @@ class DefinitionFactory
                          ->setMinlength(1)
                          ->setCliColumn('-c,--code CODE')
                          ->setCliAutoComplete(true)
-                         ->setLabel(tr('Code'))
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             $validator->isCode();
-                         });
+                         ->setLabel(tr('Code'));
     }
 
 
@@ -1031,13 +1072,14 @@ class DefinitionFactory
      *
      * @param DataEntryInterface|null $data_entry
      * @param string|null             $column
+     * @param int|null                $default
      *
      * @return DefinitionInterface
      */
-    public static function getNumber(?DataEntryInterface $data_entry, ?string $column = 'number'): DefinitionInterface
+    public static function getNumber(?DataEntryInterface $data_entry, ?string $column = 'number', ?int $default = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
-                         ->setOptional(true)
+                         ->setOptional(true, $default)
                          ->setInputType(EnumInputType::number)
                          ->setSize(4)
                          ->setMin(0)
@@ -1139,24 +1181,51 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column file
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param DataEntryInterface|null   $data_entry
+     * @param FsDirectoryInterface|null $exists_in_directory
+     * @param string|null               $column
      *
      * @return DefinitionInterface
      */
-    public static function getFile(?DataEntryInterface $data_entry, ?string $column = 'file'): DefinitionInterface
+    public static function getFile(?DataEntryInterface $data_entry, ?FsDirectoryInterface $exists_in_directory = null, ?string $column = 'file'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
-                         ->setMaxLength(255)
-                         ->setOptional(true)
-                         ->setSize(3)
-                         ->setLabel(tr('FsFileFileInterface'))
-                         ->setCliColumn(tr('-f,--file NAME'))
-                         ->setInputType(EnumInputType::text)
-                         ->setCliAutoComplete(true)
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             $validator->isName();
-                         });
+            ->setMaxLength(2048)
+            ->setOptional(true)
+            ->setSize(3)
+            ->setLabel(tr('File'))
+            ->setCliColumn(tr('-f,--file PATH'))
+            ->setInputType(EnumInputType::text)
+            ->setCliAutoComplete(true)
+            ->addValidationFunction(function (ValidatorInterface $validator) use ($exists_in_directory) {
+                if ($exists_in_directory) {
+                    $validator->isFile($exists_in_directory);
+                }
+            });
+    }
+
+
+    /**
+     * Returns a Definition object for column filename
+     *
+     * @param DataEntryInterface|null   $data_entry
+     * @param string|null               $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function getFilename(?DataEntryInterface $data_entry, ?string $column = 'filename'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+            ->setMaxLength(2048)
+            ->setOptional(true)
+            ->setSize(3)
+            ->setLabel(tr('Filename'))
+            ->setCliColumn(tr('-f,--filename NAME'))
+            ->setInputType(EnumInputType::text)
+            ->setCliAutoComplete(true)
+            ->addValidationFunction(function (ValidatorInterface $validator) {
+                $validator->matchesNotRegex('/\//');
+            });
     }
 
 

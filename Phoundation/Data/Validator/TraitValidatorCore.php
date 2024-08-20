@@ -11,13 +11,14 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitSourceObjectClass;
+use Phoundation\Data\Traits\TraitDataSourceObjectClass;
 use Phoundation\Data\Traits\TraitDataIntId;
 use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Data\Traits\TraitDataMetaColumns;
@@ -37,7 +38,7 @@ trait TraitValidatorCore
     use TraitDataIntId;
     use TraitDataMaxStringSize;
     use TraitDataMetaColumns;
-    use TraitSourceObjectClass;
+    use TraitDataSourceObjectClass;
 
 
     /**
@@ -205,7 +206,7 @@ trait TraitValidatorCore
     protected bool $clear_failed_fields = false;
 
     /**
-     * Tracks the amount of tests performed on the currently selected field
+     * Tracks the number of tests performed on the currently selected field
      *
      * @var int $test_count
      */
@@ -363,7 +364,7 @@ trait TraitValidatorCore
      *
      * @param string $field
      *
-     * @return $this
+     * @return static
      */
     public function copyTo(string $field): static
     {
@@ -433,7 +434,7 @@ trait TraitValidatorCore
      * @param string $field
      * @param bool   $rename
      *
-     * @return $this
+     * @return static
      */
     public function xorColumnIfTrue(mixed $test, string $field, bool $rename = false): static
     {
@@ -495,7 +496,7 @@ trait TraitValidatorCore
 
             Log::write('Validation failed on value below:', 'debug', 6);
             Log::printr($this->selected_value, 6, echo_header: false);
-            Log::write('Validation validation:', 'debug', 6);
+            Log::write('Validation backtrace:', 'debug', 6);
             Log::backtrace(threshold: 6);
         }
 
@@ -562,7 +563,7 @@ trait TraitValidatorCore
      *
      * @param string $field_name
      *
-     * @return $this
+     * @return static
      */
     public function rename(string $field_name): static
     {
@@ -580,7 +581,7 @@ trait TraitValidatorCore
      *
      * @param mixed $test
      * @param mixed|null $default
-     * @return $this
+     * @return static
      */
     public function isOptionalIfTrue(mixed $test, mixed $default = null): static
     {
@@ -943,24 +944,27 @@ trait TraitValidatorCore
         }
 
 // DEBUG CODE: In case of errors with validation, it's very useful to have these debugged here
-//        show($this->selected_field);
-//        show($value);
-//        show($this->selected_is_optional);
+// show($this->selected_field);
+// show($value);
+// show($this->selected_is_optional);
 
         if (!$value) {
-            if (!$this->selected_is_optional) {
-                // At this point we know we MUST have a value, so we're bad here
-                $this->addFailure(tr('is required'));
+            // Value 0 IS CONSIDERED A VALUE
+            if (!is_numeric($value)) {
+                if (!$this->selected_is_optional) {
+                    // At this point we know we MUST have a value, so we're bad here
+                    $this->addFailure(tr('is required'));
+
+                    return true;
+                }
+
+                // If the value is set or not doesn't matter, it's okay
+                $value                      = $this->selected_optional;
+                $this->selected_is_default  = true;
+                $this->process_value_failed = true;
 
                 return true;
             }
-
-            // If the value is set or not doesn't matter, it's okay
-            $value                      = $this->selected_optional;
-            $this->selected_is_default  = true;
-            $this->process_value_failed = true;
-
-            return true;
         }
 
         // The field has a value, we're okay

@@ -198,7 +198,7 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
 
 
     /**
@@ -228,18 +228,19 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Load the id list from the database
      *
-     * @param bool $clear
-     * @param bool $only_if_empty
+     * @param array|null $identifiers
+     * @param bool       $clear
+     * @param bool       $only_if_empty
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static;
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static;
 
 
     /**
      * This method will load ALL database entries into this object
      *
-     * @return $this
+     * @return static
      */
     public function loadAll(): static;
 
@@ -251,7 +252,7 @@ interface DataIteratorInterface extends IteratorInterface
      * @param bool                                $clear_keys
      * @param bool                                $exception
      *
-     * @return $this
+     * @return static
      */
     public function addSource(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static;
 

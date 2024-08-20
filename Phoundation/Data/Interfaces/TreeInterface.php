@@ -28,7 +28,7 @@ interface TreeInterface extends IteratorInterface
     /**
      * Sets the source of this tree from the specified JSON data
      *
-     * @return $this
+     * @return static
      */
     public function setJson(?string $json): static;
 

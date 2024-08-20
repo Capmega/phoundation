@@ -11,12 +11,14 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry;
 
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Meta\Meta;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
@@ -24,9 +26,10 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataConfigPath;
 use Phoundation\Data\Traits\TraitDataDebug;
-use Phoundation\Data\Traits\TraitDataParent;
+use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
@@ -39,7 +42,6 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
-use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
@@ -48,15 +50,15 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
 
+
 class DataIterator extends Iterator implements DataIteratorInterface
 {
     use TraitDataConfigPath;
     use TraitDataDebug;
     use TraitDataReadonly;
-    use TraitDataParent {
-        setParentObject as protected __setParent;
-    }
     use TraitDataRestrictions;
+    use TraitDataMetaEnabled;
+    use TraitMethodBuildManualQuery;
 
 
     /**
@@ -126,7 +128,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      */
     public static function uniqueColumnIs(string $column): bool
     {
-        return static::getUniqueColumn() === $column;
+        return (static::getUniqueColumn() ?? static::getIdColumn()) === $column;
     }
 
 
@@ -236,16 +238,23 @@ class DataIterator extends Iterator implements DataIteratorInterface
     /**
      * Selects if we use the default query or a query from the QueryBuilder
      *
+     * @param array|null $identifiers
+     *
      * @return void
      */
-    protected function selectQuery(): void
+    protected function selectQuery(?array $identifiers = null): void
     {
         // Use the default html_query and html_execute or QueryBuilder html_query and html_execute?
         if (isset($this->query_builder)) {
             $this->query   = $this->query_builder->getQuery();
             $this->execute = $this->query_builder->getExecute();
 
-        } elseif (!isset($this->query)) {
+        } elseif (!isset($this->query) or $identifiers) {
+            // Define default identifiers
+            if ($identifiers === null) {
+                $identifiers = ['status' => null];
+            }
+
             // Create query with optional filtering for parents_id
             if ($this->parent) {
                 $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->parent::getTable(), '_') . '_id` = :parents_id AND ';
@@ -255,10 +264,13 @@ class DataIterator extends Iterator implements DataIteratorInterface
                 $parent_filter = null;
             }
 
+            $this->buildManualQuery($identifiers, $where, $joins, $group, $order, $this->execute);
+
             // Set default query
-            $this->query = 'SELECT                        ' . $this->getSqlColumns() . '
-                            FROM                         `' . static::getTable() . '`
-                            WHERE  ' . $parent_filter . '`' . static::getTable() . '`.`status` IS NULL';
+            $this->query = 'SELECT                  ' . $this->getSqlColumns() . '
+                            FROM                   `' . static::getTable() . '`
+                            ' . $joins . '
+                            WHERE  ' . $parent_filter .  $where . $group . $order;
         }
     }
 
@@ -319,7 +331,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      */
     protected function getTableIdColumn(): string
     {
-        return '`' . static::getTable() . '`.`' . static::getUniqueColumn() . '`';
+        return '`' . static::getTable() . '`.`' . (static::getUniqueColumn() ?? static::getIdColumn()) . '`';
     }
 
 
@@ -381,7 +393,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
             // on the data available in the datalist, we'll have to load the DataEntry manually
             if (isset($this->query_builder)) {
                 // Load the DataEntry separately from the database (will require an extra query)
-                $entry = static::getEntryClass()::load($key)->setRestrictions($this->restrictions);
+                $entry = static::getDefaultContentDataTypes()::load($key)->setRestrictions($this->restrictions);
 
             } else {
                 if (is_array($this->source[$key])) {
@@ -395,7 +407,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
                         }
 
                         // Ensure the id key is available in the entry
-                        $this->source[$key][static::getEntryClass()::getIdColumn()] = $key;
+                        $this->source[$key][static::getDefaultContentDataTypes()::getIdColumn()] = $key;
 
                     } else {
                         if (empty($this->source[$key][static::getUniqueColumn()])) {
@@ -407,19 +419,19 @@ class DataIterator extends Iterator implements DataIteratorInterface
                         }
                     }
 
-                    $entry = static::getEntryClass()::new()
+                    $entry = static::getDefaultContentDataTypes()::new()
                                                     ->setRestrictions($this->restrictions)
                                                     ->setSource($this->source[$key]);
 
                 } else {
                     // Load the entry manually from DB. REQUIRES the DataEntry object to have a unique column specified!
-                    $entry = static::getEntryClass()::new($this->source[$key])
+                    $entry = static::getDefaultContentDataTypes()::new($this->source[$key])
                                                     ->setRestrictions($this->restrictions);
                 }
             }
 
             if ($entry->isLoadedFromConfiguration()) {
-                // Configuration loaded entries are always readonly
+                // Entries loaded from configuration are always readonly
                 $entry->setReadonly(true);
             }
 
@@ -431,11 +443,11 @@ class DataIterator extends Iterator implements DataIteratorInterface
 
 
     /**
-     * Returns the name of this DataEntry class
+     * Returns the data types that are allowed and accepted for this data iterator
      *
      * @return string|null
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return DataEntry::class;
     }
@@ -721,7 +733,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
     /**
      * This method will load ALL database entries into this object
      *
-     * @return $this
+     * @return static
      */
     public function loadAll(): static
     {
@@ -780,7 +792,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      *
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         if (!$value instanceof DataEntryInterface) {
             // Value might be NULL if we skip NULLs?
@@ -836,7 +848,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
             }
         }
 
-        return parent::add($value, $key, $skip_null_values, $exception);
+        return parent::append($value, $key, $skip_null_values, $exception);
     }
 
 
@@ -846,7 +858,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      * @note: Clearing means that the entries will NOT be deleted, it will set the status for all entries to "deleted"
      *        and update the unique column to NULL
      *
-     * @return $this
+     * @return static
      */
     public function clearIteratorFromTable(): static
     {
@@ -866,7 +878,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      *
      * @param string|bool|null $status
      *
-     * @return $this
+     * @return static
      */
     public function clearAllFromTable(string|bool|null $status = false): static
     {
@@ -925,14 +937,15 @@ class DataIterator extends Iterator implements DataIteratorInterface
     /**
      * Load the id list from the database
      *
-     * @param bool $clear         Will clear the DataIterator source before loading
-     * @param bool $only_if_empty Will only load if the current DataIterator source is empty
+     * @param array|null $identifiers
+     * @param bool       $clear         Will clear the DataIterator source before loading
+     * @param bool       $only_if_empty Will only load if the current DataIterator source is empty
      *
      * @return static
      */
-    public function load(bool $clear = true, bool $only_if_empty = false): static
+    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
-        $this->selectQuery();
+        $this->selectQuery($identifiers);
 
         if (!empty($this->source)) {
             if ($clear) {
@@ -946,9 +959,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
                                                          ->listKeyValues(
                                                              $this->query,
                                                              $this->execute,
-                                                             static::getUniqueColumn()
-                                                         )
-                    );
+                                                             static::getUniqueColumn()));
                 }
             }
 
@@ -974,7 +985,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
     protected function loadFromConfiguration(): array
     {
         $source      = Config::getArray(Strings::ensureEndsNotWith($this->configuration_path, '.'), []);
-        $entry       = static::getEntryClass();
+        $entry       = static::getDefaultContentDataTypes();
         $entry       = new $entry();
         $definitions = $entry->getDefinitionsObject();
 
@@ -1004,27 +1015,11 @@ class DataIterator extends Iterator implements DataIteratorInterface
      * @param bool                                $clear_keys
      * @param bool                                $exception
      *
-     * @return $this
+     * @return static
      */
     public function addSource(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static
     {
         return parent::addSource($source, $clear_keys, $exception);
-    }
-
-
-    /**
-     * Sets the parent
-     *
-     * @param DataEntryInterface $parent
-     *
-     * @return static
-     */
-    public function setParentObject(DataEntryInterface $parent): static
-    {
-        // Clear the source to avoid having a parent with the wrong children
-        $this->source = [];
-
-        return $this->__setParent($parent);
     }
 
 
@@ -1047,7 +1042,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
     /**
      * Ensures that all objects in the source are DataEntry objects
      *
-     * @return $this
+     * @return static
      */
     protected function ensureDataEntries(): static
     {

@@ -11,19 +11,21 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Validator\Exception;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitSourceObjectClass;
+use Phoundation\Data\Traits\TraitDataSourceObjectClass;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Phoundation\Utils\Config;
 use Throwable;
 
+
 class ValidationFailedException extends ValidatorException implements ValidationFailedExceptionInterface
 {
-    use TraitSourceObjectClass {
+    use TraitDataSourceObjectClass {
         setSourceObjectClass as protected __setSourceObjectClass;
     }
 
@@ -52,7 +54,7 @@ class ValidationFailedException extends ValidatorException implements Validation
      *
      * @param string|null $source_object_class
      *
-     * @return $this
+     * @return static
      */
     public function setSourceObjectClass(?string $source_object_class): static
     {

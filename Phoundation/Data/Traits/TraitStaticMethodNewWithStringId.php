@@ -1,45 +1,46 @@
 <?php
 
 /**
- * Trait TraitUsesNewField
+ * Trait TraitStaticMethodNewWithStringId
  *
- *
+ * This trait contains just the static new() command with an optional string ID parameter
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Data
  */
+
 
 declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-trait TraitUsesNewColumn
+
+trait TraitStaticMethodNewWithStringId
 {
-    use TraitDataColumn;
+    use TraitDataStringId;
 
     /**
-     * TraitUsesNewField class constructor
+     * UsesNewStringId class constructor
      *
-     * @param string|null $column
+     * @param string|null $id
      */
-    public function __construct(?string $column = null)
+    public function __construct(?string $id = null)
     {
-        $this->column = $column;
+        $this->id = $id;
     }
 
 
     /**
      * Returns a new static object
      *
-     * @param string|null $column
+     * @param string|null $id
      *
      * @return static
      */
-    public static function new(?string $column = null): static
+    public static function new(?string $id = null): static
     {
-        return new static($column);
+        return new static($id);
     }
 }

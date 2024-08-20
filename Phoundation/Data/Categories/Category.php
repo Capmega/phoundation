@@ -12,6 +12,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Categories;
@@ -25,6 +26,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
+
 
 class Category extends DataEntry implements CategoryInterface
 {
@@ -176,7 +178,7 @@ class Category extends DataEntry implements CategoryInterface
                     ->add(DefinitionFactory::getName($this)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isFalse(function ($value, $source) {
-                                                   Category::exists($value, 'name', isset_get($source['id']));
+                                                   Category::exists(['name' => $value], isset_get($source['id']));
                                                }, tr('already exists'));
                                            }))
                     ->add(DefinitionFactory::getSeoName($this))

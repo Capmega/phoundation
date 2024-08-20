@@ -11,11 +11,13 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Exception;
 
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
+
 
 class DataEntryDeletedException extends DataEntryNotExistsException implements DataEntryNotExistsExceptionInterface
 {

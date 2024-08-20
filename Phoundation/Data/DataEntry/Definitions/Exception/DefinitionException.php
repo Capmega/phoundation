@@ -11,12 +11,14 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions\Exception;
 
 use Phoundation\Data\DataEntry\Exception\DataEntryException;
 
-class DefinitionsException extends DataEntryException
+
+class DefinitionException extends DataEntryException
 {
 }

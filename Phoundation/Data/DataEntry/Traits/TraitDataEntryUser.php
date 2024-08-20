@@ -11,6 +11,7 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
@@ -53,7 +54,7 @@ trait TraitDataEntryUser
     {
         $users_id = $this->getTypesafe('int', 'users_id');
         if ($users_id) {
-            return User::load($users_id, 'id');
+            return User::load($users_id);
         }
 
         return null;

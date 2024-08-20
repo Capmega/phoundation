@@ -11,16 +11,20 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+
 trait TraitDataSelector
 {
     /**
-     * @var string $selector
+     *
+     *
+     * @var string|null $selector
      */
-    protected string $selector;
+    protected ?string $selector = null;
 
 
     /**

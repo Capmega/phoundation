@@ -11,12 +11,28 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Log\Log;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+
+
 trait TraitDataEntryUsersId
 {
+    /**
+     * Cached version of the user
+     *
+     * @var UserInterface|null $user
+     */
+    protected ?UserInterface $user = null;
+
+
     /**
      * Returns the users_id for this object
      *
@@ -24,7 +40,7 @@ trait TraitDataEntryUsersId
      */
     public function getUsersId(): ?int
     {
-        return $this->get('int', 'users_id');
+        return $this->getTypeSafe('int', 'users_id');
     }
 
 
@@ -38,5 +54,24 @@ trait TraitDataEntryUsersId
     public function setUsersId(int|null $users_id): static
     {
         return $this->set($users_id, 'users_id');
+    }
+
+
+    /**
+     * Returns the users_id for this user
+     *
+     * @return UserInterface|null
+     */
+    public function getUserObject(): ?UserInterface
+    {
+        if (empty($this->user)) {
+            $users_id = $this->getTypesafe('int', 'users_id');
+
+            if ($users_id) {
+                $this->user = User::load($users_id);
+            }
+        }
+
+        return $this->user;
     }
 }

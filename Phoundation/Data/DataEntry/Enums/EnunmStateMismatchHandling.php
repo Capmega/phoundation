@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Data\DataEntry\Enums;
-
-use Phoundation\Data\DataEntry\Enums\Interfaces\EnunmStateMismatchHandlingInterface;
-
 /**
  * Enum EnunmStateMismatchHandling
  *
@@ -16,6 +10,14 @@ use Phoundation\Data\DataEntry\Enums\Interfaces\EnunmStateMismatchHandlingInterf
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
+
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Enums;
+
+use Phoundation\Data\DataEntry\Enums\Interfaces\EnunmStateMismatchHandlingInterface;
+
 enum EnunmStateMismatchHandling: string implements EnunmStateMismatchHandlingInterface
 {
     case restrict       = 'restrict';

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitObjectClass
+ * Trait TraitMethodProcess
  *
  *
  *
@@ -11,42 +11,41 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-trait TraitObjectClass
+
+trait TraitMethodProcess
 {
     /**
-     * The data entry class
+     * Tracks if this has been processed or not
      *
-     * @var string|null $object_class
+     * @var bool $is_processed
      */
-    protected ?string $object_class = null;
+    protected bool $is_processed = false;
 
 
     /**
-     * Returns the data entry class
+     * Returns true if this has been processed
      *
-     * @return string
+     * @return bool
      */
-    public function getObjectClass(): string
+    public function isProcessed(): bool
     {
-        return $this->object_class;
+        return $this->is_processed;
     }
 
 
     /**
-     * Sets the data entry class
-     *
-     * @param string|null $object_class
+     * Will process this
      *
      * @return static
      */
-    public function setObjectClass(?string $object_class): static
+    public function process(): static
     {
-        $this->object_class = $object_class;
-
+        $this->is_processed = true;
         return $this;
     }
 }

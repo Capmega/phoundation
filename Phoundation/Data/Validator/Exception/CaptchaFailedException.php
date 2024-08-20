@@ -11,11 +11,13 @@
  * @package   Phoundation\Data
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\Validator\Exception;
 
 use Throwable;
+
 
 class CaptchaFailedException extends ValidationFailedException
 {
