@@ -5,11 +5,12 @@
  *
  * This command will create a file with the specified size
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Filesystem
  */
+
 
 declare(strict_types=1);
 
@@ -18,6 +19,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
+
 
 $restrictions = FsRestrictions::getWritable('/', 'command fs allocate');
 
@@ -60,7 +62,7 @@ FILE                                    The file to be created
                                         specified size
                                         (1024 - 1073741824 [4096])
 
-[-r,--randomized]                       Used in combination with --initialize. If specified will initialize the file 
+[-r,--randomized]                       Used in combination with --initialize. If specified, will initialize the file 
                                         with blocks at random locations within the file');
 
 

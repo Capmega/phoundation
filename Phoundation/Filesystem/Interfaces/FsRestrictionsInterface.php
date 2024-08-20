@@ -6,6 +6,8 @@ namespace Phoundation\Filesystem\Interfaces;
 
 use Phoundation\Filesystem\FsRestrictions;
 use Stringable;
+use Throwable;
+
 
 interface FsRestrictionsInterface
 {
@@ -24,7 +26,7 @@ interface FsRestrictionsInterface
      *
      * @return FsRestrictions
      */
-    public function getParent(): FsRestrictions;
+    public function getParent(?int $levels = null): FsRestrictions;
 
     /**
      * Returns a restrictions object with the current directory and the specified child directory attached
@@ -96,7 +98,7 @@ interface FsRestrictionsInterface
      *
      * @param string|null $label
      *
-     * @return $this
+     * @return static
      */
     public function ensureLabel(?string $label): static;
 
@@ -107,13 +109,15 @@ interface FsRestrictionsInterface
      */
     public function getLabel(): string;
 
+
     /**
      * @param Stringable|array|string $patterns
      * @param bool                    $write
+     * @param Throwable|null          $e
      *
      * @return void
      */
-    public function check(Stringable|array|string &$patterns, bool $write): void;
+    public function check(Stringable|array|string &$patterns, bool $write, ?Throwable $e = null): void;
 
     /**
      * Return these restrictions but with write enabled

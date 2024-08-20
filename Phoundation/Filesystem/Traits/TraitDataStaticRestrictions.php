@@ -11,6 +11,7 @@
  * @package   \Phoundation\Developer
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Traits;
@@ -44,7 +45,7 @@ trait TraitDataStaticRestrictions
 
 
     /**
-     * Sets the server and filesystem restrictions for this FsFileFileInterface object
+     * Sets the server and filesystem restrictions for this object
      *
      * @param FsRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
      * @param bool                                      $write        If $restrictions are not specified as a

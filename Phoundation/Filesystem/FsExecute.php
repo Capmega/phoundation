@@ -8,9 +8,9 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
 
 declare(strict_types=1);
 
@@ -23,6 +23,7 @@ use Phoundation\Filesystem\Interfaces\FsExecuteInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Utils\Arrays;
 use Throwable;
+
 
 class FsExecute extends FsDirectory implements FsExecuteInterface
 {
@@ -483,7 +484,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
             } elseif (file_exists($this->source . $file)) {
                 // Execute the callback
                 $count++;
-                $extension = FsPath::new($file)->getExtension();
+                $extension = FsPath::new($file, $this->restrictions)->getExtension();
 
                 if ($this->whitelist_extensions) {
                     // Extension MUST be on this list
@@ -517,7 +518,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
                     }
 
                     // Exceptions will be ignored
-                    Log::warning(tr('FsFileFileInterface ":file" encountered exception ":e" which will be ignored', [
+                    Log::warning(tr('File ":file" encountered exception ":e" which will be ignored', [
                         ':file' => $file,
                         ':e'    => $e->getMessage(),
                     ]));

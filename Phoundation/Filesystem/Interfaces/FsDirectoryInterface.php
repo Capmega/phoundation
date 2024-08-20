@@ -10,7 +10,6 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Filesystem
  */
 
@@ -95,8 +94,7 @@ interface FsDirectoryInterface extends FsPathInterface
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   file
+         * @package   file
      * @version   2.4.16: Added documentation
      */
     public function ensure(string|int|null $mode = null, ?bool $clear = false, bool $sudo = false): static;
@@ -111,8 +109,8 @@ interface FsDirectoryInterface extends FsPathInterface
     /**
      * Delete the directory, and each parent directory until a non-empty directory is encountered
      *
-     * @param string|null $until_directory If specified as a directory, the method will stop deleting upwards when the
-     *                                     specified directory is encountered as well. If specified as true, the method
+     * @param string|null $until_directory If specified, as a directory, the method will stop deleting upwards when the
+     *                                     specified directory is encountered as well. If specified, as true, the method
      *                                     will continue deleting until either FsRestrictions stops it, or a non empty
      *                                     directory has been encountered
      * @param bool        $sudo
@@ -351,7 +349,7 @@ interface FsDirectoryInterface extends FsPathInterface
      *
      * @return static
      * @example:
-     * FsFileFileInterface::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code,
+     * FsFile::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code,
      * $bytes_transferred, $bytes_max) { if ($notification_code == STREAM_Notification_PROGRESS) {
      *          // save $bytes_transferred and $bytes_max to file or database
      *      }

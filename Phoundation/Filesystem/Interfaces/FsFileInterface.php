@@ -13,16 +13,6 @@ use Throwable;
 interface FsFileInterface extends FsPathInterface
 {
     /**
-     * Move uploaded image to correct target
-     *
-     * @param array|string $source The source file to process
-     *
-     * @return string The new file path
-     * @throws CoreException
-     */
-    public function getUploaded(array|string $source): string;
-
-    /**
      * Ensure that the object file exists in the specified path
      *
      * @note    Will log to the console in case the file was created
@@ -55,7 +45,7 @@ interface FsFileInterface extends FsPathInterface
      *
      * @return static
      * @example:
-     * FsFileFileInterface::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code,
+     * FsFile::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code,
      * $bytes_transferred, $bytes_max) { if ($notification_code == STREAM_Notification_PROGRESS) {
      *          // save $bytes_transferred and $bytes_max to file or database
      *      }
@@ -176,43 +166,6 @@ interface FsFileInterface extends FsPathInterface
     public function grep(string|array $filters, ?int $until_line = null): array;
 
     /**
-     * Copy object file, see file_move_to_target for implementation
-     *
-     * @param string $directory
-     * @param bool   $extension
-     * @param bool   $singledir
-     * @param int    $length
-     *
-     * @return string
-     * @throws Exception
-     */
-    public function copyToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4): string;
-
-    /**
-     * Move object file (must be either file string or PHP uploaded file array) to a target and returns the target name
-     *
-     * IMPORTANT! Extension here is just "the rest of the filename", which may be _small.jpg, or just the extension,
-     * .jpg If only an extension is desired, it is VERY important that its specified as ".jpg" and not "jpg"!!
-     *
-     * $pattern sets the base path for where the file should be stored
-     * If $extension is false, the files original extension will be retained. If set to a value, the extension will be
-     * that value If $singledir is set to false, the resulting file will be in a/b/c/d/e/, if its set to true, it will
-     * be in abcde
-     * $length specifies howmany characters the subdir should have (4 will make a/b/c/d/ or abcd/)
-     *
-     * @param string $directory
-     * @param bool   $extension
-     * @param bool   $singledir
-     * @param int    $length
-     * @param bool   $copy
-     * @param string $context
-     *
-     * @return string The target file
-     * @throws Exception
-     */
-    public function moveToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string;
-
-    /**
      * Copy an entire tree with replace option
      *
      * Extensions (may be string or array with strings) sets which file extensions will have search / replace. If set to
@@ -230,7 +183,7 @@ interface FsFileInterface extends FsPathInterface
     public function copyTree(string $destination, array $search = null, array $replace = null, string|array $extensions = null, mixed $mode = true, bool $novalidate = false): string;
 
     /**
-     * Makes a backup of this file to the specified target and returns a new FsFileFileInterface object for the target
+     * Makes a backup of this file to the specified target and returns a new FsFileInterface object for the target
      *
      * @param string $pattern
      * @param bool   $move
@@ -283,7 +236,7 @@ interface FsFileInterface extends FsPathInterface
      * @param string $sha256
      * @param bool   $ignore_sha_fail
      *
-     * @return $this
+     * @return static
      */
     public function checkSha256(string $sha256, bool $ignore_sha_fail = false): static;
 
@@ -322,7 +275,7 @@ interface FsFileInterface extends FsPathInterface
      *
      * @param string $line_endings
      *
-     * @return $this
+     * @return static
      */
     public function ensureLineEndings(string $line_endings = PHP_EOL): static;
 
@@ -335,13 +288,28 @@ interface FsFileInterface extends FsPathInterface
      */
     public function create(bool $force = false): static;
 
+
     /**
      * Will upload this file to the remote client
      *
-     * @param bool $attachment
-     * @param bool $exit
+     * @param bool        $attachment
+     * @param string|null $description
+     * @param bool        $exit
      *
-     * @return $this
+     * @return static
      */
-    public function upload(bool $attachment, bool $exit = true): static;
+    public function upload(bool $attachment, ?string $description = null, bool $exit = true): static;
+
+
+    /**
+     * Will upload this file to the remote client
+     *
+     * @param bool        $attachment
+     * @param string|int  $bytes_per_second
+     * @param string|null $description
+     * @param bool        $exit
+     *
+     * @return static
+     */
+    public function uploadWithSpeedRate(bool $attachment, string|int $bytes_per_second, ?string $description = null, bool $exit = true): static;
 }

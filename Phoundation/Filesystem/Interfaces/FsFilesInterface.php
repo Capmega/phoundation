@@ -20,19 +20,19 @@ interface FsFilesInterface extends IteratorInterface
     public function getRestrictions(): FsRestrictionsInterface;
 
     /**
-     * Sets the server and filesystem restrictions for this FsFileFileInterface object
+     * Sets the server and filesystem restrictions for this FsFile object
      *
      * @param FsRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
-     * @param bool                                      $write        If $restrictions is not specified as a FsRestrictions
-     *                                                              class, but as a path string, or array of path
-     *                                                              strings, then this method will convert that into a
-     *                                                              FsRestrictions object and this is the $write modifier
-     *                                                              for that object
-     * @param string|null                               $label        If $restrictions is not specified as a FsRestrictions
-     *                                                              class, but as a path string, or array of path
-     *                                                              strings, then this method will convert that into a
-     *                                                              FsRestrictions object and this is the $label modifier
-     *                                                              for that object
+     * @param bool                                      $write        If $restrictions is not specified as a
+     *                                                                FsRestrictions class, but as a path string, or
+     *                                                                array of path strings, then this method will
+     *                                                                convert that into a FsRestrictions object and
+     *                                                                this is the $write modifier for that object
+     * @param string|null                               $label        If $restrictions is not specified as a
+     *                                                                FsRestrictions class, but as a path string, or
+     *                                                                array of path strings, then this method will
+     *                                                                convert that into a FsRestrictions object and
+     *                                                                this is the $label modifier for that object
      */
     public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
 
@@ -50,7 +50,7 @@ interface FsFilesInterface extends IteratorInterface
      *
      * @return FsPathInterface|null
      */
-    public function getParent(): ?FsPathInterface;
+    public function getParentDirectory(): ?FsPathInterface;
 
     /**
      * Returns the parent Path (if available) that contains these files
@@ -59,7 +59,7 @@ interface FsFilesInterface extends IteratorInterface
      *
      * @return FsFiles
      */
-    public function setParent(?FsPathInterface $parent): static;
+    public function setParentDirectory(?FsPathInterface $parent): static;
 
     /**
      * Move all files to the specified target
@@ -70,7 +70,7 @@ interface FsFilesInterface extends IteratorInterface
      * @param Stringable|string   $target
      * @param FsRestrictions|null $restrictions
      *
-     * @return $this
+     * @return static
      */
     public function move(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null): static;
 
@@ -84,7 +84,7 @@ interface FsFilesInterface extends IteratorInterface
      * @param FsRestrictionsInterface|null $restrictions
      * @param callable|null                $callback
      *
-     * @return $this
+     * @return static
      */
     public function copy(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static;
 

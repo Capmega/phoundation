@@ -11,11 +11,13 @@
  * @package   Phoundation\Filesystem
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Exception;
 
 use Phoundation\Exception\Exception;
+
 
 class FilesystemException extends Exception
 {

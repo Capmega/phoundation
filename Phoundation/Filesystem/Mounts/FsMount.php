@@ -11,6 +11,7 @@
  * @package   Phoundation\Filesystem
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Mounts;
@@ -41,6 +42,7 @@ use Phoundation\Os\Processes\Commands\UnMount;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
+
 class FsMount extends DataEntry implements FsMountInterface
 {
     use TraitDataEntryNameDescription;
@@ -52,15 +54,14 @@ class FsMount extends DataEntry implements FsMountInterface
     /**
      * FsMount class constructor
      *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool|null                          $meta_enabled
-     * @param bool                               $init
-     * @param FsRestrictionsInterface|null       $restrictions
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
+     * @param FsRestrictionsInterface|null             $restrictions
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null, bool $init = true, ?FsRestrictionsInterface $restrictions = null)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true, ?FsRestrictionsInterface $restrictions = null)
     {
-        parent::__construct($identifier, $column, $meta_enabled, $init);
+        parent::__construct($identifier, $meta_enabled, $init);
 
         $this->restrictions = $this->ensureRestrictions($restrictions);
     }
@@ -124,9 +125,9 @@ class FsMount extends DataEntry implements FsMountInterface
     /**
      * @inheritDoc
      */
-    public static function load(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static {
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static {
         try {
-            return parent::load($identifier, $column, $meta_enabled, $force);
+            return parent::load($identifier, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsException $e) {
             // FsMount was not found in the database. Get it from configuration instead but that DOES require the name
@@ -406,7 +407,7 @@ class FsMount extends DataEntry implements FsMountInterface
     /**
      * Unmounts this mount point
      *
-     * @return $this
+     * @return static
      */
     public function unmount(): static
     {
@@ -431,7 +432,7 @@ class FsMount extends DataEntry implements FsMountInterface
     /**
      * FsMounts this mount point
      *
-     * @return $this
+     * @return static
      */
     public function mount(): static
     {

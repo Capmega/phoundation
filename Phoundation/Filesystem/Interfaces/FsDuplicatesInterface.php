@@ -9,26 +9,26 @@ interface FsDuplicatesInterface
     /**
      * Deletes the duplicate files
      *
-     * @return $this
+     * @return static
      */
     public function deleteKeepFirst(): static;
 
     /**
-     * Returns the amount of bytes freed by the deleting of duplicate files
+     * Returns the number of bytes freed by the deleting of duplicate files
      *
      * @return int
      */
     public function getDeletedBytes(): int;
 
     /**
-     * Returns the amount of bytes freed by the deleting of duplicate files
+     * Returns the number of bytes freed by the deleting of duplicate files
      *
      * @return int
      */
     public function getDeletedCount(): int;
 
     /**
-     * Returns the amount of bytes freed by the deleting of duplicate files
+     * Returns the number of bytes freed by the deleting of duplicate files
      *
      * @return FsFilesInterface
      */

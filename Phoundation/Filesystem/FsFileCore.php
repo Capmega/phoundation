@@ -8,9 +8,9 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
 
 declare(strict_types=1);
 
@@ -41,9 +41,11 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Requests\FileResponse;
 use Stringable;
 use Throwable;
+
 
 class FsFileCore extends FsPathCore implements FsFileInterface
 {
@@ -80,49 +82,49 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     }
 
 
-    /**
-     * Move uploaded image to correct target
-     *
-     * @param array|string $source The source file to process
-     *
-     * @return string The new file directory
-     * @throws CoreException
-     */
-    public function getUploaded(array|string $source): string
-    {
-        throw new UnderConstructionException();
-
-        $destination = DIRECTORY_ROOT . 'data/uploads/';
-        $this->restrictions->check($source, true);
-        $this->restrictions->check($destination, true);
-
-        if (is_array($source)) {
-            // Assume this is a PHP file upload array entry
-            if (empty($source['tmp_name'])) {
-                throw new FilesystemException(tr('Invalid source specified, must either be a string containing an absolute file directory or a PHP $_FILES entry'));
-            }
-            $real   = $source['name'];
-            $source = $source['tmp_name'];
-        } else {
-            $real = basename($source);
-        }
-        is_file($source);
-        FsDirectory::new($destination)
-                 ->ensure();
-        // Ensure we're not overwriting anything!
-        if (file_exists($destination . $real)) {
-            $real = Strings::untilReverse($real, '.') . '_' . substr(uniqid(), -8, 8) . '.' . Strings::fromReverse($real, '.');
-        }
-        if (!move_uploaded_file($source, $destination . $real)) {
-            throw new FilesystemException(tr('Failed to move file ":source" to destination ":destination"', [
-                ':source'      => $source,
-                ':destination' => $destination,
-            ]));
-        }
-
-        // Return destination file
-        return $destination . $real;
-    }
+//    /**
+//     * Move uploaded image to correct target
+//     *
+//     * @param array|string $source The source file to process
+//     *
+//     * @return string The new file directory
+//     * @throws CoreException
+//     */
+//    public function getUploaded(array|string $source): string
+//    {
+//        throw new UnderConstructionException();
+//
+//        $destination = DIRECTORY_ROOT . 'data/uploads/';
+//        $this->restrictions->check($source, true);
+//        $this->restrictions->check($destination, true);
+//
+//        if (is_array($source)) {
+//            // Assume this is a PHP file upload array entry
+//            if (empty($source['tmp_name'])) {
+//                throw new FilesystemException(tr('Invalid source specified, must either be a string containing an absolute file directory or a PHP $_FILES entry'));
+//            }
+//            $real   = $source['name'];
+//            $source = $source['tmp_name'];
+//        } else {
+//            $real = basename($source);
+//        }
+//        is_file($source);
+//        FsDirectory::new($destination)
+//                 ->ensure();
+//        // Ensure we're not overwriting anything!
+//        if (file_exists($destination . $real)) {
+//            $real = Strings::untilReverse($real, '.') . '_' . substr(uniqid(), -8, 8) . '.' . Strings::fromReverse($real, '.');
+//        }
+//        if (!move_uploaded_file($source, $destination . $real)) {
+//            throw new FilesystemException(tr('Failed to move file ":source" to destination ":destination"', [
+//                ':source'      => $source,
+//                ':destination' => $destination,
+//            ]));
+//        }
+//
+//        // Return destination file
+//        return $destination . $real;
+//    }
 
 
     /**
@@ -155,7 +157,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
                      ->execute()
                      ->setMode(0770)
                      ->onDirectoryOnly(function () use ($mode) {
-                        Log::warning(tr('FsFileFileInterface ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
+                        Log::warning(tr('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
                             ':file' => $this->source,
                         ]));
 
@@ -231,7 +233,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
      * @return static
      *
      * @example:
-     * FsFileFileInterface::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message,
+     * FsFile::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message,
      * $message_code, $bytes_transferred, $bytes_max) { if ($notification_code == STREAM_Notification_PROGRESS) {
      *          // save $bytes_transferred and $bytes_max to file or database
      *      }
@@ -561,117 +563,117 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     }
 
 
-    /**
-     * Copy object file, see file_move_to_target for implementation
-     *
-     * @param string $directory
-     * @param bool   $extension
-     * @param bool   $singledir
-     * @param int    $length
-     *
-     * @return string
-     * @throws Exception
-     */
-    public function copyToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4): string
-    {
-        return $this->moveToTarget($directory, $extension, $singledir, $length, true);
-    }
+//    /**
+//     * Copy object file, see file_move_to_target for implementation
+//     *
+//     * @param string $directory
+//     * @param bool   $extension
+//     * @param bool   $singledir
+//     * @param int    $length
+//     *
+//     * @return string
+//     * @throws Exception
+//     */
+//    public function copyToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4): string
+//    {
+//        return $this->moveToTarget($directory, $extension, $singledir, $length, true);
+//    }
 
 
-    /**
-     * Move object file (must be either file string or PHP uploaded file array) to a target and returns the target name
-     *
-     * IMPORTANT! Extension here is just "the rest of the filename", which may be _small.jpg, or just the extension,
-     * .jpg If only an extension is desired, it is VERY important that its specified as ".jpg" and not "jpg"!!
-     *
-     * $pattern sets the base directory for where the file should be stored
-     * If $extension is false, the files original extension will be retained. If set to a value, the extension will be
-     * that value If $singledir is set to false, the resulting file will be in a/b/c/d/e/, if its set to true, it will
-     * be in abcde
-     * $length specifies howmany characters the subdir should have (4 will make a/b/c/d/ or abcd/)
-     *
-     * @param string $directory
-     * @param bool   $extension
-     * @param bool   $singledir
-     * @param int    $length
-     * @param bool   $copy
-     * @param string $context
-     *
-     * @return string The target file
-     * @throws Exception
-     */
-    public function moveToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string
-    {
-        throw new UnderConstructionException();
-        $this->restrictions->check($this->source, false);
-        $this->restrictions->check($directory, true);
-        if (is_array($this->source)) {
-            // Assume this is a PHP $_FILES array entry
-            $upload     = $this->source;
-            $this->source = $this->source['name'];
-        }
-        if (isset($upload) and $copy) {
-            throw new FilesystemException(tr('Copy option has been set, but object file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $this->source]));
-        }
-        $directory      = FsDirectory::new($directory, $this->restrictions)
-                                     ->ensure();
-        $this->filename = basename($this->source);
-        if (!$this->filename) {
-            // We always MUST have a filename
-            $this->filename = bin2hex(random_bytes(32));
-        }
-        // Ensure we have a local copy of the file to work with
-        if ($this->source) {
-            $this->source = FileResponse::new($this->restrictions)
-                                      ->download($is_downloaded, $context);
-        }
-        if (!$extension) {
-            $extension = $this->getExtension();
-        }
-        if ($length) {
-            $targetdirectory = Strings::slash(file_create_target_directory($directory, $singledir, $length));
-        } else {
-            $targetdirectory = Strings::slash($directory);
-        }
-        $target = $targetdirectory . strtolower(Strings::convertAccents(Strings::untilReverse($this->filename, '.'), '-'));
-        // Check if there is a "point" already in the extension not obligatory at the start of the string
-        if ($extension) {
-            if (!str_contains($extension, '.')) {
-                $target .= '.' . $extension;
-            } else {
-                $target .= $extension;
-            }
-        }
-        // Only move file is target does not yet exist
-        if (file_exists($target)) {
-            if (isset($upload)) {
-                // FsFileFileInterface was specified as an upload array
-                return $this->moveToTarget($upload, $directory, $extension, $singledir, $length, $copy);
-            }
-
-            return $this->moveToTarget($directory, $extension, $singledir, $length, $copy);
-        }
-        // Only move if file was specified. If no file specified, then we will only return the available directory
-        if ($this->source) {
-            if (isset($upload)) {
-                // This is an uploaded file
-                $this->moveToTarget($upload['tmp_name'], $target);
-
-            } else {
-                // This is a normal file
-                if ($copy and !$is_downloaded) {
-                    copy($this->source, $target);
-
-                } else {
-                    rename($target);
-
-                    FsDirectory::new(dirname($this->source))->clearDirectory();
-                }
-            }
-        }
-
-        return Strings::from($target, $directory);
-    }
+//    /**
+//     * Move object file (must be either file string or PHP uploaded file array) to a target and returns the target name
+//     *
+//     * IMPORTANT! Extension here is just "the rest of the filename", which may be _small.jpg, or just the extension,
+//     * .jpg If only an extension is desired, it is VERY important that its specified as ".jpg" and not "jpg"!!
+//     *
+//     * $pattern sets the base directory for where the file should be stored
+//     * If $extension is false, the files original extension will be retained. If set to a value, the extension will be
+//     * that value If $singledir is set to false, the resulting file will be in a/b/c/d/e/, if its set to true, it will
+//     * be in abcde
+//     * $length specifies howmany characters the subdir should have (4 will make a/b/c/d/ or abcd/)
+//     *
+//     * @param string $directory
+//     * @param bool   $extension
+//     * @param bool   $singledir
+//     * @param int    $length
+//     * @param bool   $copy
+//     * @param string $context
+//     *
+//     * @return string The target file
+//     * @throws Exception
+//     */
+//    public function moveToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string
+//    {
+//        throw new UnderConstructionException();
+//        $this->restrictions->check($this->source, false);
+//        $this->restrictions->check($directory, true);
+//        if (is_array($this->source)) {
+//            // Assume this is a PHP $_FILES array entry
+//            $upload     = $this->source;
+//            $this->source = $this->source['name'];
+//        }
+//        if (isset($upload) and $copy) {
+//            throw new FilesystemException(tr('Copy option has been set, but object file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $this->source]));
+//        }
+//        $directory      = FsDirectory::new($directory, $this->restrictions)
+//                                     ->ensure();
+//        $this->filename = basename($this->source);
+//        if (!$this->filename) {
+//            // We always MUST have a filename
+//            $this->filename = bin2hex(random_bytes(32));
+//        }
+//        // Ensure we have a local copy of the file to work with
+//        if ($this->source) {
+//            $this->source = FileResponse::new($this->restrictions)
+//                                      ->download($is_downloaded, $context);
+//        }
+//        if (!$extension) {
+//            $extension = $this->getExtension();
+//        }
+//        if ($length) {
+//            $targetdirectory = Strings::slash(file_create_target_directory($directory, $singledir, $length));
+//        } else {
+//            $targetdirectory = Strings::slash($directory);
+//        }
+//        $target = $targetdirectory . strtolower(Strings::convertAccents(Strings::untilReverse($this->filename, '.'), '-'));
+//        // Check if there is a "point" already in the extension not obligatory at the start of the string
+//        if ($extension) {
+//            if (!str_contains($extension, '.')) {
+//                $target .= '.' . $extension;
+//            } else {
+//                $target .= $extension;
+//            }
+//        }
+//        // Only move file is target does not yet exist
+//        if (file_exists($target)) {
+//            if (isset($upload)) {
+//                // File was specified as an upload array
+//                return $this->moveToTarget($upload, $directory, $extension, $singledir, $length, $copy);
+//            }
+//
+//            return $this->moveToTarget($directory, $extension, $singledir, $length, $copy);
+//        }
+//        // Only move if file was specified. If no file specified, then we will only return the available directory
+//        if ($this->source) {
+//            if (isset($upload)) {
+//                // This is an uploaded file
+//                $this->moveToTarget($upload['tmp_name'], $target);
+//
+//            } else {
+//                // This is a normal file
+//                if ($copy and !$is_downloaded) {
+//                    copy($this->source, $target);
+//
+//                } else {
+//                    rename($target);
+//
+//                    FsDirectory::new(dirname($this->source))->clearDirectory();
+//                }
+//            }
+//        }
+//
+//        return Strings::from($target, $directory);
+//    }
 
 
     /**
@@ -896,7 +898,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
 
 
     /**
-     * Makes a backup of this file to the specified target and returns a new FsFileFileInterface object for the target
+     * Makes a backup of this file to the specified target and returns a new FsFile object for the target
      *
      * @param string $pattern
      * @param bool   $move
@@ -923,9 +925,9 @@ class FsFileCore extends FsPathCore implements FsFileInterface
         // Apply pattern
         $dirname  = dirname($this->source) . '/';
         $basename = basename($this->source);
-        $target = str_replace(':PATH', $dirname, $pattern);
-        $target = str_replace(':FILE', $basename, $target);
-        $target = str_replace(':DATE', date('ymd-his'), $target);
+        $target   = str_replace(':PATH', $dirname, $pattern);
+        $target   = str_replace(':FILE', $basename, $target);
+        $target   = str_replace(':DATE', date('ymd-his'), $target);
 
         // Make the backup
         if ($move) {
@@ -1155,7 +1157,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
      * @param string $sha256
      * @param bool   $ignore_sha_fail
      *
-     * @return $this
+     * @return static
      */
     public function checkSha256(string $sha256, bool $ignore_sha_fail = false): static
     {
@@ -1234,7 +1236,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
      *
      * @param string $line_endings
      *
-     * @return $this
+     * @return static
      */
     public function ensureLineEndings(string $line_endings = PHP_EOL): static
     {
@@ -1261,18 +1263,21 @@ class FsFileCore extends FsPathCore implements FsFileInterface
             // Default to replacing within the same file
             $target = clone $this;
         }
+
         // Check filesystem restrictions and if file exists
         $this->restrictions->check($this->source, false);
         $target->restrictions->check($target, true);
+
         // Source file must exist
         $this->checkExists();
+
         // Target file must not exist, target parent directory should exist
         if ($this->source !== $target->getSource()) {
             // If we're replacing in the same file, then don't have to check
-            $target->getParentDirectory()
-                   ->ensure();
+            $target->getParentDirectory()->ensure();
             $target->checkNotExists();
         }
+
         // Copy & replace
         $data = $this->getContentsAsString();
         if ($regex) {
@@ -1280,6 +1285,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
             foreach ($replaces as $from => $to) {
                 $data = str_replace($from, $to, $data);
             }
+
         } else {
             $data = str_replace(array_keys($replaces), $replaces, $data);
         }
@@ -1289,7 +1295,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
 
 
     /**
-     * Returns the last # amount of lines from this file
+     * Returns the last # number of lines from this file
      *
      * @param int|null $lines
      *
@@ -1315,7 +1321,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
      *
      * @param int  $size
      *
-     * @return $this
+     * @return static
      */
     public function allocate(int $size): static
     {
@@ -1392,15 +1398,20 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     /**
      * Will upload this file to the remote client
      *
-     * @param bool $attachment
-     * @param bool $exit
+     * @param bool        $attachment
+     * @param string|null $description
+     * @param bool        $exit
      *
-     * @return $this
+     * @return static
      */
-    public function upload(bool $attachment, bool $exit = true): static
+    public function upload(bool $attachment, ?string $description = null, bool $exit = true): static
     {
         header('Content-Type: ' . $this->getMimetype());
         header('Content-length: ' . $this->getSize());
+
+        if ($description) {
+            header('Content-Description: ' . $description);
+        }
 
         if ($attachment) {
             // Instead of sending the file to the browser to display directly, send it as a file attachment that will
@@ -1409,6 +1420,56 @@ class FsFileCore extends FsPathCore implements FsFileInterface
         }
 
         $this->open(EnumFileOpenMode::readOnly)->fpassthru();
+        $this->close();
+
+        if ($exit) {
+            exit();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Will upload this file to the remote client speed rated
+     *
+     * @param bool        $attachment
+     * @param string|int  $bytes_per_second
+     * @param string|null $description
+     * @param bool        $exit
+     *
+     * @return static
+     */
+    public function uploadWithSpeedRate(bool $attachment, string|int $bytes_per_second, ?string $description = null, bool $exit = true): static
+    {
+        header('Content-Type: ' . $this->getMimetype());
+        header('Content-length: ' . $this->getSize());
+
+        if ($description) {
+            header('Content-Description: ' . $description);
+        }
+
+        if ($attachment) {
+            // Instead of sending the file to the browser to display directly, send it as a file attachment that will
+            // be downloaded to their disk
+            header('Content-Disposition: attachment; filename="' . $this->getBasename() . '"');
+        }
+
+        $this->open(EnumFileOpenMode::readOnly);
+
+        while (!$this->isEof()) {
+            $start = microtime(true);
+
+            print $this->read($bytes_per_second);
+
+            $diff = (microtime(true) - $start);
+
+            if ($diff > 0) {
+                // There is still some time left in this second, wait for it!
+                sleep($diff);
+            }
+        }
+
         $this->close();
 
         if ($exit) {

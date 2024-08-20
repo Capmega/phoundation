@@ -8,9 +8,9 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
 
 declare(strict_types=1);
 
@@ -25,6 +25,7 @@ use Phoundation\Data\Traits\TraitDataRestrictions;
 use ReturnTypeWillChange;
 use Stringable;
 
+
 class FsFilesCore extends IteratorCore implements FsFilesInterface
 {
     use TraitDataRestrictions;
@@ -35,7 +36,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
      *
      * @var FsDirectoryInterface|null
      */
-    protected ?FsDirectoryInterface $parent = null;
+    protected FsDirectoryInterface|null $parent_directory = null;
 
 
     /**
@@ -43,22 +44,22 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
      *
      * @return FsPathInterface|null
      */
-    public function getParent(): ?FsPathInterface
+    public function getParentDirectory(): ?FsPathInterface
     {
-        return $this->parent;
+        return $this->parent_directory;
     }
 
 
     /**
      * Returns the parent Path (if available) that contains these files
      *
-     * @param FsPathInterface|null $parent
+     * @param FsPathInterface|null $parent_directory
      *
      * @return FsFiles
      */
-    public function setParent(?FsPathInterface $parent): static
+    public function setParentDirectory(?FsPathInterface $parent_directory): static
     {
-        $this->parent = $parent;
+        $this->parent_directory = $parent_directory;
 
         return $this;
     }
@@ -73,7 +74,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
      * @param Stringable|string   $target
      * @param FsRestrictions|null $restrictions
      *
-     * @return $this
+     * @return static
      */
     public function move(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null): static
     {
@@ -82,7 +83,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
         FsDirectory::new($target, $restrictions)->ensure();
 
         foreach ($this->source as $file) {
-            FsFile::new($file)->movePath($target, $restrictions);
+            FsFile::new($file)->move($target, $restrictions);
         }
 
         return $this;
@@ -100,7 +101,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
      * @param callable|null                $callback
      * @param mixed|null                   $context
      *
-     * @return $this
+     * @return static
      */
     public function copy(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static
     {
@@ -143,7 +144,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
 
             if (!str_starts_with($current, '/')) {
                 // Prefix the file with the parent path ONLY IF it's not absolute and a parent was specified
-                $current = $this->parent?->getSource() . $current;
+                $current = $this->parent_directory?->getSource() . $current;
             }
 
             if (is_dir($current)) {
@@ -160,7 +161,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
 
         // The file is already stored in an FsPathInterface object
         $file = current($this->source);
-        $file->makeAbsolute($this->parent?->getSource(), false);
+        $file->makeAbsolute($this->parent_directory?->getSource(), false);
 
         return $file;
     }

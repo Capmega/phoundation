@@ -5,12 +5,14 @@
  *
  * This class manages file access restrictions
  *
+ *
+ *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
 
 declare(strict_types=1);
 
@@ -27,6 +29,8 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Web;
 use Stringable;
+use Throwable;
+
 
 class FsRestrictions implements FsRestrictionsInterface
 {
@@ -60,7 +64,7 @@ class FsRestrictions implements FsRestrictionsInterface
         } else {
             // Autodetect the label, it should be the function call name (or class::method()) that called this
             $call        = Debug::getCallBefore(null, FsRestrictions::class);
-            $this->label = $call->getCall();
+            $this->label = $call?->getCall() ?? tr('unknown');
 
             if ($this->label === 'include()') {
                 // This is actually the main command or web page, so show that instead
@@ -150,6 +154,34 @@ class FsRestrictions implements FsRestrictionsInterface
 
 
     /**
+     * Returns a restrictions object for DIRECTORY_SYSTEM
+     *
+     * @param bool        $write
+     * @param string|null $label
+     *
+     * @return static
+     */
+    public static function getSystem(bool $write = false, ?string $label = null): static
+    {
+        return new static(DIRECTORY_SYSTEM, $write, $label);
+    }
+
+
+    /**
+     * Returns a restrictions object for DIRECTORY_SYSTEM/cache
+     *
+     * @param bool        $write
+     * @param string|null $label
+     *
+     * @return static
+     */
+    public static function getCache(bool $write = false, ?string $label = null): static
+    {
+        return new static(DIRECTORY_SYSTEM . 'cache/', $write, $label);
+    }
+
+
+    /**
      * Returns a restrictions object for DIRECTORY_TMP
      *
      * @param bool        $write
@@ -157,7 +189,7 @@ class FsRestrictions implements FsRestrictionsInterface
      *
      * @return static
      */
-    public static function getTmp(bool $write = false, ?string $label = null): static
+    public static function getTemporary(bool $write = false, ?string $label = null): static
     {
         return new static(DIRECTORY_TMP, $write, $label);
     }
@@ -171,7 +203,7 @@ class FsRestrictions implements FsRestrictionsInterface
      *
      * @return static
      */
-    public static function getPubTmp(bool $write = false, ?string $label = null): static
+    public static function getPublicTemporary(bool $write = false, ?string $label = null): static
     {
         return new static(DIRECTORY_PUBTMP, $write, $label);
     }
@@ -192,6 +224,20 @@ class FsRestrictions implements FsRestrictionsInterface
 
 
     /**
+     * Returns a restrictions object for DIRECTORY_HOOKS
+     *
+     * @param bool        $write
+     * @param string|null $label
+     *
+     * @return static
+     */
+    public static function getHooks(bool $write = false, ?string $label = null): static
+    {
+        return new static(DIRECTORY_HOOKS, $write, $label);
+    }
+
+
+    /**
      * Returns a restrictions object for DIRECTORY_WEB
      *
      * @param bool        $write
@@ -202,6 +248,20 @@ class FsRestrictions implements FsRestrictionsInterface
     public static function getWeb(bool $write = false, ?string $label = null): static
     {
         return new static(DIRECTORY_WEB, $write, $label);
+    }
+
+
+    /**
+     * Returns a restrictions object for DIRECTORY_CDN
+     *
+     * @param bool        $write
+     * @param string|null $label
+     *
+     * @return static
+     */
+    public static function getCdn(bool $write = false, ?string $label = null): static
+    {
+        return new static(DIRECTORY_CDN, $write, $label);
     }
 
 
@@ -265,23 +325,6 @@ class FsRestrictions implements FsRestrictionsInterface
 
 
     /**
-     * Returns system general file access restrictions
-     *
-     * @return FsRestrictionsInterface
-     */
-    public static function getSystem(): FsRestrictionsInterface
-    {
-        static $restrictions;
-
-        if (empty($restrictions)) {
-            $restrictions = FsRestrictions::new(DIRECTORY_DATA, false, tr('System'));
-        }
-
-        return $restrictions;
-    }
-
-
-    /**
      * Returns a new FsRestrictions object with the specified restrictions
      *
      * @param Stringable|string|array|null $directories
@@ -333,22 +376,25 @@ class FsRestrictions implements FsRestrictionsInterface
         if (!$levels) {
             $levels = 1;
         }
-        $restrictions = FsRestrictions::new()
-                                      ->setLabel($this->label);
+
+        if ($levels < 1) {
+            throw new OutOfBoundsException(tr('Invalid parent level ":level" specified, must be 1 or higher', [
+                ':level' => $levels
+            ]));
+        }
+
+        $restrictions = FsRestrictions::new()->setLabel($this->label);
+
         foreach ($this->source as $directory => $write) {
-            // Negative level will calculate in reverse
-            if (!$levels) {
-                throw new OutOfBoundsException(tr('Invalid level ":level" specified, must be a positive or negative integer, and cannot be 0', [
-                    ':level' => $levels,
-                ]));
+            for ($l = 0; $l < $levels; $l++) {
+                if ($directory === '/') {
+                    throw new OutOfBoundsException(tr('Cannot get parent for directory "/"'));
+                }
+
+                $directory = dirname($directory);
             }
-            if ($levels > 0) {
-                $parent = Strings::until($directory, '/', $levels);
-            } else {
-                $count  = FsPath::countDirectories($directory);
-                $parent = Strings::until($directory, '/', $count + $levels);
-            }
-            $restrictions->addDirectory($parent, $write);
+
+            $restrictions->addDirectory($directory, $write);
         }
 
         return $restrictions;
@@ -383,9 +429,9 @@ class FsRestrictions implements FsRestrictionsInterface
      */
     public function getChild(string|array $child_directories, ?bool $write = null): FsRestrictions
     {
-        $restrictions      = FsRestrictions::new()
-                                           ->setLabel($this->label);
+        $restrictions      = FsRestrictions::new()->setLabel($this->label);
         $child_directories = Arrays::force($child_directories);
+
         foreach ($this->source as $directory => $original_write) {
             foreach ($child_directories as $child) {
                 $restrictions->addDirectory(Strings::slash($directory) . Strings::ensureStartsNotWith($child, '/'), $write ?? $original_write);
@@ -440,8 +486,10 @@ class FsRestrictions implements FsRestrictionsInterface
                 $directory       = $directory_write;
                 $directory_write = $write;
             }
+
             if (is_array($directory)) {
                 $this->addDirectories($directories, $directory_write);
+
             } else {
                 $this->addDirectory($directory, $directory_write);
             }
@@ -483,7 +531,7 @@ class FsRestrictions implements FsRestrictionsInterface
      *
      * @param string|null $label
      *
-     * @return $this
+     * @return static
      */
     public function ensureLabel(?string $label): static
     {
@@ -524,15 +572,16 @@ class FsRestrictions implements FsRestrictionsInterface
     /**
      * @param Stringable|array|string $patterns
      * @param bool                    $write
+     * @param Throwable|null          $e
      *
      * @return void
      */
-    public function check(Stringable|array|string &$patterns, bool $write): void
+    public function check(Stringable|array|string &$patterns, bool $write, ?Throwable $e = null): void
     {
         if (!$this->source) {
             throw new RestrictionsException(tr('The ":label" restrictions have no directories specified', [
                 ':label' => $this->label,
-            ]));
+            ]), $e);
         }
 
         // Check each specified directory pattern to see if its allowed or restricted
@@ -546,7 +595,7 @@ class FsRestrictions implements FsRestrictionsInterface
                         throw RestrictionsException::new(tr('Write access to directory patterns ":patterns" denied by ":label" restrictions', [
                             ':patterns' => $pattern,
                             ':label'    => $this->label,
-                        ]))->addData([
+                        ]), $e)->addData([
                             'label'    => $this->label,
                             'patterns' => $patterns,
                             'paths'    => $this->source,
@@ -563,7 +612,7 @@ class FsRestrictions implements FsRestrictionsInterface
                 ':method'   => $write ? tr('Write') : tr('Read'),
                 ':patterns' => $pattern,
                 ':label'    => $this->label,
-            ]))->addData([
+            ]), $e)->addData([
                 'label'    => $this->label,
                 'patterns' => $patterns,
                 'paths'    => $this->source,

@@ -8,17 +8,17 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Filesystem
  */
 
 namespace Phoundation\Filesystem;
 
-use Phoundation\Data\Traits\TraitNew;
+use Phoundation\Data\Traits\TraitStaticMethodNew;
+
 
 class FsMountedStorageDevices extends FsDirectoryCore
 {
-    use TraitNew;
+    use TraitStaticMethodNew;
 
 
     /**

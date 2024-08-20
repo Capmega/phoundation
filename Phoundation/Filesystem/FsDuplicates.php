@@ -8,9 +8,9 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
 
 declare(strict_types=1);
 
@@ -24,10 +24,11 @@ use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsDuplicatesInterface;
 use Phoundation\Filesystem\Interfaces\FsFilesInterface;
 
+
 class FsDuplicates extends Iterator implements FsDuplicatesInterface
 {
     /**
-     * The amount of files deleted
+     * The number of files deleted
      *
      * @var int
      */
@@ -70,7 +71,7 @@ class FsDuplicates extends Iterator implements FsDuplicatesInterface
 
 
     /**
-     * Returns the amount of bytes freed by the deleting of duplicate files
+     * Returns the number of bytes freed by the deleting of duplicate files
      *
      * @return FsDirectoryInterface|null
      */
@@ -81,7 +82,7 @@ class FsDuplicates extends Iterator implements FsDuplicatesInterface
 
 
     /**
-     * Returns the amount of bytes freed by the deleting of duplicate files
+     * Returns the number of bytes freed by the deleting of duplicate files
      *
      * @return int
      */
@@ -92,7 +93,7 @@ class FsDuplicates extends Iterator implements FsDuplicatesInterface
 
 
     /**
-     * Returns the amount of bytes freed by the deleting of duplicate files
+     * Returns the number of bytes freed by the deleting of duplicate files
      *
      * @return int
      */
@@ -103,7 +104,7 @@ class FsDuplicates extends Iterator implements FsDuplicatesInterface
 
 
     /**
-     * Returns the amount of bytes freed by the deleting of duplicate files
+     * Returns the number of bytes freed by the deleting of duplicate files
      *
      * @return FsFilesInterface
      */

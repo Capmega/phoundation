@@ -11,6 +11,7 @@
  * @package   Phoundation\Filesystem
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
@@ -24,6 +25,7 @@ use Phoundation\Filesystem\Exception\NotAFilesystemException;
 use Phoundation\Filesystem\Interfaces\FsFilesystemInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Stringable;
+
 
 class FsFilesystem extends FsFile implements FsFilesystemInterface
 {

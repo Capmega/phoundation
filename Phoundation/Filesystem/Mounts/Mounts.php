@@ -11,6 +11,7 @@
  * @package   Phoundation\Filesystem
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Mounts;
@@ -27,6 +28,7 @@ use Phoundation\Os\Processes\Commands\Mount;
 use Phoundation\Os\Processes\Commands\UnMount;
 use Stringable;
 
+
 class Mounts extends DataIterator implements MountsInterface
 {
     /**
@@ -41,7 +43,7 @@ class Mounts extends DataIterator implements MountsInterface
     /**
      * @inheritDoc
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return FsMount::class;
     }

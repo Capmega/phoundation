@@ -8,24 +8,23 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Filesystem
  */
 
 namespace Phoundation\Filesystem\Interfaces;
 
-use Phoundation\Core\Core;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Enums\EnumExtensionMode;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
-use Phoundation\Utils\Strings;
+use Phoundation\Os\Processes\Commands\Interfaces\ZipInterface;
 use Stringable;
 use Throwable;
+
 
 interface FsPathInterface extends Stringable
 {
@@ -46,11 +45,53 @@ interface FsPathInterface extends Stringable
     public function hasExtension(string $extension): bool;
 
     /**
+     * Returns true if this file has the correct extension for its mimetype
+     *
+     * @return bool
+     */
+    public function extensionMatchesMimetype(): bool;
+
+    /**
+     * Will update the extension of this file if the current extension does not match the mimetype
+     *
+     * @return static
+     */
+    public function ensureExtensionMatchesMimetype(): static;
+
+    /**
+     * Will update the extension of this file if the current extension does not match the mimetype
+     *
+     * @return static
+     */
+    public function checkExtensionMatchesMimetype(): static;
+
+    /**
+     * Will remove any extra file extensions to avoid windoos computers fracking shoot up.
+     *
+     * @return static
+     */
+    public function ensureSingleExtension(): static;
+
+    /**
+     * Will throw a FilesystemExtensionException if this file has multiple extensions
+     *
+     * @return static
+     */
+    public function checkSingleExtension(): static;
+
+    /**
      * Returns the basename of this path
      *
      * @return string
      */
     public function getBasename(): string;
+
+    /**
+     * Returns the path starting from DIRECTORY_ROOT
+     *
+     * @return string
+     */
+    public function getRootname(): string;
 
     /**
      * Returns the stream for this file if it's opened. Will return NULL if closed
@@ -159,7 +200,7 @@ interface FsPathInterface extends Stringable
      *
      * @param int $size
      *
-     * @return $this
+     * @return static
      */
     public function truncate(int $size): static;
 
@@ -269,17 +310,17 @@ interface FsPathInterface extends Stringable
      * @param string|bool $clean_path
      * @param bool        $sudo
      *
-     * @return $this
+     * @return static
      */
     public function secureDelete(string|bool $clean_path = true, bool $sudo = false): static;
 
     /**
      * Delete a file weather it exists or not, without error, using the "rm" command
      *
-     * @param string|bool $clean_path If specified true, all directories above each specified pattern will be deleted as
+     * @param string|bool $clean_path If specified, true, all directories above each specified pattern will be deleted as
      *                                well as long as they are empty. This way, no empty directories will be left lying
      *                                around
-     * @param boolean     $sudo       If specified true, the rm command will be executed using sudo
+     * @param boolean     $sudo       If specified, true, the rm command will be executed using sudo
      * @param bool        $escape     If true, will escape the filename. This may cause issues when using wildcards, for
      *                                example
      * @param bool        $use_run_file
@@ -295,9 +336,9 @@ interface FsPathInterface extends Stringable
      * @param Stringable|string   $target
      * @param FsRestrictions|null $restrictions
      *
-     * @return $this
+     * @return static
      */
-    public function movePath(Stringable|string $target, ?FsRestrictions $restrictions = null): static;
+    public function move(Stringable|string $target, ?FsRestrictions $restrictions = null): static;
 
     /**
      * Switches file mode to the new value and returns the previous value
@@ -391,8 +432,8 @@ interface FsPathInterface extends Stringable
      *
      * @example
      * code
-     * show(FsFileFileInterface::new()->getRealPath());
-     * showdie(FsFileFileInterface::new()->getRealPath());
+     * show(FsFile::new()->getRealPath());
+     * showdie(FsFile::new()->getRealPath());
      * /code
      *
      * This would result in
@@ -410,7 +451,7 @@ interface FsPathInterface extends Stringable
      *
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool $must_exist
-     * @return $this
+     * @return static
      */
     public function makeRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static;
 
@@ -425,8 +466,8 @@ interface FsPathInterface extends Stringable
      *
      * @example
      * code
-     * show(FsFileFileInterface::new()->getRealPath());
-     * showdie(FsFileFileInterface::new()->getRealPath());
+     * show(FsFile::new()->getRealPath());
+     * showdie(FsFile::new()->getRealPath());
      * /code
      *
      * This would result in
@@ -489,7 +530,7 @@ interface FsPathInterface extends Stringable
      *
      * @param FsPathInterface|string|bool $absolute_prefix
      *
-     * @return \Phoundation\Filesystem\Interfaces\FsPathInterface
+     * @return FsPathInterface
      */
     public function readLink(FsPathInterface|string|bool $absolute_prefix = false): FsPathInterface;
 
@@ -498,7 +539,7 @@ interface FsPathInterface extends Stringable
      *
      * @param FsPathInterface|string|bool $absolute
      *
-     * @return \Phoundation\Filesystem\Interfaces\FsPathInterface
+     * @return FsPathInterface
      */
     public function getLinkTarget(FsPathInterface|string|bool $absolute = false): FsPathInterface;
 
@@ -561,24 +602,24 @@ interface FsPathInterface extends Stringable
     /**
      * Creates a symlink $target that points to this file.
      *
-     * @note Will return a NEW Path object (FsFileFileInterface or Directory, basically) for the specified target
+     * @note Will return a NEW Path object (FsFileInterface or FsDirectory, basically) for the specified target
      *
      * @param FsPathInterface|string      $target
      * @param FsPathInterface|string|bool $make_relative
      *
-     * @return \Phoundation\Filesystem\Interfaces\FsPathInterface
+     * @return FsPathInterface
      */
     public function symlinkTargetFromThis(FsPathInterface|string $target, FsPathInterface|string|bool $make_relative = true): FsPathInterface;
 
     /**
      * Makes this path a symlink that points to the specified target.
      *
-     * @note Will return a NEW Path object (FsFileFileInterface or Directory, basically) for the specified target
+     * @note Will return a NEW Path object (FsFile or FsDirectory, basically) for the specified target
      *
      * @param FsPathInterface|string      $target
      * @param FsPathInterface|string|bool $make_relative
      *
-     * @return \Phoundation\Filesystem\Interfaces\FsPathInterface
+     * @return FsPathInterface
      */
     public function symlinkThisToTarget(FsPathInterface|string $target, FsPathInterface|string|bool $make_relative = true): FsPathInterface;
 
@@ -679,7 +720,7 @@ interface FsPathInterface extends Stringable
      * @param string   $data
      * @param int|null $length
      *
-     * @return $this
+     * @return static
      */
     public function write(string $data, ?int $length = null): static;
 
@@ -691,7 +732,7 @@ interface FsPathInterface extends Stringable
      * @param int           $offset
      * @param int|null      $length
      *
-     * @return $this
+     * @return static
      */
     public function getContentsAsString(bool $use_include_path = false, $context = null, int $offset = 0, ?int $length = null): string;
 
@@ -722,7 +763,7 @@ interface FsPathInterface extends Stringable
      * @param int    $flags
      * @param null   $context
      *
-     * @return $this
+     * @return static
      */
     public function putContents(string $data, int $flags = 0, $context = null): static;
 
@@ -748,7 +789,7 @@ interface FsPathInterface extends Stringable
     /**
      * Sets access and modification time of file
      *
-     * @return $this
+     * @return static
      */
     public function touch(): static;
 
@@ -773,14 +814,14 @@ interface FsPathInterface extends Stringable
     /**
      * Synchronizes changes to the file (including meta-data)
      *
-     * @return $this
+     * @return static
      */
     public function sync(): static;
 
     /**
      * Synchronizes data (but not meta-data) to the file
      *
-     * @return $this
+     * @return static
      */
     public function syncData(): static;
 
@@ -789,7 +830,7 @@ interface FsPathInterface extends Stringable
      *
      * @param int $passes
      *
-     * @return $this
+     * @return static
      */
     public function shred(int $passes = 3): static;
 
@@ -814,18 +855,20 @@ interface FsPathInterface extends Stringable
      * @param FsPathInterface|string      $target
      * @param FsPathInterface|string|bool $absolute_prefix
      *
-     * @return \Phoundation\Filesystem\Interfaces\FsPathInterface
+     * @return FsPathInterface
      */
     public function getRelativePathTo(FsPathInterface|string $target, FsPathInterface|string|bool $absolute_prefix = null): FsPathInterface;
+
 
     /**
      * Checks restrictions
      *
-     * @param bool $write
+     * @param bool           $write
+     * @param Throwable|null $e
      *
-     * @return $this
+     * @return static
      */
-    public function checkRestrictions(bool $write): static;
+    public function checkRestrictions(bool $write, ?Throwable $e): static;
 
     /**
      * Replaces the current path by moving it out of the way and moving the target in its place, then deleting the
@@ -833,14 +876,14 @@ interface FsPathInterface extends Stringable
      *
      * @param FsPathInterface|string $target
      *
-     * @return \Phoundation\Filesystem\Interfaces\FsPathInterface
+     * @return FsPathInterface
      */
     public function replaceWithPath(FsPathInterface|string $target): FsPathInterface;
 
     /**
      * Ensures that this path is a symlink
      *
-     * @return $this
+     * @return static
      */
     public function checkSymlink(Stringable|string $target): static;
 
@@ -884,14 +927,14 @@ interface FsPathInterface extends Stringable
      * @param FsRestrictionsInterface|null $restrictions
      * @param bool                         $rename
      *
-     * @return $this
+     * @return static
      */
     public function symlinkTreeToTarget(FsPathInterface|string $target, FsPathInterface|string|null $alternate_path = null, ?FsRestrictionsInterface $restrictions = null, bool $rename = false): FsPathInterface;
 
     /**
      * Will scan this path for symlinks and delete all of them one by one
      *
-     * @return $this
+     * @return static
      */
     public function clearTreeSymlinks(bool $clean = false): static;
 
@@ -903,7 +946,7 @@ interface FsPathInterface extends Stringable
     public function getRestrictions(): FsRestrictionsInterface;
 
     /**
-     * Sets the server and filesystem restrictions for this FsFileFileInterface object
+     * Sets the server and filesystem restrictions for this FsPath object
      *
      * @param FsRestrictionsInterface|array|string|null      $restrictions The file restrictions to apply to this object
      * @param bool                                           $write        If $restrictions is not specified as a
@@ -1084,13 +1127,39 @@ interface FsPathInterface extends Stringable
      */
     public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface;
 
+
     /**
      * Zips this path and returns a file object for the tar file
      *
-     * @param FsFileInterface|null $target
-     * @param int $compression
-     * @param int $timeout
-     * @return FsFileInterface
+     * @return ZipInterface
      */
-    public function zip(?FsFileInterface $target = null, int $compression = 5, int $timeout = 600): FsFileInterface;
+    public function getZipObject(): ZipInterface;
+
+    /**
+     * Make this (absolute) path a relative path
+     *
+     * @param FsDirectoryInterface $from
+     *
+     * @return static
+     */
+    public function makeRelative(FsDirectoryInterface $from): static;
+
+    /**
+     * Checks if write access is available for this file
+     *
+     * @param Throwable|null $e
+     *
+     * @return static
+     * @todo Add Core::fileWriteEnabled() checks in here
+     */
+    public function checkWriteAccess(?Throwable $e = null): static;
+
+    /**
+     * Checks if read access is available
+     *
+     * @param Throwable|null $e
+     *
+     * @return static
+     */
+    public function checkReadAccess(?Throwable $e = null): static;
 }

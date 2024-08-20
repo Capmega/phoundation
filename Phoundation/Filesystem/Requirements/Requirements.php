@@ -11,6 +11,7 @@
  * @package   Phoundation\Filesystem
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Requirements;
@@ -18,6 +19,7 @@ namespace Phoundation\Filesystem\Requirements;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
 use Stringable;
+
 
 class Requirements extends DataIterator implements RequirementsInterface
 {
@@ -33,7 +35,7 @@ class Requirements extends DataIterator implements RequirementsInterface
     /**
      * @inheritDoc
      */
-    public static function getEntryClass(): ?string
+    public static function getDefaultContentDataTypes(): ?string
     {
         return Requirement::class;
     }

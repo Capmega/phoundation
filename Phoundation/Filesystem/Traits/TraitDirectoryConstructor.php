@@ -8,9 +8,9 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Filesystem
  */
+
 
 declare(strict_types=1);
 
@@ -31,11 +31,11 @@ trait TraitDirectoryConstructor
     /**
      * TraitDirectoryConstructor class constructor
      *
-     * @param Stringable|string|null            $source
+     * @param Stringable|string                 $source
      * @param FsRestrictionsInterface|bool|null $restrictions
      * @param Stringable|string|bool|null       $absolute_prefix
      */
-    public function __construct(Stringable|string|null $source, FsRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
+    public function __construct(Stringable|string $source, FsRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
     {
         // Execute Path constructor, then apply directory specific requirements
         $this->___construct($source, $restrictions, $absolute_prefix);

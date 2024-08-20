@@ -13,6 +13,7 @@
  * @package   Phoundation\Filesystem
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Requirements;
@@ -25,6 +26,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryPathObject;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
+
 
 class Requirement extends DataEntry
 {
@@ -61,7 +63,7 @@ class Requirement extends DataEntry
     /**
      * @param string $path
      *
-     * @return $this
+     * @return static
      */
     public function check(string $path): static
     {
@@ -138,7 +140,7 @@ class Requirement extends DataEntry
                                     ])
                                     ->setSize(3)
                                     ->setMaxlength(16)
-                                    ->setLabel(tr('FsFileFileInterface type'))
+                                    ->setLabel(tr('File type'))
                                     ->setHelpText(tr('The type of file this should be')))
                     ->add(DefinitionFactory::getDescription($this)
                                            ->setHelpText(tr('The description for this mount')));

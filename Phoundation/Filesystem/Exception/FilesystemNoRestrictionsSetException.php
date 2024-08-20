@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class FilesystemNoRestrictionsSetExceptions
+ * Class FilesystemNoRestrictionsSetException
  *
  *
  *
@@ -11,10 +11,11 @@
  * @package   Phoundation\Filesystem
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Exception;
 
-class FilesystemNoRestrictionsSetExceptions extends FilesystemException
+class FilesystemNoRestrictionsSetException extends FilesystemException
 {
 }
