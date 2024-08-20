@@ -5,30 +5,33 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Content\Images;
 
-use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Content\Images\Interfaces\ConvertInterface;
+use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Os\Processes\Commands\Command;
 
-class Convert extends Command
+
+class Convert extends Command implements ConvertInterface
 {
     /**
      * The image source file that will be converted
      *
-     * @var ImageInterface $source
+     * @var ImageFileInterface $source
      */
-    protected ImageInterface $source;
+    protected ImageFileInterface $source;
 
     /**
      * The target file that will contain the converted image
@@ -80,10 +83,11 @@ class Convert extends Command
     /**
      * Sets the source image on which the conversions will be applied
      *
-     * @param ImageInterface $source
+     * @param ImageFileInterface $source
+     *
      * @return Convert
      */
-    public function setSource(ImageInterface $source): Convert
+    public function setSource(ImageFileInterface $source): Convert
     {
         // TODO Validate the format
         $this->source = $source;
@@ -94,9 +98,9 @@ class Convert extends Command
     /**
      * Returns the source image on which the conversions will be applied
      *
-     * @return ImageInterface
+     * @return ImageFileInterface
      */
-    public function getSource(): ImageInterface
+    public function getSource(): ImageFileInterface
     {
         return $this->source;
     }

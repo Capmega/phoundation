@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Content\Images\Interfaces;
 
 use Phoundation\Content\Images\Convert;
-use Phoundation\Content\Interfaces\ContentInterfaceFsFileInterface;
+use Phoundation\Content\Interfaces\ContentFileInterface;
 use Phoundation\Web\Html\Components\Img;
 
-interface ImageInterface extends ContentInterfaceFsFileInterface
+interface ImageFileInterface extends ContentFileInterface
 {
     /**
      * Returns a Convert class to convert the specified image
@@ -23,9 +23,9 @@ interface ImageInterface extends ContentInterfaceFsFileInterface
      *
      * @param string|null $description
      *
-     * @return ImageInterface
+     * @return ImageFileInterface
      */
-    public function setDescription(?string $description): ImageInterface;
+    public function setDescription(?string $description): ImageFileInterface;
 
 
     /**
@@ -49,5 +49,5 @@ interface ImageInterface extends ContentInterfaceFsFileInterface
      *
      * @return Img
      */
-    public function getHtmlElement(): Img;
+    public function getImgObject(): Img;
 }

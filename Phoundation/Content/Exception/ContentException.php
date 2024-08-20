@@ -11,11 +11,13 @@
  * @package   Phoundation\Content
  */
 
+
 declare(strict_types=1);
 
 namespace Phoundation\Content\Exception;
 
 use Phoundation\Exception\Exception;
+
 
 class ContentException extends Exception
 {

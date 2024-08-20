@@ -16,16 +16,16 @@ declare(strict_types=1);
 
 namespace Phoundation\Content\Images;
 
-use Phoundation\Content\Content;
+use Phoundation\Content\ContentFile;
 use Phoundation\Content\Images\Interfaces\ConvertInterface;
-use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Core\Exception\ImagesException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Img;
 
 
-class Image extends Content implements ImageInterface
+class ImageFile extends ContentFile implements ImageFileInterface
 {
     /**
      * The name of the image file
@@ -72,9 +72,9 @@ class Image extends Content implements ImageInterface
      *
      * @param string|null $description
      *
-     * @return ImageInterface
+     * @return ImageFileInterface
      */
-    public function setDescription(?string $description): ImageInterface
+    public function setDescription(?string $description): ImageFileInterface
     {
         $this->description = $description;
 
@@ -145,10 +145,25 @@ class Image extends Content implements ImageInterface
      *
      * @return Img
      */
-    public function getHtmlElement(): Img
+    public function getImgObject(): Img
     {
-        return Img::new()
-                  ->setSrc($this->source)
+        return Img::new($this)
                   ->setAlt($this->description);
+    }
+
+
+    /**
+     * Returns an HTML Img element for this image
+     *
+     * @param Img $img
+     *
+     * @return ImageFile
+     */
+    public function setImgObject(Img $img): static
+    {
+        $this->source      = $img->getSrc();
+        $this->description = $img->getAlt();
+
+        return $this;
     }
 }

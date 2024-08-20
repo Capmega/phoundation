@@ -8,15 +8,15 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category  Function reference
  * @package   Phoundation\Content
  */
+
 
 declare(strict_types=1);
 
 namespace Phoundation\Content\Images;
 
-use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 
 trait UsesImage
@@ -26,34 +26,35 @@ trait UsesImage
     /**
      * The image
      *
-     * @var ImageInterface $image
+     * @var ImageFileInterface $image
      */
-    protected Image $image;
+    protected ImageFileInterface $image;
 
 
     /**
-     * Returns the image for this FsFileFileInterface object
+     * Returns the image for this object
      *
-     * @return ImageInterface
+     * @return ImageFileInterface
      */
-    public function getImage(): ImageInterface
+    public function getImage(): ImageFileInterface
     {
         return $this->image;
     }
 
 
     /**
-     * Sets the image for this FsFileFileInterface object
+     * Sets the image for this object
      *
-     * @param ImageInterface|string|null $image
+     * @param ImageFileInterface|string|null $image
      *
      * @return static
      */
-    public function setImage(ImageInterface|string|null $image = null): static
+    public function setImage(ImageFileInterface|string|null $image = null): static
     {
         if (!is_object($image)) {
-            $image = new Image($image, $this->restrictions);
+            $image = new ImageFile($image, $this->restrictions);
         }
+
         $this->image = $image;
 
         return $this;
