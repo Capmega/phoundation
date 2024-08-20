@@ -208,6 +208,7 @@ class Sync
 
         return $this->initConfiguration($environment)
                     ->scan($this->server)
+                    ->lock(null)
                     ->lock($this->server)
                     ->dumpAllDatabases($this->server)
                     ->unlock($this->server)
@@ -216,7 +217,8 @@ class Sync
                     ->cleanTemporary($this->server)
                     ->importAllConnectors(null)
                     ->init(null)
-                    ->clearCaches(null);
+                    ->clearCaches(null)
+                    ->unlock(null);
     }
 
 

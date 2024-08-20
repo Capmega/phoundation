@@ -128,7 +128,7 @@ class Role extends DataEntry implements RoleInterface
     public function getRights(): RightsInterface
     {
         if ($this->isNew()) {
-            throw new AccountsException(tr('Cannot access rights for role ":role", the role has not yet been saved', [
+            throw new AccountsException(tr('Cannot access rights for role ":role", the role has not yet been saved and so has no identifier', [
                 ':role' => $this->getLogId(),
             ]));
         }

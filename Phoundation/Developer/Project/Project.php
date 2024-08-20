@@ -115,7 +115,7 @@ class Project implements ProjectInterface
                 throw new OutOfBoundsException(tr('Project file "config/project" already exist'));
             }
 
-            FsFile::new(DIRECTORY_ROOT . 'config/project', FsRestrictions::getWritable(DIRECTORY_ROOT, 'Project::create()'))
+            FsFile::new(DIRECTORY_ROOT . 'config/project', FsRestrictions::getWritable(DIRECTORY_ROOT))
                   ->delete();
         }
 

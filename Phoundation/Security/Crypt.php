@@ -34,7 +34,7 @@ class Crypt
      */
     public static function createCryptString(int $size = 32): string
     {
-        return FsFile::new('/dev/urandom', FsRestrictions::getReadonly('/dev/', 'Crypt::createCryptString()'))
+        return FsFile::new('/dev/urandom', FsRestrictions::getReadonly('/dev/'))
                      ->readBytes($size);
     }
 
@@ -56,7 +56,7 @@ class Crypt
             ]));
         }
 
-        $bytes = FsFile::new('/dev/urandom', FsRestrictions::getReadonly('/dev/', 'Crypt::createCryptFile()'))
+        $bytes = FsFile::new('/dev/urandom', FsRestrictions::getReadonly('/dev/'))
                        ->readBytes($size);
 
         return $file->putContents($bytes);

@@ -191,7 +191,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
                     ->add(DefinitionFactory::getDescription($this)
                                            ->setHelpText(tr('The description for this account')))
 
-                    ->add(DefinitionFactory::getFile($this, 'file')
+                    ->add(DefinitionFactory::getFile($this, null, 'file')
                                            ->setLabel(tr('SSH key file'))
                                            ->setCliColumn(tr('-i,--ssh-key-file FILE'))
                                            ->setHelpText(tr('The SSH key file for this account'))

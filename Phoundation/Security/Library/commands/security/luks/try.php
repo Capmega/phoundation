@@ -24,7 +24,7 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Security\Luks\Device;
 
 
-$restrictions = FsRestrictions::getReadonly('/', tr('security luks try'));
+$restrictions = FsRestrictions::getReadonly('/'));
 
 CliDocumentation::setUsage('./pho security luks try -f FILE
 echo "SECTION SECTION SECTION" | ./pho security luks try -f FILE');

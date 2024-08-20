@@ -24,7 +24,7 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Security\Luks\Device;
 
 
-$restrictions = FsRestrictions::getWritable('/', 'command security luks create');
+$restrictions = FsRestrictions::getWritable('/');
 
 CliDocumentation::setAutoComplete([
     'arguments' => [

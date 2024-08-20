@@ -54,7 +54,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      * @param bool|null                                $meta_enabled
      * @param bool                                     $init
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = false)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
         parent::__construct($identifier, $meta_enabled, $init);
 
