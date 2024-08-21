@@ -18,6 +18,7 @@ namespace Phoundation\Web\Html\Traits;
 
 use JetBrains\PhpStorm\ExpectedValues;
 
+
 trait TraitBackground
 {
     /**

@@ -19,6 +19,7 @@ namespace Phoundation\Data\Traits;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 
+
 trait TraitStaticMethodNewWithSource
 {
     /**

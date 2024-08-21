@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 
+
 trait TraitDataQueryBuilder
 {
     /**

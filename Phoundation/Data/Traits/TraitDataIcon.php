@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
 
+
 trait TraitDataIcon
 {
     /**

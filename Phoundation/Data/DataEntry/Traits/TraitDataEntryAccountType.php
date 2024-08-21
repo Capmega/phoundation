@@ -18,6 +18,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Accounts\Enums\EnumAccountType;
 
+
 trait TraitDataEntryAccountType
 {
     /**

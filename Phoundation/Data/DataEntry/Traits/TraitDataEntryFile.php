@@ -21,6 +21,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 
+
 trait TraitDataEntryFile
 {
     use TraitDataRestrictions;

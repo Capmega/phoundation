@@ -19,6 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Databases\Sql\SqlQuery;
 
+
 trait TraitDataSqlQuery
 {
     /**

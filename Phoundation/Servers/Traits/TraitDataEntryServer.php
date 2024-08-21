@@ -19,6 +19,7 @@ namespace Phoundation\Servers\Traits;
 use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Servers\Server;
 
+
 trait TraitDataEntryServer
 {
     /**

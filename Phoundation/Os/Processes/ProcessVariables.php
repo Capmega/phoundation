@@ -48,6 +48,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
 
+
 trait ProcessVariables
 {
     use TraitDataServer;

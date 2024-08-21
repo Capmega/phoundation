@@ -19,6 +19,7 @@ namespace Phoundation\Filesystem\Traits;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Stringable;
 
+
 trait TraitPathNew
 {
     /**

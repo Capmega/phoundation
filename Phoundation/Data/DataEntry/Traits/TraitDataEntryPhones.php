@@ -18,6 +18,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Utils\Strings;
 
+
 trait TraitDataEntryPhones
 {
     /**

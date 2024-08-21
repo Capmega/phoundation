@@ -15,6 +15,7 @@ namespace Phoundation\Developer\Traits;
 
 use Phoundation\Developer\Enums\EnumRepositoryType;
 
+
 trait TraitDataRepositoryType
 {
     /**

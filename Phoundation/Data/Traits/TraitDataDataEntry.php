@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
+
 trait TraitDataDataEntry
 {
     /**

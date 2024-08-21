@@ -21,6 +21,7 @@ use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 
+
 trait TraitDataEntryDirectory
 {
     /**

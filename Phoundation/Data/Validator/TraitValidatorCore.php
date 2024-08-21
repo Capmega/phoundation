@@ -33,6 +33,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use ReflectionProperty;
 
+
 trait TraitValidatorCore
 {
     use TraitDataIntId;

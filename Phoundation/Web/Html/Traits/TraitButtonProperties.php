@@ -22,6 +22,7 @@ use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Http\Url;
 use Stringable;
 
+
 trait TraitButtonProperties
 {
     use TraitMode;

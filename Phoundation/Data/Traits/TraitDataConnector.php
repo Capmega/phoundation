@@ -22,6 +22,7 @@ use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Config;
 
+
 trait TraitDataConnector
 {
     /**

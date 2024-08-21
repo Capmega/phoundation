@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Utils\Strings;
 
+
 trait TraitDataStaticExecuted
 {
     use TraitDataStaticIsExecutedPath;

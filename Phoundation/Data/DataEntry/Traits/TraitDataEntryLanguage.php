@@ -18,6 +18,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Core\Locale\Language\Language;
 
+
 trait TraitDataEntryLanguage
 {
     /**

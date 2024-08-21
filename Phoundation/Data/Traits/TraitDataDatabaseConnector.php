@@ -19,6 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 
+
 trait TraitDataDatabaseConnector
 {
     /**

@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Web\Html\Enums\EnumBrowserEvent;
 
+
 trait TraitDataBrowserEvent
 {
     /**

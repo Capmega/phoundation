@@ -19,6 +19,7 @@ namespace Phoundation\Web\Html\Traits;
 use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Web\Html\Enums\EnumBootstrapColor;
 
+
 trait TraitBootstrapColor
 {
     /**

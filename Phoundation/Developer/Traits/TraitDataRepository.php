@@ -15,6 +15,7 @@ namespace Phoundation\Developer\Traits;
 
 use Phoundation\Developer\Phoundation\Repositories\Interfaces\RepositoryInterface;
 
+
 trait TraitDataRepository
 {
     /**

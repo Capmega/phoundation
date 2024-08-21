@@ -20,6 +20,7 @@ use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
 
+
 trait TraitGitProcess
 {
     /**

@@ -19,6 +19,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Plugins\Phoundation\Hardware\Devices\Device;
 use Plugins\Phoundation\Hardware\Devices\Interfaces\DeviceInterface;
 
+
 trait TraitDataEntryDeviceObject
 {
     /**

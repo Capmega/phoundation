@@ -19,6 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Data\DataEntry\Exception\DataEntryDisabledException;
 use Phoundation\Utils\Strings;
 
+
 trait TraitDataDisabled
 {
     /**

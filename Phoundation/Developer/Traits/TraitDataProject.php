@@ -15,6 +15,7 @@ namespace Phoundation\Developer\Traits;
 
 use Phoundation\Developer\Project\Interfaces\ProjectInterface;
 
+
 trait TraitDataProject
 {
     /**

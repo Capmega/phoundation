@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 
+
 trait TraitDataDirectory
 {
     use TraitDataDirectoryReadonly;

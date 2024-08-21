@@ -21,6 +21,7 @@ use Phoundation\Data\Tree;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 
+
 trait TraitDataTree
 {
     /**

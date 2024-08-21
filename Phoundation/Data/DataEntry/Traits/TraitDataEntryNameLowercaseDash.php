@@ -19,6 +19,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Seo\Seo;
 
+
 trait TraitDataEntryNameLowercaseDash
 {
     /**

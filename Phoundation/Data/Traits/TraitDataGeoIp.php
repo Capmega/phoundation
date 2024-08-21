@@ -20,6 +20,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryGeo;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryLongLat;
 use Phoundation\Geo\GeoIp\GeoIp;
 
+
 trait TraitDataGeoIp
 {
     use TraitDataEntryGeo;

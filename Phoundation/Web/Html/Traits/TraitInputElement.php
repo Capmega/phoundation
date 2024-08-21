@@ -26,6 +26,7 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Html;
 use Stringable;
 
+
 trait TraitInputElement
 {
     use TraitDataDescription;

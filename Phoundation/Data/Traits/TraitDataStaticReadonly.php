@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 
+
 trait TraitDataStaticReadonly
 {
     /**

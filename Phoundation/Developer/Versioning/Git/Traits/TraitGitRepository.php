@@ -20,6 +20,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Os\Processes\Process;
 
+
 trait TraitGitRepository
 {
     /**

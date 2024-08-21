@@ -21,6 +21,7 @@ use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 
+
 trait TraitDataGitRepository
 {
     /**

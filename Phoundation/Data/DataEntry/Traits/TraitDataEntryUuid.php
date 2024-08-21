@@ -19,6 +19,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Utils\Strings;
 use Stringable;
 
+
 trait TraitDataEntryUuid
 {
     /**

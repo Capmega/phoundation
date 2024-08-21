@@ -20,6 +20,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\FsRestrictions;
 
+
 trait TraitDataRestrictions
 {
     /**

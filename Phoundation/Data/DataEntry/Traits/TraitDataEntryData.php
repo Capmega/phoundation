@@ -20,6 +20,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 
+
 trait TraitDataEntryData
 {
     /**

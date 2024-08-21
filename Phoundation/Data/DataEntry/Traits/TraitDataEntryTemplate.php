@@ -19,6 +19,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Templates\Html\Pages\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Pages\Template;
 
+
 trait TraitDataEntryTemplate
 {
     /**

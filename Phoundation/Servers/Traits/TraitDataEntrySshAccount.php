@@ -19,6 +19,7 @@ namespace Phoundation\Servers\Traits;
 use Phoundation\Servers\Interfaces\SshAccountInterface;
 use Phoundation\Servers\SshAccount;
 
+
 trait TraitDataEntrySshAccount
 {
     /**

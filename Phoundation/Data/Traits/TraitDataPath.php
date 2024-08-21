@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
 
+
 trait TraitDataPath
 {
     /**

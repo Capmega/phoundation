@@ -18,6 +18,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Geo\Countries\Country;
 
+
 trait TraitDataEntryCountry
 {
     /**

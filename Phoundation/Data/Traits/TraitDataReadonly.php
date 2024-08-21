@@ -20,6 +20,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Utils\Strings;
 
+
 trait TraitDataReadonly
 {
     /**

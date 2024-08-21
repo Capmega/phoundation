@@ -23,6 +23,7 @@ use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Stringable;
 
+
 trait TraitPathConstructor
 {
     /**

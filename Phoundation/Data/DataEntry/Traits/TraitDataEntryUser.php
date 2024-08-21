@@ -19,6 +19,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 
+
 trait TraitDataEntryUser
 {
     /**

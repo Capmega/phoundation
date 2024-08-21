@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Servers\Interfaces\ServerInterface;
 
+
 trait TraitDataSourceServer
 {
     /**

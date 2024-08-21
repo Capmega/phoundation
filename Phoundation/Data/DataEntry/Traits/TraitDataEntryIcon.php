@@ -20,6 +20,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Icons\Icon;
 use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
 
+
 trait TraitDataEntryIcon
 {
     /**

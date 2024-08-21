@@ -19,6 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Stringable;
 
+
 trait TraitDataFile
 {
     /**

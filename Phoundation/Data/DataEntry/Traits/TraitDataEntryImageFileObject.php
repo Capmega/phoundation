@@ -22,6 +22,7 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Utils\Strings;
 
+
 trait TraitDataEntryImageFileObject
 {
     /**

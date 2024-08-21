@@ -20,6 +20,7 @@ use Phoundation\Core\Core;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Seo\Seo;
 
+
 trait TraitDataEntryName
 {
     /**

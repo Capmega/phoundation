@@ -19,6 +19,7 @@ namespace Phoundation\Web\Requests\Traits;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 
+
 trait TraitDataStaticRouteParameters
 {
     /**

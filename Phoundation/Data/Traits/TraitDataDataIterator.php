@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 
+
 trait TraitDataDataIterator
 {
     /**

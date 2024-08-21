@@ -19,6 +19,7 @@ namespace Phoundation\Web\Html\Traits;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 
+
 trait TraitUsesSize
 {
     /**

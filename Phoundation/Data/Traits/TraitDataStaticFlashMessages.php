@@ -19,6 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessages;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 
+
 trait TraitDataStaticFlashMessages
 {
     /**

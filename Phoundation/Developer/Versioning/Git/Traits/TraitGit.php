@@ -24,6 +24,7 @@ use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Stringable;
 
+
 trait TraitGit
 {
     /**

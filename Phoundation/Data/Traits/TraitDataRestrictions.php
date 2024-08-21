@@ -19,6 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\FsRestrictions;
 
+
 trait TraitDataRestrictions
 {
     /**

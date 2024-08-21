@@ -19,6 +19,7 @@ namespace Phoundation\Content\Images;
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 
+
 trait UsesImage
 {
     use TraitDataRestrictions;

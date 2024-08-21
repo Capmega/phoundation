@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Enums\EnumOrientation;
 
+
 trait TraitDataOrientation
 {
     /**

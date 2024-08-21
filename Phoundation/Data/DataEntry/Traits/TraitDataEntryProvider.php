@@ -18,6 +18,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Providers\Provider;
 
+
 trait TraitDataEntryProvider
 {
     /**

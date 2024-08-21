@@ -19,6 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
+
 trait TraitDataUrl
 {
     /**

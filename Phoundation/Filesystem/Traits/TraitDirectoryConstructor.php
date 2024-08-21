@@ -21,6 +21,7 @@ use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Utils\Strings;
 use Stringable;
 
+
 trait TraitDirectoryConstructor
 {
     use TraitPathConstructor {
