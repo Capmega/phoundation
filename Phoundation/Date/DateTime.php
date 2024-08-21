@@ -37,10 +37,10 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Returns a new DateTime object
      *
-     * @param DateTime|string|null      $datetime
+     * @param DateTime|string|int|null  $datetime
      * @param \DateTimeZone|string|null $timezone
      */
-    public function __construct(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null)
+    public function __construct(DateTime|string|int|null $datetime = 'now', \DateTimeZone|string|null $timezone = null)
     {
         // Ensure we have NULL or timezone object for parent constructor
         $timezone = get_null($timezone);
@@ -48,6 +48,10 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
         if (is_string($timezone)) {
             $timezone = new DateTimeZone($timezone);
+        }
+
+        if (is_int($datetime)) {
+            $datetime = DateTime::new('now', $timezone)->setTimestamp($datetime)->format('Y-m-d H:i:s.u');
         }
 
         // Return Phoundation DateTime object for whatever given $datetime
@@ -154,12 +158,12 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Returns a new DateTime object
      *
-     * @param DateTime|string|null      $datetime
+     * @param DateTime|string|int|null  $datetime
      * @param \DateTimeZone|string|null $timezone
      *
      * @return static
      */
-    public static function new(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
+    public static function new(DateTime|string|int|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
     {
         return new static($datetime, $timezone);
     }
