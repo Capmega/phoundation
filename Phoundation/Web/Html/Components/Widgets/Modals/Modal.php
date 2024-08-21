@@ -21,6 +21,7 @@ use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Traits\TraitButtons;
 
+
 abstract class Modal extends ElementsBlock
 {
     use TraitDataTitle;

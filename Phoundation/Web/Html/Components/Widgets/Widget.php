@@ -21,6 +21,7 @@ use Phoundation\Web\Html\Components\Widgets\Interfaces\WidgetInterface;
 use Phoundation\Web\Html\Traits\TraitBackground;
 use Phoundation\Web\Html\Traits\TraitMode;
 
+
 abstract class Widget extends ElementsBlock implements WidgetInterface
 {
     use TraitMode;

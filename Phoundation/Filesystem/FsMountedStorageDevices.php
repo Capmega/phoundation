@@ -11,6 +11,9 @@
  * @package   Phoundation\Filesystem
  */
 
+
+declare(strict_types=1);
+
 namespace Phoundation\Filesystem;
 
 use Phoundation\Data\Traits\TraitStaticMethodNew;

@@ -21,6 +21,7 @@ use Phoundation\Databases\Sql\Schema\Interfaces\SchemaAbstractInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
 use Phoundation\Databases\Sql\Sql;
 
+
 abstract class SchemaAbstract implements SchemaAbstractInterface
 {
     /**

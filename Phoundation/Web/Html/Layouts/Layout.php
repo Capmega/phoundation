@@ -19,6 +19,7 @@ namespace Phoundation\Web\Html\Layouts;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Layouts\Interfaces\LayoutInterface;
 
+
 abstract class Layout extends ElementsBlock implements LayoutInterface
 {
 }

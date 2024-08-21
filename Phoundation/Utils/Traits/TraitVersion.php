@@ -11,6 +11,9 @@
  * @package   Phoundation\Utils
  */
 
+
+declare(strict_types=1);
+
 namespace Phoundation\Utils\Traits;
 
 use Phoundation\Data\Interfaces\IteratorInterface;

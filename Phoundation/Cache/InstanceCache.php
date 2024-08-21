@@ -13,6 +13,9 @@
  * @package   Phoundation\Web
  */
 
+
+declare(strict_types=1);
+
 namespace Phoundation\Cache;
 
 use Phoundation\Cache\Exception\CacheNotFoundException;

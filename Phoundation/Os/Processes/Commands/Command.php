@@ -29,6 +29,7 @@ use Phoundation\Os\Processes\ProcessCore;
 use Phoundation\Utils\Arrays;
 use Stringable;
 
+
 abstract class Command extends ProcessCore implements CommandInterface
 {
     /**

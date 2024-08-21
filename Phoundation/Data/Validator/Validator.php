@@ -50,6 +50,7 @@ use Stringable;
 use Throwable;
 use UnitEnum;
 
+
 abstract class Validator implements ValidatorInterface
 {
     use TraitValidatorCore;

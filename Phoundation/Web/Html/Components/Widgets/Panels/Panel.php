@@ -40,6 +40,7 @@ use Phoundation\Web\Html\Enums\EnumBootstrapColor;
 use Phoundation\Web\Html\Traits\TraitBootstrapColor;
 use Phoundation\Web\Html\Traits\TraitMode;
 
+
 abstract class Panel extends ElementsBlock implements PanelInterface
 {
     use TraitMode;

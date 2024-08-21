@@ -27,6 +27,7 @@ use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Template\TemplateRenderer;
 use Phoundation\Web\Requests\Request;
 
+
 abstract class ElementsBlock extends Iterator implements IteratorInterface, ElementsBlockInterface
 {
     use TraitElementAttributes {

@@ -26,6 +26,7 @@ use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Html\Traits\TraitInputElement;
 
+
 abstract class ResourceElement extends Element implements ResourceElementInterface
 {
     use TraitInputElement;

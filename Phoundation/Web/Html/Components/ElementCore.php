@@ -30,6 +30,7 @@ use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Template\TemplateRenderer;
 use Phoundation\Web\Requests\Request;
 
+
 abstract class ElementCore implements ElementInterface
 {
     use TraitElementAttributes {

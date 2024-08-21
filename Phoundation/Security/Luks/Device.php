@@ -11,6 +11,9 @@
  * @package   Phoundation\Security
  */
 
+
+declare(strict_types=1);
+
 namespace Phoundation\Security\Luks;
 
 use Phoundation\Accounts\Users\Password;

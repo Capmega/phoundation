@@ -25,6 +25,7 @@ use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
 use Plugins\Phoundation\Phoundation\Components\Menu;
 
+
 abstract class Template implements TemplateInterface
 {
     /**

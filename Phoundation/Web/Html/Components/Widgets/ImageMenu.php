@@ -22,6 +22,7 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 
+
 abstract class ImageMenu extends ElementsBlock
 {
     use UsesImage;

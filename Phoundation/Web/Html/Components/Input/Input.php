@@ -22,6 +22,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Traits\TraitBeforeAfterButtons;
 use Phoundation\Web\Html\Traits\TraitInputElement;
 
+
 abstract class Input extends Element implements InputInterface
 {
     use TraitInputElement;

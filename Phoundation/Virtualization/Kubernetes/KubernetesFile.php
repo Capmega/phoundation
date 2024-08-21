@@ -20,6 +20,7 @@ use Phoundation\Data\Traits\TraitDataFile;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsFile;
 
+
 abstract class KubernetesFile
 {
     use TraitDataFile;

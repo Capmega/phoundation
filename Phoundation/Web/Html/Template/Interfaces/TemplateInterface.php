@@ -11,6 +11,9 @@
  * @package   Phoundation\Web
  */
 
+
+declare(strict_types=1);
+
 namespace Phoundation\Web\Html\Template\Interfaces;
 
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;

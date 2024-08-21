@@ -19,6 +19,7 @@ namespace Phoundation\Geo\GeoIp;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Geo\GeoIp\Interfaces\GeoIpImportInterface;
 
+
 abstract class GeoIpImport extends Import implements GeoIpImportInterface
 {
     /**

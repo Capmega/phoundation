@@ -11,6 +11,9 @@
  * @package   Phoundation\Web
  */
 
+
+declare(strict_types=1);
+
 namespace Phoundation\Web\Requests;
 
 use JetBrains\PhpStorm\NoReturn;
@@ -18,7 +21,6 @@ use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Cache\Cache;
-use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
@@ -77,7 +79,8 @@ use Stringable;
 use Templates\Phoundation\AdminLte\AdminLte;
 use Throwable;
 
-abstract class Request implements RequestInterface
+
+class Request implements RequestInterface
 {
     use TraitDataStaticContentType;
     use TraitDataStaticExecuted;

@@ -23,6 +23,7 @@ use Phoundation\Web\Html\Components\Widgets\Widget;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 
+
 abstract class Box extends Widget
 {
     use TraitDataTitle;

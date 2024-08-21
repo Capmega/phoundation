@@ -20,6 +20,7 @@ namespace Phoundation\Web\Html\Pages;
 use Phoundation\Data\Traits\TraitDataEmail;
 use Phoundation\Web\Html\Components\ElementsBlock;
 
+
 abstract class Page extends ElementsBlock
 {
     /**

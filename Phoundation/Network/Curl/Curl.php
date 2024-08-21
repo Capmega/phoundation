@@ -28,6 +28,7 @@ use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Stringable;
 
+
 abstract class Curl implements CurlInterface
 {
     use TraitDataUrl;

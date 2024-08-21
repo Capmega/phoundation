@@ -21,6 +21,7 @@ use Phoundation\Data\Traits\TraitDataStringData;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsFile;
 
+
 abstract class ObjectFile
 {
     use TraitDataFile;

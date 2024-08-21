@@ -23,6 +23,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Captcha\Interfaces\CaptchaInterface;
 use Phoundation\Web\Html\Components\ElementsBlock;
 
+
 abstract class Captcha extends ElementsBlock implements CaptchaInterface
 {
     /**
