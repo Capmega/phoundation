@@ -362,7 +362,7 @@ class Core implements CoreInterface
             if (defined('PLATFORM_WEB')) {
                 if (PLATFORM_WEB and headers_sent($file, $line)) {
                     if (preg_match('/debug-.+\.php$/', $file)) {
-                        throw new CoreStartupFailedException(tr('Core::startup() failed because headers were already sent on ":location", so probably some added debug code caused this issue', [
+                        throw new CoreStartupFailedException(tr('Core->startup() failed because headers were already sent on ":location", so probably some added debug code caused this issue', [
                             ':location' => $file . '@' . $line,
                         ]), $e);
                     }
@@ -373,7 +373,7 @@ class Core implements CoreInterface
                 }
             }
 
-            throw new CoreStartupFailedException(tr('Core::startup() failed'), $e);
+            throw new CoreStartupFailedException(tr('Core->startup() failed'), $e);
         }
     }
 
