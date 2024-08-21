@@ -374,12 +374,11 @@ class FsPathCore implements FsPathInterface
         }
 
         if ($absolute_prefix === false) {
-            // No prefix specified, if the path is relative, leave it. This may be useful, for example, with relative
-            // paths that may not even exist
-            $this->source = (string)$path;
+            // No prefix was specified, if the path is relative, leave it as-is.
+            // This may be useful, for example, with relative paths that may not even exist
+            $this->source = (string) $path;
 
-        }
-        else {
+        } else {
             // Ensure absolute paths are absolute
             $this->source = static::absolutePath($path, $absolute_prefix, $must_exist);
         }
@@ -404,14 +403,14 @@ class FsPathCore implements FsPathInterface
      *
      * Will convert
      *
-     * @param Stringable|string|bool|null $prefix
+     * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
      *
      * @return static
      */
-    public function makeAbsolute(Stringable|string|bool|null $prefix = null, bool $must_exist = true): static
+    public function makeAbsolute(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = true): static
     {
-        $this->source = static::absolutePath($this->source, $prefix, $must_exist);
+        $this->source = static::absolutePath($this->source, $absolute_prefix, $must_exist);
 
         return $this;
     }
@@ -537,7 +536,7 @@ class FsPathCore implements FsPathInterface
     {
         $path = trim((string) $path);
 
-        if (InstanceCache::exists('path::absolutePath', $path)) {
+        if (InstanceCache::exists('path::absolutePath', $path . $absolute_prefix)) {
             return InstanceCache::getLastChecked();
         }
 
@@ -545,17 +544,12 @@ class FsPathCore implements FsPathInterface
 
         if ($absolute_prefix === false) {
             // Don't make it absolute at all
-            return $path;
+            return (string) $path;
         }
 
         if (!$path) {
-            // No path specified? Use the project root directory
-            return DIRECTORY_ROOT;
-        }
-
-        if ($absolute_prefix === true) {
-            // Prefix true is considered the same as prefix null
-            $absolute_prefix = null;
+            // No path specified? Return the absolute prefix
+            return static::resolveAbsolutePrefix($absolute_prefix);
         }
 
         if (static::onDomain($path)) {
@@ -590,53 +584,9 @@ class FsPathCore implements FsPathInterface
 
             // no break
             default:
-                // This is not an absolute directory, make it an absolute directory
-                $absolute_prefix = trim((string) $absolute_prefix);
-
-                // Try to apply default prefixes
-                switch ($absolute_prefix) {
-                    case '':
-                        $absolute_prefix = DIRECTORY_ROOT;
-                        break;
-
-                    case 'css':
-                        $absolute_prefix = DIRECTORY_CDN . LANGUAGE . '/css/';
-                        break;
-
-                    case 'js':
-                        // no break
-
-                    case 'javascript':
-                        $absolute_prefix = DIRECTORY_CDN . LANGUAGE . '/js/';
-                        break;
-
-                    case 'img':
-                        // no break
-
-                    case 'image':
-                        // no break
-
-                    case 'images':
-                        $absolute_prefix = DIRECTORY_CDN . LANGUAGE . '/img/';
-                        break;
-
-                    case 'font':
-                        // no break
-
-                    case 'fonts':
-                        $absolute_prefix = DIRECTORY_CDN . LANGUAGE . '/fonts/';
-                        break;
-
-                    case 'video':
-                        // no break
-
-                    case 'videos':
-                        $absolute_prefix = DIRECTORY_CDN . LANGUAGE . '/video/';
-                        break;
-                }
-
                 // Prefix $path with $prefix
-                $return = Strings::slash($absolute_prefix) . Strings::unslash($path);
+                $absolute_prefix = static::resolveAbsolutePrefix($absolute_prefix);
+                $return          = Strings::slash($absolute_prefix) . Strings::unslash($path);
         }
 
         // If this is a directory, make sure it has a slash suffix
@@ -660,6 +610,36 @@ class FsPathCore implements FsPathInterface
         }
 
         return InstanceCache::set($return, 'path::absolutePath', $path);
+    }
+
+
+    /**
+     * Resolves the specified absolute prefix to an existing directory
+     *
+     * @param Stringable|string|bool|null $absolute_prefix
+     *
+     * @return string
+     */
+    protected static function resolveAbsolutePrefix(Stringable|string|bool|null $absolute_prefix): string
+    {
+        if ($absolute_prefix === true) {
+            // Prefix true is considered the same as prefix null
+            $absolute_prefix = null;
+        }
+
+        // This is not an absolute directory, make it an absolute directory
+        $absolute_prefix = trim((string) $absolute_prefix);
+
+        // Try to apply default prefixes
+        return match ($absolute_prefix) {
+            ''                       => DIRECTORY_ROOT,
+            'css'                    => DIRECTORY_CDN . LANGUAGE . '/css/',
+            'js', 'javascript'       => DIRECTORY_CDN . LANGUAGE . '/js/',
+            'img', 'image', 'images' => DIRECTORY_CDN . LANGUAGE . '/img/',
+            'font', 'fonts'          => DIRECTORY_CDN . LANGUAGE . '/fonts/',
+            'video', 'videos'        => DIRECTORY_CDN . LANGUAGE . '/video/',
+            default                  => $absolute_prefix,
+        };
     }
 
 
@@ -733,31 +713,7 @@ class FsPathCore implements FsPathInterface
     public function extensionMatchesMimetype(): bool
     {
         try {
-            if (!FsMimetypes::new()->extensionMatchesMimetype($this->getExtension(), $this->getMimetype())) {
-                // Get the best extension for this file
-                $extension = FsMimetypes::getBestExtensionForMimetype($this->getMimetype());
-
-                // Register a security incident
-                Incident::new()
-                    ->setSeverity(EnumSeverity::medium)
-                    ->setTitle(tr('File ":file" with extension ":ext" has mimetype ":mimetype" which requires the extension ":extension"', [
-                        ':file'      => $this->source,
-                        ':ext'       => $this->getExtension(),
-                        ':mimetype'  => $this->getMimetype(),
-                        ':extension' => $extension
-                    ]))
-                    ->setDetails([
-                        'file'      => $this->source,
-                        'ext'       => $this->getExtension(),
-                        'mimetype'  => $this->getMimetype(),
-                        'extension' => $extension,
-                    ])
-                    ->save();
-
-                return false;
-            }
-
-            return true;
+            return FsMimetypes::new()->extensionMatchesMimetype($this->getExtension(), $this->getMimetype());
 
         } catch (FilesystemMimetypeNotSupported) {
             Incident::new()
@@ -803,12 +759,21 @@ class FsPathCore implements FsPathInterface
         $correct_filename  = Strings::untilReverse($basename, '.') . '.' . $correct_extension;
         $correct_file      = $this->getParentDirectory()->addFile($correct_filename);
 
-        Log::warning(tr('File ":file" has mimetype ":mimetype" which requires extension ":extension". Renaming to ":rename" to fix this issue', [
-            ':file'      => $this->source,
-            ':mimetype'  => $this->getMimetype(),
-            ':rename'    => $correct_filename,
-            ':extension' => $correct_extension,
-        ]));
+        Incident::new()
+            ->setSeverity(EnumSeverity::medium)
+            ->setTitle(tr('File ":file" has mimetype ":mimetype" which requires extension ":extension". Renaming to ":rename" to fix this issue', [
+                ':file'      => $this->source,
+                ':mimetype'  => $this->getMimetype(),
+                ':rename'    => $correct_filename,
+                ':extension' => $correct_extension,
+            ]))
+            ->setDetails([
+                'file'      => $this->source,
+                'mimetype'  => $this->getMimetype(),
+                'rename'    => $correct_filename,
+                'extension' => $correct_extension,
+            ])
+            ->save();
 
         return $this->rename($correct_file);
     }
@@ -828,12 +793,26 @@ class FsPathCore implements FsPathInterface
             return $this;
         }
 
-        // CRAP! Someone specified the wrong extension for this file. DIE!
-        throw new FilesystemExtensionException(tr('File ":file" with mimetype ":mimetype" has the wrong extension ":ext"', [
-            ':file'      => $this->source,
-            ':ext'       => $this->getExtension(),
-            ':mimetype'  => $this->getMimetype(),
-        ]));
+        // Get the best extension for this file
+        $extension = FsMimetypes::getBestExtensionForMimetype($this->getMimetype());
+
+        // Register a security incident
+        Incident::new()
+            ->setSeverity(EnumSeverity::medium)
+            ->setTitle(tr('File ":file" with extension ":current" has mimetype ":mimetype" which requires the extension ":extension"', [
+                ':file'      => $this->source,
+                ':current'   => $this->getExtension(),
+                ':mimetype'  => $this->getMimetype(),
+                ':extension' => $extension
+            ]))
+            ->setDetails([
+                'file'      => $this->source,
+                'ext'       => $this->getExtension(),
+                'mimetype'  => $this->getMimetype(),
+                'extension' => $extension,
+            ])
+            ->save()
+            ->throw();
     }
 
 
