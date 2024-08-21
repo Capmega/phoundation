@@ -34,6 +34,8 @@ use Phoundation\Web\Uploads\Interfaces\UploadInterface;
 
 class Upload extends DataEntry implements UploadInterface
 {
+
+
     /**
      * Returns the table name used by this object
      *
@@ -242,7 +244,7 @@ class Upload extends DataEntry implements UploadInterface
      */
     public function getComments(): ?string
     {
-        return $this->getTypesafe('string', 'Comments');
+        return $this->getTypesafe('string', 'comments');
     }
 
 
@@ -258,10 +260,10 @@ class Upload extends DataEntry implements UploadInterface
         $existing = $this->getComments();
 
         if ($existing) {
-            return $this->set($comments, 'Comments');
+            return $this->set($comments, 'comments');
         }
 
-        return $this->set($comments, 'Comments');
+        return $this->set($comments, 'comments');
     }
 
 
@@ -274,7 +276,7 @@ class Upload extends DataEntry implements UploadInterface
      */
     public function setComments(?string $comments): static
     {
-        return $this->set($comments, 'Comments');
+        return $this->set($comments, 'comments');
     }
 
 
@@ -373,7 +375,7 @@ class Upload extends DataEntry implements UploadInterface
                                            ->setMaxlength(2048)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getFile($this, new FsDirectory('/tmp/', FsRestrictions::getWritable('/tmp/')))
+                    ->add(DefinitionFactory::getFile($this, new FsDirectory('/tmp/', FsRestrictions::getWritable('/tmp/')), 'tmp_name')
                                            ->setLabel(tr('Temporary file name'))
                                            ->setMaxlength(255)
                                            ->setReadonly(true))
