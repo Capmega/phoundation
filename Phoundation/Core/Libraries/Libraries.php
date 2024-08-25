@@ -542,15 +542,11 @@ class Libraries
      */
     public static function clearCommandsCache(): void
     {
-        Log::action(tr('Clearing commands caches'), 3);
+        Log::action(tr('Clearing commands caches (symlinks only)'), 3);
 
-        $cache = FsDirectory::new(DIRECTORY_COMMANDS, FsRestrictions::getWritable(DIRECTORY_COMMANDS))
-                            ->clearTreeSymlinks(true);
-
-        if (!$cache->exists()) {
-            FsPath::new(DIRECTORY_ROOT . '/commands', FsRestrictions::getWritable(DIRECTORY_ROOT))
-                ->delete();
-        }
+        FsDirectory::new(DIRECTORY_COMMANDS, FsRestrictions::getWritable(DIRECTORY_COMMANDS))
+                   ->clearTreeSymlinks(true)
+                   ->ensure();
 
         static::$cache_has_been_cleared = true;
     }
@@ -587,9 +583,9 @@ class Libraries
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-            ->symlinkTargetFromThis(FsPath::new(DIRECTORY_ROOT . 'hooks', FsRestrictions::getWritable(
-                DIRECTORY_ROOT . 'hooks'
-            ))->delete());
+              ->symlinkTargetFromThis(FsPath::new(DIRECTORY_ROOT . 'hooks', FsRestrictions::getWritable(
+                  DIRECTORY_ROOT . 'hooks'
+              ))->delete());
 
         static::$cache_has_been_rebuilt = true;
 
@@ -604,15 +600,11 @@ class Libraries
      */
     public static function clearHooksCache(): void
     {
-        Log::action(tr('Clearing hooks caches'), 3);
+        Log::action(tr('Clearing hooks caches (symlinks only)'), 3);
 
-        $cache = FsDirectory::new(DIRECTORY_HOOKS, FsRestrictions::getWritable(DIRECTORY_HOOKS))
-            ->clearTreeSymlinks(true);
-
-        if (!$cache->exists()) {
-            FsPath::new(DIRECTORY_ROOT . '/hooks', FsRestrictions::getWritable(DIRECTORY_ROOT))
-                ->delete();
-        }
+        FsDirectory::new(DIRECTORY_HOOKS, FsRestrictions::getWritable(DIRECTORY_HOOKS))
+                   ->clearTreeSymlinks(true)
+                   ->ensure();
 
         static::$cache_has_been_cleared = true;
     }
@@ -798,19 +790,11 @@ class Libraries
      */
     public static function clearWebCache(): void
     {
-        Log::action(tr('Clearing web caches'), 3);
+        Log::action(tr('Clearing web caches (symlinks only)'), 3);
 
-        $cache = FsDirectory::new(
-            DIRECTORY_WEB,
-            FsRestrictions::getWritable(DIRECTORY_WEB)
-        )->clearTreeSymlinks(true);
-
-        if (!$cache->exists()) {
-            FsPath::new(
-                DIRECTORY_ROOT . 'web',
-                FsRestrictions::getWritable(DIRECTORY_ROOT)
-            )->delete();
-        }
+        FsDirectory::new(DIRECTORY_WEB, FsRestrictions::getWeb(true))
+                   ->clearTreeSymlinks(true)
+                   ->ensure();
     }
 
 
@@ -861,19 +845,11 @@ class Libraries
      */
     public static function clearTestsCache(): void
     {
-        Log::action(tr('Clearing test caches'), 3);
+        Log::action(tr('Clearing test caches (symlinks only)'), 3);
 
-        $cache = FsDirectory::new(
-            DIRECTORY_SYSTEM . 'cache/system/tests',
-            FsRestrictions::getWritable(DIRECTORY_SYSTEM . 'cache/system/tests')
-        )->clearTreeSymlinks(true);
-
-        if (!$cache->exists()) {
-            FsPath::new(
-                DIRECTORY_ROOT . '/tests',
-                FsRestrictions::getWritable(DIRECTORY_ROOT . '/tests')
-            )->delete();
-        }
+        FsDirectory::new(DIRECTORY_SYSTEM . 'cache/system/tests', FsRestrictions::getWritable(DIRECTORY_SYSTEM . 'cache/system/tests'))
+                   ->clearTreeSymlinks(true)
+                   ->ensure();
     }
 
 
