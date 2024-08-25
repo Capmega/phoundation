@@ -22,6 +22,7 @@ use PDOStatement;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Timers;
@@ -490,6 +491,10 @@ class Sql implements SqlInterface
             } else {
                 $state   = null;
                 $message = $e->getMessage();
+            }
+
+            if ($e instanceof CoreReadonlyException) {
+                throw $e;
             }
 
             $this->processQueryException(SqlException::new($e)
