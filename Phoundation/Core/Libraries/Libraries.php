@@ -25,6 +25,7 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
@@ -525,9 +526,10 @@ class Libraries
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis(FsPath::new(DIRECTORY_ROOT . 'commands', FsRestrictions::getWritable(
-                  DIRECTORY_ROOT . 'commands'
-              ))->delete());
+              ->symlinkTargetFromThis(
+                  FsFile::new(DIRECTORY_ROOT . 'commands',
+                      FsRestrictions::getWritable(DIRECTORY_ROOT . 'commands')
+                  )->delete());
 
         static::$cache_has_been_rebuilt = true;
 
@@ -583,9 +585,10 @@ class Libraries
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis(FsPath::new(DIRECTORY_ROOT . 'hooks', FsRestrictions::getWritable(
-                  DIRECTORY_ROOT . 'hooks'
-              ))->delete());
+              ->symlinkTargetFromThis(
+                  FsFile::new(DIRECTORY_ROOT . 'hooks',
+                      FsRestrictions::getWritable(DIRECTORY_ROOT . 'hooks')
+                  )->delete());
 
         static::$cache_has_been_rebuilt = true;
 
@@ -775,9 +778,10 @@ class Libraries
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis(FsPath::new(DIRECTORY_ROOT . 'web', FsRestrictions::getWritable(
-                  DIRECTORY_ROOT . 'web'
-              ))->delete());
+              ->symlinkTargetFromThis(
+                  FsFile::new(DIRECTORY_ROOT . 'web',
+                      FsRestrictions::getWritable(DIRECTORY_ROOT . 'web')
+                  )->delete());
 
         Log::success(tr('Finished rebuilding web cache'));
     }
@@ -829,8 +833,8 @@ class Libraries
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis(FsPath::new(
-                  DIRECTORY_ROOT . 'tests',
+              ->symlinkTargetFromThis(
+                  FsFile::new(DIRECTORY_ROOT . 'tests',
                   FsRestrictions::getWritable(DIRECTORY_ROOT . 'tests')
               )->delete());
 
