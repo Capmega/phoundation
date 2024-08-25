@@ -3,7 +3,7 @@
 /**
  * Class Json
  *
- * This class contains various JSON functions
+ * This class contains various JSON methods and can reply with JSON data structures to the client
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -16,18 +16,19 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
-use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Enums\EnumJsonAfterReply;
+use Phoundation\Utils\Enums\EnumJsonResponse;
 use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderJsonInterface;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Http\Url;
+use Phoundation\Web\Html\Json\Interfaces\JsonHtmlSectionInterface;
 use Phoundation\Web\Requests\Response;
 use Stringable;
 use Throwable;
@@ -36,140 +37,188 @@ use Throwable;
 class Json
 {
     /**
-     * Send a JSON message
+     * Tracks what this object will do after Json::new()->reply() finishes
      *
-     * @param string|int|object $code
-     * @param mixed             $data
+     * @var EnumJsonAfterReply $action_after
+     */
+    protected EnumJsonAfterReply $action_after = EnumJsonAfterReply::die;
+
+    /**
+     * Tracks the reply that will be given. One of ok, error, signin, redirect, reload
+     *
+     * @var EnumJsonResponse|null $response
+     */
+    protected ?EnumJsonResponse $response;
+
+
+    /**
+     * Json class constructor
+     *
+     * @param EnumJsonResponse $response
+     */
+    public function __construct(EnumJsonResponse $response = EnumJsonResponse::ok)
+    {
+        $this->setResponse($response);
+    }
+
+
+    /**
+     * Returns a new Json object
+     *
+     * @param EnumJsonResponse $reply
+     *
+     * @return static
+     */
+    public static function new(EnumJsonResponse $reply = EnumJsonResponse::ok): static
+    {
+        return new static($reply);
+    }
+
+
+    /**
+     * Returns what this object will do after Json::new()->reply() finishes
+     *
+     * @return EnumJsonAfterReply
+     */
+    public function getActionAfter(): EnumJsonAfterReply
+    {
+        return $this->action_after;
+    }
+
+
+    /**
+     * Returns the reply that will be given. One of ok, error, signin, redirect, reload
+     *
+     * @param EnumJsonAfterReply $action_after
+     */
+    public function setActionAfter(EnumJsonAfterReply $action_after): void
+    {
+        $this->action_after = $action_after;
+    }
+
+
+    /**
+     * Returns the reply that will be given. One of ok, error, signin, redirect, reload
+     *
+     * @return EnumJsonResponse|null
+     */
+    public function getResponse(): ?EnumJsonResponse
+    {
+        // Apply default reply
+        if ($this->response === null) {
+            $this->response = static::getDefaultResponseForHttpCode(Response::getHttpCode());
+        }
+
+        return $this->response;
+    }
+
+
+    /**
+     * Sets the reply that will be given. One of ok, error, signin, redirect, reload
+     *
+     * @param EnumJsonResponse|null $response
+     *
+     * @return Json
+     */
+    public function setResponse(?EnumJsonResponse $response): static
+    {
+        $this->response = $response;
+
+        return $this;
+    }
+
+
+    /**
+     * Send a JSON message from an HTTP code
+     *
+     * @param string|int|Exception $code
+     * @param mixed                $data
      *
      * @return void
      */
-    public static function message(string|int|object $code, mixed $data = null): void
+    public function replyWithHttpCode(string|int|Throwable $code, mixed $data = null): void
     {
-        if (is_object($code)) {
-            if (!$code instanceof Throwable) {
-                throw new OutOfBoundsException(tr('Specified code is a ":code" object class. Code must be an numeric HTTP code, a key word string or an exception object', [
-                    ':code' => $code,
-                ]));
-            }
-            // This is (presumably) an exception
-            $code = $code->getCode();
-        }
-        if (str_contains($code, '_')) {
-            // Codes should always use -, never _
-            Notification::new()
-                        ->setException(new JsonException(tr('Specified code ":code" contains an _ which should never be used, always use a -', [
-                            ':code' => $code,
-                        ])))
-                        ->send();
-        }
+        // Get valid HTTP code, as code here may also be code words
+        $int_code = static::getHttpCode($code);
+
+        Response::setHttpCode($int_code);
+
+        // Process code specific replies
         switch ($code) {
-            case 301:
-                // no break
-
-            case 'redirect':
-                Json::error(null, ['location' => $data], 'REDIRECT', 301);
-
-            case 302:
-                Json::error(null, ['location' => Url::getAjax($_CONFIG['redirects']['signin'])], 'REDIRECT', 302);
+            case 'reload':
+                $this->setResponse(EnumJsonResponse::reload)
+                     ->reply();
 
             case 'signin':
-                Json::error(null, ['location' => Url::getAjax($_CONFIG['redirects']['signin'])], 'SIGNIN', 302);
+                $this->setResponse(EnumJsonResponse::signin)
+                     ->reply(['location' => $data]);
+        }
+
+        // Process HTTP code specific replies
+        switch ($int_code) {
+            case 301:
+                $this->setResponse(EnumJsonResponse::redirect)
+                     ->reply(['location' => $data]);
+
+            case 302:
+                $this->setResponse(EnumJsonResponse::redirect)
+                     ->reply(['location' => $data]);
 
             case 400:
-                // no break
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('bad request')]);
 
-            case 'invalid':
-                // no break
-
-            case 'validation':
-                Json::error(null, $data, 'BAD-REQUEST', 400);
-            case 'locked':
-                Json::error(null, $data, 'LOCKED', 403);
             case 403:
-                // no break
-
-            case 'forbidden':
-                // no break
-
-            case 'access-denied':
-                Json::error(null, $data, 'FORBIDDEN', 403);
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('forbidden')]);
 
             case 404:
-                // no break
-
-            case 'not-found':
-                Json::error(null, $data, 'NOT-FOUND', 404);
-
-            case 'not-exists':
-                Json::error(null, $data, 'NOT-EXISTS', 404);
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('not found')]);
 
             case 405:
-                // no break
-
-            case 'method-not-allowed':
-                Json::error(null, $data, 'METHOD-NOT-ALLOWED', 405);
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('method not allowed')]);
 
             case 406:
-                // no break
-
-            case 'not-acceptable':
-                Json::error(null, $data, 'NOT-ACCEPTABLE', 406);
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('not acceptable')]);
 
             case 408:
-                // no break
-
-            case 'timeout':
-                Json::error(null, $data, 'TIMEOUT', 408);
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('timeout')]);
 
             case 409:
-                // no break
-            case 'conflict':
-                Json::error(null, $data, 'CONFLICT', 409);
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('conflict')]);
 
             case 412:
-                // no break
-
-            case 'expectation-failed':
-                Json::error(null, $data, 'EXPECTATION-FAILED', 412);
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('expectation failed')]);
 
             case 418:
-                // no break
-
-            case 'im-a-teapot':
-                Json::error(null, $data, 'IM-A-TEAPOT', 418);
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('im a teapot')]);
 
             case 429:
-                // no break
-
-            case 'too-many-requests':
-                Json::error(null, $data, 'TOO-MANY-REQUESTS', 429);
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('too many requests')]);
 
             case 451:
-                // no break
-            case 'unavailable-for-legal-reasons':
-                Json::error(null, $data, 'UNAVAILABLE-FOR-LEGAL-REASONS', 451);
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('unavailable for legal reasons')]);
 
             case 500:
-                // no break
-            case 'error':
-                Json::error(null, $data, 'ERROR', 500);
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('internal server error')]);
 
             case 503:
-                // no break
-            case 'maintenance':
-                // no break
-
-            case 'service-unavailable':
-                Json::error(null, null, 'SERVICE-UNAVAILABLE', 503);
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('service unavailable')]);
 
             case 504:
-                // no break
-
-            case 'gateway-timeout':
-                Json::error(null, null, 'GATEWAY-TIMEOUT', 504);
-
-            case 'reload':
-                Json::reply(null, 'RELOAD');
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('gateway timeout')]);
 
             default:
                 Notification::new()
@@ -177,143 +226,74 @@ class Json
                             ->setCode('unknown')
                             ->setRoles('developer')
                             ->setTitle('Unknown message specified')
-                            ->setMessage(tr('Json::message(): Unknown code ":code" specified', [':code' => $code]));
-                Json::error(null, (Debug::isEnabled() ? $data : null), 'ERROR', 500);
+                            ->setMessage(tr('Json::message(): Unknown code ":code" specified', [':code' => $code]))
+                            ->setDetails([
+                                'code' => $code,
+                                'data' => $data
+                            ]);
+
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => tr('internal server error')]);
         }
     }
 
 
     /**
-     * Send JSON error to client
+     * Send JSON error to the client
      *
-     * @param string|array|null $message
-     * @param mixed             $data
-     * @param mixed             $result
-     * @param int               $http_code The HTTP code to send out with Json::reply()
+     * @param mixed $data
      *
-     * @return never
+     * @return void
      *
-     * @see       Json::reply()
-     * @see       Json::message()
-     * @version   2.7.102: Added function and documentation
-     * @note      Uses Json::reply() to send the error to the client
-     * @todo      Fix $data and $result parameters. Are they used correctly? They are sometimes overwritten in the
-     *            method
+     * @see Json::reply()
+     * @see Json::replyWithHttpCode()
      */
-    #[NoReturn] public static function error(string|array|null $message, $data = null, $result = null, int $http_code = 500): never
+    #[NoReturn] public function error(array|Stringable|string|null $data = null): void
     {
-        if (!$message) {
-            $message = '';
+        if (!$data) {
+            $data = tr('Something went wrong, please try again later');
 
-        } elseif (is_scalar($message)) {
+        } elseif ($data instanceof Throwable) {
+            if ($data instanceof Exception) {
+                if ($data->isWarning()) {
+                    $data = $data->getMessage();
 
-        } elseif (is_array($message)) {
-            if (empty($message['default'])) {
-                $default = tr('Something went wrong, please try again later');
-
-            } else {
-                $default = $message['default'];
-                unset($message['default']);
-            }
-
-            if (empty($message['e'])) {
-                if (Core::isProductionEnvironment()) {
-                    $message = $default;
-                    Log::warning('No exception object specified for following error');
-                    Log::warning($message);
+                } elseif (Debug::isEnabled()) {
+                    $data = $data->getSource();
 
                 } else {
-                    if (count($message) == 1) {
-                        $message = array_pop($message);
-                    }
+                    $data = tr('Something went wrong, please try again later');
                 }
+
+            } elseif (Debug::isEnabled()) {
+                $data = $data->getSource();
 
             } else {
-                if (Core::isProductionEnvironment()) {
-                    Log::notice($message['e']);
-                    $code = $message['e']->getCode();
-                    if (empty($message[$code])) {
-                        $message = $default;
-
-                    } else {
-                        $message = $message[$code];
-                    }
-
-                } else {
-                    $message = $message['e']->getMessages("\n<br>");
-                }
-            }
-
-            $message = trim(Strings::from($message, '():'));
-
-        } elseif (is_object($message)) {
-            // Assume this is an CoreException object
-            if (!($message instanceof CoreException)) {
-                if (!($message instanceof Exception)) {
-                    $type = gettype($message);
-
-                    if ($type === 'object') {
-                        $type .= '/' . get_class($message);
-                    }
-
-                    throw new JsonException(tr('Specified message must either be a string or an CoreException ojbect, or PHP Exception ojbect, but is a ":type"', [
-                        ':type' => $type,
-                    ]));
-                }
-
-                $code = $message->getCode();
-
-                if (Debug::isEnabled()) {
-                    // This is a user visible message
-                    $message = $message->getMessage();
-
-                } elseif (!empty($default)) {
-                    $message = $default;
-                }
-
-            } else {
-                $result = $message->getCode();
-
-                switch ($result) {
-                    case 'access-denied':
-                        $http_code = '403';
-                        break;
-
-                    case 'ssl-required':
-                        $http_code = '403.4';
-                        break;
-
-                    default:
-                        $http_code = '500';
-                }
-
-                if (Strings::until($result, '/') == 'warning') {
-                    $data = $message->getMessage();
-
-                } else {
-                    if (Debug::isEnabled()) {
-                        // This is a user visible message
-                        $messages = $message->getMessages();
-
-                        foreach ($messages as $id => &$message) {
-                            $message = trim(Strings::from($message, '():'));
-
-                            if ($message == tr('Failed')) {
-                                unset($messages[$id]);
-                            }
-                        }
-
-                        unset($message);
-                        $data = implode("\n", $messages);
-
-                    } elseif (!empty($default)) {
-                        $message = $default;
-                    }
-                }
+                $data = tr('Something went wrong, please try again later');
             }
         }
 
-        Json::reply(Arrays::force($data), ($result ? $result : 'ERROR'), $http_code);
+        $this->reply($data);
+    }
+
+
+    /**
+     * Send a JSON reply
+     *
+     * @param RenderJsonInterface $data
+     *
+     * @todo Split this in 3 functions, one for exit(), one for continue, one for close connection and continue
+     * @return void
+     */
+    #[NoReturn] public function replyWithHtml(RenderJsonInterface $data): void
+    {
+        if ($data instanceof JsonHtmlSectionInterface) {
+            // This is just a single HTML section, make a list out of it
+            $this->doReply(['html' => [$data->renderJson()]]);
+
+        } else {
+            $this->doReply($data->renderJson());
+        }
     }
 
 
@@ -321,60 +301,38 @@ class Json
      * Send a JSON reply
      *
      * @param array|Stringable|string|null $data
-     * @param EnumJsonAfterReply           $action_after
      *
      * @todo Split this in 3 functions, one for exit(), one for continue, one for close connection and continue
-     * @return never
+     * @return void
      */
-    #[NoReturn] public static function reply(array|Stringable|string|null $data = null, EnumJsonAfterReply $action_after = EnumJsonAfterReply::die): never
+    #[NoReturn] public function reply(array|Stringable|string|null $data = null): void
     {
-        // Always return all numbers as strings as javascript borks BADLY on large numbers, WTF JS?!
-        if (is_array($data)) {
-            $data = array_map(function ($value) {
-                if (is_numeric($value)) {
-                    return strval($value);
-                }
+        // Clean up the data array
+        $data = static::normalizeData($data);
+        $data = static::fixJavascriptNumbers($data);
 
-                return $value;
+        static::doReply(['data' => $data]);
+    }
 
-            }, $data);
-        }
 
-        if (!is_string($data)) {
-            if (is_object($data)) {
-                // Stringable object
-                $data = (string) $data;
-
-            } else {
-                // Array, JSON encode
-                $data = Json::encode($data);
-            }
-        }
+    /**
+     * Send a JSON reply
+     *
+     * @param array|Stringable|string|null $data
+     *
+     * @todo Split this in 3 functions, one for exit(), one for continue, one for close connection and continue
+     * @return void
+     */
+    #[NoReturn] protected function doReply(array|Stringable|string|null $data = null): void
+    {
+        // Clean up the data array
+        $data = static::createMessage($data);
 
         Response::setContentType('application/json');
-        Response::setOutput($data);
+        Response::setOutput(Json::encode($data));
         Response::send(false);
 
-        switch ($action_after) {
-            case EnumJsonAfterReply::die:
-                // We're done, kill the connection % process (default)
-                exit();
-
-            case EnumJsonAfterReply::continue:
-                // Continue running, keep the HTTP connection open
-                break;
-
-            case EnumJsonAfterReply::closeConnectionContinue:
-                // Close the current HTTP connection but continue in the background
-                session_write_close();
-                fastcgi_finish_request();
-                break;
-
-            default:
-                throw new OutOfBoundsException(tr('Unknown after ":after" specified. Use one of "JsonAfterReply::die", "JsonAfterReply::continue", or "JsonAfterReply::closeConnectionContinue"', [
-                    ':after' => $action_after,
-                ]));
-        }
+        static::afterAction();
     }
 
 
@@ -533,5 +491,219 @@ class Json
         }
 
         return $string;
+    }
+
+
+    /**
+     * Returned data will ALWAYS be in a key > value array
+     *
+     * If no data is returned, an empty data array will be returned
+     *
+     * If a single string is returned, the key "message" will be assumed
+     *
+     * @param array|Stringable|string|null $data
+     *
+     * @return array|string[]
+     */
+    protected static function normalizeData(array|Stringable|string|null $data): array
+    {
+        if (!$data) {
+            return [];
+        }
+
+        if (is_array($data)) {
+            return $data;
+        }
+
+        return ['message' => (string) $data];
+    }
+
+
+    /**
+     * Fixes all data numbers, making them strings, as Javascript borks BADLY on large numbers, WTF JS?!
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    protected static function fixJavascriptNumbers(array $data): array
+    {
+        if (is_array($data)) {
+            $data = array_map(function ($value) {
+                if (is_numeric($value)) {
+                    return strval($value);
+                }
+
+                return $value;
+
+            }, $data);
+        }
+
+        return $data;
+    }
+
+
+    /**
+     * Returns the default JSON response for the given HTTP code
+     *
+     * @param int $http_code
+     *
+     * @return EnumJsonResponse
+     */
+    protected static function getDefaultResponseForHttpCode(int $http_code): EnumJsonResponse
+    {
+        return match ($http_code) {
+            200, 304      => EnumJsonResponse::ok,
+            301, 302, 307 => EnumJsonResponse::redirect,
+            401           => EnumJsonResponse::signin,
+            default       => EnumJsonResponse::error,
+        };
+    }
+
+
+    /**
+     * Creates and returns the JSON reply message
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    protected function createMessage(array $data): array
+    {
+        $expose = Core::getExposePhoundation();
+
+        switch ($expose) {
+            case 'full':
+                $data['phoundation'] = 'Phoundation/' . FRAMEWORK_CODE_VERSION;
+                break;
+
+            case 'limited':
+                $data['phoundation'] = 'phoundation';
+                break;
+
+            case 'fake':
+                $data['phoundation'] = 'phoundation/4.11.1';
+                break;
+        }
+
+        $data['response']  = $this->getResponse();
+        $data['http_code'] = Response::getHttpCode();
+        $data['flash']     = Response::getFlashMessagesObject()->renderJson();
+
+        return $data;
+    }
+
+
+    /**
+     * Determines what the action is after a Json::reply() call, continue, die, or close connection and continue
+     *
+     * @return void
+     */
+    protected function afterAction(): void
+    {
+        switch ($this->action_after) {
+            case EnumJsonAfterReply::die:
+                // We're done, kill the connection % process (default)
+                exit();
+
+            case EnumJsonAfterReply::continue:
+                // Continue running, keep the HTTP connection open
+                break;
+
+            case EnumJsonAfterReply::closeConnectionContinue:
+                // Close the current HTTP connection but continue in the background
+                session_write_close();
+                fastcgi_finish_request();
+                break;
+        }
+    }
+
+
+    /**
+     * Returns a valid, integer HTTP code for the specified code
+     *
+     * @param string|int|Throwable $code
+     *
+     * @return int
+     */
+    protected static function getHttpCode(string|int|Throwable $code): int
+    {
+        if (is_int($code)) {
+            return $code;
+        }
+
+        if (is_object($code)) {
+            // This is an exception
+            $code = $code->getCode();
+        }
+
+        if (str_contains((string)$code, '_')) {
+            // Codes should always use -, never _
+            Notification::new()
+                ->setException(new JsonException(tr('Specified code ":code" contains an _ which should never be used, always use a -', [
+                    ':code' => $code,
+                ])))
+                ->send();
+        }
+
+        switch ($code) {
+            case 'reload':
+            case 'redirect':
+                return 301;
+
+            case 'signin':
+                return 302;
+
+            case 'invalid':
+            case 'validation':
+                return 400;
+
+            case 'locked':
+            case 'forbidden':
+            case 'access-denied':
+                return 403;
+
+            case 'not-found':
+            case 'not-exists':
+                return 404;
+
+            case 'method-not-allowed':
+                return 405;
+
+            case 'not-acceptable':
+                return 406;
+
+            case 'timeout':
+                return 408;
+
+            case 'conflict':
+                return 409;
+
+            case 'expectation-failed':
+                return 412;
+
+            case 'im-a-teapot':
+                return 418;
+
+            case 'too-many-requests':
+                return 429;
+
+            case 'unavailable-for-legal-reasons':
+                return 451;
+
+            case 'error':
+                return 500;
+
+            case 'maintenance':
+            case 'service-unavailable':
+                return 503;
+
+            case 'gateway-timeout':
+                return 504;
+        }
+
+        throw new OutOfBoundsException(tr('Unknown or unsupported HTTP code ":code" specified', [
+            ':code' => $code,
+        ]));
     }
 }
