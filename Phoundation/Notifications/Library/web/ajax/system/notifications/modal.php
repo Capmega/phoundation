@@ -45,4 +45,4 @@ $reply = [
                                             ->setContent(tr('See details'))
                                             ->render(),
 ];
-Json::reply($reply);
+Json::new()->reply($reply);

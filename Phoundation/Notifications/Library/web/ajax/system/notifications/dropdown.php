@@ -37,4 +37,4 @@ $reply = [
     'ping'  => $ping,
 ];
 
-Json::reply($reply);
+Json::new()->reply($reply);
