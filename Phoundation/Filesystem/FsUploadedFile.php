@@ -118,12 +118,12 @@ class FsUploadedFile extends FsFileCore implements FsUploadedFileInterface
     /**
      * Returns a new Path object with the specified restrictions
      *
-     * @param array                   $source
+     * @param UploadInterface         $source
      * @param FsRestrictionsInterface $restrictions
      *
      * @return static
      */
-    public static function new(array $source, FsRestrictionsInterface $restrictions): static
+    public static function new(UploadInterface $source, FsRestrictionsInterface $restrictions): static
     {
         return new static($source, $restrictions);
     }

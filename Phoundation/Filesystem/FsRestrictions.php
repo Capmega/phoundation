@@ -23,6 +23,7 @@ use Phoundation\Core\Core;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
+use Phoundation\Filesystem\Exception\WriteRestrictionsException;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -404,14 +405,16 @@ class FsRestrictions implements FsRestrictionsInterface
     /**
      * Add new directory for this restriction
      *
-     * @param Stringable|string $directory
-     * @param bool              $write
+     * @param Stringable|string|null $directory
+     * @param bool                   $write
      *
      * @return static
      */
-    public function addDirectory(Stringable|string $directory, bool $write = false): static
+    public function addDirectory(Stringable|string|null $directory, bool $write = false): static
     {
-        $this->source[FsPath::absolutePath($directory, null, false)] = $write;
+        if ($directory) {
+            $this->source[FsPath::absolutePath($directory, null, false)] = $write;
+        }
 
         return $this;
     }
@@ -458,40 +461,42 @@ class FsRestrictions implements FsRestrictionsInterface
     /**
      * Adds restrictions from the specified restrictions object to these restrictions
      *
-     * @param FsRestrictionsInterface $restrictions
+     * @param FsRestrictionsInterface|null $restrictions
      *
      * @return static
      */
-    public function addRestrictions(FsRestrictionsInterface $restrictions): static
+    public function addRestrictions(?FsRestrictionsInterface $restrictions): static
     {
-        return $this->addDirectories($restrictions->getSource());
+        return $this->addDirectories($restrictions?->getSource());
     }
 
 
     /**
      * Set all directories for this restriction
      *
-     * @param Stringable|array|string $directories
-     * @param bool                    $write
+     * @param Stringable|array|string|null $directories
+     * @param bool                         $write
      *
      * @return static
      */
-    public function addDirectories(Stringable|array|string $directories, bool $write = false): static
+    public function addDirectories(Stringable|array|string|null $directories, bool $write = false): static
     {
-        foreach (Arrays::force($directories) as $directory => $directory_write) {
-            if (is_numeric($directory)) {
-                // Directory array was not specified as [directory => write, directory => write, ...] but as
-                // [directory, directory, ...]
-                // Get the correct directory names and use the "global" $write flag instead
-                $directory       = $directory_write;
-                $directory_write = $write;
-            }
+        if ($directories) {
+            foreach (Arrays::force($directories) as $directory => $directory_write) {
+                if (is_numeric($directory)) {
+                    // Directory array was not specified as [directory => write, directory => write, ...] but as
+                    // [directory, directory, ...]
+                    // Get the correct directory names and use the "global" $write flag instead
+                    $directory       = $directory_write;
+                    $directory_write = $write;
+                }
 
-            if (is_array($directory)) {
-                $this->addDirectories($directories, $directory_write);
+                if (is_array($directory)) {
+                    $this->addDirectories($directories, $directory_write);
 
-            } else {
-                $this->addDirectory($directory, $directory_write);
+                } else {
+                    $this->addDirectory($directory, $directory_write);
+                }
             }
         }
 
@@ -570,54 +575,80 @@ class FsRestrictions implements FsRestrictionsInterface
 
 
     /**
-     * @param Stringable|array|string $patterns
-     * @param bool                    $write
-     * @param Throwable|null          $e
+     * @param Stringable|string $pattern
+     * @param bool              $write
+     * @param Throwable|null    $e
      *
      * @return void
+     *
+     * @throws WriteRestrictionsException|RestrictionsException
      */
-    public function check(Stringable|array|string &$patterns, bool $write, ?Throwable $e = null): void
+    public function check(Stringable|string &$pattern, bool $write, ?Throwable $e = null): void
+    {
+        switch ($this->isRestricted($pattern, $write, $e)) {
+            case false:
+                return;
+
+            case 'pattern':
+show('PATTERN ' . $pattern);
+                // The specified pattern(s) are not allowed by the specified restrictions
+                throw RestrictionsException::new(tr(':method access to requested directory pattern ":pattern" denied due to restrictions defined by ":label"', [
+                    ':method'  => $write ? tr('Write') : tr('Read'),
+                    ':pattern' => $pattern,
+                    ':label'   => $this->label,
+                ]), $e)->addData([
+                    'label'   => $this->label,
+                    'pattern' => $pattern,
+                    'paths'   => $this->source,
+                ]);
+
+            case 'write':
+show('WRITE ' . $pattern);
+                throw WriteRestrictionsException::new(tr('Write access to directory pattern ":pattern" denied by ":label" restrictions', [
+                        ':pattern' => $pattern,
+                        ':label'   => $this->label,
+                    ]), $e)->addData([
+                        'label'   => $this->label,
+                        'pattern' => $pattern,
+                        'paths'   => $this->source,
+                    ]);
+        }
+    }
+
+
+    /**
+     * Returns true if access to the specified pattern is restricted by this object
+     *
+     * @param Stringable|string $pattern
+     * @param bool              $write
+     * @param Throwable|null    $e
+     *
+     * @return false|string
+     */
+    public function isRestricted(Stringable|string &$pattern, bool $write, ?Throwable $e = null): false|string
     {
         if (!$this->source) {
-            throw new RestrictionsException(tr('The ":label" restrictions have no directories specified', [
+            throw new RestrictionsException(tr('The ":label" restrictions have no paths specified', [
                 ':label' => $this->label,
             ]), $e);
         }
 
         // Check each specified directory pattern to see if its allowed or restricted
-        foreach (Arrays::force($patterns) as &$pattern) {
-            foreach ($this->source as $path => $restrict_write) {
-                $path    = FsPath::absolutePath($path, null, false);
-                $pattern = FsPath::absolutePath($pattern, null, false);
+        foreach ($this->source as $path => $allow_write) {
+            $path    = FsPath::absolutePath($path   , null, false);
+            $pattern = FsPath::absolutePath($pattern, null, false);
 
-                if (str_starts_with($pattern, Strings::ensureEndsNotWith($path, '/'))) {
-                    if ($write and !$restrict_write) {
-                        throw RestrictionsException::new(tr('Write access to directory patterns ":patterns" denied by ":label" restrictions', [
-                            ':patterns' => $pattern,
-                            ':label'    => $this->label,
-                        ]), $e)->addData([
-                            'label'    => $this->label,
-                            'patterns' => $patterns,
-                            'paths'    => $this->source,
-                        ]);
-                    }
-
-                    // Access ok!
-                    return;
+            if (str_starts_with($pattern, Strings::ensureEndsNotWith($path, '/'))) {
+                if ($write and !$allow_write) {
+                    return 'write';
                 }
-            }
 
-            // The specified pattern(s) are not allowed by the specified restrictions
-            throw RestrictionsException::new(tr(':method access to requested directory patterns ":patterns" denied due to restrictions defined by ":label"', [
-                ':method'   => $write ? tr('Write') : tr('Read'),
-                ':patterns' => $pattern,
-                ':label'    => $this->label,
-            ]), $e)->addData([
-                'label'    => $this->label,
-                'patterns' => $patterns,
-                'paths'    => $this->source,
-            ]);
+                // Access NOT restricted!
+                return false;
+            }
         }
+
+        return 'pattern';
     }
 
 

@@ -103,4 +103,34 @@ interface FsFilesInterface extends IteratorInterface
      * @return bool
      */
     public function valid(): bool;
+
+    /**
+     * Returns all files that match the specified mimetype
+     *
+     * @param string $mimetype
+     *
+     * @return $this
+     */
+    public function getFilesWithMetadata(string $mimetype): static;
+
+    /**
+     * Will delete all files in this FsFiles object
+     *
+     * @note This will remove the files from this FsFiles object
+     *
+     * @return $this
+     */
+    public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static;
+
+    /**
+     * @param int  $passes
+     * @param bool $simultaneously
+     * @param bool $randomized
+     * @param int  $block_size
+     *
+     * @return $this
+     *
+     * @todo Implement support for $simultaneously
+     */
+    public function shred(int $passes = 3, bool $simultaneously = false, bool $randomized = false, int $block_size = 4096): static;
 }

@@ -60,22 +60,22 @@ interface FsRestrictionsInterface
     /**
      * Set all directories for this restriction
      *
-     * @param Stringable|array|string $directories
-     * @param bool                    $write
+     * @param Stringable|array|string|null $directories
+     * @param bool                         $write
      *
      * @return static
      */
-    public function addDirectories(Stringable|array|string $directories, bool $write = false): static;
+    public function addDirectories(Stringable|array|string|null $directories, bool $write = false): static;
 
     /**
      * Add new directory for this restriction
      *
-     * @param Stringable|string $directory
-     * @param bool              $write
+     * @param Stringable|string|null $directory
+     * @param bool                   $write
      *
      * @return static
      */
-    public function addDirectory(Stringable|string $directory, bool $write = false): static;
+    public function addDirectory(Stringable|string|null $directory, bool $write = false): static;
 
     /**
      * Returns all directories for this restriction
@@ -111,13 +111,13 @@ interface FsRestrictionsInterface
 
 
     /**
-     * @param Stringable|array|string $patterns
-     * @param bool                    $write
-     * @param Throwable|null          $e
+     * @param Stringable|string $pattern
+     * @param bool              $write
+     * @param Throwable|null    $e
      *
      * @return void
      */
-    public function check(Stringable|array|string &$patterns, bool $write, ?Throwable $e = null): void;
+    public function check(Stringable|string &$pattern, bool $write, ?Throwable $e = null): void;
 
     /**
      * Return these restrictions but with write enabled
@@ -125,4 +125,24 @@ interface FsRestrictionsInterface
      * @return FsRestrictionsInterface
      */
     public function getTheseWritable(): FsRestrictionsInterface;
+
+    /**
+     * Adds restrictions from the specified restrictions object to these restrictions
+     *
+     * @param FsRestrictionsInterface|null $restrictions
+     *
+     * @return static
+     */
+    public function addRestrictions(?FsRestrictionsInterface $restrictions): static;
+
+    /**
+     * Returns true if access to the specified pattern is restricted by this object
+     *
+     * @param Stringable|string $pattern
+     * @param bool              $write
+     * @param Throwable|null    $e
+     *
+     * @return false|string
+     */
+    public function isRestricted(Stringable|string &$pattern, bool $write, ?Throwable $e = null): false|string;
 }

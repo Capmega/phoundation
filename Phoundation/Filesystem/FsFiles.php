@@ -33,11 +33,12 @@ class FsFiles extends FsFilesCore implements FsFilesInterface
      * @param mixed                                     $source
      * @param FsRestrictionsInterface|array|string|null $restrictions
      */
-    public function __construct(?FsDirectoryInterface $parent_directory, mixed $source = null, FsRestrictionsInterface|array|string|null $restrictions = null)
+    public function __construct(?FsDirectoryInterface $parent_directory = null, mixed $source = null, FsRestrictionsInterface|array|string|null $restrictions = null)
     {
         $this->parent_directory    = $parent_directory;
         $this->accepted_data_types = [FsPathInterface::class];
-        $this->restrictions        = FsRestrictions::getRestrictionsOrDefault($restrictions, $parent_directory->getRestrictions());
+        $this->restrictions        = FsRestrictions::getRestrictionsOrDefault($parent_directory?->getRestrictions())
+                                                   ->addRestrictions($restrictions);
 
         if ($source) {
             $this->setSource($source);

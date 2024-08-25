@@ -20,6 +20,7 @@ use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFilesInterface;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
@@ -262,15 +263,72 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
     }
 
 
-    public function delete(): static
+    /**
+     * Returns all files that match the specified mimetype
+     *
+     * @param string $mimetype
+     *
+     * @return $this
+     */
+    public function getFilesWithMetadata(string $mimetype): static
     {
+        $files = new static($this->parent_directory);
 
+        foreach ($this as $file) {
+            if ($file->mimetypeMatches($mimetype)) {
+                $files->add($file);
+            }
+        }
+
+        return $files;
     }
 
 
-
-    public function shred(int $passes = 3, bool $simultaneously = true, bool $randomized = false, int $block_size = 4096): static
+    /**
+     * Will delete all files in this FsFiles object
+     *
+     * @note This will remove the files from this FsFiles object
+     *
+     * @return $this
+     */
+    public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
+        foreach ($this as $key => $file) {
+            $file->delete($clean_path, $sudo, $escape, $use_run_file);
 
+            unset($this->source[$key]);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * @param int  $passes
+     * @param bool $simultaneously
+     * @param bool $randomized
+     * @param int  $block_size
+     *
+     * @return $this
+     *
+     * @todo Implement support for $simultaneously
+     */
+    public function shred(int $passes = 3, bool $simultaneously = false, bool $randomized = false, int $block_size = 4096): static
+    {
+        if ($simultaneously) {
+            // Delete the files all simultaneously
+            // This may require reimplementing FsCorePath::doInitialize() all anew!
+            throw new UnderConstructionException();
+
+        } else {
+            // Delete the files one after the other
+            foreach ($this as $key => $file) {
+                $file->shred($passes, $randomized, $block_size);
+
+                unset($this->source[$key]);
+            }
+        }
+
+        return $this;
     }
 }

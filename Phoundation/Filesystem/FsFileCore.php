@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Exception;
-use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -41,8 +40,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\P;
-use Phoundation\Web\Requests\FileResponse;
 use Stringable;
 use Throwable;
 

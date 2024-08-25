@@ -123,7 +123,7 @@ $requirements_card = Card::new()
 
 $requirements_card->getForm()
                   ->setAction(Url::getCurrent())
-                  ->setMethod(EnumHttpRequestMethod::post);
+                  ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links

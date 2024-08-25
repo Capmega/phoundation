@@ -857,7 +857,7 @@ interface FsPathInterface extends Stringable
      *
      * @return static
      */
-    public function shred(int $passes = 3): static;
+    public function shred(int $passes = 3, bool $randomized = false, int $block_size = 4096): static;
 
     /**
      * Returns the device path of the filesystem where this file is stored

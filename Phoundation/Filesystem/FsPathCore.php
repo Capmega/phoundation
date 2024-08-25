@@ -167,6 +167,38 @@ class FsPathCore implements FsPathInterface
      */
     protected static bool $write_enabled = true;
 
+    /**
+     * Tracks if this object has forced read/write access, ignoring restriction rules and core readonly modes
+     *
+     * @var bool $force_access
+     */
+    protected bool $force_access = false;
+
+
+    /**
+     * Returns Sets if this object has forced read/write access, ignoring restriction rules and core readonly modes
+     *
+     * @return bool
+     */
+    public function getForceAccess(): bool
+    {
+        return $this->force_access;
+    }
+
+
+    /**
+     * Sets if this object has forced read/write access, ignoring restriction rules and core readonly modes
+     *
+     * @param bool $force_access
+     *
+     * @return $this
+     */
+    public function setForceAccess(bool $force_access): static
+    {
+        $this->force_access = $force_access;
+        return $this;
+    }
+
 
     /**
      * Returns true if the path for this object is NULL (not set)
@@ -1144,7 +1176,7 @@ class FsPathCore implements FsPathInterface
             }
 
             FsDirectory::new(dirname($this->source), $this->restrictions->getParent())
-                     ->clearDirectory($clean_path, $sudo, use_run_file: $use_run_file);
+                       ->clearDirectory($clean_path, $sudo, use_run_file: $use_run_file);
         }
 
         return $this;
@@ -1240,10 +1272,15 @@ class FsPathCore implements FsPathInterface
      */
     public function isReadable(): bool
     {
-        // Check filesystem restrictions
-        $this->checkRestrictions(false);
+        try {
+            // Check filesystem restrictions
+            $this->checkReadable();
 
-        return is_readable($this->source) and static::$read_enabled;
+            return true;
+
+        } catch (FilesystemException) {
+            return false;
+        }
     }
 
 
@@ -1254,10 +1291,15 @@ class FsPathCore implements FsPathInterface
      */
     public function isWritable(): bool
     {
-        // Check filesystem restrictions
-        $this->checkRestrictions(false);
+        try {
+            // Check filesystem restrictions
+            $this->checkWritable();
 
-        return is_writable($this->source) and static::$write_enabled;
+            return true;
+
+        } catch (FilesystemException) {
+            return false;
+        }
     }
 
 
@@ -3940,7 +3982,8 @@ class FsPathCore implements FsPathInterface
      */
     public function checkWriteAccess(?Throwable $e = null): static
     {
-        if (!static::getWriteEnabled()) {
+
+        if (!static::getWriteEnabled() and !$this->force_access) {
             throw new FileNotWritableException(tr('The file ":file" cannot be written because all write access has been disabled', [
                 ':file' => $this->source
             ]), $e);
@@ -3959,7 +4002,7 @@ class FsPathCore implements FsPathInterface
      */
     public function checkReadAccess(?Throwable $e = null): static
     {
-        if (!static::getReadEnabled()) {
+        if (!static::getReadEnabled() and !$this->force_access) {
             throw new FileNotReadableException(tr('The file ":file" cannot be read because all read access has been disabled', [
                 ':file' => $this->source
             ]), $e);

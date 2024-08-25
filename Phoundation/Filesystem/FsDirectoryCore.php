@@ -324,53 +324,53 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     public function clearDirectory(?string $until_directory = null, bool $sudo = false, bool $use_run_file = true): void
     {
         $this->source = Strings::slash($this->source);
-        try {
-            while ($this->source) {
-                // Restrict location access
-                $this->restrictions->check($this->source, true);
 
-                if (!file_exists($this->source)) {
-                    // This section does not exist, jump up to the next section above
-                    $this->source = dirname($this->source);
-                    continue;
-                }
-
-                if (!is_dir($this->source)) {
-                    // This is a normal file, we only delete directories here!
-                    throw new OutOfBoundsException(tr('Not clearing directory ":directory", it is not a directory', [
-                        ':directory' => $this->source,
-                    ]));
-                }
-
-                if ($until_directory and ($this->source === $until_directory)) {
-                    // We've cleaned until the requested directory, so we're good!
-                    break;
-                }
-
-                if (!FsDirectory::new($this->source, $this->restrictions)->isEmpty()) {
-                    // Do not remove anything more, there is contents here!
-                    break;
-                }
-
-                // Remove this entry and continue;
-                try {
-                    $this->delete(false, $sudo, use_run_file: $use_run_file);
-                } catch (Exception $e) {
-                    // The directory WAS empty, but cannot be removed
-                    // In all probability, a parallel process added a new content in this directory, so it's no longer empty.
-                    // Just register the event and leave it be.
-                    Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
-                        ':pattern' => $this->source,
-                        ':e'       => $e,
-                    ]));
-                    break;
-                }
-
-                // Go one entry up, check if we're still within restrictions, and continue deleting
-                $this->source = dirname($this->source) . '/';
+        while ($this->source) {
+            // Restrict location access
+            if ($this->restrictions->isRestricted($this->source, true)) {
+                // We're out of our territory, stop scanning!
+                break;
             }
-        } catch (RestrictionsException) {
-            // We're out of our territory, stop scanning!
+
+            if (!file_exists($this->source)) {
+                // This section does not exist, jump up to the next section above
+                $this->source = dirname($this->source);
+                continue;
+            }
+
+            if (!is_dir($this->source)) {
+                // This is a normal file, we only delete directories here!
+                throw new OutOfBoundsException(tr('Not clearing directory ":directory", it is not a directory', [
+                    ':directory' => $this->source,
+                ]));
+            }
+
+            if ($until_directory and ($this->source === $until_directory)) {
+                // We've cleaned until the requested directory, so we're good!
+                break;
+            }
+
+            if (!FsDirectory::new($this->source, $this->restrictions)->isEmpty()) {
+                // Do not remove anything more, there is contents here!
+                break;
+            }
+
+            // Remove this entry and continue;
+            try {
+                $this->delete(false, $sudo, use_run_file: $use_run_file);
+            } catch (Exception $e) {
+                // The directory WAS empty, but cannot be removed
+                // In all probability, a parallel process added a new content in this directory, so it's no longer empty.
+                // Just register the event and leave it be.
+                Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
+                    ':pattern' => $this->source,
+                    ':e'       => $e,
+                ]));
+                break;
+            }
+
+            // Go one entry up, check if we're still within restrictions, and continue deleting
+            $this->source = dirname($this->source) . '/';
         }
     }
 
@@ -572,7 +572,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                 try {
                     // Make sure that the parent directory is writable when creating the directory
                     // Since we're modifying the item $id of $count, be sure to get matching restrictions
-                    FsDirectory::new(dirname($this->source), $this->restrictions->getParent($count - $id - 1))
+                    FsDirectory::new(dirname($this->source), $this->restrictions->getParent($count - $id))
                                ->execute()
                                    ->setMode(0770)
                                    ->onDirectoryOnly(function () use ($mode) {
