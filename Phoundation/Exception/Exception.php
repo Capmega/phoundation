@@ -33,6 +33,7 @@ use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Exception\Interfaces\ExceptionInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
@@ -87,6 +88,13 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      * @var int $line
      */
     protected int $line;
+
+    /**
+     * Tracks if this exception has been logged or not
+     *
+     * @var bool $has_been_logged
+     */
+    protected bool $has_been_logged = false;
 
 
     /**
@@ -146,23 +154,28 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
             $message = trim((string) $message);
         }
 
-        parent::__construct($message, 0, $previous);
-
         // Log all exceptions EXCEPT LogExceptions as those can cause endless loops
         if (!$this instanceof LogException) {
             if (Debug::isEnabled()) {
                 if (Config::getBoolean('debug.exceptions.log.auto.enabled', true)) {
                     if (Config::getBoolean('debug.exceptions.log.auto.full', true)) {
+                        $this->message = $messages;
                         Log::error($this, 2);
 
                     } else {
                         Log::warning('Exception: ' . $message, 2, echo_screen: !CliAutoComplete::isActive());
                     }
+
+                    $this->has_been_logged = false;
+
+                    if ($previous instanceof ExceptionInterface) {
+                        $previous->hasBeenLogged(false);
+                    }
                 }
             }
         }
 
-// print_r($this); die();
+        parent::__construct($message, 0, $previous);
     }
 
 
@@ -295,11 +308,14 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
             // Nothing to import, there is no exception
             return null;
         }
+
         if (is_string($source)) {
             // Make it an exception array
             $source = Json::decode($source);
         }
+
         $source['class'] = isset_get($source['class'], Exception::class);
+
         // Import data
         $e = new $source['class']($source['message']);
         $e->setCode(isset_get($source['code']));
@@ -337,6 +353,59 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         parent::__toString();
 
         return '[ ' . ($this->warning ? 'WARNING ' : '') . $this->getCode() . ' ] ' . $this->getMessage();
+    }
+
+
+    /**
+     * Returns this exception object as an array
+     *
+     * @return array
+     */
+    public function __toArray(): array
+    {
+        $return = [
+            'code'     => $this->getCode(),
+            'class'    => get_class($this),
+            'message'  => $this->getMessage(),
+            'messages' => $this->getMessages(),
+            'data'     => $this->getData(),
+            'file'     => $this->getFile(),
+            'line'     => $this->getLine(),
+            'trace'    => $this->getTrace(),
+            'warning'  => $this->getWarning(),
+        ];
+
+        $previous = $this->getPrevious();
+
+        if ($previous) {
+            if ($previous instanceof ExceptionInterface) {
+                $return['previous'] = $previous->__toArray();
+
+            } else {
+                // This is a standard PHP exception
+                $return['previous'] = [
+                    'code'     => $previous->getCode(),
+                    'class'    => get_class($previous),
+                    'message'  => $previous->getMessage(),
+                    'file'     => $this->getFile(),
+                    'line'     => $this->getLine(),
+                    'trace'    => $this->getTrace(),
+                ];
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the source data of this exception
+     *
+     * @return array
+     */
+    public function getSource(): array
+    {
+        return $this->__toArray();
     }
 
 
@@ -832,5 +901,41 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     public function getTraceAsFormattedArray(): array
     {
         return Debug::formatBackTrace($this->getTrace());
+    }
+
+
+    /**
+     * This method will register this exception as a security incident
+     *
+     * @param EnumSeverity $severity
+     *
+     * @return static
+     */
+    public function makeSecurityIncident(EnumSeverity $severity): static
+    {
+        \Phoundation\Security\Incidents\Incident::new()
+            ->setSeverity($severity)
+            ->setTitle($this->message)
+            ->setDetails($this->data)
+            ->save();
+
+        return $this;
+    }
+
+
+    /**
+     * Tracks if this exception has been logged
+     *
+     * @param null|bool $set
+     *
+     * @return bool
+     */
+    public function hasBeenLogged(?bool $set = null): bool
+    {
+        if ($set) {
+            $this->has_been_logged = $set;
+        }
+
+        return $this->has_been_logged;
     }
 }

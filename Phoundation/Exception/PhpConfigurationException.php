@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class RegexException
+ * Class PhpConfigurationException
  *
- * This exception is thrown when a regular expression failed
+ * This exception is thrown on PHP configuration exceptions
  *
  * @author    Sven Olaf Oostenbrink
  * @copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -16,6 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
-class RegexException extends Exception
+class PhpConfigurationException extends PhpException
 {
 }

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception\Interfaces;
 
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Throwable;
 
-interface ExceptionInterface extends Throwable
+interface ExceptionInterface extends Throwable, ArrayableInterface
 {
     /**
      * Return the exception-related data
@@ -206,4 +208,36 @@ interface ExceptionInterface extends Throwable
      * @return array
      */
     public function generateDetails(): array;
+
+    /**
+     * Returns this exception object as an array
+     *
+     * @return array
+     */
+    public function __toArray(): array;
+
+    /**
+     * Returns the source data of this exception
+     *
+     * @return array
+     */
+    public function getSource(): array;
+
+    /**
+     * This method will register this exception as a security incident
+     *
+     * @param EnumSeverity $severity
+     *
+     * @return static
+     */
+    public function makeSecurityIncident(EnumSeverity $severity): static;
+
+    /**
+     * Tracks if this exception has been logged
+     *
+     * @param null|true $set
+     *
+     * @return bool
+     */
+    public function hasBeenLogged(null|true $set = null): bool;
 }

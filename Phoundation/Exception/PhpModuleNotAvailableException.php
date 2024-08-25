@@ -5,7 +5,10 @@
  *
  * This exception will be thrown when a PHP module is missing
  *
- * @package Phoundation\Exception
+ * @author    Sven Olaf Oostenbrink
+ * @copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Exception
  */
 
 

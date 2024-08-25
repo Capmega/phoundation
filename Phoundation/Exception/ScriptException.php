@@ -5,7 +5,10 @@
  *
  * This is the standard exception that should be thrown when a command line script crashes
  *
- * @package Phoundation\Exception
+ * @author    Sven Olaf Oostenbrink
+ * @copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Exception
  */
 
 
