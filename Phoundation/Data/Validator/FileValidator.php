@@ -49,7 +49,7 @@ class FileValidator implements FileValidatorInterface
      *
      * @param FsFileInterface $source
      *
-     * @return FileValidator
+     * @return static
      */
     public static function new(FsFileInterface $source): static
     {
@@ -63,9 +63,9 @@ class FileValidator implements FileValidatorInterface
      * @param string      $primary
      * @param string|null $secondary
      *
-     * @return FileValidator
+     * @return static
      */
-    public function isMimeType(string $primary, ?string $secondary = null): FileValidator
+    public function isMimeType(string $primary, ?string $secondary = null): static
     {
         if ($secondary) {
             $primary .= '/' . $secondary;
@@ -82,9 +82,9 @@ class FileValidator implements FileValidatorInterface
     /**
      * Validates that the file is a compressed file
      *
-     * @return FileValidator
+     * @return static
      */
-    public function isCompressed(): FileValidator
+    public function isCompressed(): static
     {
         return $this;
     }
@@ -93,9 +93,9 @@ class FileValidator implements FileValidatorInterface
     /**
      * Validates that the file is a ZIP compressed file
      *
-     * @return FileValidator
+     * @return static
      */
-    public function isZip(): FileValidator
+    public function isZip(): static
     {
         return $this;
     }
@@ -104,9 +104,9 @@ class FileValidator implements FileValidatorInterface
     /**
      * Validates that the file is a plain text file
      *
-     * @return FileValidator
+     * @return static
      */
-    public function isText(): FileValidator
+    public function isText(): static
     {
         return $this;
     }
@@ -117,9 +117,9 @@ class FileValidator implements FileValidatorInterface
      *
      * @param string|null $allowed_mimetypes
      *
-     * @return FileValidator
+     * @return static
      */
-    public function isImage(?string $allowed_mimetypes = null): FileValidator
+    public function isImage(?string $allowed_mimetypes = null): static
     {
         return $this;
     }
@@ -128,9 +128,9 @@ class FileValidator implements FileValidatorInterface
     /**
      * Validates that the file is a (text) document
      *
-     * @return FileValidator
+     * @return static
      */
-    public function isDocument(): FileValidator
+    public function isDocument(): static
     {
         return $this;
     }
@@ -139,9 +139,9 @@ class FileValidator implements FileValidatorInterface
     /**
      * Validates that the file is a JPEG image
      *
-     * @return FileValidator
+     * @return static
      */
-    public function isJpeg(): FileValidator
+    public function isJpeg(): static
     {
         return $this;
     }
@@ -150,9 +150,9 @@ class FileValidator implements FileValidatorInterface
     /**
      * Validates that the file is a PNG image
      *
-     * @return FileValidator
+     * @return static
      */
-    public function isPng(): FileValidator
+    public function isPng(): static
     {
         return $this;
     }
@@ -161,9 +161,9 @@ class FileValidator implements FileValidatorInterface
     /**
      * Validates that the file is a PDF file
      *
-     * @return FileValidator
+     * @return static
      */
-    public function isPdf(): FileValidator
+    public function isPdf(): static
     {
         return $this;
     }
@@ -174,9 +174,9 @@ class FileValidator implements FileValidatorInterface
      *
      * @param string|int $size
      *
-     * @return FileValidator
+     * @return static
      */
-    public function isSmallerThan(string|int $size): FileValidator
+    public function isSmallerThan(string|int $size): static
     {
         return $this;
     }
@@ -187,9 +187,9 @@ class FileValidator implements FileValidatorInterface
      *
      * @param string|int $size
      *
-     * @return FileValidator
+     * @return static
      */
-    public function isLargerThan(string|int $size): FileValidator
+    public function isLargerThan(string|int $size): static
     {
         $size = Numbers::fromBytes($size);
 

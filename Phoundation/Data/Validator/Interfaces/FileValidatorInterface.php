@@ -7,14 +7,6 @@ use Phoundation\Data\Validator\FileValidator;
 interface FileValidatorInterface
 {
     /**
-     * Validates that the file is a file
-     *
-     * @return FileValidator
-     */
-    public function isFile(): FileValidator;
-
-
-    /**
      * Validates that the file is a plain text file
      *
      * @return FileValidator
