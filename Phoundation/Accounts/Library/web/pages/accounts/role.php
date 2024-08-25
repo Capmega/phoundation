@@ -137,7 +137,7 @@ $rights = Card::new()
               ->setContent($role->getRightsHtmlDataEntryForm())
               ->setForm(Form::new()
                             ->setAction('#')
-                            ->setMethod(EnumHttpRequestMethod::post))
+                            ->setRequestMethod(EnumHttpRequestMethod::post))
               ->render();
 
 

@@ -337,7 +337,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
 
             } else {
                 if ($file->isAbsolute()) {
-                    $file->makeRelative(FsDirectory::getCdnObject(LANGUAGE));
+                    $file->makeRelative(FsDirectory::getCdnObject(true));
                 }
             }
         }

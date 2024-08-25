@@ -14,14 +14,9 @@
 
 declare(strict_types=1);
 
-use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
-use Phoundation\Content\Images\ImageFile;
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\Interfaces\FileValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Filesystem\Interfaces\FsUploadedFileInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -35,31 +30,17 @@ use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Uploads\UploadHandler;
 
 
-// Define and process the upload handling
+// Define the drag/drop upload selector
 Request::getFileUploadHandlersObject()
-       ->add(UploadHandler::new('image')
-                          ->setSelector('#profile-picture')
-                          ->addValidationFunction(function (FileValidatorInterface $validator) {
-                              $validator->isImage('jpg,png')
-                                        ->isSmallerThan('10MB');
-                          })
-                          ->setFunction(function(FsUploadedFileInterface $file) {
-                              // Set this image as the profile image
-                              ProfileImage::newFromImageFile(new ImageFile($file))
-                                          ->setUserObject(Session::getUserObject())
-                                          ->save()
-                                          ->setDefault();
-                          })
+       ->add(UploadHandler::new('image')->getDropZoneObject()
+                                                 ->setUrl(Url::getAjax('my/profile/image/upload'))
+                                                 ->setSelector('#profile-picture-card')
+           ->setMaxFiles(null)
+           ->setMaxFileSize(2000)
+                                                 ->setParallelUploads(5)
+                                                 ->setUploadMultiple(true)
+                                                 ->getHandler()
        )->process();
-
-
-if (Request::getFileUploadHandlersObject()->hasUploadedFiles()) {
-    // Convert to AJAX request instead
-
-    Log::warning('IMPLEMENT SWITCHING TO AJAX REPLY');
-//    Request::setRequestType(EnumRequestTypes::ajax);
-    exit();
-}
 
 
 // Get the user and alter the default user form
@@ -205,10 +186,11 @@ $column = GridColumn::new()
 // Build profile picture card
 $picture = Card::new()
                ->setTitle(tr('My profile picture'))
-               ->setId('profile-picture')
+               ->setId('profile-picture-card')
                ->setContent(Session::getUserObject()
                                    ->getProfileImageObject()
                                        ->getHtmlImgObject()
+                                           ->setId('profile-picture')
                                            ->addClasses('w100')
                                            ->setAlt(tr('My profile picture')));
 

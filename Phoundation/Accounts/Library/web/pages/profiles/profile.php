@@ -240,7 +240,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
                             <div class="tab-pane" id="actions">
                                 <?=
                                 Form::new()
-                                    ->setMethod(EnumHttpRequestMethod::post)
+                                    ->setRequestMethod(EnumHttpRequestMethod::post)
                                     ->setContent('   <div class="form-group row">' .
                                                  Buttons::new()
                                                         ->addButton(isset_get($edit))

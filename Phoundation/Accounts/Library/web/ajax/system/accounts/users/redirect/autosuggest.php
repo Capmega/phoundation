@@ -22,12 +22,14 @@ use Phoundation\Web\Http\Json\AutoSuggestRequest;
 // Ensure we'll have auto suggest data
 AutoSuggestRequest::init(true);
 
+
 // Validate
 $get = GetValidator::new()
                    ->validate();
+
 
 // Reply
 $reply = Json::encode(['/force-password-update.html']);
 $reply = AutoSuggestRequest::getCallback() . '(' . $reply . ')';
 
-Json::reply($reply);
+Json::new()->reply($reply);

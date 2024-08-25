@@ -49,7 +49,8 @@ $argv = ArgvValidator::new()
 
 
 // Display user data
-User::load($argv['user'])->displayCliForm();
+$user = User::load($argv['user']);
+$user->displayCliForm();
 
 
 // Display extra email addresses
@@ -57,10 +58,10 @@ Log::cli();
 Log::information('Extra email addresses:', echo_prefix: false);
 Log::cli();
 
-User::load($argv['user'])->getEmailsObject()->displayCliTable([
-                                                           'email'        => tr('Email address'),
-                                                           'account_type' => tr('Email address type'),
-                                                       ]);
+$user->getEmailsObject()->displayCliTable([
+    'email'        => tr('Email address'),
+    'account_type' => tr('Email address type'),
+]);
 
 
 // Display extra phone numbers
@@ -68,23 +69,23 @@ Log::cli();
 Log::information('Extra phone numbers:', echo_prefix: false);
 Log::cli();
 
-User::load($argv['user'])->getPhonesObject()->displayCliTable([
-                                                           'phone'        => tr('Phone number'),
-                                                           'account_type' => tr('Phone number type'),
-                                                       ]);
+$user->getPhonesObject()->displayCliTable([
+    'phone'        => tr('Phone number'),
+    'account_type' => tr('Phone number type'),
+]);
 
 
 // Display roles
 Log::cli();
 
-User::load($argv['user'])->getRolesObject()->displayCliTable([
-                                                          'name' => tr('Roles assigned to this user:'),
-                                                      ]);
+$user->getRolesObject()->displayCliTable([
+    'name' => tr('Roles assigned to this user:'),
+]);
 
 
 // Display rights
 Log::cli();
 
-User::load($argv['user'])->getRightsObject()->displayCliTable([
-                                                           'name' => tr('Rights assigned to this user through its roles:'),
-                                                       ]);
+$user->getRightsObject()->displayCliTable([
+    'name' => tr('Rights assigned to this user through its roles:'),
+]);

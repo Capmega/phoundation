@@ -89,7 +89,7 @@ use Phoundation\Seo\Seo;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Api\Users;
+use Phoundation\Web\Json\Users;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
@@ -602,6 +602,10 @@ class User extends DataEntry implements UserInterface
 
         // Save was successful! If we're saving the current user, then update the session
         if (Session::isOfUser($this)) {
+            Log::action(tr('Current user ":user" changed in database, refreshing session user data', [
+                ':user' => $this->getLogId(),
+            ]));
+
             Session::reloadUser();
         }
 
