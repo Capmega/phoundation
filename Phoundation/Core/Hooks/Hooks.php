@@ -74,6 +74,6 @@ class Hooks extends DataIterator
      */
     public static function rebuildCache(): void
     {
-        Libraries::rebuildWebCache();
+        Libraries::rebuildHookCache();
     }
 }

@@ -158,6 +158,9 @@ The following arguments are available to ALL commands
 [-W, --no-warnings]                     Will only use "error" type exceptions with backtrace and extra information,
                                         instead of displaying only the main exception message for warnings
 
+[-X, --ignore-readonly]                 Will make the core system ignore readonly modes, and continue writing to both 
+                                        disk and databases. Use with care!
+
 [-Y, --clear-tmp]                       Will clear all temporary data in ROOT/data/tmp, and memcached
 
 [-Z, --clear-caches]                    Will clear all caches in ROOT/data/cache, and memcached

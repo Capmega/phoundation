@@ -155,6 +155,7 @@ class Libraries
     public static function initialize(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, ?array $libraries = null): void
     {
         static::$initializing = true;
+
         if (FORCE) {
             static::force();
         }

@@ -29,6 +29,7 @@ use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\DateTime;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
+use Phoundation\Exception\Interfaces\ExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FilesystemException;
@@ -313,16 +314,16 @@ class Log
     /**
      * Log to PHP error console
      *
-     * @param IteratorInterface|array|string $messages
-     * @param int                            $message_type
-     * @param string|null                    $destination
-     * @param string|null                    $additional_headers
+     * @param ArrayableInterface|array|string $messages
+     * @param int                             $message_type
+     * @param string|null                     $destination
+     * @param string|null                     $additional_headers
      *
      * @return void
      * @todo Improve handling of logging that does not go through syslog
      *
      */
-    public static function errorLog(IteratorInterface|array|string $messages, int $message_type = 4, ?string $destination = null, ?string $additional_headers = null): void
+    public static function toAlternateLog(ArrayableInterface|array|string $messages, int $message_type = 4, ?string $destination = null, ?string $additional_headers = null): void
     {
         if (!static::$syslog_filter_applied) {
             ini_set('syslog.filter', 'any');
@@ -331,10 +332,15 @@ class Log
 
         $additional_headers = $additional_headers ?? Config::get('log.headers', '');
 
-        if (is_array($messages) or ($messages instanceof IteratorInterface)) {
+        if ($messages instanceof ArrayableInterface) {
+            $messages = $messages->__toArray();
+        }
+
+        if (is_array($messages)) {
             foreach ($messages as $message) {
-                static::errorLog(Strings::force($message, PHP_EOL));
+                static::toAlternateLog(Strings::force($message, PHP_EOL));
             }
+
         } else {
             error_log($messages, $message_type, $destination, $additional_headers);
         }
@@ -708,25 +714,25 @@ class Log
             if (static::$screen_enabled and static::$file_enabled) {
                 foreach (Arrays::force($messages, null) as $message) {
                     if ($message instanceof Throwable) {
-                        static::errorLog('Phoundation: exception class    : ' . get_class($message));
-                        static::errorLog('Phoundation: exception message  : ' . $message->getMessage());
-                        static::errorLog('Phoundation: exception location : ' . $message->getFile() . '@' . $message->getLine());
+                        static::toAlternateLog('Phoundation: exception class    : ' . get_class($message));
+                        static::toAlternateLog('Phoundation: exception message  : ' . $message->getMessage());
+                        static::toAlternateLog('Phoundation: exception location : ' . $message->getFile() . '@' . $message->getLine());
 
                         $trace = Debug::formatBackTrace($message->getTrace());
                         foreach ($trace as $step)
-                        static::errorLog('Phoundation: exception trace    : ' . $step);
+                        static::toAlternateLog('Phoundation: exception trace    : ' . $step);
 
                         if ($message instanceof Exception) {
-                            static::errorLog('Phoundation: exception data     : ' . Strings::force($message->getData()));
+                            static::toAlternateLog('Phoundation: exception data     : ' . Strings::force($message->getData()));
                         }
 
                         if ($message->getPrevious()) {
-                            static::errorLog('Phoundation: previous exception : ');
+                            static::toAlternateLog('Phoundation: previous exception : ');
                             static::write($message->getPrevious());
                         }
 
                     } else {
-                        static::errorLog('Phoundation: ' . Strings::force($message));
+                        static::toAlternateLog('Phoundation: ' . Strings::force($message));
                     }
                 }
             }
@@ -766,9 +772,9 @@ class Log
             }
 
             if (static::$lock) {
-                static::errorLog(tr('Rejecting next log message to avoid endless loops because Log->write() is locked for another log entry. Check backtrace for Log-> calls within Log->write()'));
-                static::errorLog(Strings::force($messages, PHP_EOL));
-                static::errorLog(Strings::force(print_r(Debug::getBacktrace(), true), PHP_EOL));
+                static::toAlternateLog(tr('Rejecting next log message to avoid endless loops because Log->write() is locked for another log entry. Check backtrace for Log-> calls within Log->write()'));
+                static::toAlternateLog(Strings::force($messages, PHP_EOL));
+                static::toAlternateLog(Strings::force(print_r(Debug::getBacktrace(), true), PHP_EOL));
 
                 return false;
             }
@@ -817,7 +823,7 @@ class Log
 
             // If logging to the standard log output failed or we're initializing the log, then write to the system log
             if (static::$failed) {
-                static::errorLog(Strings::force($messages));
+                static::toAlternateLog(Strings::force($messages));
                 static::$lock = false;
 
                 return true;
@@ -1016,49 +1022,64 @@ class Log
     /**
      * Logs an exception object in the log file
      *
-     * @param Throwable   $exception
-     * @param int         $threshold
-     * @param bool        $clean
-     * @param bool        $echo_newline
-     * @param string|bool $echo_prefix
-     * @param bool        $echo_screen
+     * @param Throwable|null $exception
+     * @param int            $threshold
+     * @param bool           $clean
+     * @param bool           $echo_newline
+     * @param string|bool    $echo_prefix
+     * @param bool           $echo_screen
      *
      * @return bool
      */
-    public static function exception(Throwable $exception, int $threshold = 9, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
+    public static function exception(?Throwable $exception, int $threshold = 9, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        // This is an exception object, log the warning or error  message data. PHP exceptions have
-        // $e->getMessage() and Phoundation exceptions can have multiple messages using $e->getMessages()
-        // Redetermine the log class
-        if ($exception instanceof Exception) {
-            if ($exception->isWarning()) {
-                // This is a warning exception, which can be displayed to user (usually this is caused by user
-                // data validation issues, etc.
-                $class = 'warning';
+        if ($exception) {
+            // This is an exception object, log the warning or error  message data. PHP exceptions have
+            // $e->getMessage() and Phoundation exceptions can have multiple messages using $e->getMessages()
+            // Redetermine the log class
+            if ($exception instanceof ExceptionInterface) {
+                if ($exception->hasBeenLogged()) {
+                    // This exception has already been logged, don't log again
+                    return false;
+                }
+
+                $exception->hasBeenLogged(true);
+
+                if ($exception->isWarning()) {
+                    // This is a warning exception, which can be displayed to user (usually this is caused by user
+                    // data validation issues, etc.
+                    $class = 'warning';
+
+                } else {
+                    // This is an error exception, which is more severe
+                    $class = 'error';
+                }
 
             } else {
-                // This is an error exception, which is more severe
+                // This is a PHP error, which is always a hard error
                 $class = 'error';
             }
 
+            // Log the initial exception message
+            static::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+            static::write(get_class($exception), $class, $threshold, true, true, false, $echo_screen);
+            static::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+            static::write('[E' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
+            static::write(tr('Script    : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+            static::write(Request::getExecutedPath(true), $class, $threshold, true, true, false, $echo_screen);
+            static::write(tr('Location  : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+            static::write($exception->getFile() . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
+
+            // Log the exception data, the trace, and previous exception, if any.
+            static::logExceptionData($exception, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+            static::logExceptionTrace($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+            static::logPreviousException($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+
         } else {
-            // This is a PHP error, which is always a hard error
-            $class = 'error';
+            // NULL exception
+            static::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+            static::write('NULL (a.k.a. There is no exception)', 'error', $threshold, true, true, false, $echo_screen);
         }
-
-        // Log the initial exception message
-        static::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-        static::write(get_class($exception), $class, $threshold, true, true, false, $echo_screen);
-        static::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-        static::write('[E' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
-        static::write(tr('Script    : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-        static::write(Request::getExecutedPath(true), $class, $threshold, true, true, false, $echo_screen);
-        static::write(tr('Location  : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-        static::write($exception->getFile() . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
-
-        // Log the exception data and trace
-        static::logExceptionData($exception, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
-        static::logExceptionTrace($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
 
         return true;
     }
@@ -1093,7 +1114,7 @@ class Log
 
         if (static::$failed) {
             // If the log is in failed mode, we cannot switch file
-            static::errorLog(tr('Not switching log file to ":file", log is running in failed mode', [
+            static::toAlternateLog(tr('Not switching log file to ":file", log is running in failed mode', [
                 ':file' => $file,
             ]));
 
@@ -1115,7 +1136,8 @@ class Log
 
             // Open the specified log file
             static::$streams[$file] = FsFile::new($file, static::$restrictions)
-                                            ->ensureWritable(0640)
+                                            ->ensureWritable(0640)          // Log file should always be 0640
+                                            ->setForceAccess(true)     // Log file must always be accessible
                                             ->open(EnumFileOpenMode::writeOnlyAppend);
 
             // Set the class file to the specified file and return the old value and
@@ -1198,15 +1220,33 @@ class Log
             } else {
                 static::write('-', 'debug', $threshold, false, $echo_newline, $echo_prefix, $echo_screen);
             }
+        }
+    }
 
-            // Log all previous exceptions as well
-            $previous = $exception->getPrevious();
 
-            while ($previous) {
-                static::write('Previous exception: ', 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
-                static::exception($previous, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
-                $previous = $previous->getPrevious();
-            }
+
+
+    /**
+     * Logs the previous exception of the specified exception, if any
+     *
+     * @param Throwable   $exception
+     * @param string|null $class
+     * @param int         $threshold
+     * @param bool        $clean
+     * @param bool        $echo_newline
+     * @param string|bool $echo_prefix
+     * @param bool        $echo_screen
+     *
+     * @return void
+     */
+    protected static function logPreviousException(Throwable $exception, ?string $class = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): void
+    {
+        // Log all previous exceptions as well
+        $previous = $exception->getPrevious();
+
+        if ($previous) {
+            static::write('Previous exception: ', 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+            static::exception($previous, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
         }
     }
 
@@ -1295,18 +1335,18 @@ class Log
         try {
             $message = $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . ' Failed to log message to internal log files because "' . $e->getMessage() . '"';
 
-            static::errorLog($message);
+            static::toAlternateLog($message);
 
             try {
                 foreach (Arrays::force($messages, null) as $message) {
                     $message = CliColor::strip((string) $message);
                     $message = $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . ' ' . $message;
-                    static::errorLog($message);
+                    static::toAlternateLog($message);
                 }
 
             } catch (Throwable $g) {
                 // Okay, this is messed up, we can't even log to system logs.
-                static::errorLog('Failed to log message because: ' . $g->getMessage());
+                static::toAlternateLog('Failed to log message because: ' . $g->getMessage());
             }
 
         } catch (Throwable $f) {

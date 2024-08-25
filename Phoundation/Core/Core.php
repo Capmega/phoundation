@@ -67,6 +67,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
+use Phoundation\Utils\Exception\ConfigurationInvalidException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
@@ -250,6 +251,13 @@ class Core implements CoreInterface
      * @var bool $shutdown_handling
      */
     protected static bool $shutdown_handling = true;
+
+    /**
+     * Tracks if the core will ignore the readonly mode file
+     *
+     * @var bool $ignore_readonly
+     */
+    protected static bool $ignore_readonly = false;
 
 
     /**
@@ -437,7 +445,7 @@ class Core implements CoreInterface
                 }
 
                 // The file doesn't exist, that is good. Go to setup mode
-                Log::errorLog('Project file "config/project" does not exist, entering setup mode');
+                Log::toAlternateLog('Project file "config/project" does not exist, entering setup mode');
 
                 static::setPlatform();
                 static::startPlatform();
@@ -1345,6 +1353,7 @@ class Core implements CoreInterface
                              ->select('-U,--usage')->isOptional(false)->isBoolean()
                              ->select('-V,--verbose')->isOptional(false)->isBoolean()
                              ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
+                             ->select('-X,--ignore-readonly')->isOptional(false)->isBoolean()
                              ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
                              ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
                              ->select('--language', true)->isOptional()->isCode()
@@ -1674,6 +1683,12 @@ class Core implements CoreInterface
             static::disableInitState();
         }
 
+        static::$ignore_readonly = $argv['ignore_readonly'];
+
+        if (static::$ignore_readonly) {
+            Log::warning('Core is ignoring readonly mode!');
+        }
+
         // Ensure any extra dashed arguments are "undashed"
         ArgvValidator::unDoubleDash();
     }
@@ -1803,6 +1818,9 @@ class Core implements CoreInterface
     /**
      * Throws an exception for the given action if Core (and thus the entire system) is readonly
      *
+     * @note The system will ignore readonly state while in init mode, and this method will return false, even if
+     *       readonly more has been enabled
+     *
      * @param string $action
      *
      * @return void
@@ -1810,7 +1828,7 @@ class Core implements CoreInterface
      */
     public static function checkReadonly(string $action): void
     {
-        if (static::$readonly) {
+        if (static::$readonly and !static::$init) {
             throw new CoreReadonlyException(tr('Unable to perform action ":action", the entire system is readonly', [
                 ':action' => $action,
             ]));
@@ -2109,7 +2127,7 @@ class Core implements CoreInterface
             // Enable readonly mode
             if ($enabled) {
                 Log::warning(tr('Cannot place the system in readonly mode, the system was already placed in readonly mode by ":user"', [
-                    ':user' => $enabled,
+                    ':user' => $enabled->getUserObject()->getLogId(),
                 ]));
 
                 return;
@@ -2135,6 +2153,17 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns true if the core is ignoring its internal readonly mode
+     *
+     * @return bool
+     */
+    public static function getIgnoreReadonly(): bool
+    {
+        return static::$ignore_readonly;
+    }
+
+
+    /**
      * Returns information on if the system is in readonly mode or not.
      *
      * This method will return null if the system is not in readonly mode
@@ -2147,6 +2176,16 @@ class Core implements CoreInterface
     public static function getReadonlyMode(): ?ModeInterface
     {
         static $readonly = null;
+
+        if (static::$init or static::$ignore_readonly) {
+            // Init state ignores readonly mode
+            return null;
+        }
+
+        if (static::$init) {
+            // Init state ignores readonly mode
+            return null;
+        }
 
         if ($readonly) {
             return $readonly;
@@ -2239,7 +2278,7 @@ class Core implements CoreInterface
                     }
 
                     // The file doesn't exist, that is good. Go to setup mode
-                    Log::errorLog('Project version file "config/version" does not exist, entering setup mode');
+                    Log::toAlternateLog('Project version file "config/version" does not exist, entering setup mode');
 
                     static::setPlatform();
                     static::startPlatform();
@@ -3218,6 +3257,10 @@ class Core implements CoreInterface
                     // no break
 
                 case EnumRequestTypes::ajax:
+                    if (!headers_sent()) {
+                        header('Content-Type: application/json', true);
+                    }
+
                     echo "UNCAUGHT EXCEPTION\n\n";
                     showdie($e);
             }
@@ -3333,11 +3376,11 @@ class Core implements CoreInterface
                 // no break
             case EnumRequestTypes::ajax:
                 if ($e instanceof CoreException) {
-                    Json::message($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
+                    Json::new()->replyWithHttpCode($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
                 }
 
                 // Assume that all non CoreException exceptions are not warnings!
-                Json::message($e->getCode(), ['reason' => '']);
+                Json::new()->replyWithHttpCode($e->getCode(), ['reason' => '']);
         }
 
         static::executeUncaughtExceptionSystemPage($e->getCode(), $e);
@@ -3450,5 +3493,51 @@ class Core implements CoreInterface
             // Try to show a pretty error page
             Request::executeSystem($page, $e);
         }
+    }
+
+
+    /**
+     * Returns how much PHP is allowed to expose itself
+     *
+     * @return string
+     */
+    public static function getExposePhp(): string
+    {
+        $expose = Config::getString('security.expose.php', 'limited');
+
+        switch ($expose) {
+            case 'limited':
+            case 'full':
+            case 'none':
+            case 'fake':
+                return $expose;
+        }
+
+        throw new ConfigurationInvalidException(tr('Invalid configuration value ":value" for "security.expose.php" Please use one of "none", "limited", "full", or "fake"', [
+            ':value' => $expose,
+        ]));
+    }
+
+
+    /**
+     * Returns how much Phoundation is allowed to expose itself
+     *
+     * @return string
+     */
+    public static function getExposePhoundation(): string
+    {
+        $expose = Config::getString('security.expose.phoundation', 'limited');
+
+        switch ($expose) {
+            case 'limited':
+            case 'full':
+            case 'none':
+            case 'fake':
+                return $expose;
+        }
+
+        throw new ConfigurationInvalidException(tr('Invalid configuration value ":value" for "security.expose.phoundation" Please use one of "none", "limited", "full", or "fake"', [
+            ':value' => $expose,
+        ]));
     }
 }

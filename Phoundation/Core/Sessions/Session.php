@@ -800,7 +800,7 @@ class Session implements SessionInterface
             ]));
         }
 
-        static::loadUser($_SESSION['user']['id']);
+        static::$user = static::loadUser($_SESSION['user']['id']);
     }
 
 

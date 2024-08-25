@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Plugins;
 
+use Phoundation\Core\Core;
+use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Interfaces\PluginsInterface;
@@ -114,6 +116,8 @@ class Plugins extends DataIterator implements PluginsInterface
      */
     public static function scan(): PluginsInterface
     {
+        Core::checkReadonly('scan plugins');
+
         foreach (static::scanPluginsPath() as $name => $class) {
             try {
                 $plugin = $class::new(['name' => $name]);

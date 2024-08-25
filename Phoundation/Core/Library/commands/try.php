@@ -15,6 +15,8 @@
 
 declare(strict_types=1);
 
+use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
+use Phoundation\Exception\Exception;
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Core\Log\Log;
@@ -22,5 +24,15 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Mimetypes\FsMimetype;
+use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Web\Html\Enums\EnumElement;
+
+Pho::new()
+    ->setPhoCommands('plugins scan')
+    ->addArgument('--clear')
+    ->executePassthru();
+
+
+//throw Exception::new(tr('EEN'), Exception::new('TWEE'));
+
