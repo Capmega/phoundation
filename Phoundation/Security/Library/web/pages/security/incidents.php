@@ -39,7 +39,7 @@ $users = Card::new()
 
 $users->getForm()
       ->setAction(Url::getCurrent())
-      ->setMethod(EnumHttpRequestMethod::post);
+      ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links

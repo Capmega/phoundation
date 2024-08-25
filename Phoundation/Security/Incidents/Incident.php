@@ -202,10 +202,14 @@ class Incident extends DataEntry implements IncidentInterface
     {
         $severity = strtolower($this->getSeverity());
 
+        // Save the incident
+        $incident = parent::save($force, $comments);
+
         if ($this->log) {
             switch ($severity) {
                 case 'notice':
-                    Log::warning(tr('Security notice: :message', [
+                    Log::warning(tr('Security notice (:id): :message', [
+                        ':id'      => $this->getId(),
                         ':message' => $this->getTitle(),
                     ]));
                     break;
@@ -214,22 +218,21 @@ class Incident extends DataEntry implements IncidentInterface
                     // no break
 
                 case 'severe':
-                    Log::error(tr('Security incident (:severity): :message', [
+                    Log::error(tr('Security incident (:id / :severity): :message', [
+                        ':id'       => $this->getId(),
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
                     ]));
                     break;
 
                 default:
-                    Log::warning(tr('Security incident (:severity): :message', [
+                    Log::warning(tr('Security incident (:id / :severity): :message', [
+                        ':id'       => $this->getId(),
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
                     ]));
             }
         }
-
-        // Save the incident
-        $incident = parent::save($force, $comments);
 
         // Notify anybody?
         if (isset($this->notify_roles)) {
