@@ -27,6 +27,7 @@ use Phoundation\Developer\Exception\SyncEnvironmentDoesNotExistsException;
 use Phoundation\Developer\Exception\SyncException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\PhoInterface;
 use Phoundation\Os\Processes\Commands\Pho;
@@ -238,7 +239,7 @@ class Sync
         $this->executeHook('pre-clear-caches');
 
 //        $this->getPhoCommand($server)
-//             ->setPhoCommands('cache clear')
+//             ->setPhoCommands('cache system rebuild all')
 //             ->executeReturnString();
 
         return $this->executeHook('pre-clear-caches');
@@ -268,7 +269,7 @@ class Sync
     protected function executeHook(array|string $hooks): static
     {
         if ($this->configuration['execute_hooks']) {
-            Hook::new('sync')->execute($hooks);
+            Hook::new('system/sync')->execute($hooks);
         }
 
         return $this;
@@ -296,20 +297,20 @@ class Sync
     protected function getPhoCommand(?ServerInterface $server, array|string|null $pho_commands = null): PhoInterface
     {
         if ($server) {
-            return Pho::new($this->configuration['path'] . 'pho')
+            return Pho::new(null, FsFile::new($this->configuration['path'] . 'pho', FsRestrictions::getReadonly($this->configuration['path'])))
                       ->setPhoCommands($pho_commands)
                       ->setEnvironment($this->environment)
                       ->setServer($server)
                       ->setSudo($this->configuration['sudo']);
         }
 
-        return Pho::new(DIRECTORY_ROOT . 'pho')
+        return Pho::new()
                   ->setPhoCommands($pho_commands);
     }
 
 
     /**
-     * Imports the Redis connectors for this project
+     * Initialize the system
      *
      * @param ServerInterface|null $server
      *
@@ -975,13 +976,13 @@ class Sync
         // Parse sudo configuration
         if ($this->configuration['sudo']) {
             if ($this->configuration['sudo'] === true) {
-                $this->configuration['sudo'] = 'sudo -Eu root';
+                $this->configuration['sudo'] = 'sudo -Esu root';
 
             } else {
                 $this->configuration['sudo'] = trim($this->configuration['sudo']);
 
                 if (!str_starts_with($this->configuration['sudo'], 'sudo')) {
-                    $this->configuration['sudo'] = 'sudo -Eu ' . $this->configuration['sudo'];
+                    $this->configuration['sudo'] = 'sudo -Esu ' . $this->configuration['sudo'];
                 }
             }
 

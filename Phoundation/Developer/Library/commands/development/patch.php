@@ -102,7 +102,7 @@ Log::information(tr('Copying local changes in project ":project" back to your Ph
 
 // First update Phoundation, if allowed
 if (!$argv['no_update']) {
-//    PhoCommand::new('system update')
+//    Pho::new('system update')
 //              ->addArguments([
 //                                 $argv['no_phoundation'] ? '--no-phoundation'              : null,
 //                                 $argv['no_plugins']     ? '--no-plugins'                  : null,
