@@ -44,3 +44,4 @@ data/garbage
 Templates/*
 Plugins/Phoundation/*
 !Plugins/Phoundation/Phoundation/
+Poundation/Core/Library/commands/try.php
