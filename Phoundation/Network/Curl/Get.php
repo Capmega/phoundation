@@ -230,7 +230,7 @@ class Get extends Curl
         // Use cookies?
         if (isset_get($this->cookies)) {
             if (!isset_get($this->cookie_file)) {
-                $this->cookie_file = FsFile::getTemporary()
+                $this->cookie_file = FsFile::getTemporaryObject()
                                            ->getSource();
             }
             // Make sure the specified cookie path exists

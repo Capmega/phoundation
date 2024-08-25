@@ -17,13 +17,10 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
-use Phoundation\Filesystem\Enums\EnumExtensionMode;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
-use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\ZipInterface;

@@ -102,7 +102,7 @@ class FsUploadedFile extends FsFileCore implements FsUploadedFileInterface
         }
 
         // Move the uploaded file to the Phoundation temporary directory
-        $tmp = FsFile::getTemporary(false, $this->real_name);
+        $tmp = FsFile::getTemporaryObject(false, $this->real_name);
 
         Log::action(tr('Moving uploaded file from PHP temporary directory ":file" to Phoundation temporary directory ":phoundation"', [
             ':file'        => $tmp,

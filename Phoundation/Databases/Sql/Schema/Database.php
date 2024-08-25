@@ -246,7 +246,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
     public function copy(string $database_name, int $timeout = 3600): static
     {
         // Export current database
-        $file   = FsFile::getTemporary();
+        $file   = FsFile::getTemporaryObject();
         $target = Database::new($database_name, $this->sql, $this->parent);
 
         if ($target->exists()) {

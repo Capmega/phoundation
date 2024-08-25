@@ -30,7 +30,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Commands\Df;
-use Phoundation\Filesystem\Enums\EnumExtensionMode;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileExistsException;
@@ -60,7 +59,6 @@ use Phoundation\Filesystem\Interfaces\FsInfoInterface;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\Mimetypes\Exception\FilesystemMimetypeNotSupported;
-use Phoundation\Filesystem\Mimetypes\FsMimetype;
 use Phoundation\Filesystem\Mimetypes\FsMimetypes;
 use Phoundation\Filesystem\Mounts\FsMount;
 use Phoundation\Filesystem\Mounts\FsMounts;
@@ -1164,8 +1162,9 @@ class FsPathCore implements FsPathInterface
                ->setSudo($sudo)
                ->setUseRunFile($use_run_file)
                ->setTimeout(10)
-               ->addArgument($this->source, $escape)
-               ->addArgument('-rf')
+               ->addArgument(Strings::ensureEndsNotWith($this->source, '/'), $escape)     // All files to be deleted
+               ->addArgument('-f')                                                      // No questions asked
+               ->addArgument(($this->isDirectory() and !$this->isLink()) ? '-r' : null) // Only non-symlink directories delete recursive
                ->executeNoReturn();
 
         // If specified, to do so, clear the path upwards from the specified pattern
@@ -1179,6 +1178,7 @@ class FsPathCore implements FsPathInterface
                        ->clearDirectory($clean_path, $sudo, use_run_file: $use_run_file);
         }
 
+        clearstatcache();
         return $this;
     }
 
@@ -2227,7 +2227,7 @@ class FsPathCore implements FsPathInterface
 
         // Symlink!
         try {
-            symlink(Strings::ensureEndsNotWith($calculated_target->getSource(), '/'), $target->getSource());
+            symlink(Strings::ensureEndsNotWith($calculated_target->getSource(), '/'), Strings::ensureEndsNotWith($target->getSource(), '/'));
 
         } catch (PhpException $e) {
             // Crap, what happened?
@@ -3459,15 +3459,15 @@ class FsPathCore implements FsPathInterface
     {
         $target = FsPath::new($target);
 
-        // Move the old out of the way, push the new in, delete the current
         if ($this->exists()) {
+            // Move the old out of the way, push the new in, delete the current
             $new = clone $this;
             $this->rename(FsDirectory::getTemporaryObject());
             $target->rename($new);
             $this->delete();
 
         } else {
-            // The source doesn't exist, so we don't have to move anything out of place or delete afterwards
+            // The source doesn't exist, so we don't have to move anything out of place or delete afterward
             $this->getParentDirectory()->ensure();
             $target->rename($this);
         }
@@ -3753,6 +3753,8 @@ class FsPathCore implements FsPathInterface
 
     /**
      * Will scan this path for symlinks and delete all of them one by one
+     *
+     * @param bool $clean
      *
      * @return static
      */
