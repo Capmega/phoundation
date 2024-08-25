@@ -16,9 +16,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
+use Phoundation\Core\Core;
 use Phoundation\Data\Traits\TraitDataEnvironment;
 use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\PhoInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\WorkersCore;
@@ -39,14 +42,18 @@ class Pho extends WorkersCore implements PhoInterface
 
 
     /**
-     * PhoCommand class constructor.
+     * Pho class constructor.
      *
-     * @param string|null $command
+     * @param FsFileInterface|null $pho
      */
-    public function __construct(?string $command = null)
+    public function __construct(array|string|null $commands, ?FsFileInterface $pho = null)
     {
-        if (!$command) {
-            $command = DIRECTORY_ROOT . 'pho';
+        if (is_string($commands)) {
+            $commands = str_replace('/', ' ', $commands);
+        }
+
+        if (!$pho) {
+            $pho = FsFile::new(DIRECTORY_ROOT . 'pho', FsRestrictions::getRoot());
         }
 
         // Ensure that the run files directory is available
@@ -54,27 +61,31 @@ class Pho extends WorkersCore implements PhoInterface
             ->ensure();
 
         // Generate the process
-        parent::__construct(FsRestrictions::new($command));
+        parent::__construct($pho->getParentDirectory());
 
         // Set the command to execute phoundation, pass basic arguments and settings like timeout
-        // No-sound is always set to avoid sub commands pinging differently from the main command, causing confusion
-        $this->setCommand($command, false)
-            ->addArguments(['-N'])
-            ->setEnvironment(ENVIRONMENT)
-            ->setTimeout($this->timeout);
+        // --no-audio is always set to avoid sub commands pinging differently from the main command, causing confusion
+        // --ignore-readonly is added if the current process is also ignoring the readonly mode file
+        $this->setCommand($pho->getSource(), false)
+             ->addArguments(['--no-audio'])
+             ->addArguments(Core::getIgnoreReadonly() || Core::inInitState() ? '--ignore-readonly' : null)
+             ->setPhoCommands($commands)
+             ->setEnvironment(ENVIRONMENT)
+             ->setTimeout($this->timeout);
     }
 
 
     /**
      * Create a new process factory for a specific Phoundation command
      *
-     * @param string|null $pho_command
+     * @param string|null          $pho_command
+     * @param FsFileInterface|null $pho
      *
      * @return static
      */
-    public static function new(?string $pho_command = null): static
+    public static function new(?string $pho_command = null, ?FsFileInterface $pho = null): static
     {
-        return new static($pho_command);
+        return new static($pho_command, $pho);
     }
 
 
@@ -97,7 +108,12 @@ class Pho extends WorkersCore implements PhoInterface
      */
     public function setPhoCommands(array|string|null $pho_commands): static
     {
-        $this->pho_commands = Arrays::force($pho_commands, ' ');
+        if (is_string($pho_commands)) {
+            $pho_commands = str_replace('/', '', $pho_commands);
+            $pho_commands = Arrays::force($pho_commands, ' ');
+        }
+
+        $this->pho_commands = $pho_commands;
 
         return $this;
     }
@@ -111,7 +127,7 @@ class Pho extends WorkersCore implements PhoInterface
      */
     public function getFullCommandLine(bool $background = false): string
     {
-        if (empty($this->pho_commands)) {
+        if (empty($this->pho_commands) and empty($this->arguments)) {
             // TODO Add exceptions for commands like "pho -Z"
             throw new ProcessException(tr('Cannot execute PHO command, no command specified'));
         }
