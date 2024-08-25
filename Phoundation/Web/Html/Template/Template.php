@@ -68,6 +68,7 @@ abstract class Template implements TemplateInterface
             $this->page_class  = TemplatePage::class;
             $this->menus_class = Menu::class;
         }
+
         if (empty($this->menus_class)) {
             throw new OutOfBoundsException(tr('Cannot start template ":name", the menus class was not defined', [
                 ':name' => $this->getName(),
@@ -127,12 +128,14 @@ abstract class Template implements TemplateInterface
         if (!isset($this->page)) {
             // Instantiate page object
             $page = new $this->page_class();
+
             if (!($page instanceof TemplatePageInterface)) {
                 throw new OutOfBoundsException(tr('Cannot instantiate ":template" template page object, specified class ":class" is not a sub class of "TemplatePage"', [
                     ':template' => $this->name,
                     'class'     => $this->page_class,
                 ]));
             }
+
             $this->page = $page;
         }
 

@@ -18,6 +18,7 @@ namespace Phoundation\Web\Html\Components\Forms;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataRequestMethod;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Element;
@@ -31,12 +32,8 @@ use Stringable;
 
 class Form extends Element implements FormInterface
 {
-    /**
-     * The submit method
-     *
-     * @var EnumHttpRequestMethod $method
-     */
-    protected EnumHttpRequestMethod $method = EnumHttpRequestMethod::post;
+    use TraitDataRequestMethod;
+
 
     /**
      * The submit page target
@@ -89,34 +86,10 @@ class Form extends Element implements FormInterface
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-        $this->setElement('form');
-        $this->setAcceptCharset(Config::get('languages.encoding.', 'utf-8'));
-    }
 
-
-    /**
-     * Sets the form method
-     *
-     * @return EnumHttpRequestMethod
-     */
-    public function getMethod(): EnumHttpRequestMethod
-    {
-        return $this->method;
-    }
-
-
-    /**
-     * Sets the form method
-     *
-     * @param EnumHttpRequestMethod $method
-     *
-     * @return static
-     */
-    public function setMethod(EnumHttpRequestMethod $method): static
-    {
-        $this->method = $method;
-
-        return $this;
+        $this->setRequestMethod(EnumHttpRequestMethod::post)
+             ->setElement('form')
+             ->setAcceptCharset(Config::get('languages.encoding.', 'utf-8'));
     }
 
 
@@ -284,7 +257,7 @@ class Form extends Element implements FormInterface
         // These are obligatory
         $return = [
             'action'       => $this->getAction(),
-            'method'       => $this->method->value,
+            'method'       => $this->request_method->value,
             'autocomplete' => $this->auto_complete ? 'on' : 'off',
         ];
 

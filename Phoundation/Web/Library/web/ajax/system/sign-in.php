@@ -34,7 +34,7 @@ Log::printr([
     'topMenu'      => $menu->render(),
     'profileImage' => $image->render(),
 ]);
-Json::reply([
+Json::new()->reply([
     'topMenu'      => $menu->render(),
     'profileImage' => $image->render(),
 ]);

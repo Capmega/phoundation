@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class Api
+ * Class JsonPage
  *
  * This class contains methods to assist in building web pages
  *
@@ -14,17 +14,15 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Api;
+namespace Phoundation\Web\Requests;
 
-use Phoundation\Web\Api\Interfaces\ApiInterface;
-use Phoundation\Web\Json\Json;
-use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Interfaces\JsonPageInterface;
 
 
-class Api extends Json implements ApiInterface
+class JsonPage implements JsonPageInterface
 {
     /**
-     * Returns a new ApiInterface object
+     * Returns a new JsonInterface object
      *
      * @return static
      */
@@ -35,7 +33,7 @@ class Api extends Json implements ApiInterface
 
 
     /**
-     * Execute the specified API page
+     * Execute the specified JSON page
      *
      * @return string|null
      */
@@ -46,7 +44,7 @@ class Api extends Json implements ApiInterface
 
 
     /**
-     * Build and send API specific HTTP headers
+     * Build and send JSON specific HTTP headers
      *
      * @param string $output
      *

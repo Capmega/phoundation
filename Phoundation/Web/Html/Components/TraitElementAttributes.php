@@ -21,6 +21,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDefinition;
+use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -36,6 +37,7 @@ use Stringable;
 
 trait TraitElementAttributes
 {
+    use TraitMethodHasRendered;
     use TraitDataDefinition {
         setDefinition as protected __setDefinition;
         getDefinition as protected __getDefinition;
@@ -173,13 +175,6 @@ trait TraitElementAttributes
      * @var int|null $width
      */
     protected ?int $width = null;
-
-    /**
-     * Render output storage
-     *
-     * @var string|null
-     */
-    protected ?string $render = null;
 
     /**
      * Right aligned elements

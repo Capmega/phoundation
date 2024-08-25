@@ -34,7 +34,7 @@ switch (Request::getRequestType()) {
         // no break
     case EnumRequestTypes::api:
         Response::setHttpCode(400);
-        Json::reply($e->getData());
+        Json::new()->reply($e->getData());
 }
 
 

@@ -17,34 +17,20 @@ declare(strict_types=1);
 namespace Phoundation\Web\Uploads;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\TraitDataMimetype;
-use Phoundation\Data\Traits\TraitDataUrl;
-use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\FileValidator;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsUploadedFile;
+use Phoundation\Filesystem\FsFiles;
+use Phoundation\Filesystem\Interfaces\FsFilesInterface;
 use Phoundation\Filesystem\Interfaces\FsUploadedFileInterface;
+use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Uploads\Interfaces\DropzoneInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlerInterface;
 
 
 class UploadHandler implements UploadHandlerInterface
 {
-    use TraitStaticMethodNew;
-    use TraitDataUrl;
-    use TraitDataMimetype;
-
-
-    /**
-     * The selector to use for the drag/drop component
-     *
-     * @var string|null
-     */
-    protected string|null $selector;
-
     /**
      * The handler code for this file
      *
@@ -58,19 +44,11 @@ class UploadHandler implements UploadHandlerInterface
     protected array $validations = [];
 
     /**
-     * Contains a list of all HTML element id's that can receive drag/drop file uploads as keys and callback methods as
-     * the handlers
+     * The files that have been processed by this upload handler
      *
-     * @var IteratorInterface
+     * @var FsFilesInterface $files
      */
-    protected IteratorInterface $handlers;
-
-    /**
-     * The maximum number of files that may be uploaded
-     *
-     * @var int $max_files
-     */
-    protected int $max_files = 1;
+    protected FsFilesInterface $files;
 
     /**
      * Tracks if the file in this handler has been validated or not
@@ -79,16 +57,12 @@ class UploadHandler implements UploadHandlerInterface
      */
     protected bool $validated = false;
 
-
     /**
-     * Returns a list of all upload handlers
+     * The dropzone object for this upload handler
      *
-     * @return IteratorInterface
+     * @var DropzoneInterface $dropzone
      */
-    public function getValidatorObject(): IteratorInterface
-    {
-        return $this->handlers;
-    }
+    protected DropzoneInterface $dropzone;
 
 
     /**
@@ -96,8 +70,8 @@ class UploadHandler implements UploadHandlerInterface
      */
     public function __construct(?string $mimetype = null)
     {
-        $this->setUrl(Url::getWww())
-            ->setMimetype($mimetype);
+        $this->getDropZoneObject()->setMimetype($mimetype)
+                                  ->setUrl(Url::getWww());
     }
 
 
@@ -111,32 +85,48 @@ class UploadHandler implements UploadHandlerInterface
 
 
     /**
-     * Returns the maximum number of files that will be allowed to be uploaded
+     * Returns a list of all processed files
      *
-     * @return int
+     * @return FsFilesInterface
      */
-    public function getMaxFiles(): int
+    public function getFiles(): FsFilesInterface
     {
-        return $this->max_files;
+        if (empty($this->files)) {
+            $this->files = new FsFiles();
+            $this->files->setAcceptedDataTypes(FsUploadedFileInterface::class)
+                        ->getRestrictions()
+                            ->addDirectory(DIRECTORY_TMP, true)
+                            ->addDirectory('/tmp/', true);
+;
+        }
+
+        return $this->files;
     }
 
 
     /**
-     * Sets the maximum number of files that will be allowed to be uploaded
+     * Returns the current number of files that have been processed
      *
-     * @param int $max_files
-     *
-     * @return static
+     * @return int
      */
-    public function setMaxFiles(int $max_files): static
+    public function getFileNumber(): int
     {
-        if ($max_files < 1) {
-            throw new OutOfBoundsException(tr('The max_files parameter cannot be lower than 1'));
+        return $this->getFiles()->getCount();
+    }
+
+
+    /**
+     * Returns the current number of files that have been processed
+     *
+     * @return DropzoneInterface
+     */
+    public function getDropZoneObject(): DropzoneInterface
+    {
+        if (empty($this->dropzone)) {
+            $this->dropzone = new Dropzone($this);
         }
 
-        $this->max_files = $max_files;
-
-        return $this;
+        return $this->dropzone;
     }
 
 
@@ -160,33 +150,9 @@ class UploadHandler implements UploadHandlerInterface
      */
     public function setFunction(callable $function): static
     {
+        Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::upload);
+
         $this->function = $function;
-
-        return $this;
-    }
-
-
-    /**
-     * Returns the HTML selector to which the drag/drop will be attached
-     *
-     * @return string|null
-     */
-    public function getSelector(): ?string
-    {
-        return $this->selector;
-    }
-
-
-    /**
-     * Sets the HTML selector to which the drag/drop will be attached
-     *
-     * @param string|null $selector
-     *
-     * @return static
-     */
-    public function setSelector(?string $selector): static
-    {
-        $this->selector = $selector;
 
         return $this;
     }
@@ -227,7 +193,7 @@ class UploadHandler implements UploadHandlerInterface
      */
     public function render(): ?string
     {
-        return Response::addScript('$("' . $this->selector . '").dropzone({ url: "' . $this->url . '" });');
+        return $this->getDropZoneObject()->render();
     }
 
 
@@ -240,6 +206,21 @@ class UploadHandler implements UploadHandlerInterface
      */
     public function process(FsUploadedFileInterface $file): FsUploadedFileInterface
     {
+        if ($this->getFiles()->getCount() > $this->getDropZoneObject()->getMaxFiles()) {
+            throw ValidationFailedException::new(tr('This mimetype ":mimetype" upload handler already processed the maximum amount of files ":count" that it is allowed to process', [
+                ':count'    => $this->getDropZoneObject()->getMaxFiles(),
+                ':mimetype' => $this->getDropZoneObject()->getMimetype()
+            ]))->makeSecurityIncident(EnumSeverity::medium);
+        }
+
+Log::printr($this->getFiles()->getFilesWithMetadata('image')->getSource());
+        if ($this->getFiles()->getFilesWithMetadata($this->getDropZoneObject()->getMimetype())->getCount() > $this->getDropZoneObject()->getMaxFiles()) {
+            throw ValidationFailedException::new(tr('This mimetype ":mimetype" upload handler already processed the maximum amount of files ":count" that it is allowed to process', [
+                ':count'    => $this->getDropZoneObject()->getMaxFiles(),
+                ':mimetype' => $this->getDropZoneObject()->getMimetype()
+            ]))->makeSecurityIncident(EnumSeverity::medium);
+        }
+
         $this->validate($file);
 
         if (!$this->hasBeenValidated()) {
@@ -249,8 +230,11 @@ class UploadHandler implements UploadHandlerInterface
             ]));
         }
 
-        $function = $this->function;
-        $function($file);
+        if ($this->function) {
+            ($this->function)($file);
+        }
+
+        $this->getFiles()->add($file);
 
         return $file;
     }
@@ -276,6 +260,7 @@ class UploadHandler implements UploadHandlerInterface
      */
     protected function validate(FsUploadedFileInterface $file): void
     {
+        // Ensure the file has the correct extension
         $file->ensureExtensionMatchesMimetype();
 
 //        $validator = FileValidator::new($file);

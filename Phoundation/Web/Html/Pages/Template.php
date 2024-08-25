@@ -19,6 +19,7 @@ namespace Phoundation\Web\Html\Pages;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataIteratorSource;
+use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Pages\Interfaces\TemplateInterface;
@@ -29,6 +30,8 @@ use Phoundation\Web\Requests\Request;
 class Template implements TemplateInterface
 {
     use TraitDataIteratorSource;
+    use TraitMethodHasRendered;
+
 
     /**
      * The template text
@@ -99,10 +102,10 @@ class Template implements TemplateInterface
     /**
      * Renders and returns the HTML for this object using the template renderer if available
      *
-     * @note Templates work as follows: Any component that renders HTML must be in a Html/ directory, either in a
+     * @note Templates work as follows: Any component that renders HTML must be in an html/ directory, either in a
      *       Phoundation library, or in a Plugins library. The path of the component, starting from Html/ is the path
-     *       that this method will search for in the Template. If the same path section is found then that file will
-     *       render the HTML for the component. For example: Plugins\Example\Section\Html\Components\Input\InputText
+     *       that this method will search for in the Template. If the same path section is found, then that file will
+     *       render the HTML for the component. For example, Plugins\Example\Section\Html\Components\Input\InputText
      *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
      *
      * @return string|null

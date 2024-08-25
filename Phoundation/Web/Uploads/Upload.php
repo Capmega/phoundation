@@ -34,8 +34,6 @@ use Phoundation\Web\Uploads\Interfaces\UploadInterface;
 
 class Upload extends DataEntry implements UploadInterface
 {
-
-
     /**
      * Returns the table name used by this object
      *

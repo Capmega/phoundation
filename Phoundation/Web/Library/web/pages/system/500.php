@@ -33,7 +33,7 @@ switch (Request::getRequestType()) {
         // no break
     case EnumRequestTypes::api:
         Response::setHttpCode(500);
-        Json::reply(['error' => tr('Internal server error')]);
+        Json::new()->reply(['error' => tr('Internal server error')]);
 }
 
 

@@ -69,10 +69,27 @@ class SystemRequest
      */
     protected function executePage(array $variables): never
     {
-        Arrays::default($variables, 'code', 500);
-        Arrays::default($variables, 'title', 'unspecified');
+        switch (Core::getExposePhoundation()) {
+            case 'full':
+                $phoundation = '<address>Phoundation ' . Core::FRAMEWORK_CODE_VERSION . '</address>';
+                break;
+
+            case 'limited':
+                $phoundation = '<address>Phoundation</address>';
+                break;
+
+            case 'fake':
+                $phoundation = '<address>Phoundation 4.11.1</address>';
+                break;
+        }
+
+        Arrays::default($variables, 'code'   , 500);
+        Arrays::default($variables, 'title'  , 'unspecified');
         Arrays::default($variables, 'message', 'unspecified');
-        Arrays::default($variables, 'details', ((Config::getBoolString('security.expose.phoundation', 'limited')) ? '<address>Phoundation ' . Core::FRAMEWORK_CODE_VERSION . '</address>' : ''));
+
+        if ($phoundation) {
+            Arrays::default($variables, 'details', $phoundation);
+        }
 
         // Determine the request path
         $request_path = match (Request::getRequestType()) {
@@ -103,13 +120,24 @@ class SystemRequest
      */
     #[NoReturn] public function execute(int $http_code, ?Throwable $e = null, ?string $message = null): never
     {
+        $method = 'execute' . $http_code;
+
+        // Log warning message and exception, if specified
+        if ($message) {
+            Log::error($message);
+        }
+
+        if ($e) {
+            Log::exception($e);
+        }
+
+        Log::warning(tr('Executing system page ":page"', [':page' => $http_code]));
+
         if (($http_code < 1) or ($http_code > 1000)) {
             throw new OutOfBoundsException(tr('Specified HTTP code ":code" is invalid', [
                 ':code' => $http_code,
             ]));
         }
-
-        $method = 'execute' . $http_code;
 
         if (!method_exists($this, $method)) {
             Log::warning(tr('Specified HTTP code ":code" does not exist', [
@@ -118,8 +146,6 @@ class SystemRequest
 
             $http_code = 500;
         }
-
-        Log::warning(tr('Executing system page ":page"', [':page' => $http_code]));
 
         if ($e instanceof EnvironmentNotExistsException) {
             Log::warning('Not registering request as non HTTP-200 URL, invalid environment specified');
@@ -136,14 +162,8 @@ class SystemRequest
             }
         }
 
-        // Log warning message and exception, if specified
-        if ($message) {
-            Log::warning($message);
-        }
-
-        if ($e) {
-            Log::warning($e);
-        }
+        // Clear all method restrictions as we don't need them for system pages
+        Request::getMethodRestrictionsObject()->clear();
 
         // Remove all GET and POST data to prevent any of it being used from here on out
         GetValidator::new()->clear();
@@ -155,6 +175,14 @@ class SystemRequest
         Response::clean();
 
         // Wait a small random time before execution (Between 0mS and 100mS) to avoid timing attacks on system pages
+        // TODO Improve this, should be biassed randomness. System pages should always take 500mS+ random extra, no matter what. see following sources
+        // https://devcodef1.com/news/1132536/basic-auth-timing-attacks
+        // https://security.stackexchange.com/questions/220446/how-can-i-prevent-side-channel-attacks-against-authentication
+        // https://security.stackexchange.com/questions/94432/should-i-implement-incorrect-password-delay-in-a-website-or-a-webservice
+        // https://security.stackexchange.com/questions/96489/can-i-prevent-timing-attacks-with-random-delays
+        // https://stackoverflow.com/questions/28395665/could-a-random-sleep-prevent-timing-attacks/28406531#28406531
+        // https://blog.ircmaxell.com/2014/11/its-all-about-time.html
+
         Numbers::getRandomInt(1, 100000);
         $this->$method();
         exit();
@@ -179,6 +207,7 @@ class SystemRequest
                 Log::warning(tr('The ":code" page does not exist in the web cache directory. Trying to rebuild the web cache ', [
                     ':code' => $variables['code'],
                 ]));
+
                 Web::rebuildCache();
                 static::executePage($variables);
 
@@ -256,10 +285,10 @@ class SystemRequest
 
         } catch (Throwable $g) {
             // Even this failed? Try to log to the system log as a last ditch effort
-            Log::errorLog('SystemRequest::execute() failed with multiple exceptions, failed to show the "' . isset_get($variables['code']) . '" page, and the "' . isset_get($variables['code']) . '" template. Displaying hardcoded 500 page instead. See exception below for more information.');
-            Log::errorLog($e->getMessage());
-            Log::errorLog($f->getMessage());
-            Log::errorLog($g->getMessage());
+            Log::toAlternateLog('SystemRequest::execute() failed with multiple exceptions, failed to show the "' . isset_get($variables['code']) . '" page, and the "' . isset_get($variables['code']) . '" template. Displaying hardcoded 500 page instead. See exception below for more information.');
+            Log::toAlternateLog($e->getMessage());
+            Log::toAlternateLog($f->getMessage());
+            Log::toAlternateLog($g->getMessage());
         }
     }
 

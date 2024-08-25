@@ -33,7 +33,7 @@ switch (Request::getRequestType()) {
         // no break
     case EnumRequestTypes::api:
         Response::setHttpCode(503);
-        Json::reply(['error' => tr('Service Unavailable')]);
+        Json::new()->reply(['error' => tr('Service Unavailable')]);
 }
 
 

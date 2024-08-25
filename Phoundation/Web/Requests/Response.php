@@ -44,6 +44,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -62,6 +63,7 @@ use Phoundation\Web\Requests\Exception\ResponseRedirectException;
 use Phoundation\Web\Requests\Interfaces\ResponseInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
 use Phoundation\Web\Uploads\UploadHandlers;
+use PHPMD\Renderer\Option\Color;
 use Stringable;
 use Throwable;
 
@@ -951,7 +953,11 @@ class Response implements ResponseInterface
                 $return .= '<script ' . $footer . '></script>' . PHP_EOL;
 
             } elseif (isset($footer['content'])) {
-                $return .= '<script>' . PHP_EOL . $footer['content'] . PHP_EOL . '</script>' . PHP_EOL;
+                if ($footer['content'] instanceof ScriptInterface) {
+                    $footer['content']->setAttach(EnumAttachJavascript::here)->render();
+                }
+
+                $return .= $footer['content'] . PHP_EOL;
 
             } else {
                 throw new OutOfBoundsException(tr('Invalid script footer specified, should contain at least "src" or "content"'));
@@ -1447,6 +1453,7 @@ class Response implements ResponseInterface
             case 429:
                 static::clean();
                 break;
+
             default:
                 if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
                     // HEAD request; do not send any HTML whatsoever
@@ -1499,38 +1506,40 @@ class Response implements ResponseInterface
         static::cacheEtag();
 
         // What to do with the PHP signature?
-        $signature = Config::get('security.expose.php-signature', false);
-
-        if (!$signature) {
-            // Remove the PHP signature
-            header_remove('X-Powered-By');
-
-        } elseif (!is_bool($signature)) {
-            // Send custom (fake) X-Powered-By header
-            $headers[] = 'X-Powered-By: ' . $signature;
-        }
-
-        // Add a powered-by header
-        switch (Config::getBoolString('security.expose.phoundation', 'limited')) {
+        switch (Core::getExposePhp()) {
             case 'limited':
-                header('Powered-By: Phoundation');
+                $headers[] = 'X-Powered-By: PHP';
                 break;
 
             case 'full':
-                header(tr('Powered-By: Phoundation version ":version"', [
+                $headers[] = 'X-Powered-By: PHP/' . phpversion();
+                break;
+
+            case 'fake':
+                $headers[] = 'X-Powered-By: PHP/7.1.2';
+                break;
+
+            case 'none':
+                // Remove the PHP signature
+                header_remove('X-Powered-By');
+                break;
+        }
+
+        // Add a powered-by header
+        switch (Core::getExposePhoundation()) {
+            case 'limited':
+                header('Powered-By-Framework: Phoundation');
+                break;
+
+            case 'full':
+                header(tr('Powered-By-Framework: Phoundation/:version"', [
                     ':version' => Core::FRAMEWORK_CODE_VERSION,
                 ]));
                 break;
 
-            case 'none':
-                // no break
-
-            case '':
-                break;
-
-            default:
-                throw new OutOfBoundsException(tr('Invalid configuration value ":value" for "security.signature" Please use one of "none", "limited", or "full"', [
-                    ':value' => Config::getBoolString('security.expose.phoundation', 'limited'),
+            case 'fake':
+                header(tr('Powered-By-Framework: Phoundation/:version"', [
+                    ':version' => '4.11.1',
                 ]));
         }
 
@@ -1694,11 +1703,10 @@ class Response implements ResponseInterface
     {
         if (Request::getAttachment()) {
             // Send download headers and send the $html payload
-            FileResponse::new()
+            FileResponse::new(Request::getTarget(), FsRestrictions::getWeb())
                         ->setAttachment(true)
                         ->setData(static::getOutput())
-                        ->setFilename(basename(Request::getTarget()
-                                                      ->getSource()))
+                        ->setFilename(basename(Request::getTarget()->getSource()))
                         ->send();
         }
 
@@ -1710,9 +1718,13 @@ class Response implements ResponseInterface
         echo static::getOutput();
 
         // Log how much we sent
-        Log::action(tr('Sent ":length" output data to client', [
-            ':length' => Numbers::getHumanReadableBytes($length),
-        ]), 4);
+        if ($length) {
+            Log::action(tr('Sent ":length" output data to client', [
+                ':length' => Numbers::getHumanReadableBytes($length),
+            ]), 4);
+        } else {
+            Log::warning(tr('Warning: page generated no output for client, sent 0 bytes'));
+        }
     }
 
 
@@ -1862,9 +1874,9 @@ class Response implements ResponseInterface
      * @param EnumJavascriptWrappers $wrapper
      * @param EnumAttachJavascript   $attach
      *
-     * @return string|null
+     * @return ScriptInterface
      */
-    public static function addScript(ScriptInterface|string $script, EnumJavascriptWrappers $wrapper = EnumJavascriptWrappers::dom_content, EnumAttachJavascript $attach = EnumAttachJavascript::footer): ?string
+    public static function addScript(ScriptInterface|string $script, EnumJavascriptWrappers $wrapper = EnumJavascriptWrappers::dom_content, EnumAttachJavascript $attach = EnumAttachJavascript::footer): ScriptInterface
     {
         if (is_string($script)) {
             $script = new Script($script);
@@ -1872,7 +1884,7 @@ class Response implements ResponseInterface
 
         return $script->setJavascriptWrapper($wrapper)
                       ->setAttach($attach)
-                      ->render();
+                      ->attach();
     }
 
 

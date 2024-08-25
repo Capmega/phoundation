@@ -67,10 +67,10 @@ abstract class ElementCore implements ElementInterface
     /**
      * Renders and returns the HTML for this object using the template renderer if available
      *
-     * @note Templates work as follows: Any component that renders HTML must be in a Html/ directory, either in a
+     * @note Templates work as follows: Any component that renders HTML must be in an HTML/ directory, either in a
      *       Phoundation library, or in a Plugins library. The path of the component, starting from Html/ is the path
-     *       that this method will search for in the Template. If the same path section is found then that file will
-     *       render the HTML for the component. For example: Plugins\Example\Section\Html\Components\Input\InputText
+     *       that this method will search for in the Template. If the same path section is found, then that file will
+     *       render the HTML for the component. For example, Plugins\Example\Section\Html\Components\Input\InputText
      *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
      *
      * @return string|null
@@ -78,6 +78,11 @@ abstract class ElementCore implements ElementInterface
      */
     public function render(): ?string
     {
+        if ($this->render) {
+            // Return cached render information
+            return $this->render;
+        }
+
         if (isset($this->tooltip)) {
             if ($this->tooltip->getUseIcon()) {
                 if ($this->tooltip->getRenderBefore()) {
@@ -159,7 +164,9 @@ abstract class ElementCore implements ElementInterface
                                 ->render() . $this->extra;
         }
 
-        return $render . $this->extra;
+        $this->render = $render . $this->extra;
+
+        return $this->render;
     }
 
 

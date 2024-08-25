@@ -34,7 +34,7 @@ interface FormInterface
      *
      * @return EnumHttpRequestMethod
      */
-    public function getMethod(): EnumHttpRequestMethod;
+    public function getRequestMethod(): EnumHttpRequestMethod;
 
 
     /**
@@ -44,7 +44,7 @@ interface FormInterface
      *
      * @return static
      */
-    public function setMethod(EnumHttpRequestMethod $method): static;
+    public function setRequestMethod(EnumHttpRequestMethod $method): static;
 
 
     /**

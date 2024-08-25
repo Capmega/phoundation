@@ -17,11 +17,15 @@ declare(strict_types=1);
 namespace Phoundation\Web\Uploads;
 
 use PDOStatement;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataSelector;
 use Phoundation\Data\Traits\TraitMethodProcess;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Filesystem\Exception\FileUploadException;
 use Phoundation\Filesystem\Exception\FileUploadHandlerException;
 use Phoundation\Filesystem\FsUploadedFile;
@@ -99,8 +103,80 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
 
         // Copy FILES data and reset $_FILES
         static::$files = $_FILES;
-
+        static::restructureFiles();
         $_FILES = [];
+    }
+
+
+    /**
+     * Restructures the internal $_FILES array
+     *
+     * @return void
+     */
+    protected static function restructureFiles(): void
+    {
+        // Check if we get the weird subarrays in name. If so, restructure that mess
+        if (count(static::$files)) {
+            if (empty(static::$files['file'])) {
+                Incident::new()
+                    ->setType('Invalid file upload detected')
+                    ->setSeverity(EnumSeverity::high)
+                    ->setTitle(tr('Received invalid $_FILES data from client'))
+                    ->setDetails([
+                        '$_FILES'   => static::$files,
+                        '$_GET'     => GetValidator::new()->getSource(),
+                        '$_POST'    => PostValidator::new()->getSource(),
+                        '$_SESSION' => $_SESSION,
+                        '$_SERVER'  => $_SERVER
+                    ])
+                    ->save()
+                    ->throw(ValidationFailedException::class);
+
+            } else {
+                if (is_array(static::$files['file']['name'])) {
+                    static::restructureMultipleFiles();
+
+                } else {
+                    static::restructureSingleFile();
+                }
+
+                Log::notice(tr('Found ":count" uploaded files', [':count' => count (static::$files)]), 5);
+            }
+        }
+    }
+
+
+    /**
+     * Restructures a single file in the internal $_FILES array
+     *
+     * @return void
+     */
+    protected static function restructureSingleFile(): void
+    {
+        static::$files = [0 => static::$files['file']];
+    }
+
+
+    /**
+     * Restructures multiple files in the internal $_FILES array
+     *
+     * @return void
+     */
+    protected static function restructureMultipleFiles(): void
+    {
+        $files = [];
+
+        foreach (static::$files['file'] as $key => $data) {
+            foreach ($data as $id => $value) {
+                if (empty($files[$id])) {
+                    $files[$id] = [];
+                }
+
+                $files[$id][$key] = $value;
+            }
+        }
+
+        static::$files = $files;
     }
 
 
@@ -258,7 +334,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
      */
     protected function fetchKeyFromValue(mixed $value): mixed
     {
-        return $value->getMimetype();
+        return $value->getDropzoneObject()->getMimetype();
     }
 
 

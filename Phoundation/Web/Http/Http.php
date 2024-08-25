@@ -319,7 +319,7 @@ class Http
             case 'json':
                 /*
                  * Send JSON redirect. json_reply() will end script, so no break needed
-                 */ Json::reply(isset_get($redirect, '/'), 'redirect');
+                 */ Json::new()->reply(isset_get($redirect, '/'), 'redirect');
             case 'http':
                 /*
                  * Send HTTP redirect. redirect() will end script, so no break

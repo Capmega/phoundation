@@ -38,7 +38,7 @@ class FilterForm extends DataEntryForm
         $this->setId('filters')
              ->useForm(true)
              ->getForm()
-                 ->setMethod(EnumHttpRequestMethod::get)
+                 ->setRequestMethod(EnumHttpRequestMethod::get)
                  ->setAction(Url::getWww());
     }
 

@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Api;
+namespace Phoundation\Web\Json;
 
 use Phoundation\Accounts\Users\User;
 

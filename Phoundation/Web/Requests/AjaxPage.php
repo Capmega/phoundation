@@ -14,14 +14,12 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Ajax;
+namespace Phoundation\Web\Requests;
 
-use Phoundation\Web\Ajax\Interfaces\AjaxInterface;
-use Phoundation\Web\Json\Json;
-use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Interfaces\AjaxPageInterface;
 
 
-class Ajax extends Json implements AjaxInterface
+class AjaxPage extends JsonPage implements AjaxPageInterface
 {
     /**
      * Returns a new AjaxInterface object

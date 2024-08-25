@@ -29,6 +29,7 @@ class Script extends Element implements ScriptInterface
 {
     use TraitDataMinify;
 
+
     /**
      * Keeps track on where this script will be attached to
      *
@@ -70,6 +71,13 @@ class Script extends Element implements ScriptInterface
      * @var EnumJavascriptWrappers $javascript_wrapper
      */
     protected EnumJavascriptWrappers $javascript_wrapper = EnumJavascriptWrappers::dom_content;
+
+    /**
+     * Tracks if this Script object has been attached to the page or not
+     *
+     * @var bool $attached
+     */
+    protected bool $attached = false;
 
 
     /**
@@ -153,6 +161,11 @@ class Script extends Element implements ScriptInterface
     /**
      * Returns where this script is attached to the document
      *
+     * EnumAttachJavascript::bare   : Script::render() Will return the rendered Javascript as-is, without <script> tags
+     * EnumAttachJavascript::here   : Script::render() Will return the rendered Javascript within <script> tags
+     * EnumAttachJavascript::header : Script::render() Will attach this rendered Javascript to the header of the page
+     * EnumAttachJavascript::footer : Script::render() Will attach this rendered Javascript to the footer of the page
+     *
      * @return EnumAttachJavascript
      */
     public function getAttach(): EnumAttachJavascript
@@ -164,6 +177,11 @@ class Script extends Element implements ScriptInterface
     /**
      * Sets where this script is attached to the document
      *
+     * EnumAttachJavascript::bare   : Script::render() Will return the rendered Javascript as-is, without <script> tags
+     * EnumAttachJavascript::here   : Script::render() Will return the rendered Javascript within <script> tags
+     * EnumAttachJavascript::header : Script::render() Will attach this rendered Javascript to the header of the page
+     * EnumAttachJavascript::footer : Script::render() Will attach this rendered Javascript to the footer of the page
+     *
      * @param EnumAttachJavascript $attach
      *
      * @return static
@@ -173,6 +191,17 @@ class Script extends Element implements ScriptInterface
         $this->attach = $attach;
 
         return $this;
+    }
+
+
+    /**
+     * Returns if this Script object has been attached to the page or not
+     *
+     * @return bool
+     */
+    public function iusAttached(): bool
+    {
+        return $this->attached;
     }
 
 
@@ -203,7 +232,13 @@ class Script extends Element implements ScriptInterface
 
 
     /**
-     * Returns the event wrapper code for this script
+     * Returns the code execution wrapper code for this script
+     *
+     * EnumJavascriptWrappers::dom_content: Wrap it within the window DOMContentLoaded event
+     * EnumJavascriptWrappers::function   : Wrap it within a self-executing function
+     * EnumJavascriptWrappers::window     : Wrap it within the window load event
+     * EnumJavascriptWrappers::ready      : Wrap it with a jQuery document.ready
+     * EnumJavascriptWrappers::none       : No wrapping
      *
      * @return EnumJavascriptWrappers
      */
@@ -214,7 +249,13 @@ class Script extends Element implements ScriptInterface
 
 
     /**
-     * Sets the event wrapper code for this script
+     * Sets the code execution wrapper code for this script
+     *
+     * EnumJavascriptWrappers::dom_content: Wrap it within the window DOMContentLoaded event
+     * EnumJavascriptWrappers::function   : Wrap it within a self-executing function
+     * EnumJavascriptWrappers::window     : Wrap it within the window load event
+     * EnumJavascriptWrappers::ready      : Wrap it with a jQuery document.ready
+     * EnumJavascriptWrappers::none       : No wrapping
      *
      * @param EnumJavascriptWrappers $javascript_wrapper
      *
@@ -229,65 +270,123 @@ class Script extends Element implements ScriptInterface
 
 
     /**
+     * Attached this Javascript Script object to the page
+     *
+     * @return $this
+     */
+    public function attach(): static
+    {
+        if ($this->attached) {
+            throw new OutOfBoundsException(tr('Cannot attach Script object with code ":code" to the web page, it has already been attached', [
+                ':code' => $this->getContent()
+            ]));
+        }
+
+        // Where should this script be attached?
+        switch ($this->attach) {
+            case EnumAttachJavascript::header:
+                Response::addToHeader('javascript', [
+                    'type'    => 'text/javascript',
+                    'content' => ($this->hasRendered() ? $this->render() : $this),
+                ]);
+
+                break;
+
+            case EnumAttachJavascript::footer:
+                Response::addToFooter([
+                    'type'    => 'text/javascript',
+                    'content' => ($this->hasRendered() ? $this->render() : $this),
+                ], 'javascript');
+
+                break;
+
+            case EnumAttachJavascript::here:
+                throw new OutOfBoundsException(tr('Cannot attach Script object with code ":code" to the web page, it is set to return bare code', [
+                    ':code' => $this->getContent()
+                ]));
+
+            case EnumAttachJavascript::bare:
+                throw new OutOfBoundsException(tr('Cannot attach Script object with code ":code" to the web page, it is set to return the code in <script> tags', [
+                    ':code' => $this->getContent()
+                ]));
+        }
+
+        $this->attached = true;
+        return $this;
+    }
+
+
+    /**
      * Generates and returns the HTML string for a <script> element
      *
      * @note: If web.javascript.delay is configured true, it will return an empty string and add the string to the
      *        footer script tags list instead so that it will be loaded at the end of the page for speed
+     *
      * @return string|null
      */
     public function render(): ?string
     {
         $render = '';
+
         if ($this->content) {
             // Apply event wrapper
             switch ($this->javascript_wrapper) {
                 case EnumJavascriptWrappers::dom_content:
+                    // Wrap it within the window DOMContentLoaded event
                     $render = 'document.addEventListener("DOMContentLoaded", function(e) {
-                              ' . $this->content . '
-                           });' . PHP_EOL;
+                                  ' . $this->content . '
+                               });' . PHP_EOL;
                     break;
+
                 case EnumJavascriptWrappers::window:
+                    // Wrap it within the window load event
                     $render = 'window.addEventListener("load", function(e) {
-                              ' . $this->content . '
-                           });' . PHP_EOL;
+                                  ' . $this->content . '
+                               });' . PHP_EOL;
                     break;
+
                 case EnumJavascriptWrappers::function:
+                    // Wrap it within a self-executing function
                     $render = '$(function() {
-                              ' . $this->content . '
-                           });' . PHP_EOL;
+                                  ' . $this->content . '
+                               });' . PHP_EOL;
                     break;
+
+                case EnumJavascriptWrappers::ready:
+                    // Wrap it with a jQuery document.ready
+                    $render = '$(document).ready(function () {
+                                  ' . $this->content . '
+                               });' . PHP_EOL;
+                    break;
+
                 case EnumJavascriptWrappers::none:
                     // No wrapping
                     $render = $this->content . PHP_EOL;
                     break;
-                default:
-                    // TODO: This should be impossible to reach, remove?
-                    throw new OutOfBoundsException(tr('Unknown event wrapper ":value" specified', [
-                        ':value' => $this->javascript_wrapper,
-                    ]));
             }
+
         } else {
             $this->content = '';
         }
-        // Where should this script be attached?
+
         switch ($this->attach) {
+            case EnumAttachJavascript::bare:
+                // Don't attach the script anywhere, return the rendered script as-is
+                return $render;
+
             case EnumAttachJavascript::here:
-                return '<script type="text/javascript"' . ($this->async ? ' async' : '') . ($this->defer ? ' defer' : '') . ($this->src ? ' src="' . $this->src . '"' : '') . '>' . $render . '</script>' . PHP_EOL;
-            case EnumAttachJavascript::header:
-                Response::addToHeader('javascript', [
-                    'type'    => 'text/javascript',
-                    'content' => $render,
-                ]);
-
-                return null;
-            case EnumAttachJavascript::footer:
-                Response::addToFooter([
-                    'type'    => 'text/javascript',
-                    'content' => $render,
-                ], 'javascript');
-
-                return null;
+                // Don't attach the script anywhere, wrap the rendered script in <script> tags and return it
+                return '<script type="text/javascript"' . ($this->async ? ' async' : '') .
+                            ($this->defer ? ' defer' : '') .
+                            ($this->src   ? ' src="' . $this->src . '"' : '') . '>' .
+                            $render . '
+                        </script>' . PHP_EOL;
         }
+
+        // Attach the script to the header or footer
+        $this->attach();
+        return null;
+
 //        // TODO GARBAGE BELOW, CLEAN UP
 //        /*
 //         * @note If $_CONFIG[cdn][js][load_delayed] is true, this function will not return anything, and add the generated HTML to $core->register[script_delayed] instead

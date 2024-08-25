@@ -27,4 +27,7 @@ enum EnumHttpRequestMethod: string
     case options = 'options';
     case trace   = 'trace';
     case patch   = 'patch';
+
+    // Virtual request method! This means POST request with file(s) uploaded
+    case upload  = 'upload';
 }

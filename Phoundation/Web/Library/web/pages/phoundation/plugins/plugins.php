@@ -59,7 +59,7 @@ $plugins = Card::new()
 
 $plugins->getForm()
         ->setAction(Url::getCurrent())
-        ->setMethod(EnumHttpRequestMethod::post);
+        ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links

@@ -32,6 +32,7 @@ use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Exception\UrlBuilderConfiguredUrlNotFoundException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Stringable;
@@ -400,25 +401,56 @@ class Url implements UrlInterface
     /**
      * Apply predefined URL names
      *
-     * @param Stringable|string $url
+     * @param Stringable|string     $url
+     * @param EnumRequestTypes|null $request_type
      *
      * @return UrlInterface
      */
-    public static function getConfigured(Stringable|string $url): UrlInterface
+    public static function getConfigured(Stringable|string $url, ?EnumRequestTypes $request_type = null): UrlInterface
     {
-        $url = (string) $url;
+        $url          = (string) $url;
+        $request_type = $request_type ?? Request::getRequestType();
 
         // Configured page?
-        $configured = match (Strings::until($url, '.html')) {
-            'dashboard', 'index'   => Config::getString('web.pages.index'   , '/index.html'),
-            'sign-in'  , 'signin'  => Config::getString('web.pages.sign-in' , '/sign-in.html'),
-            'sign-up'  , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up.html'),
-            'sign-out' , 'signout' => Config::getString('web.pages.sign-out', '/sign-out.html'),
-            'sign-key' , 'signkey' => Config::getString('web.pages.sign-key', '/sign-key/:key.html'),
-            'profile'              => Config::getString('web.pages.profile' , '/my/profile.html'),
-            'settings'             => Config::getString('web.pages.settings', '/my/settings.html'),
-            default                => Config::getString('web.pages.' . $url , '')
-        };
+        switch ($request_type) {
+            case EnumRequestTypes::ajax:
+                $configured = match (Strings::until($url, '.json')) {
+                    'dashboard', 'index'   => Config::getString('web.ajax.index'   , '/index.json'),
+                    'sign-in'  , 'signin'  => Config::getString('web.ajax.sign-in' , '/sign-in.json'),
+                    'sign-up'  , 'signup'  => Config::getString('web.ajax.sign-up' , '/sign-up.json'),
+                    'sign-out' , 'signout' => Config::getString('web.ajax.sign-out', '/sign-out.json'),
+                    'sign-key' , 'signkey' => Config::getString('web.ajax.sign-key', '/sign-key/:key.json'),
+                    'profile'              => Config::getString('web.ajax.profile' , '/my/profile.json'),
+                    'settings'             => Config::getString('web.ajax.settings', '/my/settings.json'),
+                    default                => Config::getString('web.ajax.' . $url , '')
+                };
+                break;
+
+            case EnumRequestTypes::api:
+                $configured = match (Strings::until($url, '.json')) {
+                    'dashboard', 'index'   => Config::getString('web.api.index'   , '/index.json'),
+                    'sign-in'  , 'signin'  => Config::getString('web.api.sign-in' , '/sign-in.json'),
+                    'sign-up'  , 'signup'  => Config::getString('web.api.sign-up' , '/sign-up.json'),
+                    'sign-out' , 'signout' => Config::getString('web.api.sign-out', '/sign-out.json'),
+                    'sign-key' , 'signkey' => Config::getString('web.api.sign-key', '/sign-key/:key.json'),
+                    'profile'              => Config::getString('web.api.profile' , '/my/profile.json'),
+                    'settings'             => Config::getString('web.api.settings', '/my/settings.json'),
+                    default                => Config::getString('web.api.' . $url , '')
+                };
+                break;
+
+            default:
+                $configured = match (Strings::until($url, '.html')) {
+                    'dashboard', 'index'   => Config::getString('web.pages.index'   , '/index.html'),
+                    'sign-in'  , 'signin'  => Config::getString('web.pages.sign-in' , '/sign-in.html'),
+                    'sign-up'  , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up.html'),
+                    'sign-out' , 'signout' => Config::getString('web.pages.sign-out', '/sign-out.html'),
+                    'sign-key' , 'signkey' => Config::getString('web.pages.sign-key', '/sign-key/:key.html'),
+                    'profile'              => Config::getString('web.pages.profile' , '/my/profile.html'),
+                    'settings'             => Config::getString('web.pages.settings', '/my/settings.html'),
+                    default                => Config::getString('web.pages.' . $url , '')
+                };
+        }
 
         if ($configured) {
             return new static($configured);
@@ -686,6 +718,7 @@ class Url implements UrlInterface
     public static function getAjax(UrlInterface|string|int|null $url, bool $use_configured_root = false): static
     {
         $url = (string) $url;
+
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
 
@@ -693,7 +726,7 @@ class Url implements UrlInterface
             $url = 'system/' . $url . 'json';
         }
 
-        return static::renderUrl($url, 'ajax/', $use_configured_root);
+        return static::renderUrl(Strings::ensureEndsWith($url, '.json'), 'ajax/', $use_configured_root);
     }
 
 

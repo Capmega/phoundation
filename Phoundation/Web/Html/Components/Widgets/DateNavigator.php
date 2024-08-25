@@ -216,7 +216,7 @@ class DateNavigator extends ElementsBlock
                                          ->setSize(8)
                                          ->addClasses('mb-3')
                                          ->setContent(Form::new()
-                                                          ->setMethod(EnumHttpRequestMethod::get)
+                                                          ->setRequestMethod(EnumHttpRequestMethod::get)
                                                           ->setAction($this->selector_link)
                                                           ->setContent(InputDate::new()
                                                                                 ->setId('date')

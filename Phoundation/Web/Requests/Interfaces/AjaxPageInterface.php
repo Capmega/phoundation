@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Ajax\Interfaces;
+namespace Phoundation\Web\Requests\Interfaces;
 
-use Phoundation\Web\Json\Interfaces\JsonInterface;
-
-interface AjaxInterface extends JsonInterface
+interface AjaxPageInterface extends JsonPageInterface
 {
     /**
      * Execute the specified AJAX API page

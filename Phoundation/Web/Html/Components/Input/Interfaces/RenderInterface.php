@@ -19,4 +19,12 @@ interface RenderInterface
      * @see  Element::render(), ElementsBlock::render()
      */
     public function render(): ?string;
+
+    /**
+     * Returns true if the object has been rendered (and Object::render() will return cached render data), false
+     * otherwise
+     *
+     * @return bool
+     */
+    public function hasRendered(): bool;
 }

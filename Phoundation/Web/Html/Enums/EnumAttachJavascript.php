@@ -18,7 +18,8 @@ namespace Phoundation\Web\Html\Enums;
 
 enum EnumAttachJavascript: string
 {
-    case here   = 'here';
-    case header = 'header';
-    case footer = 'footer';
+    case bare   = 'bare';   // Will return the rendered Javascript as-is, without <script> tags
+    case here   = 'here';   // Will return the rendered Javascript within <script> tags
+    case header = 'header'; // Will attach this rendered Javascript to the header of the page
+    case footer = 'footer'; // Will attach this rendered Javascript to the footer of the page
 }

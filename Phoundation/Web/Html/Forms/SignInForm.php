@@ -58,7 +58,7 @@ class SignInForm extends Form
         $this->setRegisterUrl(Config::get('web.defaults.urls.register', 'register'))
              ->setForgotPasswordUrl(Config::get('web.defaults.urls.forgot-password', 'forgot-password'))
              ->setAction(Config::get('web.defaults.urls.signin', 'signin'))
-             ->setMethod(EnumHttpRequestMethod::post);
+             ->setRequestMethod(EnumHttpRequestMethod::post);
     }
 
 

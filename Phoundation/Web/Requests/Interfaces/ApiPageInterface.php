@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Json\Interfaces;
+namespace Phoundation\Web\Requests\Interfaces;
 
-interface JsonInterface
+interface ApiPageInterface extends JsonPageInterface
 {
     /**
-     * Execute the specified JSON page
+     * Execute the specified API page
      *
      * @return string|null
      */
@@ -15,7 +15,7 @@ interface JsonInterface
 
 
     /**
-     * Build and send JSON specific HTTP headers
+     * Build and send API specific HTTP headers
      *
      * @param string $output
      *

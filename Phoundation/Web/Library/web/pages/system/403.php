@@ -33,7 +33,7 @@ switch (Request::getRequestType()) {
         // no break
     case EnumRequestTypes::api:
         Response::setHttpCode(403);
-        Json::reply(['error' => tr('Forbidden')]);
+        Json::new()->reply(['error' => tr('Forbidden')]);
 }
 
 

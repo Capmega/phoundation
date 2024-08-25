@@ -241,14 +241,35 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
 
         // Add script tags around all the flash calls
         $this->render = Script::new()
-                              ->setContent($this->render)
-                              ->render();
+            ->setContent($this->render)
+            ->render();
 
         // Remove all flash messages from this object
         $this->clear();
         $this->has_rendered = true;
 
         return parent::render();
+    }
+
+
+    /**
+     * Renders all flash messages for JSON replies
+     *
+     * @return array
+     */
+    public function renderJson(): array
+    {
+        $render = [];
+
+        foreach ($this->source as $message) {
+            $render[] = $message->renderBare();
+        }
+
+        // Remove all flash messages from this object
+        $this->clear();
+        $this->has_rendered = true;
+
+        return $render;
     }
 
 

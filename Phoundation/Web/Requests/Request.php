@@ -43,15 +43,13 @@ use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Traits\TraitDataStaticRestrictions;
 use Phoundation\Notifications\Notification;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
 use Phoundation\Security\Incidents\Incident;
-use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Ajax\Ajax;
-use Phoundation\Web\Api\Api;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenusInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menus;
 use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelsInterface;
@@ -66,11 +64,14 @@ use Phoundation\Web\Http\Exception\Http405Exception;
 use Phoundation\Web\Http\Exception\Http409Exception;
 use Phoundation\Web\Http\Exception\Http503Exception;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Json\Interfaces\JsonInterface;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\RequestTypeException;
 use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
+use Phoundation\Web\Requests\Interfaces\JsonPageInterface;
 use Phoundation\Web\Requests\Interfaces\RequestInterface;
+use Phoundation\Web\Requests\Restrictions\Exception\RequestMethodRestrictionsException;
+use Phoundation\Web\Requests\Restrictions\Interfaces\RequestMethodRestrictionsInterface;
+use Phoundation\Web\Requests\Restrictions\RequestMethodRestrictions;
 use Phoundation\Web\Requests\Traits\TraitDataStaticRouteParameters;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
@@ -108,6 +109,13 @@ class Request implements RequestInterface
      * @var FsFileInterface $target
      */
     protected static FsFileInterface $target;
+
+    /**
+     * The file that is currently executed for this system page request
+     *
+     * @var int|null $system_target
+     */
+    protected static ?int $system_target = null;
 
     /**
      * The real / initial target that was executed for this request
@@ -170,9 +178,9 @@ class Request implements RequestInterface
     /**
      * The TemplatePage class that helps build the response page
      *
-     * @var TemplatePageInterface|JsonInterface $page
+     * @var TemplatePageInterface|JsonPageInterface $page
      */
-    protected static TemplatePageInterface|JsonInterface $page;
+    protected static TemplatePageInterface|JsonPageInterface $page;
 
     /**
      * The template class that builds the UI
@@ -208,6 +216,13 @@ class Request implements RequestInterface
      * @var bool $is_system
      */
     protected static bool $is_system = false;
+
+    /**
+     * Contains the restrictions for this web request
+     *
+     * @var RequestMethodRestrictionsInterface $web_restrictions
+     */
+    protected static RequestMethodRestrictionsInterface $web_restrictions;
 
 
     /**
@@ -379,9 +394,9 @@ class Request implements RequestInterface
     /**
      * Returns the current TemplatePage used for this page
      *
-     * @return TemplatePageInterface|JsonInterface
+     * @return TemplatePageInterface|JsonPageInterface
      */
-    public static function getPage(): TemplatePageInterface|JsonInterface
+    public static function getPage(): TemplatePageInterface|JsonPageInterface
     {
         return static::$page;
     }
@@ -701,10 +716,7 @@ class Request implements RequestInterface
      */
     public static function checkRequireGuestUser(string|int|null $new_target = 'index'): void
     {
-        if (
-            Session::getUserObject()
-                   ->isGuest()
-        ) {
+        if (Session::getUserObject()->isGuest()) {
             throw AuthenticationException::new(tr('You have to sign out to view this page'))
                                          ->setNewTarget($new_target);
         }
@@ -723,10 +735,8 @@ class Request implements RequestInterface
     public static function requiresAllRights(array|Stringable|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
     {
         static::checkRequireNotGuestUser($guest_target);
-        if (
-            !Session::getUserObject()
-                    ->hasAllRights($rights)
-        ) {
+
+        if (!Session::getUserObject()->hasAllRights($rights)) {
             throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
                                        ->setNewTarget($missing_rights_target);
         }
@@ -742,10 +752,7 @@ class Request implements RequestInterface
      */
     public static function checkRequireNotGuestUser(string|int|null $new_target = '401'): void
     {
-        if (
-            Session::getUserObject()
-                   ->isGuest()
-        ) {
+        if (Session::getUserObject()->isGuest()) {
             throw AuthenticationException::new(tr('You have to sign in to view this page'))
                                          ->setNewTarget($new_target);
         }
@@ -764,10 +771,8 @@ class Request implements RequestInterface
     public static function requiresSomeRights(array|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
     {
         static::checkRequireNotGuestUser($guest_target);
-        if (
-            !Session::getUserObject()
-                    ->hasSomeRights($rights)
-        ) {
+
+        if (!Session::getUserObject()->hasSomeRights($rights)) {
             throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
                                        ->setNewTarget($missing_rights_target);
         }
@@ -936,19 +941,32 @@ class Request implements RequestInterface
 
 
     /**
+     * Returns the file executed for this system page request
+     *
+     * @return int|null
+     */
+    public static function getSystemTarget(): ?int
+    {
+        return static::$system_target;
+    }
+
+
+    /**
      * Sets the target for this request
      *
-     * @param FsFileInterface|string $target
+     * @param string $target
      *
      * @return void
      */
-    protected static function setTarget(FsFileInterface|string $target): void
+    protected static function setTarget(string $target): void
     {
         // Determine the target request type
         static::detectRequestType($target);
 
+        // Determine the target file that is to be executed
         $target         = static::ensureRequestPathPrefix($target);
         static::$target = FsFile::new($target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
+
         static::$target->checkRestrictions(false);
         static::getTargets()->add(static::$target);
         static::addExecutedPath($target); // TODO We should get this from targets
@@ -961,7 +979,9 @@ class Request implements RequestInterface
             } else {
                 static::$hash = sha1(Strings::force($_SERVER['argv']));
             }
+
             static::$main_target = static::$target;
+
             if (PLATFORM_WEB) {
                 // Start the main web target buffer
                 ob_start();
@@ -977,6 +997,9 @@ class Request implements RequestInterface
      */
     public static function isPostRequestMethod(): bool
     {
+        // As soon as we inquire about the request method being POST, Phoundation will assume that POST is allowed
+        Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::post);
+
         return static::isRequestMethod(EnumHttpRequestMethod::post);
     }
 
@@ -1023,26 +1046,24 @@ class Request implements RequestInterface
     /**
      * Determines what type of web request was made
      *
-     * @param string|null $target
+     * @param string $target
      *
      * @return void
      */
-    public static function detectRequestType(?string $target = null): void
+    protected static function detectRequestType(string $target): void
     {
-        $target = $target ?? static::$target;
-
         if (PLATFORM_CLI) {
             // We're running on the command line
             $request_type = EnumRequestTypes::cli;
 
         } else {
-            if (str_contains($target, '/admin/')) {
+            if (str_contains($target, 'admin/')) {
                 $request_type = EnumRequestTypes::admin;
 
-            } elseif (str_contains($target, '/ajax/')) {
+            } elseif (str_contains($target, 'ajax/')) {
                 $request_type = EnumRequestTypes::ajax;
 
-            } elseif (str_contains($target, '/api/') or (str_starts_with($_SERVER['SERVER_NAME'], 'api'))) {
+            } elseif (str_contains($target, 'api/') or (str_starts_with($_SERVER['SERVER_NAME'], 'api'))) {
                 $request_type = EnumRequestTypes::api;
 
             } elseif (str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) {
@@ -1124,7 +1145,7 @@ class Request implements RequestInterface
 
             if (static::isRequestType(EnumRequestTypes::api)) {
                 // This method will exit
-                Json::reply([
+                Json::new()->reply([
                     '__system' => [
                         'http_code' => 401,
                     ],
@@ -1133,7 +1154,7 @@ class Request implements RequestInterface
 
             if (static::isRequestType(EnumRequestTypes::ajax)) {
                 // This method will exit
-                Json::reply([
+                Json::new()->reply([
                     '__system' => [
                         'http_code' => 401,
                         'location'  => (string) Url::getAjax('sign-in'),
@@ -1366,7 +1387,15 @@ class Request implements RequestInterface
             throw $e;
         }
 
-        static::$is_system = true;
+        static::$system_target = $http_code;
+        static::$is_system     = true;
+
+        switch (static::getRequestType()) {
+            case EnumRequestTypes::ajax:
+            case EnumRequestTypes::api:
+                // These are JSON type requests, reply with JSON instead of HTML
+                Json::new()->replyWithHttpCode(400);
+        }
 
         SystemRequest::new()->execute($http_code, $e, $message);
     }
@@ -1422,7 +1451,7 @@ class Request implements RequestInterface
     {
         // Set target and check if we have this target in the cache
         try {
-            static::setTarget($target);
+            static::setTarget((string) $target);
             static::$stack_level++;
 
         } catch (FileNotExistException $e) {
@@ -1445,16 +1474,22 @@ class Request implements RequestInterface
             ob_start();
             static::preparePageVariable();
 
-            $return = static::tryCache($die);
+            if (!static::getSystem()) {
+                static::hasRightsOrRedirects(static::$parameters->getRequiredRights((string) static::$target));
+                Response::checkForceRedirect();
+            }
 
-            if (!$return) {
-                // Check user access rights from routing parameters
-                // Check only for non-system pages
-                if (!static::getSystem()) {
-                    static::hasRightsOrRedirects(static::$parameters->getRequiredRights(static::$target));
-                    Response::checkForceRedirect();
+            if (static::isRequestMethod(EnumHttpRequestMethod::get) or static::isRequestMethod(EnumHttpRequestMethod::head)) {
+                // First try cache, then execute the target
+                $return = static::tryCache($die);
+
+                if ($return === null) {
+                    // Execute the current target
+                    $return = static::executeWebTarget($flush);
                 }
 
+            } else {
+                // Execute the current target
                 $return = static::executeWebTarget($flush);
             }
         }
@@ -1494,7 +1529,7 @@ class Request implements RequestInterface
 
         if (static::getSystem()) {
             // This is not a normal request, this is a system request. System pages SHOULD ALWAYS EXIST, but if they
-            // don't, hard fail because this method will normally execute a system page and we just saw those don't
+            // don't, hard fail because this method will normally execute a system page, and we just saw those don't
             // exist for some reason
             throw new SystemPageNotFoundException(tr('The requested system page ":page" does not exist', [
                 ':page' => $target,
@@ -1580,24 +1615,24 @@ class Request implements RequestInterface
     {
         switch (static::getRequestType()) {
             case EnumRequestTypes::api:
-                Log::information(tr('Executing page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
+                Log::information(tr('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':template' => static::$template->getName(),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
                 ]), (static::$stack_level ? 5 : 7));
 
-                static::$page = new Api();
+                static::$page = new ApiPage();
                 break;
 
             case EnumRequestTypes::ajax:
-                Log::information(tr('Executing page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
+                Log::information(tr('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
                 ]), (static::$stack_level ? 5 : 7));
 
-                static::$page = new Ajax();
+                static::$page = new AjaxPage();
 
                 if (!static::$stack_level) {
                     // Start session only for AJAX and HTML requests
@@ -1606,7 +1641,7 @@ class Request implements RequestInterface
                 break;
 
             default:
-                Log::information(tr('Executing page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
+                Log::information(tr('Executing HTML page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':template' => static::$template->getName(),
                     ':level'    => static::$stack_level,
@@ -1682,9 +1717,16 @@ class Request implements RequestInterface
             }
 
             // Execute the entire page and return the output
-            return static::$page->execute();
+            $results = static::$page->execute();
 
-        } catch (ValidationFailedExceptionInterface $e) {
+            // Are all request method restrictions satisfied? Only check non system pages, system pages will allow all
+            if (!static::$is_system) {
+                Request::getMethodRestrictionsObject()->checkRestrictions();
+            }
+
+            return $results;
+
+        } catch (ValidationFailedExceptionInterface|RequestMethodRestrictionsException $e) {
             static::executeSystem(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
         } catch (AuthenticationExceptionInterface $e) {
@@ -1724,22 +1766,14 @@ class Request implements RequestInterface
     /**
      * Ensures that this request target path is absolute, or has the correct prefix
      *
-     * @param FsFileInterface|string $target
+     * @param string $target
      *
-     * @return FsFileInterface|string
+     * @return string
      */
-    protected static function ensureRequestPathPrefix(FsFileInterface|string $target): FsFileInterface|string
+    protected static function ensureRequestPathPrefix(string $target): string
     {
-        if (is_string($target)) {
-            if (is_absolute_path($target)) {
-                return $target;
-            }
-
-        } elseif ($target->isAbsolute()) {
+        if (is_absolute_path($target)) {
             return $target;
-
-        } else {
-            $target = $target->getSource();
         }
 
         return match (static::getRequestType()) {
@@ -1769,5 +1803,20 @@ class Request implements RequestInterface
         }
 
         return static::$upload_handlers;
+    }
+
+
+    /**
+     * Returns the restrictions object for this request
+     *
+     * @return RequestMethodRestrictionsInterface
+     */
+    public static function getMethodRestrictionsObject(): RequestMethodRestrictionsInterface
+    {
+        if (empty(static::$web_restrictions)) {
+            static::$web_restrictions = new RequestMethodRestrictions();
+        }
+
+        return static::$web_restrictions;
     }
 }

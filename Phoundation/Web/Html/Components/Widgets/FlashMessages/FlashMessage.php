@@ -330,15 +330,18 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     public function renderBare(): ?string
     {
         $image = $this->image?->getImgObject();
+
         if ($this->top) {
             if ($this->left) {
                 $position = 'topLeft';
+
             } else {
                 $position = 'topRight';
             }
         } else {
             if ($this->left) {
                 $position = 'bottomLeft';
+
             } else {
                 $position = 'bottomRight';
             }
@@ -350,8 +353,8 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
                 title: "' . Strings::escape($this->title) . '",
                 subtitle: "' . Strings::escape($this->sub_title) . '",
                 position: "' . $position . '",
-                ' . ($image ? 'image: "' . Strings::escape($image->getSrc()) . '", image-alt: "' . Strings::escape($image->getAlt()) . '",' : null) . '                           
-                ' . ($this->icon ? 'icon: "fas fa-' . Strings::escape($this->icon) . ' fa-lg",' : null) . '                           
+                ' . ($image            ? 'image: "' . Strings::escape($image->getSrc()) . '", image-alt: "' . Strings::escape($image->getAlt()) . '",' : null) . '                           
+                ' . ($this->icon       ? 'icon: "fas fa-' . Strings::escape($this->icon) . ' fa-lg",' : null) . '                           
                 ' . ($this->auto_close ? 'autohide: true, delay: ' . $this->auto_close . ',' . PHP_EOL : null) . '
                 body: "' . Strings::escape($this->content) . '"
             });';

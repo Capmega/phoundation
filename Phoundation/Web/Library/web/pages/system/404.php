@@ -33,7 +33,7 @@ switch (Request::getRequestType()) {
         // no break
     case EnumRequestTypes::api:
         Response::setHttpCode(404);
-        Json::reply(['error' => tr('Not Found')]);
+        Json::new()->reply(['error' => tr('Not Found')]);
 }
 
 
