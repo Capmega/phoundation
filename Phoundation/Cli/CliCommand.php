@@ -404,7 +404,7 @@ class CliCommand
 
         // As what user should we execute this? Build the sudo command to be executed
         $user    = posix_getpwuid(static::$pho_uid);
-        $command = 'sudo -Eu ' . escapeshellarg($user['name']) . ' ' . $command . ' ' . implode(' ', $arguments);
+        $command = 'sudo -Esu ' . escapeshellarg($user['name']) . ' ' . $command . ' ' . implode(' ', $arguments);
 
         if (!CliAutoComplete::isActive() and !QUIET) {
             if (VERBOSE) {
@@ -465,7 +465,7 @@ class CliCommand
             }
 
             // We won't show anything on the web platform
-            Log::errorLog($exit_message);
+            Log::toAlternateLog($exit_message);
             exit();
         }
 
