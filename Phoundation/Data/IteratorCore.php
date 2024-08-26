@@ -1043,6 +1043,19 @@ class IteratorCore implements IteratorInterface
 
 
     /**
+     * Returns the number of items contained in this object
+     *
+     * Wrapper for IteratorCore::getCount()
+     *
+     * @return int
+     */
+    public function count(): int
+    {
+        return $this->getCount();
+    }
+
+
+    /**
      * Returns the first element contained in this object without changing the internal pointer
      *
      * @return mixed

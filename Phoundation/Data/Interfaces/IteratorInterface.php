@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Interfaces;
 
+use Countable;
 use Iterator;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
@@ -17,7 +18,7 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Stringable;
 use Throwable;
 
-interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
+interface IteratorInterface extends Iterator, Stringable, ArrayableInterface, Countable
 {
     /**
      * Returns the class used to generate the select input
