@@ -17,6 +17,7 @@ declare(strict_types=1);
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Json\AutoSuggestRequest;
+use Phoundation\Web\Requests\JsonPage;
 
 
 // Ensure we'll have auto suggest data
@@ -32,4 +33,4 @@ $get = GetValidator::new()
 $reply = Json::encode(['/force-password-update.html']);
 $reply = AutoSuggestRequest::getCallback() . '(' . $reply . ')';
 
-Json::new()->reply($reply);
+JsonPage::new()->reply($reply);

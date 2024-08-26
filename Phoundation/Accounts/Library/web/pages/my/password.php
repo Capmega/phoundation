@@ -119,7 +119,7 @@ echo $grid->render();
 Response::setHeaderTitle(tr('Change your password'));
 Response::setHeaderSubTitle($user->getName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                  => tr('Home'),
-    '/your/profile.html' => tr('Your profile'),
-    ''                   => tr('Change your password'),
+    '/'                => tr('Home'),
+    '/my/profile.html' => tr('My profile'),
+    ''                 => tr('Change my password'),
 ]));

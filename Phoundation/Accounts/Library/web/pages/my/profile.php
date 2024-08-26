@@ -199,10 +199,10 @@ $picture = Card::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/my/password.html') . '">' . tr('Change Your password') . '</a><br>
-                                      <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage Your settings') . '</a><br>
-                                      <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage Your API access') . '</a><br>
-                                      <a href="' . Url::getWww('/my/sign-in-history.html') . '">' . tr('Review Your sign-in history') . '</a>');
+                ->setContent('<a href="' . Url::getWww('/my/password.html') . '">' . tr('Change my password') . '</a><br>
+                                      <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage my settings') . '</a><br>
+                                      <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage my API access') . '</a><br>
+                                      <a href="' . Url::getWww('/my/sign-in-history.html') . '">' . tr('Review my sign-in history') . '</a>');
 
 
 // Build documentation
