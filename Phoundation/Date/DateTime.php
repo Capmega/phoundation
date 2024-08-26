@@ -100,6 +100,10 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
             case 'mysql':
                 $format = 'Y-m-d H:i:s';
                 break;
+
+            case 'file':
+                $format = 'ymd-His';
+                break;
         }
 
         return $format;
