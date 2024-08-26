@@ -38,11 +38,12 @@ $argv = ArgvValidator::new()
 
 // What columns are we going to display?
 $columns = [
-    'vendor'    => tr('Vendor'),
-    'name'      => tr('Name'),
-    'status'    => tr('Status'),
-    'priority'  => tr('Priority'),
-    'directory' => tr('Directory'),
+    'vendor'      => tr('Vendor'),
+    'name'        => tr('Name'),
+    'status'      => tr('Status'),
+    'priority'    => tr('Priority'),
+    'blacklisted' => tr('Blacklisted'),
+    'directory'   => tr('Directory'),
 ];
 
 

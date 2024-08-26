@@ -15,3 +15,33 @@
 
 declare(strict_types=1);
 
+use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
+use Phoundation\Exception\Exception;
+use Phoundation\Accounts\Rights\Right;
+use Phoundation\Accounts\Roles\Role;
+use Phoundation\Core\Log\Log;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Mimetypes\FsMimetype;
+use Phoundation\Os\Processes\Commands\Pho;
+use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Enums\EnumElement;
+
+$directory = FsDirectory::new('file:///home/sven/Pictures/Wallpapers/Wallpapers/zzzzz test', FsRestrictions::getReadonly('~'));
+$files     = $directory->scan();
+
+show($directory->scan()->getSourceKeys());
+
+
+$extracted = $files->getFilesWithMimetype('image/jpeg', true);
+
+show($extracted->getSourceKeys());
+show($files->getSourceKeys());
+
+
+//$file = FsFile::new('/home/sven/Pictures/Wallpapers/Wallpapers/zzzzz test/\'Greeting Death as an old friend.\' - Imgur.jpg', FsRestrictions::getFilesystemRoot());
+//show($file->getMimetype());
+//show($file->mimetypeMatches('image'));

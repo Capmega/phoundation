@@ -28,7 +28,6 @@ use Phoundation\Cli\Exception\CliNoCommandSpecifiedException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\CoreStartupFailedException;
-use Phoundation\Core\Exception\Interfaces\CoreStartupFailedExceptionInterface;
 use Phoundation\Core\Exception\ProjectException;
 use Phoundation\Core\Interfaces\CoreInterface;
 use Phoundation\Core\Libraries\Libraries;
@@ -74,6 +73,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\JsonPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Throwable;
@@ -3376,11 +3376,11 @@ class Core implements CoreInterface
                 // no break
             case EnumRequestTypes::ajax:
                 if ($e instanceof CoreException) {
-                    Json::new()->replyWithHttpCode($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
+                    JsonPage::new()->replyWithHttpCode($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
                 }
 
                 // Assume that all non CoreException exceptions are not warnings!
-                Json::new()->replyWithHttpCode($e->getCode(), ['reason' => '']);
+                JsonPage::new()->replyWithHttpCode($e->getCode(), ['reason' => '']);
         }
 
         static::executeUncaughtExceptionSystemPage($e->getCode(), $e);

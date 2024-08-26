@@ -1669,7 +1669,9 @@ class Log
         }
 
         if (empty($messages)) {
-            $messages = '-';
+            if ($messages !== 0) {
+                $messages = '-';
+            }
         }
 
         return static::write(print_r($messages, true), 'debug', $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);

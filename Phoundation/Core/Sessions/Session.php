@@ -77,16 +77,16 @@ class Session implements SessionInterface
     /**
      * The current user for this session
      *
-     * @var UserInterface $user
+     * @var UserInterface|null $user
      */
-    protected static UserInterface $user;
+    protected static ?UserInterface $user = null;
 
     /**
      * The current impersonated user for this session
      *
-     * @var UserInterface $impersonated_user
+     * @var UserInterface|null $impersonated_user
      */
-    protected static UserInterface $impersonated_user;
+    protected static ?UserInterface $impersonated_user = null;
 
     /**
      * Tracks if the session has startup or not
@@ -563,6 +563,9 @@ class Session implements SessionInterface
         // Start session
         session_start();
 
+        static::$user              = null;
+        static::$impersonated_user = null;
+
         // Initialize session?
         if (empty($_SESSION['init'])) {
             static::create();
@@ -570,7 +573,7 @@ class Session implements SessionInterface
         } else {
             // Check for extended sessions
             // TODO Why are we still doing this? We should be able to do extended sessions better
-            static::checkExtended();
+            // static::checkExtended();
 
             Log::success(tr('Resumed session ":session" for user ":user" from IP ":ip"', [
                 ':session' => session_id(),
@@ -726,20 +729,10 @@ class Session implements SessionInterface
      */
     public static function getUserObject(): UserInterface
     {
-        return static::getImpersonatedUserObject();
-    }
+        if (empty(session_id())) {
+            throw new SessionException(tr('Cannot access session data yet, session has not yet been initialized'));
+        }
 
-
-    /**
-     * Returns the user for this session, impersonated if available, else the real user
-     *
-     * @param bool $real_user
-     *
-     * @return UserInterface
-     * @todo Add caching for real_user
-     */
-    protected static function getImpersonatedUserObject(): UserInterface
-    {
         // We can return impersonated user IF exists
         if (!empty($_SESSION['user']['impersonate_id'])) {
             // Return impersonated user
@@ -752,38 +745,6 @@ class Session implements SessionInterface
         }
 
         return static::getRealUserObject();
-    }
-
-
-    /**
-     * Returns the real user for this session
-     *
-     * @return UserInterface
-     * @todo Add caching for real_user
-     */
-    public static function getRealUserObject(): UserInterface
-    {
-        // Return the real user
-        if (empty(static::$user)) {
-            // User object does not yet exist
-            if (isset_get($_SESSION['user']['id'])) {
-                static::$user = static::loadUser($_SESSION['user']['id']);
-
-            } else {
-                // TODO What if we run setup from HTTP? Change this to some sort of system flag
-                if (PLATFORM_WEB) {
-                    // There is no user, this is a guest session
-                    static::$user = new GuestUser();
-
-                } else {
-                    // There is no user, this is a system session
-                    static::$user = new SystemUser();
-                }
-            }
-        }
-
-        // Return from cache
-        return static::$user;
     }
 
 
@@ -1026,9 +987,29 @@ class Session implements SessionInterface
      *
      * @return UserInterface
      */
-    public static function getRealUser(): UserInterface
+    public static function getRealUserObject(): UserInterface
     {
-        return static::getImpersonatedUserObject(true);
+        // Return the real user
+        if (empty(static::$user)) {
+            // User object does not yet exist
+            if (isset_get($_SESSION['user']['id'])) {
+                static::$user = static::loadUser($_SESSION['user']['id']);
+
+            } else {
+                // TODO What if we run setup from HTTP? Change this to some sort of system flag
+                if (PLATFORM_WEB) {
+                    // There is no user, this is a guest session
+                    static::$user = new GuestUser();
+
+                } else {
+                    // There is no user, this is a system session
+                    static::$user = new SystemUser();
+                }
+            }
+        }
+
+        // Return from cache
+        return static::$user;
     }
 
 

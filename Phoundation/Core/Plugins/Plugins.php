@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Core\Plugins;
 
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Interfaces\PluginsInterface;
@@ -25,10 +24,10 @@ use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug;
-use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Throwable;
@@ -43,6 +42,13 @@ class Plugins extends DataIterator implements PluginsInterface
      */
     protected ?array $enabled = null;
 
+    /**
+     * Contains the list of plugins that have been blacklisted
+     *
+     * @var array $blacklist
+     */
+    protected array $blacklist;
+
 
     /**
      * Providers class constructor
@@ -54,7 +60,8 @@ class Plugins extends DataIterator implements PluginsInterface
                                         `name`, 
                                         `status`, 
                                         `priority`, 
-                                        `description` 
+                                        `description`,
+                                         NULL AS `blacklisted`
                                FROM     `core_plugins` 
                                ORDER BY `name`');
 
@@ -248,13 +255,21 @@ class Plugins extends DataIterator implements PluginsInterface
         foreach (static::getEnabled() as $id => $plugin) {
             try {
                 if ($plugin['status'] === null) {
-                    Log::action(tr('Starting plugin ":vendor/:plugin"', [
-                        ':vendor' => $plugin['vendor'],
-                        ':plugin' => $plugin['name'],
-                    ]), 4);
+                    if ($plugin['blacklisted']) {
+                        Log::warning(tr('Not starting blacklisted plugin ":vendor/:plugin", check your configuration if this should be started', [
+                            ':vendor' => $plugin['vendor'],
+                            ':plugin' => $plugin['name'],
+                        ]), 9);
 
-                    include_once(DIRECTORY_ROOT . $plugin['directory'] . 'Library/Plugin.php');
-                    $plugin['class']::start();
+                    } else {
+                        Log::action(tr('Starting plugin ":vendor/:plugin"', [
+                            ':vendor' => $plugin['vendor'],
+                            ':plugin' => $plugin['name'],
+                        ]), 4);
+
+                        include_once(DIRECTORY_ROOT . $plugin['directory'] . 'Library/Plugin.php');
+                        $plugin['class']::start();
+                    }
                 }
 
             } catch (Throwable $e) {
@@ -295,6 +310,148 @@ class Plugins extends DataIterator implements PluginsInterface
 
 
     /**
+     * Returns an array of plugins that have the `blacklisted` column set
+     *
+     * @param array $plugins
+     *
+     * @return array
+     */
+    protected static function applyBlacklisted(array $plugins): array
+    {
+        foreach ($plugins as &$plugin) {
+            if (static::isBlacklisted($plugin)) {
+                $plugin['blacklisted'] = 1;
+            }
+        }
+
+        unset($plugin);
+
+        return $plugins;
+    }
+
+
+    /**
+     * Returns true if the specified plugin is blacklisted (which will make it not start)
+     *
+     * Will return true if the vendor and name of the plugin match both those in a blacklist entry, or match only one
+     * whilst the other entry is NULL
+     *
+     * @param array      $plugin
+     *
+     * @return bool
+     */
+    public static function isBlacklisted(array $plugin): bool
+    {
+        static $blacklist;
+
+        if (!isset($blacklist)){
+            $blacklist = static::loadBlacklist();
+        }
+
+        foreach ($blacklist as $item) {
+            $match = 0;
+
+            if (($item['vendor'] === $plugin['vendor']) or ($item['vendor'] === null)) {
+                $match++;
+            }
+
+            if (($item['name'] === $plugin['name']) or ($item['name'] === null)) {
+                $match++;
+            }
+
+            if ($match >= 2) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Loads and returns the blacklist for plugins to load
+     *
+     * Format will be an array with each entry having a sub array with vendor and name
+     *
+     * [
+     *     [
+     *         vendor => VENDOR,
+     *         name   => NAME
+     *     ],
+     *     [
+     *          vendor => VENDOR,
+     *          name   => NAME
+     *      ]
+     * ...
+     * ]
+     *
+     * Either vendor or name may be NULL in which case all items will be matched
+     *
+     * Blacklisted plugins are specified in the yaml file in an array where each entry has one of the following formats:
+     * vendor/
+     * vendor/*
+     * * /name
+     * /name
+     * name
+     *
+     * @return array
+     */
+    protected static function loadBlacklist(): array
+    {
+        $blacklist = Config::getArray('plugins.blacklist');
+        $return    = [];
+
+        if ($blacklist) {
+            foreach ($blacklist as $item) {
+                if (empty($item)) {
+                    // Empty item? Ignore.
+                    Log::warning(tr('Encountered empty plugin blacklist item in blacklist configuration ":configuration" Please check your production and or environment specific configuration', [
+                        ':configuration' => Json::encode($blacklist)
+                    ]));
+
+                    continue;
+                }
+
+                if (str_contains($item, '/')) {
+                    if (!preg_match_all('/^([a-z*]+)?\/([a-z*]+)?$/i', $item, $matches)) {
+                        Log::warning(tr('Ignoring invalid plugin blacklist item ":item" in blacklist configuration ":configuration" Please check your production and or environment specific configuration', [
+                            ':item'          => $item,
+                            ':configuration' => Json::encode($blacklist)
+                        ]));
+
+                        continue;
+                    }
+
+                    if ($matches[1][0] === '*') {
+                        $matches[1][0] = null;
+                    }
+
+                    if ($matches[2][0] === '*') {
+                        $matches[2][0] = null;
+                    }
+
+                    $item = [
+                        'vendor' => get_null($matches[1][0]),
+                        'name'   => get_null($matches[2][0])
+                    ];
+
+                } else {
+                    // No slash, this is the same as */name
+                    $item = [
+                        'vendor' => null,
+                        'name'   => $item
+                    ];
+                }
+
+                $return[] = $item;
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
      * Returns an array with all enabled plugins from the database
      *
      * @return IteratorInterface
@@ -307,17 +464,21 @@ class Plugins extends DataIterator implements PluginsInterface
                                               `priority`, 
                                               `vendor`, 
                                               `class`, 
-                                              `directory`
+                                              `directory`,
+                                              NULL AS `blacklisted`
                                      FROM     `core_plugins` 
                                      WHERE    `name`    != "Phoundation"
                                      AND      `status`  IS NULL 
                                      ORDER BY `priority` ASC');
+
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
             return new Iterator([static::getPhoundationPluginEntry()]);
         }
+
         // Push Phoundation plugin to the front of the list
         $return = array_replace([static::getPhoundationPluginEntry()], $return);
+        $return = static::applyBlacklisted($return);
 
         return new Iterator($return);
     }
@@ -331,12 +492,13 @@ class Plugins extends DataIterator implements PluginsInterface
     protected static function getPhoundationPluginEntry(): array
     {
         return [
-            'vendor'    => 'Phoundation',
-            'name'      => 'Phoundation',
-            'status'    => null,
-            'priority'  => 0,
-            'class'     => 'Plugins\Phoundation\Phoundation\Library\Plugin',
-            'directory' => 'Plugins/Phoundation/Phoundation/',
+            'vendor'      => 'Phoundation',
+            'name'        => 'Phoundation',
+            'status'      => null,
+            'priority'    => 0,
+            'class'       => 'Plugins\Phoundation\Phoundation\Library\Plugin',
+            'directory'   => 'Plugins/Phoundation/Phoundation/',
+            'blacklisted' => null,
         ];
     }
 
@@ -354,7 +516,8 @@ class Plugins extends DataIterator implements PluginsInterface
                                               `priority`, 
                                               `vendor`, 
                                               `class`, 
-                                              `directory`
+                                              `directory`,
+                                              NULL AS `blacklisted`
                                      FROM     `core_plugins`
                                      WHERE    `name` != "Phoundation" 
                                      ORDER BY `priority` ASC');
@@ -366,6 +529,7 @@ class Plugins extends DataIterator implements PluginsInterface
 
         // Push Phoundation plugin to the front of the list
         $return = array_replace([static::getPhoundationPluginEntry()], $return);
+        $return = static::applyBlacklisted($return);
 
         return new Iterator($return);
     }
