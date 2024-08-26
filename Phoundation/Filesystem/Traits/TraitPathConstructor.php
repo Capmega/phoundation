@@ -42,7 +42,7 @@ trait TraitPathConstructor
                  ->setRestrictions($restrictions ?? $source->getRestrictions());
 
         } else {
-            $source = trim((string) $source);
+            $source = static::validateFilename($source);
 
             if (!$source) {
                 throw new NoPathSpecifiedExceptions(

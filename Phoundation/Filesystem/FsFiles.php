@@ -59,4 +59,18 @@ class FsFiles extends FsFilesCore implements FsFilesInterface
     {
         return new static($parent_directory, $source, $restrictions);
     }
+
+
+    /**
+     * Returns a new FsFiles object from the given source
+     *
+     * @param mixed|null                                $source
+     * @param FsRestrictionsInterface|array|string|null $restrictions
+     *
+     * @return static
+     */
+    public static function newFromSource(mixed $source = null, FsRestrictionsInterface|array|string|null $restrictions = null): static
+    {
+        return new static(null, $source, $restrictions);
+    }
 }

@@ -55,11 +55,11 @@ interface FsFilesInterface extends IteratorInterface
     /**
      * Returns the parent Path (if available) that contains these files
      *
-     * @param FsPathInterface|null $parent
+     * @param FsPathInterface|null $parent_directory
      *
      * @return FsFiles
      */
-    public function setParentDirectory(?FsPathInterface $parent): static;
+    public function setParentDirectory(?FsPathInterface $parent_directory): static;
 
     /**
      * Move all files to the specified target
@@ -104,14 +104,16 @@ interface FsFilesInterface extends IteratorInterface
      */
     public function valid(): bool;
 
+
     /**
      * Returns all files that match the specified mimetype
      *
      * @param string $mimetype
+     * @param bool   $remove
      *
      * @return $this
      */
-    public function getFilesWithMetadata(string $mimetype): static;
+    public function getFilesWithMimetype(string $mimetype, bool $remove = false): static;
 
     /**
      * Will delete all files in this FsFiles object

@@ -537,8 +537,6 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     {
         $mode = Config::get('filesystem.mode.directories', 0750, $mode);
 
-        static::validateFilename($this->source);
-
         if ($clear) {
             // Delete the currently existing directory, so we can  be sure we have a clean directory to work with
             FsFile::new($this->source, $this->restrictions)->delete(false, $sudo);
@@ -1544,11 +1542,11 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     /**
      * Returns the specified directory added to this directory
      *
-     * @param FsPathInterface|string $directory
+     * @param FsPathInterface|string|int $directory
      *
      * @return FsDirectoryInterface
      */
-    public function addDirectory(FsPathInterface|string $directory): FsDirectoryInterface
+    public function addDirectory(FsPathInterface|string|int $directory): FsDirectoryInterface
     {
         $directory = $this->getSource() . Strings::ensureStartsNotWith((string) $directory, '/');
 

@@ -90,7 +90,9 @@ class FsUploadedFile extends FsFileCore implements FsUploadedFileInterface
                         ':detected'  => $this->getMimetype()
                     ]))
                     ->setDetails([
-                        'file'       => $source->getSource(),
+                        'file'      => $source->getName(),
+                        'indicated' => $source->getType(),
+                        'detected'  => $this->getMimetype()
                     ])
                     ->save();
 
@@ -104,9 +106,9 @@ class FsUploadedFile extends FsFileCore implements FsUploadedFileInterface
         // Move the uploaded file to the Phoundation temporary directory
         $tmp = FsFile::getTemporaryObject(false, $this->real_name);
 
-        Log::action(tr('Moving uploaded file from PHP temporary directory ":file" to Phoundation temporary directory ":phoundation"', [
-            ':file'        => $tmp,
-            ':phoundation' => (string) $this
+        Log::action(tr('Moving uploaded file from PHP temporary directory ":tmp" to Phoundation temporary directory ":phoundation"', [
+            ':tmp'         => $this->getSource(),
+            ':phoundation' => $tmp->getRootname(),
         ]), 3);
 
         move_uploaded_file((string) $this, (string) $tmp);

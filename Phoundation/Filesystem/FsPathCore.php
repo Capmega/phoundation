@@ -588,7 +588,7 @@ class FsPathCore implements FsPathInterface
         }
 
         // Validate the specified path, it must be an actual path
-        static::validateFilename($path);
+        $path = static::validateFilename($path);
 
         switch ($path[0]) {
             case '/':
@@ -678,12 +678,12 @@ class FsPathCore implements FsPathInterface
      *
      * @param string|null $file
      *
-     * @return void
+     * @return string|null
      */
-    public static function validateFilename(?string $file = null): void
+    public static function validateFilename(?string $file = null): ?string
     {
         if ($file === null) {
-            return;
+            return null;
         }
 
         $file = trim($file);
@@ -697,6 +697,8 @@ class FsPathCore implements FsPathInterface
                 ':size' => strlen($file),
             ]));
         }
+
+        return Strings::ensureStartsNotWith($file, 'file://');
     }
 
 
@@ -1456,6 +1458,34 @@ class FsPathCore implements FsPathInterface
         $return['mode'] .= (($perms & 0x0001) ? (($perms & 0x0200) ? 't' : 'x') : (($perms & 0x0200) ? 'T' : '-'));
 
         return $return;
+    }
+
+
+    /**
+     * Returns true if the specified mimetype matches
+     *
+     * If either the primary (if secondary is left empty), or both primary and secondary match, the method will return
+     * true
+     *
+     * note: The primary part may also contain the entire mimetype (both primary and secondary types, separated by a
+     *       slash), like image/jpeg
+     *
+     * @param string      $primary
+     * @param string|null $secondary
+     *
+     * @return bool
+     */
+    public function mimetypeMatches(string $primary, ?string $secondary = null): bool
+    {
+        if (empty($secondary)) {
+            if (str_contains($primary, '/')) {
+                return $this->getMimetype() === $primary;
+            }
+
+            return $primary === Strings::until($this->getMimetype(), '/');
+        }
+
+        return $this->getMimetype() === $primary . '/' . $secondary;
     }
 
 

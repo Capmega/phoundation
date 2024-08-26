@@ -214,9 +214,9 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
             }
 
             throw new OutOfBoundsException(tr('Iterator ":class" key ":key" contains unsupported data ":data"', [
-                'class' => get_class($this),
-                'key'   => $key,
-                'data'  => $file,
+                ':class' => get_class($this),
+                ':key'   => $key,
+                ':data'  => $file,
             ]));
         }
 
@@ -267,17 +267,27 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
      * Returns all files that match the specified mimetype
      *
      * @param string $mimetype
+     * @param bool   $remove
      *
      * @return $this
      */
-    public function getFilesWithMetadata(string $mimetype): static
+    public function getFilesWithMimetype(string $mimetype, bool $remove = false): static
     {
-        $files = new static($this->parent_directory);
+        $files  = new static($this->parent_directory);
+        $delete = [];
 
-        foreach ($this as $file) {
+        foreach ($this as $key => $file) {
             if ($file->mimetypeMatches($mimetype)) {
                 $files->add($file);
+
+                if ($remove) {
+                    $delete[] = $key;
+                }
             }
+        }
+
+        if (count($delete)) {
+            $this->removeKeys($delete);
         }
 
         return $files;
@@ -330,5 +340,21 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function append(mixed $value, Stringable|int|string|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    {
+        // specified value must match FsPathInterface::class
+        $this->checkDataType($value);
+
+        if ($key === null) {
+            $key = $value->getSource();
+        }
+
+        return parent::append($value, $key, $skip_null_values, $exception);
     }
 }

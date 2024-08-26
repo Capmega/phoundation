@@ -370,11 +370,11 @@ interface FsDirectoryInterface extends FsPathInterface
     /**
      * Returns the specified directory added to this directory
      *
-     * @param FsPathInterface|string $directory
+     * @param FsPathInterface|string|int $directory
      *
      * @return FsDirectoryInterface
      */
-    public function addDirectory(FsPathInterface|string $directory): FsDirectoryInterface;
+    public function addDirectory(FsPathInterface|string|int $directory): FsDirectoryInterface;
 
     /**
      * Returns true if this path contains any files
