@@ -16,14 +16,16 @@ declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Notifications\Notification;
-use Phoundation\Utils\Json;
+use Phoundation\Web\Requests\JsonPage;
 
 
 // Validate the ID
 $get = GetValidator::new()
                    ->select('id')->isDbId()
                    ->validate();
+
+
 // Update notification status to READ and return it
-Json::new()->reply(Notification::load($get['id'])
-                        ->setStatus('READ')
-                        ->__toArray());
+JsonPage::new()->reply(Notification::load($get['id'])
+                            ->setStatus('READ')
+                            ->__toArray());

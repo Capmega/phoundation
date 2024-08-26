@@ -16,18 +16,21 @@ declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Notifications\Notification;
-use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\JsonPage;
 
 
 // Validate the ID
 $get = GetValidator::new()
                    ->select('id')->isDbId()->validate();
+
+
 // Update notification status to READ and build modal information and send reply
 $notification = Notification::load($get['id'])
                             ->setStatus('READ');
+
 if ($notification->getUrl()) {
     $button = Button::new()
                     ->setMode(EnumDisplayMode::primary)
@@ -35,6 +38,7 @@ if ($notification->getUrl()) {
                     ->setContent(tr('Go'))
                     ->render();
 }
+
 $reply = [
     'title'   => $notification->getTitle(),
     'body'    => $notification->getMessage(),
@@ -45,4 +49,5 @@ $reply = [
                                             ->setContent(tr('See details'))
                                             ->render(),
 ];
-Json::new()->reply($reply);
+
+JsonPage::new()->reply($reply);

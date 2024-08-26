@@ -14,8 +14,8 @@
 
 declare(strict_types=1);
 
-use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Widgets\NotificationsDropDown;
+use Phoundation\Web\Requests\JsonPage;
 
 
 // Gets the notification dropdown
@@ -37,4 +37,4 @@ $reply = [
     'ping'  => $ping,
 ];
 
-Json::new()->reply($reply);
+JsonPage::new()->reply($reply);
