@@ -15,10 +15,10 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\JsonPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -31,9 +31,10 @@ $e = Core::readRegister('e');
 switch (Request::getRequestType()) {
     case EnumRequestTypes::ajax:
         // no break
+
     case EnumRequestTypes::api:
         Response::setHttpCode(404);
-        Json::new()->reply(['error' => tr('Not Found')]);
+        JsonPage::new()->reply(['error' => tr('Not Found')]);
 }
 
 

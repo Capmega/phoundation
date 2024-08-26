@@ -152,13 +152,13 @@ echo Card::new()
 <?php
 
 // Required javascript
-Response::loadJavascript('Phoundation/adminlte/plugins/moment/moment');
-Response::loadJavascript('Phoundation/adminlte/plugins/daterangepicker/daterangepicker');
-Response::loadJavascript('Phoundation/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
+Response::loadJavascript('phoundation/adminlte/plugins/moment/moment');
+Response::loadJavascript('phoundation/adminlte/plugins/daterangepicker/daterangepicker');
+Response::loadJavascript('phoundation/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
 
 // Required CSS
-Response::loadCss('Phoundation/adminlte/plugins/daterangepicker/daterangepicker');
-Response::loadCss('Phoundation/adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
+Response::loadCss('phoundation/adminlte/plugins/daterangepicker/daterangepicker');
+Response::loadCss('phoundation/adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
 Response::loadCss('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
 
 Script::new()

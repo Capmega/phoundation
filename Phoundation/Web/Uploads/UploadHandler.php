@@ -206,6 +206,7 @@ class UploadHandler implements UploadHandlerInterface
      */
     public function process(FsUploadedFileInterface $file): FsUploadedFileInterface
     {
+        // Check if somehow we already processed more than the maximum indicated
         if ($this->getFiles()->getCount() > $this->getDropZoneObject()->getMaxFiles()) {
             throw ValidationFailedException::new(tr('This mimetype ":mimetype" upload handler already processed the maximum amount of files ":count" that it is allowed to process', [
                 ':count'    => $this->getDropZoneObject()->getMaxFiles(),
@@ -213,13 +214,10 @@ class UploadHandler implements UploadHandlerInterface
             ]))->makeSecurityIncident(EnumSeverity::medium);
         }
 
-Log::printr($this->getFiles()->getFilesWithMetadata('image')->getSource());
-        if ($this->getFiles()->getFilesWithMetadata($this->getDropZoneObject()->getMimetype())->getCount() > $this->getDropZoneObject()->getMaxFiles()) {
-            throw ValidationFailedException::new(tr('This mimetype ":mimetype" upload handler already processed the maximum amount of files ":count" that it is allowed to process', [
-                ':count'    => $this->getDropZoneObject()->getMaxFiles(),
-                ':mimetype' => $this->getDropZoneObject()->getMimetype()
-            ]))->makeSecurityIncident(EnumSeverity::medium);
-        }
+        Log::action(tr('About to process ":count" files with mimetype ":mimetype"', [
+            ':count'    => $this->getDropZoneObject()->getMaxFiles(),
+            ':mimetype' => $this->getDropZoneObject()->getMimetype()
+        ]));
 
         $this->validate($file);
 
@@ -256,9 +254,9 @@ Log::printr($this->getFiles()->getFilesWithMetadata('image')->getSource());
      *
      * @param FsUploadedFileInterface $file
      *
-     * @return void
+     * @return FsUploadedFileInterface
      */
-    protected function validate(FsUploadedFileInterface $file): void
+    public function validate(FsUploadedFileInterface $file): FsUploadedFileInterface
     {
         // Ensure the file has the correct extension
         $file->ensureExtensionMatchesMimetype();
@@ -272,5 +270,6 @@ Log::printr($this->getFiles()->getFilesWithMetadata('image')->getSource());
 //        $validator->validate();
 
         $this->validated = true;
+        return $file;
     }
 }

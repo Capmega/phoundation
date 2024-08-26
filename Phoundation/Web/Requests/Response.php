@@ -1722,6 +1722,7 @@ class Response implements ResponseInterface
             Log::action(tr('Sent ":length" output data to client', [
                 ':length' => Numbers::getHumanReadableBytes($length),
             ]), 4);
+
         } else {
             Log::warning(tr('Warning: page generated no output for client, sent 0 bytes'));
         }

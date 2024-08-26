@@ -1145,7 +1145,7 @@ class Request implements RequestInterface
 
             if (static::isRequestType(EnumRequestTypes::api)) {
                 // This method will exit
-                Json::new()->reply([
+                JsonPage::new()->reply([
                     '__system' => [
                         'http_code' => 401,
                     ],
@@ -1154,7 +1154,7 @@ class Request implements RequestInterface
 
             if (static::isRequestType(EnumRequestTypes::ajax)) {
                 // This method will exit
-                Json::new()->reply([
+                JsonPage::new()->reply([
                     '__system' => [
                         'http_code' => 401,
                         'location'  => (string) Url::getAjax('sign-in'),
@@ -1394,7 +1394,7 @@ class Request implements RequestInterface
             case EnumRequestTypes::ajax:
             case EnumRequestTypes::api:
                 // These are JSON type requests, reply with JSON instead of HTML
-                Json::new()->replyWithHttpCode(400);
+                JsonPage::new()->replyWithHttpCode(400);
         }
 
         SystemRequest::new()->execute($http_code, $e, $message);
@@ -1626,28 +1626,22 @@ class Request implements RequestInterface
                 break;
 
             case EnumRequestTypes::ajax:
-                Log::information(tr('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
-                    ':target'   => Strings::from(static::getTarget(), '/web/'),
-                    ':level'    => static::$stack_level,
-                    ':language' => LANGUAGE,
-                ]), (static::$stack_level ? 5 : 7));
-
                 static::$page = new AjaxPage();
 
                 if (!static::$stack_level) {
                     // Start session only for AJAX and HTML requests
                     Session::startup();
                 }
-                break;
 
-            default:
-                Log::information(tr('Executing HTML page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
+                Log::information(tr('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
-                    ':template' => static::$template->getName(),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
                 ]), (static::$stack_level ? 5 : 7));
 
+                break;
+
+            default:
                 // static::$page should already be defined at this stage
                 if (empty(static::$page)) {
                     throw new OutOfBoundsException(tr('Cannot execute HTML page request for target ":target", no template specified', [
@@ -1661,6 +1655,13 @@ class Request implements RequestInterface
                     Session::startup();
                     Response::getFlashMessagesObject()->addSource(Session::getFlashMessagesObject());
                 }
+
+                Log::information(tr('Executing HTML page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
+                    ':target'   => Strings::from(static::getTarget(), '/web/'),
+                    ':template' => static::$template->getName(),
+                    ':level'    => static::$stack_level,
+                    ':language' => LANGUAGE,
+                ]), (static::$stack_level ? 5 : 7));
         }
     }
 
@@ -1710,6 +1711,11 @@ class Request implements RequestInterface
     {
         // Execute the specified target file
         try {
+            // Hide $_FILES data in case files were uploaded
+            if (count($_FILES)) {
+                UploadHandlers::hideData();
+            }
+
             // Prepare page, increase the stack counter, and execute the target
             if (!$flush and static::$stack_level) {
                 // Execute only the file and return the output

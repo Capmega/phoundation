@@ -16,12 +16,14 @@ declare(strict_types=1);
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Widgets\ProfileImage;
+use Phoundation\Web\Requests\JsonPage;
 use Plugins\Phoundation\Phoundation\Components\Menu;
 
 
 $post = Session::validateSignIn();
+
+
 // Attempt to sign in and if all okay, return an updated profile image with menu
 $user  = Session::signIn($post['email'], $post['password']);
 $menu  = Menu::getPrimaryMenu();
@@ -30,11 +32,13 @@ $image = ProfileImage::new()
                                        ->getImageFileObject())
                      ->setMenu(null)
                      ->setUrl(null);
+
 Log::printr([
     'topMenu'      => $menu->render(),
     'profileImage' => $image->render(),
 ]);
-Json::new()->reply([
+
+JsonPage::new()->reply([
     'topMenu'      => $menu->render(),
     'profileImage' => $image->render(),
 ]);

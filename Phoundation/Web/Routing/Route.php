@@ -137,21 +137,14 @@ class Route
         static::$uri    = Strings::ensureStartsNotWith($_SERVER['REQUEST_URI'], '/');
         static::$uri    = Strings::until(static::$uri, '?');
 
-        // Start the Core object, hide $_GET & $_POST & FILES
+        // Start the Core object
         try {
             if (Core::isState(null)) {
                 Core::startup();
-                GetValidator::hideData();
-                PostValidator::hideData();
-                UploadHandlers::hideData();
             }
 
         } catch (SqlException) {
             // Either we have no project or no system database
-            GetValidator::hideData();
-            PostValidator::hideData();
-            UploadHandlers::hideData();
-
             static::execute('setup.php', false);
         }
 
@@ -161,6 +154,11 @@ class Route
             ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')'),
         ]), 9);
+
+        // Hide all request data, $_GET & $_POST, but NOT YET $_FILES!
+        // Hiding $_FILES data requires the users_id and is done in Request::executeWebTarget()
+        GetValidator::hideData();
+        PostValidator::hideData();
     }
 
 

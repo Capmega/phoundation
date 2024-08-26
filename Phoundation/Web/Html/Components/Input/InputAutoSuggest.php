@@ -221,7 +221,7 @@ class InputAutoSuggest extends InputText
         }
 
         // This input element requires some javascript
-        Response::loadJavascript('Phoundation/adminlte/plugins/jquery-ui/jquery-ui');
+        Response::loadJavascript('phoundation/adminlte/plugins/jquery-ui/jquery-ui');
 
         // Setup javascript for the component
         $script = Script::new()

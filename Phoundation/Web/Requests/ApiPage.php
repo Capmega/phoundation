@@ -21,37 +21,4 @@ use Phoundation\Web\Requests\Interfaces\ApiPageInterface;
 
 class ApiPage extends JsonPage implements ApiPageInterface
 {
-    /**
-     * Returns a new ApiInterface object
-     *
-     * @return static
-     */
-    public static function new(): static
-    {
-        return new static();
-    }
-
-
-    /**
-     * Execute the specified API page
-     *
-     * @return string|null
-     */
-    public function execute(): ?string
-    {
-        return execute();
-    }
-
-
-    /**
-     * Build and send API specific HTTP headers
-     *
-     * @param string $output
-     *
-     * @return void
-     */
-    public function renderHttpHeaders(string $output): void
-    {
-        Response::setContentType('application/json');
-    }
 }

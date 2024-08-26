@@ -21,37 +21,4 @@ use Phoundation\Web\Requests\Interfaces\AjaxPageInterface;
 
 class AjaxPage extends JsonPage implements AjaxPageInterface
 {
-    /**
-     * Returns a new AjaxInterface object
-     *
-     * @return static
-     */
-    public static function new(): static
-    {
-        return new static();
-    }
-
-
-    /**
-     * Execute the specified AJAX API page
-     *
-     * @return string|null
-     */
-    public function execute(): ?string
-    {
-        return execute();
-    }
-
-
-    /**
-     * Build and send AJAX API specific HTTP headers
-     *
-     * @param string $output
-     *
-     * @return void
-     */
-    public function renderHttpHeaders(string $output): void
-    {
-        Response::setContentType('application/json');
-    }
 }

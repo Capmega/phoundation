@@ -15,10 +15,10 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\JsonPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -33,7 +33,7 @@ switch (Request::getRequestType()) {
         // no break
     case EnumRequestTypes::api:
         Response::setHttpCode(403);
-        Json::new()->reply(['error' => tr('Forbidden')]);
+        JsonPage::new()->reply(['error' => tr('Forbidden')]);
 }
 
 

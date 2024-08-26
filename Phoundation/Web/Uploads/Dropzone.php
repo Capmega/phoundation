@@ -58,6 +58,13 @@ class Dropzone implements DropzoneInterface
     protected string|null $selector;
 
     /**
+     * The minimum number of files that may be processed by this upload handler
+     *
+     * @var int|null $min_files
+     */
+    protected ?int $min_files = 1;
+
+    /**
      * The maximum number of files that may be processed by this upload handler
      *
      * @var int|null $max_files
@@ -287,6 +294,49 @@ class Dropzone implements DropzoneInterface
 
 
     /**
+     * Returns the minimum number of files that will be allowed to be uploaded
+     *
+     * @return int|null
+     */
+    public function getMinFiles(): ?int
+    {
+        return $this->min_files;
+    }
+
+
+    /**
+     * Sets the minimum number of files that will be allowed to be uploaded
+     *
+     * @param int|null $min_files
+     *
+     * @return static
+     */
+    public function setMinFiles(?int $min_files): static
+    {
+        if ($min_files) {
+            if ($min_files < 1) {
+                throw new OutOfBoundsException(tr('The min_files parameter value ":value" is invalid, it cannot be lower than 1', [
+                    ':value' => $min_files,
+                ]));
+            }
+
+            if ($min_files > $this->max_files) {
+                throw new OutOfBoundsException(tr('The min_files parameter value ":value" is invalid, it cannot be higher than the max_files value of ":max"', [
+                    ':value' => $min_files,
+                    ':max'   => $this->max_files,
+                ]));
+            }
+        }
+
+        $this->min_files = get_null($min_files);
+
+        $this->checkPhpSettings();
+
+        return $this;
+    }
+
+
+    /**
      * Returns the maximum number of files that will be allowed to be uploaded
      *
      * @return int|null
@@ -310,6 +360,13 @@ class Dropzone implements DropzoneInterface
             if ($max_files < 1) {
                 throw new OutOfBoundsException(tr('The max_files parameter value ":value" is invalid, it cannot be lower than 1', [
                     ':value' => $max_files,
+                ]));
+            }
+
+            if ($max_files < $this->min_files) {
+                throw new OutOfBoundsException(tr('The max_files parameter value ":value" is invalid, it cannot be lower than the min_files value of ":max"', [
+                    ':value' => $max_files,
+                    ':max'   => $this->min_files,
                 ]));
             }
 

@@ -37,7 +37,7 @@ Response::redirect('signin');
 //        Response::setHttpCode(401);
 
 
-//        Json::new()->reply(['error' => tr('Unauthorized')]);
+//        JsonPage::new()->reply(['error' => tr('Unauthorized')]);
 //}
 //
 //

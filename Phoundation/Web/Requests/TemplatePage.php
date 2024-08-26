@@ -14,10 +14,9 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Template;
+namespace Phoundation\Web\Requests;
 
 use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
-use Phoundation\Web\Requests\Response;
 
 
 abstract class TemplatePage implements TemplatePageInterface

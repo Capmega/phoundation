@@ -20,9 +20,9 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Config;
-use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Exception\HttpException;
+use Phoundation\Web\Requests\JsonPage;
 
 
 class Http
@@ -319,7 +319,9 @@ class Http
             case 'json':
                 /*
                  * Send JSON redirect. json_reply() will end script, so no break needed
-                 */ Json::new()->reply(isset_get($redirect, '/'), 'redirect');
+                 */
+                JsonPage::new()->reply(isset_get($redirect, '/'), 'redirect');
+
             case 'http':
                 /*
                  * Send HTTP redirect. redirect() will end script, so no break
@@ -327,7 +329,9 @@ class Http
                  *
                  * Also, no need to unset SESSION redirect and sso_referrer,
                  * since redirect() will also do this
-                 */ redirect($redirect);
+                 */
+                redirect($redirect);
+
             default:
                 throw new HttpException(tr('Unknown method ":method" specified. Please speficy one of "json", or "http"', [
                     ':method' => $method,

@@ -77,4 +77,13 @@ interface UploadHandlerInterface
      * @return bool
      */
     public function hasBeenValidated(): bool;
+
+    /**
+     * Have this handler process the specified uploaded file
+     *
+     * @param FsUploadedFileInterface $file
+     *
+     * @return FsUploadedFileInterface
+     */
+    public function validate(FsUploadedFileInterface $file): FsUploadedFileInterface;
 }

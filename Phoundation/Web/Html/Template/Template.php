@@ -23,6 +23,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Template\Exception\TemplateException;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
+use Phoundation\Web\Requests\TemplatePage;
 use Plugins\Phoundation\Phoundation\Components\Menu;
 
 
