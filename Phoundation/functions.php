@@ -1508,6 +1508,31 @@ function is_absolute_path(string $path): bool
 
 
 /**
+ * Returns true if the specified datatype is an object or class datatype, false if it is a standard PHP datatype
+ *
+ * Data type "object" and any datatype that is a class path will always return true
+ *
+ * @param string $datatype
+ *
+ * @return bool
+ */
+function datatype_is_class(string $datatype): bool
+{
+    return match ($datatype) {
+        'unknown type',
+        'resource',
+        'resource (closed)',
+        'array',
+        'string',
+        'double',
+        'integer',
+        'boolean',
+        'NULL'  => false,
+        default => true
+    };
+}
+
+/**
  * Wrappers for PHP yaml_emit(), yaml_parse() if the PHP YAML extension is not installed
  */
 if (!function_exists('yaml_emit')) {
@@ -1516,12 +1541,14 @@ if (!function_exists('yaml_emit')) {
         return Yml::dump($data);
     }
 }
+
 if (!function_exists('yaml_parse')) {
     function yaml_parse($input, $pos = 0, &$ndocs = null, array $callbacks = []): ?array
     {
         return Yml::parse($input);
     }
 }
+
 if (!function_exists('yaml_parse_file')) {
     function yaml_parse_file($filename, $pos = 0, &$ndocs = null, array $callbacks = []): ?array
     {
