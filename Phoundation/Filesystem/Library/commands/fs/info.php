@@ -22,16 +22,16 @@ use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\FsRestrictions;
 
 
-$restrictions = FsRestrictions::getReadonly('/');
+$restrictions = FsRestrictions::newReadonly('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan($word . '*');
+                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan('*');
+                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan('*');
             },
         ],
     ]
@@ -50,7 +50,7 @@ PATH                                    The path for which information should be
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('path')->sanitizePath(FsDirectory::getFilesystemRootObject())
+                     ->select('path')->sanitizePath(FsDirectory::newFilesystemRootObject())
                      ->select('-h,--human-readable')->isOptional(false)->isBoolean()
                      ->validate();
 

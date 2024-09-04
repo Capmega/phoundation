@@ -21,16 +21,16 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 
 
-$restrictions = FsRestrictions::getReadonly('/');
+$restrictions = FsRestrictions::newReadonly('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan($word . '*');
+                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan('*');
+                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan('*');
             },
         ],
     ]
@@ -48,7 +48,7 @@ ARGUMENTS
 PATH                                    The path that should have the files counted, must be a directory');
 
 $argv = ArgvValidator::new()
-    ->select('path')->sanitizeDirectory(FsDirectory::getFilesystemRootObject())
+    ->select('path')->sanitizeDirectory(FsDirectory::newFilesystemRootObject())
     ->select('-h,--human-readable')->isOptional(false)->isBoolean()
     ->validate();
 

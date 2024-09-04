@@ -41,19 +41,21 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return FsDirectoryInterface
      */
-    public static function getTemporaryObject(bool $public = false, bool $persist = false): FsDirectoryInterface
+    public static function newTemporaryObject(bool $public = false, bool $persist = false): FsDirectoryInterface
     {
         if (!$persist) {
             // Return a non-persistent temporary directory that will be deleted once this process terminates
             $path = static::getProcessTemporaryPath($public) . Strings::getUuid();
 
-            return static::new($path, FsRestrictions::getWritable($path))->ensure();
+            return static::new($path, FsRestrictions::newWritable($path))->ensure();
         }
 
         $directory    = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP);
-        $restrictions = FsRestrictions::getWritable($directory);
+        $restrictions = FsRestrictions::newWritable($directory);
 
-        return static::new($directory . Strings::getUuid(), $restrictions)->ensure();
+        return static::new($directory . Strings::getUuid(), $restrictions)
+                     ->setAutoMount(false)
+                     ->ensure();
     }
 
 
@@ -67,9 +69,10 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return FsDirectoryInterface
      */
-    public static function getDataTmpObject(bool $restrictions_writable = false, ?string $sub_directory = null): FsDirectoryInterface
+    public static function newDataTmpObject(bool $restrictions_writable = false, ?string $sub_directory = null): FsDirectoryInterface
     {
-        return new static(DIRECTORY_TMP . $sub_directory, FsRestrictions::new(DIRECTORY_TMP, $restrictions_writable));
+        return static::new(DIRECTORY_TMP . $sub_directory, FsRestrictions::new(DIRECTORY_TMP . $sub_directory, $restrictions_writable))
+                     ->ensure();
     }
 
 
@@ -81,9 +84,10 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return FsDirectoryInterface
      */
-    public static function getCdnObject(bool $restrictions_writable = false, ?string $sub_directory = null): FsDirectoryInterface
+    public static function newCdnObject(bool $restrictions_writable = false, ?string $sub_directory = null): FsDirectoryInterface
     {
-        return new static(DIRECTORY_CDN . LANGUAGE . $sub_directory, FsRestrictions::new(DIRECTORY_CDN . LANGUAGE, $restrictions_writable));
+        return static::new(DIRECTORY_CDN . LANGUAGE . $sub_directory, FsRestrictions::new(DIRECTORY_CDN . LANGUAGE . $sub_directory, $restrictions_writable))
+                     ->ensure();
     }
 
 
@@ -95,9 +99,10 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getRootObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
+    public static function newRootObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
     {
-        return new static(DIRECTORY_ROOT . $sub_directory, FsRestrictions::new(DIRECTORY_ROOT, $restrictions_writable));
+        return static::new(DIRECTORY_ROOT . $sub_directory, FsRestrictions::new(DIRECTORY_ROOT . $sub_directory, $restrictions_writable))
+                     ->ensure();
     }
 
 
@@ -109,9 +114,10 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getFilesystemRootObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
+    public static function newFilesystemRootObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
     {
-        return new static('/' . $sub_directory, FsRestrictions::new('/', $restrictions_writable));
+        return static::new('/' . $sub_directory, FsRestrictions::new('/' . $sub_directory, $restrictions_writable))
+                     ->ensure();
     }
 
 
@@ -124,9 +130,9 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getDomainObject(string $domain, bool $restrictions_writable = false, ?string $sub_directory = null): static
+    public static function newDomainObject(string $domain, bool $restrictions_writable = false, ?string $sub_directory = null): static
     {
-        return new static($domain . ':/' . $sub_directory, FsRestrictions::new($domain . ':/', $restrictions_writable));
+        return static::new($domain . ':/' . $sub_directory, FsRestrictions::new($domain . ':/' . $sub_directory, $restrictions_writable));
     }
 
 
@@ -138,9 +144,11 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getCommandsObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
+    public static function newCommandsObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
     {
-        return new static(DIRECTORY_COMMANDS . $sub_directory, FsRestrictions::new(DIRECTORY_COMMANDS, $restrictions_writable));
+        return static::new(DIRECTORY_COMMANDS . $sub_directory, FsRestrictions::new(DIRECTORY_COMMANDS . $sub_directory, $restrictions_writable))
+                     ->setAutoMount(false)
+                     ->ensure();
     }
 
 
@@ -152,9 +160,11 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getWebObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
+    public static function newWebObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
     {
-        return new static(DIRECTORY_WEB . $sub_directory, FsRestrictions::new(DIRECTORY_WEB, $restrictions_writable));
+        return static::new(DIRECTORY_WEB . $sub_directory, FsRestrictions::new(DIRECTORY_WEB . $sub_directory, $restrictions_writable))
+                     ->setAutoMount(false)
+                     ->ensure();
     }
 
 
@@ -166,9 +176,10 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getDataObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
+    public static function newDataObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
     {
-        return new static(DIRECTORY_DATA . $sub_directory, FsRestrictions::new(DIRECTORY_DATA, $restrictions_writable));
+        return static::new(DIRECTORY_DATA . $sub_directory, FsRestrictions::new(DIRECTORY_DATA . $sub_directory, $restrictions_writable))
+                     ->ensure();
     }
 
 
@@ -180,8 +191,24 @@ class FsDirectory extends FsDirectoryCore
      *
      * @return static
      */
-    public static function getDataSourcesObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
+    public static function newDataSourcesObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
     {
-        return new static(DIRECTORY_DATA . 'sources/' . $sub_directory, FsRestrictions::new(DIRECTORY_DATA . 'sources/', $restrictions_writable));
+        return static::new(DIRECTORY_DATA . 'sources/' . $sub_directory, FsRestrictions::new(DIRECTORY_DATA . 'sources/' . $sub_directory, $restrictions_writable))
+                     ->ensure();
+    }
+
+
+    /**
+     * Returns a new FsDirectory object for the path DIRECTORY_DATA
+     *
+     * @param bool        $restrictions_writable
+     * @param string|null $sub_directory
+     *
+     * @return static
+     */
+    public static function newUserFilesObject(bool $restrictions_writable = false, ?string $sub_directory = null): static
+    {
+        return static::new(DIRECTORY_DATA . 'files/' . $sub_directory, FsRestrictions::newUserFilesObject($restrictions_writable, $sub_directory))
+                     ->ensure();
     }
 }

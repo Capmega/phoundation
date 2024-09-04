@@ -23,16 +23,16 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Numbers;
 
 
-$restrictions = FsRestrictions::getReadonly('/');
+$restrictions = FsRestrictions::newReadonly('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan($word . '*');
+                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan('*');
+                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan('*');
             },
         ],
     ]
@@ -56,7 +56,7 @@ PATH                                    The path of which the size needs to be c
 
 // Get arguments
 $argv = ArgvValidator::new()
-    ->select('path')->sanitizeDirectory(FsDirectory::getFilesystemRootObject())
+    ->select('path')->sanitizeDirectory(FsDirectory::newFilesystemRootObject())
     ->select('-h,--human-readable')->isOptional(false)->isBoolean()
     ->validate();
 

@@ -37,8 +37,7 @@ class FsFiles extends FsFilesCore implements FsFilesInterface
     {
         $this->parent_directory    = $parent_directory;
         $this->accepted_data_types = [FsPathInterface::class];
-        $this->restrictions        = FsRestrictions::getRestrictionsOrDefault($parent_directory?->getRestrictions())
-                                                   ->addRestrictions($restrictions);
+        $this->restrictions        = $restrictions ?? $parent_directory?->getRestrictions();
 
         if ($source) {
             $this->setSource($source);

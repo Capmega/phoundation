@@ -38,7 +38,7 @@ trait TraitDirectoryConstructor
      */
     public function __construct(Stringable|string $source, FsRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
     {
-        // Execute Path constructor, then apply directory specific requirements
+        // Execute Path constructor, then apply directory-specific requirements
         $this->___construct($source, $restrictions, $absolute_prefix);
 
         // Path must always end with a /

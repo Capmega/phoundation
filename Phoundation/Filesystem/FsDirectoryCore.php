@@ -153,7 +153,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     {
         // Initialize private temp directory and return
         $path = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $identifier;
-        $path = FsDirectory::new($path, FsRestrictions::getWritable($path))
+        $path = FsDirectory::new($path, FsRestrictions::newWritable($path))
                            ->delete()
                            ->ensure();
 
@@ -570,7 +570,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                 try {
                     // Make sure that the parent directory is writable when creating the directory
                     // Since we're modifying the item $id of $count, be sure to get matching restrictions
-                    FsDirectory::new(dirname($this->source), $this->restrictions->getParent($count - $id))
+                    FsDirectory::new(dirname($this->source), $this->restrictions->getParent($count - $id)->makeWritable())
                                ->execute()
                                    ->setMode(0770)
                                    ->onDirectoryOnly(function () use ($mode) {
@@ -1442,7 +1442,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function mount(Stringable|string|null $source, ?string $filesystem = null, ?array $options = null): static
     {
-        FsMounts::mount(FsFile::new($source, FsRestrictions::getReadonly($source)), $this,
+        FsMounts::mount(FsFile::new($source, FsRestrictions::newReadonly($source)), $this,
                         $filesystem, $options);
 
         return $this;
@@ -1550,7 +1550,8 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     {
         $directory = $this->getSource() . Strings::ensureStartsNotWith((string) $directory, '/');
 
-        return FsDirectory::new($directory, $this->restrictions);
+        return FsDirectory::new($directory, $this->restrictions)
+                          ->setAutoMount($this->auto_mount);
     }
 
 
@@ -1565,7 +1566,8 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     {
         $file = $this->getSource() . Strings::ensureStartsNotWith((string) $file, '/');
 
-        return FsFile::new($file, $this->restrictions);
+        return FsFile::new($file, $this->restrictions)
+                     ->setAutoMount($this->auto_mount);
     }
 
 

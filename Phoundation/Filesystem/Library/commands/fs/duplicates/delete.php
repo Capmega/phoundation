@@ -22,7 +22,7 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 
 
-$restrictions = FsRestrictions::getWritable('/');
+$restrictions = FsRestrictions::newWritable('/');
 
 CliDocumentation::setAutoComplete([
     'arguments' => [
@@ -32,10 +32,10 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan($word . '*');
+                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan('*');
+                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan('*');
             },
         ],
     ]
@@ -66,7 +66,7 @@ PATH                                    The path that should be scanned
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('path')->sanitizeDirectory(FsDirectory::getFilesystemRootObject())
+                     ->select('path')->sanitizeDirectory(FsDirectory::newFilesystemRootObject())
                      ->select('-r,--recursive', true)->isOptional(1_000_000)->isInteger()->isPositive()
                      ->select('-m,--max-size', true)->isOptional(1_073_741_824)->sanitizeBytes()
                      ->validate();

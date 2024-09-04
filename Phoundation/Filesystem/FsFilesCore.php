@@ -136,7 +136,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function current(): FsPathInterface
+    #[ReturnTypeWillChange] public function current(): ?FsPathInterface
     {
         return parent::current();
     }
@@ -145,7 +145,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function get(Stringable|int|string $key, bool $exception = true): FsPathInterface
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?FsPathInterface
     {
         return parent::get($key, $exception);
     }
@@ -154,7 +154,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function getFirstValue(): FsPathInterface
+    #[ReturnTypeWillChange] public function getFirstValue(): ?FsPathInterface
     {
         return parent::getFirstValue();
     }
@@ -163,7 +163,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function getLastValue(): FsPathInterface
+    #[ReturnTypeWillChange] public function getLastValue(): ?FsPathInterface
     {
         return parent::getLastValue();
     }

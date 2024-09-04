@@ -172,6 +172,13 @@ class FsPathCore implements FsPathInterface
      */
     protected bool $force_access = false;
 
+    /**
+     * Tracks if this file object will attempt auto mounts
+     *
+     * @var bool $auto_mount
+     */
+    protected bool $auto_mount = true;
+
 
     /**
      * Returns Sets if this object has forced read/write access, ignoring restriction rules and core readonly modes
@@ -953,6 +960,32 @@ class FsPathCore implements FsPathInterface
 
 
     /**
+     * Returns if this object will attempt auto mounting
+     *
+     * @return bool
+     */
+    public function getAutoMount(): bool
+    {
+        return $this->auto_mount;
+    }
+
+
+    /**
+     * Sets if this object will attempt auto mounting
+     *
+     * @param bool $auto_mount
+     *
+     * @return static
+     */
+    public function setAutoMount(bool $auto_mount): static
+    {
+        $this->auto_mount = $auto_mount;
+
+        return $this;
+    }
+
+
+    /**
      * Returns the target file name in case operations create copies of this file
      *
      * @return string|null
@@ -1040,7 +1073,7 @@ class FsPathCore implements FsPathInterface
         }
 
         // Maybe a section of the path isn't mounted?
-        if ($auto_mount) {
+        if ($this->auto_mount and $auto_mount) {
             if ($this->attemptAutoMount()) {
                 // The path was auto mounted, so try again!
                 return $this->exists($check_dead_symlink, false);
@@ -1117,13 +1150,14 @@ class FsPathCore implements FsPathInterface
         } else {
             try {
                 // Check if this path has a mount somewhere. If so, see if it needs auto-mounting
-                $mount = FsMount::getForPath($this->source, $this->restrictions->getTheseWritable());
+                $mount = FsMount::getForPath($this->source, $this->restrictions->makeWritable());
 
                 if ($mount) {
                     if ($mount->autoMount()) {
                         return true;
                     }
                 }
+
             } catch (SqlException $e) {
                 if (!Core::inInitState()) {
                     Log::warning(tr('Failed to search for filesystem mounts in database because ":e", ignoring these possible mount requirements', [
@@ -1201,11 +1235,7 @@ class FsPathCore implements FsPathInterface
             ]), $e);
         }
 
-        if ($this->isRelative()) {
-            $this->source = $this->absolutePath($this->source);
-        }
-
-        $this->restrictions->check($this->source, $write, $e);
+        $this->restrictions->check(static::realPath($this->source), $write, $e);
 
         if ($write) {
             return $this->checkWriteAccess($e);
@@ -1646,7 +1676,7 @@ class FsPathCore implements FsPathInterface
      */
     public function move(Stringable|string $target, ?FsRestrictions $restrictions = null): static
     {
-        $target = new FsPath($target, $restrictions ?? $this->restrictions);
+        $target = new FsPath($target, $restrictions);
         $target->makeAbsolute(must_exist: false);
 
         // Check the target directory exists, if so must be directory
@@ -1997,7 +2027,7 @@ class FsPathCore implements FsPathInterface
      */
     public static function realPath(string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string
     {
-        $real = FsPath::new($path, FsRestrictions::getWritable($path))->makeAbsolute($absolute_prefix, $must_exist);
+        $real = FsPath::new($path, FsRestrictions::newWritable($path))->makeAbsolute($absolute_prefix, $must_exist);
 
         if ($real->isOnDomain()) {
             // This is a domain:/file URL, we can't make this real
@@ -3492,7 +3522,7 @@ class FsPathCore implements FsPathInterface
         if ($this->exists()) {
             // Move the old out of the way, push the new in, delete the current
             $new = clone $this;
-            $this->rename(FsDirectory::getTemporaryObject());
+            $this->rename(FsDirectory::newTemporaryObject());
             $target->rename($new);
             $this->delete();
 
@@ -4429,5 +4459,80 @@ class FsPathCore implements FsPathInterface
     {
         return Zip::new($this->getParentDirectory())
                   ->setSourcePath($this);
+    }
+
+
+    /**
+     * Returns an appropriate icon string for this file
+     *
+     * @return string
+     */
+    public function getIcon(): string
+    {
+        Log::warning('The FsPathCore::getIcon() method is still under construction and currently only returns PDF icons!');
+        return 'far fa-fw fa-file-pdf';
+    }
+
+
+    /**
+     * @param string $algo
+     * @param bool   $binary
+     * @param array  $options
+     *
+     * @see https://www.php.net/manual/en/function.hash-file.php
+     * @return string
+     */
+    public function getHash(string $algo = 'sha256', bool $binary = false, array $options = []): string
+    {
+        if (!array_key_exists($algo, hash_algos())) {
+            throw new OutOfBoundsException(tr('Unknown hashing algorithm ":algo" specified', [
+                ':algo' => $algo
+            ]));
+        }
+
+        if ($this->isDirectory()) {
+            return $this->getDirectoryHash($algo, $binary, $options);
+        }
+
+        return hash_file($algo, $this->source, $binary, $options);
+    }
+
+
+    /**
+     * Returns true if this path is the same as the specified path
+     *
+     * @param FsPathInterface $path
+     *
+     * @return bool
+     */
+    public function isSameAs(FsPathInterface $path): bool
+    {
+        if ($this->getRealPath() === $path->getRealPath()){
+            // Doh, it's the same path!
+            return true;
+        }
+
+        // Okay, different path, is it the same file or directory structure anyway?
+        if ($this->getSize() === $path->getSize()) {
+            if ($this->getHash() === $path->getHash()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * @param string $algo
+     * @param bool   $binary
+     * @param array  $options
+     *
+     * @see https://www.php.net/manual/en/function.hash-file.php
+     * @return string
+     */
+    protected function getDirectoryHash(string $algo = 'sha256', bool $binary = false, array $options = []): string
+    {
+throw new UnderConstructionException();
     }
 }

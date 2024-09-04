@@ -17,7 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Phoundation\Cache\InstanceCache;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Commands\Df;
 use Phoundation\Filesystem\Exception\FilesystemDoesNotExistException;
 use Phoundation\Filesystem\Exception\NoFilesystemSpecifiedException;
@@ -125,6 +127,7 @@ class FsFilesystem extends FsFile implements FsFilesystemInterface
      */
     public function isEncrypted(): bool
     {
-return false;
+        throw new UnderConstructionException('FsFilesystem::isEncrypted() is under construction!');
+        return false;
     }
 }

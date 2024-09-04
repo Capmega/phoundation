@@ -21,7 +21,7 @@ use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 
 
-$restrictions = FsRestrictions::getWritable('/');
+$restrictions = FsRestrictions::newWritable('/');
 
 CliDocumentation::setAutoComplete([
     'arguments' => [
@@ -32,8 +32,8 @@ CliDocumentation::setAutoComplete([
     ],
     'positions' => [
         '0' => [
-            'word'   => function ($word) use ($restrictions) { return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan($word . '*'); },
-            'noword' => function ()      use ($restrictions) { return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan('*'); },
+            'word'   => function ($word) use ($restrictions) { return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan($word . '*'); },
+            'noword' => function ()      use ($restrictions) { return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan('*'); },
         ],
     ]
 ]);
@@ -68,7 +68,7 @@ FILE                                    The file to be created
 
 // Get the arguments
 $argv = ArgvValidator::new()
-                     ->select('file')->sanitizeFile(FsDirectory::getFilesystemRootObject(), (FORCE ? null : false))
+                     ->select('file')->sanitizeFile(FsDirectory::newFilesystemRootObject(), (FORCE ? null : false))
                      ->select('-s,--size', true)->isOptional(false)->sanitizeBytes()
                      ->select('-i,--initialize', true)->isOptional(false)->isString()->hasMinCharacters(1)->hasMaxCharacters(1_073_741_824)
                      ->select('-b,--block-size', true)->isOptional(4096)->sanitizeBytes()->isBetween(100, 1_073_741_824)

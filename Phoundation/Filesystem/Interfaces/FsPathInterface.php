@@ -1205,4 +1205,23 @@ interface FsPathInterface extends Stringable
      * @return DateTimeInterface
      */
     public function getCtime(): DateTimeInterface;
+
+    /**
+     * @param string $algo
+     * @param bool   $binary
+     * @param array  $options
+     *
+     * @see https://www.php.net/manual/en/function.hash-file.php
+     * @return string
+     */
+    public function getHash(string $algo = 'sha256', bool $binary = false, array $options = []): string;
+
+    /**
+     * Returns true if this path is the same as the specified path
+     *
+     * @param FsPathInterface $path
+     *
+     * @return bool
+     */
+    public function isSameAs(FsPathInterface $path): bool;
 }

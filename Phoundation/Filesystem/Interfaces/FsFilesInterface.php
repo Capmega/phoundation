@@ -91,9 +91,9 @@ interface FsFilesInterface extends IteratorInterface
     /**
      * Returns the current file
      *
-     * @return FsPathInterface
+     * @return FsPathInterface|null
      */
-    #[ReturnTypeWillChange] public function current(): FsPathInterface;
+    #[ReturnTypeWillChange] public function current(): ?FsPathInterface;
 
     /**
      * Returns if the current pointer is valid or not
@@ -135,4 +135,19 @@ interface FsFilesInterface extends IteratorInterface
      * @todo Implement support for $simultaneously
      */
     public function shred(int $passes = 3, bool $simultaneously = false, bool $randomized = false, int $block_size = 4096): static;
+
+    /**
+     * @inheritDoc
+     */
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?FsPathInterface;
+
+    /**
+     * @inheritDoc
+     */
+    #[ReturnTypeWillChange] public function getFirstValue(): ?FsPathInterface;
+
+    /**
+     * @inheritDoc
+     */
+    #[ReturnTypeWillChange] public function getLastValue(): ?FsPathInterface;
 }

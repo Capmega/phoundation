@@ -40,9 +40,9 @@ class FsFile extends FsFileCore
      */
     public static function getTemporaryObject(bool $public = false, ?string $name = null, bool $create = true, bool $persist = false): static
     {
-        $directory = FsDirectory::getTemporaryObject($public, $persist);
+        $directory = FsDirectory::newTemporaryObject($public, $persist);
         $name      = ($name ?? Strings::getUuid());
-        $file      = static::new($directory->getSource() . $name, FsRestrictions::getWritable($directory->getSource() . $name));
+        $file      = static::new($directory->getSource() . $name, FsRestrictions::newWritable($directory->getSource() . $name));
 
         if ($create) {
             $file->create();

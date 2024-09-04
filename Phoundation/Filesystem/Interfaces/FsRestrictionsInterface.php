@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Interfaces;
 
+use PDOStatement;
+use Phoundation\Data\Interfaces\ArraySourceInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\FsRestrictions;
 use Stringable;
 use Throwable;
 
 
-interface FsRestrictionsInterface
+interface FsRestrictionsInterface extends ArraySourceInterface
 {
     /**
      * Returns system general file access restrictions
      *
      * @return FsRestrictionsInterface
      */
-    public static function getSystem(): FsRestrictionsInterface;
+    public static function newSystem(): FsRestrictionsInterface;
 
     /**
      * Returns a restrictions object with parent directories for all directories in this restrictions object
@@ -47,25 +50,25 @@ interface FsRestrictionsInterface
      */
     public function clearDirectories(): static;
 
+
     /**
      * Set all directories for this restriction
      *
-     * @param Stringable|array|string $directories
-     * @param bool                    $write
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                       $execute
      *
      * @return static
      */
-    public function setSource(Stringable|array|string $directories, bool $write = false): static;
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
     /**
      * Set all directories for this restriction
      *
      * @param Stringable|array|string|null $directories
-     * @param bool                         $write
      *
      * @return static
      */
-    public function addDirectories(Stringable|array|string|null $directories, bool $write = false): static;
+    public function addDirectories(Stringable|array|string|null $directories): static;
 
     /**
      * Add new directory for this restriction
@@ -117,14 +120,14 @@ interface FsRestrictionsInterface
      *
      * @return void
      */
-    public function check(Stringable|string &$pattern, bool $write, ?Throwable $e = null): void;
+    public function check(Stringable|string $pattern, bool $write, ?Throwable $e = null): void;
 
     /**
      * Return these restrictions but with write enabled
      *
      * @return FsRestrictionsInterface
      */
-    public function getTheseWritable(): FsRestrictionsInterface;
+    public function makeWritable(): FsRestrictionsInterface;
 
     /**
      * Adds restrictions from the specified restrictions object to these restrictions
@@ -144,5 +147,5 @@ interface FsRestrictionsInterface
      *
      * @return false|string
      */
-    public function isRestricted(Stringable|string &$pattern, bool $write, ?Throwable $e = null): false|string;
+    public function isRestricted(Stringable|string $pattern, bool $write, ?Throwable $e = null): false|string;
 }

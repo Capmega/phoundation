@@ -55,9 +55,9 @@ class FsMimetype extends DataEntry implements FsMimetypeInterface
     /**
      * @inheritDoc
      */
-    public function init(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null): static
+    public function init(bool $identifier_must_exist, bool $ignore_deleted): static
     {
-        return parent::init($identifier, $meta_enabled);
+        return parent::init($identifier_must_exist, $ignore_deleted);
     }
 
 

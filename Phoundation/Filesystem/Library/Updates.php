@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.30';
+        return '0.4.0';
     }
 
 
@@ -124,9 +124,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `name` varchar(128) DEFAULT NULL,
                     `seo_name` varchar(128) DEFAULT NULL,
                     `extension` varchar(16) DEFAULT NULL,
-                    `primary_part` varchar(32) NOT NULL,
-                    `secondary_part` varchar(96) NOT NULL,
-                    `mimetype` varchar(128) NOT NULL,
+                    `primary_part` varchar(32) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
+                    `secondary_part` varchar(96) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
+                    `mimetype` varchar(128) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
                     `priority` int NOT NULL DEFAULT 0,
                     `description` text DEFAULT NULL
                 ')->setIndices('
@@ -145,6 +145,48 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             FsMimetypesInit::init();
+
+        })->addUpdate('0.4.0', function () {
+            // Create the filesystem_user_files table.
+            sql()->getSchemaObject()->getTableObject('filesystem_user_files')->drop()->define()
+                ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `uploads_id` bigint NULL DEFAULT NULL,
+                    `users_id` bigint NULL DEFAULT NULL,
+                    `shared_from_id` bigint NULL DEFAULT NULL,
+                    `file` varchar(2048) DEFAULT NULL,
+                    `seo_file` varchar(2048) DEFAULT NULL,
+                    `extension` varchar(16) DEFAULT NULL,
+                    `primary_part` varchar(32) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
+                    `secondary_part` varchar(96) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
+                    `mimetype` varchar(128) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
+                    `hash` varchar(128) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
+                    `size` bigint NOT NULL DEFAULT 0,
+                    `sections` int NOT NULL DEFAULT 0,
+                    `description` text DEFAULT NULL
+                ')->setIndices('
+                    PRIMARY KEY (`id`),
+                    UNIQUE KEY `file` (`file` (128)),
+                    UNIQUE KEY `seo_file` (`seo_file` (128)),
+                    KEY `size` (`size`),
+                    KEY `sections` (`sections`),
+                    KEY `extension` (`extension`),
+                    KEY `mimetype` (`mimetype`),
+                    KEY `primary_part` (`primary_part`),
+                    KEY `secondary_part` (`secondary_part`),                    
+                    UNIQUE KEY `extension_mimetype` (`extension`, `mimetype`),
+                ')->setForeignKeys('
+                    CONSTRAINT `fk_filesystem_user_files_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_filesystem_user_files_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_filesystem_user_files_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_filesystem_user_files_uploads_id` FOREIGN KEY (`uploads_id`) REFERENCES `web_uploads` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_filesystem_user_files_shared_from_id` FOREIGN KEY (`shared_from_id`) REFERENCES `filesystem_user_files` (`id`) ON DELETE CASCADE,
+                ')->create();
         });
     }
 }

@@ -43,7 +43,7 @@ class Mounts extends DataIterator implements MountsInterface
     /**
      * @inheritDoc
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return FsMount::class;
     }
@@ -130,7 +130,7 @@ class Mounts extends DataIterator implements MountsInterface
     protected static function listMounts(string $key): static
     {
         $return = static::new();
-        $mounts = FsFile::new('/proc/mounts', FsRestrictions::getReadonly('/proc/'))
+        $mounts = FsFile::new('/proc/mounts', FsRestrictions::newReadonly('/proc/'))
                         ->getContentsAsArray();
 
         foreach ($mounts as $mount) {
