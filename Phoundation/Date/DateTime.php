@@ -85,10 +85,13 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     protected static function parseFormat(?string $format = null): string
     {
         switch (strtolower($format)) {
-            case 'human_readable_date':
+            case 'human_time':
+                return SessionConfig::getString('locale.dates.formats.human.time', 'H:i:s');
+
+            case 'human_date':
                 return SessionConfig::getString('locale.dates.formats.human.date', DateFormats::getDefaultPhp());
 
-            case 'human_readable_date_time':
+            case 'human_date_time':
                 return SessionConfig::getString('locale.dates.formats.human.datetime', DateTimeFormats::getDefaultPhp());
 
             case 'iso_date':
@@ -130,7 +133,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function getHumanReadableDate(): string
     {
-        return $this->format('human_readable_date');
+        return $this->format('human_date');
     }
 
 
@@ -141,7 +144,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function getHumanReadableDateTime(): string
     {
-        return $this->format('human_readable_date_time');
+        return $this->format('human_date_time');
     }
 
 
@@ -850,5 +853,76 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     public static function getMicroSecond(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
     {
         return (int) DateTime::new($datetime, $timezone)->format('u');
+    }
+
+
+    /**
+     * Returns a string representation of how long ago the specified date was, from now
+     *
+     * @param Date|DateTime|string|int|null $date
+     * @param bool                          $microseconds
+     *
+     * @return string
+     */
+    public function getAge(Date|DateTime|string|int|null $date = null, bool $microseconds = false): string
+    {
+        if (!is_object($date)) {
+            if (is_integer($date)) {
+                $timestamp = $date;
+                $date      = new DateTime();
+                $date->setTimestamp($timestamp);
+
+            } else {
+                $date = new DateTime($date);
+            }
+        }
+
+        $diff = $this->diff($date);
+
+        if ($diff->y) {
+            return Strings::plural($diff->y, tr(':count year', [':count' => $diff->y]), tr(':count years', [
+                ':count' => $diff->y
+            ]));
+        }
+
+        if ($diff->m) {
+            return Strings::plural($diff->m, tr(':count month', [':count' => $diff->m]), tr(':count months', [
+                ':count' => $diff->m
+            ]));
+        }
+
+        if ($diff->d) {
+            return Strings::plural($diff->d, tr(':count day', [':count' => $diff->d]), tr(':count days', [
+                ':count' => $diff->d
+            ]));
+        }
+
+        if ($diff->h) {
+            return Strings::plural($diff->h, tr(':count hour', [':count' => $diff->h]), tr(':count hours', [
+                ':count' => $diff->h
+            ]));
+        }
+
+        if ($diff->i) {
+            return Strings::plural($diff->i, tr(':count minute', [':count' => $diff->i]), tr(':count minutes', [
+                ':count' => $diff->i
+            ]));
+        }
+
+        if ($diff->s) {
+            return Strings::plural($diff->s, tr(':count second', [':count' => $diff->s]), tr(':count seconds', [
+                ':count' => $diff->s
+            ]));
+        }
+
+        if ($microseconds) {
+            if (isset($diff->u) and $diff->u) {
+                return Strings::plural($diff->s, tr(':count second', [':count' => $diff->s]), tr(':count microseconds', [
+                    ':count' => $diff->s
+                ]));
+            }
+        }
+
+        return tr('Right now');
     }
 }
