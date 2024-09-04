@@ -1,17 +1,5 @@
 <?php
 
-/**
- * Interface DataEntryInterface
- *
- * This class contains the basic data entry traits
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Data
- */
-
-
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Interfaces;
@@ -22,26 +10,26 @@ use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
-use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Stringable;
+
 
 interface DataEntryInterface extends EntryInterface, IntegerableInterface
 {
     /**
      * Initializes the DataEntry object
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
+     * @param bool $identifier_must_exist
+     * @param bool $ignore_deleted
      *
      * @return static
      */
-    public function init(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null): static;
+    public function init(bool $identifier_must_exist, bool $ignore_deleted): static;
 
     /**
      * Returns the default database connector to use for this table
@@ -97,11 +85,11 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
-     * @param bool                                     $force
+     * @param bool                                     $ignore_deleted
      *
      * @return DataEntryInterface
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static;
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static;
 
     /**
      * Returns if this DataEntry validates data before saving
@@ -379,22 +367,6 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
     public function getProtectedColumns(): array;
 
     /**
-     * Returns all data for this data entry at once with an array of information
-     *
-     * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
-     *       will not become available outside this object
-     * @return array
-     */
-    public function getSource(): array;
-
-    /**
-     * Returns a list of all internal source keys
-     *
-     * @return mixed
-     */
-    public function getKeys(bool $filter_meta = false): array;
-
-    /**
      * Returns only the specified key from the source of this DataEntry
      *
      * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
@@ -421,7 +393,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @return static
      */
-    public function save(bool $force = false, ?string $comments = null): static;
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static;
 
     /**
      * Generates and display a CLI form for the data in this entry
@@ -462,16 +434,6 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return string
      */
     function getDisplayName(): string;
-
-
-    /**
-     * Loads the specified data into this DataEntry object
-     *
-     * @param Iterator|array $source
-     *
-     * @return static
-     */
-    public function setSource(Iterator|array $source): static;
 
 
     /**
@@ -624,4 +586,15 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return static
      */
     public function setUniqueColumnValue(mixed $value, bool $force = false): static;
+
+    /**
+     * Adds the specified action to the meta history for this DataEntry object
+     *
+     * @param string|null                  $action
+     * @param string|null                  $comments
+     * @param Stringable|array|string|null $data
+     *
+     * @return $this
+     */
+    public function addMetaAction(?string $action, ?string $comments, Stringable|array|string|null $data): static;
 }

@@ -28,6 +28,7 @@ use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
@@ -820,7 +821,9 @@ class DefinitionFactory
                          })
                          ->addValidationFunction(function (ValidatorInterface $validator) use ($column) {
                              $validator->isDbId()
-                                       ->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$' . $column]);
+                                       ->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [
+                                           ':id' => '$' . $column
+                                       ]);
                          });
     }
 
@@ -975,14 +978,36 @@ class DefinitionFactory
     public static function getCode(?DataEntryInterface $data_entry, ?string $column = 'code'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
-                         ->setOptional(true)
-                         ->setInputType(EnumInputType::code)
-                         ->setSize(3)
-                         ->setMaxlength(64)
-                         ->setMinlength(1)
-                         ->setCliColumn('-c,--code CODE')
-                         ->setCliAutoComplete(true)
-                         ->setLabel(tr('Code'));
+            ->setOptional(true)
+            ->setInputType(EnumInputType::code)
+            ->setSize(3)
+            ->setMaxlength(64)
+            ->setMinlength(1)
+            ->setCliColumn('-c,--code CODE')
+            ->setCliAutoComplete(true)
+            ->setLabel(tr('Code'));
+    }
+
+
+    /**
+     * Returns a Definition object for column hash
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function getHash(?DataEntryInterface $data_entry, ?string $column = 'hash'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+            ->setOptional(true)
+            ->setReadonly(true)
+            ->setInputType(EnumInputType::code)
+            ->setSize(3)
+            ->setMaxlength(128)
+            ->setMinlength(1)
+            ->setCliAutoComplete(true)
+            ->setLabel(tr('Hash'));
     }
 
 
@@ -1183,11 +1208,12 @@ class DefinitionFactory
      *
      * @param DataEntryInterface|null   $data_entry
      * @param FsDirectoryInterface|null $exists_in_directory
+     * @param FsDirectoryInterface|null $prefix
      * @param string|null               $column
      *
      * @return DefinitionInterface
      */
-    public static function getFile(?DataEntryInterface $data_entry, ?FsDirectoryInterface $exists_in_directory = null, ?string $column = 'file'): DefinitionInterface
+    public static function getFile(?DataEntryInterface $data_entry, ?FsDirectoryInterface $exists_in_directory = null, ?FsDirectoryInterface $prefix = null, ?string $column = 'file'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
             ->setMaxLength(2048)
@@ -1197,9 +1223,9 @@ class DefinitionFactory
             ->setCliColumn(tr('-f,--file PATH'))
             ->setInputType(EnumInputType::text)
             ->setCliAutoComplete(true)
-            ->addValidationFunction(function (ValidatorInterface $validator) use ($exists_in_directory) {
+            ->addValidationFunction(function (ValidatorInterface $validator) use ($exists_in_directory, $prefix) {
                 if ($exists_in_directory) {
-                    $validator->isFile($exists_in_directory);
+                    $validator->isFile($exists_in_directory, prefix: $prefix);
                 }
             });
     }

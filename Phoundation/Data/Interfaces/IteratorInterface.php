@@ -18,7 +18,7 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Stringable;
 use Throwable;
 
-interface IteratorInterface extends Iterator, Stringable, ArrayableInterface, Countable
+interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
 {
     /**
      * Returns the class used to generate the select input
@@ -239,14 +239,6 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface, Co
     public function addSource(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static;
 
     /**
-     * Returns a list of all internal values with their keys
-     *
-     * @return mixed
-     */
-    public function getSource(): array;
-
-
-    /**
      * Sets the internal source directly
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source
@@ -317,13 +309,6 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface, Co
      * @return mixed
      */
     public function getValueOrDefault(Stringable|string|int $key, mixed $value): mixed;
-
-    /**
-     * Returns the number of items contained in this object
-     *
-     * @return int
-     */
-    public function getCount(): int;
 
     /**
      * Returns the first element contained in this object without changing the internal pointer
@@ -649,13 +634,6 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface, Co
     public function getMissingKeys(IteratorInterface|array|string $list, string $always_match = null): array;
 
     /**
-     * Returns a list of all internal definition keys
-     *
-     * @return mixed
-     */
-    public function getSourceKeys(): array;
-
-    /**
      * Returns multiple column values for a single entry
      *
      * @param Stringable|string|int $key
@@ -666,15 +644,16 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface, Co
      */
     public function getSingleRowMultipleColumns(Stringable|string|int $key, array|string $columns, bool $exception = true): IteratorInterface;
 
+
     /**
      * Returns value for the specified key
      *
-     * @param Stringable|string|int $key
-     * @param bool                  $exception
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
      *
      * @return mixed
      */
-    public function get(Stringable|string|int $key, bool $exception = true): mixed;
+    public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
 
     /**
      * Returns the random entry

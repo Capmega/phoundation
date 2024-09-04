@@ -68,11 +68,11 @@
  * on how to display the object in an HTML page, so DataEntry::getHtmlDataEntryFormObject() will return an
  * HtmlDataEntryForm that allows the contents of this DataEntry object to be rendered for a web page correctly and
  * automatically. The definitions also contain information on how to handle command line arguments and even command line
- * auto suggest, making building scripts to handle these objects straightforward.
+ * auto-suggest, making building scripts to handle these objects straightforward.
  *
  * The definitions also tell the DataEntry object what columns are available. Some DataEntry extending classes will have
  * special get/set handler methods, others won't. All columns are available through DataEntry::get(), or
- * DataEntry::set(), but for example the User object also has User::getEmail(), User::setNickname(), etc.
+ * DataEntry::set(), but for example, the User object also has User::getEmail(), User::setNickname(), etc.
  *
  * DataEntry objects can automatically receive and apply GET, POST, or argv data using the GetValidator, PostValidator,
  * or ArgvValidator classes. DataEntry::apply() will automatically select the correct validator to use and applies the
@@ -105,7 +105,7 @@
  * loaded DataEntry objects are readonly and do not have any metadata support
  *
  * Multiple DataEntries can be contained in DataIterator class objects of a similar type, usually having the same name
- * but in plural. User class objects, for example, can be stored in Users class object.
+ * but in plural. User class objects, for example, can be stored in a Users class object.
  *
  * @see \Phoundation\Data\Entry
  * @see \Phoundation\Data\DataEntry\DataEntryCore

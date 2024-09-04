@@ -37,6 +37,10 @@ trait TraitDataRestrictions
      */
     public function getRestrictions(): FsRestrictionsInterface
     {
+        if (empty($this->restrictions)) {
+            $this->restrictions = new FsRestrictions();
+        }
+
         return $this->restrictions;
     }
 

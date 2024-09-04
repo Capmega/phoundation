@@ -32,7 +32,7 @@ trait TraitDataEntryImageFileObject
      */
     public function getImageFileObject(): ImageFileInterface
     {
-        return get_null($this->getTypesafe('string', 'picture')) ?? new ImageFile('img/profiles/default.png', FsRestrictions::getReadonly('img/profiles'));
+        return get_null($this->getTypesafe('string', 'picture')) ?? new ImageFile('img/profiles/default.png', FsRestrictions::newReadonly('img/profiles'));
     }
 
 
@@ -46,7 +46,7 @@ trait TraitDataEntryImageFileObject
     public function setImageFileObject(ImageFileInterface|string|null $picture): static
     {
         // Make sure we have an Image object or NULL
-        $picture = get_null($picture) ?? ImageFile::new($picture, FsRestrictions::getReadonly('img/profiles'));
+        $picture = get_null($picture) ?? ImageFile::new($picture, FsRestrictions::newReadonly('img/profiles'));
         $picture->setDescription(tr('Profile picture for :customer', [
             ':customer' => $this->getName()
         ]));

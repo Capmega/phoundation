@@ -17,22 +17,15 @@ declare(strict_types=1);
 namespace Phoundation\Data;
 
 use Phoundation\Cli\Cli;
-use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Data\Interfaces\CliFormInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
+use Phoundation\Data\Traits\TraitDataSourceArray;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
-use Stringable;
 
 
 class EntryCore implements EntryInterface
 {
-    /**
-     * Contains the data for all information of this data entry
-     *
-     * @var array $source
-     */
-    protected array $source = [];
+    use TraitDataSourceArray;
 
 
     /**
@@ -51,17 +44,6 @@ class EntryCore implements EntryInterface
     public function __toString(): string
     {
         return Json::encode($this);
-    }
-
-
-    /**
-     * Return the object contents in array format
-     *
-     * @return array
-     */
-    public function __toArray(): array
-    {
-        return $this->source;
     }
 
 
@@ -120,21 +102,6 @@ class EntryCore implements EntryInterface
 
 
     /**
-     * Loads the specified data into this DataEntry object
-     *
-     * @param Iterator|array $source
-     *
-     * @return static
-     */
-    public function setSource(Iterator|array $source): static
-    {
-        $this->source = $source;
-
-        return $this;
-    }
-
-
-    /**
      * Generates and display a CLI form for the data in this entry
      *
      * @param string|null $key_header
@@ -146,6 +113,35 @@ class EntryCore implements EntryInterface
     {
         Cli::displayForm($this->source, $key_header, $value_header);
 
+        return $this;
+    }
+
+
+    /**
+     * Returns only the specified key from the source of this DataEntry
+     *
+     * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
+     *       will not become available outside this object
+     * @return array
+     */
+    public function get(string $key): mixed
+    {
+        return isset_get($this->source[$key]);
+    }
+
+
+    /**
+     * Sets the value for the specified data key
+     *
+     * @param mixed $value
+     * @param string $column
+     * @param bool   $force
+     *
+     * @return static
+     */
+    public function set(mixed $value, string $column, bool $force = false): static
+    {
+        $this->source[$column] = $value;
         return $this;
     }
 }

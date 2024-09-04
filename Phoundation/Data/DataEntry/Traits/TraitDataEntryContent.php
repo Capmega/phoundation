@@ -17,6 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 
+use Stringable;
+
+
 trait TraitDataEntryContent
 {
     /**
@@ -33,12 +36,12 @@ trait TraitDataEntryContent
     /**
      * Sets the content for this object
      *
-     * @param string|null $content
+     * @param Stringable|string|float|int|null $content $content
      *
      * @return static
      */
-    public function setContent(?string $content): static
+    public function setContent(Stringable|string|float|int|null $content): static
     {
-        return $this->set($content, 'content');
+        return $this->set((string) $content, 'content');
     }
 }

@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 
@@ -42,11 +43,12 @@ trait TraitDataIteratorSource
     /**
      * Sets the iterator source
      *
-     * @param IteratorInterface|array|null $source
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                       $execute
      *
      * @return static
      */
-    public function setSource(IteratorInterface|array|null $source): static
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
         if ($source) {
             $this->source = new Iterator($source);

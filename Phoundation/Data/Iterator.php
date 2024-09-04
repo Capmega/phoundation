@@ -45,7 +45,7 @@ class Iterator extends IteratorCore
             $this->setSource($source);
         }
 
-        $this->setAcceptedDataTypes(static::getDefaultContentDataTypes());
+        $this->setAcceptedDataTypes(static::getDefaultContentDataType());
     }
 
 

@@ -18,6 +18,7 @@ namespace Phoundation\Data\DataEntry\Definitions;
 
 use PDOStatement;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Exception\DefinitionException;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -27,11 +28,13 @@ use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
+use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
@@ -516,6 +519,25 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Removes the specified HTML classes from the DataEntryForm object
+     *
+     * @note When specifying multiple classes in a string, make sure they are space separated!
+     *
+     * @param array|string $value
+     *
+     * @return static
+     * @see  Definition::setVirtual()
+     */
+    public function removeClasses(array|string $value): static
+    {
+        $value = Arrays::force($value, ' ');
+        $value = Arrays::removeValues($this->getClasses(), $value);
+
+        return $this->setKey($value, 'classes');
+    }
+
+
+    /**
      * Returns the extra HTML classes for this DataEntryForm object
      *
      * @param bool $add_prefixless_names
@@ -581,15 +603,42 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns the entry with the specified identifier
+     *
+     * @param Stringable|string|int $key
+     * @param bool                  $exception
+     *
+     * @return DataEntry|null
+     */
+    #[ReturnTypeWillChange] public function get(Stringable|string|int $key, bool $exception = true): mixed
+    {
+        // Does this entry exist?
+        if (array_key_exists($key, $this->source)) {
+            return $this->source[$key];
+        }
+
+        if ($exception) {
+            throw new NotExistsException(tr('Key ":key" does not exist in this ":class" DataIterator', [
+                ':key'   => $key,
+                ':class' => get_class($this),
+            ]));
+        }
+
+        return null;
+    }
+
+
+    /**
      * Sets all the internal definitions for this column in one go
      *
-     * @param array $source
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                       $execute
      *
      * @return static
      */
-    public function setSource(array $source): static
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
-        $this->source = $source;
+        $this->source = (array) $source;
 
         return $this;
     }
@@ -2605,6 +2654,30 @@ class Definition implements DefinitionInterface
             }
 
             $validator->set($value, $prefix . $column);
+        }
+
+        if (!$this->getRender()) {
+            // This column isn't rendered and should not have a value whilst applying!
+            if ($this->data_entry->isApplying()) {
+                if ($validator->getSourceValue($column)) {
+                    Incident::new()
+                        ->setSeverity(EnumSeverity::high)
+                        ->setType('Non rendered data submitted')
+                        ->setTitle(tr('User submitted column ":column" which was not rendered and MAY NOT be specified', [
+                            ':column' => $column
+                        ]))
+                        ->setDetails([
+                            'column' => $column,
+                            'data'   => $validator->getSource()
+                        ])
+                        ->notifyRoles('security')
+                        ->save();
+
+                    $validator->addFailure(tr('The field ":field" is unknown', [':field' => $column]));
+                }
+
+                return false;
+            }
         }
 
         // Set the data entry id, the column prefix, and select the column

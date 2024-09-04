@@ -41,11 +41,16 @@ trait TraitDataMetaEnabled
     /**
      * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
      *
-     * @param bool $meta_enabled
+     * @param bool|null $meta_enabled
      * return static
      */
-    public function setMetaEnabled(bool $meta_enabled): static
+    public function setMetaEnabled(?bool $meta_enabled): static
     {
+        if ($meta_enabled === null) {
+            // Don't modify the meta_enabled flag, keep the default
+            return $this;
+        }
+
         $this->meta_enabled = $meta_enabled;
 
         return $this;

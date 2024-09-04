@@ -61,6 +61,13 @@ class PostValidator extends Validator
      */
     protected bool $test_csrf = true;
 
+    /**
+     * Tracks the CSRF code we received
+     *
+     * @var string|null
+     */
+    protected static ?string $received_csrf = null;
+
 
     /**
      * PostValidator constructor.
@@ -118,7 +125,7 @@ class PostValidator extends Validator
      *
      * @return array|null
      */
-    public function getKeys(): ?array
+    public function getSourceKeys(): ?array
     {
         return array_keys($this->source);
     }
@@ -311,7 +318,9 @@ class PostValidator extends Validator
 
         throw ValidationFailedException::new(tr('Unknown POST fields ":fields" encountered', [
             ':fields' => Strings::force($fields, ', '),
-        ]))->addData($messages)
+        ]))->addData([
+                'failures' => $messages,
+            ])
            ->makeWarning()
            ->log();
     }
@@ -457,6 +466,17 @@ class PostValidator extends Validator
 
 
     /**
+     * Returns the CSRF code we received with this request
+     *
+     * @return string|null
+     */
+    public function getReceivedCsrf(): ?string
+    {
+        return static::$received_csrf;
+    }
+
+
+    /**
      * Checks if the CSRF code
      *
      * @return static
@@ -464,23 +484,26 @@ class PostValidator extends Validator
     protected function checkCsrf(): static
     {
         if ($this->test_csrf) {
-            // Try to get the CSRF code from the POST data and remove it
-            if (array_key_exists('__csrf', $this->source)) {
-                $csrf = $this->source['__csrf'];
-                unset($this->source['__csrf']);
+            if (empty(static::$received_csrf)) {
+                // Try to get the CSRF code from the POST data and remove it
+                if (array_key_exists('__csrf', $this->source)) {
+                    $csrf = $this->source['__csrf'];
+                    unset($this->source['__csrf']);
 
-                if (!is_string($csrf)) {
-                    throw new CsrfFailedException(tr('Specified CSRF code is a ":csrf" while it should be a string value', [
-                        ':csrf' => gettype($csrf),
-                    ]));
+                    if (!is_string($csrf)) {
+                        throw new CsrfFailedException(tr('Specified CSRF code is a ":csrf" while it should be a string value', [
+                            ':csrf' => gettype($csrf),
+                        ]));
+                    }
+
+                } else {
+                    $csrf = null;
                 }
 
-            } else {
-                $csrf = null;
+                // Check CSRF
+                static::$received_csrf = $csrf;
+                Csrf::check(static::$received_csrf);
             }
-
-            // Check CSRF
-            Csrf::check($csrf);
         }
 
         return $this;

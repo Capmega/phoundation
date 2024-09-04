@@ -78,6 +78,7 @@ class Sanitize
         $ext    = Strings::from($value, 'ext', needle_required: true);
         $value  = preg_replace('/[^0-9]+/', '', $value);
         $ext    = preg_replace('/[^0-9]+/', '', $ext);
+
         if ($value) {
             $this->source = $prefix . $value . ($ext ? ' ext. ' . $ext : null);
 

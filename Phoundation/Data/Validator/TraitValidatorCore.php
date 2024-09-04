@@ -213,6 +213,13 @@ trait TraitValidatorCore
      */
     protected int $test_count = 0;
 
+    /**
+     * Tracks if debug should be used or not
+     *
+     * @var bool $debug
+     */
+    protected bool $debug = false;
+
 
     /**
      * Returns the required validator, depending on the specified source
@@ -361,6 +368,32 @@ trait TraitValidatorCore
 
 
     /**
+     * Returns debug mode
+     *
+     * @return bool
+     */
+    public function getDebug(): bool
+    {
+        return $this->debug;
+    }
+
+
+    /**
+     * Sets debug mode
+     *
+     * @param bool $debug
+     *
+     * @return static
+     */
+    public function setDebug(bool $debug): static
+    {
+        $this->debug = $debug;
+
+        return $this;
+    }
+
+
+    /**
      * Copy the current value to the specified field
      *
      * @param string $field
@@ -499,6 +532,8 @@ trait TraitValidatorCore
             Log::printr($this->selected_value, 6, echo_header: false);
             Log::write('Validation backtrace:', 'debug', 6);
             Log::backtrace(threshold: 6);
+            Log::write('Validation data source:', 'debug', 6);
+            Log::printr($this->source);
         }
 
         // Build up the failure string
@@ -791,7 +826,7 @@ trait TraitValidatorCore
         // If so, fail, because all fields must be tested
         if ($this->selected_field and !$this->test_count) {
             if (!Config::getBoolean('security.validation.disabled', false)) {
-                throw new ValidationFailedException(tr('Cannot validate because the previously selected field ":previous" has no validations performed yet', [
+                throw new ValidatorException(tr('Cannot validate because the previously selected field ":previous" has no validations performed yet', [
                     ':previous' => $this->selected_field,
                 ]));
             }

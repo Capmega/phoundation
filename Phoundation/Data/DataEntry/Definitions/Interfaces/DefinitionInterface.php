@@ -71,11 +71,12 @@ interface DefinitionInterface
     /**
      * Sets all the internal definitions for this column in one go
      *
-     * @param array $source
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                       $execute
      *
      * @return static
      */
-    public function setSource(array $source): static;
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
 
     /**

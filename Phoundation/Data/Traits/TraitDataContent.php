@@ -17,6 +17,10 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
+use Phoundation\Web\Html\Html;
+use Stringable;
+
+
 trait TraitDataContent
 {
     /**
@@ -41,13 +45,18 @@ trait TraitDataContent
     /**
      * Sets the content
      *
-     * @param string|null $content
+     * @param Stringable|string|float|int|null $content
+     * @param bool                             $make_safe
      *
      * @return static
      */
-    public function setContent(?string $content): static
+    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
-        $this->content = $content;
+        if ($make_safe) {
+            $this->content = Html::safe($content);
+        } else {
+            $this->content = (string) $content;
+        }
 
         return $this;
     }

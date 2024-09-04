@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use GeoIp2\ProviderInterface;
 use Phoundation\Business\Providers\Provider;
 
 
@@ -48,13 +49,14 @@ trait TraitDataEntryProvider
     /**
      * Returns the providers_id for this user
      *
-     * @return Provider|null
+     * @return ProviderInterface|null
      */
-    public function getProvider(): ?Provider
+    public function getProvider(): ?ProviderInterface
     {
         $providers_id = $this->getTypesafe('int', 'providers_id');
+
         if ($providers_id) {
-            return new Provider($providers_id, 'id');
+            return new Provider($providers_id);
         }
 
         return null;

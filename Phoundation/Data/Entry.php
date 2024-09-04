@@ -28,7 +28,7 @@ class Entry extends EntryCore
      * @param ArrayableInterface|array|null $source
      */
     public function __construct(ArrayableInterface|array|null $source = null) {
-        $this->source = $source;
+        $this->setSource($source);
     }
 
 

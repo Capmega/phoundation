@@ -38,9 +38,12 @@ use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Exception\IteratorException;
 use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Exception\IteratorKeyNotExistsException;
+use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCallbacks;
 use Phoundation\Data\Traits\TraitDataParent;
+use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Data\Traits\TraitDataSourceArray;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -66,6 +69,8 @@ class IteratorCore implements IteratorInterface
     use TraitDataParent {
         setParentObject as protected __setParent;
     }
+    use TraitDataRestrictions;
+    use TraitDataSourceArray;
 
 
     /**
@@ -74,13 +79,6 @@ class IteratorCore implements IteratorInterface
      * @var array|null
      */
     protected ?array $accepted_data_types = null;
-
-    /**
-     * The list that stores all entries
-     *
-     * @var array $source
-     */
-    protected array $source = [];
 
     /**
      * Tracks the class used to generate the select input
@@ -102,11 +100,23 @@ class IteratorCore implements IteratorInterface
 
 
     /**
+     * Returns the first data type that is allowed and accepted for this data iterator, considered as the most important
+     * one
+     *
+     * @return string|null
+     */
+    public function getAcceptedDataType(): ?string
+    {
+        return array_value_first($this->getAcceptedDataTypes());
+    }
+
+
+    /**
      * Returns the data types that are allowed and accepted for this data iterator
      *
      * @return string|null
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return 'mixed';
     }
@@ -167,7 +177,7 @@ class IteratorCore implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function current(): mixed
     {
-        return current($this->source);
+        return $this->ensureObject(key($this->source));
     }
 
 
@@ -440,17 +450,6 @@ class IteratorCore implements IteratorInterface
         }
 
         return Iterator::new()->setSource($source);
-    }
-
-
-    /**
-     * Returns the contents of this iterator object as an array
-     *
-     * @return array
-     */
-    public function __toArray(): array
-    {
-        return $this->source;
     }
 
 
@@ -860,32 +859,6 @@ class IteratorCore implements IteratorInterface
 
 
     /**
-     * Returns a list of all internal values with their keys
-     *
-     * @return mixed
-     */
-    public function getSource(): array
-    {
-        return $this->source;
-    }
-
-
-    /**
-     * Sets the internal source directly
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null                                       $execute
-     *
-     * @return static
-     */
-    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
-    {
-        $this->source = Arrays::extractSourceArray($source, $execute);
-        return $this;
-    }
-
-
-    /**
      * Sets the internal source directly, but separating the values in key > values by $separator
      *
      * Any value that is NOT a string will be quietly ignored
@@ -975,16 +948,16 @@ class IteratorCore implements IteratorInterface
     /**
      * Sets the datatype restrictions for all elements in this iterator, NULL if none
      *
-     * @param array|string|null $accepted_data_types
+     * @param array|string|null $data_types
      * return static
      */
-    public function setAcceptedDataTypes(array|string|null $accepted_data_types): static
+    public function setAcceptedDataTypes(array|string|null $data_types): static
     {
-        $accepted_data_types = Arrays::force($accepted_data_types, '|');
+        $data_types = Arrays::force($data_types, '|');
 
-        foreach ($accepted_data_types as $data_type) {
+        foreach ($data_types as $data_type) {
             if ($data_type) {
-                if (!preg_match('/^mixed|bool|int|float|string|array|string|(?:(?:(?:(?:[A-Z][a-z0-9]+)+\\\)+)+(?:[A-Z][a-z0-9]+)+)$/', $data_type)) {
+                if (!preg_match('/^mixed|bool|int|float|string|array|null|resource|object|(?:(?:(?:(?:[A-Z][a-z0-9]+)+\\\)+)+(?:[A-Z][a-z0-9]+)+)$/', $data_type)) {
                     throw new OutOfBoundsException(tr('Invalid Iterator datatype restriction ":datatype" specified, must be one or multiple of "int|array|string|Class\Path"', [
                         ':datatype' => $data_type,
                     ]));
@@ -996,7 +969,7 @@ class IteratorCore implements IteratorInterface
             }
         }
 
-        $this->accepted_data_types = $accepted_data_types;
+        $this->accepted_data_types = $data_types;
 
         return $this;
     }
@@ -1032,30 +1005,6 @@ class IteratorCore implements IteratorInterface
 
 
     /**
-     * Returns the number of items contained in this object
-     *
-     * @return int
-     */
-    public function getCount(): int
-    {
-        return count($this->source);
-    }
-
-
-    /**
-     * Returns the number of items contained in this object
-     *
-     * Wrapper for IteratorCore::getCount()
-     *
-     * @return int
-     */
-    public function count(): int
-    {
-        return $this->getCount();
-    }
-
-
-    /**
      * Returns the first element contained in this object without changing the internal pointer
      *
      * @return mixed
@@ -1066,7 +1015,7 @@ class IteratorCore implements IteratorInterface
             return null;
         }
 
-        return $this->source[array_key_first($this->source)];
+        return $this->ensureObject(array_key_first($this->source));
     }
 
 
@@ -1081,7 +1030,7 @@ class IteratorCore implements IteratorInterface
             return null;
         }
 
-        return $this->source[array_key_last($this->source)];
+        return $this->ensureObject(array_key_last($this->source));
     }
 
 
@@ -1699,17 +1648,6 @@ class IteratorCore implements IteratorInterface
 
 
     /**
-     * Returns a list of all internal definition keys
-     *
-     * @return mixed
-     */
-    public function getSourceKeys(): array
-    {
-        return array_keys($this->source);
-    }
-
-
-    /**
      * Returns multiple column values for a single entry
      *
      * @param Stringable|string|int $key
@@ -1736,15 +1674,16 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns value for the specified key
      *
-     * @param Stringable|string|int $key
+     * @param Stringable|string|float|int $key $key
      * @param bool                  $exception
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|int $key, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
+        // Does this entry exist?
         if (array_key_exists($key, $this->source)) {
-            return $this->source[$key];
+            return $this->ensureObject($key);
         }
 
         if ($exception) {
@@ -1785,7 +1724,7 @@ class IteratorCore implements IteratorInterface
             return null;
         }
 
-        return $this->source[array_rand($this->source)];
+        return $this->ensureObject(array_rand($this->source, 1));
     }
 
 
@@ -2111,5 +2050,35 @@ class IteratorCore implements IteratorInterface
     protected function fetchKeyFromValue(mixed $value): mixed
     {
         return null;
+    }
+
+
+    /**
+     * Ensure the entry we're going to return is from DataEntryInterface interface
+     *
+     * @param string|float|int $key
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] protected function ensureObject(string|float|int $key): mixed
+    {
+        if (is_object($this->source[$key])) {
+            // Already object, assume it's the right type
+            return $this->source[$key];
+        }
+
+        if (!is_a($this->getAcceptedDataType(), ArraySourceInterface::class, true)) {
+            // Can only do this for objects that have ArraySourceInterface so that we can dump array sources in them.
+            return $this->source[$key];
+        }
+
+        if (!is_array($this->source[$key])) {
+            // Can only do this with arrays!
+            return $this->source[$key];
+        }
+
+        $this->source[$key] = $this->getAcceptedDataType()::new()->setSource($this->source[$key]);
+
+        return $this->source[$key];
     }
 }

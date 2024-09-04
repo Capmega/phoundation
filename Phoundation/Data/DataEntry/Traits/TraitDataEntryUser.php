@@ -51,7 +51,7 @@ trait TraitDataEntryUser
      *
      * @return UserInterface|null
      */
-    public function getUser(): ?UserInterface
+    public function getUserObject(): ?UserInterface
     {
         $users_id = $this->getTypesafe('int', 'users_id');
         if ($users_id) {

@@ -18,7 +18,6 @@ namespace Phoundation\Data\Validator;
 
 use PDOStatement;
 use Phoundation\Accounts\Users\Password;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
@@ -34,9 +33,7 @@ use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\JsonException;
@@ -1259,7 +1256,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             $execute = $this->applyExecuteVariables($execute);
-            $result  = sql()->getColumn($query, $execute);
+            $result  = sql()->setDebug($this->debug)->getColumn($query, $execute);
 
             if (!$result and $fail_on_null) {
                 $this->addFailure(Strings::plural(count($execute), tr('value ":values" does not exist', [':values' => implode(', ', $execute)]), tr('values ":values" do not exist', [':values' => implode(', ', $execute)])));
@@ -1327,7 +1324,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             $execute = $this->applyExecuteVariables($execute);
-            $column  = sql()->getColumn($query, $execute);
+            $column  = sql()->setDebug($this->debug)->getColumn($query, $execute);
 
             $this->contains($column);
         });
@@ -1475,7 +1472,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             $execute = $this->applyExecuteVariables($execute);
-            $results = sql()->list($query, $execute);
+            $results = sql()->setDebug($this->debug)->list($query, $execute);
 
             $this->isInArray($results);
         });
@@ -2205,7 +2202,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             $execute        = $this->applyExecuteVariables($execute);
-            $validate_value = sql()->getColumn($query, $execute);
+            $validate_value = sql()->setDebug($this->debug)->getColumn($query, $execute);
 
             if ($ignore_case) {
                 $compare_value  = strtolower((string) $value);
@@ -3410,7 +3407,7 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (sql()->exists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
+            if (sql()->setDebug($this->debug)->exists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
                 $this->addFailure($failure ?? tr('it already exists'));
             }
         });
