@@ -207,7 +207,7 @@ class Notification extends DataEntry implements NotificationInterface
              ->setMessage(tr('<html>
 <body>
 <pre style="font: monospace">
-Phoundation project ":project" encountered the following :class exception:
+Phoundation project ":project" encountered the following :class class exception:
 
 Project                : :project
 Project version        : :version_project
@@ -353,7 +353,7 @@ POST variables:
                 throw new OutOfBoundsException(tr('Cannot send notification, no message specified'));
             }
 
-            if (!$this->getRoles() and !$this->getUsersId()) {
+            if (!$this->getRolesObject() and !$this->getUsersId()) {
                 $sending = false;
                 throw new OutOfBoundsException(tr('Cannot send notification, no roles or target users id specified'));
             }
@@ -365,9 +365,9 @@ POST variables:
             }
 
             // Save and send this notification to all users that are members of the specified roles
-            foreach ($this->getRoles() as $role) {
+            foreach ($this->getRolesObject() as $role) {
                 $users = Role::load($role)
-                             ->getUsers();
+                             ->getUsersObject();
                 foreach ($users as $user) {
                     try {
                         $this->saveFor($user->getId())
@@ -499,7 +499,7 @@ POST variables:
      *
      * @return array
      */
-    public function getRoles(): array
+    public function getRolesObject(): array
     {
         return $this->roles;
     }

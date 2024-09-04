@@ -55,7 +55,7 @@ class Notifications extends DataIterator implements NotificationsInterface
      *
      * @return string|null
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return Notification::class;
     }

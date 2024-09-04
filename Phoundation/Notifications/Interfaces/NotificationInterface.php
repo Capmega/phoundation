@@ -33,7 +33,7 @@ interface NotificationInterface extends DataEntryInterface
      *
      * @return array
      */
-    public function getRoles(): array;
+    public function getRolesObject(): array;
 
 
     /**
