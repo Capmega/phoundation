@@ -58,7 +58,6 @@ if (Request::isPostRequestMethod()) {
                 $user->getEmailsObject()->apply(false)->save();
                 $user->getPhonesObject()->apply()->save();
 
-
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
@@ -253,12 +252,14 @@ if ($user->getId()) {
 
 // Build profile picture card
 $picture = Card::new()
-               ->setTitle(tr('User profile picture'))
-               ->setContent(Img::new()
-                               ->addClasses('w100')
-                               ->setSrc(Url::getImg('img/profiles/default.png'))
-//        ->setSrc($user->getPicture())
-                               ->setAlt(tr('Profile picture for :user', [':user' => $user->getDisplayName()])));
+               ->setTitle(tr('Users profile picture'))
+               ->setId('profile-picture-card')
+               ->setContent($user
+                   ->getProfileImageObject()
+                       ->getHtmlImgObject()
+                           ->setId('profile-picture')
+                           ->addClasses('w100')
+                           ->setAlt(tr('My profile picture')));
 
 
 // Build relevant links
@@ -266,8 +267,8 @@ $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
                 ->setContent(($user->isNew() ? '' : '<a href="' . Url::getWww('/accounts/password+' . $user->getId() . '.html') . '">' . tr('Change password for this user') . '</a><br>') . '
-                        <a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
-                        <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+                                                            <a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
+                                                            <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation

@@ -84,7 +84,7 @@ class Roles extends DataIterator implements RolesInterface
      *
      * @return string|null
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return Role::class;
     }
@@ -108,7 +108,7 @@ class Roles extends DataIterator implements RolesInterface
 
             foreach ($list as $role) {
                 if ($role) {
-                    $roles_list[] = static::getDefaultContentDataTypes()::get($role)
+                    $roles_list[] = static::getDefaultContentDataType()::get($role)
                                           ->getSeoName();
                 }
             }
@@ -176,16 +176,20 @@ class Roles extends DataIterator implements RolesInterface
      * @throws OutOfBoundsExceptionInterface
      * @todo Move saving part to ->save(). ->add() should NOT immediately save to database!
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
-        $this->ensureParent(tr('add Role entry to parent'));
+        $this->ensureParent(tr('add Role entry to parent ":parent"', [
+            ':parent' => $this->parent ? get_class($this->parent) : 'NULL'
+        ]));
 
-        if ($value) {
+        if ($value and $this->require_parent) {
             if (is_array($value)) {
                 // Add multiple rights
                 foreach ($value as $entry) {
-                    $this->add($entry, $key, $skip_null_values);
+                    $this->append($entry, $key, $skip_null_values);
                 }
+
+                return $this;
 
             } else {
                 // Add single right. Since this is a Role object, the entry already exists in the database
@@ -210,13 +214,15 @@ class Roles extends DataIterator implements RolesInterface
                     ]);
 
                     // Add right to the internal list
-                    parent::add($value);
+                    parent::append($value, $key, $skip_null_values, $exception);
 
                     // Add rights to the user
-                    foreach ($value->getRights() as $right) {
+                    foreach ($value->getRightsObject() as $right) {
                         $this->parent->getRightsObject()
                                      ->add($right);
                     }
+
+                    return $this;
 
                 } elseif ($this->parent instanceof RightInterface) {
                     Log::action(tr('Adding right ":right" to role ":role"', [
@@ -229,11 +235,8 @@ class Roles extends DataIterator implements RolesInterface
                         'roles_id'  => $value->getId(),
                     ]);
 
-                    // Add right to the internal list
-                    parent::add($value);
-
                     // Update all users with this right to get the new right as well!
-                    foreach ($this->parent->getUsers() as $user) {
+                    foreach ($this->parent->getUsersObject() as $user) {
                         User::load($user)
                             ->getRightsObject()
                             ->add($this->parent);
@@ -242,7 +245,8 @@ class Roles extends DataIterator implements RolesInterface
             }
         }
 
-        return $this;
+        // Add right to the internal list
+        return parent::append($value, $key, $skip_null_values, $exception);
     }
 
 
@@ -289,7 +293,7 @@ class Roles extends DataIterator implements RolesInterface
                 parent::removeKeys($role->getUniqueColumnValue());
 
                 // Remove the rights related to this role
-                foreach ($role->getRights() as $right) {
+                foreach ($role->getRightsObject() as $right) {
                     // Ensure this right isn't also given by another role
                     foreach ($right->getRolesObject() as $check_role) {
                         if ($this->hasRole($check_role)) {
@@ -316,7 +320,7 @@ class Roles extends DataIterator implements RolesInterface
                 parent::removeKeys($role->getUniqueColumnValue());
 
                 // Update all users with this right to remove the new right as well!
-                foreach ($this->parent->getUsers() as $user) {
+                foreach ($this->parent->getUsersObject() as $user) {
                     User::load($user, null)
                         ->getRightsObject()
                         ->removeKeys($this->parent);

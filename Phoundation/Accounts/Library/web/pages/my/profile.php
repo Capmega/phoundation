@@ -32,14 +32,12 @@ use Phoundation\Web\Uploads\UploadHandler;
 
 // Define the drag/drop upload selector
 Request::getFileUploadHandlersObject()
-       ->add(UploadHandler::new('image')->getDropZoneObject()
-                                                 ->setUrl(Url::getAjax('my/profile/image/upload'))
-                                                 ->setSelector('#profile-picture-card')
-           ->setMaxFiles(null)
-           ->setMaxFileSize(2000)
-                                                 ->setParallelUploads(5)
-                                                 ->setUploadMultiple(true)
-                                                 ->getHandler()
+       ->add(UploadHandler::new('image')
+                          ->getDropZoneObject()
+                              ->setUrl(Url::getAjax('my/profile/image/upload'))
+                              ->setSelector('#profile-picture-card')
+                              ->setMaxFiles(1)
+                              ->getHandler()
        )->process();
 
 

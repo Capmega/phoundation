@@ -47,10 +47,10 @@ class Phones extends DataIterator implements PhonesInterface
     public function __construct()
     {
         $this->setQuery('SELECT   `accounts_phones`.*
-                               FROM     `accounts_phones`
-                               WHERE    `accounts_phones`.`users_id` = :users_id
-                                 AND    `accounts_phones`.`status` IS NULL
-                               ORDER BY `phone`');
+                         FROM     `accounts_phones`
+                         WHERE    `accounts_phones`.`users_id` = :users_id
+                           AND    `accounts_phones`.`status` IS NULL
+                         ORDER BY `phone`');
         parent::__construct();
     }
 
@@ -71,7 +71,7 @@ class Phones extends DataIterator implements PhonesInterface
      *
      * @return string|null
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return Phone::class;
     }
@@ -103,6 +103,7 @@ class Phones extends DataIterator implements PhonesInterface
 
             return $this->__setParent($parent);
         }
+
         throw new OutOfBoundsException(tr('Specified parent ":parent" is invalid, it must have a UserInterface interface', [
             ':parent' => $parent,
         ]));
@@ -142,16 +143,15 @@ class Phones extends DataIterator implements PhonesInterface
                             ->setColumnPrefix($name)
                             ->getHtmlDataEntryFormObject()
                             ->setMetaVisible($meta_visible);
+
         $definitions = $phone->getDefinitionsObject();
-        $definitions->get('phone')
-                    ->setSize(6);
-        $definitions->get('account_type')
-                    ->setSize(6);
-        $definitions->get('verified_on')
-                    ->setRender(false);
-        $definitions->get('delete')
-                    ->setRender(false);
+        $definitions->get('phone')->setSize(6);
+        $definitions->get('account_type')->setSize(6);
+        $definitions->get('verified_on')->setRender(false);
+        $definitions->get('delete')->setRender(false);
+
         $content[] = $phone->render();
+
         foreach ($this->ensureDataEntries() as $phone) {
             $content[] = $phone->setColumnPrefix($name)
                                ->getHtmlDataEntryFormObject()
@@ -177,13 +177,16 @@ class Phones extends DataIterator implements PhonesInterface
     public function apply(bool $clear_source = true): static
     {
         $this->checkReadonly('apply');
+
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot apply phones, no parent user specified'));
         }
+
         $phones = [];
         $post   = Validator::pick()
                            ->select('phones')->isOptional()->sanitizeForceArray()
                            ->validate($clear_source);
+
         // Parse and sub validate
         if (isset($post['phones'])) {
             foreach ($post['phones'] as $phone) {
@@ -192,6 +195,7 @@ class Phones extends DataIterator implements PhonesInterface
                     if (!is_string($phone)) {
                         throw new ValidationFailedException(tr('Specified phone number has an invalid datatype'));
                     }
+
                     $phone = trim($phone);
                     $phone = explode('|', $phone);
                     $phone = [
@@ -200,6 +204,7 @@ class Phones extends DataIterator implements PhonesInterface
                         'description'  => isset_get($phone[2]),
                     ];
                 }
+
                 // Pre-validate the phone number because we need the phone numbers sanitized for comparison later!
                 $phone = ArrayValidator::new($phone)
                                        ->select('phone')
@@ -225,18 +230,20 @@ class Phones extends DataIterator implements PhonesInterface
                 if (empty($phone['phone'])) {
                     continue;
                 }
+
                 $phones[isset_get($phone['phone'])] = $phone;
             }
+
             // Get a list of what we should add and remove and apply this
             $diff = Arrays::valueDiff($this->getAllRowsSingleColumn('phone'), array_keys($phones), true);
             $diff = Arrays::deleteDiff($diff, $phones);
+
             foreach ($diff['delete'] as $id => $phone) {
-                Phone::load($id)
-                     ->setPhone(null)
-                     ->save()
-                     ->erase();
+                Phone::load($id)->delete();
+
                 $this->removeKeys($id);
             }
+
             foreach ($diff['add'] as $phone) {
                 if ($phone) {
                     $this->add(Phone::new()
@@ -245,18 +252,19 @@ class Phones extends DataIterator implements PhonesInterface
                                     ->save());
                 }
             }
+
             // Update all other phone numbers
             foreach ($diff['keep'] as $id => $phone) {
-                Phone::load($id)
+                $this->get($id)
                      ->apply(false, $phones[$phone])
                      ->setUsersId($this->parent->getId())
                      ->save();
             }
         }
+
         // Clear source if required
         if ($clear_source) {
-            PostValidator::new()
-                         ->noArgumentsLeft();
+            PostValidator::new()->noArgumentsLeft();
         }
 
         return $this;
@@ -267,18 +275,21 @@ class Phones extends DataIterator implements PhonesInterface
      * Save all the phones for this user
      *
      * @param bool        $force
+     * @param bool        $skip_validation
      * @param string|null $comments
      *
      * @return static
      */
-    public function save(bool $force = false, ?string $comments = null): static
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
         $this->checkReadonly('save');
+
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot apply phones, no parent user specified'));
         }
+
         foreach ($this->ensureDataEntries() as $phone) {
-            $phone->save($force, $comments);
+            $phone->save($force, $skip_validation, $comments);
         }
 
         return $this;
@@ -303,16 +314,19 @@ class Phones extends DataIterator implements PhonesInterface
                     ':value' => $value,
                 ]));
             }
+
             $value = Phone::new()
                           ->setPhone($value)
                           ->setAccountType('other');
         }
+
         // Ensure that the phone list has a parent
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot add phone ":phone" to this phones list, the list has no parent specified', [
                 ':phone' => $value->getLogId(),
             ]));
         }
+
         // Ensure that the phone has a users id and that the users id matches the id of the users parent
         if ($value->getUsersId()) {
             if ($value->getUsersId() !== $this->parent->getId()) {

@@ -21,7 +21,7 @@ interface RightsInterface extends DataIteratorInterface
     public function setRights(?array $list): static;
 
     /**
-     * Add the specified data entry to the data list
+     * Appends the specified data entry to the data list
      *
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
@@ -30,7 +30,7 @@ interface RightsInterface extends DataIteratorInterface
      *
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
 
     /**
      * Remove all rights for this role

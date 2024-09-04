@@ -60,7 +60,7 @@ try {
     Log::cli();
     Log::cli(CliColor::apply('Rights available for this role:', 'white'));
 
-    Cli::displayTable(Arrays::listKeepKeys($role->getRights(), 'id,name'), id_column: null);
+    Cli::displayTable(Arrays::listKeepKeys($role->getRightsObject(), 'id,name'), id_column: null);
 
 } catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();

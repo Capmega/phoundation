@@ -14,5 +14,5 @@ interface RightInterface extends DataEntryInterface
      *
      * @return RolesInterface
      */
-    public function getRoles(): RolesInterface;
+    public function getRolesObject(): RolesInterface;
 }

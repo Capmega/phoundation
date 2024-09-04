@@ -102,16 +102,17 @@ class Role extends DataEntry implements RoleInterface
      */
     public function getRightsHtmlDataEntryForm(string $name = 'rights_id[]'): DataEntryFormInterface
     {
-        $entry  = DataEntryForm::new()
-                               ->setRenderContentsOnly(true);
+        $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
         $rights = Rights::new();
         $select = $rights->getHtmlSelect()
                          ->setCache(true)
                          ->setName($name);
+
         // Add extra entry with nothing selected
         $select->clearSelected();
         $entry->appendContent($select->render() . '<br>');
-        foreach ($this->getRights() as $right) {
+
+        foreach ($this->getRightsObject() as $right) {
             $select->setSelected($right->getId());
             $entry->appendContent($select->render() . '<br>');
         }
@@ -125,7 +126,7 @@ class Role extends DataEntry implements RoleInterface
      *
      * @return RightsInterface
      */
-    public function getRights(): RightsInterface
+    public function getRightsObject(): RightsInterface
     {
         if ($this->isNew()) {
             throw new AccountsException(tr('Cannot access rights for role ":role", the role has not yet been saved and so has no identifier', [
@@ -147,30 +148,32 @@ class Role extends DataEntry implements RoleInterface
      * Merge this role with the rights from the specified role
      *
      * @param RoleInterface|string|int|null $from_identifier
-     * @param string|null                   $column
      *
      * @return static
      * @throws OutOfBoundsExceptionInterface|RoleNotExistsExceptionInterface
      */
-    public function mergeFrom(RoleInterface|string|int|null $from_identifier = null, ?string $column = null): static
+    public function mergeFrom(RoleInterface|string|int|null $from_identifier = null): static
     {
-        $from = Role::load($from_identifier, $column);
+        $from = Role::load($from_identifier);
+
         if (!$this->getId()) {
             throw new OutOfBoundsException(tr('Cannot merge role ":from" to this role ":this" because this role does not yet exist in the database', [
                 ':from' => $from->getLogId(),
                 ':this' => $this->getLogId(),
             ]));
         }
+
         // This role must get all rights from the $FROM role
-        foreach ($from->getRights() as $right) {
-            $this->getRights()
+        foreach ($from->getRightsObject() as $right) {
+            $this->getRightsObject()
                  ->add($right);
         }
+
         // All users that have the $FROM role must get this role too
-        foreach ($from->getUsers() as $user) {
-            $user->getRolesObject()
-                 ->add($this);
+        foreach ($from->getUsersObject() as $user) {
+            $user->getRolesObject()->add($this);
         }
+
         // Remove the "from" role
         $from->erase();
 
@@ -187,14 +190,14 @@ class Role extends DataEntry implements RoleInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
-     * @param bool                                     $force
+     * @param bool                                     $ignore_deleted
      *
      * @return Role
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
     {
         try {
-            return parent::load(static::convertToLowerCaseDash($identifier), $meta_enabled, $force);
+            return parent::load(static::convertToLowerCaseDash($identifier), $meta_enabled, $ignore_deleted);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RoleNotExistsException($e);
@@ -207,7 +210,7 @@ class Role extends DataEntry implements RoleInterface
      *
      * @return UsersInterface
      */
-    public function getUsers(): UsersInterface
+    public function getUsersObject(): UsersInterface
     {
         if ($this->isNew()) {
             throw new AccountsException(tr('Cannot access users for role ":role", the role has not yet been saved', [

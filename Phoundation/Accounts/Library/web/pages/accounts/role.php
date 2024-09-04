@@ -57,7 +57,7 @@ if (Request::isPostRequestMethod()) {
                 $role
                     ->apply()
                     ->save()
-                    ->getRights()
+                    ->getRightsObject()
                     ->setRights($post['rights_id']);
 
 // TODO Implement timers

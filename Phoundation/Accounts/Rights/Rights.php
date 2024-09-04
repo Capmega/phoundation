@@ -214,7 +214,7 @@ class Rights extends DataIterator implements RightsInterface
             $rights_list = [];
             foreach ($list as $right) {
                 if ($right) {
-                    $rights_list[] = static::getDefaultContentDataTypes()::get($right)
+                    $rights_list[] = static::getDefaultContentDataType()::get($right)
                                            ->getSeoName();
                 }
             }
@@ -237,7 +237,7 @@ class Rights extends DataIterator implements RightsInterface
      *
      * @return string|null
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return Right::class;
     }
@@ -255,16 +255,20 @@ class Rights extends DataIterator implements RightsInterface
      * @throws OutOfBoundsExceptionInterface
      * @todo Move saving part to ->save(). ->add() should NOT immediately save to database!
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
-        $this->ensureParent(tr('add Right entry to parent'));
+        $this->ensureParent(tr('add Role entry to parent ":parent"', [
+            ':parent' => $this->parent ? get_class($this->parent) : 'NULL'
+        ]));
 
-        if ($value) {
+        if ($value and $this->require_parent) {
             if (is_array($value)) {
                 // Add multiple rights
                 foreach ($value as $entry) {
-                    $this->add($entry, $key, $skip_null_values);
+                    $this->append($entry, $key, $skip_null_values);
                 }
+
+                return $this;
 
             } else {
                 // Add single right. Since this is a Right object, the entry already exists in the database
@@ -290,9 +294,6 @@ class Rights extends DataIterator implements RightsInterface
                         'seo_name'  => $value->getSeoName(),
                     ]);
 
-                    // Add right to the internal list
-                    parent::add($value);
-
                 } elseif ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Adding right ":right" to role ":role"', [
                         ':role'  => $this->parent->getLogId(),
@@ -304,11 +305,8 @@ class Rights extends DataIterator implements RightsInterface
                         'rights_id' => $value->getId(),
                     ]);
 
-                    // Add right to the internal list
-                    parent::add($value);
-
                     // Update all roles with this right to get the new right as well!
-                    foreach ($this->parent->getUsers() as $user) {
+                    foreach ($this->parent->getUsersObject() as $user) {
                         User::load($user)
                             ->getRightsObject()
                             ->add($value);
@@ -317,7 +315,8 @@ class Rights extends DataIterator implements RightsInterface
             }
         }
 
-        return $this;
+        // Add right to the internal list
+        return parent::append($value, $key, $skip_null_values, $exception);
     }
 
 
@@ -407,7 +406,7 @@ class Rights extends DataIterator implements RightsInterface
                 ]);
 
                 // Update all users with this role to get the new right as well!
-                foreach ($this->parent->getUsers() as $user) {
+                foreach ($this->parent->getUsersObject() as $user) {
                     User::load($user, null)
                         ->getRightsObject()
                         ->removeKeys($right);

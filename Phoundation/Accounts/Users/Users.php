@@ -103,7 +103,7 @@ class Users extends DataIterator implements UsersInterface
 
             foreach ($list as $user) {
                 if ($user) {
-                    $users_list[] = static::getDefaultContentDataTypes()::get($user)
+                    $users_list[] = static::getDefaultContentDataType()::get($user)
                                           ->getId();
                 }
             }
@@ -129,7 +129,7 @@ class Users extends DataIterator implements UsersInterface
      *
      * @return string|null
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return User::class;
     }
@@ -180,16 +180,20 @@ class Users extends DataIterator implements UsersInterface
      * @return static
      * @todo Move saving part to ->save(). ->add() should NOT immediately save to database!
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
-        $this->ensureParent(tr('add User entry to parent'));
+        $this->ensureParent(tr('add Role entry to parent ":parent"', [
+            ':parent' => $this->parent ? get_class($this->parent) : 'NULL'
+        ]));
 
-        if ($value) {
+        if ($value and $this->require_parent) {
             if (is_array($value)) {
                 // Add multiple rights
                 foreach ($value as $entry) {
-                    $this->add($entry, $key, $skip_null_values);
+                    $this->append($entry, $key, $skip_null_values);
                 }
+
+                return $this;
 
             } else {
                 // Add single right. Since this is a User object, the entry already exists in the database
@@ -213,9 +217,6 @@ class Users extends DataIterator implements UsersInterface
                         'users_id' => $value->getId(),
                     ]);
 
-                    // Add right to the internal list
-                    parent::add($value);
-
                 } elseif ($this->parent instanceof RightInterface) {
                     Log::action(tr('Adding right ":right" to user ":user"', [
                         ':right' => $this->parent->getLogId(),
@@ -228,14 +229,12 @@ class Users extends DataIterator implements UsersInterface
                         'name'      => $this->parent->getName(),
                         'seo_name'  => $this->parent->getSeoName(),
                     ]);
-
-                    // Add right to the internal list
-                    parent::add($value);
                 }
             }
         }
 
-        return $this;
+        // Add right to the internal list
+        return parent::append($value, $key, $skip_null_values, $exception);
     }
 
 

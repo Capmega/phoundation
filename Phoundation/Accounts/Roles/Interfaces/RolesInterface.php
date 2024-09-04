@@ -20,7 +20,7 @@ interface RolesInterface extends DataIteratorInterface
     public function setRoles(?array $list): static;
 
     /**
-     * Add the specified role to the data list
+     * Appends the specified role to the data list
      *
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
@@ -29,7 +29,7 @@ interface RolesInterface extends DataIteratorInterface
      *
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
 
     /**
      * Remove all rights for this right

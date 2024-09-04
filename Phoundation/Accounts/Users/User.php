@@ -283,14 +283,14 @@ class User extends DataEntry implements UserInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
-     * @param bool                                     $force
+     * @param bool                                     $ignore_deleted
      *
      * @return static
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
     {
         try {
-            return parent::load($identifier, $meta_enabled, $force);
+            return parent::load($identifier, $meta_enabled, $ignore_deleted);
 
         } catch (DataEntryNotExistsException $e) {
             if ((static::getConnector() === 'system') and (static::getTable() === 'accounts_users')) {
@@ -530,7 +530,7 @@ class User extends DataEntry implements UserInterface
      *
      * @return static
      */
-    public function save(bool $force = false, ?string $comments = null): static
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
         Log::action(tr('Saving user ":user"', [':user' => $this->getDisplayName()]));
 
@@ -2628,10 +2628,12 @@ class User extends DataEntry implements UserInterface
                                            ->setOptional(true)
                                            ->setRender(false)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isTrue(ProfileImage::exists($validator->getSelectedValue()), 'profile image must exist');
+                                               if ($validator->getSelectedValue()) {
+                                                   $validator->isTrue(ProfileImage::exists($validator->getSelectedValue()), 'profile image must exist');
+                                               }
                                             }))
 
-                    ->add(DefinitionFactory::getFile($this, null, 'profile_image')
+                    ->add(DefinitionFactory::getFile($this, null, null, 'profile_image')
                                            ->setLabel('Profile image')
                                            ->setOptional(true)
                                            ->setRender(false)
@@ -2642,8 +2644,8 @@ class User extends DataEntry implements UserInterface
                                                }
 
                                                $validator->isFile(
-                                                   FsDirectory::getCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
-                                                   prefix: FsDirectory::getCdnObject()
+                                                   FsDirectory::newCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
+                                                   prefix: FsDirectory::newCdnObject()
                                                );
                                            }))
 

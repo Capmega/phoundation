@@ -22,6 +22,7 @@ use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
@@ -46,10 +47,10 @@ class Emails extends DataIterator implements EmailsInterface
     public function __construct()
     {
         $this->setQuery('SELECT   `accounts_emails`.*
-                               FROM     `accounts_emails`
-                               WHERE    `accounts_emails`.`users_id` = :users_id
-                                 AND    `accounts_emails`.`status` IS NULL
-                               ORDER BY `email`');
+                         FROM     `accounts_emails`
+                         WHERE    `accounts_emails`.`users_id` = :users_id
+                           AND    `accounts_emails`.`status` IS NULL
+                         ORDER BY `email`');
         parent::__construct();
     }
 
@@ -70,7 +71,7 @@ class Emails extends DataIterator implements EmailsInterface
      *
      * @return string|null
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return Email::class;
     }
@@ -216,10 +217,8 @@ class Emails extends DataIterator implements EmailsInterface
             $diff = Arrays::deleteDiff($diff, $emails);
 
             foreach ($diff['delete'] as $id => $email) {
-                Email::load($id)
-                     ->setEmail(null)
-                     ->save()
-                     ->erase();
+                Email::load($id)->delete();
+
                 $this->removeKeys($id);
             }
 
@@ -243,8 +242,7 @@ class Emails extends DataIterator implements EmailsInterface
 
         // Clear source if required
         if ($clear_source) {
-            PostValidator::new()
-                         ->noArgumentsLeft();
+            PostValidator::new()->noArgumentsLeft();
         }
 
         return $this;
@@ -255,11 +253,12 @@ class Emails extends DataIterator implements EmailsInterface
      * Save all the emails for this user
      *
      * @param bool        $force
+     * @param bool        $skip_validation
      * @param string|null $comments
      *
      * @return static
      */
-    public function save(bool $force = false, ?string $comments = null): static
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
         $this->checkReadonly('save');
 
@@ -268,7 +267,7 @@ class Emails extends DataIterator implements EmailsInterface
         }
 
         foreach ($this->ensureDataEntries() as $email) {
-            $email->save($force, $comments);
+            $email->save($force, $skip_validation, $comments);
         }
 
         return $this;

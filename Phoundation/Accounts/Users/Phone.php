@@ -19,6 +19,7 @@ namespace Phoundation\Accounts\Users;
 
 use Phoundation\Accounts\Users\Exception\PhoneNotExistsException;
 use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
@@ -50,23 +51,6 @@ class Phone extends DataEntry implements PhoneInterface
     use TraitDataEntryAccountType;
     use TraitDataEntryDescription;
     use TraitDataEntryVerificationCode;
-
-
-    /**
-     * DataEntry class constructor
-     *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
-     */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
-    {
-        $identifier = Sanitize::new($identifier)
-                              ->phoneNumber()
-                              ->getSource();
-
-        parent::__construct($identifier, $meta_enabled, $init);
-    }
 
 
     /**
@@ -111,14 +95,14 @@ class Phone extends DataEntry implements PhoneInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
-     * @param bool                                     $force
+     * @param bool                                     $ignore_deleted
      *
      * @return Phone
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
     {
         try {
-            return parent::load($identifier, $meta_enabled, $force);
+            return parent::load($identifier, $meta_enabled, $ignore_deleted);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new PhoneNotExistsException($e);
@@ -178,13 +162,15 @@ class Phone extends DataEntry implements PhoneInterface
      */
     public function setUsersId(?int $users_id): static
     {
-        $current = $this->getUsersId();
+        if (!$this->is_loading) {
+            $current = $this->getUsersId();
 
-        if ($current and ($current !== $users_id)) {
-            throw new ValidationFailedException(tr('Cannot assign additional phone to ":to" from ":from" , only unassigned phones can be assigned', [
-                ':from' => $current,
-                ':to'   => $users_id,
-            ]));
+            if ($current and ($current !== $users_id)) {
+                throw new ValidationFailedException(tr('Cannot assign additional phone to ":to" from ":from", only unassigned phones can be assigned', [
+                    ':from' => $current,
+                    ':to'   => $users_id,
+                ]));
+            }
         }
 
         return $this->set($users_id, 'users_id');
@@ -203,7 +189,7 @@ class Phone extends DataEntry implements PhoneInterface
         $current = $this->getUsersEmail();
 
         if ($current and ($current !== $users_email)) {
-            throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from" , only unassigned emails can be assigned', [
+            throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from", only unassigned emails can be assigned', [
                 ':from' => $current,
                 ':to'   => $users_email,
             ]));

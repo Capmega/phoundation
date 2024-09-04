@@ -93,13 +93,15 @@ class Email extends DataEntry implements EmailInterface
      */
     public function setUsersId(?int $users_id): static
     {
-        $current = $this->getUsersId();
+        if (!$this->is_loading) {
+            $current = $this->getUsersId();
 
-        if ($current and ($current !== $users_id)) {
-            throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from", only unassigned emails can be assigned', [
-                ':from' => $current,
-                ':to'   => $users_id,
-            ]));
+            if ($current and ($current !== $users_id)) {
+                throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from", only unassigned emails can be assigned', [
+                    ':from' => $current,
+                    ':to' => $users_id,
+                ]));
+            }
         }
 
         return $this->set($users_id, 'users_id');
@@ -221,14 +223,14 @@ class Email extends DataEntry implements EmailInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
-     * @param bool                                     $force
+     * @param bool                                     $ignore_deleted
      *
      * @return Email
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
     {
         try {
-            return parent::load($identifier, $meta_enabled, $force);
+            return parent::load($identifier, $meta_enabled, $ignore_deleted);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new EmailNotExistsException($e);

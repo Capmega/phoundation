@@ -68,7 +68,7 @@ $role->apply(false, $argv)->save();
 
 
 // Set the rights for this role
-$role->getRights()->setRights($argv['rights']);
+$role->getRightsObject()->setRights($argv['rights']);
 
 
 // Done!

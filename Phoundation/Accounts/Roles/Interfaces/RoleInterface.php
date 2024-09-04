@@ -16,7 +16,7 @@ interface RoleInterface extends DataEntryInterface
      *
      * @return RightsInterface
      */
-    public function getRights(): RightsInterface;
+    public function getRightsObject(): RightsInterface;
 
 
     /**
@@ -24,7 +24,7 @@ interface RoleInterface extends DataEntryInterface
      *
      * @return UsersInterface
      */
-    public function getUsers(): UsersInterface;
+    public function getUsersObject(): UsersInterface;
 
 
     /**

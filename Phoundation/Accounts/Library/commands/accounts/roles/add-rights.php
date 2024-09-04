@@ -56,7 +56,7 @@ try {
 
     // Check role exists, get role, and add rights
     $role = Role::load($argv['role']);
-    $role->getRights()->add($argv['rights']);
+    $role->getRightsObject()->add($argv['rights']);
 
 } catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();

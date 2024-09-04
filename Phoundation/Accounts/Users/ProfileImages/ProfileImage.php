@@ -61,7 +61,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     {
         parent::__construct($identifier, $meta_enabled, $init);
 
-        $this->restrictions = FsRestrictions::getWritable([DIRECTORY_TMP, DIRECTORY_CDN]);
+        $this->restrictions = FsRestrictions::newWritable([DIRECTORY_TMP, DIRECTORY_CDN]);
     }
 
 
@@ -259,7 +259,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                     $user = User::load($user);
                 }
 
-                $cdn_directory = FsDirectory::getCdnObject(true, '/img/files/profile/' . $user->getId())
+                $cdn_directory = FsDirectory::newCdnObject(true, '/img/files/profile/' . $user->getId())
                                             ->ensure();
 
                 Log::action(tr('Adding image ":file" to profile images for user ":user"', [
@@ -289,7 +289,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                 if ($user) {
                     // This profile image is currently assigned to a user and, as such, in its user directory. Move the file
                     // to a generic profile image directory
-                    $cdn_directory = FsDirectory::getCdnObject(true, '/img/files/profile/' . $this->getUsersId())
+                    $cdn_directory = FsDirectory::newCdnObject(true, '/img/files/profile/' . $this->getUsersId())
                                                 ->ensure();
 
                     if (!$file->isInDirectory($cdn_directory)) {
@@ -300,7 +300,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                         ]));
                     }
 
-                    $cdn_directory = FsDirectory::getCdnObject(true, '/img/files/profile/0')
+                    $cdn_directory = FsDirectory::newCdnObject(true, '/img/files/profile/0')
                                                 ->ensure();
 
                     Log::action(tr('Moving file ":file" to general users profile image directory ":directory"', [
@@ -337,7 +337,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
 
             } else {
                 if ($file->isAbsolute()) {
-                    $file->makeRelative(FsDirectory::getCdnObject(true));
+                    $file->makeRelative(FsDirectory::newCdnObject(true));
                 }
             }
         }
@@ -387,10 +387,10 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isFile(
                                                    [
-                                                       FsDirectory::getDataTmpObject(),
-                                                       FsDirectory::getCdnObject(true, '/img/files/profile/' . $this->getUserObject()->getId() . '/')
+                                                       FsDirectory::newDataTmpObject(),
+                                                       FsDirectory::newCdnObject(true, '/img/files/profile/' . $this->getUserObject()->getId() . '/')
                                                    ],
-                                                   prefix: FsDirectory::getCdnObject());
+                                                   prefix: FsDirectory::newCdnObject());
                                            }))
 
                     ->add(DefinitionFactory::getDescription($this));

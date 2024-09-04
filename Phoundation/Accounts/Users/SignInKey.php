@@ -166,16 +166,18 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     {
         $this->generateUuid();
         $this->setRedirect($redirect);
+
         // Set up the sign-key URL
         $uuid = $this->getUuid();
+
         if (!$uuid) {
             throw new OutOfBoundsException(tr('Cannot generate sign in key, no UUID has been generated yet.'));
         }
-        $this->setUuid($uuid)
-             ->save();
-        $url = Url::getWww('sign-key');
-        $url = str_replace(':key', $uuid, $url);
-        $this->url = Url::getWww($url);
+
+        $this->setUuid($uuid)->save();
+        $url       = Url::getWww('sign-key');
+        $url       = str_replace(':key', $uuid, $url);
+        $this->url = Url::getWww($url)->getSource();
 
         return $this;
     }
@@ -194,6 +196,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
                 ':uuid' => $this->getUuid(),
             ]));
         }
+
         // Keys only work on web pages
         if (!Request::isRequestType(EnumRequestTypes::html)) {
             throw new AuthenticationException(tr('Cannot execute sign in key ":uuid" for HTTP request type ":type" this is only available on web pages', [
@@ -201,6 +204,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
                 ':uuid' => $this->getUuid(),
             ]));
         }
+
         // Execute only once?
         if ($this->hasStatus('executed')) {
             if ($this->getOnce()) {
@@ -215,17 +219,20 @@ class SignInKey extends DataEntry implements SignInKeyInterface
                 ':status' => $this->getStatus(),
             ]));
         }
+
         Log::warning(tr('Accepted UUID key ":key" for user ":user"', [
             ':key'  => $this->getUuid(),
-            ':user' => $this->getUser()
-                            ->getLogId(),
+            ':user' => $this->getUserObject()->getLogId(),
         ]));
+
         // Update meta-history and set the status to "executed"
         $this->setStatus('executed');
         $this->addToMetaHistory('executed', tr('The sign in key ":uuid" has been executed', [':uuid' => $this->getUuid()]), [
             ':ip' => Route::getRemoteIp(),
         ]);
+
         Session::signKey($this);
+
         if ($this->getRedirect()) {
             Response::redirect($this->getRedirect());
         }
@@ -267,14 +274,17 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     public function signKeyAllowsUrl(Stringable|string $url, string $target): bool
     {
         $url = (string) $url;
+
         if ($this->getRedirect() === $url) {
             // Redirect URL is always allowed
             return true;
         }
+
         if ($url === (string) Url::getWww('sign-out')) {
             // sign-out page is always allowed
             return true;
         }
+
         if (!str_starts_with($target, (DIRECTORY_WEB . 'pages/system/'))) {
             // For this URL, we're trying to display a system page instead. Allow too
             return true;
@@ -301,10 +311,14 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions->add(DefinitionFactory::getUsersId($this))
+
                     ->add(DefinitionFactory::getUuid($this))
+
                     ->add(DefinitionFactory::getUrl($this, 'redirect'))
+
                     ->add(DefinitionFactory::getDate($this, 'valid_until')
                                            ->setLabel(tr('Valid until')))
+
                     ->add(DefinitionFactory::getBoolean($this, 'allow_navigation')
                                            ->setLabel(tr('Allow navigation')));
     }

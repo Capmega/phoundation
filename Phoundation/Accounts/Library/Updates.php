@@ -729,13 +729,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             Role::new(['name' => 'Test'])
                 ->setDescription('This role gives the user the test right. See demo right for more information.')
                 ->save()
-                ->getRights()
+                ->getRightsObject()
                 ->add($test);
 
             Role::new(['name' => 'Demo'])
                 ->setDescription('This role gives the user the demo right. See demo right for more information.')
                 ->save()
-                ->getRights()
+                ->getRightsObject()
                 ->add($demo);
 
             // Define basic roles
@@ -743,45 +743,45 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->setName('God')
                 ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
                 ->save()
-                ->getRights()
+                ->getRightsObject()
                 ->add($god);
 
             Role::new(['name' => 'Audit'])
                 ->setName('Audit')
                 ->setDescription('This role will give the user access to the audit system')
                 ->save()
-                ->getRights()
+                ->getRightsObject()
                 ->add($audit);
 
             Role::new(['name' => 'Accounts'])
                 ->setName('Accounts')
                 ->setDescription('This role will give the user access to the accounts management system')
                 ->save()
-                ->getRights()
+                ->getRightsObject()
                 ->add($accounts);
 
             Role::new(['name' => 'Security'])
                 ->setName('Security')
                 ->setDescription('This role will give the user access to the security system')
                 ->save()
-                ->getRights()
+                ->getRightsObject()
                 ->add($security);
 
             Role::new(['name' => 'Administrator'])
                 ->setName('Administrator')
                 ->setDescription('This role gives access to all the administrative pages except user account management')
                 ->save()
-                ->getRights()
+                ->getRightsObject()
                 ->add($admin)
                 ->add($audit)
                 ->add($security)
                 ->add($phoundation);
 
-            Role::new('Accounts administrator', 'name')
+            Role::new(['name' => 'Accounts administrator'])
                 ->setName('Accounts administrator')
                 ->setDescription('This role gives access to only the administrative user account pages')
                 ->save()
-                ->getRights()
+                ->getRightsObject()
                 ->add($admin)
                 ->add($accounts);
 
@@ -789,14 +789,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->setName('Developer')
                 ->setDescription('This role will give the user access to the developer pages of the site')
                 ->save()
-                ->getRights()
+                ->getRightsObject()
                 ->add($developer);
 
             Role::new(['name' => 'Moderator'])
                 ->setName('Moderator')
                 ->setDescription('This role will give the user basic access to the administrative pages of the site')
                 ->save()
-                ->getRights()
+                ->getRightsObject()
                 ->add($admin);
 
             // Create some default roles and rights
@@ -826,16 +826,16 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     Role::new(['name' => $role])
                         ->setName($role)
                         ->save()
-                        ->getRights()
+                        ->getRightsObject()
                         ->add($role);
                 }
             }
 
             // Various rights go together...
-            Role::load('Audit')->getRights()->add('Admin');
-            Role::load('Security')->getRights()->add('Admin');
+            Role::load('Audit')->getRightsObject()->add('Admin');
+            Role::load('Security')->getRightsObject()->add('Admin');
             Role::load('Impersonate')
-                ->getRights()
+                ->getRightsObject()
                     ->add('Admin')
                     ->add('Accounts');
 

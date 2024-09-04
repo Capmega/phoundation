@@ -94,14 +94,14 @@ class Right extends DataEntry implements RightInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
-     * @param bool                                     $force
+     * @param bool                                     $ignore_deleted
      *
      * @return Right
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
     {
         try {
-            return parent::load(static::convertToLowerCaseDash($identifier), $meta_enabled, $force);
+            return parent::load(static::convertToLowerCaseDash($identifier), $meta_enabled, $ignore_deleted);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RightNotExistsException($e);
@@ -114,7 +114,7 @@ class Right extends DataEntry implements RightInterface
      *
      * @return RolesInterface
      */
-    public function getRoles(): RolesInterface
+    public function getRolesObject(): RolesInterface
     {
         if ($this->isNew()) {
             throw new AccountsException(tr('Cannot access roles for right ":right", the right has not yet been saved', [

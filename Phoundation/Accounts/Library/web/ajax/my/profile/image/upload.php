@@ -3,7 +3,9 @@
 /**
  * Ajax my/profile/image/upload.php
  *
- * This is the user profile page where the user can manage their own profile data
+ * This is the user profile page AJAX profile image upload management script.
+ *
+ * It will receive the uploaded profile image and attach it to the user and set it as the default profile image
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
