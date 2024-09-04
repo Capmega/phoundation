@@ -21,7 +21,10 @@ declare(strict_types=1);
 namespace Phoundation\Security\Incidents;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -31,6 +34,10 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryType;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Security\Incidents\Interfaces\IncidentInterface;
@@ -40,6 +47,8 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Web\Http\Url;
+use Phoundation\Web\Uploads\UploadHandler;
 
 
 class Incident extends DataEntry implements IncidentInterface
@@ -48,6 +57,7 @@ class Incident extends DataEntry implements IncidentInterface
     use TraitDataEntryTitle;
     use TraitDataEntryBody;
     use TraitDataEntryDetails;
+
 
     /**
      * Sets if this incident is logged in the text log
@@ -194,16 +204,33 @@ class Incident extends DataEntry implements IncidentInterface
      * Saves the incident to the database
      *
      * @param bool        $force
+     * @param bool        $skip_validation
      * @param string|null $comments
      *
      * @return static
      */
-    public function save(bool $force = false, ?string $comments = null): static
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-        $severity = strtolower($this->getSeverity());
-
         // Save the incident
-        $incident = parent::save($force, $comments);
+        $severity = strtolower($this->getSeverity());
+        $incident = parent::save($force, $skip_validation, $comments);
+
+        // Default details added to security incidents medium or higher
+        if ($this->severityIsEqualOrHigherThan(EnumSeverity::medium)) {
+            $this->addDetails([
+                'platform'    => PLATFORM,
+                'environment' => ENVIRONMENT,
+                'url'         => Url::getCurrent(),
+                'command'     => CliCommand::getExecutedPath(),
+                'user'        => Session::getUserObject()->getLogId(),
+                '$_GET'       => GetValidator::new()->getSource(),
+                '$_POST'      => PostValidator::new()->getSource(),
+                '$_SERVER'    => $_SERVER,
+                '$_SESSION'   => Session::getSource(),
+                '$argv'       => ArgvValidator::new()->getSource(),
+            ]);
+        }
+
 
         if ($this->log) {
             switch ($severity) {
@@ -276,6 +303,63 @@ class Incident extends DataEntry implements IncidentInterface
     public function getSeverity(): string
     {
         return $this->getTypesafe('string', 'severity', EnumSeverity::unknown->value);
+    }
+
+
+    /**
+     * Returns true if the current severity is higher than the specified severity
+     *
+     * @param EnumSeverity $severity
+     *
+     * @return bool
+     */
+    public function severityIsEqualOrHigherThan(EnumSeverity $severity): bool
+    {
+        switch ($severity) {
+            case EnumSeverity::severe:
+                if ($this->getSeverity() === EnumSeverity::severe->value) {
+                    return true;
+                }
+
+                return false;
+
+            case EnumSeverity::high:
+                return match ($this->getSeverity()) {
+                    EnumSeverity::severe->value,
+                    EnumSeverity::high->value => true,
+                    default => false,
+                };
+
+            case EnumSeverity::medium:
+                return match ($this->getSeverity()) {
+                    EnumSeverity::low->value,
+                    EnumSeverity::notice->value => false,
+                    default => true,
+                };
+
+            case EnumSeverity::low:
+                if ($this->getSeverity() === EnumSeverity::notice->value) {
+                    return false;
+                }
+
+                return true;
+
+            case EnumSeverity::notice:
+                if ($this->getSeverity() === EnumSeverity::notice->value) {
+                    return true;
+                }
+
+                return false;
+
+
+            case EnumSeverity::unknown:
+                // Don't know, assume its severe?
+                return true;
+        }
+
+        throw new OutOfBoundsException(tr('Unknown severity ":severity" specified', [
+            ':severity' => $severity
+        ]));
     }
 
 

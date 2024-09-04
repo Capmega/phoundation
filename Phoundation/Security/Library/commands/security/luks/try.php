@@ -24,7 +24,7 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Security\Luks\Device;
 
 
-$restrictions = FsRestrictions::getReadonly('/'));
+$restrictions = FsRestrictions::newReadonly('/'));
 
 CliDocumentation::setUsage('./pho security luks try -f FILE
 echo "SECTION SECTION SECTION" | ./pho security luks try -f FILE');
@@ -49,10 +49,10 @@ CliDocumentation::setAutoComplete([
       '-f,--file' => [
           'arguments' => [
               'word'   => function ($word) use ($restrictions) {
-                 return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan($word . '*');
+                 return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan($word . '*');
               },
               'noword' => function () use ($restrictions) {
-                  return FsDirectory::new(FsDirectory::getFilesystemRootObject())->scan('*');
+                  return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan('*');
               },
           ],
       ],
@@ -61,7 +61,7 @@ CliDocumentation::setAutoComplete([
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('-f,--file', true)->sanitizeFile(FsDirectory::getFilesystemRootObject())
+                     ->select('-f,--file', true)->sanitizeFile(FsDirectory::newFilesystemRootObject())
                      ->validate();
 
 
@@ -71,7 +71,7 @@ $argv['sections'] = explode(' ', $argv['sections']);
 
 
 // Open the LUKS file
-$device = Device::new($argv['file'], FsRestrictions::getWritable($argv['file']));
+$device = Device::new($argv['file'], FsRestrictions::newWritable($argv['file']));
 
 if (FORCE) {
     $device->luksClose(true);
