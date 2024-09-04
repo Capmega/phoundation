@@ -24,8 +24,9 @@ use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Interfaces\FunctionCallInterface;
@@ -514,7 +515,9 @@ class Debug
         if ($key === null) {
             $key = tr('Unknown');
         }
+
         $type = gettype($value);
+
         switch ($type) {
             case 'string':
                 if (is_numeric($value)) {
@@ -584,7 +587,7 @@ class Debug
                         </tr>';
 
             case 'object':
-                if (!($value instanceof ArrayableInterface)) {
+                if (!($value instanceof ArrayableInterface) or ($value instanceof Throwable)) {
                     // Format exception nicely
                     if ($value instanceof Throwable) {
                         $value = static::displayException($value, $full_backtrace, 0);
@@ -612,19 +615,36 @@ class Debug
                 }
 
                 // This is an object that has a $value::__toArray() method, convert it to array and display it as such
-                if ($value instanceof DataEntry) {
-                    $value = [
-                        ''         => 'DataEntry object',
-                        'class'    => get_class($value),
-                        'contents' => $value->__toArray(),
-                    ];
+                if ($value instanceof EntryInterface) {
+                    if ($value instanceof DataEntryInterface) {
+                        $value = [
+                            ''         => 'DataEntry object',
+                            'class'    => get_class($value),
+                            'contents' => $value->__toArray(),
+                        ];
+                    } else {
+                        $value = [
+                            ''         => 'Entry object',
+                            'class'    => get_class($value),
+                            'contents' => $value->__toArray(),
+                        ];
+                    }
 
-                } elseif ($value instanceof DataIterator) {
-                    $value = [
-                        ''         => 'DataIterator object',
-                        'class'    => get_class($value),
-                        'contents' => $value->__toArray(),
-                    ];
+                } elseif ($value instanceof IteratorInterface) {
+                    if ($value instanceof DataIteratorInterface) {
+                        $value = [
+                            ''         => 'DataIterator object',
+                            'class'    => get_class($value),
+                            'contents' => $value->__toArray(),
+                        ];
+
+                    } else {
+                        $value = [
+                            ''         => 'Iterator object',
+                            'class'    => get_class($value),
+                            'contents' => $value->__toArray(),
+                        ];
+                    }
 
                 } else {
                     $value = [

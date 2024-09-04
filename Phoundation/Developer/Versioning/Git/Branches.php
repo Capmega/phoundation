@@ -47,7 +47,7 @@ class Branches extends IteratorCore implements BranchesInterface
         $results = Process::new('git')
                           ->setExecutionDirectory(new FsDirectory(
                               $this->directory,
-                              FsRestrictions::getWritable($this->directory)
+                              FsRestrictions::newWritable($this->directory)
                           ))
                           ->addArgument('branch')
                           ->addArgument('--quiet')

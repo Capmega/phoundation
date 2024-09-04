@@ -35,4 +35,4 @@ $argv = ArgvValidator::new()
                      ->select('--hard')->isOptional()->isBoolean()
                      ->validate();
 
-Git::new(FsDirectory::getRootObject())->reset($argv['branch'], get_null($argv['files']));
+Git::new(FsDirectory::newRootObject())->reset($argv['branch'], get_null($argv['files']));

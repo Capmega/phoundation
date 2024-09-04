@@ -33,4 +33,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(FsDirectory::getRootObject())->getBranchesObject()->displayCliTable();
+Git::new(FsDirectory::newRootObject())->getBranchesObject()->displayCliTable();

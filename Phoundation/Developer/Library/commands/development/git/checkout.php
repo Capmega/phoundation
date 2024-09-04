@@ -34,4 +34,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(FsDirectory::getRootObject())->checkout($argv['branch_or_file']);
+Git::new(FsDirectory::newRootObject())->checkout($argv['branch_or_file']);

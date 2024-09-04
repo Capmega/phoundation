@@ -45,7 +45,7 @@ FILE                                    The file to copy
 $argv = ArgvValidator::new()
                      ->select('-b,--branch', true)->isOptional()->isVariableName()
                      ->select('-c,--allow-changes')->isOptional(false)->isBoolean()
-                     ->selectAll('files')->each()->sanitizePath(FsDirectory::getRootObject(false))
+                     ->selectAll('files')->each()->sanitizePath(FsDirectory::newRootObject(false))
                      ->validate();
 
 

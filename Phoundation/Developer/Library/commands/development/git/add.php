@@ -34,4 +34,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(FsDirectory::getRootObject())->add($argv['files']);
+Git::new(FsDirectory::newRootObject())->add($argv['files']);

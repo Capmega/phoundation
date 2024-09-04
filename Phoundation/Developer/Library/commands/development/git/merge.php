@@ -34,4 +34,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(FsDirectory::getRootObject())->merge($argv['branch']);
+Git::new(FsDirectory::newRootObject())->merge($argv['branch']);

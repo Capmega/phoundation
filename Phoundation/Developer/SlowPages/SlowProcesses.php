@@ -50,7 +50,7 @@ class SlowProcesses extends Incidents
      *
      * @return string|null
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return SlowProcess::class;
     }

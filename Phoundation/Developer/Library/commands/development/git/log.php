@@ -34,4 +34,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::cli(Git::new(FsDirectory::getRootObject())->getLog());
+Log::cli(Git::new(FsDirectory::newRootObject())->getLog());

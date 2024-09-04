@@ -126,7 +126,7 @@ class Sync
     public function __construct()
     {
         $this->timeout          = 3600;
-        $this->target_temp_path = FsDirectory::getTemporaryObject();
+        $this->target_temp_path = FsDirectory::newTemporaryObject();
     }
 
 
@@ -297,7 +297,7 @@ class Sync
     protected function getPhoCommand(?ServerInterface $server, array|string|null $pho_commands = null): PhoInterface
     {
         if ($server) {
-            return Pho::new(null, FsFile::new($this->configuration['path'] . 'pho', FsRestrictions::getReadonly($this->configuration['path'])))
+            return Pho::new(null, FsFile::new($this->configuration['path'] . 'pho', FsRestrictions::newReadonly($this->configuration['path'])))
                       ->setPhoCommands($pho_commands)
                       ->setEnvironment($this->environment)
                       ->setServer($server)

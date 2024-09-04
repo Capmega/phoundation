@@ -93,7 +93,7 @@ class Project implements ProjectInterface
     {
         if (!$directory) {
             // Default to the directory of this project
-            $directory = new FsDirectory(DIRECTORY_ROOT, FsRestrictions::getWritable(DIRECTORY_ROOT));
+            $directory = new FsDirectory(DIRECTORY_ROOT, FsRestrictions::newWritable(DIRECTORY_ROOT));
         }
 
         $this->___construct($directory);
@@ -115,7 +115,7 @@ class Project implements ProjectInterface
                 throw new OutOfBoundsException(tr('Project file "config/project" already exist'));
             }
 
-            FsFile::new(DIRECTORY_ROOT . 'config/project', FsRestrictions::getWritable(DIRECTORY_ROOT))
+            FsFile::new(DIRECTORY_ROOT . 'config/project', FsRestrictions::newWritable(DIRECTORY_ROOT))
                   ->delete();
         }
 
@@ -507,7 +507,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public static function fixFileModes(): void
     {
-        $directory = FsDirectory::getRootObject(true, 'Project::fixFileModes');
+        $directory = FsDirectory::newRootObject(true, 'Project::fixFileModes');
 
         // Don't check for root user, check sudo access to these commands individually, perhaps the user has it?
         Command::sudoAvailable('chown,chmod,mkdir,touch,rm', FsRestrictions::new('/bin,/usr/bin'), true);

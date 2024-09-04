@@ -34,4 +34,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::cli(Git::new(FsDirectory::getRootObject())->getDiff($argv['files']));
+Log::cli(Git::new(FsDirectory::newRootObject())->getDiff($argv['files']));

@@ -35,4 +35,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(FsDirectory::getRootObject())->commit($argv['message'], $argv['signed']);
+Git::new(FsDirectory::newRootObject())->commit($argv['message'], $argv['signed']);

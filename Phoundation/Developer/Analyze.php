@@ -49,7 +49,7 @@ class Analyze
     {
         if (!$path) {
             // Default to the root directory of this project
-            $path = new FsPath(DIRECTORY_ROOT, FsRestrictions::getReadonly(DIRECTORY_ROOT));
+            $path = new FsPath(DIRECTORY_ROOT, FsRestrictions::newReadonly(DIRECTORY_ROOT));
         }
 
         return $this->__setPath($path);

@@ -33,4 +33,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(FsDirectory::getRootObject())->getStashObject()->pop();
+Git::new(FsDirectory::newRootObject())->getStashObject()->pop();

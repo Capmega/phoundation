@@ -33,4 +33,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(FsDirectory::getRootObject())->reset('HEAD^');
+Git::new(FsDirectory::newRootObject())->reset('HEAD^');

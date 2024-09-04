@@ -72,7 +72,7 @@ class Statistic
         $this->line     = Debug::currentLine(-1);
         $this->file     = new FsFile(
             Debug::currentFile(-1),
-            FsRestrictions::getRoot(false, 'Statistic::__construct()')
+            FsRestrictions::newRoot(false, 'Statistic::__construct()')
         );
     }
 

@@ -424,7 +424,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
         foreach ($directories as $directory) {
             $return[$directory] = FsDirectory::new(
                 $directory,
-                FsRestrictions::getWritable($directory)
+                FsRestrictions::newWritable($directory)
             );
         }
 
@@ -489,7 +489,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
 
                     $repository = new Repository(
                         $path,
-                        FsRestrictions::getWritable($path->getParentDirectory()) . $path)
+                        FsRestrictions::newWritable($path->getParentDirectory()) . $path)
                     );
 
                     if (!$repository->isRepository()) {

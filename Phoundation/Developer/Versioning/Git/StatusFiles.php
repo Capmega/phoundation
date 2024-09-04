@@ -58,9 +58,9 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
      */
     public function __construct(FsDirectoryInterface $directory)
     {
-        $this->parent       = $directory;
-        $this->accepted_data_types   = [FsPathInterface::class];
-        $this->restrictions = $directory->getRestrictions();
+        $this->parent              = $directory;
+        $this->accepted_data_types = [FsPathInterface::class];
+        $this->restrictions        = $directory->getRestrictions();
 
         $this->___construct($directory);
     }
@@ -165,7 +165,7 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
 
             if ($patch_file) {
                 Git::new($target_path)->apply($patch_file);
-                FsFile::new($patch_file, FsRestrictions::getTemporary(true, 'StatusFiles::patch()'))->delete();
+                FsFile::new($patch_file, FsRestrictions::newTemporary(true, 'StatusFiles::patch()'))->delete();
             }
 
             return $this;

@@ -34,4 +34,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(FsDirectory::getRootObject())->getStatusFilesObject($argv['path'])->displayCliTable();
+Git::new(FsDirectory::newRootObject())->getStatusFilesObject($argv['path'])->displayCliTable();
