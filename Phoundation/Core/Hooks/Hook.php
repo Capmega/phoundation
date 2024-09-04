@@ -66,7 +66,7 @@ class Hook implements HookInterface
      */
     public function __construct(?string $class = null)
     {
-        $this->directory = new FsDirectory(DIRECTORY_HOOKS, FsRestrictions::getHooks());
+        $this->directory = new FsDirectory(DIRECTORY_HOOKS, FsRestrictions::newHooks());
         $this->class     = Strings::ensureEndsNotWith(trim($class), '/') . '/';
 
         if ($this->class) {
@@ -121,6 +121,8 @@ class Hook implements HookInterface
      * @param array|null $arguments
      *
      * @return mixed
+     *
+     * @throws Throwable
      */
     public function execute(string $hook, ?array $arguments = []): mixed
     {
@@ -152,31 +154,22 @@ class Hook implements HookInterface
         }
 
         // Try executing it!
+        Log::action(tr('Executing hook ":hook"', [
+            ':hook' => $this->class . $hook,
+        ]));
+
         try {
-            Log::action(tr('Executing hook ":hook"', [
-                ':hook' => $this->class . $hook,
-            ]));
-
-            try {
-                return execute_hook($file->getSource());
-
-            } catch (Throwable $e) {
-                Log::error(tr('Execution of hook ":hook" failed with the following exception', [
-                    ':hook' => $file
-                ]));
-
-                Log::error($e);
-            }
+            return execute_hook($file->getSource());
 
         } catch (Throwable $e) {
-            Log::error(tr('Hook ":hook" failed to execute with the following exception', [
-                ':hook' => $hook,
+            Log::error(tr('Execution of hook ":hook" failed with the following exception', [
+                ':hook' => $file
             ]));
 
             Log::error($e);
-        }
 
-        return null;
+            throw $e;
+        }
     }
 
 

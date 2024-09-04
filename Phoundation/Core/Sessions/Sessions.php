@@ -50,7 +50,7 @@ class Sessions
             ':age' => $age_in_minutes,
         ]));
 
-        Find::new(FsDirectory::getTemporaryObject())
+        Find::new(FsDirectory::newTemporaryObject())
             ->setOlderThan($age_in_minutes)
             ->setExecute('rf {} -rf')
             ->executeNoReturn();

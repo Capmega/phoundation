@@ -19,6 +19,7 @@ namespace Phoundation\Core\Meta;
 use DateTime;
 use Exception;
 use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Exception\MetaException;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
@@ -33,10 +34,12 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Http\Url;
+use Stringable;
 use Throwable;
 
 
@@ -311,24 +314,27 @@ class Meta implements MetaInterface
     /**
      * Creates a new meta entry and returns the database id for it
      *
-     * @param string      $action
-     * @param string|null $comments
-     * @param string|null $data
+     * @param string                                          $action
+     * @param string|null                                     $comments
+     * @param ArrayableInterface|Stringable|array|string|null $data
      *
      * @return static
      */
-    public function action(string $action, ?string $comments = null, ?string $data = null): static
+    public function action(string $action, ?string $comments = null, ArrayableInterface|Stringable|array|string|null $data = null): static
     {
+        if (is_array($data)) {
+            $data = Json::encode($data);
+        }
+
         if (static::$enabled and $this->id) {
             if (static::$buffer) {
                 static::$updates[++static::$pointer] = [
                     ':meta_id_' . static::$pointer    => $this->id,
-                    ':created_by_' . static::$pointer => Session::getUserObject()
-                                                                ->getId(),
+                    ':created_by_' . static::$pointer => Session::getUserObject()->getId(),
                     ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? Url::getCurrent() : CliCommand::getExecutedPath()),
                     ':action_' . static::$pointer     => $action,
                     ':comments_' . static::$pointer   => $comments,
-                    ':data_' . static::$pointer       => $data,
+                    ':data_' . static::$pointer       => (string) $data,
                 ];
 
             } else {
@@ -336,12 +342,11 @@ class Meta implements MetaInterface
                 sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
                                     VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
                     ':meta_id'    => $this->id,
-                    ':created_by' => Session::getUserObject()
-                                            ->getId(),
+                    ':created_by' => Session::getUserObject()->getId(),
                     ':source'     => (string) (PLATFORM_WEB ? Url::getCurrent() : CliCommand::getExecutedPath()),
                     ':action'     => $action,
                     ':comments'   => $comments,
-                    ':data'       => $data,
+                    ':data'       => (string) $data,
                 ]);
             }
         }

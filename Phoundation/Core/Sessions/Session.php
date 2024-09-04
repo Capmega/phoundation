@@ -51,6 +51,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Client;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessages;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -730,7 +731,11 @@ class Session implements SessionInterface
     public static function getUserObject(): UserInterface
     {
         if (empty(session_id())) {
-            throw new SessionException(tr('Cannot access session data yet, session has not yet been initialized'));
+            if (PLATFORM_WEB) {
+                throw new SessionException(tr('Cannot access session data yet, session has not yet been initialized'));
+            }
+
+            return new SystemUser();
         }
 
         // We can return impersonated user IF exists
@@ -1301,7 +1306,7 @@ class Session implements SessionInterface
     public static function signKey(SignInKeyInterface $key): UserInterface
     {
         static::$key  = $key;
-        static::$user = $key->getUser();
+        static::$user = $key->getUserObject();
 
         static::clear();
 

@@ -85,7 +85,7 @@ class Plugins extends DataIterator implements PluginsInterface
      *
      * @return string|null
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return Plugin::class;
     }

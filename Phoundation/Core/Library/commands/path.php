@@ -50,11 +50,11 @@ $like = $argv['like'] ? '*' : null;
 // Search and initialize results iterator
 $results     = new Iterator();
 
-$files       = Find::new(FsDirectory::getCommandsObject(false, 'command path'))
+$files       = Find::new(FsDirectory::newCommandsObject())
                    ->setName($like . $argv['command'] . '.php' . $like)
                    ->executeReturnIterator();
 
-$directories = Find::new(FsDirectory::getCommandsObject(false, 'command path'))
+$directories = Find::new(FsDirectory::newCommandsObject())
                    ->setName($like . $argv['command'] . $like)
                    ->setType('d')
                    ->executeReturnIterator();
@@ -68,13 +68,18 @@ $files->addSource($directories);
 if ($files->getCount()) {
     // Add path to results iterator
     foreach ($files as $path) {
-        $result = Strings::from($path, DIRECTORY_COMMANDS);
-        $result = Strings::until($result, '.php');
-        $result = str_replace('/', ' ', $result);
-        $path   = FsFile::new($path, FsRestrictions::getReadonly(DIRECTORY_COMMANDS))->getRealPath();
-        $path   = Strings::from($path, DIRECTORY_ROOT);
+        $result    = Strings::from($path, DIRECTORY_COMMANDS);
+        $result    = Strings::until($result, '.php');
+        $result    = str_replace('/', ' ', $result);
+        $path      = FsFile::new($path, FsRestrictions::newReadonly(DIRECTORY_COMMANDS));
+        $real_path = ($path->isLink() ? Strings::from($path->getLinkTarget()->getRealPath(), DIRECTORY_ROOT) : ('*** ' . Strings::from($path->getRealPath(), DIRECTORY_ROOT)));
+        $path      = Strings::from($path->getRealPath(), DIRECTORY_ROOT);
 
-        $results->add(['path' => $path, 'command' => $result]);
+        $results->add([
+            'command'   => $result,
+            'path'      => $path,
+            'real_path' => $real_path
+        ]);
     }
 
     // Sort results iterator for easier result finding
@@ -92,8 +97,9 @@ if ($files->getCount()) {
 
     // Display iterator results table
     $results->displayCliTable([
-        'command' => tr('Command'),
-        'path'    => tr('Path')
+        'command'   => tr('Command'),
+        'path'      => tr('Path'),
+        'real_path' => tr('Real path')
     ]);
 
 } else {

@@ -19,7 +19,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;$restrictions = FsRestrictions::getReadonly([DIRECTORY_ROOT . 'config/deploy/']));
+use Phoundation\Filesystem\FsRestrictions;$restrictions = FsRestrictions::newReadonly([DIRECTORY_ROOT . 'config/deploy/']));
 
 
 CliDocumentation::setAutoComplete([

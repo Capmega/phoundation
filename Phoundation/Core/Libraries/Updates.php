@@ -116,7 +116,7 @@ abstract class Updates implements UpdatesInterface
             ]));
         }
 
-        $this->file         = FsDirectory::getRootObject()->addFile(str_replace('\\', '/', get_class($this)) . '.php');
+        $this->file         = FsDirectory::newRootObject()->addFile(str_replace('\\', '/', get_class($this)) . '.php');
         $this->vendor       = $vendor;
         $this->library      = $library;
         $this->code_version = $code_version;

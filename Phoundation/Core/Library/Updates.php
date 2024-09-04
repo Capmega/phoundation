@@ -31,7 +31,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.2.10';
+        return '0.4.11';
     }
 
 
@@ -412,6 +412,13 @@ class Updates extends Libraries\Updates
                 sql()->getSchemaObject()->getTableObject('core_plugins')->alter()
                      ->changeColumn('path', 'directory varchar(255) NOT NULL');
             }
-        });
+
+        })->addUpdate('0.4.11', function () {
+            // Improve meta_history table
+            sql()->getSchemaObject()
+                     ->getTableObject('meta_history')
+                         ->alter()
+                             ->changeColumn('comments', '`comments` varchar(2048) NULL DEFAULT NULL');
+       });
     }
 }

@@ -227,7 +227,7 @@ class Log
                 static::setThreshold($threshold);
             }
 
-            static::$restrictions = FsRestrictions::getWritable(DIRECTORY_DATA . 'log/');
+            static::$restrictions = FsRestrictions::newWritable(DIRECTORY_DATA . 'log/');
             static::setFile(Config::get('log.file', DIRECTORY_ROOT . 'data/log/syslog'));
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
 
@@ -1071,8 +1071,8 @@ class Log
             static::write($exception->getFile() . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
 
             // Log the exception data, the trace, and previous exception, if any.
-            static::logExceptionData($exception, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             static::logExceptionTrace($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+            static::logExceptionData($exception, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             static::logPreviousException($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
 
         } else {
@@ -1212,7 +1212,7 @@ class Log
         // Warning exceptions do not need to show the extra messages, trace, or data or previous exception
         if ($class == 'error') {
             // Log the backtrace
-            static::write(tr('Backtrace:'), 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+            static::write(tr('Backtrace :'), 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
 
             if ($exception->getTrace()) {
                 static::writeTrace($exception->getTrace(), $threshold, class: $class, echo_screen: $echo_screen);
@@ -1227,7 +1227,7 @@ class Log
 
 
     /**
-     * Logs the previous exception of the specified exception, if any
+     * Logs the previous exception from the specified exception, if any
      *
      * @param Throwable   $exception
      * @param string|null $class
@@ -1245,6 +1245,11 @@ class Log
         $previous = $exception->getPrevious();
 
         if ($previous) {
+            if ($previous instanceof Exception) {
+                // Previous exceptions are always shown
+                $previous->hasBeenLogged(false);
+            }
+
             static::write('Previous exception: ', 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             static::exception($previous, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
         }
@@ -1776,7 +1781,7 @@ class Log
     public static function rotate(): FsFileInterface
     {
         $current = static::$file;
-        $file    = FsFile::new(static::$file, FsRestrictions::getWritable(DIRECTORY_DATA . 'log/'));
+        $file    = FsFile::new(static::$file, FsRestrictions::newWritable(DIRECTORY_DATA . 'log/'));
         $target  = $file->getSource() . '~' . DateTime::new()->format('Ymd');
         $target  = FsFile::getAvailableVersion($target, '.gz');
 
@@ -1826,7 +1831,7 @@ class Log
             ':age' => $age_in_days,
         ]));
 
-        Find::new(new FsDirectory(DIRECTORY_DATA . 'log/', FsRestrictions::getWritable(DIRECTORY_DATA . 'log/')))
+        Find::new(new FsDirectory(DIRECTORY_DATA . 'log/', FsRestrictions::newWritable(DIRECTORY_DATA . 'log/')))
             ->setMtime('+' . ($age_in_days * 1440))
             ->setExec('rf {} -rf')
             ->executeNoReturn();

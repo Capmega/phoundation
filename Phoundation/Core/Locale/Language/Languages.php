@@ -53,7 +53,7 @@ class Languages extends DataIterator implements LanguagesInterface
      *
      * @return string|null
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return Language::class;
     }

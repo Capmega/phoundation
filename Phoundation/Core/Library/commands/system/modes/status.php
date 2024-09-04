@@ -66,3 +66,18 @@ if ($mode) {
 } else {
     Log::success(tr('The system is NOT in maintenance mode'));
 }
+
+
+// Get readonly mode data
+$mode = Core::getReadonlyMode();
+
+if ($mode) {
+    Log::warning(tr('The system is in ":mode" mode, set by ":user" on ":date"', [
+        ':mode' => $mode->getMode(),
+        ':user' => $mode->getUserObject()?->getLogId(),
+        ':date' => $mode->getDateTime()->format('Y-m-d H:i:s')
+    ]));
+
+} else {
+    Log::success(tr('The system is NOT in readonly mode'));
+}

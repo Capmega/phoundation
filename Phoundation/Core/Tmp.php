@@ -35,12 +35,12 @@ class Tmp
         Log::action(tr('Clearing all temporary files'), 3);
 
         // Delete all private temporary files
-        FsDirectory::new(DIRECTORY_TMP, FsRestrictions::getWritable(DIRECTORY_TMP))
+        FsDirectory::new(DIRECTORY_TMP, FsRestrictions::newWritable(DIRECTORY_TMP))
                    ->delete()
                    ->ensure();
 
         // Delete all public temporary files
-        FsDirectory::new(DIRECTORY_PUBTMP, FsRestrictions::getWritable(DIRECTORY_PUBTMP))
+        FsDirectory::new(DIRECTORY_PUBTMP, FsRestrictions::newWritable(DIRECTORY_PUBTMP))
                    ->delete()
                    ->ensure();
 

@@ -89,7 +89,7 @@ class Core implements CoreInterface
     /**
      * Framework version and minimum required PHP version
      */
-    public const FRAMEWORK_CODE_VERSION = '4.10.0';
+    public const FRAMEWORK_CODE_VERSION = '4.11.0';
 
     public const PHP_MINIMUM_VERSION    = '8.2.0';
 
@@ -297,6 +297,7 @@ class Core implements CoreInterface
         define('DIRECTORY_COMMANDS', DIRECTORY_SYSTEM . 'cache/system/commands/');
         define('DIRECTORY_HOOKS'   , DIRECTORY_SYSTEM . 'cache/system/hooks/');
         define('DIRECTORY_WEB'     , DIRECTORY_SYSTEM . 'cache/system/web/');
+        define('DIRECTORY_CRON'    , DIRECTORY_SYSTEM . 'cache/system/cron/');
 
         // Setup error handling, report ALL errors, setup shutdown functions
         static::setErrorHandling(true);
@@ -2039,7 +2040,7 @@ class Core implements CoreInterface
     public static function setMaintenanceMode(bool $enable): void
     {
         $enabled   = static::getMaintenanceMode();
-        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'maintenance', FsRestrictions::getSystem(true));
+        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'maintenance', FsRestrictions::newSystem(true));
 
         if ($enable) {
             // Enable maintenance mode
@@ -2089,7 +2090,8 @@ class Core implements CoreInterface
             return $maintenance;
         }
 
-        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'maintenance', FsRestrictions::getSystem());
+        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'maintenance', FsRestrictions::newSystem())
+                                ->setAutoMount(false);
 
         if ($directory->exists()) {
             // The system is in maintenance mode, show who put it there
@@ -2121,7 +2123,7 @@ class Core implements CoreInterface
     public static function setReadonlyMode(bool $enable): void
     {
         $enabled   = static::getReadonlyMode();
-        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'readonly', FsRestrictions::getSystem(true));
+        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'readonly', FsRestrictions::newSystem(true));
 
         if ($enable) {
             // Enable readonly mode
@@ -2191,7 +2193,7 @@ class Core implements CoreInterface
             return $readonly;
         }
 
-        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'readonly', FsRestrictions::getSystem());
+        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'readonly', FsRestrictions::newSystem());
 
         if ($directory->exists()) {
             // The system is in readonly mode, show who put it there
@@ -2216,7 +2218,7 @@ class Core implements CoreInterface
      */
     public static function resetModes(): void
     {
-        $restrictions = FsRestrictions::getSystem(true);
+        $restrictions = FsRestrictions::newSystem(true);
         $maintenance  = static::getMaintenanceMode();
         $readonly     = static::getReadonlyMode();
 
@@ -3325,6 +3327,14 @@ class Core implements CoreInterface
                     ':code'    => $e->getCode(),
                     ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
                 ]) . '
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        ' . tr('Message') . '
+                                                    </td>
+                                                    <td>
+                                                        ' . $e->getMessage() . '
                                                     </td>
                                                 </tr>
                                                 <tr>

@@ -115,13 +115,13 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
-     * @param bool                                     $force
+     * @param bool                                     $ignore_deleted
      *
      * @return static
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
     {
-        $plugin = parent::load($identifier, $meta_enabled, $force);
+        $plugin = parent::load($identifier, $meta_enabled, $ignore_deleted);
         $file   = DIRECTORY_ROOT . $plugin->getDirectory() . 'Library/Plugin.php';
         $class  = Library::getClassPath($file);
         $class  = Library::includeClassFile($class);
@@ -152,7 +152,7 @@ class Plugin extends DataEntry implements PluginInterface
             $directory = dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT));
         }
 
-        return new FsDirectory($directory, FsRestrictions::getReadonly(DIRECTORY_ROOT . 'Plugins'));
+        return new FsDirectory($directory, FsRestrictions::newReadonly(DIRECTORY_ROOT . 'Plugins'));
     }
 
 
@@ -525,7 +525,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setDirectory(FsDirectoryInterface|string|null $directory, ?FsRestrictionsInterface $restrictions = null): static
     {
-        $restrictions = $restrictions ?? FsRestrictions::getReadonly(DIRECTORY_ROOT . 'Plugins');
+        $restrictions = $restrictions ?? FsRestrictions::newReadonly(DIRECTORY_ROOT . 'Plugins');
 
         return $this->set(is_string($directory) ? new FsDirectory($directory, $restrictions) : $directory, 'directory');
     }
@@ -634,7 +634,7 @@ class Plugin extends DataEntry implements PluginInterface
 
                     ->add(Definition::new($this, 'directory')
                                     ->setLabel(tr('Directory'))
-                                    ->setInDirectories(new FsDirectory(DIRECTORY_ROOT . 'Plugins', FsRestrictions::getReadonly(DIRECTORY_ROOT . 'Plugins')))
+                                    ->setInDirectories(new FsDirectory(DIRECTORY_ROOT . 'Plugins', FsRestrictions::newReadonly(DIRECTORY_ROOT . 'Plugins')))
                                     ->setInputType(EnumInputType::path)
                                     ->setMaxlength(128)
                                     ->setSize(6)

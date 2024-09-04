@@ -16,8 +16,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Meta;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
@@ -69,20 +71,38 @@ class MetaList
                                      ON        `accounts_users`.`id` = `meta_history`.`created_by`
                                      WHERE     `meta_history`.`meta_id` IN (' . implode(', ', array_keys($in)) . ')
                                      ORDER BY  `meta_history`.`created_on` DESC', $in);
+
         foreach ($source as &$row) {
             if ($row['created_by']) {
                 $row['user'] = '<a href="' . Url::getWww('profiles/profile+' . $row['created_by'] . '.html') . '">' . $row['user'] . '</a>';
             }
-            $row['data'] = Json::decode($row['data']);
+
+            try {
+                if ($row['data']) {
+                    $row['data'] = Json::decode($row['data']);
+
+                } else {
+                    $row['data'] = [];
+                }
+
+            } catch (JsonException) {
+                Log::warning(tr('Failed to decode JSON data ":data" for meta id ":id"', [
+                    ':id'   => $row['id'],
+                    ':data' => $row['data'],
+                ]));
+
+                $row['data'] = [];
+            }
+
+
             unset($row['created_by']);
+
             if (Url::isValid($row['source'])) {
                 $row['source'] = '<a href = "' . $row['source'] . '">' . $row['source'] . '</a>';
             }
+
             if (isset_get($row['data']['to'])) {
-                foreach ([
-                    'to',
-                    'from',
-                ] as $section) {
+                foreach (['to', 'from',] as $section) {
                     unset($row['data'][$section]['id']);
                     unset($row['data'][$section]['created_by']);
                     unset($row['data'][$section]['created_on']);
@@ -90,31 +110,38 @@ class MetaList
                     unset($row['data'][$section]['meta_state']);
                     unset($row['data'][$section]['status']);
                 }
+
                 foreach ($row['data']['to'] as &$value) {
                     if ($value) {
                         $value = '<span class="success">' . Html::safe($value) . '</span>';
                     }
                 }
+
                 unset($value);
+
                 if (isset_get($row['data']['from'])) {
                     foreach ($row['data']['from'] as &$value) {
                         if ($value) {
                             $value = '<span class="danger">' . Html::safe($value) . '</span>';
                         }
                     }
+
                     unset($value);
                     $row['data'] = '<b>' . tr('From: ') . '</b><br>' . Arrays::implodeWithKeys($row['data']['from'], PHP_EOL, ': ') . '<br><b>' . tr('To: ') . '</b><br>' . Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': ');
 
                 } else {
                     $row['data'] = '<b>' . tr('Created with: ') . '</b><br>' . Arrays::implodeWithKeys($row['data']['to'], PHP_EOL, ': ');
                 }
+
                 $row['data'] = str_replace(PHP_EOL, '<br>', $row['data']);
 
             } else {
                 $row['data'] = tr('No changes');
             }
         }
+
         unset($row);
+
         $table = HtmlDataTable::new()
                               ->setId('meta')
                               ->setProcessEntities(false)
@@ -123,6 +150,7 @@ class MetaList
                               ->setOrder([0 => 'desc'])
                               ->setProcessEntities(false)
                               ->setSource($source);
+
         $table->getHeaders()
               ->setSource([
                   tr('Date'),

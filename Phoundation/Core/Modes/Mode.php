@@ -21,6 +21,7 @@ use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Modes\Interfaces\ModeInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 
@@ -58,12 +59,10 @@ class Mode implements ModeInterface
     public function __construct(string $mode, ?FsFileInterface $mode_file = null)
     {
         $this->mode     = $mode;
-        $this->datetime = $mode_file?->getMtime();
+        $this->datetime = $mode_file?->getMtime() ?? new DateTime();
 
         try {
-            if ($mode_file) {
-                $this->user = User::new(['email' => $mode_file->getBasename()]);
-            }
+            $this->user = $mode_file ? User::new(['email' => $mode_file->getBasename()]) : new SystemUser();
 
         } catch (DataEntryNotExistsException) {
             $this->user = new SystemUser();

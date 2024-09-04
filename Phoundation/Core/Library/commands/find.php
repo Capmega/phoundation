@@ -46,11 +46,11 @@ $like = $argv['like'] ? '*' : null;
 
 
 // Find the files that match the specified command
-$files = Find::new(FsDirectory::getCommandsObject(false, 'command find'))
+$files = Find::new(FsDirectory::newCommandsObject())
     ->setName($like . $argv['command'] . '.php' . $like)
     ->executeReturnIterator();
 
-$directories = Find::new(FsDirectory::getCommandsObject(false, 'command find'))
+$directories = Find::new(FsDirectory::newCommandsObject())
     ->setName($like . $argv['command'] . $like)
     ->setType('d')
     ->executeReturnIterator();

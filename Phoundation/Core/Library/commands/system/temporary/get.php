@@ -40,4 +40,4 @@ $argv = ArgvValidator::new()
 
 
 // Get persistent temporary directory and we're done
-Log::cli(FsDirectory::getTemporaryObject($argv['public'], true)->getSource());
+Log::cli(FsDirectory::newTemporaryObject($argv['public'], true)->getSource());

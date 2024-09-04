@@ -188,7 +188,7 @@ class Library implements LibraryInterface
      */
     public static function getClassPath(string $file): string
     {
-        $restrictions = FsRestrictions::getReadonly([
+        $restrictions = FsRestrictions::newReadonly([
             DIRECTORY_ROOT . 'Phoundation',
             DIRECTORY_ROOT . 'Plugins',
             DIRECTORY_ROOT . 'Templates'
@@ -324,7 +324,7 @@ class Library implements LibraryInterface
         $file = DIRECTORY_ROOT . $file . '.php';
 
         if ($check_php) {
-            if (!FsFile::new($file, FsRestrictions::getReadonly([DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates']))->isPhp()) {
+            if (!FsFile::new($file, FsRestrictions::newReadonly([DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates']))->isPhp()) {
                 throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
             }
         }
@@ -730,7 +730,7 @@ class Library implements LibraryInterface
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/commands/';
-        $restrictions = FsRestrictions::getWritable([$path, DIRECTORY_TMP]);
+        $restrictions = FsRestrictions::newWritable([$path, DIRECTORY_TMP]);
         $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
@@ -758,7 +758,7 @@ class Library implements LibraryInterface
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/hooks/';
-        $restrictions = FsRestrictions::getWritable([$path, DIRECTORY_TMP]);
+        $restrictions = FsRestrictions::newWritable([$path, DIRECTORY_TMP]);
         $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
@@ -786,7 +786,7 @@ class Library implements LibraryInterface
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/web/';
-        $restrictions = FsRestrictions::getWritable([$path, DIRECTORY_TMP]);
+        $restrictions = FsRestrictions::newWritable([$path, DIRECTORY_TMP]);
         $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
@@ -814,7 +814,7 @@ class Library implements LibraryInterface
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/tests/';
-        $restrictions = FsRestrictions::getWritable([$path, DIRECTORY_TMP]);
+        $restrictions = FsRestrictions::newWritable([$path, DIRECTORY_TMP]);
         $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {

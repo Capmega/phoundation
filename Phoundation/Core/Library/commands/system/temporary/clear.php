@@ -37,7 +37,7 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('path')->isOptional()->sanitizeFile(FsDirectory::getDataTmpObject(true))
+                     ->select('path')->isOptional()->sanitizeFile(FsDirectory::newDataTmpObject(true))
                      ->select('-p,--public')->isOptional()->isBoolean()
                      ->validate();
 
@@ -49,5 +49,5 @@ $argv['path'] = Strings::from($argv['path'], ($argv['public'] ? DIRECTORY_PUBTMP
 // Clear the specified temporary directory and we're done
 FsFile::new(
     ($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $argv['path'],
-    FsRestrictions::getWritable($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP)
+    FsRestrictions::newWritable($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP)
 )->delete();
