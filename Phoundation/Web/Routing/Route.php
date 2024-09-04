@@ -177,7 +177,7 @@ class Route
 
         // Get routing parameters and find the correct target page
         $parameters = static::getParametersObject()->select(static::$uri);
-        $target     = new FsFile($target, FsRestrictions::getReadonly(DIRECTORY_WEB));
+        $target     = new FsFile($target, FsRestrictions::newReadonly(DIRECTORY_WEB));
 
         Request::setRoutingParameters($parameters);
         Request::setAttachment($attachment);
@@ -267,7 +267,7 @@ class Route
      */
     protected static function init(): void
     {
-        Request::setRestrictions(FsRestrictions::getReadonly(DIRECTORY_WEB));
+        Request::setRestrictions(FsRestrictions::newReadonly(DIRECTORY_WEB));
         Response::initialize();
 
         if (Core::getMaintenanceMode()) {
@@ -951,6 +951,8 @@ class Route
                                     ':target' => ':' . $target,
                                 ]));
                         }
+
+                        Core::removeShutdownCallback(404);
 
                         Request::setRoutingParameters(static::getParametersObject()->select(static::$uri));
                         Response::redirect(Url::getWww($route)->addQueries($_GET), (int) $http_code);

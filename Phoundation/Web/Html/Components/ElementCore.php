@@ -186,15 +186,17 @@ abstract class ElementCore implements ElementInterface
             'height'    => $this->height,
             'width'     => $this->width,
             'autofocus' => ((static::$autofocus and (static::$autofocus === $this->id)) ? 'autofocus' : null),
-            'readonly'  => ($this->readonly ? 'readonly' : null),
-            'disabled'  => ($this->disabled ? 'disabled' : null),
+            'readonly'  => ($this->readonly                                             ? 'readonly'  : null),
+            'disabled'  => ($this->disabled                                             ? 'disabled'  : null),
         ];
+
         // Remove empty entries
         foreach ($return as $key => $value) {
             if ($value === null) {
                 unset($return[$key]);
             }
         }
+
         // Add data-* entries
         if (isset($this->data)) {
             foreach ($this->data as $key => $value) {
@@ -206,6 +208,7 @@ abstract class ElementCore implements ElementInterface
                 }
             }
         }
+
         // Add aria-* entries
         if (isset($this->aria)) {
             foreach ($this->aria as $key => $value) {

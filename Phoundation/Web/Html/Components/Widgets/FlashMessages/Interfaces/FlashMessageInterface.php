@@ -49,9 +49,9 @@ interface FlashMessageInterface extends ElementsBlockInterface
     /**
      * Returns the flash message subtitle
      *
-     * @return string
+     * @return string|null
      */
-    public function getSubTitle(): string;
+    public function getSubTitle(): ?string;
 
 
     /**
@@ -85,9 +85,9 @@ interface FlashMessageInterface extends ElementsBlockInterface
     /**
      * Returns the flash image contents
      *
-     * @return ImageFileInterface
+     * @return ImageFileInterface|null
      */
-    public function getImage(): ImageFileInterface;
+    public function getImage(): ?ImageFileInterface;
 
 
     /**

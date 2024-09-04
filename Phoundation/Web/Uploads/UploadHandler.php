@@ -97,7 +97,6 @@ class UploadHandler implements UploadHandlerInterface
                         ->getRestrictions()
                             ->addDirectory(DIRECTORY_TMP, true)
                             ->addDirectory('/tmp/', true);
-;
         }
 
         return $this->files;

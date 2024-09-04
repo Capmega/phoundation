@@ -101,13 +101,25 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
             if ($message->getData()) {
                 $count = 0;
 
-                foreach ($message->getDataKey('failures') as $message) {
-                    if (!trim($message)) {
-                        continue;
+                if ($message->dataKeyExists('failures')) {
+                    foreach ($message->getDataKey('failures') as $message) {
+                        if (!trim($message)) {
+                            continue;
+                        }
+
+                        $count++;
+                        $this->addValidationFailed($message);
                     }
 
-                    $count++;
-                    $this->addValidationFailed($message);
+                } else {
+                    foreach ($message->getData() as $message) {
+                        if (!trim($message)) {
+                            continue;
+                        }
+
+                        $count++;
+                        $this->addValidationFailed($message);
+                    }
                 }
 
                 if (!$count) {
@@ -241,8 +253,8 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
 
         // Add script tags around all the flash calls
         $this->render = Script::new()
-            ->setContent($this->render)
-            ->render();
+                              ->setContent($this->render)
+                              ->render();
 
         // Remove all flash messages from this object
         $this->clear();

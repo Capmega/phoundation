@@ -158,9 +158,9 @@ trait TraitElementAttributes
     /**
      * The element content
      *
-     * @var object|string|null $content
+     * @var string|null $content
      */
-    protected object|string|null $content = null;
+    protected ?string $content = null;
 
     /**
      * The element height
@@ -759,9 +759,9 @@ trait TraitElementAttributes
     /**
      * Returns the content of the element to display
      *
-     * @return string|null
+     * @return Stringable|string|float|int|null
      */
-    public function getContent(): ?string
+    public function getContent(): Stringable|string|float|int|null
     {
         return $this->content;
     }

@@ -23,7 +23,7 @@ use Phoundation\Core\Sessions\Session;
 class Web
 {
     /**
-     * Instructs the Libraries class to clear the commands cache
+     * Instructs the Libraries class to clear the web cache
      *
      * @return void
      */
@@ -34,7 +34,7 @@ class Web
 
 
     /**
-     * Instructs the Libraries class to have each library rebuild its command cache
+     * Instructs the Libraries class to have each library rebuild its web cache
      *
      * @return void
      */

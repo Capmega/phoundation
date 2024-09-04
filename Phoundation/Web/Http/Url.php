@@ -92,7 +92,7 @@ class Url implements UrlInterface
 
             $url = Url::getWww($url);
 
-            if ($url->getUrl(true) === static::getCurrent()->getUrl(true)) {
+            if ($url->getSource(true) === static::getCurrent()->getSource(true)) {
                 continue;
             }
 
@@ -174,7 +174,7 @@ class Url implements UrlInterface
      *
      * @return string
      */
-    public function getUrl(bool $strip_queries = false): string
+    public function getSource(bool $strip_queries = false): string
     {
         // Auto cloak URL's?
         $domain = static::getDomainFromUrl($this->url);
@@ -897,7 +897,7 @@ class Url implements UrlInterface
      */
     public function __toString(): string
     {
-        return $this->getUrl();
+        return $this->getSource();
     }
 
 
@@ -1061,6 +1061,7 @@ class Url implements UrlInterface
                         static::addQueries($key . '=' . $value);
                     }
                 }
+
                 continue;
             }
 
@@ -1088,7 +1089,7 @@ class Url implements UrlInterface
 
             } elseif (str_contains($this->url, $key . '=')) {
                 // The query already exists in the specified URL, replace it.
-                $replace   = Strings::cut($this->url, $key . '=', '&');
+                $replace   = Strings::cut($this->url, $key . '=', '&', false);
                 $this->url = str_replace($key . '=' . $replace, $key . '=' . $value, $this->url);
 
             } else {

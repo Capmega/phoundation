@@ -71,7 +71,7 @@ interface UploadInterface
      *
      * @return $this
      */
-    public function save(bool $force = false, ?string $comments = null): static;
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static;
 
     /**
      * Returns the Comments for this uploaded file

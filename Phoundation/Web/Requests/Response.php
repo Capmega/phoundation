@@ -578,7 +578,7 @@ class Response implements ResponseInterface
                 static::$page_headers['link'][$url] = [
                     'rel'  => 'icon',
                     'href' => Url::getImg($url),
-                    'type' => FsFile::new($file, FsRestrictions::getCdn())->getMimetype(),
+                    'type' => FsFile::new($file, FsRestrictions::newCdn())->getMimetype(),
                 ];
 
             } else {
@@ -1122,6 +1122,7 @@ class Response implements ResponseInterface
         //                ':url'  => $url
         //            ]));
         //        }
+
         // Build URL
         $target = Url::getWww($url);
 
@@ -1703,7 +1704,7 @@ class Response implements ResponseInterface
     {
         if (Request::getAttachment()) {
             // Send download headers and send the $html payload
-            FileResponse::new(Request::getTarget(), FsRestrictions::getWeb())
+            FileResponse::new(Request::getTarget(), FsRestrictions::newWeb())
                         ->setAttachment(true)
                         ->setData(static::getOutput())
                         ->setFilename(basename(Request::getTarget()->getSource()))

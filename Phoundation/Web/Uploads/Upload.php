@@ -314,17 +314,18 @@ class Upload extends DataEntry implements UploadInterface
      * If we have a tmp_name, we must have a hash!
      *
      * @param bool        $force
+     * @param bool        $skip_validation
      * @param string|null $comments
      *
      * @return $this
      */
-    public function save(bool $force = false, ?string $comments = null): static
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
         if ($this->getTmpName() and !$this->getHash()) {
             $this->generateHash();
         }
 
-        return parent::save($force, $comments);
+        return parent::save($force, $skip_validation, $comments);
     }
 
 
@@ -373,7 +374,7 @@ class Upload extends DataEntry implements UploadInterface
                                            ->setMaxlength(2048)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getFile($this, new FsDirectory('/tmp/', FsRestrictions::getWritable('/tmp/')), 'tmp_name')
+                    ->add(DefinitionFactory::getFile($this, new FsDirectory('/tmp/', FsRestrictions::newWritable('/tmp/')), null,'tmp_name')
                                            ->setLabel(tr('Temporary file name'))
                                            ->setMaxlength(255)
                                            ->setReadonly(true))

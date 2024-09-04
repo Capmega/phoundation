@@ -20,4 +20,5 @@ enum EnumJsonHtmlMethods: string
 {
     case replace = 'replace';
     case append  = 'append';
+    case prepend = 'prepend';
 }

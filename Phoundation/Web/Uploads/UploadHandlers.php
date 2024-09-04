@@ -189,13 +189,6 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
                     ->setType('Invalid file upload detected')
                     ->setSeverity(EnumSeverity::high)
                     ->setTitle(tr('Received invalid $_FILES data from client'))
-                    ->setDetails([
-                        '$_GET'     => GetValidator::new()->getSource(),
-                        '$_POST'    => PostValidator::new()->getSource(),
-                        '$_FILES'   => $_FILES,
-                        '$_SESSION' => $_SESSION,
-                        '$_SERVER'  => $_SERVER
-                    ])
                     ->save()
                     ->throw(ValidationFailedException::class);
 
@@ -623,6 +616,10 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
      */
     public function hasUploadedFiles(): bool
     {
+        if (empty(static::$files)) {
+            return false;
+        }
+
         return static::$files->isNotEmpty();
     }
 
@@ -634,6 +631,10 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
      */
     public function hasProcessedFiles(): bool
     {
+        if (empty(static::$processed)) {
+            return false;
+        }
+
         return static::$processed->isNotEmpty();
     }
 
@@ -656,7 +657,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
      */
     protected function quarantineAllUploadedFiles(): static
     {
-        $directory = new FsDirectory(DIRECTORY_DATA . 'quarantine', FsRestrictions::getData());
+        $directory = new FsDirectory(DIRECTORY_DATA . 'quarantine', FsRestrictions::newData());
         $directory = $directory->addDirectory(Session::getUserObject()->getId());
         $directory = $directory->addDirectory(DateTime::new()->format('file'));
 

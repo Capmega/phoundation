@@ -1251,7 +1251,7 @@ class Request implements RequestInterface
                         ':type' => static::getRequestType(),
                     ]))
                     ->setDetails([
-                        'user'         => $key->getUser()->getLogId(),
+                        'user'         => $key->getUserObject()->getLogId(),
                         'uri'          => static::getUri(),
                         'target'       => static::$target->getSource('web'),
                         'real_target'  => Strings::from($target, DIRECTORY_ROOT),
@@ -1382,13 +1382,13 @@ class Request implements RequestInterface
      */
     #[NoReturn] public static function executeSystem(int $http_code, ?Throwable $e = null, ?string $message = null): never
     {
-        if ($e instanceof \Exception and Debug::isEnabled()) {
-            // Don't show the pretty page, show the full exception
-            throw $e;
-        }
-
         static::$system_target = $http_code;
         static::$is_system     = true;
+
+        if (!Session::hasStartedUp()) {
+            // Start session here because the reply will need it
+            Session::startup();
+        }
 
         switch (static::getRequestType()) {
             case EnumRequestTypes::ajax:

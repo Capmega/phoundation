@@ -43,14 +43,21 @@ class JsonPage implements JsonPageInterface
      *
      * @var array $html
      */
-    protected array $html = [];
+    protected static array $html = [];
 
     /**
      * Tracks HTML flash messages for this reply
      *
      * @var array $flash
      */
-    protected array $flash = [];
+    protected static array $flash = [];
+
+    /**
+     * Tracks the reply that will be given. One of ok, error, signin, redirect, reload
+     *
+     * @var EnumJsonResponse|null $response
+     */
+    protected static ?EnumJsonResponse $response;
 
     /**
      * Tracks what this object will do after JsonPage::new()->reply() finishes
@@ -58,13 +65,6 @@ class JsonPage implements JsonPageInterface
      * @var EnumJsonAfterReply $action_after
      */
     protected EnumJsonAfterReply $action_after = EnumJsonAfterReply::die;
-
-    /**
-     * Tracks the reply that will be given. One of ok, error, signin, redirect, reload
-     *
-     * @var EnumJsonResponse|null $response
-     */
-    protected ?EnumJsonResponse $response;
 
 
     /**
@@ -121,11 +121,33 @@ class JsonPage implements JsonPageInterface
     public function getResponse(): ?EnumJsonResponse
     {
         // Apply default reply
-        if ($this->response === null) {
-            $this->response = static::getDefaultResponseForHttpCode(Response::getHttpCode());
+        if (static::$response === null) {
+            static::$response = static::getDefaultResponseForHttpCode(Response::getHttpCode());
         }
 
-        return $this->response;
+        return static::$response;
+    }
+
+
+    /**
+     * Returns the HTML sections that have been registered for the reply
+     *
+     * @return array
+     */
+    public function getHtmlSections(): array
+    {
+        return static::$html;
+    }
+
+
+    /**
+     * Returns the HTML flash messages that have been registered for the reply
+     *
+     * @return array
+     */
+    public function getFlashMessages(): array
+    {
+        return static::$flash;
     }
 
 
@@ -138,7 +160,7 @@ class JsonPage implements JsonPageInterface
      */
     public function setResponse(?EnumJsonResponse $response): static
     {
-        $this->response = $response;
+        static::$response = $response;
 
         return $this;
     }
@@ -310,7 +332,7 @@ class JsonPage implements JsonPageInterface
 
         } else {
             // This is just a single HTML section, make a list out of it
-            $this->html[] = $sections->renderJson();
+            static::$html[] = $sections->renderJson();
         }
 
         return $this;
@@ -334,7 +356,7 @@ class JsonPage implements JsonPageInterface
 
         } else {
             // This is just a single HTML section, make a list out of it
-            $this->flash[] = $messages->renderJson();
+            static::$flash[] = $messages->renderJson();
         }
 
         return $this;
@@ -479,8 +501,8 @@ class JsonPage implements JsonPageInterface
             'phoundation' => $expose,
             'response'    => $this->getResponse(),
             'http_code'   => Response::getHttpCode(),
-            'flash'       => $this->flash,
-            'html'        => $this->html,
+            'flash'       => static::$flash,
+            'html'        => static::$html,
             'data'        => $data,
         ];
     }

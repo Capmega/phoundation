@@ -13,7 +13,7 @@ interface UrlInterface
      *
      * @return string
      */
-    public function getUrl(bool $strip_queries = false): string;
+    public function getSource(bool $strip_queries = false): string;
 
 
     /**

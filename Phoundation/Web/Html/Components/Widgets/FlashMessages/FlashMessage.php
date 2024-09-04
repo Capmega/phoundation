@@ -32,6 +32,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     use TraitMode;
     use TraitDataTitle;
 
+
     /**
      * Subtitle of the flash message
      *
@@ -81,6 +82,39 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     protected bool $left = false;
 
+    /**
+     * Tracks the library that handles flash messages
+     *
+     * @var string $flash_handler
+     */
+    protected string $flash_handler = 'toast';
+
+
+    /**
+     * Returns the library that handles flash messages
+     *
+     * @return string
+     */
+    public function getFlashHandler(): string
+    {
+        return $this->flash_handler;
+    }
+
+
+    /**
+     * Sets the library that handles flash messages
+     *
+     * @param string $flash_handler
+     *
+     * @return static
+     */
+    public function setFlashHandler(string $flash_handler): static
+    {
+        $this->flash_handler = $flash_handler;
+
+        return $this;
+    }
+
 
     /**
      * Returns the flash message contents
@@ -111,9 +145,9 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     /**
      * Returns the flash message subtitle
      *
-     * @return string
+     * @return string|null
      */
-    public function getSubTitle(): string
+    public function getSubTitle(): ?string
     {
         return $this->sub_title;
     }
@@ -168,9 +202,9 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     /**
      * Returns the flash image contents
      *
-     * @return ImageFileInterface
+     * @return ImageFileInterface|null
      */
-    public function getImage(): ImageFileInterface
+    public function getImage(): ?ImageFileInterface
     {
         return $this->image;
     }
@@ -190,13 +224,13 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
             if ($this->icon) {
                 throw new OutOfBoundsException(tr('Cannot specify image for flash message, an icon was already set'));
             }
+
             if (is_string($image)) {
                 // image was specified as a string, make an image object
-                $image = ImageFile::new()
-                              ->setSource($image)
-                              ->setDescription($image);
+                $image = ImageFile::new($image)->setDescription($image);
             }
         }
+
         $this->image = get_null($image);
 
         return $this;
@@ -323,41 +357,28 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
 
 
     /**
-     * Renders and returns the HTML for this flash message without javascript tags
+     * Renders and returns the javascript for this flash message without javascript tags
      *
      * @return string|null
      */
     public function renderBare(): ?string
     {
-        $image = $this->image?->getImgObject();
+        return match ($this->flash_handler) {
+            'toast' => Toast::new($this)->render()
+        };
+    }
 
-        if ($this->top) {
-            if ($this->left) {
-                $position = 'topLeft';
 
-            } else {
-                $position = 'topRight';
-            }
-        } else {
-            if ($this->left) {
-                $position = 'bottomLeft';
-
-            } else {
-                $position = 'bottomRight';
-            }
-        }
-
-        return '
-            $(document).Toasts("create", {
-                class: "bg-' . $this->mode->value . '",
-                title: "' . Strings::escape($this->title) . '",
-                subtitle: "' . Strings::escape($this->sub_title) . '",
-                position: "' . $position . '",
-                ' . ($image            ? 'image: "' . Strings::escape($image->getSrc()) . '", image-alt: "' . Strings::escape($image->getAlt()) . '",' : null) . '                           
-                ' . ($this->icon       ? 'icon: "fas fa-' . Strings::escape($this->icon) . ' fa-lg",' : null) . '                           
-                ' . ($this->auto_close ? 'autohide: true, delay: ' . $this->auto_close . ',' . PHP_EOL : null) . '
-                body: "' . Strings::escape($this->content) . '"
-            });';
+    /**
+     * Renders and returns the configuration for this flash message without javascript tags or calls
+     *
+     * @return string|null
+     */
+    public function renderConfiguration(): ?string
+    {
+        return match ($this->flash_handler) {
+            'toast' => Toast::new($this)->renderConfiguration()
+        };
     }
 
 

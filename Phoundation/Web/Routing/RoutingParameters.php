@@ -398,7 +398,7 @@ class RoutingParameters implements RoutingParametersInterface
      */
     public function getRestrictions(): FsRestrictionsInterface
     {
-        return $this->restrictions ?? FsRestrictions::getWeb(false, 'RoutingParameter::setRestrictions()');
+        return $this->restrictions ?? FsRestrictions::newWeb(false, 'RoutingParameter::setRestrictions()');
     }
 
 
@@ -411,7 +411,7 @@ class RoutingParameters implements RoutingParametersInterface
      */
     public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions): static
     {
-        $this->restrictions = $restrictions ?? FsRestrictions::getWeb(false, 'RoutingParameter::setRestrictions()');
+        $this->restrictions = $restrictions ?? FsRestrictions::newWeb(false, 'RoutingParameter::setRestrictions()');
 
         return $this;
     }

@@ -16,7 +16,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Interfaces;
 
-interface WidgetInterface
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+
+
+interface WidgetInterface extends ElementsBlockInterface
 {
     /**
      * Returns if this card is shown with gradient color or not
