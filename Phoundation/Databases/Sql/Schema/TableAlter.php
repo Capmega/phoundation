@@ -36,6 +36,7 @@ class TableAlter extends SchemaAbstract
             ':from' => $this->name,
             ':tp'   => $name,
         ]);
+
         $this->name = $name;
 
         return $this;
@@ -59,6 +60,7 @@ class TableAlter extends SchemaAbstract
                 // Quietly drop empty columns
                 continue;
             }
+
             $this->addColumn($column, $after);
         }
 
@@ -72,19 +74,22 @@ class TableAlter extends SchemaAbstract
      * @note This will clear the current columns array
      *
      * @param string $column
-     * @param string $after
+     * @param string $before_after
      *
      * @return static
      */
-    public function addColumn(string $column, string $after): static
+    public function addColumn(string $column, string $before_after): static
     {
         if (!$column) {
             throw new OutOfBoundsException(tr('No column specified'));
         }
-        if (!$after) {
+
+        if (!$before_after) {
             throw new OutOfBoundsException(tr('No after column specified'));
         }
-        $this->sql->query('ALTER TABLE `' . $this->name . '` ADD COLUMN ' . Strings::ensureEndsNotWith($column, ',') . ' ' . $after);
+
+        $this->sql->query('ALTER TABLE `' . $this->name . '` 
+                                 ADD COLUMN ' . Strings::ensureEndsNotWith($column, ',') . ' ' . $before_after);
 
         return $this;
     }
@@ -125,11 +130,14 @@ class TableAlter extends SchemaAbstract
         if (!$column) {
             throw new OutOfBoundsException(tr('No column specified'));
         }
+
         if (!$to_definition) {
             throw new OutOfBoundsException(tr('No new column definition specified'));
         }
+
         $column = Strings::ensureStartsNotWith($column, '`');
         $column = Strings::ensureEndsNotWith($column, '`');
+
         $this->sql->query('ALTER TABLE `' . $this->name . '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
 
         return $this;
@@ -149,11 +157,14 @@ class TableAlter extends SchemaAbstract
         if (!$column) {
             throw new OutOfBoundsException(tr('No column specified'));
         }
+
         if (!$to_definition) {
             throw new OutOfBoundsException(tr('No new column definition specified'));
         }
+
         $column = Strings::ensureStartsNotWith($column, '`');
         $column = Strings::ensureEndsNotWith($column, '`');
+
         $this->sql->query('ALTER TABLE `' . $this->name . '` CHANGE COLUMN `' . $column . '` ' . $to_definition);
 
         return $this;
@@ -203,6 +214,7 @@ class TableAlter extends SchemaAbstract
                 // Quietly drop empty indices
                 continue;
             }
+
             $this->addIndex($index);
         }
 
@@ -220,7 +232,8 @@ class TableAlter extends SchemaAbstract
     public function addIndex(string $index): static
     {
         if ($index) {
-            $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . Strings::ensureEndsNotWith($index, ','));
+            $this->sql->query('ALTER TABLE ' . $this->name . ' 
+                                     ADD ' . Strings::ensureEndsNotWith($index, ','));
         }
 
         return $this;
@@ -237,7 +250,8 @@ class TableAlter extends SchemaAbstract
     public function dropIndex(string $index): static
     {
         if ($index) {
-            $this->sql->query('ALTER TABLE ' . $this->name . ' DROP KEY `' . Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($index, '`'), '`') . '`');
+            $this->sql->query('ALTER TABLE ' . $this->name . ' 
+                                     DROP KEY `' . Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($index, '`'), '`') . '`');
         }
 
         return $this;
@@ -258,6 +272,7 @@ class TableAlter extends SchemaAbstract
                 // Quietly drop empty foreign keys
                 continue;
             }
+
             $this->addForeignKey($foreign_key);
         }
 

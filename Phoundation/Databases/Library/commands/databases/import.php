@@ -27,7 +27,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Utils;
 
 
-$restrictions = FsRestrictions::getReadonly( [
+$restrictions = FsRestrictions::newReadonly( [
                                            DIRECTORY_DATA . 'sources/',
                                            DIRECTORY_TMP,
                                        ], tr('Import'));
@@ -83,7 +83,7 @@ CliDocumentation::setAutoComplete([
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('-f,--file', true)->sanitizeFile([FsDirectory::getDataSourcesObject(), FsDirectory::getDataTmpObject()])
+                     ->select('-f,--file', true)->sanitizeFile([FsDirectory::newDataSourcesObject(), FsDirectory::newDataTmpObject()])
                      ->select('-b,--database', true)->isVariable()
                      ->select('--comments', true)->isOptional()->isPrintable()
                      ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(null, true, true, true)->getAllRowsSingleColumn('name'))

@@ -50,7 +50,7 @@ class Connectors extends DataIterator implements ConnectorsInterface
     /**
      * @inheritDoc
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return Connector::class;
     }

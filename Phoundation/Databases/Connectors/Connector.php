@@ -174,12 +174,12 @@ class Connector extends DataEntry implements ConnectorInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
-     * @param bool                                     $force
+     * @param bool                                     $ignore_deleted
      *
      * @return Connector
      * @throws \Exception
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $force = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
     {
         if (is_numeric($identifier) and ($identifier < 0)) {
             // Negative identifier is a configured connector!
@@ -187,7 +187,7 @@ class Connector extends DataEntry implements ConnectorInterface
         }
 
         try {
-            return parent::load($identifier, $meta_enabled, $force);
+            return parent::load($identifier, $meta_enabled, $ignore_deleted);
 
         } catch (DataEntryNotExistsException $e) {
             throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [

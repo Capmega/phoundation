@@ -24,7 +24,7 @@ use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 
 
-$restrictions = FsRestrictions::getWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP]));
+$restrictions = FsRestrictions::newWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP]));
 
 CliDocumentation::setUsage('./pho databases export -d mysql -b system -f system.sql');
 
@@ -94,7 +94,7 @@ CliDocumentation::setAutoComplete([
 $argv = ArgvValidator::new()
                      ->select('-g,--gzip')->isOptional(false)->isBoolean()
                      ->select('--timeout', true)->isOptional(3600)->isInteger()->isMoreThan(0)
-                     ->select('-f,--file', true)->isOptional()->sanitizeFile([FsDirectory::getDataSourcesObject(), FsDirectory::getTemporaryObject()])
+                     ->select('-f,--file', true)->isOptional()->sanitizeFile([FsDirectory::newDataSourcesObject(), FsDirectory::newTemporaryObject()])
                      ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(null, true, true)->getAllRowsSingleColumn('name'))
                      ->select('-b,--database', true)->isVariable()
                      ->validate();

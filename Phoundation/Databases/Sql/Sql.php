@@ -1229,14 +1229,18 @@ class Sql implements SqlInterface
     /**
      * Use the specified database
      *
-     * @param string|null $database The database to use. If none was specified, the configured system database will be
-     *                              used
+     * @param string|true|null $database The database to use. If none was specified, the configured system database will
+     *                                   be used
      *
      * @return static
      * @throws SqlException
      */
-    public function use(?string $database = null): static
+    public function use(string|true|null $database = null): static
     {
+        if ($database === true) {
+            $database = $this->configuration['database'];
+        }
+
         if (empty($database)) {
             $this->database = null;
 

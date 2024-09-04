@@ -134,7 +134,7 @@ class Export
      */
     public function __construct(?FsRestrictionsInterface $restrictions = null)
     {
-        $this->restrictions = FsRestrictions::getRestrictionsOrDefault($restrictions, FsRestrictions::getWritable('/'));
+        $this->restrictions = FsRestrictions::getRestrictionsOrDefault($restrictions, FsRestrictions::newWritable('/'));
     }
 
 
