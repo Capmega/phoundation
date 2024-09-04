@@ -26,6 +26,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Notifications\Notification;
+use Phoundation\Web\Html\Components\P;
 use StephenHill\Base58;
 use Stringable;
 use Throwable;
@@ -2514,5 +2515,33 @@ throw new UnderConstructionException();
     public static function matches(Stringable|string $haystack, DataIteratorInterface|array|string|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): bool
     {
         return (bool) static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, $flags);
+    }
+
+
+    /**
+     * Splits the specified source string into key => value on the specified character
+     *
+     * @param Stringable|string|null $source
+     * @param string                 $character
+     * @param bool                   $trim
+     * @param bool                   $lowercase_key
+     *
+     * @return array
+     */
+    public static function split(Stringable|string|null $source, string $character, bool $trim = true, bool $lowercase_key = true): array
+    {
+        $value = Strings::from($source, $character);
+        $key   = Strings::until($source, $character);
+
+        if ($trim) {
+            $value = trim($value);
+            $key   = trim($key);
+        }
+
+        if ($lowercase_key) {
+            $key = strtolower($key);
+        }
+
+        return [$key => $value];
     }
 }

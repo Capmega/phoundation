@@ -730,7 +730,7 @@ class Config implements ConfigInterface
         $store = [];
 
         // Scan all files for Config::get() and Config::set() calls
-        FsDirectory::new(DIRECTORY_ROOT, FsRestrictions::getWritable(DIRECTORY_ROOT))
+        FsDirectory::new(DIRECTORY_ROOT, FsRestrictions::newWritable(DIRECTORY_ROOT))
                  ->execute()
                  ->addSkipDirectories([
                      DIRECTORY_DATA,
@@ -740,7 +740,7 @@ class Config implements ConfigInterface
                  ->setRecurse(true)
                  ->setRestrictions(new FsRestrictions(DIRECTORY_ROOT))
                  ->onFiles(function (string $file) use (&$store) {
-                     $files = FsFile::new($file, FsRestrictions::getReadonly(DIRECTORY_ROOT))
+                     $files = FsFile::new($file, FsRestrictions::newReadonly(DIRECTORY_ROOT))
                                     ->grep([
                                       'Config::get(\'',
                                       'Config::set(\'',

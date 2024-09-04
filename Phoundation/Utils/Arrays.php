@@ -1867,11 +1867,17 @@ class Arrays extends Utils
             'delete' => [],
         ];
 
+        $source1   = (is_object($source1) ? $source1->getSource() : $source1);
+        $source2   = (is_object($source2) ? $source2->getSource() : $source2);
         $keep_list = [];
 
         foreach ($source1 as $key => $value) {
             if ($value and !is_scalar($value)) {
-                throw new OutOfBoundsException(tr('Can only take diffs from scalar values while source 1 has a non-scalar value'));
+                throw OutOfBoundsException::new(tr('Can only take diffs from scalar values while source 1 has a non-scalar value'))
+                                          ->addData([
+                                              'source1' => $source1,
+                                              'source2' => $source2,
+                                          ]);
             }
 
             if (in_array($value, $source2)) {
@@ -1885,7 +1891,11 @@ class Arrays extends Utils
 
         foreach ($source2 as $key => $value) {
             if ($value and !is_scalar($value)) {
-                throw new OutOfBoundsException(tr('Only scalar values are supported while source 2 has a non-scalar value'));
+                throw OutOfBoundsException::new(tr('Only scalar values are supported while source 2 has a non-scalar value'))
+                                          ->addData([
+                                              'source1' => $source1,
+                                              'source2' => $source2,
+                                          ]);
             }
 
             if (!in_array($value, $source1)) {
