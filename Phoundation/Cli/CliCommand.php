@@ -224,7 +224,7 @@ class CliCommand
 
         // Execute the command and finish execution
         try {
-            Request::setRestrictions(FsRestrictions::getReadonly(DIRECTORY_COMMANDS));
+            Request::setRestrictions(FsRestrictions::newReadonly(DIRECTORY_COMMANDS));
             Request::execute(static::$command . '.php');
 
         } catch (SqlNoTimezonesException $e) {
@@ -1113,7 +1113,7 @@ class CliCommand
         if ($argv['usage']) {
             $results = FsFile::new(
                 static::$command . '.php',
-                FsRestrictions::getCommands(false, 'CliCommand::checkUsage()')
+                FsRestrictions::newCommands(false, 'CliCommand::checkUsage()')
             )->grep(['CliDocumentation::setUsage('], 100);
 
             if (empty($results)) {
@@ -1137,7 +1137,7 @@ class CliCommand
         if ($argv['help']) {
             $results = FsFile::new(
                 static::$command . '.php',
-                FsRestrictions::getCommands(false, 'CliCommand::checkUsage()')
+                FsRestrictions::newCommands(false, 'CliCommand::checkUsage()')
             )->grep(['CliDocumentation::setHelp('], 100);
 
             if (empty($results)) {

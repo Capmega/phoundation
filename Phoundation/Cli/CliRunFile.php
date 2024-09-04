@@ -76,12 +76,13 @@ class CliRunFile extends FsFileCore implements CliRunFileInterface
      */
     public function __construct(string $command)
     {
-        $this->restrictions = FsRestrictions::new(DIRECTORY_SYSTEM . 'run/', true);
+        $this->setAutoMount(false)
+             ->restrictions = FsRestrictions::new(DIRECTORY_SYSTEM . 'run/', true);
 
         static::$directory = FsDirectory::new(
             DIRECTORY_SYSTEM . 'run/',
             $this->restrictions
-        );
+        )->setAutoMount(false);
 
         $this->setCommand(Strings::from($command, DIRECTORY_COMMANDS))
              ->setPid(getmypid())
@@ -396,7 +397,7 @@ showdie($cmd);
     public function delete(bool|string $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
         // Delete all subprocess run files for this PID, then delete this run file
-        FsDirectory::new(DIRECTORY_SYSTEM . 'run/pids/' . Core::getProcessUid(), FsRestrictions::getSystem(true))->delete();
+        FsDirectory::new(DIRECTORY_SYSTEM . 'run/pids/' . Core::getProcessUid(), FsRestrictions::newSystem(true))->delete();
 
         return parent::delete($clean_path, $sudo, $escape, $use_run_file);
     }

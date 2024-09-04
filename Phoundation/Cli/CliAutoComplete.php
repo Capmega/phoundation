@@ -680,7 +680,7 @@ class CliAutoComplete
         $command          = explode('/', $command);
         static::$position = static::$position - count($command);
 
-        return !empty(FsFile::new(static::$command . '.php', FsRestrictions::getCommands())
+        return !empty(FsFile::new(static::$command . '.php', FsRestrictions::newCommands())
                             ->grep(['Documentation::setAutoComplete('], 500));
     }
 
@@ -692,7 +692,7 @@ class CliAutoComplete
      */
     public static function ensureAvailable(): void
     {
-        $file = FsFile::new('~/.bash_completion', FsRestrictions::getWritable('~/.bash_completion'))
+        $file = FsFile::new('~/.bash_completion', FsRestrictions::newWritable('~/.bash_completion'))
                       ->makeAbsolute(must_exist: false);
 
         if ($file->exists()) {
