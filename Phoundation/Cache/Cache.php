@@ -71,7 +71,7 @@ class Cache
 
         Log::action(tr('Clearing file caches'), 3);
 
-        FsPath::new(DIRECTORY_SYSTEM . 'cache/files/', FsRestrictions::getWritable(DIRECTORY_SYSTEM . 'cache/files/'))
+        FsPath::new(DIRECTORY_SYSTEM . 'cache/files/', FsRestrictions::newWritable(DIRECTORY_SYSTEM . 'cache/files/'))
             ->delete();
 
         static::driver()?->clear();
@@ -224,7 +224,7 @@ class Cache
 
         if ($auto_commit) {
             // Is there anything to commit?
-            $directory = new FsDirectory(DIRECTORY_SYSTEM . 'cache/system/' . $section, FsRestrictions::getCache(true));
+            $directory = new FsDirectory(DIRECTORY_SYSTEM . 'cache/system/' . $section, FsRestrictions::newCache(true));
             $git       = Git::new($directory);
 
             if ($git->getStatusFilesObject()->getCount()) {

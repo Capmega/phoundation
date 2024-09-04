@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Command cache system rebuild all
+ * Command cache system rebuild cron
  *
- * This command will rebuild all system caches
+ * This command rebuilds the system cron cache
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Core
+ * @package   Phoundation\Cron
  */
 
 
@@ -20,14 +20,14 @@ use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
-CliDocumentation::setUsage('./pho cache system rebuild all [OPTIONS]
-./pho cache system rebuild all
-./pho cache system rebuild all --commit
-./pho cache system rebuild all --sign
+CliDocumentation::setUsage('./pho cache system rebuild cron [OPTIONS]
+./pho cache system rebuild cron
+./pho cache system rebuild cron --commit
+./pho cache system rebuild cron --sign
 ');
 
-CliDocumentation::setHelp('This command will rebuild all the system caches and automatically commit the updated 
-system caches to git
+CliDocumentation::setHelp('This command will rebuild the system cron caches and automatically commit the updated cron 
+caches to git
 
 
 ARGUMENTS
@@ -50,19 +50,15 @@ CliDocumentation::setAutoComplete([
 
 // Get command arguments
 $argv = ArgvValidator::new()
-    ->select('-c,--auto-commit')->isOptional(false)->isBoolean()
-    ->select('-s,--sign')->isOptional(false)->requiresNotEmpty('--auto-commit')->isBoolean()
-    ->select('-m,--message', true)->isOptional()->requiresNotEmpty('--auto-commit')->isDescription()
-    ->validate();
+                     ->select('-c,--auto-commit')->isOptional(false)->isBoolean()
+                     ->select('-s,--sign')->isOptional(false)->requiresNotEmpty('--auto-commit')->isBoolean()
+                     ->select('-m,--message', true)->isOptional()->requiresNotEmpty('--auto-commit')->isDescription()
+                     ->validate();
 
 
-// Rebuild commands and web cache
-Libraries::rebuildWebCache();
-Libraries::rebuildHookCache();
+// Rebuild cron cache
 Libraries::rebuildCronCache();
-Libraries::rebuildTestsCache();
-Libraries::rebuildCommandsCache();
 
 
-// Commit the system web cache?
-Cache::systemAutoGitCommit(null, $argv['auto_commit'], $argv['sign'], $argv['message']);
+/// Try to auto commit the cache rebuild
+Cache::systemAutoGitCommit('cron', $argv['auto_commit'], $argv['sign'], $argv['message']);
