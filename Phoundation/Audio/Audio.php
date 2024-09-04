@@ -36,7 +36,7 @@ class Audio extends FsFile
     public function __construct(Stringable|string|null $source = null, bool|FsRestrictionsInterface|null $restrictions = null, bool|Stringable|string|null $absolute_prefix = false)
     {
         if (!$source instanceof FsPathInterface) {
-            $restrictions = $restrictions ?? FsRestrictions::getReadonly(DIRECTORY_DATA . 'audio');
+            $restrictions = $restrictions ?? FsRestrictions::newReadonly(DIRECTORY_DATA . 'audio');
         }
 
         parent::__construct($source, $restrictions, $absolute_prefix);
@@ -55,7 +55,7 @@ class Audio extends FsFile
         if (Config::getBoolean('audio.local.enabled', true)) {
             if (!defined('NOAUDIO') or !NOAUDIO) {
                 try {
-                    Mpg123::new(new FsDirectory(DIRECTORY_DATA . 'audio', FsRestrictions::getData()))
+                    Mpg123::new(new FsDirectory(DIRECTORY_DATA . 'audio', FsRestrictions::newData()))
                           ->setFile($this->makeAbsolute(DIRECTORY_DATA . 'audio'))
                           ->play($background);
 

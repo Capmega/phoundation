@@ -235,9 +235,9 @@ interface ExceptionInterface extends Throwable, ArrayableInterface
     /**
      * Tracks if this exception has been logged
      *
-     * @param null|true $set
+     * @param null|bool $set
      *
      * @return bool
      */
-    public function hasBeenLogged(null|true $set = null): bool;
+    public function hasBeenLogged(?bool $set = null): bool;
 }

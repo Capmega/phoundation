@@ -57,7 +57,7 @@ class SshAccounts extends DataIterator
      *
      * @return string|null
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return SshAccount::class;
     }
@@ -127,7 +127,7 @@ class SshAccounts extends DataIterator
 
             if (array_key_exists('file', $entry)) {
                 if ($entry['file']) {
-                    $entry['ssh_key'] = FsFile::new($entry['file'], FsRestrictions::getFilesystemRoot())->getContentsAsString();
+                    $entry['ssh_key'] = FsFile::new($entry['file'], FsRestrictions::newFilesystemRoot())->getContentsAsString();
                 }
             }
         }

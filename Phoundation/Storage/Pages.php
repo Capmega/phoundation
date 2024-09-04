@@ -35,7 +35,7 @@ class Pages extends DataIterator implements PagesInterface
     /**
      * @inheritDoc
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return Request::class;
     }

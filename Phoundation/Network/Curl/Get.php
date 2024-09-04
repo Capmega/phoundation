@@ -130,7 +130,7 @@ class Get extends Curl
         if ($this->close) {
             // Close this cURL session
             if (!empty($this->cookie_file)) {
-                FsFile::new($this->cookie_file, FsRestrictions::getWritable(DIRECTORY_DATA . 'curl/'))
+                FsFile::new($this->cookie_file, FsRestrictions::newWritable(DIRECTORY_DATA . 'curl/'))
                       ->delete();
             }
             unset($this->cookie_file);

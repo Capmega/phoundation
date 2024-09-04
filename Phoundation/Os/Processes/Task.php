@@ -1102,7 +1102,7 @@ class Task extends DataEntry implements TaskInterface
      *
      * @return static
      */
-    public function save(bool $force = false, ?string $comments = null): static
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
         if ($this->saveBecauseModified($force)) {
             if (!$this->isNew()) {
@@ -1409,7 +1409,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setCliColumn('[-d,--execution-directory PATH]')
                                     ->setSize(4)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDirectory(FsDirectory::getFilesystemRootObject());
+                                        $validator->isDirectory(FsDirectory::newFilesystemRootObject());
                                     }))
                     ->add(Definition::new($this, 'command')
                                     ->setInputType(EnumInputType::text)

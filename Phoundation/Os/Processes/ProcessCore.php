@@ -213,7 +213,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             // commands should all have 750. Check for this, and if not, make it 750 and retry.
             $file = FsFile::new(
                 $this->command,
-                FsRestrictions::getWritable(dirname($this->command))
+                FsRestrictions::newWritable(dirname($this->command))
             );
 
             if ($file->getParentDirectory()->getSource() === DIRECTORY_DATA . 'bin/') {

@@ -31,7 +31,7 @@ class Proc
      */
     public static function getSupportedFiletypes(): Iterator
     {
-        $types = FsFile::new('/proc/filesystems', FsRestrictions::getReadonly('/proc/filesystems'))
+        $types = FsFile::new('/proc/filesystems', FsRestrictions::newReadonly('/proc/filesystems'))
                        ->getContentsAsArray();
         foreach ($types as &$type) {
             $type = Strings::from($type, 'nodev');

@@ -423,6 +423,19 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
 
     /**
+     * Returns true if the specified exception data key exists
+     *
+     * @param string|int $key
+     *
+     * @return bool
+     */
+    public function dataKeyExists(string|int $key): bool
+    {
+        return array_key_exists($key, $this->data);
+    }
+
+
+    /**
      * Returns true if the exception data matches the specified needle(s)
      *
      * @param array|string $needle
@@ -932,7 +945,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      */
     public function hasBeenLogged(?bool $set = null): bool
     {
-        if ($set) {
+        if ($set !== null) {
             $this->has_been_logged = $set;
         }
 

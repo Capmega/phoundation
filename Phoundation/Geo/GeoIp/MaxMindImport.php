@@ -130,7 +130,7 @@ class MaxMindImport extends GeoIpImport
         if (empty($target_directory)) {
             $configured       = Config::getString('geo.ip.max-mind.path', DIRECTORY_DATA . 'sources/geoip/maxmind/');
             $configured       = FsDirectory::absolutePath($configured, DIRECTORY_ROOT, false);
-            $target_directory = FsDirectory::new($configured, FsRestrictions::getWritable($configured));
+            $target_directory = FsDirectory::new($configured, FsRestrictions::newWritable($configured));
         }
 
         $target_directory->ensure();
@@ -142,7 +142,7 @@ class MaxMindImport extends GeoIpImport
 
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            FsFile::new(DIRECTORY_DATA . 'garbage/maxmind', FsRestrictions::getData(true))->delete();
+            FsFile::new(DIRECTORY_DATA . 'garbage/maxmind', FsRestrictions::newData(true))->delete();
             FsFile::new(
                 $source_directory . 'GeoLite2-*',
                 $source_directory->getRestrictions()

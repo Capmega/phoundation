@@ -793,7 +793,7 @@ trait ProcessVariables
      */
     public function setExecutionDirectoryToTemp(bool $public = false): static
     {
-        return $this->setExecutionDirectory(FsDirectory::getTemporaryObject($public));
+        return $this->setExecutionDirectory(FsDirectory::newTemporaryObject($public));
     }
 
 
@@ -842,7 +842,7 @@ trait ProcessVariables
 
         if ($this->use_run_file) {
             // Make sure the run file directory exists
-            FsDirectory::new(static::$run_directory, FsRestrictions::getSystem(true))->ensure();
+            FsDirectory::new(static::$run_directory, FsRestrictions::newSystem(true))->ensure();
         }
 
         return $this;
@@ -857,7 +857,7 @@ trait ProcessVariables
     public static function deleteRunDirectory(): void
     {
         if (static::$run_directory) {
-            FsDirectory::new(static::$run_directory, FsRestrictions::getSystem(true))->delete(false, use_run_file: false);
+            FsDirectory::new(static::$run_directory, FsRestrictions::newSystem(true))->delete(false, use_run_file: false);
         }
     }
 

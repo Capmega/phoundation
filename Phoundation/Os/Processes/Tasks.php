@@ -65,7 +65,7 @@ class Tasks extends DataIterator implements TasksInterface
      *
      * @return string|null
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return Task::class;
     }

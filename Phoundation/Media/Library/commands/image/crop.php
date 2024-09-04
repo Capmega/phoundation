@@ -29,7 +29,7 @@ CliDocumentation::setHelp('This command can apply various conversions to the spe
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('method')->isName()
-                     ->select('file')->sanitizeFile(FsDirectory::getFilesystemRootObject())
+                     ->select('file')->sanitizeFile(FsDirectory::newFilesystemRootObject())
                      ->validate();
 
 

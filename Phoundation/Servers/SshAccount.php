@@ -57,7 +57,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
     public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
         $this->configuration_path = 'ssh.accounts';
-        $this->restrictions       = FsRestrictions::getFilesystemRoot();
+        $this->restrictions       = FsRestrictions::newFilesystemRoot();
 
         parent::__construct($identifier, $meta_enabled, $init);
     }
@@ -153,7 +153,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
 
             if (array_key_exists('file', $this->source)) {
                 if ($this->source['file']) {
-                    $this->source['ssh_key'] = FsFile::new($this->source['file'], FsRestrictions::getFilesystemRoot())->getContentsAsString();
+                    $this->source['ssh_key'] = FsFile::new($this->source['file'], FsRestrictions::newFilesystemRoot())->getContentsAsString();
                 }
             }
         }
@@ -191,12 +191,12 @@ class SshAccount extends DataEntry implements SshAccountInterface
                     ->add(DefinitionFactory::getDescription($this)
                                            ->setHelpText(tr('The description for this account')))
 
-                    ->add(DefinitionFactory::getFile($this, null, 'file')
+                    ->add(DefinitionFactory::getFile($this)
                                            ->setLabel(tr('SSH key file'))
                                            ->setCliColumn(tr('-i,--ssh-key-file FILE'))
                                            ->setHelpText(tr('The SSH key file for this account'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isFile(FsDirectory::getFilesystemRootObject());
+                                               $validator->isFile(FsDirectory::newFilesystemRootObject());
                                            }))
 
                     ->add(Definition::new($this, 'ssh_key')

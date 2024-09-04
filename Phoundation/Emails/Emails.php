@@ -34,7 +34,7 @@ class Emails extends DataIterator
     /**
      * @inheritDoc
      */
-    public static function getDefaultContentDataTypes(): ?string
+    public static function getDefaultContentDataType(): ?string
     {
         return Email::class;
     }

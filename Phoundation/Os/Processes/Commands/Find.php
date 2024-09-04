@@ -794,27 +794,28 @@ class Find extends Command implements FindInterface
         if (!$this->path) {
             throw new OutOfBoundsException(tr('Cannot execute find, no path has been specified'));
         }
+
         try {
             $this->setCommand('find')
                  ->setTimeout($this->timeout)
                  ->addArgument($this->path->getSource())
-                 ->addArguments($this->mount           ? '-mount'                                   : null)
-                 ->addArguments($this->empty           ? '-empty'                                   : null)
-                 ->addArguments($this->follow_symlinks ? '-L'                                       : null)
-                 ->addArguments($this->name            ? ['-name'    , $this->name]                 : null)
-                 ->addArguments($this->iname           ? ['-iname'   , $this->iname]                : null)
+                 ->addArguments($this->mount           ? '-mount'                                     : null)
+                 ->addArguments($this->empty           ? '-empty'                                     : null)
+                 ->addArguments($this->follow_symlinks ? '-L'                                         : null)
+                 ->addArguments($this->name            ? ['-name'    , $this->name]                   : null)
+                 ->addArguments($this->iname           ? ['-iname'   , $this->iname]                  : null)
                  ->addArguments($this->find_path       ? ['-path'    , $this->find_path->getSource()] : null)
-                 ->addArguments($this->atime           ? ['-amin'    , $this->atime]                : null)
-                 ->addArguments($this->ctime           ? ['-cmin'    , $this->ctime]                : null)
-                 ->addArguments($this->mtime           ? ['-mmin'    , $this->mtime]                : null)
-                 ->addArguments($this->type            ? ['-type'    , $this->type]                 : null)
-                 ->addArguments($this->regex           ? ['-regex'   , $this->regex]                : null)
-                 ->addArguments($this->size            ? ['-size'    , $this->size]                 : null)
-                 ->addArguments($this->depth           ? ['-depth'   , $this->depth]                : null)
-                 ->addArguments($this->max_depth       ? ['-maxdepth', $this->max_depth]            : null)
-                 ->addArguments($this->min_depth       ? ['-mindepth', $this->min_depth]            : null)
-                 ->addArguments($this->size            ? ['-size'    , $this->size]                 : null)
-                 ->addArguments($this->exec            ? ['-exec'    , $this->exec]                 : null);
+                 ->addArguments($this->atime           ? ['-amin'    , $this->atime]                  : null)
+                 ->addArguments($this->ctime           ? ['-cmin'    , $this->ctime]                  : null)
+                 ->addArguments($this->mtime           ? ['-mmin'    , $this->mtime]                  : null)
+                 ->addArguments($this->type            ? ['-type'    , $this->type]                   : null)
+                 ->addArguments($this->regex           ? ['-regex'   , $this->regex]                  : null)
+                 ->addArguments($this->size            ? ['-size'    , $this->size]                   : null)
+                 ->addArguments($this->depth           ? ['-depth'   , $this->depth]                  : null)
+                 ->addArguments($this->max_depth       ? ['-maxdepth', $this->max_depth]              : null)
+                 ->addArguments($this->min_depth       ? ['-mindepth', $this->min_depth]              : null)
+                 ->addArguments($this->size            ? ['-size'    , $this->size]                   : null)
+                 ->addArguments($this->exec            ? ['-exec'    , $this->exec]                   : null);
 
         } catch (ProcessFailedException $e) {
             FsPath::new($this->path)

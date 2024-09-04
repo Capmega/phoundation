@@ -68,7 +68,7 @@ $argv = ArgvValidator::new()
                      ->select('server')->isOptional('localhost')->isDomainOrIp()
                      ->select('background')->isOptional()->isBoolean()
                      ->select('ssh_key')->isOptional()->isBoolean()
-                     ->select('ssh_key_file')->isOptional()->isFile(FsDirectory::getFilesystemRootObject())
+                     ->select('ssh_key_file')->isOptional()->isFile(FsDirectory::newFilesystemRootObject())
                      ->validate();
 
 
