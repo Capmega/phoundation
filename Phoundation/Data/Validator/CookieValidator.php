@@ -64,7 +64,6 @@ class CookieValidator extends Validator
     public static function hideData(): void
     {
         global $_COOKIE;
-
         // Copy COOKIE data and reset both COOKIE and REQUEST
         static::$cookies = $_COOKIE;
         $_COOKIE = [];
@@ -95,15 +94,12 @@ class CookieValidator extends Validator
         if (!$apply) {
             return $this;
         }
-
         if (count($this->selected_fields) === count(static::$cookies)) {
             return $this;
         }
-
         $messages = [];
         $fields   = [];
         $post     = array_keys(static::$cookies);
-
         foreach ($post as $field) {
             if (!in_array($field, $this->selected_fields)) {
                 $fields[]   = $field;
@@ -112,12 +108,12 @@ class CookieValidator extends Validator
                 ]);
             }
         }
-
         throw ValidationFailedException::new(tr('Unknown COOKIE fields ":fields" encountered', [
             ':fields' => Strings::force($fields, ', '),
-        ]))->addData($messages)
-           ->makeWarning()
-           ->log();
+        ]))
+                                       ->addData($messages)
+                                       ->makeWarning()
+                                       ->log();
     }
 
 
@@ -160,9 +156,7 @@ class CookieValidator extends Validator
         if (!$prefix) {
             return $this->source;
         }
-
         $return = [];
-
         foreach ($this->source as $key => $value) {
             if (str_starts_with($key, $prefix)) {
                 $return[Strings::from($key, $prefix)] = $value;

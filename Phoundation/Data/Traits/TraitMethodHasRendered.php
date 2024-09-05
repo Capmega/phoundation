@@ -37,4 +37,16 @@ trait TraitMethodHasRendered
     {
         return (bool) $this->render;
     }
+
+
+    /**
+     * Clears the render cache for this object
+     *
+     * @return static
+     */
+    public function clearRenderCache(): static
+    {
+        $this->render = null;
+        return $this;
+    }
 }
