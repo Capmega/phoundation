@@ -1813,7 +1813,9 @@ class User extends DataEntry implements UserInterface
 
         // Add all current roles
         foreach ($this->getRolesObject() as $role) {
-            $select->setSelected($role->getId());
+            $select->clearRenderCache()
+                   ->setSelected($role->getId());
+
             $content[] = $select->render();
         }
 
@@ -2537,7 +2539,7 @@ class User extends DataEntry implements UserInterface
                     ->add(Definition::new($this, 'keywords')
                                     ->setOptional(true)
                                     ->setMaxlength(255)
-                                    ->setSize(6)
+                                    ->setSize(3)
                                     ->setCliColumn('-k,--keywords')
                                     ->setCliAutoComplete(true)
                                     ->setLabel(tr('Keywords'))
@@ -2558,7 +2560,7 @@ class User extends DataEntry implements UserInterface
                                            ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
 
                     ->add(DefinitionFactory::getUrl($this, 'redirect')
-                                           ->setSize(3)
+                                           ->setSize(6)
                                            ->setDataSource(Url::getAjax('system/accounts/users/redirect/autosuggest.json'))
                                            ->setInputType(EnumInputType::auto_suggest)
                                            ->setInitialDefault(Config::getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))
