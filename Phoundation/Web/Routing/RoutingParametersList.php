@@ -18,6 +18,7 @@ namespace Phoundation\Web\Routing;
 
 use Exception;
 use Phoundation\Core\Log\Log;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Stringable;
@@ -142,7 +143,7 @@ class RoutingParametersList
             Log::success(tr('Selected routing parameters pattern ":pattern" with template ":template" and directory ":directory" for:system page from URI ":uri"', [
                 ':system'    => ($system ? ' system' : ''),
                 ':uri'       => $uri,
-                ':directory' => $parameters->getRootDirectory(),
+                ':directory' => Strings::from($parameters->getRootDirectory(), DIRECTORY_ROOT),
                 ':template'  => $parameters->getTemplate(),
                 ':pattern'   => $pattern,
             ]), 4);

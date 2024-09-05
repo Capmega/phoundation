@@ -203,9 +203,11 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
             if (!$this->readonly) {
                 $this->addClasses('readonly');
             }
+
             if (!$this->disabled) {
                 $this->addClasses('disabled');
             }
+
             $this->readonly = true;
             $this->disabled = true;
 
@@ -473,10 +475,12 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
             if (!$this->getMultiple()) {
                 throw new OutOfBoundsException(tr('Cannot add multiple selected values to this select, it is configured to not allow multiples'));
             }
+
             // Add each selected to the list
             foreach (Arrays::force($selected) as $selected) {
                 $this->addSelected($selected, $value);
             }
+
         } else {
             // Add each selected to the list
             $this->selected[$selected] = $value;
@@ -671,6 +675,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
         $this->source_query = null;
 
         return null;
+
 //        $return = '';
 //
 //        if (!$this->source_query) {
@@ -739,6 +744,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
+     *
      * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::render()
      * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
@@ -780,26 +786,29 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                                                       ':source'          => $this->source,
                                                   ]);
                     }
+
                     if (!$this->value_column) {
                         throw OutOfBoundsException::new(tr('The specified select source array contains array values, but no value column was specified'))
                                                   ->addData($this->source);
                     }
+
                     try {
                         $value = $value[$this->value_column];
 
                     } catch (Throwable $e) {
                         throw OutOfBoundsException::new(tr('Failed to build select body because the data row does not contain the specified value column ":column"', [
                             ':column' => $this->value_column,
-                        ]))
-                                                  ->setData([
-                                                      'value'        => $value,
-                                                      'value_column' => $this->value_column,
-                                                  ]);
+                        ]))->setData([
+                            'value'        => $value,
+                            'value_column' => $this->value_column,
+                        ]);
                     }
                 }
+
                 // So value is a stringable object. Force value to be a string
                 $value = (string) $value;
             }
+
             $return .= '<option' . $this->renderOptionClassString() . $this->renderSelectedString($key, $value) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
         }
 

@@ -67,6 +67,14 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
 
 
     /**
+     * Clears the render cache for this object
+     *
+     * @return static
+     */
+    public function clearRenderCache(): static;
+
+
+    /**
      * Returns the definition
      *
      * @return DefinitionInterface|null

@@ -105,4 +105,21 @@ interface ElementInterface extends RenderInterface
      * @return static
      */
     public function addAttribute(string|float|int|null $value, string $key): static;
+
+
+    /**
+     * Returns true if the object has been rendered (and Object::render() will return cached render data), false
+     * otherwise
+     *
+     * @return bool
+     */
+    public function hasRendered(): bool;
+
+
+    /**
+     * Clears the render cache for this object
+     *
+     * @return static
+     */
+    public function clearRenderCache(): static;
 }
