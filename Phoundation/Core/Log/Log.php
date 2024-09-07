@@ -1043,8 +1043,6 @@ class Log
                     return false;
                 }
 
-                $exception->hasBeenLogged(true);
-
                 if ($exception->isWarning()) {
                     // This is a warning exception, which can be displayed to user (usually this is caused by user
                     // data validation issues, etc.
@@ -1061,7 +1059,8 @@ class Log
             }
 
             // Log the initial exception message
-            static::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+            $has_logged = static::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+
             static::write(get_class($exception), $class, $threshold, true, true, false, $echo_screen);
             static::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
             static::write('[E' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
@@ -1074,6 +1073,10 @@ class Log
             static::logExceptionTrace($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             static::logExceptionData($exception, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             static::logPreviousException($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+
+            if ($exception instanceof ExceptionInterface) {
+                $exception->hasBeenLogged($has_logged);
+            }
 
         } else {
             // NULL exception
@@ -1245,7 +1248,7 @@ class Log
         $previous = $exception->getPrevious();
 
         if ($previous) {
-            if ($previous instanceof Exception) {
+            if ($previous instanceof ExceptionInterface) {
                 // Previous exceptions are always shown
                 $previous->hasBeenLogged(false);
             }
@@ -1311,14 +1314,15 @@ class Log
      *
      * @param mixed       $messages
      * @param int         $threshold
+     * @param bool        $clean
      * @param string|bool $echo_prefix
      * @param bool        $echo_screen
      *
      * @return bool
      */
-    public static function error(mixed $messages = null, int $threshold = 9, string|bool $echo_prefix = true, bool $echo_screen = true): bool
+    public static function error(mixed $messages = null, int $threshold = 9, bool $clean = false, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'error', $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
+        return static::write($messages, 'error', $threshold, $clean, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
     }
 
 
