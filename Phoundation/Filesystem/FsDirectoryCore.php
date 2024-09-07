@@ -1780,4 +1780,20 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
 
         return $size;
     }
+
+
+    /**
+     * Executes the specified callback on each file
+     *
+     * @param callable $callback
+     * @return static
+     */
+    public function each(callable $callback): static
+    {
+        foreach ($this->scan() as $file) {
+            $callback($file);
+        }
+
+        return $this;
+    }
 }

@@ -1475,4 +1475,57 @@ class FsFileCore extends FsPathCore implements FsFileInterface
 
         return $this;
     }
+
+
+    /**
+     * Executes the specified callback function on each line of this text file
+     *
+     * @param callable $callback
+     * @param int|null $buffer
+     *
+     * @return $this
+     */
+    public function eachLine(callable $callback, ?int $buffer = null): static
+    {
+        $this->checkOpen('eachLine')
+             ->checkIsText();
+
+        if (!$buffer) {
+            $buffer = $this->getBufferSize();
+        }
+
+        while (($line = fgets($this->stream, $buffer)) !== false) {
+            $callback($line);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Executes the specified callback function on each line of this text file
+     *
+     * @param callable $callback
+     * @param int|null $buffer
+     * @param string   $separator
+     * @param string   $enclosure
+     * @param string   $escape
+     *
+     * @return $this
+     */
+    public function eachCsvLine(callable $callback, ?int $buffer = null, string $separator = ',', string $enclosure = '"', string $escape = '\\'): static
+    {
+        $this->checkOpen('eachCsvLine')
+             ->checkIsText();
+
+        if (!$buffer) {
+            $buffer = $this->getBufferSize();
+        }
+
+        while (($line = fgetcsv($this->stream, $buffer, $separator, $enclosure, $escape)) !== false) {
+            $callback($line);
+        }
+
+        return $this;
+    }
 }

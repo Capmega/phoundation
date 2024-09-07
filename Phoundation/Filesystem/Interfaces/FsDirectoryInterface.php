@@ -391,4 +391,12 @@ interface FsDirectoryInterface extends FsPathInterface
      * @return FsFileInterface
      */
     public function addFile(FsPathInterface|string $file): FsFileInterface;
+
+    /**
+     * Executes the specified callback on each file
+     *
+     * @param callable $callback
+     * @return static
+     */
+    public function each(callable $callback): static;
 }

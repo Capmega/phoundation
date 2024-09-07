@@ -20,6 +20,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
+use Phoundation\Filesystem\Exception\FileInvalidFormatException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
@@ -1224,4 +1225,22 @@ interface FsPathInterface extends Stringable
      * @return bool
      */
     public function isSameAs(FsPathInterface $path): bool;
+
+    /**
+     * Checks that this file is a binary file or throws a FileInvalidFormatException
+     *
+     * @return $this
+     *
+     * @throws FileInvalidFormatException
+     */
+    public function checkIsBinary(): static;
+
+    /**
+     * Checks that this file is a text file or throws a FileInvalidFormatException
+     *
+     * @return $this
+     *
+     * @throws FileInvalidFormatException
+     */
+    public function checkIsText(): static;
 }

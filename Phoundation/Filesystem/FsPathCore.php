@@ -33,6 +33,7 @@ use Phoundation\Filesystem\Commands\Df;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileExistsException;
+use Phoundation\Filesystem\Exception\FileInvalidFormatException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
 use Phoundation\Filesystem\Exception\FileNotReadableException;
@@ -3880,20 +3881,6 @@ class FsPathCore implements FsPathInterface
 
 
     /**
-     * @param callable $callback
-     * @return static
-     */
-    public function each(callable $callback): static
-    {
-        foreach ($this->scan() as $file) {
-            $callback($file);
-        }
-
-        return $this;
-    }
-
-
-    /**
      * Checks if the current path obeys the requirements
      *
      * @return void
@@ -4161,6 +4148,25 @@ class FsPathCore implements FsPathInterface
 
 
     /**
+     * Checks that this file is a text file or throws a FileInvalidFormatException
+     *
+     * @return $this
+     *
+     * @throws FileInvalidFormatException
+     */
+    public function checkIsText(): static
+    {
+        if (!$this->isText()) {
+            throw new FileInvalidFormatException(tr('The file ":file" should be a text file but is not', [
+                ':file' => $this->source
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Return true if the specified mimetype is for a binary file or false if it is for a text file
      *
      * @return bool True if the file is a text file, false if not
@@ -4192,6 +4198,25 @@ class FsPathCore implements FsPathInterface
 
         // This is binary
         return true;
+    }
+
+
+    /**
+     * Checks that this file is a binary file or throws a FileInvalidFormatException
+     *
+     * @return $this
+     *
+     * @throws FileInvalidFormatException
+     */
+    public function checkIsBinary(): static
+    {
+        if (!$this->isBinary()) {
+            throw new FileInvalidFormatException(tr('The file ":file" should be a binary file but is not', [
+                ':file' => $this->source
+            ]));
+        }
+
+        return $this;
     }
 
 
