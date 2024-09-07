@@ -357,13 +357,13 @@ class DateFormats
     public static function normalizeDate(string $date, string $date_replace = '-', string $time_replace = ':'): string
     {
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II (and maybe microseconds)
-        if (preg_match_all('/^(\d+[^\d]\d+[^\d]\d+)[^\d](\d{2}[^\d]\d{2}[^\d]\d{2})([^\d]\d+)?/', $date, $matches)) {
+        if (preg_match_all('/^(\d+[^\d]\d+[^\d]\d+)[^\d](\d{2}[^\d]\d{2}[^\d]\d{2})([^\d]\d+)?$/', $date, $matches)) {
             // This is a datetime
             return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $matches[1][0]) . ' ' . str_replace([' ', '-', '_', '/', '\\'], $time_replace, $matches[2][0]) . $matches[3][0];
         }
 
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY
-        if (preg_match('/^(\d+[^\d]\d+[^\d]\d+)/', $date, $matches)) {
+        if (preg_match('/^(\d+[^\d]\d+[^\d]\d+)$/', $date, $matches)) {
             // This is a date
             return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $matches[1]);
         }
@@ -400,5 +400,30 @@ class DateFormats
         throw new UnsupportedDateFormatException(tr('Unsupported date or datetime format ":format" specified', [
             ':format' => $format
         ]));
+    }
+
+
+    /**
+     * Returns either 12 or 24 depending on what the system or user configured
+     *
+     * @return int
+     */
+    public static function getUser1224(): int
+    {
+        $format = SessionConfig::getInteger('formats.date.force1224', 24);
+
+        switch ($format) {
+            case '12':
+                // no break;
+            case '24':
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Invalid user 12/24 hour configuration ":format" encountered, it should be either 12 or 24', [
+                    ':format' => $format,
+                ]));
+        }
+
+        return $format;
     }
 }
