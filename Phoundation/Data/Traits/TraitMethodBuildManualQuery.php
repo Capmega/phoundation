@@ -84,23 +84,23 @@ trait TraitMethodBuildManualQuery
                 }
 
                 if ($value === 'NULL') {
-                    $where[] = '`' . $column . '` IS ' . ($not ? ' NOT' : '') . ' NULL';
+                    $where[] = '`' . static::getTable() . '`.`' . $column . '` IS ' . ($not ? ' NOT' : '') . ' NULL';
                     continue;
                 }
 
             } elseif ($value === null) {
-                $where[] = '`' . $column . '` IS NULL';
+                $where[] = '`' . static::getTable() . '`.`' . $column . '` IS NULL';
                 continue;
             }
 
-            $where[]                = '`' . $column . '` ' . $not . '= :' . $column;
+            $where[]                = '`' . static::getTable() . '`.`' . $column . '` ' . $not . '= :' . $column;
             $execute[':' . $column] = $value;
         }
 
         $where = implode($separator, $where);
-        $order = implode(',', $order);
-        $joins = implode(PHP_EOL, $joins);
-        $group = implode(',' , $group);
+        $order = implode(','       , $order);
+        $joins = implode(PHP_EOL   , $joins);
+        $group = implode(','       , $group);
 
         if ($order) {
             $order = ' ORDER BY ' . $order . ' ' . PHP_EOL;

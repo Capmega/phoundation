@@ -19,20 +19,22 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Validator\Exception\CsrfFailedException;
 use Phoundation\Data\Validator\Exception\PostValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Debug;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Requests\Request;
-use Phoundation\Web\Web;
 
 
 class PostValidator extends Validator
 {
+    use TraitDataStaticArrayBackup;
+
+
     /**
      * Internal $_POST array until validation has been completed
      *
@@ -113,7 +115,8 @@ class PostValidator extends Validator
         global $_POST;
 
         // Copy POST data and reset both POST and REQUEST
-        static::$post = $_POST;
+        static::$post   = $_POST;
+        static::$backup = $_POST;
 
         $_POST    = [];
         $_REQUEST = [];

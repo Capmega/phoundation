@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator\Interfaces;
 
 use PDOStatement;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\DateTime;
@@ -1295,4 +1296,20 @@ interface ValidatorInterface
      * @return void
      */
     public function addFailure(string $failure, ?string $field = null): void;
+
+    /**
+     * Returns the data entry
+     *
+     * @return DataEntryInterface|null
+     */
+    public function getDataEntry(): ?DataEntryInterface;
+
+    /**
+     * Sets the data entry
+     *
+     * @param DataEntryInterface|null $data_entry
+     *
+     * @return static
+     */
+    public function setDataEntry(?DataEntryInterface $data_entry): static;
 }

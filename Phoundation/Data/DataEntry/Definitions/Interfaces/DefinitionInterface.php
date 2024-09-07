@@ -1384,4 +1384,25 @@ interface DefinitionInterface
      *                                                                is the $label modifier for that object
      */
     public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
+
+    /**
+     * Returns if this column is forced processed or not
+     *
+     * @note Defaults to true
+     * @return bool|null
+     * @see  Definition::getVirtual()
+     */
+    public function getForcedProcessing(): ?bool;
+
+    /**
+     * Sets if this column is forced processed or not
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     * @see  Definition::setVirtual()
+     */
+    public function setForcedProcessing(?bool $value): static;
 }

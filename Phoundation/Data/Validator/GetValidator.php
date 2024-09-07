@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Validator\Exception\GetValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -29,6 +30,9 @@ use Phoundation\Utils\Strings;
 
 class GetValidator extends Validator
 {
+    use TraitDataStaticArrayBackup;
+
+
     /**
      * Internal $_GET array until validation has been completed
      *
@@ -78,7 +82,8 @@ class GetValidator extends Validator
         global $_GET;
 
         // Copy GET data and reset both GET and REQUEST
-        static::$get = $_GET;
+        static::$get    = $_GET;
+        static::$backup = $_GET;
 
         $_GET     = [];
         $_REQUEST = [];

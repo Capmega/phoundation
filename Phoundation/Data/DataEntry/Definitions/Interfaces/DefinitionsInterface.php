@@ -31,9 +31,9 @@ interface DefinitionsInterface extends IteratorInterface
     /**
      * Returns the data entry
      *
-     * @return DataEntryInterface
+     * @return DataEntryInterface|null
      */
-    public function getDataEntry(): DataEntryInterface;
+    public function getDataEntry(): ?DataEntryInterface;
 
 
     /**

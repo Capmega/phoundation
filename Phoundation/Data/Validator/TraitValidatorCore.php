@@ -18,6 +18,8 @@ namespace Phoundation\Data\Validator;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Traits\TraitDataSourceObjectClass;
 use Phoundation\Data\Traits\TraitDataIntId;
 use Phoundation\Data\Traits\TraitDataMaxStringSize;
@@ -40,6 +42,9 @@ trait TraitValidatorCore
     use TraitDataMaxStringSize;
     use TraitDataMetaColumns;
     use TraitDataSourceObjectClass;
+    use TraitDataDataEntry {
+        setDataEntry as protected __setDataEntry;
+    }
 
 
     /**
@@ -219,6 +224,20 @@ trait TraitValidatorCore
      * @var bool $debug
      */
     protected bool $debug = false;
+
+
+    /**
+     * Sets the data entry for the validator
+     *
+     * @param DataEntryInterface|null $data_entry
+     *
+     * @return static
+     */
+    public function setDataEntry(?DataEntryInterface $data_entry): static
+    {
+        return $this->setSourceObjectClass(get_class($data_entry))
+                    ->__setDataEntry($data_entry);
+    }
 
 
     /**

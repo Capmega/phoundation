@@ -1225,6 +1225,9 @@ abstract class Validator implements ValidatorInterface
             }
 
             $this->source[$this->field_prefix . $column] = $result;
+
+            // Mark the column entry for forced processing, in case it was marked as not rendering to avoid validation issues
+            $this->data_entry?->getDefinitionsObject()->get($column)->setForcedProcessing(true);
         });
     }
 
@@ -1263,6 +1266,9 @@ abstract class Validator implements ValidatorInterface
             }
 
             $this->source[$this->field_prefix . $column] = $result;
+
+            // Mark the column entry for forced processing, in case it was marked as not rendering to avoid validation issues
+            $this->data_entry?->getDefinitionsObject()->get($column)->setForcedProcessing(true);
         });
     }
 

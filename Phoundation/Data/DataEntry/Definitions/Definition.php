@@ -387,7 +387,7 @@ class Definition implements DefinitionInterface
      * Returns if this column is rendered as HTML or not
      *
      * If false, the column will not be rendered and sent to the client, and typically will be modified through a
-     * virtual column instead.
+     * virtual column instead, and will not be validated nor copied in DataEntry::apply()
      *
      * @note Defaults to true
      * @return bool|null
@@ -403,7 +403,7 @@ class Definition implements DefinitionInterface
      * Returns if this column is rendered as HTML or not
      *
      * If false, the column will not be rendered and sent to the client, and typically will be modified through a
-     * virtual column instead.
+     * virtual column instead, and will not be validated nor copied in DataEntry::apply()
      *
      * @note Defaults to true
      *
@@ -420,6 +420,40 @@ class Definition implements DefinitionInterface
         }
 
         return $this->setKey($value, 'render');
+    }
+
+
+    /**
+     * Returns if this column is forced processed or not
+     *
+     * @note Defaults to true
+     * @return bool|null
+     * @see  Definition::getVirtual()
+     */
+    public function getForcedProcessing(): ?bool
+    {
+        return isset_get_typed('bool', $this->source['forced_processing'], true);
+    }
+
+
+    /**
+     * Sets if this column is forced processed or not
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     * @see  Definition::setVirtual()
+     */
+    public function setForcedProcessing(?bool $value): static
+    {
+        if ($value === null) {
+            // Default
+            $value = false;
+        }
+
+        return $this->setKey($value, 'forced_processing');
     }
 
 
@@ -658,9 +692,9 @@ class Definition implements DefinitionInterface
     /**
      * Returns the data entry for this definition
      *
-     * @return DataEntryInterface
+     * @return DataEntryInterface|null
      */
-    public function getDataEntry(): DataEntryInterface
+    public function getDataEntry(): ?DataEntryInterface
     {
         return $this->data_entry;
     }
@@ -2645,18 +2679,12 @@ class Definition implements DefinitionInterface
             $column = $this->getColumn();
         }
 
-        if ($this->getValue()) {
-            // This column has a static value, force the value
-            $value = $this->getValue();
+        // Set the data entry id, the column prefix, and select the column
+        $validator->setId($this->data_entry?->getId())
+                  ->setColumnPrefix($prefix)
+                  ->select($column, !$bool);
 
-            if (is_callable($this->getValue())) {
-                $value = $this->getValue()($validator->getSource(), $prefix);
-            }
-
-            $validator->set($value, $prefix . $column);
-        }
-
-        if (!$this->getRender()) {
+        if (!$this->getRender() and !$this->getForcedProcessing()) {
             // This column isn't rendered and should not have a value whilst applying!
             if ($this->data_entry->isApplying()) {
                 if ($validator->getSourceValue($column)) {
@@ -2676,14 +2704,16 @@ class Definition implements DefinitionInterface
                     $validator->addFailure(tr('The field ":field" is unknown', [':field' => $column]));
                 }
 
+                // Set (optionally) static value, and mark this column as requiring forced processing, even though it is
+                // marked as not rendering
+                $this->setStaticValue($validator, $prefix, $column)
+                     ->setForcedProcessing(true);
+                $validator->doNotValidate();
                 return false;
             }
         }
 
-        // Set the data entry id, the column prefix, and select the column
-        $validator->setId($this->data_entry?->getId())
-                  ->setColumnPrefix($prefix)
-                  ->select($column, !$bool);
+        $this->setStaticValue($validator, $prefix, $column);
 
         if ($this->getReadonly() or $this->getDisabled()) {
             // This column cannot be modified and should not be validated, unless its new or has a static value
@@ -2717,6 +2747,32 @@ class Definition implements DefinitionInterface
         }
 
         return true;
+    }
+
+
+    /**
+     * Attempts to set a static value for this column
+     *
+     * @param ValidatorInterface $validator
+     * @param string|null        $prefix
+     * @param string             $column
+     *
+     * @return $this
+     */
+    protected function setStaticValue(ValidatorInterface $validator, ?string $prefix, string $column): static
+    {
+        if ($this->getValue()) {
+            // This column has a static value, force the value
+            $value = $this->getValue();
+
+            if (is_callable($this->getValue())) {
+                $value = $this->getValue()($validator->getSource(), $prefix);
+            }
+
+            $validator->set($value, $prefix . $column);
+        }
+
+        return $this;
     }
 
 

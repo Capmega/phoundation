@@ -47,6 +47,7 @@ trait TraitDataEntryException
                 // Make it a base Exception
                 $exception = new Exception($exception);
             }
+
             $exception = $exception->exportString();
         }
 

@@ -158,7 +158,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *
      * @var bool $is_loading
      */
-    protected bool $is_loading = true;
+    protected bool $is_loading = false;
 
     /**
      * Returns true if the DataEntry object internal data structure has been updated
@@ -1392,9 +1392,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             }
 
             if ($this->is_applying and !$force) {
-                if ($definition->getReadonly() or $definition->getDisabled()) {
-                    // Apply cannot update readonly or disabled columns
-                    continue;
+                if ($definition->getReadonly() or $definition->getDisabled() or !$definition->getRender()) {
+                    if (!$definition->getForcedProcessing()) {
+                        // Apply cannot update readonly or disabled columns
+                        continue;
+                    }
+
+                    // This entry is readonly or disabled, but will be forcibly processed
                 }
             }
 
@@ -1841,7 +1845,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
         // what columns to select
         $validator->setId($this->getId())
-                  ->setSourceobjectClass(static::class)
+                  ->setDataEntry($this)
                   ->setMetaColumns($this->getMetaColumns())
                   ->setTable(static::getTable());
 
@@ -1896,6 +1900,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             }
 
             return $return;
+        }
+
+        if ($this->debug) {
+            Log::debug('DATA AFTER VALIDATION:', echo_header: false);
+            Log::printr($source);
         }
 
         return $source;
@@ -3163,7 +3172,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         if ($this->debug) {
             Log::debug('SAVING "' . get_class($this) . '" DATA ENTRY WITH ID "' . $this->getId() . '"', 10, echo_header: false);
             $debug = sql($this->database_connector)->getDebug();
-            sql($this->database_connector)->setDebug(true);
+            sql($this->database_connector)->setDebug($this->debug);
         }
 
         // Write the data and store the returned ID column

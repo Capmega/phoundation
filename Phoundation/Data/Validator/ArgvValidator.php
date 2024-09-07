@@ -20,6 +20,7 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\Exception\CliArgumentsException;
 use Phoundation\Cli\Exception\CliInvalidArgumentsException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -32,19 +33,15 @@ use Phoundation\Utils\Strings;
 
 class ArgvValidator extends Validator implements ArgvValidatorInterface
 {
+    use TraitDataStaticArrayBackup;
+
+
     /**
      * Internal $argv array until validation has been completed
      *
      * @var array $argv
      */
     protected static array $argv = [];
-
-    /**
-     * Internal backup array of $argv
-     *
-     * @var array $backup
-     */
-    protected static array $backup = [];
 
     /**
      * Tracks if for selecting the current value, we have to take the current argument or the next
@@ -184,17 +181,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     public static function recoverBackupSource(): void
     {
         static::$argv = static::$backup;
-    }
-
-
-    /**
-     * Returns an untouched backup of the command line arguments to the internal $argv array
-     *
-     * @return array
-     */
-    public static function getBackupSource(): array
-    {
-        return static::$backup;
     }
 
 

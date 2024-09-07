@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Debug;
@@ -27,6 +28,9 @@ use Phoundation\Utils\Strings;
 
 class CookieValidator extends Validator
 {
+    use TraitDataStaticArrayBackup;
+
+
     /**
      * Internal $_COOKIE array until validation has been completed
      *
@@ -65,7 +69,10 @@ class CookieValidator extends Validator
     {
         global $_COOKIE;
         // Copy COOKIE data and reset both COOKIE and REQUEST
+
         static::$cookies = $_COOKIE;
+        static::$backup  = $_COOKIE;
+
         $_COOKIE = [];
     }
 
