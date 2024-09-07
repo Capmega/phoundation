@@ -108,7 +108,7 @@ class Roles extends DataIterator implements RolesInterface
 
             foreach ($list as $role) {
                 if ($role) {
-                    $roles_list[] = static::getDefaultContentDataType()::get($role)
+                    $roles_list[] = static::getDefaultContentDataType()::load($role)
                                           ->getSeoName();
                 }
             }

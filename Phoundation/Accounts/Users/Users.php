@@ -103,7 +103,7 @@ class Users extends DataIterator implements UsersInterface
 
             foreach ($list as $user) {
                 if ($user) {
-                    $users_list[] = static::getDefaultContentDataType()::get($user)
+                    $users_list[] = static::getDefaultContentDataType()::load($user)
                                           ->getId();
                 }
             }

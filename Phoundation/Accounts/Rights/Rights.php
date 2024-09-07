@@ -214,7 +214,7 @@ class Rights extends DataIterator implements RightsInterface
             $rights_list = [];
             foreach ($list as $right) {
                 if ($right) {
-                    $rights_list[] = static::getDefaultContentDataType()::get($right)
+                    $rights_list[] = static::getDefaultContentDataType()::load($right)
                                            ->getSeoName();
                 }
             }
