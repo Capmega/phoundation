@@ -759,9 +759,9 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
                 'url'                   => PLATFORM_WEB ? Route::getRequest() : null,
                 'method'                => PLATFORM_WEB ? Route::getMethod() : null,
                 'environment_variables' => $_ENV,
-                'argv'                  => ArgvValidator::getBackupSource(),
-                'get'                   => GetValidator::new()->getSource(),
-                'post'                  => PostValidator::new()->getSource(),
+                'argv'                  => ArgvValidator::getBackup(),
+                'get'                   => GetValidator::getBackup(),
+                'post'                  => PostValidator::getBackup(),
             ];
 
         } catch (Throwable $e) {
