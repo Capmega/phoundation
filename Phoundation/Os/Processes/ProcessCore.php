@@ -106,13 +106,13 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         // The process generated no output. Process specified handlers
         if ($function) {
             try {
-                $function($e);
+                $function($e, null, null);
 
             } catch (Throwable $f) {
                 // Throw the new exception but add the previous one. Since PHP exceptions are rather locked down to
                 // extending, we have to use a work-around
                 $class = get_class($f);
-                throw new $class($f->getMessage(), $f->getCode(), $e);
+                throw new $class($f->getMessage(), $e);
             }
         }
 
