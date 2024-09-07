@@ -361,7 +361,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     // Apply variables
                     foreach ($source as $source_key => $source_value) {
                         if ($definitions->keyExists($source_key)) {
-                            $source[$column] = str_replace(':' . $source_key, (string)$source_value, $source[$column]);
+                            $source[$column] = str_replace(':' . $source_key, (string) $source_value, (string) $source[$column]);
                         }
                     }
                 }

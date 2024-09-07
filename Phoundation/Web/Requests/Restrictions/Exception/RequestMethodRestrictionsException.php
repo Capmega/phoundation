@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Requests\Restrictions\Exception;
 
+use Phoundation\Data\Validator\CookieValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Requests\Exception\RequestException;
@@ -35,10 +36,11 @@ class RequestMethodRestrictionsException extends RequestException
         parent::__construct($messages, $previous);
 
         $this->setData([
-            '$_GET'     => GetValidator::new()->getSource(),
-            '$_POST'    => PostValidator::new()->getSource(),
-            '$_SESSION' => $_SESSION,
-            '$_SERVER'  => $_SERVER
+            'get'     => GetValidator::getBackup(),
+            'post'    => PostValidator::getBackup(),
+            'cookies' => CookieValidator::getBackup(),
+            'session' => $_SESSION,
+            'server'  => $_SERVER
         ]);
     }
 }

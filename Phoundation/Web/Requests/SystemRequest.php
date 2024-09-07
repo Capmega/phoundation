@@ -34,12 +34,13 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
+use Phoundation\Web\Requests\Interfaces\SystemRequestInterface;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Web;
 use Throwable;
 
 
-class SystemRequest
+class SystemRequest implements SystemRequestInterface
 {
     use TraitStaticMethodNew;
 
@@ -81,6 +82,9 @@ class SystemRequest
             case 'fake':
                 $phoundation = '<address>Phoundation 4.11.1</address>';
                 break;
+
+            default:
+                $phoundation = '';
         }
 
         Arrays::default($variables, 'code'   , 500);

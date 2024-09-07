@@ -22,6 +22,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataSelector;
+use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Traits\TraitMethodProcess;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -46,6 +47,7 @@ use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
 
 class UploadHandlers extends Iterator implements UploadHandlersInterface
 {
+    use TraitDataStaticArrayBackup;
     use TraitDataSelector;
     use TraitMethodProcess {
         process as protected __process;
@@ -181,6 +183,8 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
     protected static function restructureFiles(): void
     {
         global $_FILES;
+
+        static::$backup = $_FILES;
 
         // Check if we get the weird subarrays in name. If so, restructure that mess
         if (count($_FILES)) {

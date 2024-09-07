@@ -1255,19 +1255,19 @@ class Response implements ResponseInterface
             // Headers already sent
             return -1;
         }
-        if (empty(static::$http_headers)) {
-            // Specified NULL for headers, which is what buildHeaders() returned, so there are no headers to send
-            return -1;
-        }
+
         try {
             $length = 0;
+
             // Set correct headers
             http_response_code(static::$http_code);
+
             // Send all available headers
             foreach (static::$http_headers as $header) {
                 $length += strlen($header);
                 header($header);
             }
+
             switch (static::getHttpCode()) {
                 case 200:
                     // no break
@@ -1287,6 +1287,7 @@ class Response implements ResponseInterface
                         ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
                     ]));
             }
+
             static::$bytes_sent += $length;
 
             return $length;
@@ -1321,9 +1322,11 @@ class Response implements ResponseInterface
         if (headers_sent($file, $line)) {
             return true;
         }
+
         if (static::$http_headers_sent) {
             return true;
         }
+
         if ($sending_now) {
             static::$http_headers_sent = true;
         }

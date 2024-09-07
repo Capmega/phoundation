@@ -1145,21 +1145,12 @@ class Request implements RequestInterface
 
             if (static::isRequestType(EnumRequestTypes::api)) {
                 // This method will exit
-                JsonPage::new()->reply([
-                    '__system' => [
-                        'http_code' => 401,
-                    ],
-                ]);
+                JsonPage::new()->replyWithHttpCode('sign-in');
             }
 
             if (static::isRequestType(EnumRequestTypes::ajax)) {
                 // This method will exit
-                JsonPage::new()->reply([
-                    '__system' => [
-                        'http_code' => 401,
-                        'location'  => (string) Url::getAjax('sign-in'),
-                    ],
-                ]);
+                JsonPage::new()->replyWithHttpCode('sign-in');
             }
 
             // This method will exit
@@ -1392,9 +1383,16 @@ class Request implements RequestInterface
 
         switch (static::getRequestType()) {
             case EnumRequestTypes::ajax:
+                // no break
+
             case EnumRequestTypes::api:
                 // These are JSON type requests, reply with JSON instead of HTML
-                JsonPage::new()->replyWithHttpCode(400);
+                Incident::new()
+                        ->setException($e)
+                        ->setLog(true)
+                        ->save();
+
+                JsonPage::new()->replyWithHttpCode($http_code);
         }
 
         SystemRequest::new()->execute($http_code, $e, $message);

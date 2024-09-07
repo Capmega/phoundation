@@ -18,6 +18,8 @@ namespace Phoundation\Web\Requests;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -31,6 +33,7 @@ use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessag
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Json\Interfaces\JsonHtmlInterface;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Interfaces\JsonPageInterface;
 use Stringable;
 use Throwable;
@@ -66,6 +69,20 @@ class JsonPage implements JsonPageInterface
      */
     protected EnumJsonAfterReply $action_after = EnumJsonAfterReply::die;
 
+    /**
+     * Tracks the JSONP callback if this is a JSONP request
+     *
+     * @var string|false $jsonp
+     */
+    protected static string|false $jsonp;
+
+    /**
+     * Tracks additional JSONP data
+     *
+     * @var string|int|false $jsonp_
+     */
+    protected static string|int|false $jsonp_;
+
 
     /**
      * Json class constructor
@@ -75,6 +92,17 @@ class JsonPage implements JsonPageInterface
     public function __construct(EnumJsonResponse $response = EnumJsonResponse::ok)
     {
         $this->setResponse($response);
+
+        if (!isset(static::$jsonp)) {
+            // Validate request data
+            $get = GetValidator::new()
+                               ->select('callback')->isOptional()->hasMaxCharacters(48)->matchesRegex('/jQuery\d+_\d+/')
+                               ->select('_')->isNatural()
+                               ->validate(false);
+
+            static::$jsonp  = $get['callback'] ?? false;
+            static::$jsonp_ = $get['_']        ?? false;
+        }
     }
 
 
@@ -88,6 +116,47 @@ class JsonPage implements JsonPageInterface
     public static function new(EnumJsonResponse $reply = EnumJsonResponse::ok): static
     {
         return new static($reply);
+    }
+
+
+    /**
+     * Returns the JSONP callback
+     *
+     * @return string|null
+     */
+    public function getJsonpCallback(): ?string
+    {
+        if (static::$jsonp) {
+            return static::$jsonp;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Returns the JSONP additional information
+     *
+     * @return string|int|null
+     */
+    public function getJsonp_(): string|int|null
+    {
+        if (static::$jsonp_) {
+            return static::$jsonp_;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Returns true if the request is a JSONP request
+     *
+     * @return bool
+     */
+    public function isJsonp(): bool
+    {
+        return (bool) static::$jsonp;
     }
 
 
@@ -156,7 +225,7 @@ class JsonPage implements JsonPageInterface
      *
      * @param EnumJsonResponse|null $response
      *
-     * @return Json
+     * @return static
      */
     public function setResponse(?EnumJsonResponse $response): static
     {
@@ -176,87 +245,101 @@ class JsonPage implements JsonPageInterface
      */
     public function replyWithHttpCode(string|int|Throwable $code, mixed $data = null): void
     {
+        // Process code specific replies
+        switch ($code) {
+            case 'reload':
+                // no break
+            case 'redirect':
+                // no break
+            case 301:
+                Response::setHttpCode(200);
+                $this->setResponse(EnumJsonResponse::redirect)
+                     ->reply([
+                         'http_code' => 301,
+                         'location'  => $data
+                     ]);
+
+            case 302:
+                Response::setHttpCode(200);
+                $this->setResponse(EnumJsonResponse::redirect)
+                     ->reply([
+                         'http_code' => 301,
+                         'location'  => $data
+                     ]);
+
+            case 'signin':
+                // no break
+            case 'sign-in':
+                Response::setHttpCode(200);
+                $this->setResponse(EnumJsonResponse::signin)
+                     ->reply([
+                         'http_code' => 301,
+                         'location'  => Url::getWww('sign-in')->getSource()
+                     ]);
+        }
+
         // Get valid HTTP code, as code here may also be code words
         $int_code = static::getHttpCode($code);
 
         Response::setHttpCode($int_code);
 
-        // Process code specific replies
-        switch ($code) {
-            case 'reload':
-                $this->setResponse(EnumJsonResponse::reload)
-                    ->reply();
-
-            case 'signin':
-                $this->setResponse(EnumJsonResponse::signin)
-                    ->reply(['location' => $data]);
-        }
-
         // Process HTTP code specific replies
         switch ($int_code) {
-            case 301:
-                $this->setResponse(EnumJsonResponse::redirect)
-                    ->reply(['location' => $data]);
-
-            case 302:
-                $this->setResponse(EnumJsonResponse::redirect)
-                    ->reply(['location' => $data]);
-
             case 400:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('bad request')]);
+                     ->reply(['message' => $data ?? tr('bad request')]);
 
             case 403:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('forbidden')]);
+                     ->reply(['message' => $data ?? tr('forbidden')]);
 
             case 404:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('not found')]);
+                     ->reply(['message' => $data ?? tr('not found')]);
 
             case 405:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('method not allowed')]);
+                     ->reply(['message' => $data ?? tr('method not allowed')]);
 
             case 406:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('not acceptable')]);
+                     ->reply(['message' => $data ?? tr('not acceptable')]);
 
             case 408:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('timeout')]);
+                     ->reply(['message' => $data ?? tr('timeout')]);
 
             case 409:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('conflict')]);
+                     ->reply(['message' => $data ?? tr('conflict')]);
 
             case 412:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('expectation failed')]);
+                     ->reply(['message' => $data ?? tr('expectation failed')]);
 
             case 418:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('im a teapot')]);
+                     ->reply(['message' => $data ?? tr('im a teapot')]);
 
             case 429:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('too many requests')]);
+                     ->reply(['message' => $data ?? tr('too many requests')]);
 
             case 451:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('unavailable for legal reasons')]);
+                     ->reply(['message' => $data ?? tr('unavailable for legal reasons')]);
 
             case 500:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('internal server error')]);
+                     ->reply(['message' => $data ?? tr('internal server error')]);
 
             case 503:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('service unavailable')]);
+                     ->reply(['message' => $data ?? tr('service unavailable')]);
 
             case 504:
                 $this->setResponse(EnumJsonResponse::error)
-                    ->reply(['message' => $data ?? tr('gateway timeout')]);
+                     ->reply(['message' => $data ?? tr('gateway timeout')]);
 
             default:
                 Notification::new()
@@ -377,7 +460,7 @@ class JsonPage implements JsonPageInterface
         $data = static::createMessage($data);
 
         Response::setContentType('application/json');
-        Response::setOutput(Json::encode($data));
+        Response::setOutput($data);
         Response::send(false);
 
         static::afterAction();
@@ -480,13 +563,17 @@ class JsonPage implements JsonPageInterface
      *
      * @param array|Stringable|string|null $data
      *
-     * @return array
+     * @return string
      */
-    protected function createMessage(array|Stringable|string|null $data): array
+    protected function createMessage(array|Stringable|string|null $data): string
     {
         // Clean up the data array
         $data = static::normalizeData($data);
         $data = static::fixJavascriptNumbers($data);
+
+        // HTTP code MIGHT have been specified in the data. If so, we will forcibly use this in the JSON response
+        $http_code = isset_get($data['http_code']);
+        unset($data['http_code']);
 
         // What kind of exposure are we going to give?
         $expose = match (Core::getExposePhoundation()) {
@@ -497,14 +584,20 @@ class JsonPage implements JsonPageInterface
         };
 
         // Create and return the message
-        return [
+        $data = [
             'phoundation' => $expose,
             'response'    => $this->getResponse(),
-            'http_code'   => Response::getHttpCode(),
+            'http_code'   => $http_code ?? Response::getHttpCode(),
             'flash'       => static::$flash,
             'html'        => static::$html,
             'data'        => $data,
         ];
+
+        if (static::$jsonp) {
+            return static::$jsonp . '(' . Json::encode($data) . ')';
+        }
+
+        return Json::encode($data);
     }
 
 
@@ -562,22 +655,29 @@ class JsonPage implements JsonPageInterface
 
         switch ($code) {
             case 'reload':
+                // no break
             case 'redirect':
                 return 301;
 
             case 'signin':
+                // no break
+            case 'sign-in':
                 return 302;
 
             case 'invalid':
+                // no break
             case 'validation':
                 return 400;
 
             case 'locked':
+                // no break
             case 'forbidden':
+            // no break
             case 'access-denied':
                 return 403;
 
             case 'not-found':
+                // no break
             case 'not-exists':
                 return 404;
 
@@ -609,6 +709,7 @@ class JsonPage implements JsonPageInterface
                 return 500;
 
             case 'maintenance':
+                // no break
             case 'service-unavailable':
                 return 503;
 

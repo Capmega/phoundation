@@ -214,7 +214,7 @@ class InputAutoSuggest extends InputText
 
         if ($this->variables) {
             $variables = $this->variables->getSource();
-            $variables = ',' . Arrays::implodeWithKeys($variables, ',', ':');
+            $variables = ',' . Arrays::implodeWithKeys($variables, ',' . PHP_EOL, ':');
 
         } else {
             $variables = null;
@@ -226,32 +226,32 @@ class InputAutoSuggest extends InputText
         // Setup javascript for the component
         $script = Script::new()
                         ->setContent('$(\'[name="' . $this->name . '"]\').autocomplete({
-              source: function(request, response) {
-                let $selected = $(\'[name="' . $this->name . '"]\');
-
-                $.ajax({
-                  url: "' . $this->source_url . '",
-                  dataType: "jsonp",
-                  data: {
-                    term: request.term
-                    ' . $variables . '
-                  },
-                  success: function(data) {
-                    response(data);
-                  }
-                });
-              },
-              ' . ($this->width ? 'open: function(event, ui) {
-                                        $(this).autocomplete("widget").css({
-                                            "width": ' . $this->width . '
-                                        });
-                                   },' : '') . '
-              delay: ' . $this->min_suggest_length . ', 
-              minLength: ' . $this->min_suggest_length . ',
-              select: function(event, ui) {
-                console.log("Selected: " + ui.item.value + " aka " + ui.item.id);
-              }
-            });');
+                                          source: function(request, response) {
+                                            let $selected = $(\'[name="' . $this->name . '"]\');
+                            
+                                            $.ajax({
+                                              url: "' . $this->source_url . '",
+                                              dataType: "jsonp",
+                                              data: {
+                                                term: request.term
+                                                ' . $variables . '
+                                              },
+                                              success: function(data) {
+                                                response(data);
+                                              }
+                                            });
+                                          },
+                     ' . ($this->width ? 'open: function(event, ui) {
+                                               $(this).autocomplete("widget").css({
+                                                   "width": ' . $this->width . '
+                                               });
+                                          },' : '') . '
+                                          delay: ' . $this->min_suggest_length . ', 
+                                          minLength: ' . $this->min_suggest_length . ',
+                                          select: function(event, ui) {
+                                            console.log("Selected: " + ui.item.value + " aka " + ui.item.id);
+                                          }
+                                        });');
         $this->attributes = $this->renderInputAttributes()
                                  ->appendSource($this->attributes);
 

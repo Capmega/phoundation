@@ -55,40 +55,16 @@ class AutoSuggestRequest
         if (isset(static::$get)) {
             return;
         }
+
         // Validate request data
-        $validator = GetValidator::new()
-                                 ->select('callback')
-                                 ->hasMaxCharacters(48)
-                                 ->matchesRegex('/jQuery\d+_\d+/')
-                                 ->select('_')
-                                 ->isNatural();
         if ($term_optional) {
-            $validator->select('term')
-                      ->isOptional('')
-                      ->sanitizeTrim()
-                      ->hasMaxCharacters(255)
-                      ->isPrintable();
+            $validator = GetValidator::new()->select('term')->isOptional('')->sanitizeTrim()->hasMaxCharacters(255)->isPrintable();
 
         } else {
-            $validator->select('term')
-                      ->sanitizeTrim()
-                      ->hasMaxCharacters(255)
-                      ->isPrintable();
+            $validator = GetValidator::new()->select('term')->sanitizeTrim()->hasMaxCharacters(255)->isPrintable();
         }
+
         static::$get = $validator->validate(false);
-    }
-
-
-    /**
-     * Returns the jQuery callback
-     *
-     * @return string
-     */
-    public static function getCallback(): string
-    {
-        static::ensureGet();
-
-        return static::$get['callback'];
     }
 
 
@@ -124,18 +100,5 @@ class AutoSuggestRequest
     {
         static::ensureGet();
         static::$get['term'] = $term;
-    }
-
-
-    /**
-     * Returns the _ value
-     *
-     * @return string
-     */
-    public static function get_(): string
-    {
-        static::ensureGet();
-
-        return static::$get['_'];
     }
 }

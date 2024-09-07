@@ -126,7 +126,7 @@ class Url implements UrlInterface
             $url = 'system/' . $url . 'html';
         }
 
-        return static::renderUrl($url, null, $use_configured_root);
+        return static::renderUrl($url, 'html', null, $use_configured_root);
     }
 
 
@@ -270,13 +270,14 @@ class Url implements UrlInterface
      * Builds and returns the domain prefix
      *
      * @param Stringable|string $url
+     * @param string|null       $extension
      * @param string|null       $prefix
      * @param bool              $use_configured_root If true, the builder will not use the root URI from the routing
      *                                               parameters but from the static configuration
      *
      * @return static
      */
-    protected static function renderUrl(Stringable|string $url, ?string $prefix, bool $use_configured_root): static
+    protected static function renderUrl(Stringable|string $url, ?string $extension, ?string $prefix, bool $use_configured_root): static
     {
         $url = static::applyPredefined($url);
         $url = static::applyVariables($url);
@@ -303,10 +304,20 @@ class Url implements UrlInterface
         }
 
         // Build the URL
-        $base = Strings::ensureEndsWith($base, '/');
-        $url  = Strings::ensureStartsNotWith($url, '/');
-        $url  = $prefix . $url;
-        $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
+        $base  = Strings::ensureEndsWith($base, '/');
+        $url   = Strings::ensureStartsNotWith($url, '/');
+        $url   = $prefix . $url;
+        $url   = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
+        $query = Strings::from($url, '?', needle_required: true);
+        $url   = Strings::until($url, '?');
+
+        if (!preg_match('/\.[a-z0-9]{3,5}$/i', $url)) {
+            $url .= '.' . $extension;
+        }
+
+        if ($query) {
+            return new static($url . '?' . $query);
+        }
 
         return new static($url);
     }
@@ -408,49 +419,17 @@ class Url implements UrlInterface
      */
     public static function getConfigured(Stringable|string $url, ?EnumRequestTypes $request_type = null): UrlInterface
     {
-        $url          = (string) $url;
-        $request_type = $request_type ?? Request::getRequestType();
-
-        // Configured page?
-        switch ($request_type) {
-            case EnumRequestTypes::ajax:
-                $configured = match (Strings::until($url, '.json')) {
-                    'dashboard', 'index'   => Config::getString('web.ajax.index'   , '/index.json'),
-                    'sign-in'  , 'signin'  => Config::getString('web.ajax.sign-in' , '/sign-in.json'),
-                    'sign-up'  , 'signup'  => Config::getString('web.ajax.sign-up' , '/sign-up.json'),
-                    'sign-out' , 'signout' => Config::getString('web.ajax.sign-out', '/sign-out.json'),
-                    'sign-key' , 'signkey' => Config::getString('web.ajax.sign-key', '/sign-key/:key.json'),
-                    'profile'              => Config::getString('web.ajax.profile' , '/my/profile.json'),
-                    'settings'             => Config::getString('web.ajax.settings', '/my/settings.json'),
-                    default                => Config::getString('web.ajax.' . $url , '')
-                };
-                break;
-
-            case EnumRequestTypes::api:
-                $configured = match (Strings::until($url, '.json')) {
-                    'dashboard', 'index'   => Config::getString('web.api.index'   , '/index.json'),
-                    'sign-in'  , 'signin'  => Config::getString('web.api.sign-in' , '/sign-in.json'),
-                    'sign-up'  , 'signup'  => Config::getString('web.api.sign-up' , '/sign-up.json'),
-                    'sign-out' , 'signout' => Config::getString('web.api.sign-out', '/sign-out.json'),
-                    'sign-key' , 'signkey' => Config::getString('web.api.sign-key', '/sign-key/:key.json'),
-                    'profile'              => Config::getString('web.api.profile' , '/my/profile.json'),
-                    'settings'             => Config::getString('web.api.settings', '/my/settings.json'),
-                    default                => Config::getString('web.api.' . $url , '')
-                };
-                break;
-
-            default:
-                $configured = match (Strings::until($url, '.html')) {
-                    'dashboard', 'index'   => Config::getString('web.pages.index'   , '/index.html'),
-                    'sign-in'  , 'signin'  => Config::getString('web.pages.sign-in' , '/sign-in.html'),
-                    'sign-up'  , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up.html'),
-                    'sign-out' , 'signout' => Config::getString('web.pages.sign-out', '/sign-out.html'),
-                    'sign-key' , 'signkey' => Config::getString('web.pages.sign-key', '/sign-key/:key.html'),
-                    'profile'              => Config::getString('web.pages.profile' , '/my/profile.html'),
-                    'settings'             => Config::getString('web.pages.settings', '/my/settings.html'),
-                    default                => Config::getString('web.pages.' . $url , '')
-                };
-        }
+        $url        = (string) $url;
+        $configured = match (Strings::until($url, '.html')) {
+            'dashboard', 'index'   => Config::getString('web.pages.index'   , '/index'),
+            'sign-in'  , 'signin'  => Config::getString('web.pages.sign-in' , '/sign-in'),
+            'sign-up'  , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up'),
+            'sign-out' , 'signout' => Config::getString('web.pages.sign-out', '/sign-out'),
+            'sign-key' , 'signkey' => Config::getString('web.pages.sign-key', '/sign-key/:key'),
+            'profile'              => Config::getString('web.pages.profile' , '/my/profile'),
+            'settings'             => Config::getString('web.pages.settings', '/my/settings'),
+            default                => Config::getString('web.pages.' . $url , '')
+        };
 
         if ($configured) {
             return new static($configured);
@@ -724,9 +703,12 @@ class Url implements UrlInterface
 
         } elseif (is_numeric($url)) {
             $url = 'system/' . $url . 'json';
+
+        } elseif (!str_contains($url, '.json?')) {
+            $url = Strings::ensureEndsWith($url, '.json');
         }
 
-        return static::renderUrl(Strings::ensureEndsWith($url, '.json'), 'ajax/', $use_configured_root);
+        return static::renderUrl($url, 'json', 'ajax/', $use_configured_root);
     }
 
 
@@ -751,7 +733,7 @@ class Url implements UrlInterface
             $url = 'system/' . $url . 'json';
         }
 
-        return static::renderUrl($url, 'api/', $use_configured_root);
+        return static::renderUrl($url, 'json', 'api/', $use_configured_root);
     }
 
 
