@@ -22,7 +22,6 @@ namespace Phoundation\Security\Incidents;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\CliCommand;
-use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
@@ -37,6 +36,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
@@ -48,7 +48,8 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Uploads\UploadHandler;
+use Phoundation\Web\Uploads\UploadHandlers;
+use Throwable;
 
 
 class Incident extends DataEntry implements IncidentInterface
@@ -72,6 +73,13 @@ class Incident extends DataEntry implements IncidentInterface
      * @var IteratorInterface $notify_roles
      */
     protected IteratorInterface $notify_roles;
+
+    /**
+     * Tracks exceptions for this incident
+     *
+     * @var Throwable $e
+     */
+    protected Throwable $e;
 
 
     /**
@@ -108,7 +116,7 @@ class Incident extends DataEntry implements IncidentInterface
 
 
     /**
-     * Returns if this incident will be logged in the text log
+     * Returns if this incident is logged in the text log
      *
      * @return bool
      */
@@ -119,7 +127,7 @@ class Incident extends DataEntry implements IncidentInterface
 
 
     /**
-     * Sets if this incident will be logged in the text log
+     * Sets if this incident is logged in the text log
      *
      * @param bool $log
      *
@@ -128,6 +136,47 @@ class Incident extends DataEntry implements IncidentInterface
     public function setLog(bool $log): static
     {
         $this->log = $log;
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the exception for this incident
+     *
+     * @return Throwable
+     */
+    public function getException(): Throwable
+    {
+        return $this->e;
+    }
+
+
+    /**
+     * Sets the exception for this incident
+     *
+     * @param Throwable|null $e
+     *
+     * @return static
+     */
+    public function setException(?Throwable $e): static
+    {
+        if ($e) {
+            if ($e instanceof Exception) {
+                $this->setTitle(tr('Encountered exception ":e"', [':e' => $e->getMessage()]))
+                    ->setSeverity($e->isWarning() ? EnumSeverity::low : EnumSeverity::medium)
+                    ->setBody(implode(PHP_EOL, $e->getMessages()))
+                    ->setDetails(['exception' => $e->getSource()])
+                    ->e = $e;
+
+            } else {
+                $this->setTitle(tr('Encountered exception ":e"', [':e' => $e->getMessage()]))
+                    ->setSeverity(EnumSeverity::medium)
+                    ->setBody($e->getMessage())
+                    ->setDetails(['exception' => Arrays::force($e)])
+                    ->e = $e;
+            }
+        }
 
         return $this;
     }
@@ -223,11 +272,12 @@ class Incident extends DataEntry implements IncidentInterface
                 'url'         => Url::getCurrent(),
                 'command'     => CliCommand::getExecutedPath(),
                 'user'        => Session::getUserObject()->getLogId(),
-                '$_GET'       => GetValidator::new()->getSource(),
-                '$_POST'      => PostValidator::new()->getSource(),
-                '$_SERVER'    => $_SERVER,
-                '$_SESSION'   => Session::getSource(),
-                '$argv'       => ArgvValidator::new()->getSource(),
+                'get'         => GetValidator::getBackup(),
+                'post'        => PostValidator::getBackup(),
+                'server'      => $_SERVER,
+                'session'     => Session::getSource(),
+                'files'       => UploadHandlers::getBackup(),
+                '$argv'       => ArgvValidator::getBackup(),
             ]);
         }
 
@@ -235,7 +285,7 @@ class Incident extends DataEntry implements IncidentInterface
         if ($this->log) {
             switch ($severity) {
                 case 'notice':
-                    Log::warning(tr('Security notice (:id): :message', [
+                    Log::notice(tr('Security notice (:id): :message', [
                         ':id'      => $this->getId(),
                         ':message' => $this->getTitle(),
                     ]));
@@ -250,6 +300,7 @@ class Incident extends DataEntry implements IncidentInterface
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
                     ]));
+                    Log::error(print_r($this->getDetails(), true));
                     break;
 
                 default:
@@ -258,6 +309,7 @@ class Incident extends DataEntry implements IncidentInterface
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
                     ]));
+                    Log::warning(print_r($this->getDetails(), true), clean: false);
             }
         }
 
@@ -268,7 +320,8 @@ class Incident extends DataEntry implements IncidentInterface
 
             switch ($severity) {
                 case 'notice':
-                    // no break
+                    $notification->setMode(EnumDisplayMode::information);
+                    break;
 
                 case 'low':
                     $notification->setMode(EnumDisplayMode::notice);
@@ -364,7 +417,7 @@ class Incident extends DataEntry implements IncidentInterface
 
 
     /**
-     * Throw an incidents exception
+     * Throw an incident exception
      *
      * @param string|null $exception
      *
@@ -441,6 +494,7 @@ class Incident extends DataEntry implements IncidentInterface
                                             $return  = '';
                                             $details = Json::decode($value);
                                             $largest = Arrays::getLongestKeyLength($details);
+
                                             foreach ($details as $key => $value) {
                                                 $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;
                                             }
@@ -448,7 +502,7 @@ class Incident extends DataEntry implements IncidentInterface
                                             return $return;
 
                                         } catch (JsonException $e) {
-                                            // We couldn't decode it! Why? Lets move on, its not THAT important.. yet.
+                                            // We couldn't decode it! Why? Let's move on, it's not THAT important... yet
                                             Log::warning($e);
 
                                             return $value;
