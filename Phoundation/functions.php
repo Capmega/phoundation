@@ -1508,6 +1508,24 @@ function is_absolute_path(string $path): bool
 
 
 /**
+ * Will implode all given entries to a string, quoting each item individually before imploding
+ *
+ * @param array $source
+ * @param string $separator
+ * @return string
+ */
+function implode_with_quotes(array $source, string $separator = ','): string
+{
+    foreach ($source as &$value) {
+        $value = '"' . $value . '"';
+    }
+
+    unset($value);
+    return implode($separator, $source);
+}
+
+
+/**
  * Returns true if the specified datatype is an object or class datatype, false if it is a standard PHP datatype
  *
  * Data type "object" and any datatype that is a class path will always return true
