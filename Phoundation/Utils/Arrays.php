@@ -821,6 +821,30 @@ class Arrays extends Utils
 
 
     /**
+     * Return the source array with the specified keys kept in the order they were specified, all else removed.
+     *
+     * @param IteratorInterface|array                            $source
+     * @param IteratorInterface|Stringable|array|string|int|null $needles
+     * @param bool                                               $strict
+     *
+     * @return array
+     */
+    public static function keepKeysOrdered(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, bool $strict = false): array
+    {
+        $return  = [];
+        $needles = Arrays::force($needles);
+
+        foreach ($needles as $needle) {
+            if (array_key_exists($needle, $source)) {
+                $return[$needle] = $source[$needle];
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
      * Return the source array with the specified keys removed.
      *
      * @param IteratorInterface|array                            $source
