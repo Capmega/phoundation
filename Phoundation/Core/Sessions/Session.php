@@ -902,15 +902,13 @@ class Session implements SessionInterface
                         Incident::new()
                                 ->setType('User does not exist')
                                 ->setSeverity(EnumSeverity::low)
-                                ->setTitle(tr('The specified user ":user" does not exist', [':user' => $user]))
+                                ->setTitle(tr('Cannot sign in user ":user", the user does not exist', [
+                                    ':user' => $user
+                                ]))
                                 ->setDetails(['user' => $user])
                                 ->notifyRoles('accounts')
-                                ->save();
-                        // The specified user does not exist
-                        throw AuthenticationException::new(tr('The specified user ":user" does not exist', [
-                            ':user' => $user,
-                        ]))->makeWarning()
-                           ->log();
+                                ->save()
+                                ->throw(AuthenticationException::class);
                 }
             }
 

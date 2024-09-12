@@ -108,6 +108,19 @@ class Activity implements ActivityInterface, RenderInterface
 
 
     /**
+     * Returns if the executed action is the specified action
+     *
+     * @param string $action
+     *
+     * @return bool
+     */
+    public function isAction(string $action): bool
+    {
+        return $this->getAction() === $action;
+    }
+
+
+    /**
      * Returns the executed action
      *
      * @return string

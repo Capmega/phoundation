@@ -863,7 +863,7 @@ class Log
                 $prefix = DateTime::new(null, 'server')->format('Y-m-d H:i:s.v') . ' ' .
                           ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
                           Strings::size(getmypid(), 7, ' ', true) . ' ' .
-                          Core::getGlobalId() . ' / ' . Core::getLocalId() . (Core::isShuttingDown() ? '#' : ' ');
+                          Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isShuttingDown() ? '#' : ' ');
             } else {
                 $prefix = $echo_prefix;
             }

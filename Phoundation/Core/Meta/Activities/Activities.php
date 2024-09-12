@@ -31,6 +31,14 @@ class Activities extends IteratorCore
 
 
     /**
+     * Tracks if read activities should be hidden
+     *
+     * @var bool $hide_reads
+     */
+    protected bool $hide_reads = false;
+
+
+    /**
      * Activities class constructor
      */
     public function __construct()
@@ -47,6 +55,32 @@ class Activities extends IteratorCore
     public static function new(): static
     {
         return new static();
+    }
+
+
+    /**
+     * Returns true if the reads will be hidden
+     *
+     * @return bool
+     */
+    public function getHideReads(): bool
+    {
+        return $this->hide_reads;
+    }
+
+
+    /**
+     * Returns true if the reads will be hidden
+     *
+     * @param bool $hide_reads
+     *
+     * @return Activities
+     */
+    public function setHideReads(bool $hide_reads): static
+    {
+        $this->hide_reads = $hide_reads;
+
+        return $this;
     }
 
 
@@ -198,7 +232,9 @@ class Activities extends IteratorCore
     {
         if (empty($this->render)) {
             foreach ($this as $activity) {
-                $this->render .= $activity->render();
+                if (!$this->hide_reads or !$activity->isAction('read')) {
+                    $this->render .= $activity->render();
+                }
             }
         }
 
