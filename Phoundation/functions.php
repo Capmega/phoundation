@@ -46,6 +46,7 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
@@ -741,7 +742,6 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
  * @param bool  $var_dump
  *
  * @return mixed
- * @throws \Exception
  */
 function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false, bool $var_dump = false): mixed
 {
@@ -1101,20 +1101,20 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
     return $variable;
 }
 
-
 /**
  * Returns the system SQL database object
  *
- * @param ConnectorInterface|string $connector
- * @param bool                      $use_database
- * @param bool                      $connect
+ * @param ConnectorInterface|string|null $connector
+ * @param bool                           $use_database
+ * @param bool                           $connect
  *
  * @return SqlInterface
  */
-function sql(ConnectorInterface|string $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
+function sql(ConnectorInterface|string|null $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
 {
     return Databases::sql($connector, $use_database, $connect);
 }
+
 
 
 /**
@@ -1201,7 +1201,6 @@ function has_trait(string $trait, object|string $class): bool
  * @param bool       $die
  *
  * @return mixed
- * @throws \Exception
  */
 #[NoReturn] function show_system(mixed $source = null, bool $die = true): mixed
 {
@@ -1223,12 +1222,12 @@ function has_trait(string $trait, object|string $class): bool
             echo '<pre>' . PHP_EOL . '"';
         }
 
-        echo 'message-' . random_int(1, 10000) . PHP_EOL . '"';
+        echo 'message-' . Numbers::getRandomInt(1, 10000) . PHP_EOL . '"';
         print_r($source);
         echo '"' . PHP_EOL;
 
         if ($die) {
-            exit('die-' . random_int(1, 10000) . PHP_EOL);
+            exit('die-' . Numbers::getRandomInt(1, 10000) . PHP_EOL);
         }
     }
 
