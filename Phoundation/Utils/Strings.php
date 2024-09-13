@@ -271,7 +271,7 @@ class Strings extends Utils
             $message = strtolower($e->getMessage());
 
             if (str_contains($message, 'bc math') or str_contains($message, 'gmp')) {
-                throw PhpModuleNotAvailableException::new('The PHP BC Math and / or GMP modules are not installed or available');
+                throw PhpModuleNotAvailableException::new('The PHP BC Math and / or GMP modules are not installed or not available');
             }
 
             return false;
