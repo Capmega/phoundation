@@ -24,6 +24,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     public function __construct()
     {
         parent::__construct();
+
         $this->definitions = [
             'type[]'   => [
                 'label'   => tr('Type'),

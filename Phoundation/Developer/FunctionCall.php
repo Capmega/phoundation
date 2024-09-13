@@ -94,6 +94,20 @@ class FunctionCall implements FunctionCallInterface
 
 
     /**
+     * Returns a new FunctionCall object
+     *
+     * @param int  $offset
+     * @param bool $cache
+     *
+     * @return static
+     */
+    public static function new(int $offset = 0, bool $cache = false): static
+    {
+        return new static($offset, $cache);
+    }
+
+
+    /**
      * Returns the call location as a string
      *
      * @return string

@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Page development/plugins/plugins
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Development
+ */
+
+
 declare(strict_types=1);
 
 use Phoundation\Core\Plugins\FilterForm;
@@ -40,7 +52,7 @@ if (Request::isPostRequestMethod()) {
 
 
 // Build plugins filter card
-$filters_content = FilterForm::new();
+$filters_content = FilterForm::new()->apply();
 
 $filters = Card::new()
                ->setCollapseSwitch(true)
@@ -50,7 +62,7 @@ $filters = Card::new()
 
 
 // Build plugins table
-$table = Plugins::new()->getHtmlDataTable()
+$table = Plugins::new()->getHtmlDataTableObject()
                 ->setRowUrl('/development/plugin+:ROW.html');
 
 $plugins = Card::new()
@@ -82,8 +94,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn($filters->render() . $plugins->render(), EnumDisplaySize::nine)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($filters->render() . $plugins->render(), EnumDisplaySize::nine)
+            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

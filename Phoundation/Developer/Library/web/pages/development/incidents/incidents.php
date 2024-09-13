@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Page development/incidents/incidents
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Development
+ */
+
+
 declare(strict_types=1);
 
 use Phoundation\Developer\Incidents\FilterForm;
@@ -18,7 +30,7 @@ use Phoundation\Web\Requests\Response;
 
 
 // Build incidents filter card
-$filters_content = FilterForm::new();
+$filters_content = FilterForm::new()->apply();
 
 $filters = Card::new()
                ->setCollapseSwitch(true)
@@ -28,7 +40,7 @@ $filters = Card::new()
 
 
 // Build incidents table
-$table = Incidents::new()->getHtmlDataTable()
+$table = Incidents::new()->getHtmlDataTableObject()
                   ->setRowUrl('/development/incident+:ROW.html');
 
 $incidents = Card::new()
@@ -59,8 +71,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn($filters->render() . $incidents->render(), EnumDisplaySize::nine)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($filters->render() . $incidents->render(), EnumDisplaySize::nine)
+            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 
