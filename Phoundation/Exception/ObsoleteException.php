@@ -17,6 +17,20 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
+use Phoundation\Developer\FunctionCall;
+use Throwable;
+
+
 class ObsoleteException extends Exception
 {
+    public function __construct(Throwable|array|string|null $messages = null, ?Throwable $previous = null)
+    {
+        if (!$messages) {
+            $messages = tr('The file ":file" is obsolete', [
+                ':file' => FunctionCall::new()->getFile()
+            ]);
+        }
+
+        parent::__construct($messages, $previous);
+    }
 }
