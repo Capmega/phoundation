@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Interfaces;
 
-use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\EntryCore;
-use Phoundation\Data\Iterator;
 use Stringable;
 
 

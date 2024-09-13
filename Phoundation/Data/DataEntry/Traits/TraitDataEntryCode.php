@@ -22,9 +22,9 @@ trait TraitDataEntryCode
     /**
      * Returns the code for this object
      *
-     * @return string|null
+     * @return string|int|null
      */
-    public function getCode(): ?string
+    public function getCode(): string|int|null
     {
         return $this->getTypesafe('string', 'code');
     }
@@ -37,11 +37,11 @@ trait TraitDataEntryCode
      *       would cause issues with $identifier detection, as $identifier can be numeric (ALWAYS id) or non numeric
      *       (The other unique column)
      *
-     * @param string|null $code
+     * @param string|int|null $code
      *
      * @return static
      */
-    public function setCode(?string $code): static
+    public function setCode(string|int|null $code): static
     {
         return $this->set($code, 'code');
     }

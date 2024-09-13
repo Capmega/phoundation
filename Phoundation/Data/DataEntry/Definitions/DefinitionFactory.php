@@ -892,12 +892,12 @@ class DefinitionFactory
     public static function getUsername(?DataEntryInterface $data_entry, ?string $column = 'username'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
-            ->setOptional(true)
-            ->setRender(true)
-            ->setInputType(EnumInputType::name)
-            ->setCliColumn('-u,--username NAME')
-            ->setLabel(tr('Username'))
-            ->setCliAutoComplete(true);
+                         ->setOptional(true)
+                         ->setRender(true)
+                         ->setInputType(EnumInputType::name)
+                         ->setCliColumn('-u,--username NAME')
+                         ->setLabel(tr('Username'))
+                         ->setCliAutoComplete(true);
     }
 
 
@@ -978,14 +978,14 @@ class DefinitionFactory
     public static function getCode(?DataEntryInterface $data_entry, ?string $column = 'code'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
-            ->setOptional(true)
-            ->setInputType(EnumInputType::code)
-            ->setSize(3)
-            ->setMaxlength(64)
-            ->setMinlength(1)
-            ->setCliColumn('-c,--code CODE')
-            ->setCliAutoComplete(true)
-            ->setLabel(tr('Code'));
+                         ->setOptional(true)
+                         ->setInputType(EnumInputType::code)
+                         ->setSize(3)
+                         ->setMaxlength(64)
+                         ->setMinlength(1)
+                         ->setCliColumn('-c,--code CODE')
+                         ->setCliAutoComplete(true)
+                         ->setLabel(tr('Code'));
     }
 
 
@@ -1000,14 +1000,14 @@ class DefinitionFactory
     public static function getHash(?DataEntryInterface $data_entry, ?string $column = 'hash'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
-            ->setOptional(true)
-            ->setReadonly(true)
-            ->setInputType(EnumInputType::code)
-            ->setSize(3)
-            ->setMaxlength(128)
-            ->setMinlength(1)
-            ->setCliAutoComplete(true)
-            ->setLabel(tr('Hash'));
+                         ->setOptional(true)
+                         ->setReadonly(true)
+                         ->setInputType(EnumInputType::code)
+                         ->setSize(3)
+                         ->setMaxlength(128)
+                         ->setMinlength(1)
+                         ->setCliAutoComplete(true)
+                         ->setLabel(tr('Hash'));
     }
 
 

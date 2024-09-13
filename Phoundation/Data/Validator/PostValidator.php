@@ -25,7 +25,10 @@ use Phoundation\Data\Validator\Exception\PostValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Debug;
+use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Requests\Request;
 
@@ -113,6 +116,31 @@ class PostValidator extends Validator
     public static function hideData(): void
     {
         global $_POST;
+
+        // Get $_POST data from RAW JSON?
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            // Check for RAW input
+            if(empty($_POST)){
+                try{
+                    $json = file_get_contents('php://input');
+
+                    if ($json) {
+                        $json = Json::decode($json);
+
+                        if (!is_array($json)) {
+                            throw new ValidationFailedException(tr('Invalid RAW POST JSON ":json" encountered, it should be an array', [
+                                ':json' => $json
+                            ]));
+                        }
+
+                        $_POST = $json;
+                    }
+
+                } catch(JsonException $e) {
+                    throw new ValidationFailedException(tr('Failed to decode RAW POST JSON'), $e);
+                }
+            }
+        }
 
         // Copy POST data and reset both POST and REQUEST
         static::$post   = $_POST;

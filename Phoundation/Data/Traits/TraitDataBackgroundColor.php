@@ -56,6 +56,8 @@ trait TraitDataBackgroundColor
             null, 'blue', 'information'           => 'blue',
             'light'                               => 'light',
             'dark'                                => 'dark',
+            'primary'                             => 'primary',
+            'secondary'                           => 'secondary',
             default                               => throw new OutOfBoundsException(tr('Unknown or unsupported background color ":color" specified. Please use one of "green", "yellow", "blue", or "red"', [
                 ':color' => $background_color
             ]))

@@ -40,7 +40,8 @@ use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\TraitDataCallbacks;
+use Phoundation\Data\Traits\TraitDataColumns;
+use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Traits\TraitDataSourceArray;
@@ -65,11 +66,12 @@ use Throwable;
 
 class IteratorCore implements IteratorInterface
 {
-    use TraitDataCallbacks;
+    use TraitDataColumns;
     use TraitDataParent {
         setParentObject as protected __setParent;
     }
     use TraitDataRestrictions;
+    use TraitDataRowCallbacks;
     use TraitDataSourceArray;
 
 
@@ -1892,26 +1894,7 @@ class IteratorCore implements IteratorInterface
 
 
     /**
-     * Creates and returns an HTML table for the data in this list
-     *
-     * @param array|string|null $columns
-     *
-     * @return HtmlTableInterface
-     */
-    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
-    {
-        // Source is already loaded, use this instead
-        // Create and return the table
-        return HtmlTable::new()
-                        ->setId(static::getTable())
-                        ->setSource($this->getAllRowsMultipleColumns($columns))
-                        ->setCallbacks($this->callbacks)
-                        ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
-    }
-
-
-    /**
-     * Returns an array with array values containing only the specified columns
+     * Returns an IteratorInterface with array values containing only the specified columns
      *
      * @note This only works on sources that contains array / DataEntry object values. Any other value will cause an
      *       OutOfBoundsException
@@ -1935,10 +1918,70 @@ class IteratorCore implements IteratorInterface
 
         foreach ($this->source as $key => $value) {
             $value        = $this->checkSourceValueHasColumns($value, $columns);
-            $return[$key] = Arrays::keepKeys($value, $columns);
+            $return[$key] = Arrays::keepKeysOrdered($value, $columns);
         }
 
         return new Iterator($return);
+    }
+
+
+    /**
+     * Extracts headers from the specified columns
+     *
+     * @param array|string|null $columns
+     *
+     * @return array|null
+     */
+    protected function prepareHeaders(array|string|null $columns): ?array
+    {
+        if ($columns and is_array($columns)) {
+            return $columns;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Extracts headers from the specified columns
+     *
+     * @param array|string|null $columns
+     *
+     * @return array|null
+     */
+    protected function prepareColumns(array|string|null $columns): ?array
+    {
+        $columns = $columns ?? $this->columns;
+
+        if ($columns) {
+            if (is_array($columns)) {
+                return array_keys($columns);
+            }
+
+            return explode(',', $columns);
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @param array|string|null $columns
+     *
+     * @return HtmlTableInterface
+     */
+    public function getHtmlTableObject(array|string|null $columns = null): HtmlTableInterface
+    {
+        $this->ensureArrays();
+
+        return HtmlTable::new()
+                        ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
+                        ->setHeaders($this->prepareHeaders($columns))
+                        ->setSource($this->getAllRowsMultipleColumns($this->prepareColumns($columns)))
+                        ->setRowCallbacks($this->row_callbacks)
+                        ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
 
 
@@ -1949,14 +1992,15 @@ class IteratorCore implements IteratorInterface
      *
      * @return HtmlDataTableInterface
      */
-    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface
+    public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface
     {
-        // Source is already loaded, use this instead
-        // Create and return the table
+        $this->ensureArrays();
+
         return HtmlDataTable::new()
                             ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
-                            ->setSource($this->getAllRowsMultipleColumns($columns))
-                            ->setCallbacks($this->callbacks)
+                            ->setHeaders($this->prepareHeaders($columns))
+                            ->setSource($this->getAllRowsMultipleColumns($this->prepareColumns($columns)))
+                            ->setRowCallbacks($this->row_callbacks)
                             ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
 
@@ -1974,6 +2018,8 @@ class IteratorCore implements IteratorInterface
 
     /**
      * Executes the specified callback function on each
+     *
+     * @param callable $callback
      *
      * @return static
      */
@@ -2080,5 +2126,53 @@ class IteratorCore implements IteratorInterface
         $this->source[$key] = $this->getAcceptedDataType()::new()->setSource($this->source[$key]);
 
         return $this->source[$key];
+    }
+
+
+    /**
+     * Ensures that all iterator entries are arrays
+     *
+     * @return $this
+     */
+    public function ensureArrays(): static
+    {
+        foreach ($this->source as $key => &$value) {
+            $value = $this->ensureArray($key);
+        }
+
+        unset($value);
+        return $this;
+    }
+
+
+    /**
+     * Ensure the entry we're going to return is from DataEntryInterface interface
+     *
+     * @param string|float|int $key
+     *
+     * @return mixed
+     *
+     * @throws OutOfBoundsException
+     */
+    #[ReturnTypeWillChange] protected function ensureArray(string|float|int $key): array
+    {
+        if (is_array($this->source[$key])) {
+            // Already object, assume it's the right type
+            return $this->source[$key];
+        }
+
+        if (is_scalar($this->source[$key])) {
+            return [$this->source[$key]];
+        }
+
+        if (is_a($this->source[$key], ArraySourceInterface::class, true)) {
+            // Can only do this for objects that have ArraySourceInterface so that we can dump array sources in them.
+            return $this->source[$key]->__toArray();
+        }
+
+        throw new OutOfBoundsException(tr('Cannot convert source key ":key" to array, the value ":value" cannot be converted', [
+            ':key'   => $key,
+            ':value' => $this->source[$key]
+        ]));
     }
 }

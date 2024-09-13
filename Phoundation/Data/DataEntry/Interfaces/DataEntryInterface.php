@@ -596,5 +596,5 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @return $this
      */
-    public function addMetaAction(?string $action, ?string $comments, Stringable|array|string|null $data): static;
+    public function addMetaAction(?string $action, ?string $comments = null, Stringable|array|string|null $data = null): static;
 }

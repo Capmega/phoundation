@@ -732,7 +732,7 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      *
      * @return HtmlTableInterface
      */
-    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface;
+    public function getHtmlTableObject(array|string|null $columns = null): HtmlTableInterface;
 
     /**
      * Returns an array with array values containing only the specified columns
@@ -755,7 +755,7 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      *
      * @return HtmlDataTableInterface
      */
-    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface;
+    public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface;
 
     /**
      * Returns an HTML <select> for the entries in this list
@@ -813,4 +813,36 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      * @throws OutOfBoundsException|Throwable
      */
     public function copyValue(Stringable|string|int|null $from_key, Stringable|string|int|null $to_key): static;
+
+    /**
+     * Returns the source
+     *
+     * @return array
+     */
+    public function getRowCallbacks(): array;
+
+    /**
+     * Set all callbacks to use
+     *
+     * @param array $callbacks
+     *
+     * @return static
+     */
+    public function setRowCallbacks(array $callbacks): static;
+
+    /**
+     * Adds a callback
+     *
+     * @param callable $callbacks
+     *
+     * @return static
+     */
+    public function addRowCallback(callable $callbacks): static;
+
+    /**
+     * Clears the callbacks
+     *
+     * @return static
+     */
+    public function clearRowCallbacks(): static;
 }

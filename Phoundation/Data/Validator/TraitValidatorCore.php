@@ -552,7 +552,7 @@ trait TraitValidatorCore
             Log::write('Validation backtrace:', 'debug', 6);
             Log::backtrace(threshold: 6);
             Log::write('Validation data source:', 'debug', 6);
-            Log::printr($this->source);
+            Log::write(get_null($this->source) ? print_r($this->source, true) : '-', 'debug', clean: false);
         }
 
         // Build up the failure string

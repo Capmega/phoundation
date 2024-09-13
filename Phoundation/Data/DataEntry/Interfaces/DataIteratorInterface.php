@@ -37,20 +37,20 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Returns the query for this object when generating internal content
      *
-     * @return string
+     * @return string|null
      */
-    public function getQuery(): string;
+    public function getQuery(): ?string;
 
 
     /**
      * Set the query for this object when generating internal content
      *
-     * @param string     $query
-     * @param array|null $execute
+     * @param string|null $query
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function setQuery(string $query, ?array $execute = null): static;
+    public function setQuery(?string $query, ?array $execute = null): static;
 
 
     /**
@@ -98,7 +98,7 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return HtmlTableInterface
      */
-    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface;
+    public function getHtmlTableObject(array|string|null $columns = null): HtmlTableInterface;
 
 
     /**
@@ -108,7 +108,7 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return HtmlDataTableInterface
      */
-    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface;
+    public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface;
 
 
     /**
@@ -145,7 +145,7 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return int
      */
-    public function setStatus(?string $status, ?string $comments = null): int;
+    public function updateStatus(?string $status, ?string $comments = null): int;
 
 
     /**
@@ -228,13 +228,13 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Load the id list from the database
      *
-     * @param array|null $identifiers
-     * @param bool       $clear
-     * @param bool       $only_if_empty
+     * @param array|string|int|null $identifiers
+     * @param bool                  $clear
+     * @param bool                  $only_if_empty
      *
      * @return static
      */
-    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static;
+    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static;
 
 
     /**

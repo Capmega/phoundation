@@ -2921,7 +2921,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *
      * @return $this
      */
-    public function addMetaAction(?string $action, ?string $comments, Stringable|array|string|null $data): static
+    public function addMetaAction(?string $action, ?string $comments = null, Stringable|array|string|null $data = null): static
     {
         $this->getMetaObject()->action($action, $comments, $data);
 

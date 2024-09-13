@@ -34,7 +34,7 @@ class GetValidator extends Validator
 
 
     /**
-     * Internal $_GET array until validation has been completed
+     * Tracks the internal $_GET array until validation has been completed
      *
      * @var array|null $get
      */
@@ -84,6 +84,12 @@ class GetValidator extends Validator
         // Copy GET data and reset both GET and REQUEST
         static::$get    = $_GET;
         static::$backup = $_GET;
+
+        foreach (static::$get as &$value) {
+            $value = urldecode($value);
+        }
+
+        unset($value);
 
         $_GET     = [];
         $_REQUEST = [];

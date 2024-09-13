@@ -55,6 +55,29 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Apply a default value to the specified key if said key is currently not available in the data source
+     *
+     * @param mixed  $value
+     * @param string $key
+     *
+     * @return Validator
+     */
+    public function default(mixed $value, string $key): static
+    {
+        if (array_key_exists($key, $this->source)) {
+            if (($this->source[$key] === null) or ($this->source[$key] === '')) {
+                $this->source[$key] = $value;
+            }
+
+        } else {
+            $this->source[$key] = $value;
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns if all validations are disabled or not
      *
      * @return bool
@@ -1515,7 +1538,7 @@ abstract class Validator implements ValidatorInterface
                     return;
                 }
 
-                $failed = !$array->valueExists($value);
+                $failed = !$array->keyExists($value);
 
             } else {
                 $this->sanitizeTrim()->hasMaxCharacters(Arrays::getLongestValueLength($array));
@@ -1895,7 +1918,7 @@ abstract class Validator implements ValidatorInterface
             try {
                 // Create DateTime object
                 $format = DateFormats::normalizeDateFormat($format);
-                $value = DateTime::createFromFormat($format, $given);
+                $value  = DateTime::createFromFormat($format, $given);
 
                 if ($value) {
                     // DateTime object created successfully! Now get a dateformat, and normalize it

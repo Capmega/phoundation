@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry;
 
+use PDOStatement;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Log\Log;
@@ -30,12 +31,14 @@ use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Data\Traits\TraitDataStatus;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Config;
@@ -54,6 +57,7 @@ use Stringable;
 
 class DataIterator extends Iterator implements DataIteratorInterface
 {
+    use TraitDataStatus;
     use TraitDataConfigPath;
     use TraitDataDebug;
     use TraitDataReadonly;
@@ -71,9 +75,9 @@ class DataIterator extends Iterator implements DataIteratorInterface
     /**
      * The query to display an HTML table for this list
      *
-     * @var string $query
+     * @var string|null $query
      */
-    protected string $query;
+    protected ?string $query;
 
     /**
      * The execution array for the HTML query
@@ -127,6 +131,30 @@ class DataIterator extends Iterator implements DataIteratorInterface
 
 
     /**
+     * DataIterator class constructor
+     *
+     * @param IteratorInterface|array|string|PDOStatement|null $source
+     */
+    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
+    {
+        parent::__construct($source);
+
+        $this->status = false;
+    }
+
+
+    /**
+     * Return the object source contents in JSON string format
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return Json::encode($this->source);
+    }
+
+
+    /**
      * Returns true if the ID column is the specified column
      *
      * @param string $column
@@ -174,17 +202,6 @@ class DataIterator extends Iterator implements DataIteratorInterface
 
 
     /**
-     * Return the object source contents in JSON string format
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return Json::encode($this->source);
-    }
-
-
-    /**
      * Returns if the specified data entry key exists in the data list
      *
      * @param DataEntryInterface|Stringable|string|float|int $key
@@ -204,9 +221,9 @@ class DataIterator extends Iterator implements DataIteratorInterface
     /**
      * Returns the query for this object when generating internal content
      *
-     * @return string
+     * @return string|null
      */
-    public function getQuery(): string
+    public function getQuery(): ?string
     {
         $this->selectQuery();
 
@@ -223,6 +240,10 @@ class DataIterator extends Iterator implements DataIteratorInterface
     {
         if (!isset($this->query_builder)) {
             $this->query_builder = QueryBuilder::new($this);
+
+            if ($this->status !== false) {
+                $this->query_builder->addWhere(SqlQueries::is('`' . static::getTable() . '`.`status`', $this->status, ':status'));
+            }
         }
 
         return $this->query_builder;
@@ -232,12 +253,12 @@ class DataIterator extends Iterator implements DataIteratorInterface
     /**
      * Set the query for this object when generating internal content
      *
-     * @param string     $query
-     * @param array|null $execute
+     * @param string|null $query
+     * @param array|null  $execute
      *
      * @return static
      */
-    public function setQuery(string $query, ?array $execute = null): static
+    public function setQuery(?string $query, ?array $execute = null): static
     {
         $this->query   = $query;
         $this->execute = $execute;
@@ -253,7 +274,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      *
      * @return void
      */
-    protected function selectQuery(?array $identifiers = null): void
+    protected function selectQuery(array|string|int|null $identifiers = null): void
     {
         // Use the default html_query and html_execute or QueryBuilder html_query and html_execute?
         if (isset($this->query_builder)) {
@@ -261,27 +282,29 @@ class DataIterator extends Iterator implements DataIteratorInterface
             $this->execute = $this->query_builder->getExecute();
 
         } elseif (!isset($this->query) or $identifiers) {
-            // Define default identifiers
-            if ($identifiers === null) {
-                $identifiers = ['status' => null];
+            if (static::getTable()) {
+                // Define default identifiers
+                if ($identifiers === null) {
+                    $identifiers = ['status' => null];
+                }
+
+                // Create query with optional filtering for parents_id
+                if ($this->parent) {
+                    $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->parent::getTable(), '_') . '_id` = :parents_id AND ';
+                    $this->execute['parents_id'] = $this->parent->getId();
+
+                } else {
+                    $parent_filter = null;
+                }
+
+                $this->buildManualQuery($identifiers, $where, $joins, $group, $order, $this->execute);
+
+                // Set default query
+                $this->query = 'SELECT                  ' . $this->getSqlColumns() . '
+                                FROM                   `' . static::getTable() . '`
+                                ' . $joins . '
+                                WHERE  ' . $parent_filter .  $where . $group . $order;
             }
-
-            // Create query with optional filtering for parents_id
-            if ($this->parent) {
-                $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->parent::getTable(), '_') . '_id` = :parents_id AND ';
-                $this->execute['parents_id'] = $this->parent->getId();
-
-            } else {
-                $parent_filter = null;
-            }
-
-            $this->buildManualQuery($identifiers, $where, $joins, $group, $order, $this->execute);
-
-            // Set default query
-            $this->query = 'SELECT                  ' . $this->getSqlColumns() . '
-                            FROM                   `' . static::getTable() . '`
-                            ' . $joins . '
-                            WHERE  ' . $parent_filter .  $where . $group . $order;
         }
     }
 
@@ -447,37 +470,6 @@ class DataIterator extends Iterator implements DataIteratorInterface
 
 
     /**
-     * Creates and returns an HTML table for the data in this list
-     *
-     * @param array|string|null $columns
-     *
-     * @return HtmlTableInterface
-     */
-    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
-    {
-        if ($this->source) {
-            // Source is already loaded, use this instead
-            // Create and return the table
-            return HtmlTable::new()
-                            ->setId(static::getTable())
-                            ->setSource($this->getAllRowsMultipleColumns($columns))
-                            ->setCallbacks($this->callbacks)
-                            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
-        }
-
-        $this->selectQuery();
-
-        // Create and return the table
-        return HtmlTable::new()
-                        ->setConnector(static::getConnector())
-                        ->setId(static::getTable())
-                        ->setSourceQuery($this->query, $this->execute)
-                        ->setCallbacks($this->callbacks)
-                        ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
-    }
-
-
-    /**
      * Returns the default database connector to use for this table
      *
      * @return string
@@ -500,32 +492,58 @@ class DataIterator extends Iterator implements DataIteratorInterface
 
 
     /**
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @param array|string|null $columns
+     *
+     * @return HtmlTableInterface
+     */
+    public function getHtmlTableObject(array|string|null $columns = null): HtmlTableInterface
+    {
+        if ($this->source) {
+            // Source is already loaded, use that
+            return parent::getHtmlTableObject($columns)->setId(static::getTable());
+        }
+
+        $this->selectQuery();
+
+        $columns = $columns ?? $this->columns;
+
+        // Create and return the table
+        return HtmlTable::new()
+                        ->setId(static::getTable())
+                        ->setConnector(static::getConnector())
+                        ->setHeaders($this->prepareHeaders($columns))
+                        ->setSourceQuery($this->query, $this->execute)
+                        ->setRowCallbacks($this->row_callbacks)
+                        ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
+    }
+
+
+    /**
      * Creates and returns a fancy HTML data table for the data in this list
      *
      * @param array|string|null $columns
      *
      * @return HtmlDataTableInterface
      */
-    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface
+    public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface
     {
         if ($this->source) {
-            // Source is already loaded, use this instead
-            // Create and return the table
-            return HtmlDataTable::new()
-                                ->setId(static::getTable())
-                                ->setSource($this->getAllRowsMultipleColumns($columns))
-                                ->setCallbacks($this->callbacks)
-                                ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
+            // Source is already loaded, use that
+            return parent::getHtmlDataTableObject($columns)->setId(static::getTable());
         }
 
         $this->selectQuery();
 
+        $columns = $columns ?? $this->columns;
+
         // Create and return the table
         return HtmlDataTable::new()
-                            ->setConnector(static::getConnector())
                             ->setId(static::getTable())
+                            ->setConnector(static::getConnector())
                             ->setSourceQuery($this->query, $this->execute)
-                            ->setCallbacks($this->callbacks)
+                            ->setRowCallbacks($this->row_callbacks)
                             ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
 
@@ -631,7 +649,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      */
     public function delete(?string $comments = null): int
     {
-        return $this->setStatus('deleted', $comments);
+        return $this->updateStatus('deleted', $comments);
     }
 
 
@@ -643,7 +661,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      *
      * @return int
      */
-    public function setStatus(?string $status, ?string $comments = null): int
+    public function updateStatus(?string $status, ?string $comments = null): int
     {
         foreach ($this->source as $entry) {
             $entry->setStatus($status, $comments);
@@ -711,7 +729,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
      */
     public function undelete(?string $comments = null): int
     {
-        return $this->setStatus(null, $comments);
+        return $this->updateStatus(null, $comments);
     }
 
 
@@ -862,21 +880,32 @@ class DataIterator extends Iterator implements DataIteratorInterface
     public function clearAllFromTable(string|bool|null $status = false): static
     {
         if ($status === false) {
-            $results = sql()->query('SELECT `id` FROM `' . static::getTable() . '`');
+            $results = sql()->listKeyValues('SELECT `id` FROM `' . static::getTable() . '`');
 
         } else {
             $execute = [':status' => $status];
-            $results = sql()->query('SELECT `id` FROM `' . static::getTable() . '` WHERE' . SqlQueries::is('status', $status, 'status', $execute), $execute);
+            $results = sql()->listKeyValues('SELECT `id` FROM `' . static::getTable() . '` WHERE' . SqlQueries::is('status', $status, 'status', $execute), $execute);
         }
 
-        foreach ($results as $entry) {
-            $this->ensureObject($entry['id'])
-                 ->setStatus('deleted')
-                 ->setUniqueColumnValue(null)
-                 ->save();
+        if ($results) {
+            $this->source = $results;
+
+            foreach ($results as $entry) {
+                Log::action(tr('Deleting ":class" entry with id ":id"', [
+                    ':class' => static::class,
+                    ':id'    => $entry['id'],
+                ]), 2);
+
+                $this->ensureObject($entry['id'])
+                     ->setStatus('deleted')
+                     ->setUniqueColumnValue(null)
+                     ->save();
+            }
+
+            return parent::clear();
         }
 
-        return parent::clear();
+        return $this;
     }
 
 
@@ -994,13 +1023,13 @@ class DataIterator extends Iterator implements DataIteratorInterface
     /**
      * Load the id list from the database
      *
-     * @param array|null $identifiers
-     * @param bool       $clear         Will clear the DataIterator source before loading
-     * @param bool       $only_if_empty Will only load if the current DataIterator source is empty
+     * @param array|string|int|null $identifiers
+     * @param bool                  $clear         Will clear the DataIterator source before loading
+     * @param bool                  $only_if_empty Will only load if the current DataIterator source is empty
      *
      * @return static
      */
-    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
         $this->selectQuery($identifiers);
 
@@ -1013,10 +1042,10 @@ class DataIterator extends Iterator implements DataIteratorInterface
                     $this->source = array_merge(
                         $this->source,
                         sql(static::getConnectorObject())->setDebug($this->debug)
-                                                         ->listKeyValues(
-                                                             $this->query,
-                                                             $this->execute,
-                                                             static::getUniqueColumn()));
+                            ->listKeyValues(
+                                $this->query,
+                                $this->execute,
+                                static::getUniqueColumn()));
                 }
             }
 
@@ -1024,7 +1053,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
         }
 
         $this->source = sql(static::getConnectorObject())->setDebug($this->debug)
-                                                         ->listKeyValues($this->query, $this->execute);
+            ->listKeyValues($this->query, $this->execute);
 
         if ($this->configuration_path) {
             $this->source = array_merge($this->source, $this->loadFromConfiguration());
