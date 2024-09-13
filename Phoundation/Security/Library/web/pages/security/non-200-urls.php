@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Page security/non-200-urls
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Security
+ */
+
+
 declare(strict_types=1);
 
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -18,7 +30,7 @@ use Phoundation\Web\Requests\Response;
 
 
 // Build users filter card
-$filters_content = FilterForm::new();
+$filters_content = FilterForm::new()->apply();
 
 $filters = Card::new()
                ->setCollapseSwitch(true)
@@ -28,7 +40,7 @@ $filters = Card::new()
 
 
 // Build urls table
-$table = Non200Urls::new()->getHtmlDataTable()
+$table = Non200Urls::new()->getHtmlDataTableObject()
                    ->setRowUrl('/security/non-200-url+:ROW.html');
 
 $users = Card::new()
@@ -58,8 +70,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn($filters->render() . $users->render(), EnumDisplaySize::nine)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($filters->render() . $users->render(), EnumDisplaySize::nine)
+            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 
