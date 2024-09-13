@@ -111,7 +111,7 @@ $connectors_card = Card::new()
                        ->setSwitches('reload')
                        ->setContent($connectors
                                         ->load()
-                                        ->getHtmlDataTable()
+                                        ->getHtmlDataTableObject()
                                         ->setRowUrl('/phoundation/databases/connectors/connector+:ROW.html')
                                         ->setColumns('id,name,hostname,username,database,status,created_on')
                                         ->setOrder([1 => 'asc']))
@@ -140,8 +140,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn($filters_card->render() . $connectors_card->render(), EnumDisplaySize::nine)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($filters_card->render() . $connectors_card->render(), EnumDisplaySize::nine)
+            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

@@ -584,7 +584,8 @@ class Sql implements SqlInterface
                 // Get tokens from query
 // TODO Check here what tokens do not match to make debugging easier
                 preg_match_all('/:\w+/imus', $query, $matches);
-                throw $e->addData(Arrays::renameKeys(Arrays::valueDiff($matches[0], array_flip($execute)), [
+
+                throw $e->addData(Arrays::renameKeys(Arrays::valueDiff($matches[0], array_keys($execute)), [
                     'add'    => 'variables missing in query',
                     'delete' => 'variables missing in execute',
                 ]));

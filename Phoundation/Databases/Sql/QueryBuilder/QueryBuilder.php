@@ -21,6 +21,7 @@ use Phoundation\Data\Traits\TraitDataDatabaseConnector;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
+use Phoundation\Utils\Strings;
 
 
 class QueryBuilder extends QueryObject implements QueryBuilderInterface
@@ -70,34 +71,42 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     public function getQuery(bool $debug = false): string
     {
         $query = (($this->debug or $debug) ? ' ' : '');
-        // Execute all predefines before executing the query
+
+        // Execute all predefined before executing the query
         foreach ($this->predefines as $predefine) {
             $predefine();
         }
+
         if ($this->select) {
-            $query .= implode(', ', $this->select) . ' FROM ' . implode(', ', $this->from) . ' ';
+            $query .= Strings::ensureEndsNotWith(trim(implode(', ', $this->select)), ',') . ' FROM `' . implode('`, `', $this->from) . '` ';
 
         } elseif ($this->delete) {
-            $query .= implode(', ', $this->delete) . ' FROM ' . implode(', ', $this->from) . ' ';
+            $query .= Strings::ensureEndsNotWith(trim(implode(', ', $this->delete)), ',') . ' FROM `' . implode('`, `', $this->from) . '` ';
 
         } elseif ($this->update) {
-            $query .= 'UPDATE ' . implode(', ', $this->from) . ' SET ' . implode(', ', $this->update);
+            $query .= 'UPDATE `' . Strings::ensureEndsNotWith(trim(implode('`, `', $this->from)), ',') . '` SET ' . implode(', ', $this->update);
         }
+
         foreach ($this->joins as $join) {
             $query .= $join . ' ';
         }
+
         if ($this->wheres) {
             $query .= ' WHERE ' . implode(' AND ', $this->wheres);
         }
+
         if ($this->group_by) {
             $query .= ' GROUP BY ' . implode(', ', $this->group_by);
         }
+
         if ($this->having) {
             $query .= ' HAVING ' . implode(' AND ', $this->having);
         }
+
         if ($this->order_by) {
             $query .= ' ORDER BY ' . implode(', ', $this->order_by);
         }
+
         if ($this->limit_count) {
             $query .= ' LIMIT ' . $this->limit_offset . ', ' . $this->limit_count;
         }

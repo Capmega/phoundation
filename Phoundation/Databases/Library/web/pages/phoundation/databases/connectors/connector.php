@@ -212,12 +212,12 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn(GridColumn::new()
+            ->addGridColumn(GridColumn::new()
                             // The connector card and all additional cards
                                   ->addContent($connector_card->render())
                                   ->setSize(9)
                                   ->useForm(true))
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

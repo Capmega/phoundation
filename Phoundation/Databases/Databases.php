@@ -126,13 +126,13 @@ class Databases
     /**
      * Access SQL database connectors
      *
-     * @param ConnectorInterface|string $connector
-     * @param bool                      $use_database
-     * @param bool                      $connect
+     * @param ConnectorInterface|string|null $connector
+     * @param bool                           $use_database
+     * @param bool                           $connect
      *
      * @return SqlInterface
      */
-    public static function sql(ConnectorInterface|string $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
+    public static function sql(ConnectorInterface|string|null $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
     {
         if (!$connector) {
             // Default to system connector

@@ -66,11 +66,23 @@ CliDocumentation::setAutoComplete([
                                               'noword' => function ()      use ($restrictions) { return FsDirectory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.{sql,sql.gz}'); },
                                           ],
                                           '-c,--connector' => [
-                                              'word'   => function ($word) { return Arrays::keepValues(Connectors::new()->load(null, true, true)->keepMatchingValues('sys', Utils::MATCH_STARTS_WITH, 'name')->getAllRowsSingleColumn('name'), $word); },
-                                              'noword' => function () { return Connectors::new()->load(null, true, true)->keepMatchingValues('sys', Utils::MATCH_STARTS_WITH, 'name')->getAllRowsSingleColumn('name'); },
+                                              'word'   => function ($word) {
+                                                  return Connectors::new()
+                                                                   ->load(null, true, true)
+                                                                   ->keepMatchingValuesStartingWith($word, column: 'name');
+                                              },
+                                              'noword' => function () {
+                                                  return Connectors::new()
+                                                                   ->load(null, true, true)
+                                                                   ->getAllRowsSingleColumn('name');
+                                              },
                                           ],
                                           '-b,--database'  => [
-                                              'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },
+                                              'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES 
+                                                                                                       LIKE :word', [
+                                                                                                           ':word' => '%' . $word . '%'
+                                                                                                    ]);
+                                                                            },
                                               'noword' => function () { return sql()->listScalar('SHOW DATABASES'); },
                                           ],
                                           '-t,--timeout'   => true,

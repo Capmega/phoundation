@@ -43,8 +43,11 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
             'locked'  => tr('Locked'),
             'deleted' => tr('Deleted'),
         ];
+
         $connector = Connector::new();
+
         $this->definitions = Definitions::new()
+
                                         ->add(Definition::new(null, 'entry_status')
                                                         ->setLabel(tr('Status'))
                                                         ->setSize(4)
@@ -53,6 +56,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                         ->setValue(isset_get($this->source['entry_status']))
                                                         ->setKey(true, 'auto_submit')
                                                         ->setDataSource($this->states))
+
                                         ->add($connector->getDefinitionsObject()
                                                         ->get('type'));
     }
