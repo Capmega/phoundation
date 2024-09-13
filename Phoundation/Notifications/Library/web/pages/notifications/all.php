@@ -54,7 +54,7 @@ if (Request::isPostRequestMethod()) {
 
 
 // Build incidents filter card
-$filters_content = FilterForm::new();
+$filters_content = FilterForm::new()->apply();
 
 $filters = Card::new()
     ->setCollapseSwitch(true)
@@ -65,7 +65,7 @@ $filters = Card::new()
 
 // Build notifications table
 $table = $notifications
-    ->getHtmlDataTable()
+    ->getHtmlDataTableObject()
         ->setRowUrl('/notifications/notification+:ROW.html')
         ->setAnchorClasses('notification open-modal');
 
@@ -104,8 +104,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($filters->render() . $notifications->render(), EnumDisplaySize::nine)
-    ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+    ->addGridColumn($filters->render() . $notifications->render(), EnumDisplaySize::nine)
+    ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

@@ -141,7 +141,7 @@ class Notifications extends DataIterator implements NotificationsInterface
 //    /**
 //     * @inheritDoc
 //     */
-//    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+//    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
 //    {
 //        $this->source = sql()->list('SELECT `notifications`.`id`, `notifications`.`title`
 //                                   FROM     `notifications`
@@ -215,7 +215,7 @@ class Notifications extends DataIterator implements NotificationsInterface
      */
     public function markSeverityColumn(): static
     {
-        return $this->addCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
+        return $this->addRowCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
             if (!array_key_exists('severity', $row)) {
                 return;
             }

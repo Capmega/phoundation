@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Ajax system/notifications/modal.php
+ * Ajax call system/notifications/modal.php
  *
  * This ajax call will return the contents of the specified notifications id for use with notification modals
  *

@@ -42,21 +42,20 @@ class NotificationModal extends LargeModal
         // Render the sign in modal.
         return Script::new()
                      ->setJavascriptWrapper(EnumJavascriptWrappers::window)
-                     ->setContent('
-            $("nav.main-header").on("click", ".notification.open-modal", function(e) {
-                e.stopPropagation();
-
-                $.get("' . Url::getAjax('system/notifications/modal.json?id=') . '" + $(e.target).data("id"))
-                    .done(function (data, textStatus, jqXHR) {
-                        checkNotifications();
-                        $("#notification-modal").find(".modal-title").text(data.title);
-                        $("#notification-modal").find(".modal-body").html(data.body);
-                        $("#notification-modal").find(".modal-footer").html(data.buttons);
-                        $("#notification-modal").modal({show: true});
-                    });
-
-                return false;
-            })')
+                     ->setContent(' $("nav.main-header").on("click", ".notification.open-modal", function(e) {
+                                        e.stopPropagation();
+                        
+                                        $.get("' . Url::getAjax('system/notifications/modal+" + $(e.target).data("id") + ".json') . '")
+                                            .done(function (data, textStatus, jqXHR) {
+                                                checkNotifications();
+                                                $("#notification-modal").find(".modal-title").text(data.title);
+                                                $("#notification-modal").find(".modal-body").html(data.body);
+                                                $("#notification-modal").find(".modal-footer").html(data.buttons);
+                                                $("#notification-modal").modal({show: true});
+                                            });
+                        
+                                        return false;
+                                    })')
                      ->render();
     }
 }
