@@ -99,9 +99,9 @@ class Countries extends DataIterator
      *
      * @return HtmlTableInterface
      */
-    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
+    public function getHtmlTableObject(array|string|null $columns = null): HtmlTableInterface
     {
-        $table = parent::getHtmlTable();
+        $table = parent::getHtmlTableObject();
         $table->setCheckboxSelectors(EnumTableIdColumn::checkbox);
 
         return $table;
