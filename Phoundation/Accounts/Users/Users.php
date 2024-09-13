@@ -26,6 +26,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -519,15 +520,14 @@ class Users extends DataIterator implements UsersInterface
     /**
      * Load the data for this users list into the object
      *
-     * @param array|null $identifiers
-     * @param bool       $clear
-     * @param bool       $only_if_empty
+     * @param array|string|int|null $identifiers
+     * @param bool                  $clear
+     * @param bool                  $only_if_empty
      *
      * @return static
      */
-    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
-
         if ($this->parent) {
             if ($this->parent instanceof RoleInterface) {
                 $this->query   = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
@@ -551,6 +551,14 @@ class Users extends DataIterator implements UsersInterface
                     ':rights_id' => $this->parent->getId(),
                 ];
             }
+
+        } elseif ($identifiers) {
+            $identifiers   = Arrays::force($identifiers);
+            $this->execute = SqlQueries::in($identifiers, ':identifiers', true);
+
+            $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*
+                            FROM   `accounts_users`
+                            WHERE  `accounts_users`.`id` IN (' . SqlQueries::inColumns($this->execute) . ')';
 
         } else {
             $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*

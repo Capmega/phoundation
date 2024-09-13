@@ -216,7 +216,7 @@ if ($user->getId()) {
                        ->setTitle(tr('Rights for this user [:count]', [':count' => $user->getRightsObject()->getCount()]))
                        ->setDescription(tr('This is a list of rights that this user has available because of its assigned roles. Each role gives the user a certain number of rights and with adding or removing roles, you add or remove these rights. These rights are used to determine the access to pages or specific information that a user has. To determine what rights are required to access a specific page, click the "lock" symbol at the top menu.'))
                        ->setContent($user->getRightsObject(true, true)
-                                         ->getHtmlDataTable('id,name,description')
+                                         ->getHtmlDataTableObject('id,name,description')
                                          ->setLengthChangeEnabled(false)
                                          ->setSearchingEnabled(false)
                                          ->setPagingEnabled(false)
@@ -282,7 +282,7 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn(GridColumn::new()
+            ->addGridColumn(GridColumn::new()
                             // The user card and all additional cards
                                   ->addContent($user_card->render() .
                                                isset_get($roles_card)?->render() .
@@ -291,7 +291,7 @@ $grid = Grid::new()
                                                isset_get($phones_card)?->render())
                                   ->setSize(9)
                                   ->useForm(true))
-            ->addColumn($picture->render() . '<br>' . $relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($picture->render() . '<br>' . $relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

@@ -143,8 +143,8 @@ $rights = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn($card . $rights, EnumDisplaySize::nine, true)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($card . $rights, EnumDisplaySize::nine, true)
+            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

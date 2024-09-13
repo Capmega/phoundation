@@ -30,7 +30,4 @@ $get = GetValidator::new()
 
 
 // Reply
-$reply = Json::encode(['/force-password-update.html']);
-$reply = AutoSuggestRequest::getCallback() . '(' . $reply . ')';
-
-JsonPage::new()->reply($reply);
+JsonPage::new()->reply(['/force-password-update.html']);

@@ -34,7 +34,7 @@ $get = GetValidator::new()
 
 // Build the settings card
 $user = Session::getUserObject();
-$form = $user->getSettings()->getHtmlDataEntryFormObject();
+$form = $user->getSettingsObject()->getHtmlDataEntryFormObject();
 $card = Card::new()
             ->setTitle(tr('Edit data for right :name', [':name' => $user->getName()]))
             ->setContent($form->render())
@@ -61,8 +61,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn($card, EnumDisplaySize::nine, true)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($card, EnumDisplaySize::nine, true)
+            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

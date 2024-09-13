@@ -29,7 +29,7 @@ use Phoundation\Web\Requests\Response;
 
 
 // Build users filter card
-$filters_content = FilterForm::new();
+$filters_content = FilterForm::new()->apply();
 
 $filters = Card::new()
                ->setCollapseSwitch(true)
@@ -46,7 +46,7 @@ $buttons = Buttons::new()
 
 // Build rights table
 $table = Rights::new()
-               ->getHtmlDataTable()
+               ->getHtmlDataTableObject()
                ->setRowUrl('/accounts/right+:ROW.html');
 
 $rights = Card::new()
@@ -78,8 +78,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn($filters->render() . $rights, EnumDisplaySize::nine)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($filters->render() . $rights, EnumDisplaySize::nine)
+            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

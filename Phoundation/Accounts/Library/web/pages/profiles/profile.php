@@ -26,8 +26,6 @@ use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
-use Phoundation\Web\Html\Html;
-use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
@@ -124,6 +122,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
 
 // Build content
 ?>
+
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
@@ -134,15 +133,14 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
                 <div class="card card-primary card-outline">
                     <div class="card-body box-profile">
                         <div class="text-center">
-                            <?= Session::getUserObject()
-                                       ->getImageFileObject()
-                                           ->getImgObject()
-                                               ->setSrc(Url::getImg('img/profiles/default.png'))
-                                               ->setClass('profile-user-img img-fluid img-circle')
-                                               ->setAlt(tr('Profile picture for :user', [
-                                                   ':user' => Html::safe(Session::getUserObject()->getDisplayName()),
-                                               ]))
-                                               ->render() ?>
+                            <?= $user->getProfileImageObject()
+                                         ->getHtmlImgObject()
+                                             ->setId('profile-picture')
+                                             ->addClasses('w100 img-circle')
+                                             ->setAlt(tr('Profile picture for :user', [
+                                                 ':user' => $user->getDisplayName()
+                                             ]))
+                                             ->render() ?>
                         </div>
 
                         <h3 class="profile-username text-center"><?= $user->getDisplayName() ?></h3>

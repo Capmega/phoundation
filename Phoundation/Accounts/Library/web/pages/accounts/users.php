@@ -133,7 +133,7 @@ $users_card = Card::new()
                   ->setTitle('Active users')
                   ->setSwitches('reload')
                   ->setContent($users->load()
-                                     ->getHtmlDataTable()
+                                     ->getHtmlDataTableObject()
                                          ->setRowUrl('/accounts/user+:ROW.html')
                                          ->setOrder([1 => 'asc']))
                   ->useForm(true)
@@ -161,8 +161,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn($filters_card->render() . $users_card->render(), EnumDisplaySize::nine)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($filters_card->render() . $users_card->render(), EnumDisplaySize::nine)
+            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

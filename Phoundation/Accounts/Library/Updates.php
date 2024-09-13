@@ -31,7 +31,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.4.1';
+        return '0.4.11';
     }
 
 
@@ -961,6 +961,30 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             } else {
                 $table->alter()->addColumn('`profile_image` varchar(2048) CHARACTER SET latin1 DEFAULT NULL', 'AFTER `nickname`');
+            }
+
+        })->addUpdate('0.4.11', function () {
+            $table = sql()->getSchemaObject()->getTableObject('accounts_authentication_failures');
+            $alter = $table->alter();
+
+            if (!$table->columnExists('matched_users_id')) {
+                $alter->addColumn('`matched_users_id` bigint NULL DEFAULT NULL', 'AFTER `status`');
+            }
+
+            if (!$table->columnExists('account')) {
+                $alter->addColumn('`account` varchar(128) NULL DEFAULT NULL', 'AFTER `status`');
+            }
+
+            if (!$table->indexExists('matched_users_id')) {
+                $alter->addIndex('KEY `matched_users_id` (`matched_users_id`)');
+            }
+
+            if (!$table->indexExists('account')) {
+                $alter->addIndex('KEY `account` (`account`)');
+            }
+
+            if (!$table->foreignKeyExists('fk_accounts_authentication_failures_matched_users_id')) {
+                $alter->addForeignKey('CONSTRAINT `fk_accounts_authentication_failures_matched_users_id` FOREIGN KEY (`matched_users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
             }
         });
     }

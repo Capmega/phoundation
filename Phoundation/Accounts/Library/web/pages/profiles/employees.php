@@ -53,8 +53,10 @@ $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch 
                                    ->getImageFileObject()
                                        ->getImgObject()
                                            ->setSrc(Url::getImg("img/profiles/default.png"))
-                                           ->setClass("img-circle img-fluid")
-                                           ->setAlt(tr("Profile picture for :user", [":user" => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                           ->setClass('img-circle img-fluid')
+                                           ->setAlt(tr('Profile picture for :user', [
+                                               ':user' => Html::safe(Session::getUserObject()->getDisplayName())
+                                           ]))
                                            ->render() . '                          
                         </div>
                       </div>

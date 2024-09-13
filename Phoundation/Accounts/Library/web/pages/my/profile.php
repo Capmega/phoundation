@@ -44,98 +44,33 @@ Request::getFileUploadHandlersObject()
 // Get the user and alter the default user form
 $user        = Session::getUserObject();
 $definitions = $user->getDefinitionsObject();
-
-$definitions->get('last_sign_in')
-            ->setSize(4);
-
-$definitions->get('sign_in_count')
-            ->setSize(4);
-
-$definitions->get('authentication_failures')
-            ->setSize(4);
-
-$definitions->get('locked_until')
-            ->setRender(false);
-
-$definitions->get('username')
-            ->setRender(false);
-
-$definitions->get('nickname')
-            ->setRender(false);
-
-$definitions->get('latitude')
-            ->setRender(false);
-
-$definitions->get('longitude')
-            ->setRender(false);
-
-$definitions->get('keywords')
-            ->setRender(false);
-
-$definitions->get('url')
-            ->setRender(false);
-
-$definitions->get('accuracy')
-            ->setRender(false);
-
-$definitions->get('comments')
-            ->setReadonly(true)
-            ->setRender(false);
-
-$definitions->get('is_leader')
-            ->setReadonly(true)
-            ->setRender(false);
-
-$definitions->get('leaders_id')
-            ->setReadonly(true)
-            ->setRender(false);
-
-$definitions->get('code')
-            ->setReadonly(true)
-            ->setRender(false);
-
-$definitions->get('type')
-            ->setReadonly(true)
-            ->setRender(false);
-
-$definitions->get('priority')
-            ->setReadonly(true)
-            ->setRender(false);
-
-$definitions->get('offset_latitude')
-            ->setReadonly(true)
-            ->setRender(false);
-
-$definitions->get('email')
-            ->setReadonly(true);
-
-$definitions->get('offset_longitude')
-            ->setReadonly(true)
-            ->setRender(false);
-
-$definitions->get('domain')
-            ->setReadonly(true)
-            ->setRender(false);
-
-$definitions->get('verified_on')
-            ->setRender(false);
-
-$definitions->get('keywords')
-            ->setSize(3);
-
-$definitions->get('redirect')
-            ->setRender(false)
-            ->setReadonly(true);
-
-$definitions->get('url')
-            ->setSize(6);
-
-$definitions->get('description')
-            ->setRender(false);
-
-$definitions->get('data')
-            ->setRender(false);
-
+$definitions->get('last_sign_in')->setSize(4);
+$definitions->get('sign_in_count')->setSize(4);
+$definitions->get('authentication_failures')->setSize(4);
+$definitions->get('locked_until')->setRender(false);
+$definitions->get('username')->setRender(false);
+$definitions->get('nickname')->setRender(false);
+$definitions->get('latitude')->setRender(false);
+$definitions->get('longitude')->setRender(false);
+$definitions->get('keywords')->setRender(false);
+$definitions->get('url')->setRender(false);
+$definitions->get('accuracy')->setRender(false);
+$definitions->get('comments')->setReadonly(true)->setRender(false);
+$definitions->get('is_leader')->setReadonly(true)->setRender(false);
+$definitions->get('leaders_id')->setReadonly(true)->setRender(false);
+$definitions->get('code')->setReadonly(true)->setRender(false);
+$definitions->get('type')->setReadonly(true)->setRender(false);
+$definitions->get('priority')->setReadonly(true)->setRender(false);
+$definitions->get('offset_latitude')->setReadonly(true)->setRender(false);
+$definitions->get('email')->setReadonly(true);
+$definitions->get('offset_longitude')->setReadonly(true)->setRender(false);
+$definitions->get('domain')->setReadonly(true)->setRender(false);
+$definitions->get('verified_on')->setRender(false);
+$definitions->get('keywords')->setSize(3);
+$definitions->get('redirect')->setRender(false)->setReadonly(true);
+$definitions->get('url')->setSize(6);
+$definitions->get('description')->setRender(false);
+$definitions->get('data')->setRender(false);
 $definitions->moveBeforeKey('zipcode', 'address');
 
 
@@ -198,9 +133,10 @@ $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
                 ->setContent('<a href="' . Url::getWww('/my/password.html') . '">' . tr('Change my password') . '</a><br>
-                                      <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage my settings') . '</a><br>
-                                      <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage my API access') . '</a><br>
-                                      <a href="' . Url::getWww('/my/sign-in-history.html') . '">' . tr('Review my sign-in history') . '</a>');
+                              <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage my settings') . '</a><br>
+                              <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage my API access') . '</a><br>
+                              <a href="' . Url::getWww('/my/sign-in-history.html') . '">' . tr('Review my sign-in history') . '</a><br>
+                              <a href="' . Url::getWww('/profiles/profile+' . $user->getId() . '.html') . '">' . tr('View my public profile') . '</a><br>');
 
 
 // Build documentation
@@ -208,18 +144,8 @@ $documentation = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Documentation'))
                      ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
-                                           <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
-                                           <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
-
-
-// Build and render the page grid
-$grid = Grid::new()
-            ->addColumn($column)
-            ->addColumn($picture->render() . '<br>' .
-                               $relevant->render() . '<br>' .
-                               $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
+                                   <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
+                                   <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
 // Set page meta data
@@ -229,3 +155,11 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('My profile'),
 ]));
+
+
+// Build and render the page grid
+return Grid::new()
+           ->addGridColumn($column)
+           ->addGridColumn($picture->render() . '<br>' .
+                       $relevant->render() . '<br>' .
+                       $documentation->render(), EnumDisplaySize::three);
