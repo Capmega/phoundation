@@ -6,9 +6,9 @@
  *
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
+ * @package Phoundation\Web
  */
 
 
@@ -24,293 +24,299 @@ class Menu extends \Phoundation\Web\Html\Components\Widgets\Menus\Menu
     public function __construct()
     {
         parent::__construct();
+
         $this->setSource([
-            tr('System')             => [
+            tr('System') => [
                 'icon' => '',
             ],
-            tr('Dashboard')          => [
+            tr('Dashboard') => [
                 'rights' => 'admin',
                 'url'    => '/',
                 'icon'   => 'fas fa-tachometer-alt',
             ],
-            tr('Accounts')           => [
+            tr('Accounts') => [
                 'rights' => 'admin,accounts',
                 'icon'   => 'fas fa-users',
                 'menu'   => [
-                    tr('Users')       => [
-                        'url'  => '/accounts/users.html',
-                        'icon' => 'fas fa-users',
+                    tr('Users') => [
+                        'url'    => '/accounts/users.html',
+                        'icon'   => 'fas fa-users'
                     ],
-                    tr('Roles')       => [
-                        'url'  => '/accounts/roles.html',
-                        'icon' => 'fas fa-users',
+                    tr('Roles') => [
+                        'url'    => '/accounts/roles.html',
+                        'icon'   => 'fas fa-users'
                     ],
-                    tr('Rights')      => [
-                        'url'  => '/accounts/rights.html',
-                        'icon' => 'fas fa-lock',
+                    tr('Rights') => [
+                        'url'    => '/accounts/rights.html',
+                        'icon'   => 'fas fa-lock'
                     ],
-                    tr('Groups')      => [
-                        'url'  => '/accounts/groups.html',
-                        'icon' => 'fas fa-users',
+                    tr('Groups') => [
+                        'url'    => '/accounts/groups.html',
+                        'icon'   => 'fas fa-users'
                     ],
                     tr('Switch user') => [
                         'rights' => 'user-switch',
                         'url'    => '/accounts/switch',
-                        'icon'   => 'fas fa-user',
-                    ],
-                ],
+                        'icon'   => 'fas fa-user'
+                    ]
+                ]
             ],
-            tr('Security')           => [
+            tr('Security') => [
                 'rights' => 'admin,security',
-                'icon'   => 'fas fa-lock',
-                'menu'   => [
-                    tr('Authentications log') => [
+                'icon' => 'fas fa-lock',
+                'menu' => [
+                    tr('Authentications') => [
                         'rights' => 'logs',
                         'url'    => '/security/authentications.html',
-                        'icon'   => 'fas fa-key',
+                        'icon'   => 'fas fa-key'
                     ],
-                    tr('Incidents log')       => [
+                    tr('Authentication failures') => [
+                        'rights' => 'logs',
+                        'url'    => '/security/authentication-failures.html',
+                        'icon'   => 'fas fa-key'
+                    ],
+                    tr('Incidents') => [
                         'rights' => 'logs',
                         'url'    => '/security/incidents.html',
-                        'icon'   => 'fas fa-key',
+                        'icon'   => 'fas fa-key'
                     ],
                     tr('Non HTTP-200 URL\'s') => [
                         'rights' => 'logs',
                         'url'    => '/security/non-200-urls.html',
-                        'icon'   => 'fas fa-tasks',
+                        'icon'   => 'fas fa-tasks'
                     ],
-                    tr('Activity log')        => [
+                    tr('Activity log') => [
                         'rights' => 'logs',
                         'url'    => '/security/activity',
-                        'icon'   => 'fas fa-tasks',
+                        'icon'   => 'fas fa-tasks'
                     ],
                 ],
             ],
-            tr('Development')        => [
+            tr('Development') => [
                 'rights' => 'admin,development',
-                'icon'   => 'fas fa-lock',
-                'menu'   => [
-                    tr('Plugins')             => [
+                'icon' => 'fas fa-lock',
+                'menu' => [
+                    tr('Plugins') => [
                         'rights' => 'plugins',
                         'url'    => '/development/plugins.html',
-                        'icon'   => 'fas fa-key',
+                        'icon'   => 'fas fa-key'
                     ],
                     tr('Developer incidents') => [
                         'rights' => 'incidents',
                         'url'    => '/development/incidents.html',
-                        'icon'   => 'fas fa-key',
+                        'icon'   => 'fas fa-key'
                     ],
-                    tr('Slow webpage log')    => [
+                    tr('Slow webpage log') => [
                         'rights' => 'logs',
                         'url'    => '/development/slow.html',
-                        'icon'   => 'fas fa-key',
-                    ],
+                        'icon'   => 'fas fa-key'
+                    ]
                 ],
             ],
             tr('Key / Values store') => [
                 'rights' => 'admin,key-values',
-                'url'    => '/system/key-values.html',
-                'icon'   => 'fas fa-database',
+                'url'  => '/system/key-values.html',
+                'icon' => 'fas fa-database'
             ],
-            tr('Storage system')     => [
+            tr('Storage system') => [
                 'rights' => 'admin,storage',
-                'icon'   => 'fas fa-database',
-                'menu'   => [
+                'icon' => 'fas fa-database',
+                'menu' => [
                     tr('Collections') => [
                         'rights' => 'collections',
-                        'url'    => '/storage/collections.html',
-                        'icon'   => 'fas fa-paperclip',
+                        'url'  => '/storage/collections.html',
+                        'icon' => 'fas fa-paperclip'
                     ],
-                    tr('Documents')   => [
+                    tr('Documents')  => [
                         'rights' => 'documents',
-                        'url'    => '/storage/documents.html',
-                        'icon'   => 'fas fa-book',
+                        'url'  => '/storage/documents.html',
+                        'icon' => 'fas fa-book'
                     ],
-                    tr('Pages')       => [
+                    tr('Pages')  => [
                         'rights' => 'pages',
-                        'url'    => '/storage/documents.html',
-                        'icon'   => 'fas fa-book',
+                        'url'  => '/storage/documents.html',
+                        'icon' => 'fas fa-book'
                     ],
-                    tr('Resources')   => [
+                    tr('Resources') => [
                         'rights' => 'resources',
-                        'url'    => '/storage/resources.html',
-                        'icon'   => 'fas fa-list-ul',
-                    ],
-                ],
+                        'url'  => '/storage/resources.html',
+                        'icon' => 'fas fa-list-ul'
+                    ]
+                ]
             ],
-            tr('Servers')            => [
+            tr('Servers') => [
                 'rights' => 'admin,servers',
-                'icon'   => 'fas fa-server',
-                'menu'   => [
-                    tr('Servers')           => [
+                'icon' => 'fas fa-server',
+                'menu' => [
+                    tr('Servers') => [
                         'url'  => '/servers/servers.html',
-                        'icon' => 'fas fa-server',
+                        'icon' => 'fas fa-server'
                     ],
-                    tr('Forwards')          => [
+                    tr('Forwards') => [
                         'url'  => '/servers/forwards.html',
-                        'icon' => 'fas fa-arrow-right',
+                        'icon' => 'fas fa-arrow-right'
                     ],
-                    tr('SSH accounts')      => [
+                    tr('SSH accounts') => [
                         'rights' => 'ssh,accounts',
-                        'url'    => '/servers/ssh-accounts.html',
-                        'icon'   => 'fas fa-gear',
+                        'url'  => '/servers/ssh-accounts.html',
+                        'icon' => 'fas fa-gear'
                     ],
-                    tr('Databases')         => [
+                    tr('Databases') => [
                         'rights' => 'databases',
                         'url'    => '/servers/databases.html',
-                        'icon'   => 'fas fa-database',
+                        'icon'   => 'fas fa-database'
                     ],
                     tr('Database accounts') => [
                         'rights' => 'databases',
-                        'url'    => '/servers/database-accounts.html',
-                        'icon'   => 'fas fa-users',
+                        'url'  => '/servers/database-accounts.html',
+                        'icon' => 'fas fa-users'
                     ],
-                ],
+                ]
             ],
-            tr('Hardware')           => [
+            tr('Hardware') => [
                 'rights' => 'admin,hardware',
-                'icon'   => 'fas fa-camera',
-                'menu'   => [
-                    tr('Devices')  => [
+                'icon' => 'fas fa-camera',
+                'menu' => [
+                    tr('Devices') => [
                         'rights' => 'devices',
                         'url'    => '/hardware/devices.html',
-                        'icon'   => 'fas fa-camera',
+                        'icon'   => 'fas fa-camera'
                     ],
                     tr('Scanners') => [
                         'rights' => 'scanners',
                         'icon'   => 'fas fa-print',
                         'menu'   => [
-                            tr('Document')     => [
+                            tr('Document') => [
                                 'icon' => 'fas fa-book',
                                 'menu' => [
                                     tr('Drivers') => [
                                         'rights' => 'drivers',
                                         'url'    => '/hardware/scanners/document/drivers.html',
-                                        'icon'   => '',
+                                        'icon'   => ''
                                     ],
                                     tr('Devices') => [
                                         'rights' => 'devices',
                                         'url'    => '/hardware/scanners/document/devices.html',
-                                        'icon'   => '',
+                                        'icon'   => ''
                                     ],
-                                ],
+                                ]
                             ],
                             tr('Finger print') => [
                                 'url'  => '/hardware/scanners/finger-print.html',
-                                'icon' => '',
+                                'icon' => ''
                             ],
-                        ],
-                    ],
-                ],
+                        ]
+                    ]
+                ]
             ],
-            tr('Phoundation')        => [
+            tr('Phoundation') => [
                 'rights' => 'admin,phoundation',
                 'url'    => '/phoundation.html',
                 'icon'   => '',
                 'menu'   => [
                     tr('Configuration') => [
                         'rights' => 'configuration',
-                        'url'    => '/phoundation/configuration.html',
-                        'icon'   => '',
+                        'url'  => '/phoundation/configuration.html',
+                        'icon' => ''
                     ],
-                    tr('Routing')       => [
+                    tr('Routing') => [
                         'rights' => 'routing',
                         'url'    => '/phoundation/routing.html',
-                        'icon'   => '',
+                        'icon'   => ''
                     ],
-                    tr('Libraries')     => [
+                    tr('Libraries') => [
                         'rights' => 'libraries',
                         'url'    => '/phoundation/libraries.html',
-                        'icon'   => '',
+                        'icon'   => ''
                     ],
-                    tr('Plugins')       => [
+                    tr('Plugins') => [
                         'rights' => 'plugins',
                         'url'    => '/phoundation/plugins/plugins.html',
-                        'icon'   => '',
+                        'icon'   => ''
                     ],
-                    tr('Templates')     => [
+                    tr('Templates') => [
                         'rights' => 'templates',
                         'url'    => '/phoundation/templates.html',
-                        'icon'   => '',
+                        'icon'   => ''
                     ],
-                    tr('Filesystems')   => [
+                    tr('Filesystems') => [
                         'rights' => 'file-system',
-                        'icon'   => 'fas fa-lock',
-                        'menu'   => [
-                            tr('Auto mounts')  => [
+                        'icon' => 'fas fa-lock',
+                        'menu' => [
+                            tr('Auto mounts') => [
                                 'rights' => 'mounts',
                                 'url'    => '/phoundation/file-system/auto-mounts/mounts.html',
-                                'icon'   => 'fas fa-key',
+                                'icon'   => 'fas fa-key'
                             ],
                             tr('Requirements') => [
                                 'rights' => 'requirements',
                                 'url'    => '/phoundation/file-system/requirements/requirements.html',
-                                'icon'   => 'fas fa-key',
+                                'icon'   => 'fas fa-key'
                             ],
                         ],
                     ],
-                    tr('Databases')     => [
+                    tr('Databases') => [
                         'rights' => 'databases',
-                        'icon'   => 'fas fa-lock',
-                        'menu'   => [
+                        'icon' => 'fas fa-lock',
+                        'menu' => [
                             tr('Connectors') => [
                                 'rights' => 'mounts',
                                 'url'    => '/phoundation/databases/connectors/connectors.html',
-                                'icon'   => 'fas fa-key',
+                                'icon'   => 'fas fa-key'
                             ],
                         ],
                     ],
                 ],
             ],
-            tr('About')              => [
+            tr('About') => [
                 'rights' => 'admin',
-                'url'    => '/about.html',
-                'icon'   => '',
+                'url'  => '/about.html',
+                'icon' => ''
             ],
-            tr('Productivity')       => [
+            tr('Productivity') => [
                 'icon' => '',
             ],
-            tr('Customers')          => [
+            tr('Customers') => [
                 'rights' => 'admin,customers',
-                'url'    => '/business/customers.html',
-                'icon'   => 'fas fa-users',
+                'url'  => '/business/customers.html',
+                'icon' => 'fas fa-users'
             ],
-            tr('Providers')          => [
+            tr('Providers') => [
                 'rights' => 'admin,providers',
                 'url'    => '/business/providers.html',
-                'icon'   => 'fas fa-users',
+                'icon'   => 'fas fa-users'
             ],
-            tr('Businesses')         => [
+            tr('Businesses') => [
                 'rights' => 'admin,businesses',
                 'icon'   => 'fas fa-building',
                 'menu'   => [
-                    tr('Companies')   => [
+                    tr('Companies') => [
                         'rights' => 'companies',
                         'url'    => '/companies/companies.html',
-                        'icon'   => 'fas fa-building',
+                        'icon'   => 'fas fa-building'
                     ],
-                    tr('Branches')    => [
+                    tr('Branches') => [
                         'rights' => 'branches',
                         'url'    => '/companies/branches.html',
-                        'icon'   => 'fas fa-building',
+                        'icon'   => 'fas fa-building'
                     ],
                     tr('Departments') => [
                         'rights' => 'departments',
                         'url'    => '/companies/departments.html',
-                        'icon'   => 'fas fa-sitemap',
+                        'icon'   => 'fas fa-sitemap'
                     ],
-                    tr('Employees')   => [
+                    tr('Employees') => [
                         'rights' => 'employees',
                         'url'    => '/companies/employees.html',
-                        'icon'   => 'fas fa-users',
+                        'icon'   => 'fas fa-users'
                     ],
-                    tr('Inventory')   => [
+                    tr('Inventory') => [
                         'rights' => 'employees',
                         'url'    => '/companies/inventory/inventory.html',
-                        'icon'   => 'fas fa-shopping-cart',
-                    ],
-                ],
-            ],
+                        'icon'   => 'fas fa-shopping-cart'
+                    ]
+                ]
+            ]
         ]);
     }
 }
