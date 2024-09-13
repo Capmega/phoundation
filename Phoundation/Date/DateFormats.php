@@ -106,6 +106,7 @@ class DateFormats
      *
      * @param string $php_format
      *
+     * @todo Improve this method by supporting more conversions
      * @return string
      */
     public static function convertPhpToJs(string $php_format): string
@@ -357,13 +358,13 @@ class DateFormats
     public static function normalizeDate(string $date, string $date_replace = '-', string $time_replace = ':'): string
     {
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II (and maybe microseconds)
-        if (preg_match_all('/^(\d+[^\d]\d+[^\d]\d+)[^\d](\d{2}[^\d]\d{2}[^\d]\d{2})([^\d]\d+)?$/', $date, $matches)) {
+        if (preg_match_all('/^(\d+\D\d+\D\d+)\D+(\d{2}\D\d{2}\D\d{2})(\D\d+)?$/', $date, $matches)) {
             // This is a datetime
             return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $matches[1][0]) . ' ' . str_replace([' ', '-', '_', '/', '\\'], $time_replace, $matches[2][0]) . $matches[3][0];
         }
 
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY
-        if (preg_match('/^(\d+[^\d]\d+[^\d]\d+)$/', $date, $matches)) {
+        if (preg_match('/^(\d+\D\d+\D\d+)$/', $date, $matches)) {
             // This is a date
             return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $matches[1]);
         }
@@ -386,13 +387,13 @@ class DateFormats
     public static function normalizeDateFormat(string $format, string $date_replace = '-', string $time_replace = ':'): string
     {
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II (and maybe microseconds)
-        if (preg_match_all('/(\w+[^\w]\w+[^\w]\w+)[^\w](\w{2}[^\w]\w{2}[^\w]\w{2})([^\w]\w+)?/', $format, $matches)) {
+        if (preg_match_all('/^(\w+\W\w+\W\w+)\W+(\w+\W\w+\W\w+)(\W\w+)?$/', $format, $matches)) {
             // This is a datetime
             return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $matches[1][0]) . ' ' . str_replace([' ', '-', '_', '/', '\\'], $time_replace, $matches[2][0]) . $matches[3][0];
         }
 
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY
-        if (preg_match('/(\w+[^\w]\w+[^\w]\w+)/', $format, $matches)) {
+        if (preg_match('/^(\w+\W\w+\W\w+)$/', $format, $matches)) {
             // This is a date
             return str_replace([' ', '-', '_', '/', '\\'], $date_replace, $matches[1]);
         }

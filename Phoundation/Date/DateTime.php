@@ -47,7 +47,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
         $datetime = $datetime ?? 'now';
 
         if (is_string($timezone)) {
-            $timezone = new DateTimeZone($timezone);
+            $timezone = new DateTimeZone(trim($timezone));
         }
 
         if (is_int($datetime)) {
@@ -66,7 +66,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
             }
 
         } catch (Throwable $e) {
-            throw new DateTimeException(tr('Failed to create DateTime object for given $datetime ":datetime" / timezone ":timezone" because ":e"', [
+            throw new DateTimeException(tr('Failed to create DateTime object for given datetime ":datetime" / timezone ":timezone" because ":e"', [
                 ':datetime' => $datetime,
                 ':timezone' => $timezone,
                 ':e'        => $e->getMessage(),
