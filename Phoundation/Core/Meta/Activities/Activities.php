@@ -174,19 +174,20 @@ class Activities extends IteratorCore
             $execute[':stop'] = $stop->format('mysql');
         }
 
-        $this->source = sql()->listKeyValues('SELECT `id`
-                                                           `created_on`,
-                                                           `created_by`,
-                                                           `action`,
-                                                           `source`,
-                                                           `comments`,
-                                                           `data`
-                
-                                                    FROM   `meta_history`
-                                                    
-                                                    WHERE  `meta_id` = :meta_id' .
-                                          ($start ? ' AND `start` >= :start' : null) .
-                                           ($stop ? ' AND `stop`  >= :stop'  : null), $execute);
+        $this->source = sql()->listKeyValues('SELECT   `id`,
+                                                       `created_on`,
+                                                       `created_by`,
+                                                       `action`,
+                                                       `source`,
+                                                       `comments`,
+                                                       `data`
+            
+                                              FROM     `meta_history`
+                                                
+                                              WHERE    `meta_id` = :meta_id
+                                              ORDER BY `created_on` DESC' .
+                                    ($start ? ' AND `start` >= :start' : null) .
+                                     ($stop ? ' AND `stop`  >= :stop'  : null), $execute);
 
         $this->checkEmpty($meta_id, $object);
 
