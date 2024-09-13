@@ -312,7 +312,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
                 throw new FileUploadHandlerException(tr('Cannot process uploaded files, no upload handlers have been defined'));
             }
 
-            if (static::$mimetypes_groups) {
+            if (isset(static::$mimetypes_groups)) {
                 // Fix the mimetype groups store to match the handlers, validate the files before processing
                 $this->fixMimetypeGroups();
                 $this->validate();

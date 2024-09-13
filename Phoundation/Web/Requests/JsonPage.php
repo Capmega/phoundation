@@ -97,7 +97,7 @@ class JsonPage implements JsonPageInterface
             // Validate request data
             $get = GetValidator::new()
                                ->select('callback')->isOptional()->hasMaxCharacters(48)->matchesRegex('/jQuery\d+_\d+/')
-                               ->select('_')->isNatural()
+                               ->select('_')->isOptional()->isNatural()
                                ->validate(false);
 
             static::$jsonp  = $get['callback'] ?? false;
@@ -274,7 +274,9 @@ class JsonPage implements JsonPageInterface
                 $this->setResponse(EnumJsonResponse::signin)
                      ->reply([
                          'http_code' => 301,
-                         'location'  => Url::getWww('sign-in')->getSource()
+                         'location'  => Url::getWww('sign-in')
+                                           ->addQueries('redirect=' . urlencode($_SERVER['HTTP_REFERER']))
+                                           ->getSource()
                      ]);
         }
 

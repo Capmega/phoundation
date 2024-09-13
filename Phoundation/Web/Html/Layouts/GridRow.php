@@ -31,11 +31,11 @@ class GridRow extends Layout
      *
      * @return static
      */
-    public function setColumns(array $source, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
+    public function setGridColumns(array $source, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
     {
         $this->source = [];
 
-        return $this->addColumns($source, $size, $use_form);
+        return $this->addGridColumns($source, $size, $use_form);
     }
 
 
@@ -48,7 +48,7 @@ class GridRow extends Layout
      *
      * @return static
      */
-    public function addColumns(array $source, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
+    public function addGridColumns(array $source, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
     {
         // Validate source
         foreach ($source as $column) {
@@ -57,7 +57,8 @@ class GridRow extends Layout
                     ':datatype' => gettype($column),
                 ]));
             }
-            $this->addColumn($column, $size, $use_form);
+
+            $this->addGridColumn($column, $size, $use_form);
         }
 
         return $this;
@@ -73,15 +74,17 @@ class GridRow extends Layout
      *
      * @return static
      */
-    public function addColumn(object|string|null $column, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
+    public function addGridColumn(object|string|null $column, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
     {
         if ($column) {
             if (is_object($column) and !($column instanceof GridColumn)) {
                 // This is not a GridColumn object, try to render the object to HTML string
                 static::canRenderHtml($column);
+
                 // Render the HTML string
                 $column = $column->render();
             }
+
             if (is_string($column)) {
                 // This is not a column, it is content (should be an HTML string). Place the content in a column and add
                 // that column instead
@@ -89,10 +92,12 @@ class GridRow extends Layout
                                     ->setContent($column)
                                     ->useForm($use_form);
             }
+
             // Shortcut to set column size
             if ($size !== null) {
                 $column->setSize($size);
             }
+
             $this->source[] = $column;
         }
 

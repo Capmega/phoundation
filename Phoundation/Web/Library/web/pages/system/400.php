@@ -23,7 +23,7 @@ use Phoundation\Web\Requests\JsonPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
-
+showbacktrace(); die();
 // Get the exception
 $e = Core::readRegister('e');
 

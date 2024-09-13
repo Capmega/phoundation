@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Page audit/meta
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
+
 declare(strict_types=1);
 
 use Phoundation\Core\Meta\MetaList;
@@ -19,7 +31,7 @@ $get = GetValidator::new()
 
 
 $meta  = MetaList::new($get['id']);
-$table = $meta->getHtmlDataTable();
+$table = $meta->getHtmlDataTableObject();
 $card  = Card::new()
              ->setTitle('Registered activities')
              ->setSwitches('reload,maximize')
@@ -35,8 +47,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn($card->render(), EnumDisplaySize::nine)
-            ->addColumn($documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($card->render(), EnumDisplaySize::nine)
+            ->addGridColumn($documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

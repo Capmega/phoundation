@@ -43,15 +43,20 @@ trait TraitMode
     /**
      * Sets the type of mode for the element or element block
      *
-     * @param EnumDisplayMode|string $mode
+     * @param EnumDisplayMode|string|null $mode
      *
      * @return static
      */
-    public function setMode(EnumDisplayMode|string $mode): static
+    public function setMode(EnumDisplayMode|string|null $mode): static
     {
         if (is_string($mode)) {
             $mode = EnumDisplayMode::from($mode);
         }
+
+        if (!$mode) {
+            $mode = EnumDisplayMode::unknown;
+        }
+
         // Ensure we have primary display mode
         $this->mode = $mode->getPrimary($mode);
 

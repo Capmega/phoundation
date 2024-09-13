@@ -193,6 +193,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
                 throw new OutOfBoundsException(tr('Cannot specify icon for flash message, an image was already set'));
             }
         }
+
         $this->icon = get_null($icon);
 
         return $this;
@@ -290,7 +291,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
 
 
     /**
-     * Returns if the flash message will close automatically after N milliseconds
+     * Returns if the flash message closes automatically after N milliseconds
      *
      * @return int|null
      */
@@ -301,7 +302,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
 
 
     /**
-     * Sets if the flash message will close automatically after N milliseconds
+     * Sets if the flash message closes automatically after N milliseconds
      *
      * @param int|null $auto_close
      *
@@ -374,7 +375,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      *
      * @return string|null
      */
-    public function renderConfiguration(): ?string
+    public function renderJson(): ?string
     {
         return match ($this->flash_handler) {
             'toast' => Toast::new($this)->renderConfiguration()
@@ -393,14 +394,14 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     {
         foreach ($source as $key => $value) {
             match ($key) {
-                'top'        => $this->top = $value,
-                'left'       => $this->left = $value,
-                'mode'       => $this->mode = $this->mode::from($value),
-                'icon'       => $this->icon = $value,
-                'image'      => $this->image = $value,
-                'title'      => $this->title = $value,
-                'message'    => $this->content = $value,
-                'can_close'  => $this->can_close = $value,
+                'top'        => $this->top        = $value,
+                'left'       => $this->left       = $value,
+                'mode'       => $this->mode       = $this->mode::from($value),
+                'icon'       => $this->icon       = $value,
+                'image'      => $this->image      = $value,
+                'title'      => $this->title      = $value,
+                'message'    => $this->content    = $value,
+                'can_close'  => $this->can_close  = $value,
                 'auto_close' => $this->auto_close = $value,
             };
         }

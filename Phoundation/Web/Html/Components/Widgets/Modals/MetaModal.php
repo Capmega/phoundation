@@ -49,13 +49,13 @@ class MetaModal extends Modal
         $form = $this->form->render();
         // Build the layout
         $layout = Grid::new()
-                      ->addRow(GridRow::new()
-                                      ->addColumn(GridColumn::new()
+                      ->addGridRow(GridRow::new()
+                                      ->addGridColumn(GridColumn::new()
                                                             ->setSize(EnumDisplaySize::three))
-                                      ->addColumn(GridColumn::new()
+                                      ->addGridColumn(GridColumn::new()
                                                             ->setSize(EnumDisplaySize::six)
                                                             ->setContent($form))
-                                      ->addColumn(GridColumn::new()
+                                      ->addGridColumn(GridColumn::new()
                                                             ->setSize(EnumDisplaySize::three)));
         // Set defaults
         $this->setId('MetaModal')

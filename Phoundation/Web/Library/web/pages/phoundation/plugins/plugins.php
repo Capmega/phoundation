@@ -29,7 +29,7 @@ use Phoundation\Web\Requests\Response;
 
 
 // Build plugins filter card
-$filters_content = FilterForm::new();
+$filters_content = FilterForm::new()->apply();
 
 $filters = Card::new()
                ->setCollapseSwitch(true)
@@ -47,7 +47,7 @@ $buttons = Buttons::new()
 
 // Build plugins table
 $table = Plugins::new()
-                ->getHtmlDataTable()
+                ->getHtmlDataTableObject()
                 ->setRowUrl('/phoundation/plugins/plugin+:ROW.html');
 
 $plugins = Card::new()
@@ -78,8 +78,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-            ->addColumn($filters->render() . $plugins, EnumDisplaySize::nine)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($filters->render() . $plugins, EnumDisplaySize::nine)
+            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

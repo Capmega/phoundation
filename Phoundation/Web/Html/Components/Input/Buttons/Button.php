@@ -41,6 +41,7 @@ class Button extends Input implements ButtonInterface
         parent::__construct($content);
 
         $this->setName('submit');
+        $this->setValue($content);
         $this->setClasses('btn');
         $this->setElement('button');
         $this->setButtonType(EnumButtonType::submit);

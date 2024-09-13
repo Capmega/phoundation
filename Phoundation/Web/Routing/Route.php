@@ -927,6 +927,7 @@ class Route
                             $get = true;
                             break;
                         }
+
                         $get = explode(';', substr($flag, 1));
                         $get = array_flip($get);
                         break;

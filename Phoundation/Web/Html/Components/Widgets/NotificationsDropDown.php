@@ -138,6 +138,7 @@ class NotificationsDropDown extends ElementsBlock
         // Link the users notifications hash and see if we need to ping
         $ping = $this->getNotifications()
                      ->linkHash();
+
         if ($ping) {
             Script::new()
                   ->setJavascriptWrapper(EnumJavascriptWrappers::window)
@@ -161,6 +162,7 @@ class NotificationsDropDown extends ElementsBlock
             $this->notifications->getQueryBuilder()
                                 ->addSelect('`id` AS `_id`, `notifications`.*')
                                 ->addOrderBy('`created_on` DESC');
+
             if ($this->status) {
                 $this->notifications->getQueryBuilder()
                                     ->addWhere('`users_id` = :users_id AND ' . SqlQueries::is('`status`', $this->status, 'status'), [
@@ -169,6 +171,7 @@ class NotificationsDropDown extends ElementsBlock
                                         ':status'   => $this->status,
                                     ]);
             }
+
             $this->notifications->load();
         }
 

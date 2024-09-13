@@ -45,9 +45,9 @@ interface IconInterface extends ElementInterface
     /**
      * Sets the type of mode for the element or element block
      *
-     * @param EnumDisplayMode|string $mode
+     * @param EnumDisplayMode|string|null $mode
      *
      * @return static
      */
-    public function setMode(EnumDisplayMode|string $mode): static;
+    public function setMode(EnumDisplayMode|string|null $mode): static;
 }

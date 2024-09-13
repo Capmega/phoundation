@@ -135,6 +135,13 @@ trait TraitElementAttributes
     protected bool $visible = false;
 
     /**
+     * The HTML display class (d-none)
+     *
+     * @var bool $display
+     */
+    protected bool $display = false;
+
+    /**
      * The HTML required attribute
      *
      * @var bool $required
@@ -1091,6 +1098,7 @@ trait TraitElementAttributes
         if ($definition) {
             // Apply the definition rules to this element
             $this->setName($definition->getColumn())
+                 ->setDisplay($definition->getDisplay())
                  ->setVisible($definition->getVisible())
                  ->setRequired($definition->getRequired())
                  ->addClasses($definition->getClasses())
@@ -1189,6 +1197,42 @@ trait TraitElementAttributes
     {
         if ($parent_only) {
             if ($visible) {
+                $this->classes->removeKeys('invisible');
+
+            } else {
+                $this->classes->add(true, 'invisible');
+            }
+        }
+
+        $this->visible = $visible;
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML visible element attribute
+     *
+     * @return bool
+     */
+    public function getDisplay(): bool
+    {
+        return $this->display;
+    }
+
+
+    /**
+     * Set the HTML visible element attribute
+     *
+     * @param bool $display
+     * @param bool $parent_only
+     *
+     * @return static
+     */
+    public function setDisplay(bool $display, bool $parent_only = true): static
+    {
+        if ($parent_only) {
+            if ($display) {
                 $this->classes->removeKeys('d-none');
 
             } else {
@@ -1196,7 +1240,7 @@ trait TraitElementAttributes
             }
         }
 
-        $this->visible = $visible;
+        $this->display = $display;
 
         return $this;
     }

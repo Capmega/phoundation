@@ -7,6 +7,7 @@ namespace Phoundation\Web\Html\Components\Tables\Interfaces;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
+use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Stringable;
 
@@ -223,6 +224,16 @@ interface HtmlTableInterface extends ResourceElementInterface
 
 
     /**
+     * Sets the table headers
+     *
+     * @param IteratorInterface|array|null $headers
+     *
+     * @return HtmlTable
+     */
+    public function setHeaders(IteratorInterface|array|null $headers): static;
+
+
+    /**
      * Returns the table headers
      *
      * @return IteratorInterface
@@ -264,4 +275,78 @@ interface HtmlTableInterface extends ResourceElementInterface
      * @return static
      */
     public function setColumns(ArrayableInterface|array|string|null $columns): static;
+
+    /**
+     * Returns the source
+     *
+     * @return array
+     */
+    public function getRowCallbacks(): array;
+
+    /**
+     * Set all callbacks to use
+     *
+     * @param array $callbacks
+     *
+     * @return static
+     */
+    public function setRowCallbacks(array $callbacks): static;
+
+    /**
+     * Adds a callback
+     *
+     * @param callable $callbacks
+     *
+     * @return static
+     */
+    public function addRowCallback(callable $callbacks): static;
+
+    /**
+     * Clears the callbacks
+     *
+     * @return static
+     */
+    public function clearRowCallbacks(): static;
+
+
+    /**
+     * Returns the source
+     *
+     * @return array
+     */
+    public function getCellCallbacks(): array;
+
+    /**
+     * Set all callbacks to use
+     *
+     * @param array $callbacks
+     *
+     * @return static
+     */
+    public function setCellCallbacks(array $callbacks): static;
+
+    /**
+     * Adds a callback
+     *
+     * @param callable $callbacks
+     *
+     * @return static
+     */
+    public function addCellCallback(callable $callbacks): static;
+
+    /**
+     * Clears the callbacks
+     *
+     * @return static
+     */
+    public function clearCellCallbacks(): static;
+
+    /**
+     * Renders and returns the current single table row
+     *
+     * @param int   $row_id
+     *
+     * @return string
+     */
+    public function renderRow(int $row_id): string;
 }

@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\FlashMessages;
 
 use Phoundation\Data\Traits\TraitMethodHasRendered;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 
@@ -96,16 +97,28 @@ class Toast implements RenderInterface
             }
         }
 
-        return '
-            {
-                class: "bg-' . $message->getMode()->value . '",
-                title: "' . Strings::escape($message->getTitle()) . '",
-                subtitle: "' . Strings::escape($message->getSubTitle()) . '",
-                position: "' . $position . '",
-                ' . ($image                   ? 'image: "' . Strings::escape($image->getSrc()) . '", image-alt: "' . Strings::escape($image->getAlt()) . '",' : null) . '                           
-                ' . ($message->getIcon()      ? 'icon: "fas fa-' . Strings::escape($message->getIcon()) . ' fa-lg",' : null) . '                           
-                ' . ($message->getAutoClose() ? 'autohide: true, delay: ' . $message->getAutoClose() . ',' . PHP_EOL : null) . '
-                body: "' . Strings::escape($message->getContent()) . '"
-            }';
+        $return = [
+            'class'    => 'bg-' . $message->getMode()->value,
+            'title'    => Strings::escape($message->getTitle()),
+            'subtitle' => Strings::escape($message->getSubTitle()),
+            'position' => $position,
+            'body'     => Strings::escape($message->getContent())
+        ];
+
+        if ($image) {
+            $return['image']     = Strings::escape($image->getSrc());
+            $return['image-alt'] = Strings::escape($image->getAlt());
+        }
+
+        if ($message->getIcon()) {
+            $return['icon'] = 'fas fa-' . Strings::escape($message->getIcon()) . ' fa-lg';
+        }
+
+        if ($message->getAutoClose()) {
+            $return['autohide'] = true;
+            $return['delay']    = $message->getAutoClose();
+        }
+
+        return Json::encode($return);
     }
 }

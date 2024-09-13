@@ -260,6 +260,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      *
      * @param PDOStatement|string|null $source_query
      * @param array|string|null        $execute
+     * @param array|null               $use_columns
      *
      * @return static
      */

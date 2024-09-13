@@ -219,6 +219,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
+
         // Set defaults
         $this->setPagingEnabled(Config::getBoolean('data.paging.enabled', true))
              ->setPagingType(EnumPagingType::from(Config::getString('data.paging.type', 'simple_numbers')))
@@ -232,7 +233,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                  'print',
                  'colvis',
              ])
-             ->addCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
+             ->addRowCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
                  if (isset($row['created_on'])) {
                      $row['created_on'] = DateTime::new($row['created_on'])
                                                   ->setTimezone('user')
@@ -246,6 +247,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                  100 => 100,
                  -1  => tr('All'),
              ]);
+
         $this->js_date_format  = 'YYYY-MM-DD HH:mm:ss';
         $this->php_date_format = 'Y-m-d H:i:s';
     }
@@ -830,6 +832,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         foreach ($length_menu as &$label) {
             $label = quote($label);
         }
+
         $this->length_menu = $length_menu;
         unset($label);
 
@@ -1007,6 +1010,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     protected function reformatOrdering(array $order): array
     {
         $return = [];
+
         // Validate given order data and reformat
         foreach ($order as $column => $direction) {
             if (!is_really_integer($column)) {
@@ -1014,25 +1018,32 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                     ':column' => $column,
                 ]));
             }
+
             $direction = trim($direction);
             $direction = strtolower($direction);
+
             switch ($direction) {
                 case 'up':
                     // no break;
+
                 case 'asc':
                     $direction = 'asc';
                     break;
+
                 case 'down':
                     // no break
+
                 case 'desc':
                     $direction = 'desc';
                     break;
+
                 default:
                     throw new OutOfBoundsException(tr('Invalid table order specified. Order direction ":direction" for column ":column" must be one of "desc" or "asc"', [
                         ':column'    => $column,
                         ':direction' => $direction,
                     ]));
             }
+
             $return[] = $column . ', "' . $direction . '"';
         }
 
@@ -1094,6 +1105,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                     ':key' => $key,
                 ]));
             }
+
             if (!is_bool($value) and ($value !== null)) {
                 throw new OutOfBoundsException(tr('Specified key ":key" has invalid value ":value", values must be boolean', [
                     ':key'   => $key,
@@ -1101,6 +1113,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                 ]));
             }
         }
+
         $this->columns_orderable = $columns;
 
         return $this;
@@ -1322,7 +1335,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         $id = $this->getId();
 
         if (!$id) {
-            throw new OutOfBoundsException(tr('Cannot generate HTML DataTable, no table id specified'));
+            if ($this->source) {
+                throw new OutOfBoundsException(tr('Cannot generate HTML DataTable, no table id specified'));
+            }
         }
 
         $render = Script::new()
@@ -1386,8 +1401,10 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         if (!$this->columns_orderable) {
             return null;
         }
+
         $highest = Arrays::getHighestKey($this->columns_orderable);
         $columns = [];
+
         for ($column = 0; $column <= $highest; $column++) {
             if (array_key_exists($column, $this->columns_orderable)) {
                 $columns[] = '{ orderable: ' . Strings::fromBoolean($this->columns_orderable[$column]) . ' }';

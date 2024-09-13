@@ -24,12 +24,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
-use Phoundation\Web\Html\Components\Interfaces\SpanInterface;
-use Phoundation\Web\Html\Traits\TraitChildElement;
+use Phoundation\Data\Traits\TraitStaticMethodNewWithContent;
 
 
 class Span extends SpanCore
 {
+    use TraitStaticMethodNewWithContent;
+
+
     /**
      * Span class constructor
      *
@@ -40,6 +42,6 @@ class Span extends SpanCore
         parent::___construct();
 
         $this->setElement('span')
-            ->setContent($content);
+             ->setContent($content);
     }
 }

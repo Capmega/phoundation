@@ -201,8 +201,8 @@ class DateNavigator extends ElementsBlock
 
         // Build the date selector
         return Grid::new()
-                   ->addRow()
-                   ->addColumn(GridColumn::new()
+                   ->addGridRow()
+                   ->addGridColumn(GridColumn::new()
                                          ->setSize(2)
                                          ->addClasses('mb-3')
                                          ->setContent(Button::new()
@@ -212,7 +212,7 @@ class DateNavigator extends ElementsBlock
                                                             ->setMode(EnumDisplayMode::primary)
                                                             ->setAnchorUrl($this->prev_link)
                                                             ->render()))
-                   ->addColumn(GridColumn::new()
+                   ->addGridColumn(GridColumn::new()
                                          ->setSize(8)
                                          ->addClasses('mb-3')
                                          ->setContent(Form::new()
@@ -225,7 +225,7 @@ class DateNavigator extends ElementsBlock
                                                                                 ->setValue($this->date)
                                                                                 ->setMax(DateTime::getToday('user')))
                                                           ->render()))
-                   ->addColumn(GridColumn::new()
+                   ->addGridColumn(GridColumn::new()
                                          ->setSize(2)
                                          ->addClasses('mb-3')
                                          ->setContent($this->next_button->render()))

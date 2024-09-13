@@ -92,6 +92,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
         parent::__construct($source);
+
         $this->rows = new DataEntryFormRows($this);
     }
 
@@ -464,6 +465,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                      ->setHidden($definition->getHidden())
                                                                      ->setValue($definition->getValue()),
 
+                                EnumInputType::hidden       => $element_class::new()
+                                                                             ->setRequired($definition->getRequired())
+                                                                             ->setName($field_name)
+                                                                             ->setValue($source[$column]),
+
                                 default                     => $element_class::new()
                                                                              ->setDefinition($definition)
                                                                              ->setHidden($definition->getHidden())
@@ -571,6 +577,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                ->setValue($source[$column])
                                                ->setContent(isset_get($source[$column]))
                                                ->setAutoFocus($definition->getAutoFocus());
+
                             $this->rows->add($definition, $component);
                             break;
 

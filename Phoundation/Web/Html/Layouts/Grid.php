@@ -32,11 +32,11 @@ class Grid extends Container
      *
      * @return static
      */
-    public function setRows(array $rows, ?EnumDisplaySize $column_size = null, bool $use_form = false): static
+    public function setGridRows(array $rows, ?EnumDisplaySize $column_size = null, bool $use_form = false): static
     {
         $this->source = [];
 
-        return $this->addRows($rows, $column_size, $use_form);
+        return $this->addGridRows($rows, $column_size, $use_form);
     }
 
 
@@ -49,7 +49,7 @@ class Grid extends Container
      *
      * @return static
      */
-    public function addRows(array $rows, ?EnumDisplaySize $column_size = null, bool $use_form = false): static
+    public function addGridRows(array $rows, ?EnumDisplaySize $column_size = null, bool $use_form = false): static
     {
         // Validate columns
         foreach ($rows as $row) {
@@ -58,7 +58,8 @@ class Grid extends Container
                     ':datatype' => (is_object($row) ? get_class($row) : gettype($row)),
                 ]));
             }
-            $this->addRow($row, $column_size, $use_form);
+
+            $this->addGridRow($row, $column_size, $use_form);
         }
 
         return $this;
@@ -74,12 +75,13 @@ class Grid extends Container
      *
      * @return static
      */
-    public function addRow(GridRow|GridColumn|ElementsBlock|null $row = null, ?EnumDisplaySize $column_size = null, bool $use_form = false): static
+    public function addGridRow(GridRow|GridColumn|ElementsBlock|null $row = null, ?EnumDisplaySize $column_size = null, bool $use_form = false): static
     {
         if (!$row) {
             // Just add an empty row
             $row = new GridRow();
         }
+
         if (!($row instanceof GridRow)) {
             // This is not a row!
             if (!($row instanceof GridColumn)) {
@@ -88,10 +90,11 @@ class Grid extends Container
                                  ->setContent($row)
                                  ->useForm($use_form);
             }
+
             // This is a column, put the column in a row
-            $row = GridRow::new()
-                          ->addColumn($row, $column_size);
+            $row = GridRow::new()->addGridColumn($row, $column_size);
         }
+
         // We have a row
         $this->source[] = $row;
 
@@ -108,25 +111,30 @@ class Grid extends Container
      *
      * @return static
      */
-    public function addColumn(object|string|null $column, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
+    public function addGridColumn(object|string|null $column, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
     {
         // Get a row
         if ($this->source) {
             $row = current($this->source);
+
         } else {
             // Make sure we have a row
             $row = GridRow::new();
-            $this->addRow($row);
+            $this->addGridRow($row);
         }
+
         if (is_object($column) and !($column instanceof GridColumn)) {
             // This is not a GridColumn object, try to render the object to HTML string
             static::canRenderHtml($column);
+
             if ($size === null) {
                 throw new OutOfBoundsException(tr('No column size specified'));
             }
+
             // Render the HTML string
             $column = $column->render();
         }
+
         if (is_string($column)) {
             // This is not a column, it is content (should be an HTML string). Place the content in a column and add
             // that column instead
@@ -134,7 +142,8 @@ class Grid extends Container
                                 ->setContent($column)
                                 ->useForm($use_form);
         }
-        $row->addColumn($column, $size);
+
+        $row->addGridColumn($column, $size);
 
         return $this;
     }
@@ -149,12 +158,12 @@ class Grid extends Container
      *
      * @return static
      */
-    public function setColumns(array $columns, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
+    public function setGridColumns(array $columns, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
     {
-        $this->getCurrentRow()
+        $this->getCurrentGridRow()
              ->clear();
 
-        return $this->addColumns($columns, $size, $use_form);
+        return $this->addGridColumns($columns, $size, $use_form);
     }
 
 
@@ -163,11 +172,12 @@ class Grid extends Container
      *
      * @return GridRow
      */
-    protected function getCurrentRow(): GridRow
+    protected function getCurrentGridRow(): GridRow
     {
         if (!$this->source) {
             $row = GridRow::new();
-            $this->addRow($row);
+            $this->addGridRow($row);
+
         } else {
             $row = $this->source[array_key_last($this->source)];
         }
@@ -185,10 +195,10 @@ class Grid extends Container
      *
      * @return static
      */
-    public function addColumns(array $columns, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
+    public function addGridColumns(array $columns, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
     {
         foreach ($columns as $column) {
-            $this->addColumn($column, $size, $use_form);
+            $this->addGridColumn($column, $size, $use_form);
         }
 
         return $this;

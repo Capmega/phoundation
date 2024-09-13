@@ -74,6 +74,7 @@ class GridColumn extends Layout
         if ($size !== null) {
             $this->setSize($size);
         }
+
         $this->useForm($use_form);
 
         return parent::appendContent($content, $make_safe);

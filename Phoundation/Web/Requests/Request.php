@@ -1373,6 +1373,11 @@ class Request implements RequestInterface
      */
     #[NoReturn] public static function executeSystem(int $http_code, ?Throwable $e = null, ?string $message = null): never
     {
+        if ($e and Debug::isEnabled()) {
+            // In debug mode we don't show pretty pages, we dump all the exception data on screen
+            throw $e;
+        }
+
         static::$system_target = $http_code;
         static::$is_system     = true;
 
