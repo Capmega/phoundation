@@ -1174,6 +1174,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
 
         // Get directory pattern part and file pattern part
         if ($file_patterns) {
+            $file_patterns     = Strings::from($file_patterns, $this->source);
             $directory_pattern = dirname($file_patterns);
             $file_patterns     = basename($file_patterns);
 

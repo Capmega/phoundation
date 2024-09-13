@@ -348,6 +348,13 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
      */
     public function append(mixed $value, Stringable|int|string|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null_values) {
+                return $this;
+            }
+        }
+
         // specified value must match FsPathInterface::class
         $this->checkDataType($value);
 

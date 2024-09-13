@@ -1243,4 +1243,13 @@ interface FsPathInterface extends Stringable
      * @throws FileInvalidFormatException
      */
     public function checkIsText(): static;
+
+    /**
+     * Ensures that the file has the specified extension
+     *
+     * @param string $extension
+     *
+     * @return $this
+     */
+    public function ensureExtension(string $extension): static;
 }

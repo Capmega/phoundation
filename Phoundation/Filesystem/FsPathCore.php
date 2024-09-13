@@ -1199,7 +1199,7 @@ class FsPathCore implements FsPathInterface
                ->setSudo($sudo)
                ->setUseRunFile($use_run_file)
                ->setTimeout(10)
-               ->addArgument(Strings::ensureEndsNotWith($this->source, '/'), $escape)     // All files to be deleted
+               ->addArgument(Strings::ensureEndsNotWith($this->getRealPath(), '/'), $escape)     // All files to be deleted
                ->addArgument('-f')                                                      // No questions asked
                ->addArgument(($this->isDirectory() and !$this->isLink()) ? '-r' : null) // Only non-symlink directories delete recursive
                ->executeNoReturn();
@@ -4545,6 +4545,22 @@ class FsPathCore implements FsPathInterface
         }
 
         return false;
+    }
+
+
+    /**
+     * Ensures that the file has the specified extension
+     *
+     * @param string $extension
+     *
+     * @return $this
+     */
+    public function ensureExtension(string $extension): static
+    {
+        $extension    = Strings::ensureStartsWith($extension, '.');
+        $this->source = Strings::ensureEndsWith($this->source, $extension);
+
+        return $this;
     }
 
 

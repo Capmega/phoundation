@@ -115,7 +115,7 @@ $requirements_card = Card::new()
     ->setSwitches('reload')
     ->setContent($requirements
         ->load()
-        ->getHtmlDataTable()
+        ->getHtmlDataTableObject()
             ->setRowUrl('/phoundation/file-system/requirements/requirement+:ROW.html')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
@@ -142,8 +142,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($filters_card->render() . $requirements_card->render(), EnumDisplaySize::nine)
-    ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+    ->addGridColumn($filters_card->render() . $requirements_card->render(), EnumDisplaySize::nine)
+    ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 
