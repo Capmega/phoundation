@@ -407,6 +407,10 @@ class MysqlDump extends Command implements MysqlDumpInterface
             $file  = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName();
             $file .= DateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
             $file  = new FsFile($file);
+
+        } elseif ($this->gzip) {
+            // If we're making a gzipped file, make sure it has the .gz extension
+            $file->ensureExtension('.gz');
         }
 
         // TODO Improve this, we make a file object a string and a file object again
