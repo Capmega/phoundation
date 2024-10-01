@@ -45,4 +45,5 @@ Templates/*
 Plugins/Phoundation/*
 !Plugins/Phoundation/Phoundation/
 Phoundation/Core/Library/commands/try.php
-Phoundation/Core/Library/web/*.php
+Phoundation/Web/Library/web/pages/try.php
+Phoundation/Web/Library/web/pages/reports.php
