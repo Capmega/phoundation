@@ -18,6 +18,7 @@ namespace Phoundation\Geo\GeoIp;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
@@ -28,6 +29,9 @@ use Throwable;
 
 class GeoIp
 {
+    use TraitStaticMethodNew;
+
+
     /**
      * The IP for this GeoIp entry
      *
@@ -49,7 +53,7 @@ class GeoIp
             return static::getProvider()?->detect($ip_address);
 
         } catch (Throwable $e) {
-            throw new GeoIpException(tr('Failed to detect Geo location from IP ":ip"', [
+            throw new GeoIpException(tr('Failed to detect Geo location for IP ":ip"', [
                 ':ip' => $ip_address,
             ]), $e);
         }

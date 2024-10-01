@@ -106,11 +106,11 @@ class State extends DataEntry
     public function getHtmlCitiesSelect(string $name = 'cities_id'): InputSelect
     {
         return InputSelect::new()
-                          ->setConnector(static::getConnector())
+                          ->setConnectorObject($this->getConnectorObject())
                           ->setSourceQuery('SELECT `id`, `name` 
-                                          FROM  `geo_cities` 
-                                          WHERE `states_id` = :states_id AND `status` IS NULL ORDER BY `name`', [
-                              ':states_id' => $this->getId(),
+                                            FROM  `geo_cities` 
+                                            WHERE `states_id` = :states_id AND `status` IS NULL ORDER BY `name`', [
+                                                ':states_id' => $this->getId(),
                           ])
                           ->setName($name)
                           ->setNotSelectedLabel(tr('Select a city'))
