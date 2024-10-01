@@ -665,7 +665,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
                 $this->executeCellCallbacks($row_id, $column, $value, $row_values, $params);
 
-                $return          .= $this->renderCell($row_id, $column, $value, $params);
+                $return .= $this->renderCell($row_id, $column, $value, $params);
             }
         }
 

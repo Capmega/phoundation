@@ -39,10 +39,10 @@ class Notifications extends DataIterator implements NotificationsInterface
     public function __construct()
     {
         $this->setQuery('SELECT   `id`, `title`, `mode` AS `severity`, `priority`, `created_on` 
-                               FROM     `notifications` 
-                               WHERE    `users_id` = :users_id 
-                                 AND    `status`   = "UNREAD" 
-                               ORDER BY `created_by` ASC', [
+                         FROM     `notifications` 
+                         WHERE    `users_id` = :users_id 
+                           AND    `status`   = "UNREAD" 
+                         ORDER BY `created_by` ASC', [
             ':users_id' => Session::getUserObject()
                                   ->getId(),
         ]);
@@ -223,19 +223,24 @@ class Notifications extends DataIterator implements NotificationsInterface
                 case 'info':
                     $row['severity'] = '<span class="notification-info">' . tr('Info') . '</span>';
                     break;
+
                 case 'warning':
                     $row['severity'] = '<span class="notification-warning">' . tr('Warning') . '</span>';
                     break;
+
                 case 'success':
                     $row['severity'] = '<span class="notification-success">' . tr('Success') . '</span>';
                     break;
+
                 case 'danger':
                     $row['severity'] = '<span class="notification-danger">' . tr('Danger') . '</span>';
                     break;
+
                 default:
                     $row['severity'] = htmlspecialchars($row['severity'] ?? tr('Unknown'));
                     $row['severity'] = str_replace(PHP_EOL, '<br>', $row['severity']);
             }
+
             $params['skiphtmlentities']['severity'] = true;
         });
     }
