@@ -433,7 +433,7 @@ class Updates extends Libraries\Updates
                 $table->alter()
                       ->addColumn('`can_startup` tinyint NOT NULL', 'AFTER `status`');
 
-                if (!$table->columnExists('can_startup')) {
+                if (!$table->indexExists('can_startup')) {
                     $table->alter()
                           ->addIndex('KEY `can_startup` (`can_startup`)');
                 }
