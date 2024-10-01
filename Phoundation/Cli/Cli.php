@@ -127,69 +127,76 @@ class Cli
         }
 
         if ($source) {
-            // Determine the size of the keys to display them
-            $column_sizes = Arrays::getLongestStringPerColumn($source, 2, $id_column);
+            switch (OUTPUT) {
+                case 'json':
+                    Log::json($source);
+                    break;
 
-            // Get headers from id_column and row columns and reformat them for displaying
-            if ($headers === null) {
-                $value   = str_replace(['_', '-'], ' ', (string) $id_column);
-                $value   = Strings::capitalize($value) . ':';
-                $headers = ($id_column ? [$id_column => $value] : []);
-                $row     = current($source);
-                $exists  = false;
+                case 'normal':
+                    // Determine the size of the keys to display them
+                    $column_sizes = Arrays::getLongestStringPerColumn($source, 2, $id_column);
 
-                foreach (Arrays::force($row, null) as $header => $value) {
-                    $value            = str_replace(['_', '-'], ' ', (string) $header);
-                    $value            = Strings::capitalize($value) . ':';
-                    $headers[$header] = $value;
+                    // Get headers from id_column and row columns and reformat them for displaying
+                    if ($headers === null) {
+                        $value   = str_replace(['_', '-'], ' ', (string) $id_column);
+                        $value   = Strings::capitalize($value) . ':';
+                        $headers = ($id_column ? [$id_column => $value] : []);
+                        $row     = current($source);
+                        $exists  = false;
 
-                    if ($header === $id_column) {
-                        $exists = true;
-                    }
-                }
+                        foreach (Arrays::force($row, null) as $header => $value) {
+                            $value            = str_replace(['_', '-'], ' ', (string) $header);
+                            $value            = Strings::capitalize($value) . ':';
+                            $headers[$header] = $value;
 
-                if (!$exists) {
-                    // The specified ID column doesn't exist in the rows, remove it
-                    unset($headers[$id_column]);
-                }
+                            if ($header === $id_column) {
+                                $exists = true;
+                            }
+                        }
 
-            } else {
-                // Validate and clean headers
-                $headers = static::cleanHeaders($headers);
-            }
+                        if (!$exists) {
+                            // The specified ID column doesn't exist in the rows, remove it
+                            unset($headers[$id_column]);
+                        }
 
-            // Display header?
-            if (!VERY_QUIET) {
-                foreach (Arrays::force($headers) as $column => $header) {
-                    $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                    Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 10, false, false);
-                }
-
-                Log::cli(' ');
-            }
-
-            // Display source
-            foreach ($source as $id => $row) {
-                $row = Arrays::force($row, null);
-
-                if ($id_column) {
-                    array_unshift($row, $id);
-                }
-
-                // Display all row cells
-                foreach ($headers as $column => $label) {
-                    $value = isset_get($row[$column]);
-
-                    if ($column === 'status') {
-                        $value = DataEntry::getHumanReadableStatus($value);
+                    } else {
+                        // Validate and clean headers
+                        $headers = static::cleanHeaders($headers);
                     }
 
-                    if (is_numeric($column) or array_key_exists($column, $headers)) {
-                        Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false, false);
-                    }
-                }
+                    // Display header?
+                    if (!VERY_QUIET) {
+                        foreach (Arrays::force($headers) as $column => $header) {
+                            $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
+                            Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 10, false, false);
+                        }
 
-                Log::cli(' ');
+                        Log::cli(' ');
+                    }
+
+                    // Display source
+                    foreach ($source as $id => $row) {
+                        $row = Arrays::force($row, null);
+
+                        if ($id_column) {
+                            array_unshift($row, $id);
+                        }
+
+                        // Display all row cells
+                        foreach ($headers as $column => $label) {
+                            $value = isset_get($row[$column]);
+
+                            if ($column === 'status') {
+                                $value = DataEntry::getHumanReadableStatus($value);
+                            }
+
+                            if (is_numeric($column) or array_key_exists($column, $headers)) {
+                                Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false, false);
+                            }
+                        }
+
+                        Log::cli(' ');
+                    }
             }
 
         } else {
@@ -256,42 +263,49 @@ class Cli
         // Determine the size of the keys to display them
         $key_size = Arrays::getLongestKeyLength($source) + 4;
 
-        // Display header
-        if ($key_header and $value_header) {
-            Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key_header, $key_size), 'white') . ' ' . $value_header);
-        }
+        switch (OUTPUT) {
+            case 'json':
+                Log::json($source);
+                break;
 
-        // Display source
-        foreach ($source as $key => $value) {
-            $key = str_replace(['_', '-'], ' ', (string) $key);
-            $key = Strings::capitalize($key) . ':';
-
-            if (is_scalar($value)) {
-                if (is_bool($value)) {
-                    $value = Strings::fromBoolean($value);
+            case 'normal':
+                // Display header
+                if ($key_header and $value_header) {
+                    Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key_header, $key_size), 'white') . ' ' . $value_header);
                 }
 
-            } else {
-                if (is_object($value)) {
-                    // Yeah, how to display this? Try to cast to array, hope for the best.
-                    $value = (array) $value;
+                // Display source
+                foreach ($source as $key => $value) {
+                    $key = str_replace(['_', '-'], ' ', (string) $key);
+                    $key = Strings::capitalize($key) . ':';
+
+                    if (is_scalar($value)) {
+                        if (is_bool($value)) {
+                            $value = Strings::fromBoolean($value);
+                        }
+
+                    } else {
+                        if (is_object($value)) {
+                            // Yeah, how to display this? Try to cast to array, hope for the best.
+                            $value = (array) $value;
+                        }
+
+                        if (is_array($value)) {
+                            Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white'));
+                            static::displayForm($value, '', '', $key_size + 1);
+                            continue;
+                        }
+
+                        // This is likely a resource or something
+                        $value = gettype($value);
+                    }
+
+                    if ($key === 'status') {
+                        $value = DataEntry::getHumanReadableStatus($value);
+                    }
+
+                    Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white') . ' ' . $value);
                 }
-
-                if (is_array($value)) {
-                    Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white'));
-                    static::displayForm($value, '', '', $key_size + 1);
-                    continue;
-                }
-
-                // This is likely a resource or something
-                $value = gettype($value);
-            }
-
-            if ($key === 'status') {
-                $value = DataEntry::getHumanReadableStatus($value);
-            }
-
-            Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white') . ' ' . $value);
         }
     }
 

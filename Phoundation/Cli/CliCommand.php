@@ -1135,10 +1135,8 @@ class CliCommand
         global $argv;
 
         if ($argv['help']) {
-            $results = FsFile::new(
-                static::$command . '.php',
-                FsRestrictions::newCommands(false, 'CliCommand::checkUsage()')
-            )->grep(['CliDocumentation::setHelp('], 100);
+            $results = FsFile::new(static::$command . '.php', FsRestrictions::newCommands(false))
+                             ->grep(['CliDocumentation::setHelp('], 100);
 
             if (empty($results)) {
                 throw CliCommandException::new(tr('The command ":command" has no help information available', [
