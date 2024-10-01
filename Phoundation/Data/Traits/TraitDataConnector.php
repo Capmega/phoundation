@@ -60,7 +60,7 @@ trait TraitDataConnector
      */
     public function setConnector(string $connector, ?string $database = null): static
     {
-        $this->connector   = $connector;
+        $this->connector = $connector;
 
         if (empty($this->o_connector)) {
             $connector = $this->getConnector();
