@@ -196,7 +196,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function columnExists(string $column, bool $cache = true): bool
     {
-        return $this->getColumns($cache)->keyExists($column);
+        return $this->getColumns($cache)->keyExists(Strings::cut($column, '`', '`', false));
     }
 
 
@@ -238,7 +238,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function foreignKeyExists(string $key, bool $cache = true): bool
     {
-        return $this->getForeignKeys($cache)->keyExists($key);
+        return $this->getForeignKeys($cache)->keyExists(Strings::cut($key, '`', '`', false));
     }
 
 
@@ -261,7 +261,9 @@ class Table extends SchemaAbstract implements TableInterface
 
             // Parse all foreign keys from the resulting query
             do {
-                $foreign_key = Strings::cut($results, 'CONSTRAINT ', ',');
+                $foreign_key = Strings::from($results, 'CONSTRAINT ');
+                $foreign_key = Strings::until($foreign_key, ',');
+                $foreign_key = Strings::until($foreign_key, ') ENGINE');
 
                 if (!$foreign_key) {
                     break;
@@ -277,8 +279,7 @@ class Table extends SchemaAbstract implements TableInterface
                 ];
 
                 $results = Strings::from($results, 'CONSTRAINT ');
-                $results = Strings::from($results, ',');
-
+                $results = Strings::from($results, ',', needle_required: true);
             } while (true);
         }
 
@@ -296,7 +297,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function indexExists(string $key, bool $cache = true): bool
     {
-        return $this->getIndices($cache)->keyExists($key);
+        return $this->getIndices($cache)->keyExists(Strings::cut($key, '`', '`', false));
     }
 
 

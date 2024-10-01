@@ -21,6 +21,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -269,6 +270,7 @@ class SqlQueries
                 if (!isset($null)) {
                     // (My)Sql curiosity: When comparing != string, NULL values are NOT evaluated
                     $return[] = ' (' . $column . ' NOT IN (' . implode(', ', array_keys($notin)) . ') OR ' . $column . ' IS NULL)';
+
                 } else {
                     $return[] = ' ' . $column . ' NOT IN (' . implode(', ', array_keys($notin)) . ')';
                 }
@@ -276,6 +278,10 @@ class SqlQueries
 
             if (isset($null)) {
                 $return[] = static::isSingle($column, $null, $label, $execute);
+            }
+
+            if (isset($query_builder)) {
+                $query_builder->setExecute($execute);
             }
 
             return implode(' ' . $glue . ' ', $return);

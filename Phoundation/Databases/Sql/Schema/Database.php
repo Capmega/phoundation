@@ -177,13 +177,13 @@ class Database extends SchemaAbstract implements DatabaseInterface
     /**
      * Load the table parameters from the database
      *
-     * @param array|null $identifiers
-     * @param bool       $clear
-     * @param bool       $only_if_empty
+     * @param array|string|int|null $identifiers
+     * @param bool                  $clear
+     * @param bool                  $only_if_empty
      *
      * @return static
      */
-    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
         // Load columns & indices data
         // TODO Implement
@@ -266,14 +266,14 @@ class Database extends SchemaAbstract implements DatabaseInterface
 
         // Export the current database
         Export::new()
-              ->setConnector($this->sql->getConnector())
+              ->setConnectorObject($this->sql->getConnectorObject())
               ->setDatabase($this->getName())
               ->setTimeout($timeout)
               ->dump($file);
 
         // Import dump into new database
         Import::new()
-              ->setConnector($this->sql->getConnector())
+              ->setConnectorObject($this->sql->getConnectorObject())
               ->setDatabase($database_name)
               ->setFile($file)
               ->setTimeout($timeout)

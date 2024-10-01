@@ -1,10 +1,16 @@
 <?php
 
+/**
+ * GARBAGE, REMOVE
+ */
+
+
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Exception\UnderConstructionException;
 
+throw new \Phoundation\Exception\ObsoleteException();
 
 CliDocumentation::setUsage('./pho databases mysql method [OPTIONS]
 

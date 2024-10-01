@@ -29,6 +29,7 @@ class QueryObject implements QueryObjectInterface
 {
     use TraitDataDebug;
 
+
     /**
      * @var int $limit_offset
      */
@@ -117,31 +118,92 @@ class QueryObject implements QueryObjectInterface
     protected ?array $execute = null;
 
     /**
+     * The principle table from which we're selecting
+     *
+     * @var string|null $from_table
+     */
+    protected ?string $from_table = null;
+
+
+    /**
      * If specified, the query builder will attempt to update the internal loading query for this object
      *
-     * @var DataEntryInterface|IteratorInterface|null $parent
+     * @var DataEntryInterface|DataIteratorInterface|null $parent
      */
-    protected DataEntryInterface|IteratorInterface|null $parent;
+    protected DataEntryInterface|DataIteratorInterface|null $parent;
 
 
     /**
      * QueryObject class constructor
      *
-     * @param DataEntryInterface|IteratorInterface|null $parent
+     * @param DataEntryInterface|DataIteratorInterface|null $parent
      */
-    public function __construct(DataEntryInterface|IteratorInterface|null $parent = null)
+    public function __construct(DataEntryInterface|DataIteratorInterface|null $parent = null)
     {
         $this->parent = $parent;
 
         if ($this->parent) {
             // The first from will be the table from the parent class
-            $this->addFrom($parent->getTable());
+            $this->setFromTable($parent->getTable());
         }
     }
 
 
     /**
-     * Add the FROM part of the query
+     * QueryObject class constructor
+     *
+     * @param DataEntryInterface|DataIteratorInterface|null $parent
+     *
+     * @return static
+     */
+    public static function new(DataEntryInterface|DataIteratorInterface|null $parent = null): static
+    {
+        return new static($parent);
+    }
+
+
+    /**
+     * Returns the principle "FROM" table
+     *
+     * @return string|null
+     */
+    public function getFromTable(): ?string
+    {
+        return $this->from_table;
+    }
+
+
+    /**
+     * Sets the principle "FROM" table
+     *
+     * @param string|null $from_table
+     *
+     * @return static
+     */
+    public function setFromTable(?string $from_table): static
+    {
+        $this->from_table = $from_table;
+        return $this->setFrom($from_table);
+    }
+
+
+    /**
+     * Sets the "FROM" part of the query
+     *
+     * @param string|null $from
+     * @param array|null  $execute
+     *
+     * @return static
+     */
+    public function setFrom(?string $from, ?array $execute = null): static
+    {
+        $this->from = [];
+        return $this->addFrom($from, $execute);
+    }
+
+
+    /**
+     * Add the "FROM" part of the query
      *
      * @param string|null $from
      * @param array|null  $execute
@@ -176,7 +238,22 @@ class QueryObject implements QueryObjectInterface
 
 
     /**
-     * Add a JOIN part of the query
+     * Sets bound execution variables
+     *
+     * @param array $execute
+     *
+     * @return static
+     */
+    public function setExecute(array $execute): static
+    {
+        $this->execute = $execute;
+
+        return $this;
+    }
+
+
+    /**
+     * Add bound execution variables
      *
      * @param string                $column
      * @param string|float|int|null $value
@@ -192,19 +269,6 @@ class QueryObject implements QueryObjectInterface
         $this->execute[Strings::ensureStartsWith($column, ':')] = $value;
 
         return $this;
-    }
-
-
-    /**
-     * QueryObject class constructor
-     *
-     * @param DataEntryInterface|IteratorInterface|null $parent
-     *
-     * @return static
-     */
-    public static function new(DataEntryInterface|IteratorInterface|null $parent = null): static
-    {
-        return new static($parent);
     }
 
 
@@ -329,6 +393,22 @@ class QueryObject implements QueryObjectInterface
 
 
     /**
+     * Sets the WHERE part of the query
+     *
+     * @param string|null $where
+     * @param array|null  $execute
+     *
+     * @return static
+     */
+    public function setWhere(?string $where, ?array $execute = null): static
+    {
+        $this->wheres = [];
+
+        return $this->addWhere($where, $execute);
+    }
+
+
+    /**
      * Add a WHERE part of the query
      *
      * @param string|null $where
@@ -379,6 +459,22 @@ class QueryObject implements QueryObjectInterface
         }
 
         return $this->addExecuteArray($execute);
+    }
+
+
+    /**
+     * Sets the ORDER BY part of the query
+     *
+     * @param string|null $order_by
+     * @param array|null  $execute
+     *
+     * @return static
+     */
+    public function setOrderBy(?string $order_by, ?array $execute = null): static
+    {
+        $this->order_by = [];
+
+        return $this->addOrderBy($order_by, $execute);
     }
 
 

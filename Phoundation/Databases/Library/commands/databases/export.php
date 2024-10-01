@@ -24,7 +24,7 @@ use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 
 
-$restrictions = FsRestrictions::newWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP]));
+$restrictions = FsRestrictions::newWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP]);
 
 CliDocumentation::setUsage('./pho databases export -d mysql -b system -f system.sql');
 
@@ -56,21 +56,20 @@ CliDocumentation::setAutoComplete([
                   return FsDirectory::new(
                       DIRECTORY_DATA . 'sources/',
                       $restrictions
-                  )->scan($word . '*.sql');
+                   )->scan($word . '*[.sql|.gz]');
               },
               'noword' => function () use ($restrictions) {
                   return FsDirectory::new(
                       DIRECTORY_DATA . 'sources/',
                       $restrictions
-                  )->scan('*.sql');
+                  )->scan('*[.sql|.gz]');
               },
           ],
           '-c,--connector' => [
               'word'   => function ($word) {
                   return Connectors::new()
                                    ->load(null, true, true)
-                                   ->keepMatchingValuesStartingWith($word, column: 'name')
-                                   ->getAllRowsSingleColumn('name');
+                                   ->keepMatchingValuesStartingWith($word, column: 'name');
               },
               'noword' => function () {
                   return Connectors::new()

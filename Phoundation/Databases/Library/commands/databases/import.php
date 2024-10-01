@@ -18,6 +18,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Import;
 use Phoundation\Filesystem\FsDirectory;
@@ -34,7 +35,7 @@ $restrictions = FsRestrictions::newReadonly( [
 
 CliDocumentation::setUsage('./pho databases import -d mysql -b system -f system.sql');
 
-CliDocumentation::setHelp('This command will import the specified database dump zfile into the specified database
+CliDocumentation::setHelp('This command will import the specified database dump file into the specified database
 
 
 ARGUMENTS
@@ -66,11 +67,23 @@ CliDocumentation::setAutoComplete([
                                               'noword' => function ()      use ($restrictions) { return FsDirectory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.{sql,sql.gz}'); },
                                           ],
                                           '-c,--connector' => [
-                                              'word'   => function ($word) { return Arrays::keepValues(Connectors::new()->load(null, true, true)->keepMatchingValues('sys', Utils::MATCH_STARTS_WITH, 'name')->getAllRowsSingleColumn('name'), $word); },
-                                              'noword' => function () { return Connectors::new()->load(null, true, true)->keepMatchingValues('sys', Utils::MATCH_STARTS_WITH, 'name')->getAllRowsSingleColumn('name'); },
+                                              'word'   => function ($word) {
+                                                  return Connectors::new()
+                                                                   ->load(null, true, true)
+                                                                   ->keepMatchingValuesStartingWith($word, column: 'name');
+                                              },
+                                              'noword' => function () {
+                                                  return Connectors::new()
+                                                                   ->load(null, true, true)
+                                                                   ->getAllRowsSingleColumn('name');
+                                              },
                                           ],
                                           '-b,--database'  => [
-                                              'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },
+                                              'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES 
+                                                                                                       LIKE :word', [
+                                                                                                           ':word' => '%' . $word . '%'
+                                                                                                    ]);
+                                                                            },
                                               'noword' => function () { return sql()->listScalar('SHOW DATABASES'); },
                                           ],
                                           '-t,--timeout'   => true,
@@ -84,7 +97,7 @@ CliDocumentation::setAutoComplete([
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('-f,--file', true)->sanitizeFile([FsDirectory::newDataSourcesObject(), FsDirectory::newDataTmpObject()])
-                     ->select('-b,--database', true)->isVariable()
+                     ->select('-b,--database', true)->isOptional()->isVariable()
                      ->select('--comments', true)->isOptional()->isPrintable()
                      ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(null, true, true, true)->getAllRowsSingleColumn('name'))
                      ->select('-t,--timeout', true)->isOptional(3600)->isNatural(true)
@@ -94,6 +107,8 @@ $argv = ArgvValidator::new()
 
 
 // Execute the import for the specified driver
+Log::information(tr('Executing database import'));
+
 Import::new()
       ->setConnector($argv['connector'], true)
       ->setDatabase($argv['database'])

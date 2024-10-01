@@ -68,14 +68,14 @@ class Connectors extends DataIterator implements ConnectorsInterface
     /**
      * Load the id list from the database
      *
-     * @param array|null $identifiers
-     * @param bool       $clear
-     * @param bool       $only_if_empty
-     * @param bool       $ignore_sql_exceptions
+     * @param array|string|int|null $identifiers
+     * @param bool                  $clear
+     * @param bool                  $only_if_empty
+     * @param bool                  $ignore_sql_exceptions
      *
      * @return static
      */
-    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
+    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
     {
         try {
             parent::load($identifiers, $clear, $only_if_empty);

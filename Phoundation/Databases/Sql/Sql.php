@@ -201,9 +201,10 @@ class Sql implements SqlInterface
     /**
      * Reads, validates structure and returns the configuration for the specified instance
      *
-     * @param string $connector
+     * @param ConnectorInterface|string $connector
      *
      * @return array
+     * @throws \Exception
      */
     public function readConfiguration(ConnectorInterface|string $connector): array
     {
@@ -315,7 +316,7 @@ class Sql implements SqlInterface
      */
     public function getConnectorLogPrefix(): string
     {
-        return '(' . $this->uniqueid . '-' . $this->getDatabase() . '-' . $this->counter . ') ';
+        return '(' . $this->uniqueid . ' / ' . $this->getHostname() . ' / ' . $this->getDatabase() . ' / ' . $this->counter . ') ';
     }
 
 
@@ -327,6 +328,17 @@ class Sql implements SqlInterface
     public function getDatabase(): ?string
     {
         return $this->database;
+    }
+
+
+    /**
+     * Returns the hostname of the server that this object is connected to
+     *
+     * @return string|null
+     */
+    public function getHostname(): ?string
+    {
+        return $this->configuration['hostname'];
     }
 
 
@@ -498,6 +510,8 @@ class Sql implements SqlInterface
             }
 
             $this->processQueryException(SqlException::new($e)
+                                                     ->setHost($this->getHostname())
+                                                     ->setDatabase($this->getDatabase())
                                                      ->setQuery($query)
                                                      ->setExecute($execute)
                                                      ->setMessage($message)
@@ -574,17 +588,21 @@ class Sql implements SqlInterface
                 exit(1);
 
             case '42S02':
-                throw new SqlTableDoesNotExistException(Strings::from($e->getMessage(), '1146'), $e);
+                preg_match_all('/^Base table or view not found: 1146 Table \'(.+?)\' doesn\'t exist$/', $e->getMessage(), $matches);
+
+                throw SqlTableDoesNotExistException::new(Strings::from($e->getMessage(), '1146'), $e)
+                                                   ->addData(['table' => isset_get($matches[1][0])]);
 
             case '3D000':
-                throw new SqlDatabaseDoesNotExistException(Strings::from($e->getMessage(), '1146'), $e);
+                throw SqlDatabaseDoesNotExistException::new(Strings::from($e->getMessage(), '1146'), $e);
 
             case 'HY093':
                 // Invalid parameter number: number of bound variables does not match number of tokens
                 // Get tokens from query
 // TODO Check here what tokens do not match to make debugging easier
                 preg_match_all('/:\w+/imus', $query, $matches);
-                throw $e->addData(Arrays::renameKeys(Arrays::valueDiff($matches[0], array_flip($execute)), [
+
+                throw $e->addData(Arrays::renameKeys(Arrays::valueDiff($matches[0], array_keys($execute)), [
                     'add'    => 'variables missing in query',
                     'delete' => 'variables missing in execute',
                 ]));
@@ -646,7 +664,7 @@ class Sql implements SqlInterface
 //                            $fk = str_replace("\n", ' ', $fk);
 //                            $fk = trim($fk);
 //
-//                        }catch(Exception $e) {
+//                        }catch (Exception $e) {
 //                            throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', [
 //                                ':query' => SqlQueries::buildQueryString($query, $execute, true)
 //                            ]), $e);
@@ -832,7 +850,7 @@ class Sql implements SqlInterface
 
                     switch ($e->getCode()) {
                         case 1045:
-                            // Access  denied!
+                            // Access denied!
                             throw SqlAccessDeniedException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user", access was denied by the database server', [
                                 ':connector' => $this->connector,
                                 ':string'    => isset_get($connect_string),
@@ -841,13 +859,15 @@ class Sql implements SqlInterface
 
                         case 1049:
                             // Database doesn't exist!
+                            preg_match_all('/^SQLSTATE\[HY000] \[1049] Unknown database \'(.+?)\'$/', $e->getMessage(), $matches);
+
                             if ($this->connector === 'system') {
                                 throw SqlDatabaseDoesNotExistException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the system database ":database" does not exist. Run "./pho system init" to initialize the system, or "./pho system sync from SOURCE_ENVIRONMENT" to copy a system database from an existing environment', [
                                     ':connector' => $this->connector,
                                     ':string'    => isset_get($connect_string),
                                     ':database'  => $this->configuration['database'],
                                     ':user'      => $this->configuration['username'],
-                                ]));
+                                ]))->addData(['database' => isset_get($matches[1][0])]);
                             }
 
                             throw SqlDatabaseDoesNotExistException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the database ":database" does not exist', [
@@ -1000,6 +1020,7 @@ class Sql implements SqlInterface
                     if (!Cli::PidGrep($tunnel['pid'])) {
                         $restrictions = servers_get($this->configuration['ssh_tunnel']['domain']);
                         $registered   = ssh_host_is_known($restrictions['hostname'], $restrictions['port']);
+
                         if ($registered === false) {
                             throw new SqlException(tr('Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the DIRECTORY_ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', [
                                 ':hostname' => $this->configuration['ssh_tunnel']['domain'],
@@ -1033,15 +1054,17 @@ class Sql implements SqlInterface
                      * Check if tunnel PID is still there
                      * Check if target server supports TCP forwarding.
                      * Check if the tunnel is still responding to TCP requests
-                     */ if (empty($this->configuration['ssh_tunnel']['required'])) {
-                    /*
-                     * No SSH tunnel was required for this connector
                      */
-                    throw $e;
-                }
+                    if (empty($this->configuration['ssh_tunnel']['required'])) {
+                        /*
+                         * No SSH tunnel was required for this connector
+                         */
+                        throw $e;
+                    }
 
                     $restrictions = Servers::get($this->configuration['ssh_tunnel']['domain']);
                     $allowed      = Cli::getSshTcpForwarding($restrictions);
+
                     if (!$allowed) {
                         /*
                          * SSH tunnel is required for this connector, but tcp fowarding
@@ -1069,6 +1092,7 @@ class Sql implements SqlInterface
                     if (!Cli::Pid($this->configuration['ssh_tunnel']['pid'])) {
                         throw new SqlException(tr('SSH tunnel process ":pid" is gone', [':pid' => $this->configuration['ssh_tunnel']['pid']]));
                     }
+
                     // Check if we can connect over the tunnel to the remote SSH
                     $results = Inet::telnet([
                         'host' => '127.0.0.1',
@@ -1186,11 +1210,22 @@ class Sql implements SqlInterface
     /**
      * Returns the name of this SQL instance
      *
-     * @return string|null
+     * @return string
      */
-    public function getConnector(): ?string
+    public function getConnector(): string
     {
         return $this->connector;
+    }
+
+
+    /**
+     * Returns the connector object for this SQL instance
+     *
+     * @return ConnectorInterface
+     */
+    public function getConnectorObject(): ConnectorInterface
+    {
+        return static::$connectors->get($this->connector);
     }
 
 
@@ -1397,10 +1432,11 @@ class Sql implements SqlInterface
      * @param string|int|null  $value
      * @param int|null         $id
      * @param string           $id_column
+     * @param bool             $ignore_deleted_status
      *
      * @return bool
      */
-    public function exists(string $table, string|int|float $column, string|int|null $value, ?int $id = null, string $id_column = 'id'): bool
+    public function exists(string $table, string|int|float $column, string|int|null $value, ?int $id = null, string $id_column = 'id', bool $ignore_deleted_status = false): bool
     {
         if ($id) {
             return (bool) $this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `' . $id_column . '` != :id', [

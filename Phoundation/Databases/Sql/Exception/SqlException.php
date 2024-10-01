@@ -72,6 +72,54 @@ class SqlException extends DatabasesException implements SqlExceptionInterface
 
 
     /**
+     * Returns the SQL database at this exception
+     *
+     * @return PDOStatement|string|null
+     */
+    public function getDatabase(): PDOStatement|string|null
+    {
+        return $this->getDataKey('database');
+    }
+
+
+    /**
+     * Sets the SQL database at this exception
+     *
+     * @param PDOStatement|string|null $database
+     *
+     * @return static
+     */
+    public function setDatabase(PDOStatement|string|null $database): static
+    {
+        return $this->addData($database, 'database');
+    }
+
+
+    /**
+     * Returns the SQL host at this exception
+     *
+     * @return PDOStatement|string|null
+     */
+    public function getHost(): PDOStatement|string|null
+    {
+        return $this->getDataKey('host');
+    }
+
+
+    /**
+     * Sets the SQL host at this exception
+     *
+     * @param PDOStatement|string|null $host
+     *
+     * @return static
+     */
+    public function setHost(PDOStatement|string|null $host): static
+    {
+        return $this->addData($host, 'host');
+    }
+
+
+    /**
      * Returns the SQL execute at this exception
      *
      * @return array|null

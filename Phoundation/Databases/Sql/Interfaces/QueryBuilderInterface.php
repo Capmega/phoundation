@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\Interfaces;
 
 use PDOStatement;
+use Phoundation\Databases\Connectors\Connector;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryObjectInterface;
 
-interface QueryBuilderInterface
+
+interface QueryBuilderInterface extends QueryObjectInterface
 {
     /**
      * Make this a SELECT query by adding the select clause here
@@ -159,6 +163,14 @@ interface QueryBuilderInterface
 
 
     /**
+     * Returns the bound variables execute array by reference, allowing outside changes
+     *
+     * @return array|null
+     */
+    public function &getExecuteByReference(): ?array;
+
+
+    /**
      * Executes the query and returns a PDO statement
      *
      * @param bool $debug
@@ -198,16 +210,6 @@ interface QueryBuilderInterface
      */
     public function list(bool $debug = false): array;
 
-
-    /**
-     * Returns the name of the database connector where this DataEntry is stored
-     *
-     * @param string $database_connector
-     * return static
-     */
-    public function setDatabaseConnectorName(string $database_connector): static;
-
-
     /**
      * Returns if the meta-system is enabled or disabled for this (type of) DataEntry
      *
@@ -220,7 +222,7 @@ interface QueryBuilderInterface
      * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
      *
      * @param bool $meta_enabled
-     * return static
+     * @return static
      */
     public function setMetaEnabled(bool $meta_enabled): static;
 
@@ -239,4 +241,51 @@ interface QueryBuilderInterface
      * @return static
      */
     public function setDebug(bool $debug): static;
+
+    /**
+     * Returns the name of the database connector where this DataEntry is stored
+     *
+     * @return string
+     */
+    public function getConnector(): string;
+
+
+    /**
+     * Sets the database connector by name
+     *
+     * @param string      $connector
+     * @param string|null $database
+     *
+     * @return static
+     */
+    public function setConnector(string $connector, ?string $database = null): static;
+
+    /**
+     * Returns the default database connector to use for this table
+     *
+     * @return string
+     */
+    public static function getDefaultConnector(): string;
+
+    /**
+     * Returns a database connector for this DataEntry object
+     *
+     * @return ConnectorInterface
+     */
+    public static function getDefaultConnectorObject(): ConnectorInterface;
+
+    /**
+     * Returns the database connector
+     *
+     * @return ConnectorInterface
+     */
+    public function getConnectorObject(): ConnectorInterface;
+
+    /**
+     * Sets the database connector
+     *
+     * @param ConnectorInterface $o_connector
+     * @return static
+     */
+    public function setConnectorObject(ConnectorInterface $o_connector, ?string $database = null): static;
 }

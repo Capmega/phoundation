@@ -89,7 +89,7 @@ class TableAlter extends SchemaAbstract
         }
 
         $this->sql->query('ALTER TABLE `' . $this->name . '` 
-                                 ADD COLUMN ' . Strings::ensureEndsNotWith($column, ',') . ' ' . $before_after);
+                           ADD COLUMN ' . Strings::ensureEndsNotWith($column, ',') . ' ' . $before_after);
 
         return $this;
     }
@@ -135,8 +135,9 @@ class TableAlter extends SchemaAbstract
             throw new OutOfBoundsException(tr('No new column definition specified'));
         }
 
-        $column = Strings::ensureStartsNotWith($column, '`');
-        $column = Strings::ensureEndsNotWith($column, '`');
+        $column        = Strings::ensureStartsNotWith($column       , '`');
+        $column        = Strings::ensureEndsNotWith($column         , '`');
+        $to_definition = Strings::ensureEndsNotWith($to_definition  , ',');
 
         $this->sql->query('ALTER TABLE `' . $this->name . '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
 
@@ -162,8 +163,9 @@ class TableAlter extends SchemaAbstract
             throw new OutOfBoundsException(tr('No new column definition specified'));
         }
 
-        $column = Strings::ensureStartsNotWith($column, '`');
-        $column = Strings::ensureEndsNotWith($column, '`');
+        $column        = Strings::ensureStartsNotWith($column       , '`');
+        $column        = Strings::ensureEndsNotWith($column         , '`');
+        $to_definition = Strings::ensureEndsNotWith($to_definition  , ',');
 
         $this->sql->query('ALTER TABLE `' . $this->name . '` CHANGE COLUMN `' . $column . '` ' . $to_definition);
 
@@ -307,7 +309,7 @@ class TableAlter extends SchemaAbstract
     public function dropForeignKey(string $foreign_key): static
     {
         if ($foreign_key) {
-            $this->sql->query('ALTER TABLE ' . $this->name . ' DROP FOREIGN KEY `' . Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($foreign_key, '`'), '`') . '`');
+            $this->sql->query('ALTER TABLE ' . $this->name . ' DROP FOREIGN KEY `' . Strings::cut($foreign_key, '`', '`', false) . '`');
         }
 
         return $this;

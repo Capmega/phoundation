@@ -83,9 +83,9 @@ interface SqlInterface extends DatabaseInterface
     /**
      * Returns the name of this SQL instance
      *
-     * @return string|null
+     * @return string
      */
-    public function getConnector(): ?string;
+    public function getConnector(): string;
 
 
     /**

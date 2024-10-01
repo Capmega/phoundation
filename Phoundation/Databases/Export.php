@@ -48,7 +48,7 @@ class Export
     use TraitDataUserPass;
     use TraitDataDebug;
     use TraitDataConnector {
-        setConnector as __setConnector;
+        setConnectorObject as __setConnector;
     }
     use TraitDataRestrictions;
 
@@ -397,13 +397,13 @@ class Export
      */
     public function dump(?FsFileInterface $file, EnumExecuteMethod $method = EnumExecuteMethod::passthru): string
     {
-        switch ($this->driver ?? $this->connector->getDriver()) {
+        switch ($this->driver ?? $this->o_connector->getDriver()) {
             case null:
                 throw new OutOfBoundsException(tr('No export driver specified'));
 
             case 'mysql':
                 $file = MysqlDump::new($this->restrictions)
-                                 ->setConnector($this->connector)
+                                 ->setConnectorObject($this->getConnectorObject())
                                  ->setTimeout($this->timeout)
                                  ->setDatabases($this->database)
                                  ->dump($file, $method);
@@ -423,26 +423,26 @@ class Export
     /**
      * Sets the source
      *
-     * @param ConnectorInterface|string|null $connector
-     * @param bool                           $ignore_sql_exceptions
+     * @param ConnectorInterface $o_connector
+     * @param string|null        $database
      *
      * @return static
      */
-    public function setConnector(ConnectorInterface|string|null $connector, bool $ignore_sql_exceptions = false): static
+    public function setConnectorObject(ConnectorInterface $o_connector, ?string $database = null): static
     {
-        $this->__setConnector($connector, $ignore_sql_exceptions);
+        $this->__setConnector($o_connector, $database);
 
         if ($this->getDriver()) {
-            // Driver was specified separately, must match driver for this connector
-            if ($this->getDriver() !== $this->connector->getDriver()) {
+            // Driver was specified separately, must match the driver for this connector
+            if ($this->getDriver() !== $this->o_connector->getDriver()) {
                 throw new OutOfBoundsException(tr('Specified connector is for driver ":connector", however a different driver ":driver" has already been specified separately', [
-                    ':connector' => $this->connector->getDriver(),
+                    ':connector' => $this->o_connector->getDriver(),
                     ':driver'    => $this->getDriver(),
                 ]));
             }
 
         } else {
-            $this->setDriver($this->connector->getDriver());
+            $this->setDriver($this->o_connector->getDriver());
         }
 
         return $this;
@@ -460,11 +460,11 @@ class Export
      */
     public function setDriver(?string $driver): static
     {
-        if ($driver and $this->connector) {
+        if ($driver and $this->o_connector) {
             // Connector was specified separately, this driver must match connector driver
-            if ($driver !== $this->connector->getDriver()) {
+            if ($driver !== $this->o_connector->getDriver()) {
                 throw new OutOfBoundsException(tr('Specified driver ":driver" does not match driver for already specified connector ":connector"', [
-                    ':connector' => $this->connector->getDriver(),
+                    ':connector' => $this->o_connector->getDriver(),
                     ':driver'    => $driver,
                 ]));
             }
