@@ -36,7 +36,7 @@ $notifications = Notifications::new()->markSeverityColumn();
 
 // Process POST requests
 if (Request::isPostRequestMethod()) {
-    if (PostValidator::new()->getSubmitButton() === tr('Mark all as read')) {
+    if (Request::getSubmitButton() === tr('Mark all as read')) {
 //        $notifications->setStatus('READ');
 
         sql()->query('UPDATE `notifications`
@@ -51,9 +51,6 @@ if (Request::isPostRequestMethod()) {
 }
 
 
-// Build the page content
-
-
 // Build incidents filter card
 $filters      = FilterForm::new();
 $filters_card = Card::new()
@@ -63,7 +60,7 @@ $filters_card = Card::new()
                     ->useForm(true);
 
 
-// Build notifications table
+// Build "notifications" table
 $notifications_card = Card::new()
                           ->setTitle('Active notifications')
                           ->setSwitches('reload')
@@ -96,12 +93,13 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Notifications'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Notifications')
+    '/'                   => tr('Home'),
+    '/notifications.html' => tr('Notifications'),
+    ''                    => tr('Unread')
 ]));
 
 
 // Render and return the page grid
 return Grid::new()
-    ->addGridColumn($filters_card->render() . $notifications_card->render(), EnumDisplaySize::nine)
-    ->addGridColumn($relevant_card->render() . $documentation_card->render(), EnumDisplaySize::three);
+           ->addGridColumn($filters_card->render() . $notifications_card->render(), EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card->render() . $documentation_card->render(), EnumDisplaySize::three);
