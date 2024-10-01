@@ -6,13 +6,14 @@
  *
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   PLugins\Phoundation
+ * @package PLugins\Phoundation
  */
 
 
 declare(strict_types=1);
+
 
 namespace Plugins\Phoundation\Phoundation\Components;
 
@@ -26,15 +27,16 @@ class ProfileImageMenu extends Menu
      */
     public function __construct()
     {
-        parent::__construct();
-        $this->setSource([
-            tr('Profile')  => [
+       parent::__construct();
+
+       $this->setSource([
+            tr('Profile') => [
                 'url'  => '/my/profile.html',
-                'icon' => '',
+                'icon' => ''
             ],
             tr('Sign out') => [
                 'url'  => '/sign-out.html',
-                'icon' => '',
+                'icon' => ''
             ],
         ]);
     }
