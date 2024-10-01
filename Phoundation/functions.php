@@ -29,6 +29,7 @@ use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Interfaces\FloatableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -46,6 +47,7 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
@@ -181,10 +183,15 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
             foreach ($replace as &$value) {
                 $value = Strings::log($value);
             }
+
+        } else {
+            // Ensure all replacements are strings to avoid a crash
+            foreach ($replace as &$value) {
+                $value = Strings::force($value);
+            }
         }
 
         unset($value);
-
         return str_replace(array_keys($replace), array_values($replace), $text);
     }
 
@@ -387,11 +394,11 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                     if (is_string($variable)) {
                         $variable = strtolower(trim($variable));
 
-                        if ($variable === 'true') {
+                        if (($variable === 'true') or ($variable === '1')) {
                             return true;
                         }
 
-                        if ($variable === 'false') {
+                        if (($variable === 'false') or ($variable === '0')) {
                             return false;
                         }
                     }
@@ -415,6 +422,8 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                 case 'function':
                     // no break
                 case 'callable':
+                    // no break
+                case 'closure':
                     if (is_callable($variable)) {
                         return $variable;
                     }
@@ -741,7 +750,6 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
  * @param bool  $var_dump
  *
  * @return mixed
- * @throws \Exception
  */
 function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false, bool $var_dump = false): mixed
 {
@@ -837,15 +845,17 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
 
 
 /**
- * Return $source if $source is not considered "empty".
+ * Return $source if $source is not considered "empty", NULL otherwise
  *
  * Return null if the specified variable is considered "empty", like 0, "", array(), etc.
  *
+ * @see get_false()
+ * @see get_empty()
  * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
  *
  * @return mixed Either $source or null, depending on if $source is empty or not
- * @see     get_empty()
  * @note    This function is a wrapper for get_empty($source, null);
+ * @see     get_empty()
  * @version 2.6.27: Added documentation
  * @example
  * code
@@ -862,6 +872,26 @@ function get_null(mixed $source): mixed
 {
     if (empty($source)) {
         return null;
+    }
+
+    return $source;
+}
+
+
+/**
+ * Return $source if $source is not considered "empty", FALSE otherwise.
+ *
+ * Return false if the specified variable is considered "empty", like 0, "", array(), etc.
+ *
+ * @see get_null()
+ * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ *
+ * @return mixed Either $source or null, depending on if $source is empty or not
+ */
+function get_false(mixed $source): mixed
+{
+    if (empty($source)) {
+        return false;
     }
 
     return $source;
@@ -1047,11 +1077,12 @@ function execute(): ?string
 /**
  * Executes the specified hook file
  *
- * @param string $__file
+ * @param string        $__file
+ * @param HookInterface $hook
  *
  * @return mixed
  */
-function execute_hook(string $__file): mixed
+function execute_hook(string $__file, HookInterface $hook): mixed
 {
     return include($__file);
 }
@@ -1101,20 +1132,20 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
     return $variable;
 }
 
-
 /**
  * Returns the system SQL database object
  *
- * @param ConnectorInterface|string $connector
- * @param bool                      $use_database
- * @param bool                      $connect
+ * @param ConnectorInterface|string|null $connector
+ * @param bool                           $use_database
+ * @param bool                           $connect
  *
  * @return SqlInterface
  */
-function sql(ConnectorInterface|string $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
+function sql(ConnectorInterface|string|null $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
 {
     return Databases::sql($connector, $use_database, $connect);
 }
+
 
 
 /**
@@ -1201,7 +1232,6 @@ function has_trait(string $trait, object|string $class): bool
  * @param bool       $die
  *
  * @return mixed
- * @throws \Exception
  */
 #[NoReturn] function show_system(mixed $source = null, bool $die = true): mixed
 {
@@ -1223,12 +1253,12 @@ function has_trait(string $trait, object|string $class): bool
             echo '<pre>' . PHP_EOL . '"';
         }
 
-        echo 'message-' . random_int(1, 10000) . PHP_EOL . '"';
+        echo 'message-' . Numbers::getRandomInt(1, 10000) . PHP_EOL . '"';
         print_r($source);
         echo '"' . PHP_EOL;
 
         if ($die) {
-            exit('die-' . random_int(1, 10000) . PHP_EOL);
+            exit('die-' . Numbers::getRandomInt(1, 10000) . PHP_EOL);
         }
     }
 
@@ -1394,7 +1424,11 @@ function no_strpos(string $source, string $char, int $offset = 0): int|false
  */
 function array_value_first(array $source): mixed
 {
-    return $source[array_key_first($source)];
+    if ($source) {
+        return $source[array_key_first($source)];
+    }
+
+    throw new OutOfBoundsException(tr('Cannot get first value of source array, the array is empty'));
 }
 
 
@@ -1406,7 +1440,11 @@ function array_value_first(array $source): mixed
  */
 function array_value_last(array $source): mixed
 {
-    return $source[array_key_last($source)];
+    if ($source) {
+        return $source[array_key_last($source)];
+    }
+
+    throw new OutOfBoundsException(tr('Cannot get last value of source array, the array is empty'));
 }
 
 
