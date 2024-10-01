@@ -56,8 +56,8 @@ $user->displayCliForm();
 // Display extra email addresses
 Log::cli();
 Log::information('Extra email addresses:', echo_prefix: false);
-Log::cli();
 
+Log::cli();
 $user->getEmailsObject()->displayCliTable([
     'email'        => tr('Email address'),
     'account_type' => tr('Email address type'),
@@ -67,8 +67,8 @@ $user->getEmailsObject()->displayCliTable([
 // Display extra phone numbers
 Log::cli();
 Log::information('Extra phone numbers:', echo_prefix: false);
-Log::cli();
 
+Log::cli();
 $user->getPhonesObject()->displayCliTable([
     'phone'        => tr('Phone number'),
     'account_type' => tr('Phone number type'),
@@ -77,15 +77,13 @@ $user->getPhonesObject()->displayCliTable([
 
 // Display roles
 Log::cli();
-
 $user->getRolesObject()->displayCliTable([
-    'name' => tr('Roles assigned to this user:'),
+    'role' => tr('Roles assigned to this user:'),
 ]);
 
 
 // Display rights
 Log::cli();
-
 $user->getRightsObject()->displayCliTable([
-    'name' => tr('Rights assigned to this user through its roles:'),
+    'right' => tr('Rights assigned to this user through its roles:'),
 ]);

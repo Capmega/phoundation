@@ -40,7 +40,7 @@ RIGHT[,RIGHT,RIGHT,...]                 The rights linked with the role. Each us
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('role', true)->isName()
-                     ->select('rights', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+                     ->select('rights', true)->isOptional(null)->sanitizeForceArray()->eachField()->isName()
                      ->validate();
 
 

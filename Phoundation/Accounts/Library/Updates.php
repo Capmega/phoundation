@@ -22,6 +22,8 @@ use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Core\Log\Log;
 use Phoundation\Seo\Seo;
+
+
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -31,7 +33,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.4.1';
+        return '0.5.1';
     }
 
 
@@ -57,7 +59,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -65,43 +67,43 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `authentication_failures` int NOT NULL,
                     `locked_until` datetime DEFAULT NULL,
                     `sign_in_count` int NOT NULL,
-                    `username` varchar(64) DEFAULT NULL,
-                    `password` varchar(255) DEFAULT NULL,
+                    `username` varchar(64) NULL DEFAULT NULL,
+                    `password` varchar(255) NULL DEFAULT NULL,
                     `fingerprint` datetime DEFAULT NULL,
-                    `domain` varchar(128) DEFAULT NULL,
-                    `title` varchar(24) DEFAULT NULL,
-                    `first_names` varchar(128) DEFAULT NULL,
-                    `last_names` varchar(128) DEFAULT NULL,
-                    `nickname` varchar(128) DEFAULT NULL,
+                    `domain` varchar(128) NULL DEFAULT NULL,
+                    `title` varchar(24) NULL DEFAULT NULL,
+                    `first_names` varchar(128) NULL DEFAULT NULL,
+                    `last_names` varchar(128) NULL DEFAULT NULL,
+                    `nickname` varchar(128) NULL DEFAULT NULL,
                     `picture` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-                    `email` varchar(128) DEFAULT NULL,
+                    `email` varchar(128) NULL DEFAULT NULL,
                     `code` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `type` varchar(16) DEFAULT NULL,
-                    `keywords` varchar(255) DEFAULT NULL,
+                    `type` varchar(16) NULL DEFAULT NULL,
+                    `keywords` varchar(255) NULL DEFAULT NULL,
                     `phones` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
-                    `address` varchar(255) DEFAULT NULL,
-                    `zipcode` varchar(8) DEFAULT NULL,
+                    `address` varchar(255) NULL DEFAULT NULL,
+                    `zipcode` varchar(8) NULL DEFAULT NULL,
                     `verified_on` datetime NULL DEFAULT NULL,
-                    `verification_code` varchar(128) DEFAULT NULL,
-                    `priority` int DEFAULT NULL,
-                    `is_leader` int DEFAULT NULL,
-                    `leaders_id` bigint DEFAULT NULL,
-                    `latitude` decimal(18,15) DEFAULT NULL,
-                    `longitude` decimal(18,15) DEFAULT NULL,
-                    `accuracy` int DEFAULT NULL,
-                    `offset_latitude` decimal(18,15) DEFAULT NULL,
-                    `offset_longitude` decimal(18,15) DEFAULT NULL,
-                    `cities_id` bigint DEFAULT NULL,
-                    `states_id` bigint DEFAULT NULL,
-                    `countries_id` bigint DEFAULT NULL,
-                    `timezones_id` bigint DEFAULT NULL,
-                    `redirect` varchar(2048) DEFAULT NULL,
-                    `languages_id` bigint DEFAULT NULL,
-                    `gender` varchar(16) DEFAULT NULL,
+                    `verification_code` varchar(128) NULL DEFAULT NULL,
+                    `priority` int NULL DEFAULT NULL,
+                    `is_leader` int NULL DEFAULT NULL,
+                    `leaders_id` bigint NULL DEFAULT NULL,
+                    `latitude` decimal(18,15) NULL DEFAULT NULL,
+                    `longitude` decimal(18,15) NULL DEFAULT NULL,
+                    `accuracy` int NULL DEFAULT NULL,
+                    `offset_latitude` decimal(18,15) NULL DEFAULT NULL,
+                    `offset_longitude` decimal(18,15) NULL DEFAULT NULL,
+                    `cities_id` bigint NULL DEFAULT NULL,
+                    `states_id` bigint NULL DEFAULT NULL,
+                    `countries_id` bigint NULL DEFAULT NULL,
+                    `timezones_id` bigint NULL DEFAULT NULL,
+                    `redirect` varchar(2048) NULL DEFAULT NULL,
+                    `languages_id` bigint NULL DEFAULT NULL,
+                    `gender` varchar(16) NULL DEFAULT NULL,
                     `birthdate` date DEFAULT NULL,
-                    `url` varchar(2048) DEFAULT NULL,
-                    `description` text DEFAULT NULL,
-                    `comments` mediumtext DEFAULT NULL
+                    `url` varchar(2048) NULL DEFAULT NULL,
+                    `description` text NULL DEFAULT NULL,
+                    `comments` mediumtext NULL DEFAULT NULL
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
@@ -143,13 +145,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(128) NOT NULL,
                     `seo_name` varchar(128) NOT NULL,
-                    `description` varchar(2047) DEFAULT NULL
+                    `description` varchar(2047) NULL DEFAULT NULL
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
@@ -168,13 +170,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `name` varchar(128) DEFAULT NULL,
-                    `seo_name` varchar(128) DEFAULT NULL,
-                    `description` text DEFAULT NULL,
+                    `name` varchar(128) NULL DEFAULT NULL,
+                    `seo_name` varchar(128) NULL DEFAULT NULL,
+                    `description` text NULL DEFAULT NULL,
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
@@ -193,13 +195,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `name` varchar(128) DEFAULT NULL,
-                    `seo_name` varchar(128) DEFAULT NULL,
-                    `description` text DEFAULT NULL,
+                    `name` varchar(128) NULL DEFAULT NULL,
+                    `seo_name` varchar(128) NULL DEFAULT NULL,
+                    `description` text NULL DEFAULT NULL,
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
@@ -218,11 +220,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `users_id` bigint NOT NULL,
                     `rights_id` bigint NOT NULL,
                     `name` varchar(128) NOT NULL,
-                    `seo_name` varchar(128) DEFAULT NULL
+                    `seo_name` varchar(128) NULL DEFAULT NULL
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `users_rights` (`users_id`,`rights_id`),
@@ -243,7 +245,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `users_id` bigint NOT NULL,
                     `roles_id` bigint NOT NULL,
                 ')->setIndices('                
@@ -264,7 +266,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `roles_id` bigint NOT NULL,
                     `rights_id` bigint NOT NULL,
                 ')->setIndices('                
@@ -292,15 +294,15 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `captcha_required` tinyint(1) NOT NULL,
-                    `failed_reason` varchar(127) DEFAULT NULL,
-                    `users_id` bigint DEFAULT NULL,
+                    `failed_reason` varchar(127) NULL DEFAULT NULL,
+                    `users_id` bigint NULL DEFAULT NULL,
                     `username` varchar(64) NOT NULL,
-                    `ip` varchar(46) DEFAULT NULL,
+                    `ip` varchar(46) NULL DEFAULT NULL,
                     `action` enum("authentication", "signin") CHARACTER SET latin1 NOT NULL DEFAULT "authentication",
                     `method` enum("password", "google", "facebook") CHARACTER SET latin1 NOT NULL DEFAULT "password",
                 ')->setIndices('
@@ -323,7 +325,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `code` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
                     `date_requested` int DEFAULT "0",
                     `date_used` int DEFAULT "0",
@@ -340,7 +342,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `password` varchar(255) NOT NULL,
                 ')->setIndices('
                     PRIMARY KEY (`id`),
@@ -354,7 +356,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `password` varchar(255) NOT NULL,
                 ')->setIndices('
                     PRIMARY KEY (`id`),
@@ -372,7 +374,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -383,10 +385,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `user_agent` varchar(2040) NULL,
                     `latitude` decimal(10,7) NULL,
                     `longitude` decimal(10,7) NULL,
-                    `timezones_id` bigint DEFAULT NULL,
-                    `countries_id` bigint DEFAULT NULL,
-                    `states_id` bigint DEFAULT NULL,
-                    `cities_id` bigint DEFAULT NULL,
+                    `timezones_id` bigint NULL DEFAULT NULL,
+                    `countries_id` bigint NULL DEFAULT NULL,
+                    `states_id` bigint NULL DEFAULT NULL,
+                    `cities_id` bigint NULL DEFAULT NULL,
                 ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
@@ -414,7 +416,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -425,10 +427,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `user_agent` varchar(2040) NULL,
                     `latitude` decimal(10,7) NOT NULL,
                     `longitude` decimal(10,7) NOT NULL,
-                    `timezones_id` bigint DEFAULT NULL,
-                    `countries_id` bigint DEFAULT NULL,
-                    `states_id` bigint DEFAULT NULL,
-                    `cities_id` bigint DEFAULT NULL,
+                    `timezones_id` bigint NULL DEFAULT NULL,
+                    `countries_id` bigint NULL DEFAULT NULL,
+                    `states_id` bigint NULL DEFAULT NULL,
+                    `cities_id` bigint NULL DEFAULT NULL,
                 ')->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
@@ -463,7 +465,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.17', function () {
             // Add support for notifications_hash
-            sql()->getSchemaObject()->getTableObject('accounts_users')->alter()->addColumn('`notifications_hash` varchar(40) DEFAULT NULL', 'AFTER `fingerprint`');
+            sql()->getSchemaObject()->getTableObject('accounts_users')->alter()->addColumn('`notifications_hash` varchar(40) NULL DEFAULT NULL', 'AFTER `fingerprint`');
 
         })->addUpdate('0.0.18', function () {
             // Add support for multiple emails and phones per account
@@ -474,15 +476,15 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `users_id` bigint DEFAULT NULL,
+                    `users_id` bigint NULL DEFAULT NULL,
                     `account_type` enum("personal", "business", "other") NULL DEFAULT NULL,
-                    `email` varchar(128) DEFAULT NULL,
+                    `email` varchar(128) NULL DEFAULT NULL,
                     `verified_on` datetime NULL DEFAULT NULL,
-                    `verification_code` varchar(128) DEFAULT NULL,
+                    `verification_code` varchar(128) NULL DEFAULT NULL,
                     `description` TEXT NULL DEFAULT NULL,
                 ')->setIndices('
                     PRIMARY KEY (`id`),
@@ -503,15 +505,15 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `users_id` bigint DEFAULT NULL,
+                    `users_id` bigint NULL DEFAULT NULL,
                     `account_type` enum("personal", "business", "other") NULL DEFAULT NULL,
-                    `phone` varchar(16) DEFAULT NULL,
+                    `phone` varchar(16) NULL DEFAULT NULL,
                     `verified_on` datetime NULL DEFAULT NULL,
-                    `verification_code` varchar(128) DEFAULT NULL,
+                    `verification_code` varchar(128) NULL DEFAULT NULL,
                     `description` TEXT NULL DEFAULT NULL,
                 ')->setIndices('
                     PRIMARY KEY (`id`),
@@ -563,11 +565,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `users_id` bigint DEFAULT NULL,
+                    `users_id` bigint NULL DEFAULT NULL,
                     `path` varchar(255) NOT NULL,
                     `hash` varchar(40) NOT NULL,
                     `value` varchar(255),
@@ -593,11 +595,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `users_id` bigint DEFAULT NULL,
+                    `users_id` bigint NULL DEFAULT NULL,
                     `uuid` varchar(36) NOT NULL,
                     `force_redirect` varchar(2048) NOT NULL,
                     `valid_until` datetime NULL DEFAULT NULL,
@@ -861,7 +863,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // The default page will send the user to that page right after signing in
             if (!sql()->getSchemaObject()->getTableObject('accounts_users')->getColumns()->keyExists('default_page')) {
                 sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
-                     ->addColumn('`default_page` varchar(2048) DEFAULT NULL', 'AFTER `url`');
+                     ->addColumn('`default_page` varchar(2048) NULL DEFAULT NULL', 'AFTER `url`');
             }
 
         })->addUpdate('0.2.4', function () {
@@ -874,14 +876,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `users_id` bigint NOT NULL,
                     `driver` varchar(32) NOT NULL,
                     `device` varchar(32) NOT NULL,
-                    `token` varchar(255) DEFAULT NULL
+                    `token` varchar(255) NULL DEFAULT NULL
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
@@ -921,7 +923,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    `created_by` bigint DEFAULT NULL,
+                    `created_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -962,6 +964,192 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             } else {
                 $table->alter()->addColumn('`profile_image` varchar(2048) CHARACTER SET latin1 DEFAULT NULL', 'AFTER `nickname`');
             }
+
+        })->addUpdate('0.4.11', function () {
+            $table = sql()->getSchemaObject()->getTableObject('accounts_authentication_failures');
+            $alter = $table->alter();
+
+            if (!$table->columnExists('matched_users_id')) {
+                $alter->addColumn('`matched_users_id` bigint NULL DEFAULT NULL', 'AFTER `status`');
+            }
+
+            if (!$table->columnExists('account')) {
+                $alter->addColumn('`account` varchar(128) NULL DEFAULT NULL', 'AFTER `status`');
+            }
+
+            if (!$table->indexExists('matched_users_id')) {
+                $alter->addIndex('KEY `matched_users_id` (`matched_users_id`)');
+            }
+
+            if (!$table->indexExists('account')) {
+                $alter->addIndex('KEY `account` (`account`)');
+            }
+
+            if (!$table->foreignKeyExists('fk_accounts_authentication_failures_matched_users_id')) {
+                $alter->addForeignKey('CONSTRAINT `fk_accounts_authentication_failures_matched_users_id` FOREIGN KEY (`matched_users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
+            }
+
+        })->addUpdate('0.5.0', function () {
+            // Upgrade the authentication registrations. All authentications will now be stored in
+            // the table accounts_authentications
+            sql()->getSchemaObject()->getTableObject('accounts_authentication_failures')->drop();
+
+            $table = sql()->getSchemaObject()->getTableObject('accounts_authentications');
+
+            if ($table->foreignKeyExists('fk_accounts_authentications_users_id')) {
+                $table->alter()->dropForeignKey('`fk_accounts_authentications_users_id`');
+            }
+
+            if ($table->indexExists('users_id')) {
+                $table->alter()->dropIndex('`users_id`');
+            }
+
+            if ($table->columnExists('users_id')) {
+                $table->alter()->dropColumn('`users_id`');
+            }
+
+            if ($table->columnExists('ip')) {
+                $table->alter()->dropColumn('`ip`');
+            }
+
+            if ($table->columnExists('username')) {
+                $table->alter()->dropColumn('`username`');
+            }
+
+            if (!$table->columnExists('account')) {
+                $table->alter()->addColumn('`account` varchar(128) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `method`');
+            }
+
+            if (!$table->columnExists('platform')) {
+                $table->alter()->addColumn('`platform` ENUM("html", "ajax", "api", "cli", "other") NOT NULL,', 'AFTER `account`');
+            }
+
+            if (!$table->columnExists('method')) {
+                $table->alter()->addColumn('`method` enum("password", "magic", "sso", "google", "facebook", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT "password",', 'AFTER `platform`');
+            }
+
+            if (!$table->columnExists('ip_address')) {
+                $table->alter()->addColumn('`ip_address` varchar(48) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `method`');
+            }
+
+            if (!$table->columnExists('ip_address_binary')) {
+                $table->alter()->addColumn('`ip_address_binary` binary(16) NULL DEFAULT NULL,', 'AFTER `ip_address`');
+            }
+
+            if (!$table->columnExists('net_len')) {
+                $table->alter()->addColumn('`net_len` int NOT NULL DEFAULT 0,', 'AFTER `ip_address_binary`');
+            }
+
+            if (!$table->columnExists('user_agent')) {
+                $table->alter()->addColumn('`user_agent` varchar(2040) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `net_len`');
+            }
+
+            if (!$table->columnExists('latitude')) {
+                $table->alter()->addColumn('`latitude` decimal(10,7) NULL DEFAULT NULL,', 'AFTER `user_agent`');
+            }
+
+            if (!$table->columnExists('longitude')) {
+                $table->alter()->addColumn('`longitude` decimal(10,7) NULL DEFAULT NULL,', 'AFTER `latitude`');
+            }
+
+            if (!$table->columnExists('timezones_id')) {
+                $table->alter()->addColumn('`timezones_id` bigint NULL DEFAULT NULL,', 'AFTER `longitude`');
+            }
+
+            if (!$table->columnExists('countries_id')) {
+                $table->alter()->addColumn('`countries_id` bigint NULL DEFAULT NULL,', 'AFTER `timezones_id`');
+            }
+
+            if (!$table->columnExists('states_id')) {
+                $table->alter()->addColumn('`states_id` bigint NULL DEFAULT NULL,', 'AFTER `countries_id`');
+            }
+
+            if (!$table->columnExists('cities_id')) {
+                $table->alter()->addColumn('`cities_id` bigint NULL DEFAULT NULL,', 'AFTER `states_id`');
+            }
+
+            $table->alter()->changeColumn('`action`'       , '`action` enum("authentication", "signin", "signout", "startimpersonation", "stopimpersonation", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,');
+            $table->alter()->changeColumn('`method`'       , '`method` enum("password", "magic", "sso", "google", "facebook", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,');
+            $table->alter()->changeColumn('`failed_reason`', '`failed_reason` varchar(4090) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
+
+            if (!$table->indexExists('account')) {
+                $table->alter()->addIndex('KEY `account` (`account`)');
+            }
+
+            if (!$table->indexExists('platform')) {
+                $table->alter()->addIndex('KEY `platform` (`platform`)');
+            }
+
+            if (!$table->indexExists('method')) {
+                $table->alter()->addIndex('KEY `method` (`method`)');
+            }
+
+            if (!$table->indexExists('user_agent')) {
+                $table->alter()->addIndex('KEY `user_agent` (`user_agent` (32))');
+            }
+
+            if (!$table->indexExists('latitude')) {
+                $table->alter()->addIndex('KEY `latitude` (`latitude`)');
+            }
+
+            if (!$table->indexExists('longitude')) {
+                $table->alter()->addIndex('KEY `longitude` (`longitude`)');
+            }
+
+            if (!$table->indexExists('timezones_id')) {
+                $table->alter()->addIndex('KEY `timezones_id` (`timezones_id`)');
+            }
+
+            if (!$table->indexExists('countries_id')) {
+                $table->alter()->addIndex('KEY `countries_id` (`countries_id`)');
+            }
+
+            if (!$table->indexExists('states_id')) {
+                $table->alter()->addIndex('KEY `states_id` (`states_id`)');
+            }
+
+            if (!$table->indexExists('cities_id')) {
+                $table->alter()->addIndex('KEY `cities_id` (`cities_id`)');
+            }
+
+            if (!$table->foreignKeyExists('fk_accounts_authentications_timezones_id')) {
+                $table->alter()->addForeignKey('CONSTRAINT `fk_accounts_authentications_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT');
+            }
+
+            if (!$table->foreignKeyExists('fk_accounts_authentications_countries_id')) {
+                $table->alter()->addForeignKey('CONSTRAINT `fk_accounts_authentications_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT');
+            }
+
+            if (!$table->foreignKeyExists('fk_accounts_authentications_states_id')) {
+                $table->alter()->addForeignKey('CONSTRAINT `fk_accounts_authentications_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT');
+            }
+
+            if (!$table->foreignKeyExists('fk_accounts_authentications_cities_id')) {
+                $table->alter()->addForeignKey('CONSTRAINT `fk_accounts_authentications_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT');
+            }
+
+            if ($table->indexExists('ip_address_human')) {
+                $table->alter()->dropIndex('`ip_address`')
+                               ->dropIndex('`ip_address_human`');
+            }
+
+            if ($table->columnExists('ip_address_human')) {
+                $table->alter()->changeColumn('`ip_address`'      , '`ip_address_binary` binary(16) NULL DEFAULT NULL,')
+                               ->changeColumn('`ip_address_human`', '`ip_address`        varchar(48) NULL DEFAULT NULL,');
+            }
+
+            if (!$table->indexExists('ip_address')) {
+                $table->alter()->addIndex('KEY `ip_address` (`ip_address`)');
+            }
+
+            if (!$table->indexExists('ip_address_binary')) {
+                $table->alter()->addIndex('KEY `ip_address_binary` (`ip_address_binary`)');
+            }
+
+            sql()->getSchemaObject()->getTableObject('accounts_signins')->drop();
+
+        })->addUpdate('0.5.1', function () {
+            sql()->getSchemaObject()->getTableObject('accounts_authentications')->alter()->modifyColumn('`status`', 'varchar(32) CHARACTER SET latin1 NULL DEFAULT NULL,');
         });
     }
 }

@@ -163,13 +163,15 @@ class Phone extends DataEntry implements PhoneInterface
     public function setUsersId(?int $users_id): static
     {
         if (!$this->is_loading) {
-            $current = $this->getUsersId();
+            if ($users_id) {
+                $current = $this->getUsersId();
 
-            if ($current and ($current !== $users_id)) {
-                throw new ValidationFailedException(tr('Cannot assign additional phone to ":to" from ":from", only unassigned phones can be assigned', [
-                    ':from' => $current,
-                    ':to'   => $users_id,
-                ]));
+                if ($current and ($current !== $users_id)) {
+                    throw new ValidationFailedException(tr('Cannot assign additional phone to ":to" from ":from", only unassigned phones can be assigned', [
+                        ':from' => $current,
+                        ':to'   => $users_id,
+                    ]));
+                }
             }
         }
 
@@ -178,24 +180,26 @@ class Phone extends DataEntry implements PhoneInterface
 
 
     /**
-     * Sets the users_email for this additional phone
+     * Sets the users_phone for this additional phone
      *
-     * @param string|null $users_email
+     * @param string|null $users_phone
      *
      * @return static
      */
-    public function setUsersEmail(?string $users_email): static
+    public function setUsersPhone(?string $users_phone): static
     {
-        $current = $this->getUsersEmail();
+        if ($users_phone) {
+            $current = $this->getUsersPhone();
 
-        if ($current and ($current !== $users_email)) {
-            throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from", only unassigned emails can be assigned', [
-                ':from' => $current,
-                ':to'   => $users_email,
-            ]));
+            if ($current and ($current !== $users_phone)) {
+                throw new ValidationFailedException(tr('Cannot assign additional phone to ":to" from ":from", only unassigned phones can be assigned', [
+                    ':from' => $current,
+                    ':to'   => $users_phone,
+                ]));
+            }
         }
 
-        return $this->set($users_email, 'users_email');
+        return $this->set($users_phone, 'users_phone');
     }
 
 

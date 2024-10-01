@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts roles info
+ * Command accounts roles show
  *
  * This script displays information about the specified role.
  *
@@ -26,15 +26,15 @@ use Phoundation\Utils\Arrays;
 
 
 CliDocumentation::setAutoComplete([
-                                      'positions' => [
-                                          0 => [
-                                              'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL',
-                                              'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Paging::getLimit(),
-                                          ],
-                                      ],
-                                  ]);
+    'positions' => [
+        0 => [
+            'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL',
+            'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Paging::getLimit(),
+        ],
+    ],
+]);
 
-CliDocumentation::setUsage('./pho accounts roles info USER');
+CliDocumentation::setUsage('./pho accounts roles show USER');
 
 CliDocumentation::setHelp('This script displays information about the specified role.  
 
@@ -42,7 +42,7 @@ CliDocumentation::setHelp('This script displays information about the specified 
 ARGUMENTS
 
 
-USER                                    The role to display information about. Specify either by role id or seo-name');
+ROLE                                    The role to display information about. Specify either by role id or seo-name');
 
 
 // Validate arguments

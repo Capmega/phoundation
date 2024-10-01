@@ -112,13 +112,13 @@ class Emails extends DataIterator implements EmailsInterface
     /**
      * Returns an Emails Iterator object with emails for the specified user.
      *
-     * @param array|null $identifiers
-     * @param bool       $clear
-     * @param bool       $only_if_empty
+     * @param array|string|int|null $identifiers
+     * @param bool                  $clear
+     * @param bool                  $only_if_empty
      *
      * @return static
      */
-    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
         $this->parent  = User::load($this->parent);
         $this->execute = [':users_id' => $this->parent->getId()];

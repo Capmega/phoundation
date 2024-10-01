@@ -19,7 +19,17 @@ use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Paging;
 
+
+CliDocumentation::setAutoComplete([
+    'positions' => [
+        0 => [
+            'word'   => 'SELECT `name` FROM `accounts_rights` WHERE `name` LIKE :word AND `status` IS NULL',
+            'noword' => 'SELECT `name` FROM `accounts_rights` WHERE `status` IS NULL LIMIT ' . Paging::getLimit(),
+        ],
+    ],
+]);
 
 CliDocumentation::setUsage('./pho accounts rights info USER');
 
@@ -29,7 +39,7 @@ CliDocumentation::setHelp('This script displays information about the specified 
 ARGUMENTS
 
 
-USER                                    The user to display information about. Specify either by user id or email 
+USER                                    The right to display information about. Specify either by user id or email 
                                         address');
 
 

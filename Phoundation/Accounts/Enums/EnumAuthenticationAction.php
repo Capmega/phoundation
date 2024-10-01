@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Enum EnumAccountType
+ * Enum EnumAuthenticationAction
  *
  *
  *
@@ -16,9 +16,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Enums;
 
-enum EnumAccountType: string
+enum EnumAuthenticationAction: string
 {
-    case business = 'business';
-    case personal = 'personal';
-    case other    = 'other';
+    case authentication     = 'authentication';
+    case signin             = 'signin';
+    case signout            = 'signout';
+    case startimpersonation = 'startimpersonation';
+    case stopimpersonation  = 'stopimpersonation';
+    case other              = 'other';
 }

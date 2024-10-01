@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Page accounts/password
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Accounts
+ */
+
+
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
@@ -106,10 +118,10 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Build and render the page grid
+// Render and return the page grid
 $grid = Grid::new()
-            ->addColumn($column)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($column)
+            ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

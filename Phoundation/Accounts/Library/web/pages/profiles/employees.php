@@ -49,13 +49,7 @@ $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch 
                           </ul>
                         </div>
                         <div class="col-5 text-center">
-                        ' . Session::getUserObject()
-                                   ->getImageFileObject()
-                                       ->getImgObject()
-                                           ->setSrc(Url::getImg("img/profiles/default.png"))
-                                           ->setClass("img-circle img-fluid")
-                                           ->setAlt(tr("Profile picture for :user", [":user" => Html::safe(Session::getUserObject()->getDisplayName())]))
-                                           ->render() . '                          
+                        :profile_image                          
                         </div>
                       </div>
                     </div>
@@ -77,14 +71,23 @@ $users   = Users::new()->load();
 $content = '';
 
 foreach ($users as $user) {
+    $image = $user->getProfileImageObject()
+                      ->getHtmlImgObject()
+                          ->setClass('img-circle img-fluid')
+                          ->setAlt(tr('Profile image for :user', [
+                              ':user' => Html::safe(Session::getUserObject()->getDisplayName())
+                          ]));
+
+
     $user_content = $template;
-    $user_content = str_replace(':role', (null ?? '-'), $user_content);
-    $user_content = str_replace(':id', ($user->getId()), $user_content);
-    $user_content = str_replace(':name', ($user->getDisplayName() ?? '-'), $user_content);
-    $user_content = str_replace(':address', ($user->getAddress() ?? '-'), $user_content);
-    $user_content = str_replace(':about', (tr('Not available')), $user_content);
-    $user_content = str_replace(':email', ($user->getEmail() ? '<a href="mailto:' . $user->getEmail() . '">' . $user->getEmail() . '</a>' : '-'), $user_content);
-    $user_content = str_replace(':phone', ($user->getPhone() ? '<a href="tel:' . $user->getPhone() . '">' . $user->getPhone() . '</a>' : '-'), $user_content);
+    $user_content = str_replace(':role'         , (null ?? '-'), $user_content);
+    $user_content = str_replace(':id'           , (string) $user->getId(), $user_content);
+    $user_content = str_replace(':name'         , ($user->getDisplayName() ?? '-'), $user_content);
+    $user_content = str_replace(':address'      , ($user->getAddress() ?? '-'), $user_content);
+    $user_content = str_replace(':about'        , (tr('Not available')), $user_content);
+    $user_content = str_replace(':email'        , ($user->getEmail() ? '<a href="mailto:' . $user->getEmail() . '">' . $user->getEmail() . '</a>' : '-'), $user_content);
+    $user_content = str_replace(':phone'        , ($user->getPhone() ? '<a href="tel:' . $user->getPhone() . '">' . $user->getPhone() . '</a>' : '-'), $user_content);
+    $user_content = str_replace(':profile_image', $image->render(), $user_content);
 
     $content .= $user_content;
 }

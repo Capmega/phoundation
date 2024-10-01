@@ -18,12 +18,17 @@ namespace Phoundation\Accounts\Users\Exception;
 
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Data\Traits\TraitDataNewTarget;
+use Phoundation\Data\Traits\TraitDataStatus;
+use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Throwable;
 
 
 class AuthenticationException extends UsersException implements AuthenticationExceptionInterface
 {
     use TraitDataNewTarget;
+    use TraitDataStatus;
+
 
     /**
      * AuthenticationException class constructor

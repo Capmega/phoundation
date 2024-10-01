@@ -42,7 +42,7 @@ $argv = ArgvValidator::new()
                      ->select('role', true)->isName()
                      ->select('-n,--name', true)->isOptional(null)->isName()
                      ->select('-d,--description', true)->isOptional(null)->isDescription()
-                     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+                     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->eachField()->isName()
                      ->validate();
 
 

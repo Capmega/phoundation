@@ -17,10 +17,12 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\Interfaces\FileValidatorInterface;
 use Phoundation\Filesystem\Interfaces\FsUploadedFileInterface;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessage;
@@ -34,6 +36,15 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Uploads\UploadHandler;
 
 
+// Validate GET and get the requested user
+$get = GetValidator::new()
+                   ->select('id')->isOptional()->isDbId()
+                   ->validate();
+
+$user = User::load($get['id']);
+
+
+// Process file upload
 try {
     Request::getMethodRestrictionsObject()->require(EnumHttpRequestMethod::upload);
     Request::getFileUploadHandlersObject()
@@ -42,42 +53,33 @@ try {
                 $validator->isImage('jpg,png')->isSmallerThan('10MB')
                           ->validate();
             })
-            ->setFunction(function(FsUploadedFileInterface $file) {
+            ->setFunction(function(FsUploadedFileInterface $file) use ($user) {
                 // Set this image as the profile image
                 ProfileImage::newFromImageFile(new ImageFile($file))
-                    ->setUserObject(Session::getUserObject())
+                    ->setUserObject($user)
                     ->save()
                     ->setDefault();
+
+                $user->reload();
 
                 JsonPage::new()
                     ->addFlashMessageSections(FlashMessage::new()
                         ->setMode(EnumDisplayMode::success)
                         ->setTitle(tr('Success!'))
-                        ->setMessage(tr('Your profile picture has been updated')))
+                        ->setMessage(tr('The profile picture of ":user" has been updated', [
+                            ':user' => $user->getDisplayName()
+                        ])))
 
                     ->addHtmlSections(JsonHtml::new()->add(
                         JsonHtmlSection::new('#profile-picture')
                             ->setMethod(EnumJsonHtmlMethods::replace)
-                            ->setHtml(Session::getUserObject()
-                                             ->getProfileImageObject()
-                                                 ->getHtmlImgObject()
-                                                     ->setId('profile-picture')
-                                                     ->addClasses('w100')
-                                                     ->setAlt(tr('Profile picture for :name', [
-                                                         ':name' => Session::getUserObject()->getDisplayName()
-                                                     ]))))
-
-                        ->add(
-                            JsonHtmlSection::new('#menu-profile-image')
-                                ->setMethod(EnumJsonHtmlMethods::replace)
-                                ->setHtml(Session::getUserObject()
-                                                 ->getProfileImageObject()
-                                                     ->getHtmlImgObject()
-                                                         ->setId('menu-profile-image')
-                                                         ->addClasses('img-circle elevation-2')
-                                                         ->setAlt(tr('Profile picture for :name', [
-                                                             ':name' => Session::getUserObject()->getDisplayName()
-                                                         ])))))
+                            ->setHtml($user->getProfileImageObject()
+                                               ->getHtmlImgObject()
+                                                   ->setId('profile-picture')
+                                                   ->addClasses('w100')
+                                                   ->setAlt(tr('Profile picture for :name', [
+                                                       ':name' => $user->getDisplayName()
+                                                   ])))))
                     ->reply();
             })
         )->process();

@@ -40,20 +40,35 @@ class Roles extends DataIterator implements RolesInterface
      */
     public function __construct()
     {
-        $this->setQuery('SELECT     `accounts_roles`.`id`, 
-                                          CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) AS `role`, 
-                                          GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) SEPARATOR ", ") AS `rights`, 
-                                          `accounts_roles`.`description` 
-                               FROM       `accounts_roles` 
-                               LEFT JOIN  `accounts_roles_rights`
-                               ON         `accounts_roles_rights`.`roles_id` = `accounts_roles`.`id` 
-                               LEFT JOIN  `accounts_rights`
-                               ON         `accounts_rights`.`id` = `accounts_roles_rights`.`rights_id` 
-                                 AND      `accounts_rights`.`status` IS NULL 
-                               WHERE      `accounts_roles`.`status` IS NULL
-                               GROUP BY   `accounts_roles`.`name`
-                               ORDER BY   `accounts_roles`.`name`');
+        $this->getQueryBuilder()->addSelect('`accounts_roles`.`' . ($this->keys_are_unique_column ? 'seo_name' : 'id') . '` AS `id`, 
+                                             `accounts_roles`.`description`,
+                                             CONCAT(
+                                                UPPER(LEFT(`accounts_roles`.`name`, 1)), 
+                                                SUBSTRING(`accounts_roles`.`name`, 2)
+                                             ) AS `role`, 
+                                             GROUP_CONCAT(
+                                                CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), 
+                                                SUBSTRING(`accounts_rights`.`name`, 2)) 
+                                                ORDER BY `accounts_rights`.`name` ASC
+                                                SEPARATOR ", " 
+                                             ) AS `rights`')
+                                ->addJoin('JOIN `accounts_roles_rights`
+                                           ON   `accounts_roles_rights`.`roles_id` = `accounts_roles`.`id`')
+                                ->addJoin('JOIN `accounts_rights`
+                                           ON   `accounts_rights`.`id`             = `accounts_roles_rights`.`rights_id`')
+                                ->addWhere('`accounts_roles`.`status` IS NULL')
+                                ->addGroupBy('`accounts_roles`.`id`')
+                                ->addOrderBy('`accounts_roles`.`name`');
+
         parent::__construct();
+
+        // Set the default columns to use
+        $this->setColumns([
+            'id'          => tr('Id'),
+            'role'        => tr('Role'),
+            'rights'      => tr('Rights from this role'),
+            'description' => tr('Description')
+        ]);
     }
 
 
@@ -123,6 +138,9 @@ class Roles extends DataIterator implements RolesInterface
             foreach ($diff['delete'] as $role) {
                 $this->removeKeys($role);
             }
+
+            // Add meta-information for parent
+            $this->parent->addMetaAction('Updated rights', data: $diff);
         }
 
         return $this;
@@ -143,20 +161,20 @@ class Roles extends DataIterator implements RolesInterface
         }
 
         if ($this->parent instanceof UserInterface) {
-            return (bool) sql()->get('SELECT `id` 
-                                            FROM   `accounts_users_roles` 
-                                            WHERE  `users_id`  = :users_id 
-                                            AND    `roles_id` = :roles_id', [
+            return (bool) sql()->get('SELECT `id`
+                                      FROM   `accounts_users_roles`
+                                      WHERE  `users_id`  = :users_id
+                                      AND    `roles_id` = :roles_id', [
                 ':users_id' => $this->parent->getId(),
                 ':roles_id' => $role->getId(),
             ]);
         }
 
         // No user? Then it must be a right
-        return (bool) sql()->get('SELECT `id` 
-                                        FROM   `accounts_roles_rights` 
-                                        WHERE  `roles_id`  = :roles_id 
-                                        AND    `rights_id` = :rights_id', [
+        return (bool) sql()->get('SELECT `id`
+                                  FROM   `accounts_roles_rights`
+                                  WHERE  `roles_id`  = :roles_id
+                                  AND    `rights_id` = :rights_id', [
             ':rights_id' => $this->parent->getId(),
             ':roles_id'  => $role->getId(),
         ]);
@@ -182,7 +200,7 @@ class Roles extends DataIterator implements RolesInterface
             ':parent' => $this->parent ? get_class($this->parent) : 'NULL'
         ]));
 
-        if ($value and $this->require_parent) {
+        if ($value and $this->parent) {
             if (is_array($value)) {
                 // Add multiple rights
                 foreach ($value as $entry) {
@@ -321,7 +339,7 @@ class Roles extends DataIterator implements RolesInterface
 
                 // Update all users with this right to remove the new right as well!
                 foreach ($this->parent->getUsersObject() as $user) {
-                    User::load($user, null)
+                    User::load($user)
                         ->getRightsObject()
                         ->removeKeys($this->parent);
                 }
@@ -368,45 +386,51 @@ class Roles extends DataIterator implements RolesInterface
     /**
      * Load the data for this roles list into the object
      *
-     * @param array|null $identifiers
-     * @param bool       $clear
-     * @param bool       $only_if_empty
+     * @param array|string|int|null $identifiers
+     * @param bool                  $clear
+     * @param bool                  $only_if_empty
      *
      * @return static
      */
-    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
-
         if ($this->parent) {
             if ($this->parent instanceof UserInterface) {
-                $this->source = sql()->list('SELECT `accounts_roles`.`seo_name` AS `key`, 
-                                                          `accounts_roles`.*,
-                                                          CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) AS `name`
-                                                   FROM   `accounts_users_roles` 
-                                                   JOIN   `accounts_roles` 
-                                                   ON     `accounts_users_roles`.`roles_id`  = `accounts_roles`.`id`
-                                                   WHERE  `accounts_users_roles`.`users_id` = :users_id', [
-                    ':users_id' => $this->parent->getId(),
-                ]);
+                $this->query_builder->addJoin('JOIN   `accounts_users_roles` 
+                                               ON     `accounts_users_roles`.`users_id` = :users_id
+                                                 AND  `accounts_users_roles`.`roles_id` = `accounts_roles`.`id`', [
+                                        ':users_id' => $this->parent->getId(),
+                                    ]);
+
+
+//                $this->source = sql()->list('SELECT `accounts_roles`.`seo_name` AS `key`,
+//                                                    `accounts_roles`.*,
+//                                                    CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) AS `name`
+//                                             FROM   `accounts_users_roles`
+//                                             JOIN   `accounts_roles`
+//                                             ON     `accounts_users_roles`.`roles_id`  = `accounts_roles`.`id`
+//                                             WHERE  `accounts_users_roles`.`users_id` = :users_id', [
+//                    ':users_id' => $this->parent->getId(),
+//                ]);
 
             } elseif ($this->parent instanceof RightInterface) {
-                $this->source = sql()->list('SELECT `accounts_roles`.`seo_name` AS `key`, 
-                                                          `accounts_roles`.*, 
-                                                          CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) AS `name`
-                                                   FROM   `accounts_roles_rights` 
-                                                   JOIN   `accounts_roles` 
-                                                   ON     `accounts_roles_rights`.`roles_id`  = `accounts_roles`.`id`
-                                                   WHERE  `accounts_roles_rights`.`rights_id` = :rights_id', [
-                    ':rights_id' => $this->parent->getId(),
-                ]);
+                $this->query_builder->addWhere('`accounts_roles_rights`.`rights_id` = :rights_id', [
+                                        ':rights_id' => $this->parent->getId(),
+                                    ]);
 
+//                $this->source = sql()->list('SELECT `accounts_roles`.`seo_name` AS `key`,
+//                                                    `accounts_roles`.*,
+//                                                    CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) AS `name`
+//                                             FROM   `accounts_roles_rights`
+//                                             JOIN   `accounts_roles`
+//                                             ON     `accounts_roles_rights`.`roles_id`  = `accounts_roles`.`id`
+//                                             WHERE  `accounts_roles_rights`.`rights_id` = :rights_id', [
+//                    ':rights_id' => $this->parent->getId(),
+//                ]);
             }
-
-        } else {
-            $this->source = sql()->list('SELECT `id` FROM `accounts_rights`');
         }
 
-        return $this;
+        return parent::load();
     }
 
 
@@ -415,6 +439,7 @@ class Roles extends DataIterator implements RolesInterface
      *
      * @param array|string|null $columns
      * @param array             $filters
+     * @param array             $order_by
      *
      * @return array
      */
@@ -451,17 +476,17 @@ class Roles extends DataIterator implements RolesInterface
             switch ($key) {
                 case 'users':
                     $builder->addJoin('JOIN `accounts_users` 
-                                            ON   `accounts_users`.`email` ' . $builder->compareQuery('email', $value) . ' 
-                                            JOIN `accounts_users_roles` 
-                                            ON   `accounts_users_roles`.`users_id` = `accounts_users`.`id`  
-                                            AND  `accounts_users_roles`.`roles_id` = `accounts_roles`.`id`');
+                                       ON   `accounts_users`.`email` ' . $builder->compareQuery('email', $value) . ' 
+                                       JOIN `accounts_users_roles` 
+                                       ON   `accounts_users_roles`.`users_id` = `accounts_users`.`id`  
+                                       AND  `accounts_users_roles`.`roles_id` = `accounts_roles`.`id`');
                     break;
                 case 'rights':
                     $builder->addJoin('JOIN `accounts_rights` 
-                                            ON   `accounts_rights`.`name` ' . $builder->compareQuery('right', $value) . ' 
-                                            JOIN `accounts_roles_rights` 
-                                            ON   `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id` 
-                                            AND  `accounts_users_rights`.`roles_id`  = `accounts_roles`.`id`');
+                                       ON   `accounts_rights`.`name` ' . $builder->compareQuery('right', $value) . ' 
+                                       JOIN `accounts_roles_rights` 
+                                       ON   `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id` 
+                                       AND  `accounts_users_rights`.`roles_id`  = `accounts_roles`.`id`');
                     break;
             }
         }

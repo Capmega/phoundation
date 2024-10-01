@@ -61,7 +61,7 @@ $user              = User::new()->apply(false);
 // Validate user roles
 $argv = ArgvValidator::new()
                      ->select('--no-password')->isOptional(false)->isBoolean()
-                     ->select('--roles', true)->isOptional()->sanitizeForceArray()->each()->isName()
+                     ->select('--roles', true)->isOptional()->sanitizeForceArray()->eachField()->isName()
                      ->validate(false);
 
 

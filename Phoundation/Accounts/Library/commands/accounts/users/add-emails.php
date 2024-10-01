@@ -53,7 +53,7 @@ EMAIL[,EMAIL,EMAIL,...]                 The emails to add to the user');
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('user', true)->isEmail()
-                     ->select('--emails', true)->isOptional()->sanitizeForceArray()->each()->isEmail()
+                     ->select('--emails', true)->isOptional()->sanitizeForceArray()->eachField()->isEmail()
                      ->validate();
 
 

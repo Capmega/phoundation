@@ -1,7 +1,20 @@
 <?php
 
+/**
+ * Page my/password
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Accounts
+ */
+
+
 declare(strict_types=1);
 
+use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Sessions\Session;
@@ -39,7 +52,7 @@ if (Request::isPostRequestMethod()) {
                                  ->validate();
 
             // First, ensure the current password is correct
-            User::authenticate($user->getEmail(), $post['current']);
+            User::authenticate(['email' => $user->getEmail()], $post['current'], EnumAuthenticationAction::authentication);
 
             // Update user password
             $user->changePassword($post['password'], $post['passwordv']);
@@ -92,10 +105,10 @@ $column = GridColumn::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('Manage Your profile') . '</a><br>
-                         <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage Your settings') . '</a><br>
-                         <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage Your API access') . '</a><br>
-                         <a href="' . Url::getWww('/my/sign-in-history.html') . '">' . tr('Review Your sign-in history') . '</a>');
+                ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('Manage my profile') . '</a><br>
+                              <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage my settings') . '</a><br>
+                              <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage my API access') . '</a><br>
+                              <a href="' . Url::getWww('/my/authentication-history.html') . '">' . tr('Review my authentication history') . '</a>');
 
 
 // Build documentation
@@ -103,16 +116,8 @@ $documentation = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Documentation'))
                      ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
-                         <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
-                         <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
-
-
-// Build and render the page grid
-$grid = Grid::new()
-            ->addColumn($column)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
+                                   <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
+                                   <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
 // Set page meta data
@@ -123,3 +128,11 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/my/profile.html' => tr('My profile'),
     ''                 => tr('Change my password'),
 ]));
+
+
+// Render and return the page grid
+$grid = Grid::new()
+            ->addGridColumn($column)
+            ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+
+return $grid;

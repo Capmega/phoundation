@@ -34,7 +34,7 @@ $get = GetValidator::new()
 
 // Build the settings card
 $user = Session::getUserObject();
-$form = $user->getSettings()->getHtmlDataEntryFormObject();
+$form = $user->getSettingsObject()->getHtmlDataEntryFormObject();
 $card = Card::new()
             ->setTitle(tr('Edit data for right :name', [':name' => $user->getName()]))
             ->setContent($form->render())
@@ -49,7 +49,7 @@ $card = Card::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('My profile page') . '</a><br>');
+                ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('My profile page') . '</a>');
 
 
 // Build documentation
@@ -59,10 +59,10 @@ $documentation = Card::new()
                      ->setContent('In this settings page you may configure various details about how your account behaves on this platform. These settings are unique to your account alone');
 
 
-// Build and render the page grid
+// Render and return the page grid
 $grid = Grid::new()
-            ->addColumn($card, EnumDisplaySize::nine, true)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($card, EnumDisplaySize::nine, true)
+            ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

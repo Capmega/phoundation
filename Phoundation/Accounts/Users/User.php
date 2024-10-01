@@ -18,14 +18,19 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users;
 
 use DateTimeInterface;
+use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Accounts\Rights\RightsBySeoName;
+use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Roles\Roles;
+use Phoundation\Accounts\Roles\RolesBySeoName;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\UsersException;
+use Phoundation\Accounts\Users\Interfaces\AuthenticationInterface;
 use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
 use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
@@ -38,6 +43,7 @@ use Phoundation\Accounts\Users\ProfileImages\ProfileImages;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Hooks\Hook;
+use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Core\Sessions\Session;
@@ -72,6 +78,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryVerifiedOn;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -85,7 +92,9 @@ use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\A;
 use Phoundation\Web\Json\Users;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
@@ -251,19 +260,19 @@ class User extends DataEntry implements UserInterface
      *
      * @note Will throw a NotExistsException if the specified role does not exist
      *
-     * @param RolesInterface|Stringable|string $role
+     * @param RoleInterface|array|string|int|null $role
      *
      * @return UserInterface
      * @throws SqlMultipleResultsException, NotExistsException
      */
-    public static function getForRole(RolesInterface|Stringable|string $role): userInterface
+    public static function getForRole(RoleInterface|array|string|int|null $role): UserInterface
     {
-        $role = Role::load($role, null);
-        $id   = sql()->getColumn('SELECT `accounts_users`.`id` 
+        $role = Role::load($role);
+        $id   = sql()->getColumn('SELECT `accounts_users`.`id`
                                  FROM   `accounts_users`
-                                 JOIN   `accounts_users_roles`  
+                                 JOIN   `accounts_users_roles`
                                    ON   `accounts_users_roles`.`users_id` = `accounts_users`.`id`
-                                 WHERE  `accounts_users_roles`.`roles_id` = :roles_id 
+                                 WHERE  `accounts_users_roles`.`roles_id` = :roles_id
                                    AND  `accounts_users_roles`.`status`   IS NULL', [
             ':roles_id' => $role->getId(),
         ]);
@@ -286,45 +295,68 @@ class User extends DataEntry implements UserInterface
      * @param bool                                     $ignore_deleted
      *
      * @return static
+     * @throws DataEntryNotExistsException
      */
     public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
     {
         try {
-            return parent::load($identifier, $meta_enabled, $ignore_deleted);
+            $user = parent::load($identifier, $meta_enabled, $ignore_deleted);
 
         } catch (DataEntryNotExistsException $e) {
-            if ((static::getConnector() === 'system') and (static::getTable() === 'accounts_users')) {
-                if (static::determineColumn($identifier) === 'email') {
-                    // Try to find the user by alternative email address
-                    $user = sql()->get('SELECT `users_id`, `verified_on`
-                                              FROM   `accounts_emails` 
-                                              WHERE  `email` = :email 
-                                                AND  `status` IS NULL', [
-                        ':email' => $identifier,
-                    ]);
+            $user = static::loadFromAlternativeEmail($identifier, $meta_enabled, $ignore_deleted);
 
-                    if ($user) {
-                        if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
-                            $user = static::load($user['users_id'], $meta_enabled);
+            if (!$user) {
+                // The requested user identifier doesn't exist
+                throw $e;
+            }
+        }
 
-                            Log::warning(tr('Identified user ":user" with alternate email ":email"', [
-                                ':user'  => $user->getLogId(),
-                                ':email' => $identifier,
-                            ]));
+        return $user;
+    }
 
-                            return $user;
-                        }
 
-                        Log::warning(tr('Cannot identify user ":user" on alternate email, the email does not have the required verification', [
-                            ':user' => $identifier,
+    /**
+     * Will attempt to load the user by the alternative email
+     *
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool                                     $meta_enabled
+     * @param bool                                     $ignore_deleted
+     *
+     * @return static|null
+     */
+    protected static function loadFromAlternativeEmail(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): ?static
+    {
+        if (static::determineColumn($identifier) === 'email') {
+            if ((static::getDefaultConnector() === 'system') and (static::getTable() === 'accounts_users')) {
+                // Try to find the user by alternative email address
+                $user = sql()->get('SELECT `users_id`, `verified_on`
+                                    FROM   `accounts_emails` 
+                                    WHERE  `email` = :email 
+                                      AND  `status` IS NULL', [
+                                          ':email' => $identifier['email'],
+                ]);
+
+                if ($user) {
+                    if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
+                        $user = static::load($user['users_id'], $meta_enabled);
+
+                        Log::warning(tr('Identified user ":user" with alternate email ":email"', [
+                            ':user'  => $user->getLogId(),
+                            ':email' => $identifier,
                         ]));
+
+                        return $user;
                     }
+
+                    Log::warning(tr('Cannot identify user ":user" on alternate email, the email does not have the required verification', [
+                        ':user' => $identifier,
+                    ]));
                 }
             }
-
-            // The requested user identifier doesn't exist
-            throw $e;
         }
+
+        // Could not load user from alternative email address
+        return null;
     }
 
 
@@ -372,36 +404,100 @@ class User extends DataEntry implements UserInterface
     /**
      * Authenticates the specified user id / email with its password
      *
-     * @param string|int  $identifier
-     * @param string      $password
-     * @param string|null $domain
+     * @param array                    $identifier
+     * @param string                   $password
+     * @param EnumAuthenticationAction $action
+     * @param string|null              $domain
+     *
+     * @return UserInterface
+     * @throws Throwable
+     */
+    public static function authenticate(array $identifier, string $password, EnumAuthenticationAction $action, ?string $domain = null): UserInterface
+    {
+        $hook           = Hook::new('phoundation/accounts/authentication');
+        $authentication = Authentication::new()
+                                        ->setAccount(Json::encode($identifier, JSON_OBJECT_AS_ARRAY))
+                                        ->setAction($action);
+
+        // Try authentication through hook
+        $user = $hook->execute('authenticate', [
+            'identifier'     => $identifier,
+            'password'       => $password,
+            'domain'         => $domain,
+            'action'         => $action,
+            'authentication' => $authentication,
+        ]);
+
+        return static::processHookAuthentication($hook, $user, $authentication);
+    }
+
+
+    /**
+     * Process the results from the authentication hook
+     *
+     * @param HookInterface           $hook
+     * @param UserInterface|null      $user
+     * @param AuthenticationInterface $authentication
      *
      * @return UserInterface
      */
-    public static function authenticate(string|int $identifier, string $password, ?string $domain = null): UserInterface
+    protected static function processHookAuthentication(HookInterface $hook, ?UserInterface $user, AuthenticationInterface $authentication): UserInterface
     {
-        $hook = Hook::new('phoundation/accounts/authentication');
-        $user = $hook->execute('authenticate', [
-            'identifier' => $identifier,
-            'password'   => $password,
-            'domain'     => $domain,
-        ]);
-
         if (empty($user)) {
             if ($hook->exists('authenticate')) {
-                throw new OutOfBoundsException(tr('Cannot perform user authentication, hook script ":hook" returned no data', [
-                    ':hook'  => $hook->getFile('authenticate')->getRootname(),
-                ]));
+                $authentication->setStatus('no-hook-data')->save();
+
+                Incident::new()
+                    ->setType('Authentication hook returned no data')
+                    ->setSeverity(EnumSeverity::high)
+                    ->setTitle(tr('Cannot perform user authentication, hook script ":hook" returned no data', [
+                        ':hook'  => $hook->getFile('authenticate')->getRootname(),
+                    ]))
+                    ->setDetails([
+                        'account' => $hook->getArgument('identifier'),
+                        'hook'    => $hook->__toArray()
+                    ])
+                    ->notifyRoles('accounts')
+                    ->save()
+                    ->throw(OutOfBoundsException::class);
             }
 
-            $user = User::authenticateInternal(Hook::getArgument('identifier'), Hook::getArgument('password'), Hook::getArgument('domain'));
+            Log::warning(tr('Authentication hook ":hook" does not exist, attempting default internal authentication instead', [
+                ':hook'  => $hook->getFile('authenticate')->getRootname(),
+            ]));
+
+            // The hook file doesn't exist, try internal authentication
+            $user = User::doAuthenticate($hook->getArgument('identifier'), $hook->getArgument('password'), $hook->getArgument('authentication'), $hook->getArgument('domain'));
 
         } elseif (!$user instanceof UserInterface) {
+            $authentication->setStatus('bad-hook-data')->save();
+
             throw new OutOfBoundsException(tr('Cannot perform user authentication, the hook script ":hook" returned a non UserInterface value ":value"', [
-                ':hook'  => $hook->getFile('authenticate')->getRootname(),
+                ':hook' => $hook->getFile('authenticate')->getRootname(),
                 ':value' => $user,
             ]));
+
         }
+
+        // Check user status, only NULL is allowed!
+        if ($user->getStatus()) {
+            $authentication->setStatus('locked')->save();
+
+            Incident::new()
+                ->setCreatedBy($user->getId())
+                ->setType('User attempted to authenticate on locked account')
+                ->setSeverity(EnumSeverity::high)
+                ->setTitle(tr('Cannot authenticate user ":user", the user has the status ":status" which is not allowed', [
+                    ':user'   => $user->getLogId(),
+                    ':status' => $user->getStatus(),
+                ]))
+                ->setDetails(['user' => $user->getLogId()])
+                ->notifyRoles('accounts')
+                ->save()
+                ->throw(AuthenticationException::class);
+        }
+
+        $authentication->setCreatedBy($user->getId())->save();
 
         Log::warning(tr('Authenticated user ":user" with account authentication hook ":hook"', [
             ':user'  => $user->getLogId(),
@@ -415,92 +511,147 @@ class User extends DataEntry implements UserInterface
     /**
      * Authenticates the specified user id / email with its password
      *
-     * @param string|int  $identifier
-     * @param string      $password
-     * @param string|null $domain
+     * @param array                    $identifier
+     * @param string                   $password
+     * @param EnumAuthenticationAction $action
+     * @param string|null              $domain
      *
      * @return UserInterface
      */
-    public static function authenticateInternal(string|int $identifier, string $password, ?string $domain = null): UserInterface
+    public static function authenticateInternal(array $identifier, string $password, EnumAuthenticationAction $action, ?string $domain = null): UserInterface
     {
-        return static::doAuthenticate($identifier, $password, $domain);
+        $authentication = Authentication::new()
+                                        ->setAction($action)
+                                        ->setAccount(Json::encode($identifier, JSON_OBJECT_AS_ARRAY));
+
+        return static::doAuthenticate($identifier, $password, $authentication, $domain);
     }
 
 
     /**
      * Authenticates the specified user id / email with its password
      *
-     * @param string|int  $identifier
-     * @param string      $password
-     * @param string|null $domain
-     * @param bool        $test
+     * @param array                   $identifier
+     * @param string                  $password
+     * @param AuthenticationInterface $authentication
+     * @param string|null             $domain
+     * @param bool                    $test
      *
      * @return static
      *
-     * @throws AuthenticationException
+     * @throws Throwable
      */
-    protected static function doAuthenticate(string|int $identifier, string $password, ?string $domain = null, bool $test = false): static
+    protected static function doAuthenticate(array $identifier, string $password, AuthenticationInterface $authentication, ?string $domain, bool $test = false): static
     {
-        $user = static::load($identifier);
+        try {
+            $user = static::load($identifier);
 
-        if ($user->passwordMatch($password)) {
-            if ($user->getDomain()) {
-                // User is limited to a domain!
-                if (!$domain) {
-                    $domain = Domains::getCurrent();
-                }
+            if ($user->passwordMatch($password)) {
+                static::authenticateDomain($identifier, $user, $authentication, $domain, $test);
 
-                if ($user->getDomain() !== $domain) {
-                    if (!$test) {
-                        Incident::new()
-                                ->setType('Domain access disallowed')
-                                ->setSeverity(EnumSeverity::medium)
-                                ->setTitle(tr('The user ":user" is not allowed to have access to domain ":domain"', [
-                                    ':user'   => $user->getLogId(),
-                                    ':domain' => $domain,
-                                ]))
-                                ->setDetails([
-                                    'user'   => $user,
-                                    'domain' => $domain,
-                                ])
-                                ->notifyRoles('accounts')
-                                ->save();
-                    }
+                Hook::new('phoundation/accounts/authentication')
+                    ->execute('success', [
+                        'user'     => $user,
+                        'password' => $password
+                    ]);
 
-                    throw new AuthenticationException(tr('The specified user ":user" is not allowed to access the domain ":domain"', [
-                        ':user'   => $identifier,
-                        ':domain' => $domain,
-                    ]));
-                }
+                return $user;
             }
 
-            Hook::new('phoundation/accounts/authentication')
-                ->execute('success', [
-                    'user'     => $user,
-                    'password' => $password
-                ]);
+        } catch (DataEntryNotExistsException $e) {
+            $authentication->setStatus('user-not-exist')->save();
 
-            return $user;
-        }
-
-        if (!$test) {
             Incident::new()
-                    ->setType('Incorrect password')
-                    ->setSeverity(EnumSeverity::low)
-                    ->setTitle(tr('The specified password for user ":user" is incorrect', [':user' => $user->getLogId()]))
-                    ->setDetails(['user' => $user->getLogId()])
-                    ->save();
+                ->setType('User does not exist')
+                ->setSeverity(EnumSeverity::low)
+                ->setTitle(tr('Cannot perform ":action" user ":user", the user does not exist', [
+                    ':action' => $authentication->getAction(),
+                    ':user'   => Json::encode($identifier, JSON_OBJECT_AS_ARRAY),
+                ]))
+                ->setDetails(['user' => $identifier])
+                ->notifyRoles('accounts')
+                ->save()
+                ->throw(AuthenticationException::class);
         }
 
+        if ($test) {
+            throw AuthenticationException::new(tr('The specified password for user ":user" is incorrect', [
+                ':user' => $user->getLogId()
+            ]))->setData(['user' => $user->getLogId()])
+               ->setStatus('password-incorrect');
+        }
+
+        // When not just testing the authentication, execute the failure hook and register an incident
         Hook::new('phoundation/accounts/authentication')
             ->execute('failure', [
+                'status'   => 'password-incorrect',
                 'user'     => $user,
                 'password' => $password
             ]);
 
-        throw new AuthenticationException(tr('The specified password did not match for user ":user"', [
-            ':user' => $identifier,
-        ]));
+        $authentication->setCreatedBy($user->getId())
+                       ->setStatus('password-incorrect')
+                       ->save();
+
+        Incident::new()
+            ->setType('Incorrect password for account detected')
+            ->setSeverity(EnumSeverity::low)
+            ->setTitle(tr('Cannot perform ":action" user ":user", the specified password is incorrect', [
+                ':action' => $authentication->getAction(),
+                ':user'   => $user->getLogId(),
+            ]))
+            ->setDetails(['user' => $user->getLogId()])
+            ->notifyRoles('accounts')
+            ->save()
+            ->throw(AuthenticationException::class);
+    }
+
+
+    /**
+     * Checks if the user is allowed to authenticate on the current domain
+     *
+     * @param array                   $identifier
+     * @param UserInterface           $user
+     * @param AuthenticationInterface $authentication
+     * @param string|null             $domain
+     * @param bool                    $test
+     *
+     * @return void
+     */
+    protected static function authenticateDomain(array $identifier, UserInterface $user, AuthenticationInterface $authentication, ?string $domain, bool $test = false): void
+    {
+        if ($user->getDomain()) {
+            // User is limited to a domain!
+            if (!$domain) {
+                $domain = Domains::getCurrent();
+            }
+
+            if ($user->getDomain() !== $domain) {
+                if (!$test) {
+                    $authentication->setStatus('domain-not-allowed')->save();
+
+                    Incident::new()
+                        ->setCreatedBy($user->getId())
+                        ->setType('Domain access disallowed')
+                        ->setSeverity(EnumSeverity::medium)
+                        ->setTitle(tr('The user ":user" is not allowed to have access to domain ":domain"', [
+                            ':user'   => $user->getLogId(),
+                            ':domain' => $domain,
+                        ]))
+                        ->setDetails([
+                            'user'   => $user,
+                            'domain' => $domain,
+                        ])
+                        ->notifyRoles('accounts')
+                        ->save();
+                }
+
+                throw new AuthenticationException(tr('The specified user ":user" is not allowed to access the domain ":domain"', [
+                    ':user'   => $identifier,
+                    ':domain' => $domain,
+                ]));
+            }
+        }
     }
 
 
@@ -597,8 +748,8 @@ class User extends DataEntry implements UserInterface
         }
 
         // Save was successful! If we're saving the current user, then update the session
-        if (Session::isOfUser($this)) {
-            Log::action(tr('Current user ":user" changed in database, refreshing session user data', [
+        if (Session::iSpecificUser($this)) {
+            Log::action(tr('Current session user ":user" changed in database, refreshing session user data', [
                 ':user' => $this->getLogId(),
             ]));
 
@@ -758,12 +909,12 @@ class User extends DataEntry implements UserInterface
 
         if (!isset($this->rights) or $reload) {
             if ($this->getId()) {
-                $this->rights = Rights::new()
-                                      ->setParentObject($this)
-                                      ->load($order ? ['$order' => ['name' => 'asc']] : null);
+                $this->rights = RightsBySeoName::new()
+                                               ->setParentObject($this)
+                                               ->load($order ? ['$order' => ['right' => 'asc']] : null);
 
             } else {
-                $this->rights = Rights::new()->setParentObject($this);
+                $this->rights = RightsBySeoName::new()->setParentObject($this);
             }
         }
 
@@ -853,12 +1004,12 @@ class User extends DataEntry implements UserInterface
 
         if (!isset($this->roles)) {
             if ($this->getId()) {
-                $this->roles = Roles::new()
+                $this->roles = RolesBySeoName::new()
                                     ->setParentObject($this)
                                     ->load();
 
             } else {
-                $this->roles = Roles::new()->setParentObject($this);
+                $this->roles = RolesBySeoName::new()->setParentObject($this);
             }
         }
 
@@ -1643,7 +1794,9 @@ class User extends DataEntry implements UserInterface
 
         // Is the password not the same as the current password?
         try {
-            static::doAuthenticate($this->source['email'], $password, isset_get($this->source['domain']), true);
+            $authentication = Authentication::new()->setAction(EnumAuthenticationAction::authentication);
+
+            static::doAuthenticate($this->source['email'], $password, isset_get($this->source['domain']), $authentication, true);
             throw new PasswordNotChangedException(tr('The specified password is the same as the current password'));
 
         } catch (AuthenticationException) {
@@ -1801,26 +1954,32 @@ class User extends DataEntry implements UserInterface
      */
     public function getRolesHtmlDataEntryFormObject(string $name = 'roles_id[]'): DataEntryFormInterface
     {
-        $form   = DataEntryForm::new()->setDataEntry($this);
-        $roles  = Roles::new();
-        $select = $roles->getHtmlSelect()
-                        ->setCache(true)
-                        ->setName($name);
-
-        // Add extra entry with nothing selected
-        $select->clearSelected();
-        $content = [$select->render()];
-
-        // Add all current roles
+        // Get a list of all roles for this user
         foreach ($this->getRolesObject() as $role) {
-            $select->clearRenderCache()
-                   ->setSelected($role->getId());
-
-            $content[] = $select->render();
+            $selected[] = $role->getId();
         }
 
-        return $form->appendContent(implode('<br>', $content))
-                    ->setRenderContentsOnly(true);
+        // Build up the roles select object
+        $roles = Roles::new();
+        $roles->setQueryBuilder(QueryBuilder::new($roles)
+                                            ->setSelect('`accounts_roles`.`id`, 
+                                                         CONCAT(
+                                                             UPPER(LEFT(`accounts_roles`.`name`, 1)), 
+                                                             SUBSTRING(`accounts_roles`.`name`, 2)
+                                                         ) AS `name`')
+                                            ->setWhere('`accounts_roles`.`status` IS NULL')
+                                            ->setOrderBy('`name`'))
+                                            ->load();
+
+        $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
+        $select = $roles->getHtmlSelect()->setCache(true)
+                                         ->setNotSelectedLabel(null)
+                                         ->setMultiple(true)
+                                         ->setName($name)
+                                         ->setSize($roles->getCount())
+                                         ->setSelected($selected);
+
+        return $entry->appendContent($select->render());
     }
 
 
@@ -2241,14 +2400,14 @@ class User extends DataEntry implements UserInterface
                                                // Email address is optional IF remote_id is specified
                                                // Validate the email address
                                                $validator->orColumn('remote_id');
-                                               $validator->isUnique(tr('it already exists as a primary email address'));
+                                               $validator->isUnique(tr('already exists as a primary email address'));
 
                                                $exists = sql()->get('SELECT `id` FROM `accounts_emails` WHERE `email` = :email', [
                                                    ':email' => $validator->getSelectedValue(),
                                                ]);
 
                                                if ($exists) {
-                                                   $validator->addFailure(tr('it already exists as an additional email address'));
+                                                   $validator->addFailure(tr('already exists as an additional email address'));
                                                }
                                            }))
 
@@ -2402,7 +2561,7 @@ class User extends DataEntry implements UserInterface
                                            ->setHelpText(tr('Main phone number where this user may be contacted'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                // Validate the email address
-                                               $validator->isUnique(tr('it already exists as a primary phone number'));
+                                               $validator->isUnique(tr('already exists as a primary phone number'));
                                            }))
 
                     ->add(Definition::new($this, 'address')
@@ -2547,7 +2706,7 @@ class User extends DataEntry implements UserInterface
                                     ->setHelpText(tr('The keywords for this user'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isPrintable();
-                                        //$validator->sanitizeForceArray(' ')->each()->isWord()->sanitizeForceString()
+                                        //$validator->sanitizeForceArray(' ')->eachField()->isWord()->sanitizeForceString()
                                     }))
 
                     ->add(DefinitionFactory::getDateTime($this, 'verified_on')
