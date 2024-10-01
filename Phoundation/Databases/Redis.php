@@ -16,151 +16,145 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
+use Phoundation\Data\Traits\TraitDataConnector;
+use Phoundation\Databases\Connectors\Connector;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Databases\Exception\RedisException;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigException;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Utils\Json;
 
 
 class Redis implements DatabaseInterface
 {
+    use TraitDataConnector;
 
-//    /**
-//     * Configuration
-//     *
-//     * @var array|null $configuration
-//     */
-//    protected ?array $configuration = null;
-//
-//    /**
-//     * Identifier of this instance
-//     *
-//     * @var string|null
-//     */
-//    protected ?string $instance = null;
-//
-//    /**
-//     * The database used by this instance
-//     *
-//     * @var int|null
-//     */
-//    protected ?int $database = null;
-//
-//
-//    /**
-//     * Initialize the class object through the constructor.
-//     *
-//     * MC constructor.
-//     *
-//     * @param string|null $instance
-//     */
-//    public function __construct(?string $instance = null)
-//    {
-//        if ($instance === null) {
-//            $instance = 'system';
-//        }
-//
-//        // Read configuration and connect
-//        $this->readConfiguration($instance);
-//        $client = new Redis($this->configuration['host'], $this->configuration['options'], $this->configuration['driver_options']);
-//    }
-//
-//
-//    /**
-//     * Returns the configuration for this Redis instance
-//     *
-//     * @return array
-//     */
-//    public function getConfiguration(): array
-//    {
-//        return $this->configuration;
-//    }
-//
-//
-//    /**
-//     * Returns the value for the specified key
-//     *
-//     * @param string $key
-//     * @return mixed
-//     */
-//    public function get($key): mixed
-//    {
-//        $value = parent::get($key);
-//
-//        if ($value) {
-//            return Json::decode($value);
-//        }
-//
-//        return null;
-//    }
-//
-//
-//    /**
-//     * Get the document for the specified key from the specified collection
-//     *
-//     * @param string|array $value
-//     * @param string $key
-//     * @param int|null $timeout
-//     * @return int The _id of the inserted document
-//     */
-//    public function set(mixed $value, string $key, ?int $timeout = null): int
-//    {
-//        return parent::set($key, Json::encode($value), $timeout);
-//    }
-//
-//
-//    /**
-//     * Get the document for the specified key from the specified collection
-//     *
-//     * @param $key
-//     * @return int The number of documents deleted
-//     */
-//    public function delete($key): int
-//    {
-//        return parent::del($key);
-//    }
-//
-//
-//    /**
-//     * Read the redis configuration
-//     *
-//     * @param string $instance
-//     * @return void
-//     */
-//    protected function readConfiguration(string $instance): void
-//    {
-//        // Read in the entire redis configuration for the specified instance
-//        $this->instance = $instance;
-//
-//        try {
-//            $configuration = Config::get('databases.redis.connectors.' . $instance);
-//        } catch (ConfigPathDoesNotExistsException $e) {
-//            throw new RedisException(tr('The specified redis instance ":instance" is not configured', [
-//                ':instance' => $instance
-//            ]));
-//        }
-//
-//        // Validate configuration
-//        if (!is_array($configuration)) {
-//            throw new ConfigException(tr('The configuration for the specified Redis database instance ":instance" is invalid, it should be an array', [
-//                ':instance' => $instance
-//            ]));
-//        }
-//
-//// TODO Add support for instace configuration stored in database
-//
-//        $template = [
-//            'host'             => 'localhost',
-//            'port'             => 6379,
-//            'options'          => [],
-//            'driver_options'   => [],
-//            'database'         => null,
-//        ];
-//
-//        // Copy the configuration options over the template
-//        $this->configuration = Arrays::mergeFull($template, $configuration);
-//        $this->database      = $this->configuration['database'];
-//    }
-//
-//
+
+    /**
+     * The Redis driver
+     *
+     * @var \Redis $client
+     */
+    protected \Redis $client;
+
+
+    /**
+     * Initialize the class object through the constructor.
+     *
+     * MC constructor.
+     *
+     * @param ConnectorInterface|string|null $connector
+     */
+    public function __construct(ConnectorInterface|string|null $connector = null)
+    {
+        if ($connector === null) {
+            $connector = Config::getString('databases.redis.connectors.default', 'system-redis');
+
+        }
+
+        if (is_string($connector)) {
+            $connector = new Connector($connector);
+        }
+
+        $this->setConnectorObject($connector);
+    }
+
+
+    /**
+     * Connects to the Redis database
+     *
+     * @return static
+     */
+    public function connect(): static
+    {
+        if (empty($this->client)) {
+            // Read configuration and connect
+            $this->client = new \Redis($this->o_connector->getRedisConfiguration());
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the value for the specified key
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public function get($key): mixed
+    {
+        $this->connect();
+
+        $value = parent::get($key);
+
+        if ($value) {
+            return Json::decode($value);
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Get the document for the specified key from the specified collection
+     *
+     * @param string|array $value
+     * @param string $key
+     * @param int|null $timeout
+     * @return int The _id of the inserted document
+     */
+    public function set(mixed $value, string $key, ?int $timeout = null): int
+    {
+        $this->connect();
+
+        return parent::set($key, Json::encode($value), $timeout);
+    }
+
+
+    /**
+     * Get the document for the specified key from the specified collection
+     *
+     * @param $key
+     * @return int The number of documents deleted
+     */
+    public function delete($key): int
+    {
+        $this->connect();
+
+        return parent::del($key);
+    }
+
+
+    /**
+     * Pushes the specified value at the beginning of the queue
+     *
+     * @param mixed $value
+     *
+     * @return $this
+     * @throws \RedisException
+     */
+    public function push(mixed $value): static
+    {
+        $this->client->lPush($value);
+        return $this;
+    }
+
+
+    /**
+     * Pops the last value off the queue and returns it
+     *
+     * @return mixed
+     * @throws \RedisException
+     */
+    public function pop(): mixed
+    {
+        return $this->client->brPop();
+    }
 
 
     /**
