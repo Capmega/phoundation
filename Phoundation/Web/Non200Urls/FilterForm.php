@@ -29,6 +29,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     public function __construct()
     {
         parent::__construct();
+
         $this->definitions = Definitions::new()
                                         ->add(Definition::new(null, 'type[]')
                                                         ->setLabel(tr('Type'))
@@ -38,5 +39,8 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                         ->add(Definition::new(null, 'filter[]')
                                                         ->setLabel(tr('Filter'))
                                                         ->setSize(6));
+
+        // Auto apply
+        $this->applyValidator(self::class);
     }
 }

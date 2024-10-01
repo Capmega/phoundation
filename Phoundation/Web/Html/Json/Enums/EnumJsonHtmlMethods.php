@@ -18,7 +18,8 @@ namespace Phoundation\Web\Html\Json\Enums;
 
 enum EnumJsonHtmlMethods: string
 {
-    case replace = 'replace';
     case append  = 'append';
+    case delete  = 'delete';
     case prepend = 'prepend';
+    case replace = 'replace';
 }

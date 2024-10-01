@@ -16,9 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Tooltips\Enums;
 
-use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipPlacementInterface;
 
-enum EnumTooltipPlacement: string implements EnumTooltipPlacementInterface
+enum EnumTooltipPlacement: string
 {
     case auto   = 'auto';
     case top    = 'top';

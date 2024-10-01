@@ -195,7 +195,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                         tools to help create filler text for everyone from bacon lovers
                                         to Charlie Sheen fans. </p>
 
-                                    <form class="form-horizontal">
+                                    <form class="form-horizontal" method="post">
                                         <?php Csrf::getHiddenElement() ?>
                                         <div class="input-group input-group-sm mb-0">
                                             <input class="form-control form-control-sm" placeholder="Response">
@@ -368,7 +368,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <!-- /.tab-pane -->
 
                             <div class="tab-pane" id="settings">
-                                <form class="form-horizontal">
+                                <form class="form-horizontal" method="post">
                                     <?php Csrf::getHiddenElement() ?>
                                     <div class="form-group row">
                                         <label for="inputName" class="col-sm-2 col-form-label">Name</label>

@@ -16,10 +16,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Cards;
 
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
+use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
@@ -395,6 +397,12 @@ class Card extends Widget
         if ($content !== null) {
             if (!empty($this->tabs)) {
                 throw new OutOfBoundsException(tr('Cannot add content to card, tabs have already been specified and card can only display either content or tabs'));
+            }
+        }
+
+        if ($content instanceof DataEntryForm) {
+            if ($content->getDefinitionsObject()?->hasButtons()) {
+                $this->setButtons($content->getDefinitionsObject()->getButtons());
             }
         }
 

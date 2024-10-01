@@ -30,7 +30,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Http\Exception\UrlBuilderConfiguredUrlNotFoundException;
+use Phoundation\Web\Http\Exception\UrlConfiguredUrlNotFoundException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
@@ -56,7 +56,7 @@ class Url implements UrlInterface
 
 
     /**
-     * UrlBuilder class constructor
+     * Url class constructor
      *
      * @param Stringable|string|null $url
      */
@@ -124,6 +124,9 @@ class Url implements UrlInterface
 
         } elseif (is_numeric($url)) {
             $url = 'system/' . $url . 'html';
+
+        } elseif ($url === '/') {
+            return static::renderUrl($url, '', null, $use_configured_root);
         }
 
         return static::renderUrl($url, 'html', null, $use_configured_root);
@@ -144,7 +147,10 @@ class Url implements UrlInterface
 
         if ($id) {
             // Inject the ID in the URL
-            $url = substr((string) $url, 0, -5) . '+' . $id . '.html';
+            $url = (string) $url;
+            $ext = Strings::fromReverse($url, '.');
+            $url = Strings::untilReverse($url, '.');
+            $url = $url . '+' . $id . $ext;
             $url = new static($url);
         }
 
@@ -304,15 +310,19 @@ class Url implements UrlInterface
         }
 
         // Build the URL
-        $base  = Strings::ensureEndsWith($base, '/');
+        $base  = Strings::ensureEndsWith($base    , '/');
         $url   = Strings::ensureStartsNotWith($url, '/');
         $url   = $prefix . $url;
         $url   = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
-        $query = Strings::from($url, '?', needle_required: true);
+        $query = Strings::from($url , '?', needle_required: true);
         $url   = Strings::until($url, '?');
 
+        if ($extension) {
+            $extension = Strings::ensureStartsWith($extension, '.');
+        }
+
         if (!preg_match('/\.[a-z0-9]{3,5}$/i', $url)) {
-            $url .= '.' . $extension;
+            $url .= $extension;
         }
 
         if ($query) {
@@ -347,7 +357,7 @@ class Url implements UrlInterface
         try {
             return (string) static::getConfigured($url);
 
-        } catch (UrlBuilderConfiguredUrlNotFoundException) {
+        } catch (UrlConfiguredUrlNotFoundException) {
             // This was not a configured URL
             return $url;
         }
@@ -379,28 +389,16 @@ class Url implements UrlInterface
      */
     public static function getPrevious(UrlInterface|string|null $or_else_url = null, bool $use_configured_root = false): static
     {
-        if (empty($_SERVER['HTTP_REFERER'])) {
-            if (empty($_GET['previous'])) {
-                if (!empty($_GET['redirect'])) {
-                    $option = $_GET['redirect'];
-                }
+        $url = GetValidator::getRedirectValue();
 
-            } else {
-                $option = $_GET['previous'];
-            }
-
-        } else {
-            $option = $_SERVER['HTTP_REFERER'];
-        }
-
-        if (!empty($option)) {
+        if (!empty($url)) {
             // We found an option, yay!
-            $option  = static::getWww($option, $use_configured_root);
+            $url     = static::getWww($url, $use_configured_root);
             $current = static::getWww(null, $use_configured_root);
 
-            if ((string) $current !== (string) $option) {
+            if ((string) $current !== (string) $url) {
                 // Option is not current page, return it!
-                return $option;
+                return $url;
             }
         }
 
@@ -424,7 +422,7 @@ class Url implements UrlInterface
             'dashboard', 'index'   => Config::getString('web.pages.index'   , '/index'),
             'sign-in'  , 'signin'  => Config::getString('web.pages.sign-in' , '/sign-in'),
             'sign-up'  , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up'),
-            'sign-out' , 'signout' => Config::getString('web.pages.sign-out', '/sign-out'),
+            'sign-out' , 'signout' => Config::getString('web.pages.sign-out', '/sign-out') . (Session::isUser() ? '?redirect=' . urlencode(Url::getCurrent()->getSource()) : null),
             'sign-key' , 'signkey' => Config::getString('web.pages.sign-key', '/sign-key/:key'),
             'profile'              => Config::getString('web.pages.profile' , '/my/profile'),
             'settings'             => Config::getString('web.pages.settings', '/my/settings'),
@@ -1091,7 +1089,7 @@ class Url implements UrlInterface
      */
     protected function language_map($url_params = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_cloak = true): string
     {
-        throw new UnderConstructionException('UrlBuilder::domain() is GARBAGE! DO NOT USE');
+        throw new UnderConstructionException('Url::domain() is GARBAGE! DO NOT USE');
         /*
          * Do language mapping, but only if routemap has been set
          */

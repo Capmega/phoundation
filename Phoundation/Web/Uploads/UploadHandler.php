@@ -210,7 +210,7 @@ class UploadHandler implements UploadHandlerInterface
             throw ValidationFailedException::new(tr('This mimetype ":mimetype" upload handler already processed the maximum amount of files ":count" that it is allowed to process', [
                 ':count'    => $this->getDropZoneObject()->getMaxFiles(),
                 ':mimetype' => $this->getDropZoneObject()->getMimetype()
-            ]))->makeSecurityIncident(EnumSeverity::medium);
+            ]))->registerIncident(EnumSeverity::medium);
         }
 
         Log::action(tr('About to process ":count" files with mimetype ":mimetype"', [

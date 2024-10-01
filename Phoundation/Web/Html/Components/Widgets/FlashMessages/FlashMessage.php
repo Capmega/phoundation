@@ -16,10 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\FlashMessages;
 
+use PDOStatement;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
+use Phoundation\Core\Sessions\SessionConfig;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Script;
@@ -88,6 +92,20 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      * @var string $flash_handler
      */
     protected string $flash_handler = 'toast';
+
+
+    /**
+     * FlashMessage class constructor
+     *
+     * @param IteratorInterface|array|string|PDOStatement|null $source
+     */
+    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
+    {
+        parent::__construct($source);
+
+        // Set default auto close for flash messages
+        $this->setAutoClose(get_null(SessionConfig::getInteger('web.feedback.messages.auto-close', 15000)));
+    }
 
 
     /**
@@ -193,6 +211,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
                 throw new OutOfBoundsException(tr('Cannot specify icon for flash message, an image was already set'));
             }
         }
+
         $this->icon = get_null($icon);
 
         return $this;
@@ -290,7 +309,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
 
 
     /**
-     * Returns if the flash message will close automatically after N milliseconds
+     * Returns if the flash message closes automatically after N milliseconds
      *
      * @return int|null
      */
@@ -301,7 +320,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
 
 
     /**
-     * Sets if the flash message will close automatically after N milliseconds
+     * Sets if the flash message closes automatically after N milliseconds
      *
      * @param int|null $auto_close
      *
@@ -309,7 +328,16 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     public function setAutoClose(?int $auto_close): static
     {
-        $this->auto_close = get_null($auto_close);
+        $auto_close = get_null($auto_close);
+
+        if ($auto_close) {
+            if ($auto_close < 500) {
+                // Assume that time was specified in seconds instead of milliseconds, automatically correct this issue
+                $auto_close *= 1000;
+            }
+        }
+
+        $this->auto_close = $auto_close;
 
         return $this;
     }
@@ -364,7 +392,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     public function renderBare(): ?string
     {
         return match ($this->flash_handler) {
-            'toast' => Toast::new($this)->render()
+            'toast' => Toast::new($this)->render(),
         };
     }
 
@@ -374,10 +402,10 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      *
      * @return string|null
      */
-    public function renderConfiguration(): ?string
+    public function renderJson(): ?string
     {
         return match ($this->flash_handler) {
-            'toast' => Toast::new($this)->renderConfiguration()
+            'toast' => Toast::new($this)->renderConfiguration(),
         };
     }
 
@@ -393,14 +421,14 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     {
         foreach ($source as $key => $value) {
             match ($key) {
-                'top'        => $this->top = $value,
-                'left'       => $this->left = $value,
-                'mode'       => $this->mode = $this->mode::from($value),
-                'icon'       => $this->icon = $value,
-                'image'      => $this->image = $value,
-                'title'      => $this->title = $value,
-                'message'    => $this->content = $value,
-                'can_close'  => $this->can_close = $value,
+                'top'        => $this->top        = $value,
+                'left'       => $this->left       = $value,
+                'mode'       => $this->mode       = $this->mode::from($value),
+                'icon'       => $this->icon       = $value,
+                'image'      => $this->image      = $value,
+                'title'      => $this->title      = $value,
+                'message'    => $this->content    = $value,
+                'can_close'  => $this->can_close  = $value,
                 'auto_close' => $this->auto_close = $value,
             };
         }

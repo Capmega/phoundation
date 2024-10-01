@@ -26,7 +26,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.30';
+        return '0.0.40';
     }
 
 
@@ -135,6 +135,27 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_web_uploads_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_web_uploads_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                 ')->create();
+
+        })->addUpdate('0.0.40', function () {
+            $table = sql()->getSchemaObject()->getTableObject('web_non200_urls');
+
+            if ($table->indexExists('ip_address_human')) {
+                $table->alter()->dropIndex('`ip_address`')
+                               ->dropIndex('`ip_address_human`');
+            }
+
+            if ($table->columnExists('ip_address_human')) {
+                $table->alter()->changeColumn('`ip_address`'      , '`ip_address_binary` binary(16) NULL DEFAULT NULL,')
+                               ->changeColumn('`ip_address_human`', '`ip_address`        varchar(48) NULL DEFAULT NULL,');
+            }
+
+            if (!$table->indexExists('ip_address')) {
+                $table->alter()->addIndex('KEY `ip_address` (`ip_address`)');
+            }
+
+            if (!$table->indexExists('ip_address_binary')) {
+                $table->alter()->addIndex('KEY `ip_address_binary` (`ip_address_binary`)');
+            }
         });
     }
 }

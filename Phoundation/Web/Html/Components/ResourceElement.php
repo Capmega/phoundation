@@ -21,7 +21,6 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
-use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Html\Traits\TraitInputElement;
@@ -260,6 +259,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      *
      * @param PDOStatement|string|null $source_query
      * @param array|string|null        $execute
+     * @param array|null               $use_columns
      *
      * @return static
      */
@@ -271,7 +271,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
 
         if (is_string($source_query)) {
             // Get a PDOStatement instead by executing the query
-            $source_query = sql($this->connector)->setDebug($this->debug)
+            $source_query = sql($this->o_connector)->setDebug($this->debug)
                                                  ->query($source_query, $execute);
         }
 

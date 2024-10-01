@@ -33,7 +33,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 <section class="content">
     <div class="row">
         <div class="col-md-3">
-            <a href="<?= UrlBuilder::getWww('/demos/compose.html'); ?>"
+            <a href="<?= Url::getWww('/demos/compose.html'); ?>"
                class="btn btn-primary btn-block mb-3">Compose</a>
 
             <div class="card">
@@ -180,7 +180,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Sven
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Sven
                                         Olaf Oostenbrink</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -196,7 +196,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Corey
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Corey
                                         Henrichsen</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -212,7 +212,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Corey
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Corey
                                         Henrichsen</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -228,7 +228,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Kate
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Kate
                                         Culter</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -244,7 +244,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Doug
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Doug
                                         Poulin</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -260,7 +260,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Corey
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Corey
                                         Henrichsen</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -276,7 +276,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Dana
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Dana
                                         Alderson</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -292,7 +292,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Dana
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Dana
                                         Alderson</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -308,7 +308,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Dianne
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Dianne
                                         Hrisook</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -324,7 +324,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Doug
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Doug
                                         Poulin</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -340,7 +340,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Kate
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Kate
                                         Culter</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -356,7 +356,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Sven
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Sven
                                         Olaf Oostenbrink</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -372,7 +372,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Sven
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Sven
                                         Olaf Oostenbrink</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -388,7 +388,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Corey
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Corey
                                         Henrichsen</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...
@@ -404,7 +404,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= UrlBuilder::getWww('/demos/read-mail.html'); ?>">Corey
+                                <td class="mailbox-name"><a href="<?= Url::getWww('/demos/read-mail.html'); ?>">Corey
                                         Henrichsen</a></td>
                                 <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
                                     this problem...

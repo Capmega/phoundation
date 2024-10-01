@@ -49,12 +49,18 @@ class Csrf
     /**
      * Returns a CSRF hidden input HTML element if CSRF is enabled
      *
+     * @note Will only return the hidden __csrf variable if the specified method is POST (default)
+     *
+     * @param string $method
+     *
      * @return string|null
      */
-    public static function getHiddenElement(): ?string
+    public static function getHiddenElement(string $method = 'post'): ?string
     {
-        if (Config::getBoolean('security.web.csrf.enabled', true)) {
-            return '<input type="hidden" name="__csrf" value="' . Csrf::get() . '">';
+        if ($method === 'post') {
+            if (Config::getBoolean('security.web.csrf.enabled', true)) {
+                return '<input type="hidden" name="__csrf" value="' . Csrf::get() . '">';
+            }
         }
 
         return null;

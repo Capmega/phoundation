@@ -237,13 +237,13 @@ class InputAutoSuggest extends InputText
                                                 ' . $variables . '
                                               },
                                               success: function(data) {
-                                                response(data);
+                                                response(data.data);
                                               }
                                             });
                                           },
                      ' . ($this->width ? 'open: function(event, ui) {
                                                $(this).autocomplete("widget").css({
-                                                   "width": ' . $this->width . '
+                                                   width: ' . $this->width . '
                                                });
                                           },' : '') . '
                                           delay: ' . $this->min_suggest_length . ', 

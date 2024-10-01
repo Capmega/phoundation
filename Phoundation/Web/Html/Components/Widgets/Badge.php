@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class ProgressBar
+ * Class Badge
  *
  * This HTML widget component object can render the HTML required to display a progress bar
  *
@@ -18,21 +18,17 @@ namespace Phoundation\Web\Html\Components\Widgets;
 
 use Phoundation\Data\Traits\TraitDataBackgroundColor;
 use Phoundation\Data\Traits\TraitDataCurrentFloat;
-use Phoundation\Data\Traits\TraitDataCurrentInteger;
 use Phoundation\Data\Traits\TraitDataLabel;
 use Phoundation\Data\Traits\TraitDataMaximumInteger;
 use Phoundation\Data\Traits\TraitDataMinimumInteger;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\ProgressBarInterface;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
 
-class ProgressBar extends Widget implements ProgressBarInterface
+class Badge extends Widget
 {
     use TraitDataBackgroundColor;
-    use TraitDataCurrentFloat;
     use TraitDataLabel;
-    use TraitDataMaximumInteger;
-    use TraitDataMinimumInteger;
 
 
     /**
@@ -42,11 +38,7 @@ class ProgressBar extends Widget implements ProgressBarInterface
     {
         parent::__construct();
 
-        $this->setBackgroundColor('blue')
-             ->setLabel(tr('$current$% Completed'))
-             ->setMinimum(0)
-             ->setMaximum(100)
-             ->setCurrent(0);
+        $this->setMode(EnumDisplayMode::primary);
     }
 
 
@@ -55,12 +47,6 @@ class ProgressBar extends Widget implements ProgressBarInterface
      */
     public function render(): ?string
     {
-        $width = ($this->current / ($this->maximum - $this->minimum)) * 100;
-
-        return  '<div class="progress progress-sm">
-                     <div class="progress-bar bg-' . $this->background_color . '" role="progressbar" aria-valuenow="' . $this->current . '" aria-valuemin="' . $this->minimum . '" aria-valuemax="' . $this->maximum . '" style="width: ' . $width . '%">
-                     </div>
-                 </div>
-                 <small>' . str_replace('$current$', (string) $this->current, $this->label) . '</small>';
+        return  '<span class="badge badge-' . $this->mode->value . '">' . $this->label . '</span>';
     }
 }

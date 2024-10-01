@@ -16,9 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Tooltips\Enums;
 
-use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipBoundaryInterface;
 
-enum EnumTooltipBoundary: string implements EnumTooltipBoundaryInterface
+enum EnumTooltipBoundary: string
 {
     case viewport     = 'viewport';
     case window       = 'window';

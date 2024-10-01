@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Interfaces;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
@@ -107,23 +108,23 @@ interface InputSelectInterface extends ResourceElementInterface
     /**
      * Sets multiple selected options
      *
-     * @param array|string|int|null $selected
-     * @param bool                  $value
+     * @param IteratorInterface|array|string|int|null $selected
+     * @param bool                                    $value
      *
      * @return static
      */
-    public function setSelected(array|string|int|null $selected = null, bool $value = false): static;
+    public function setSelected(IteratorInterface|array|string|int|null $selected = null, bool $value = false): static;
 
 
     /**
      * Adds a single or multiple selected options
      *
-     * @param array|string|int|null $selected
-     * @param bool                  $value
+     * @param IteratorInterface|array|string|int|null $selected
+     * @param bool                                    $value
      *
      * @return static
      */
-    public function addSelected(array|string|int|null $selected, bool $value = false): static;
+    public function addSelected(IteratorInterface|array|string|int|null $selected, bool $value = false): static;
 
 
     /**
@@ -336,4 +337,20 @@ interface InputSelectInterface extends ResourceElementInterface
      * @return static
      */
     public function setRenderCheckboxes(bool $render_checkboxes): static;
+
+    /**
+     * Returns how many rows of the select will be displayed
+     *
+     * @return int|null
+     */
+    public function getSize(): ?int;
+
+    /**
+     * Sets how many rows of the select will be displayed
+     *
+     * @param int|null $size
+     *
+     * @return static
+     */
+    public function setSize(?int $size): static;
 }

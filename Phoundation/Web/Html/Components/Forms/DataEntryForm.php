@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataDefinitions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\WebRenderException;
@@ -41,19 +42,15 @@ use Throwable;
 
 class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 {
+    use TraitDataDefinitions;
+
+
     /**
      * Counter for list forms
      *
      * @var int $list_count
      */
     protected static int $list_count = 0;
-
-    /**
-     * The key metadata for the specified data
-     *
-     * @var DefinitionsInterface|null $definitions
-     */
-    protected ?DefinitionsInterface $definitions = null;
 
     /**
      * Optional class for input elements
@@ -92,6 +89,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
         parent::__construct($source);
+
         $this->rows = new DataEntryFormRows($this);
     }
 
@@ -283,6 +281,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     $field_name = '';
                 }
 
+                if (is_callable($definition->getRender())) {
+                    // Rendering depends on the return of the callback
+                    $definition->setRender($definition->getRender()());
+                }
+
                 if (!$definition->getRender()) {
                     // This element shouldn't be shown, continue
                     continue;
@@ -358,10 +361,17 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 if ($definition->getValue()) {
                     $source[$column] = $definition->getValue();
 
+                    // The specified value is an anonymous function, execute it to get the value out of it
+                    if (is_callable($source[$column])) {
+                        $source[$column] = $source[$column]();
+                    }
+
                     // Apply variables
                     foreach ($source as $source_key => $source_value) {
                         if ($definitions->keyExists($source_key)) {
-                            $source[$column] = str_replace(':' . $source_key, (string) $source_value, (string) $source[$column]);
+                            if (str_contains((string) $source[$column], ':' . $source_key)) {
+                                $source[$column] = str_replace(':' . $source_key, (string) $source_value, (string) $source[$column]);
+                            }
                         }
                     }
                 }
@@ -463,6 +473,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                      ->setDefinition($definition)
                                                                      ->setHidden($definition->getHidden())
                                                                      ->setValue($definition->getValue()),
+
+                                EnumInputType::hidden       => $element_class::new()
+                                                                             ->setRequired($definition->getRequired())
+                                                                             ->setName($field_name)
+                                                                             ->setValue($source[$column]),
 
                                 default                     => $element_class::new()
                                                                              ->setDefinition($definition)
@@ -571,6 +586,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                ->setValue($source[$column])
                                                ->setContent(isset_get($source[$column]))
                                                ->setAutoFocus($definition->getAutoFocus());
+
                             $this->rows->add($definition, $component);
                             break;
 
@@ -688,32 +704,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         }
 
         return $return;
-    }
-
-
-    /**
-     * Returns the data fields for this DataEntryForm
-     *
-     * @return DefinitionsInterface|null
-     */
-    public function getDefinitionsObject(): ?DefinitionsInterface
-    {
-        return $this->definitions;
-    }
-
-
-    /**
-     * Set the data source for this DataEntryForm
-     *
-     * @param DefinitionsInterface $definitions
-     *
-     * @return static
-     */
-    public function setDefinitionsObject(DefinitionsInterface $definitions): static
-    {
-        $this->definitions = $definitions;
-
-        return $this;
     }
 
 

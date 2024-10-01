@@ -605,9 +605,11 @@ class Request implements RequestInterface
     public static function getReferer(string|bool $default = false): ?string
     {
         $url = isset_get($_SERVER['HTTP_REFERER']);
+
         if ($url) {
             return $url;
         }
+
         if ($default) {
             if (is_bool($default)) {
                 // We don't have a referer, return the current URL instead
@@ -660,7 +662,15 @@ class Request implements RequestInterface
      */
     public static function getUrl(bool $no_queries = false): string
     {
-        return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . static::getUri($no_queries);
+        if (PLATFORM_WEB) {
+            return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . static::getUri($no_queries);
+        }
+
+        // This is a command line process, things like request scheme are not available!
+        $url = Config::getString('web.domains.primary.web');
+        $url = str_replace(':LANGUAGE', Session::getLanguage(), $url);
+
+        return $url;
     }
 
 
@@ -1122,7 +1132,7 @@ class Request implements RequestInterface
 
             $current        = Response::getRedirect(Url::getCurrent());
             $guest_redirect = Url::getWww($guest_redirect)
-                                 ->addQueries($current ? 'redirect=' . $current : null);
+                                 ->addQueries($current ? 'redirect=' . urlencode($current) : null);
 
             Incident::new()
                     ->setType('401 - Unauthorized')
@@ -1373,6 +1383,11 @@ class Request implements RequestInterface
      */
     #[NoReturn] public static function executeSystem(int $http_code, ?Throwable $e = null, ?string $message = null): never
     {
+        if ($e and Debug::isEnabled()) {
+            // In debug mode we don't show pretty pages, we dump all the exception data on screen
+            throw $e;
+        }
+
         static::$system_target = $http_code;
         static::$is_system     = true;
 
@@ -1822,5 +1837,17 @@ class Request implements RequestInterface
         }
 
         return static::$web_restrictions;
+    }
+
+
+    /**
+     * Returns a validated useragent
+     *
+     * @todo Implement useragent validation
+     * @return string
+     */
+    public static function getUserAgent(): string
+    {
+        return $_SERVER['HTTP_USER_AGENT'];
     }
 }

@@ -24,9 +24,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use Phoundation\Data\Traits\TraitStaticMethodNewWithContent;
+
 
 class Div extends DivCore
 {
+    use TraitStaticMethodNewWithContent;
+
+
     /**
      * Div class constructor
      *

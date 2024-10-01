@@ -19,7 +19,7 @@ interface ElementAttributesInterface
     /**
      * Return new Templated HTML Element object using the current Page template
      *
-     * return static
+     * @return static
      */
     public static function new(): static;
 

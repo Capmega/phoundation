@@ -44,16 +44,16 @@ class JsonPage implements JsonPageInterface
     /**
      * Tracks HTML sections for this reply
      *
-     * @var array $html
+     * @var array|null $html
      */
-    protected static array $html = [];
+    protected static ?array $html = null;
 
     /**
      * Tracks HTML flash messages for this reply
      *
-     * @var array $flash
+     * @var array|null $flash
      */
-    protected static array $flash = [];
+    protected static ?array $flash = null;
 
     /**
      * Tracks the reply that will be given. One of ok, error, signin, redirect, reload
@@ -97,7 +97,7 @@ class JsonPage implements JsonPageInterface
             // Validate request data
             $get = GetValidator::new()
                                ->select('callback')->isOptional()->hasMaxCharacters(48)->matchesRegex('/jQuery\d+_\d+/')
-                               ->select('_')->isNatural()
+                               ->select('_')->isOptional()->isNatural()
                                ->validate(false);
 
             static::$jsonp  = $get['callback'] ?? false;
@@ -252,7 +252,6 @@ class JsonPage implements JsonPageInterface
             case 'redirect':
                 // no break
             case 301:
-                Response::setHttpCode(200);
                 $this->setResponse(EnumJsonResponse::redirect)
                      ->reply([
                          'http_code' => 301,
@@ -260,7 +259,6 @@ class JsonPage implements JsonPageInterface
                      ]);
 
             case 302:
-                Response::setHttpCode(200);
                 $this->setResponse(EnumJsonResponse::redirect)
                      ->reply([
                          'http_code' => 301,
@@ -270,18 +268,17 @@ class JsonPage implements JsonPageInterface
             case 'signin':
                 // no break
             case 'sign-in':
-                Response::setHttpCode(200);
                 $this->setResponse(EnumJsonResponse::signin)
                      ->reply([
                          'http_code' => 301,
-                         'location'  => Url::getWww('sign-in')->getSource()
+                         'location'  => Url::getWww('sign-in')
+                                           ->addQueries('redirect=' . urlencode($_SERVER['HTTP_REFERER']))
+                                           ->getSource()
                      ]);
         }
 
         // Get valid HTTP code, as code here may also be code words
         $int_code = static::getHttpCode($code);
-
-        Response::setHttpCode($int_code);
 
         // Process HTTP code specific replies
         switch ($int_code) {
@@ -459,6 +456,7 @@ class JsonPage implements JsonPageInterface
         // Clean up the data array and create a message
         $data = static::createMessage($data);
 
+        Response::setHttpCode(200);
         Response::setContentType('application/json');
         Response::setOutput($data);
         Response::send(false);

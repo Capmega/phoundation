@@ -306,6 +306,7 @@ trait TraitButtonProperties
     {
         $this->resetButtonClasses();
         $this->attributes->set($this->button_type?->value, 'type');
+
         if ($this->anchor_url) {
             $this->attributes->removeKeys('type');
             $this->attributes->set($this->anchor_url, 'href');
@@ -328,28 +329,36 @@ trait TraitButtonProperties
                 $this->classes->removeKeys($class);
             }
         }
+
         if ($this->mode->value) {
             $this->addClasses('btn-' . ($this->outlined ? 'outline-' : '') . $this->mode->value);
+
         } else {
             if ($this->outlined) {
                 $this->addClasses('btn-outline');
             }
         }
+
         if ($this->flat) {
             $this->addClasses('btn-flat');
         }
+
         if ($this->size->value) {
             $this->addClasses('btn-' . $this->size->value);
         }
+
         if ($this->block) {
             $this->addClasses('btn-block');
         }
+
         if ($this->rounded) {
             $this->addClasses('btn-rounded');
         }
+
         if (!$this->wrapping) {
             $this->addClasses('text-nowrap');
         }
+
         if ($this->floating) {
             $this->addClasses('btn-floating');
             $this->setContent(Icons::new()

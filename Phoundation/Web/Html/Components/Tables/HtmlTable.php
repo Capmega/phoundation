@@ -20,7 +20,9 @@ use PDO;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\TraitDataCallbacks;
+use Phoundation\Data\Traits\TraitDataCellCallbacks;
+use Phoundation\Data\Traits\TraitDataColumns;
+use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -39,8 +41,10 @@ use Stringable;
 class HtmlTable extends ResourceElement implements HtmlTableInterface
 {
     use TraitButtons;
+    use TraitDataColumns;
     use TraitDataTitle;
-    use TraitDataCallbacks;
+    use TraitDataRowCallbacks;
+    use TraitDataCellCallbacks;
 
 
     /**
@@ -162,13 +166,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     protected bool $process_entities = true;
 
-    /**
-     * If specified, the table will filter out these columns from the data source, regardless of if they contain more
-     *
-     * @var array $columns
-     */
-    protected array $columns;
-
 
     /**
      * Table constructor
@@ -179,41 +176,8 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     {
         parent::__construct($content);
         parent::setElement('table');
+
         $this->setNullStatus(tr('Active'));
-    }
-
-
-    /**
-     * Returns the columns specified for this table
-     *
-     * @return array|null
-     */
-    public function getColumns(): ?array
-    {
-        if (isset($this->columns)) {
-            return $this->columns;
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Sets if the table is header_text or not
-     *
-     * @param ArrayableInterface|array|string|null $columns
-     *
-     * @return static
-     */
-    public function setColumns(ArrayableInterface|array|string|null $columns): static
-    {
-        $columns = Arrays::force($columns);
-        if ($columns instanceof ArrayableInterface) {
-            $columns = $columns->__toArray();
-        }
-        $this->columns = $columns;
-
-        return $this;
     }
 
 
@@ -563,9 +527,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     public function renderBody(): string
     {
-        $return = null;
+        $return  = null;
         $return .= $this->renderBodyQuery();
         $return .= $this->renderBodyArray();
+
         if (!$return) {
             return $this->renderBodyEmpty();
         }
@@ -598,9 +563,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         }
 
         // Process SQL resource
-        while ($row = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
-            $this->executeCallbacks($row, EnumTableRowType::row, $params);
-            $return .= $this->renderRow(array_first($row), $row, $params);
+        while ($row = $this->source_query->fetch()) {
+            if (isset($this->columns)) {
+                $row = Arrays::keepKeysOrdered($row, $this->columns);
+            }
+
+            $this->executeRowCallbacks($row, EnumTableRowType::row, $params);
+            $return .= $this->doRenderRow(array_first($row), $row, $params);
         }
 
         return $return . '</tbody>';
@@ -608,16 +577,45 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
 
     /**
-     * Returns a table row
+     * Returns the requested row
      *
-     * @param string|float|int|null $key
+     * @param int  $row
+     * @param bool $exception
+     *
+     * @return array|null
+     */
+    public function getRow(int $row, bool $exception = false): ?array
+    {
+        return $this->source->get($row, $exception);
+    }
+
+
+    /**
+     * Renders and returns the current single table row
+     *
+     * @param int $row_id
+     *
+     * @return string
+     */
+    public function renderRow(int $row_id): string
+    {
+        $row = $this->getRow($row_id);
+
+        $this->executeRowCallbacks($row, EnumTableRowType::row, $params);
+        return $this->doRenderRow($row_id, $row, $params);
+    }
+
+
+    /**
+     * Renders and returns a single table row
+     *
+     * @param string|float|int|null $row_id
      * @param array                 $row_values
      * @param array                 $params
      *
      * @return string
-     * @throws \Exception
      */
-    protected function renderRow(string|float|int|null $row_id, array $row_values, array $params): string
+    protected function doRenderRow(string|float|int|null $row_id, array $row_values, array $params): string
     {
         if (!$this->headers) {
             // Auto set headers from the column names
@@ -653,15 +651,20 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 $first = false;
 
                 $params['htmlentities'] = !$made_checkbox;
-                $params['no_url']       = ($made_checkbox or !$value);
+                $params['no_url']       = (isset_get($params['no_url'], false) or $made_checkbox or !$value);
 
                 // If HtmlTable::renderCheckboxColumn() returned NULL, it means that we should not render this cell
                 if ($value !== null) {
+                    $this->executeCellCallbacks($row_id, $column, $value, $row_values, $params);
+
                     $return .= $this->renderCell($row_id, $column, $value, $params);
                 }
 
             } else {
                 $params['no_url'] = false;
+
+                $this->executeCellCallbacks($row_id, $column, $value, $row_values, $params);
+
                 $return          .= $this->renderCell($row_id, $column, $value, $params);
             }
         }
@@ -682,6 +685,34 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         }
 
         return $this->headers;
+    }
+
+
+    /**
+     * Sets the table headers
+     *
+     * @param IteratorInterface|array|null $headers
+     *
+     * @return HtmlTable
+     */
+    public function setHeaders(IteratorInterface|array|null $headers): static
+    {
+        if ($headers) {
+            if (is_array($headers)) {
+                $this->headers = new Iterator($headers);
+                $this->columns = array_keys($headers);
+
+            } else {
+                $this->headers = $headers;
+                $this->columns = array_keys($headers->__toArray());
+            }
+
+        } else {
+            $this->headers = null;
+            $this->columns = null;
+        }
+
+        return $this;
     }
 
 
@@ -921,41 +952,18 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                         ':type' => gettype($row),
                     ]));
                 }
+
                 // Row values is actually an object, get its content
                 $row = $row->__toArray();
             }
 
             if (isset($this->columns)) {
-                $row = Arrays::keepKeys($row, $this->columns);
+                $row = Arrays::keepKeysOrdered($row, $this->columns);
             }
 
-            $this->executeCallbacks($row, EnumTableRowType::row, $params);
+            $this->executeRowCallbacks($row, EnumTableRowType::row, $params);
 
-            $return .= $this->renderRow($row_id, $row, $params);
-//            $row_data = '';
-//            $this->count++;
-//
-//            // Add data-* in this option?
-//            if (array_key_exists($key, $this->source_data)) {
-//                $row_data = ' data-' . $key . '="' . $this->source_data[$key] . '"';
-//            }
-//
-//            $row   = '<tr' . $row_data . $this->renderRowClassString() . '>';
-//            $first = true;
-//
-//            foreach ($row_values as $column => $value) {
-//                if ($first) {
-//                    // Convert first column to checkboxes?
-//                    $value = $this->renderCheckboxColumn($column, $value);
-//                    $row  .= $this->renderCell($key, $column, $value, $params);
-//                    $first = false;
-//
-//                } else {
-//                    $row .= $this->renderCell($key, $column, $value, $params);
-//                }
-//            }
-//
-//            $return .= $row . '</tr>';
+            $return .= $this->doRenderRow($row_id, $row, $params);
         }
 
         return $return . '</tbody>';
@@ -970,11 +978,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     protected function renderBodyEmpty(): string
     {
         // No content (other than maybe the "none available" entry) was added
+        $return = '<tbody>';
+
         if ($this->empty) {
-            return '<tr><td>' . $this->empty . '</td></tr>';
+            $return .= '<tr class="empty-row"><td>' . $this->empty . '</td></tr>';
         }
 
-        return '';
+        return $return . '</tbody>';
     }
 
 
@@ -1037,7 +1047,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $return  = '<tfoot><tr>';
         $footers = $this->footers->__toArray();
 
-        $this->executeCallbacks($footers, EnumTableRowType::footer, $params);
+        $this->executeRowCallbacks($footers, EnumTableRowType::footer, $params);
 
         foreach ($footers as $column => $footer) {
             $return .= '<th>' . $footer . '</th>';

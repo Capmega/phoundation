@@ -30,9 +30,6 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipBoundary;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipPlacement;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipTrigger;
-use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipBoundaryInterface;
-use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipPlacementInterface;
-use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipTriggerInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 
@@ -121,11 +118,11 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * Sets the tooltip trigger for this element
      *
-     * @param EnumTooltipTriggerInterface ...$triggers
+     * @param EnumTooltipTrigger ...$triggers
      *
      * @return static
      */
-    public function setTriggers(EnumTooltipTriggerInterface ...$triggers): static
+    public function setTriggers(EnumTooltipTrigger ...$triggers): static
     {
         foreach ($triggers as &$trigger) {
             if ($trigger === EnumTooltipTrigger::manual) {
@@ -145,11 +142,11 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * Sets the positioning the tooltip - auto | top | bottom | left | right.
      *
-     * @param EnumTooltipPlacementInterface $placement
+     * @param EnumTooltipPlacement $placement
      *
      * @return static
      */
-    public function setPlacement(EnumTooltipPlacementInterface $placement): static
+    public function setPlacement(EnumTooltipPlacement $placement): static
     {
         $this->data->set($placement->value, 'placement');
 
@@ -373,9 +370,9 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * Returns the positioning the tooltip - auto | top | bottom | left | right.
      *
-     * @return EnumTooltipPlacementInterface
+     * @return EnumTooltipPlacement
      */
-    public function getPlacement(): EnumTooltipPlacementInterface
+    public function getPlacement(): EnumTooltipPlacement
     {
         return EnumTooltipPlacement::from($this->data->get('placement', false));
     }
@@ -384,9 +381,9 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * Returns the positioning the tooltip - auto | top | bottom | left | right.
      *
-     * @return EnumTooltipPlacementInterface
+     * @return EnumTooltipPlacement
      */
-    public function getFallbackPlacements(): EnumTooltipPlacementInterface
+    public function getFallbackPlacements(): EnumTooltipPlacement
     {
         return EnumTooltipPlacement::from($this->data->get('fallbackPlacements', false));
     }
@@ -395,11 +392,11 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * Sets the positioning the tooltip - auto | top | bottom | left | right.
      *
-     * @param EnumTooltipPlacementInterface $placement
+     * @param EnumTooltipPlacement $placement
      *
      * @return static
      */
-    public function setFallbackPlacements(EnumTooltipPlacementInterface $placement): static
+    public function setFallbackPlacements(EnumTooltipPlacement $placement): static
     {
         $this->data->set($placement->value, 'fallbackPlacements');
 
@@ -464,11 +461,12 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * Returns the overflow constraint boundary of the tooltip
      *
-     * @return EnumTooltipBoundaryInterface|string
+     * @return EnumTooltipBoundary|string
      */
-    public function getBoundary(): EnumTooltipBoundaryInterface|string
+    public function getBoundary(): EnumTooltipBoundary|string
     {
         $boundary = $this->data->get('boundary', false);
+
         if (!$boundary) {
             return EnumTooltipBoundary::scrollParent;
         }
@@ -480,15 +478,16 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * Sets the overflow constraint boundary of the tooltip
      *
-     * @param EnumTooltipBoundaryInterface|string $boundary
+     * @param EnumTooltipBoundary|string $boundary
      *
      * @return static
      */
-    public function setBoundary(EnumTooltipBoundaryInterface|string $boundary): static
+    public function setBoundary(EnumTooltipBoundary|string $boundary): static
     {
-        if ($boundary instanceof EnumTooltipBoundaryInterface) {
+        if ($boundary instanceof EnumTooltipBoundary) {
             $boundary = $boundary->value;
         }
+
         $this->data->set($boundary, 'boundary');
 
         return $this;
@@ -506,15 +505,18 @@ class Tooltip extends Element implements TooltipInterface
     {
         $this->data->set('tooltip', 'tooltip');
         $return = '';
+
         if (!static::$javascript_sent) {
             static::$javascript_sent = true;
+
             $return = Script::new()
                             ->setJavascriptWrapper(EnumJavascriptWrappers::window)
                             ->setContent('$(function () {
-                $(\'[data-tooltip="tooltip"]\').tooltip();
-            })')
+                                              $(\'[data-tooltip="tooltip"]\').tooltip();
+                                          })')
                             ->render();
         }
+
         if ($this->use_icon) {
             // Tooltip should use a separate icon
             $return .= $this->renderIcon();
@@ -524,9 +526,10 @@ class Tooltip extends Element implements TooltipInterface
             if (empty($this->source_element)) {
                 throw new OutOfBoundsException(tr('Cannot render tooltip, neither "use icon" nor a source element were specified, where one of either is required'));
             }
-            $this->source_element->getData()
-                                 ->merge($this->data);
+
+            $this->source_element->getData()->addSource($this->data);
         }
+
         if ($this->render_before) {
             return $render . $return;
         }
@@ -565,6 +568,7 @@ class Tooltip extends Element implements TooltipInterface
             } else {
                 $value = '"' . htmlentities($value) . '"';
             }
+
             $return[] = 'data-' . $key . '=' . $value;
         }
 

@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Page audit/meta
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
+
 declare(strict_types=1);
 
 use Phoundation\Core\Meta\MetaList;
@@ -14,12 +26,12 @@ use Phoundation\Web\Requests\Response;
 
 // Validate GET
 $get = GetValidator::new()
-                   ->select('id')->sanitizeForceArray('-')->each()->isDbId()
+                   ->select('id')->sanitizeForceArray('-')->eachField()->isDbId()
                    ->validate();
 
 
 $meta  = MetaList::new($get['id']);
-$table = $meta->getHtmlDataTable();
+$table = $meta->getHtmlDataTableObject();
 $card  = Card::new()
              ->setTitle('Registered activities')
              ->setSwitches('reload,maximize')
@@ -33,10 +45,10 @@ $documentation = Card::new()
                      ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Build and render the page grid
+// Render and return the page grid
 $grid = Grid::new()
-            ->addColumn($card->render(), EnumDisplaySize::nine)
-            ->addColumn($documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($card->render(), EnumDisplaySize::nine)
+            ->addGridColumn($documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

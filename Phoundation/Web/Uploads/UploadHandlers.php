@@ -312,7 +312,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
                 throw new FileUploadHandlerException(tr('Cannot process uploaded files, no upload handlers have been defined'));
             }
 
-            if (static::$mimetypes_groups) {
+            if (isset(static::$mimetypes_groups)) {
                 // Fix the mimetype groups store to match the handlers, validate the files before processing
                 $this->fixMimetypeGroups();
                 $this->validate();
@@ -324,7 +324,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
                 ]));
 
                 foreach (static::$mimetypes_groups as $mimetype => $files) {
-                    $handler = $this->getHandlerForMimetype($mimetype);
+                    $handler = $this->getHandlerForMimetype($mimetype, $files);
 
                     foreach ($files as $file) {
                         try {
@@ -377,7 +377,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
     protected function fixMimetypeGroups(): void
     {
         foreach (static::$mimetypes_groups as $mimetype => $group) {
-            $handler = $this->getHandlerForMimetype($mimetype);
+            $handler = $this->getHandlerForMimetype($mimetype, $group);
 
             if ($handler->getDropZoneObject()->getMimetype() !== $mimetype) {
                 static::$mimetypes_groups->renameKey($mimetype, $handler->getDropZoneObject()->getMimetype());
@@ -443,7 +443,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
 
         foreach (static::$mimetypes_groups as $mimetype => $files) {
             try {
-                $handler = $this->getHandlerForMimetype($mimetype);
+                $handler = $this->getHandlerForMimetype($mimetype, $files);
 
                 foreach ($files as $file) {
                     try {
@@ -503,33 +503,12 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
     /**
      * Returns the handler for the specified file mimetype if available, throws an FileUploadHandlerException if not
      *
-     * @param FsUploadedFileInterface $file
+     * @param string           $mimetype
+     * @param FsFilesInterface $files
      *
      * @return UploadHandlerInterface
      */
-    protected function getHandlerForFile(FsUploadedFileInterface $file): UploadHandlerInterface
-    {
-        try {
-            return $this->getHandlerForMimetype($file->getMimetype());
-
-        } catch (FileUploadHandlerException $e) {
-            throw new FileUploadHandlerException(tr('Cannot process uploaded file ":file" with size ":size" and mimetype ":mimetype", it has no mimetype handler specified', [
-                ':file'     => $file->getRealName(),
-                ':size'     => $file->getSize(),
-                ':mimetype' => $file->getMimetype(),
-            ]), $e);
-        }
-    }
-
-
-    /**
-     * Returns the handler for the specified file mimetype if available, throws an FileUploadHandlerException if not
-     *
-     * @param string $mimetype
-     *
-     * @return UploadHandlerInterface
-     */
-    protected function getHandlerForMimetype(string $mimetype): UploadHandlerInterface
+    protected function getHandlerForMimetype(string $mimetype, FsFilesInterface $files): UploadHandlerInterface
     {
         foreach ($this->source as $source_mimetype => $handler) {
             if (str_starts_with($mimetype, $source_mimetype)) {
@@ -540,9 +519,11 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
         }
 
         if (empty($handler)) {
-            throw new ValidationFailedException(tr('No handler found for mimetype ":mimetype"', [
+            throw ValidationFailedException::new(tr('No handler found for mimetype ":mimetype"', [
                 ':mimetype' => $mimetype,
-            ]));
+            ]))->setData([
+                'files' => $files
+            ]);
         }
 
         return $handler;

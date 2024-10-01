@@ -1095,6 +1095,20 @@ class Response implements ResponseInterface
 
 
     /**
+     * Instructs the client to reload the current page
+     *
+     * @param int      $http_code
+     * @param int|null $time_delay
+     *
+     * @return void
+     */
+    #[NoReturn] public static function reload(int $http_code = 302, ?int $time_delay = null): void
+    {
+        Response::redirect(Url::getCurrent()->clearQueries(), $http_code, $time_delay);
+    }
+
+
+    /**
      * Return the specified URL with a redirect URL stored in $core->register['redirect']
      *
      * @note If no URL is specified, the current URL will be used
@@ -1111,7 +1125,7 @@ class Response implements ResponseInterface
     #[NoReturn] public static function redirect(UrlInterface|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
     {
         if (!PLATFORM_WEB) {
-            throw new ResponseRedirectException(tr('Response::redirect() can only be called on web sessions'));
+            throw new ResponseRedirectException(tr('Response->redirect() can only be called on web sessions'));
         }
 
         //        if (Session::getSignInKey()?->getAllowNavigation()) {
