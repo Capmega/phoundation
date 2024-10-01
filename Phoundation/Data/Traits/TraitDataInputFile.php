@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataFile
+ * Trait TraitDataInputFile
  *
  *
  *
@@ -19,37 +19,37 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 
 
-trait TraitDataFile
+trait TraitDataInputFile
 {
     /**
-     * The file for this object
+     * The input_file for this object
      *
-     * @var FsFileInterface|null $file
+     * @var FsFileInterface|null $input_file
      */
-    protected ?FsFileInterface $file = null;
+    protected ?FsFileInterface $input_file = null;
 
 
     /**
-     * Returns the file
+     * Returns the input file
      *
      * @return FsFileInterface|null
      */
-    public function getFile(): ?FsFileInterface
+    public function getInputFile(): ?FsFileInterface
     {
-        return $this->file;
+        return $this->input_file;
     }
 
 
     /**
-     * Sets the file
+     * Sets the input file
      *
-     * @param FsFileInterface|null $file
+     * @param FsFileInterface|null $input_file
      *
      * @return static
      */
-    public function setFile(?FsFileInterface $file): static
+    public function setInputFile(?FsFileInterface $input_file): static
     {
-        $this->file = $file;
+        $this->input_file = $input_file;
 
         return $this;
     }
