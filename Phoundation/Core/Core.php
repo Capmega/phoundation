@@ -3305,8 +3305,7 @@ class Core implements CoreInterface
         }
 
 // TODO Change this so that we only return HTML for HTML requests, NOT json requests. With debug on, JsonPage should return full data reports!
-//        if (!Debug::isEnabled()) {
-        if (true) {
+        if (!Debug::isEnabled()) {
             switch (Request::getRequestType()) {
                 case EnumRequestTypes::api:
                     // no break

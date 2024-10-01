@@ -28,21 +28,21 @@ use Phoundation\Web\Requests\Response;
 
 // Validate
 $get = GetValidator::new()
-                   ->select('id')->isOptional()->isDbId()
                    ->validate();
 
 
 // Build the settings card
 $user = Session::getUserObject();
 $form = $user->getSettingsObject()->getHtmlDataEntryFormObject();
-$card = Card::new()
-            ->setTitle(tr('Edit data for right :name', [':name' => $user->getName()]))
-            ->setContent($form->render())
-            ->setButtons(Buttons::new()
-                                ->addButton(tr('Save'))
-                                ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/my/settings.html'), true)
-                                ->addButton(isset_get($delete))
-                                ->addButton(isset_get($audit)));
+
+$settings_card = Card::new()
+                     ->setTitle(tr('Edit data for right :name', [':name' => $user->getName()]))
+                     ->setContent($form->render())
+                     ->setButtons(Buttons::new()
+                                         ->addButton(tr('Save'))
+                                         ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/my/settings.html'), true)
+                                         ->addButton(isset_get($delete))
+                                         ->addButton(isset_get($audit)));
 
 
 // Build relevant links
@@ -59,19 +59,17 @@ $documentation = Card::new()
                      ->setContent('In this settings page you may configure various details about how your account behaves on this platform. These settings are unique to your account alone');
 
 
-// Render and return the page grid
-$grid = Grid::new()
-            ->addGridColumn($card, EnumDisplaySize::nine, true)
-            ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
-
-
 // Set page meta data
 Response::setHeaderTitle(tr('My settings'));
 Response::setHeaderSubTitle($user->getName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'                => tr('Home'),
-                                                           '/my/profile.html' => tr('My profile'),
-                                                           ''                 => tr('My settings'),
-                                                       ]));
+    '/'                => tr('Home'),
+    '/my/profile.html' => tr('My profile'),
+    ''                 => tr('My settings'),
+]));
+
+
+// Render and return the page grid
+return Grid::new()
+            ->addGridColumn($settings_card            , EnumDisplaySize::nine, true)
+            ->addGridColumn($relevant . $documentation, EnumDisplaySize::three);

@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Stringable;
 
 
 trait TraitDataFile

@@ -103,7 +103,7 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
                 if (!Request::getFileUploadHandlersObject()->hasUploadedFiles()) {
                     throw RequestMethodRestrictionsException::new(tr('Page ":page" request with method "POST" without file uploads has been restricted, this page only allows "POST" requests with file uploads', [
                         ':page' => Strings::from(Request::getTarget(), '/web/')
-                    ]))->registerIncident(EnumSeverity::high);;
+                    ]))->registerIncident(EnumSeverity::high);
                 }
 
                 return $this;
@@ -121,7 +121,7 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
             ':page'    => Strings::from(Request::getTarget(), '/web/'),
             ':method'  => strtoupper(Request::getRequestMethod()->value),
             ':allowed' => strtoupper($method->value)
-        ]))->registerIncident(EnumSeverity::high);;
+        ]))->registerIncident(EnumSeverity::high);
     }
 
 
@@ -170,7 +170,7 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
                         ':page'    => Strings::from(Request::getTarget(), '/web/'),
                         ':method'  => strtoupper(Request::getRequestMethod()->value),
                         ':allowed' => strtoupper(Request::getRequestMethod()->value)
-                    ]))->registerIncident(EnumSeverity::high);;
+                    ]))->registerIncident(EnumSeverity::high);
                 }
 
             } else {
@@ -178,7 +178,7 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
                     ':page'    => Strings::from(Request::getTarget(), '/web/'),
                     ':method'  => strtoupper(Request::getRequestMethod()->value),
                     ':allowed' => strtoupper(Request::getRequestMethod()->value)
-                ]))->registerIncident(EnumSeverity::high);;
+                ]))->registerIncident(EnumSeverity::high);
             }
         }
 
@@ -210,14 +210,14 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
                     ':page'    => Strings::from(Request::getTarget(), '/web/'),
                     ':method'  => strtoupper(Request::getRequestMethod()->value),
                     ':allowed' => strtoupper(Request::getRequestMethod()->value)
-                ]))->registerIncident(EnumSeverity::high);;
+                ]))->registerIncident(EnumSeverity::high);
             }
 
             throw RequestMethodRestrictionsException::new(tr('Page ":page" request with method ":method" has been restricted, it does not permit ":allowed" requests', [
                 ':page'    => Strings::from(Request::getTarget(), '/web/'),
                 ':method'  => strtoupper(Request::getRequestMethod()->value),
                 ':allowed' => strtoupper(Request::getRequestMethod()->value)
-            ]))->registerIncident(EnumSeverity::high);;
+            ]))->registerIncident(EnumSeverity::high);
         }
 
         return $this;

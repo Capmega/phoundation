@@ -305,6 +305,42 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
+     * Direct method to make entries readonly
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $render
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setReadonly(Stringable|string|float|int $key, bool $render, bool $exception = true): static
+    {
+        $this->get($key, $exception)
+            ->setReadonly($render);
+
+        return $this;
+    }
+
+
+    /**
+     * Direct method to make entries disabled
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $render
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setDisabled(Stringable|string|float|int $key, bool $render, bool $exception = true): static
+    {
+        $this->get($key, $exception)
+            ->setDisabled($render);
+
+        return $this;
+    }
+
+
+    /**
      * Returns if meta-information is visible at all, or not
      *
      * @return bool
