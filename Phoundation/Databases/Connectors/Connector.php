@@ -578,6 +578,23 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
+     * Returns the connector configuration in an array that can be understood by the Redis driver
+     *
+     * @return array
+     */
+    public function getRedisConfiguration(): array
+    {
+        return [
+            'host'           => $this->getHostname(),
+            'port'           => $this->getPort() ?? 6379,
+            'options'        => null,
+            'driver_options' => null,
+            'database'       => $this->getDatabase(),
+        ];
+    }
+
+
+    /**
      * @inheritDoc
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
