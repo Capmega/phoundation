@@ -23,17 +23,20 @@ use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Traits\TraitDataPrefix;
 use Phoundation\Data\Traits\TraitDataTable;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Traits\TraitButtons;
 use Stringable;
 
 
 class Definitions extends Iterator implements DefinitionsInterface
 {
+    use TraitButtons;
     use TraitDataDataEntry;
     use TraitDataTable;
     use TraitDataPrefix {
         getPrefix as getColumnPrefix;
         setPrefix as setColumnPrefix;
     }
+
 
     /**
      * Tracks if meta-information can be visible or not
@@ -218,6 +221,20 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
+     * Returns the specified column
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
+     * @return DefinitionInterface|null
+     */
+    public function get(Stringable|string|float|int $key, bool $exception = true): ?DefinitionInterface
+    {
+        return parent::get($key, $exception);
+    }
+
+
+    /**
      * Direct method to hide entries
      *
      * @param Stringable|string|float|int $key
@@ -228,23 +245,9 @@ class Definitions extends Iterator implements DefinitionsInterface
     public function hide(Stringable|string|float|int $key, bool $exception = true): static
     {
         $this->get($key, $exception)
-             ->setHidden(true);
+            ->setHidden(true);
 
         return $this;
-    }
-
-
-    /**
-     * Returns the specified column
-     *
-     * @param Stringable|string|float|int $key
-     * @param bool                        $exception
-     *
-     * @return DefinitionInterface
-     */
-    public function get(Stringable|string|float|int $key, bool $exception = true): DefinitionInterface
-    {
-        return parent::get($key, $exception);
     }
 
 
@@ -259,7 +262,43 @@ class Definitions extends Iterator implements DefinitionsInterface
     public function show(Stringable|string|float|int $key, bool $exception = true): static
     {
         $this->get($key, $exception)
-             ->setHidden(false);
+            ->setHidden(false);
+
+        return $this;
+    }
+
+
+    /**
+     * Direct method to render or not render entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $render
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setRender(Stringable|string|float|int $key, bool $render, bool $exception = true): static
+    {
+        $this->get($key, $exception)
+            ->setRender($render);
+
+        return $this;
+    }
+
+
+    /**
+     * Direct method to set size for entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param int                         $size
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setSize(Stringable|string|float|int $key, int $size, bool $exception = true): static
+    {
+        $this->get($key, $exception)
+             ->setSize($size);
 
         return $this;
     }

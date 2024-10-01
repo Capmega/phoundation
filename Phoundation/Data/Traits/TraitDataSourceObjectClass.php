@@ -30,9 +30,9 @@ trait TraitDataSourceObjectClass
     /**
      * Returns the data entry class
      *
-     * @return string
+     * @return string|null
      */
-    public function getSourceObjectClass(): string
+    public function getSourceObjectClass(): ?string
     {
         return $this->source_object_class;
     }

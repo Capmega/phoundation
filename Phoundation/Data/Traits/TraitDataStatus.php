@@ -22,17 +22,17 @@ trait TraitDataStatus
     /**
      * The status to use
      *
-     * @var string|null $status
+     * @var string|false|null $status
      */
-    protected ?string $status = null;
+    protected string|false|null $status = null;
 
 
     /**
      * Returns the status
      *
-     * @return string|null
+     * @return string|false|null
      */
-    public function getStatus(): ?string
+    public function getStatus(): string|false|null
     {
         return $this->status;
     }
@@ -41,12 +41,16 @@ trait TraitDataStatus
     /**
      * Sets the status
      *
-     * @param string|null $status
+     * @param string|false|null $status
      *
      * @return static
      */
-    public function setStatus(?string $status): static
+    public function setStatus(string|false|null $status): static
     {
+        if ($status === 'all') {
+            $status = false;
+        }
+
         $this->status = $status;
 
         return $this;

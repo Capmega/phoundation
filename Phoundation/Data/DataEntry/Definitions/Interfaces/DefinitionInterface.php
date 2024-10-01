@@ -144,10 +144,10 @@ interface DefinitionInterface
      * virtual column instead.
      *
      * @note Defaults to true
-     * @return bool|null
+     * @return callable|bool|null
      * @see  Definition::getVirtual()
      */
-    public function getRender(): ?bool;
+    public function getRender(): callable|bool|null;
 
 
     /**
@@ -158,12 +158,12 @@ interface DefinitionInterface
      *
      * @note Defaults to true
      *
-     * @param bool|null $value
+     * @param callable|bool|null $value
      *
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function setRender(?bool $value): static;
+    public function setRender(callable|bool|null $value): static;
 
 
     /**
@@ -1405,4 +1405,13 @@ interface DefinitionInterface
      * @see  Definition::setVirtual()
      */
     public function setForcedProcessing(?bool $value): static;
+
+    /**
+     * Returns if this definition is for the specified column
+     *
+     * @param string|null $column
+     *
+     * @return bool
+     */
+    public function isColumn(?string $column): bool;
 }

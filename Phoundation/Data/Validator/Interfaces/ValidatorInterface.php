@@ -17,16 +17,18 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator\Interfaces;
 
 use PDOStatement;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\Interfaces\IteratorBaseInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Validator;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Stringable;
 use UnitEnum;
 
-interface ValidatorInterface
+
+interface ValidatorInterface extends IteratorBaseInterface
 {
     /**
      * Returns the number of tests performed on the current column
@@ -52,25 +54,6 @@ interface ValidatorInterface
     public function doNotValidate(): static;
 
     /**
-     * Forcibly set the specified key of this validator source to the specified value
-     *
-     * @param mixed            $value
-     * @param string|float|int $key
-     *
-     * @return static
-     */
-    public function set(mixed $value, string|float|int $key): static;
-
-    /**
-     * Forcibly remove the specified source key
-     *
-     * @param string|float|int $key
-     *
-     * @return static
-     */
-    public function removeSourceKey(string|float|int $key): static;
-
-    /**
      * Returns the currently selected value
      *
      * @return mixed
@@ -80,26 +63,26 @@ interface ValidatorInterface
     /**
      * Allow the validator to check each element in a list of values.
      *
-     * Basically each method will expect to process a list always and ->select() will put the selected value in an
-     * artificial array because of this. ->each() actually will have a list of values, so puts that list directly into
+     * Basically, each method will expect to process a list always and ->select() will put the selected value in an
+     * artificial array because of this. ->eachField() actually will have a list of values, so puts that list directly into
      * $this->process_values
      *
      * @return static
      * @see DataValidator::select()
      * @see DataValidator::self()
      */
-    public function each(): static;
+    public function eachField(): static;
 
     /**
      * Will let the validator treat the value as a single variable
      *
-     * Basically each method will expect to process a list always and ->select() will put the selected value in an
-     * artificial array because of this. ->each() actually will have a list of values, so puts that list directly into
+     * Basically, each method will expect to process a list always and ->select() will put the selected value in an
+     * artificial array because of this. ->eachField() actually will have a list of values, so puts that list directly into
      * $this->process_values
      *
      * @return static
      * @see DataValidator::select()
-     * @see DataValidator::each()
+     * @see DataValidator::eachField()
      */
     public function single(): static;
 
@@ -322,52 +305,56 @@ interface ValidatorInterface
      *
      * This method ensures that the specified key is the same as the column value in the specified query
      *
-     * @param PDOStatement|string $query
-     * @param array|null          $execute
-     * @param bool                $ignore_case
+     * @param PDOStatement|string     $query
+     * @param array|null              $execute
+     * @param bool                    $ignore_case
+     * @param ConnectorInterface|null $connector
      *
      * @return static
      */
-    public function isQueryResult(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static;
+    public function isQueryResult(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, ?ConnectorInterface $connector = null): static;
 
     /**
      * Validates the datatype for the selected field
      *
      * This method ensures that the specified key is the same as the column value in the specified query
      *
-     * @param string              $column
-     * @param PDOStatement|string $query
-     * @param array|null          $execute
-     * @param bool                $ignore_case
-     * @param bool                $fail_on_null = true
+     * @param string                  $column
+     * @param PDOStatement|string     $query
+     * @param array|null              $execute
+     * @param bool                    $ignore_case
+     * @param bool                    $fail_on_null = true
+     * @param ConnectorInterface|null $connector
      *
      * @return static
      */
-    public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, bool $fail_on_null = true): static;
+    public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, bool $fail_on_null = true, ?ConnectorInterface $connector = null): static;
 
     /**
      * Validates the datatype for the selected field
      *
      * This method ensures that the specified key value contains the column value in the specified query
      *
-     * @param PDOStatement|string $query
-     * @param array|null          $execute
+     * @param PDOStatement|string     $query
+     * @param array|null              $execute
+     * @param ConnectorInterface|null $connector
      *
      * @return static
      */
-    public function containsQueryColumn(PDOStatement|string $query, ?array $execute = null): static;
+    public function containsQueryColumn(PDOStatement|string $query, ?array $execute = null, ?ConnectorInterface $connector = null): static;
 
     /**
      * Validates the datatype for the selected field
      *
      * This method ensures that the value is in the results from the specified query
      *
-     * @param PDOStatement|string $query
-     * @param array|null          $execute
+     * @param PDOStatement|string     $query
+     * @param array|null              $execute
+     * @param ConnectorInterface|null $connector
      *
      * @return static
      */
-    public function inQueryResultArray(PDOStatement|string $query, ?array $execute = null): static;
+    public function inQueryResultArray(PDOStatement|string $query, ?array $execute = null, ?ConnectorInterface $connector = null): static;
 
     /**
      * Validates the datatype for the selected field
@@ -927,11 +914,12 @@ interface ValidatorInterface
      * @note This requires Validator::$id to be set with an entry id through Validator::setId()
      * @note This requires Validator::setTable() to be set with a valid, existing table
      *
-     * @param string|null $failure
+     * @param string|null             $failure
+     * @param ConnectorInterface|null $connector
      *
      * @return static
      */
-    public function isUnique(?string $failure = null): static;
+    public function isUnique(?string $failure = null, ?ConnectorInterface $connector = null): static;
 
     /**
      * Sanitize the selected value by applying htmlentities()
@@ -1240,29 +1228,6 @@ interface ValidatorInterface
     public function renameKey(string|float|int $from_key, string|float|int $to_key, bool $exception = true, bool $overwrite = false): static;
 
     /**
-     * Returns the data entry class
-     *
-     * @return string
-     */
-    public function getSourceObjectClass(): string;
-
-    /**
-     * Returns the entire source for this validator object
-     *
-     * @return array|null
-     */
-    public function getSource(): ?array;
-
-    /**
-     * Sets the data entry class
-     *
-     * @param string|null $source_object_class
-     *
-     * @return static
-     */
-    public function setSourceObjectClass(?string $source_object_class): static;
-
-    /**
      * Returns the integer id for this object or null
      *
      * @return int|null
@@ -1300,16 +1265,53 @@ interface ValidatorInterface
     /**
      * Returns the data entry
      *
-     * @return DataEntryInterface|null
+     * @return DefinitionsInterface|null
      */
-    public function getDataEntry(): ?DataEntryInterface;
+    public function getDefinitionsObject(): ?DefinitionsInterface;
 
     /**
      * Sets the data entry
      *
-     * @param DataEntryInterface|null $data_entry
+     * @param DefinitionsInterface $definitions
      *
      * @return static
      */
-    public function setDataEntry(?DataEntryInterface $data_entry): static;
+    public function setDefinitionsObject(DefinitionsInterface $definitions): static;
+
+    /**
+     * This method will validate that the specified key is set as well, in case the current key is not the default
+     *
+     * @param int|string $field
+     *
+     * @return $this
+     */
+    public function requiresField(int|string $field): static;
+
+    /**
+     * Sets the current column to the results of the executed query
+     *
+     * This method ensures that the specified key is the same as the column value in the specified query
+     *
+     * @param PDOStatement|string     $query
+     * @param array|null              $execute
+     * @param bool                    $ignore_case
+     * @param bool                    $fail_on_null = true
+     * @param ConnectorInterface|null $connector
+     *
+     * @return static
+     */
+    public function setFromQuery(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, bool $fail_on_null = true, ?ConnectorInterface $connector = null): static;
+
+    /**
+     * Validates that the selected field is a date range
+     *
+     * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     *
+     * @param array|string|null $formats
+     *
+     * @return static
+     * @todo Add locale support instead , see https://www.php.net/manual/en/book.intl.php and
+     *       https://stackoverflow.com/questions/8827514/get-date-format-according-to-the-locale-in-php (INTL section)
+     */
+    public function isDateRange(array|string|null $formats = null): static;
 }

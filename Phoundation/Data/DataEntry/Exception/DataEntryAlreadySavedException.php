@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Enum EnunmStateMismatchHandling
+ * Class DataEntryAlreadySavedException
  *
- *
+ * This exception is thrown when a data entry is being saved but was already saved before and can only be saved once
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,12 +14,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Data\DataEntry\Enums;
+namespace Phoundation\Data\DataEntry\Exception;
 
-
-enum EnunmStateMismatchHandling: string
+class DataEntryAlreadySavedException extends DataEntryException
 {
-    case restrict       = 'restrict';
-    case allow_override = 'allow_override';
-    case ignore         = 'ignore';
 }

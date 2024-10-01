@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait TraitDataEntryUserAgent
+ * Trait TraitDataEntryAction
  *
- * This trait contains methods for DataEntry objects that require user_agent
+ *
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,28 +17,28 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-trait TraitDataEntryUserAgent
+trait TraitDataEntryAction
 {
     /**
-     * Returns the user agent for this user
+     * Returns the action for this object
      *
      * @return string|null
      */
-    public function getUserAgent(): ?string
+    public function getAction(): ?string
     {
-        return $this->getTypesafe('string', 'user_agent');
+        return $this->getTypesafe('string', 'action');
     }
 
 
     /**
-     * Sets the user agent for this user
+     * Sets the action for this object
      *
-     * @param string|null $user_agent
+     * @param string|null $action
      *
      * @return static
      */
-    public function setUserAgent(?string $user_agent): static
+    public function setAction(?string $action): static
     {
-        return $this->set($user_agent, 'user_agent');
+        return $this->set($action, 'action');
     }
 }

@@ -42,7 +42,7 @@ trait TraitDataInline
      * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
      *
      * @param bool $inline
-     * return static
+     * @return static
      */
     public function setInline(bool $inline): static
     {

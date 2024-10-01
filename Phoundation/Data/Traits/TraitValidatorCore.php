@@ -14,20 +14,17 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Data\Validator;
+namespace Phoundation\Data\Traits;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\Traits\TraitDataDataEntry;
-use Phoundation\Data\Traits\TraitDataSourceObjectClass;
-use Phoundation\Data\Traits\TraitDataIntId;
-use Phoundation\Data\Traits\TraitDataMaxStringSize;
-use Phoundation\Data\Traits\TraitDataMetaColumns;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -38,13 +35,13 @@ use ReflectionProperty;
 
 trait TraitValidatorCore
 {
+    use TraitDataDefinitions {
+        setDefinitionsObject as protected __setDefinitions;
+    }
     use TraitDataIntId;
     use TraitDataMaxStringSize;
     use TraitDataMetaColumns;
-    use TraitDataSourceObjectClass;
-    use TraitDataDataEntry {
-        setDataEntry as protected __setDataEntry;
-    }
+    use TraitDataSourceArray;
 
 
     /**
@@ -62,13 +59,6 @@ trait TraitValidatorCore
      * @var bool $password_disabled
      */
     protected static bool $password_disabled = false;
-
-    /**
-     * The source data that we will be validating
-     *
-     * @var array|string|null $source
-     */
-    protected array|string|null $source = null;
 
     /**
      * Register for the failures occurred during validations
@@ -129,7 +119,7 @@ trait TraitValidatorCore
 
     /**
      * The value(s) that actually will be tested. This most of the time will be an array with a single reference to
-     * $selected_value, but when ->each() validates a list of values, this will reference that list directly
+     * $selected_value, but when ->eachField() validates a list of values, this will reference that list directly
      *
      * @var array|null $process_values
      */
@@ -227,16 +217,18 @@ trait TraitValidatorCore
 
 
     /**
-     * Sets the data entry for the validator
+     * Sets the specified default value for the specified column if it was not received from the user
      *
-     * @param DataEntryInterface|null $data_entry
+     * @param mixed  $value
+     * @param string $column
      *
-     * @return static
+     * @return void
      */
-    public function setDataEntry(?DataEntryInterface $data_entry): static
+    public function setColumnDefault(mixed $value, string $column): void
     {
-        return $this->setSourceObjectClass(get_class($data_entry))
-                    ->__setDataEntry($data_entry);
+        if (!array_key_exists($column, $this->source)) {
+            $this->source[$column] = $value;
+        }
     }
 
 
@@ -249,7 +241,7 @@ trait TraitValidatorCore
      */
     public static function pick(ValidatorInterface|array|null &$source = null): ValidatorInterface
     {
-        // Determine data source for this modification
+        // Determine data-source for this modification
         if (!$source) {
             // Use default data depending on platform
             if (PLATFORM_WEB) {
@@ -282,28 +274,6 @@ trait TraitValidatorCore
         $this->id = $id;
 
         return $this;
-    }
-
-
-    /**
-     * Returns the entire source for this validator object
-     *
-     * @return array|null
-     */
-    public function getSource(): ?array
-    {
-        return $this->source;
-    }
-
-
-    /**
-     * Returns the value for the specified key, or null if not
-     *
-     * @return array
-     */
-    public function getSourceValue(string $key): mixed
-    {
-        return array_get_safe($this->source, $key);
     }
 
 
@@ -541,18 +511,28 @@ trait TraitValidatorCore
         $failure = trim($failure);
 
         if (Debug::isEnabled()) {
-            Log::write(tr('Validation failed for field ":field" with value ":value" because :failure', [
-                ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
-                ':failure' => $failure,
-                ':value'   => $this->source[$selected_field],
-            ]), 'debug', 6);
+            if ($this->definitions?->getDataEntry()) {
+                Log::write(tr('Validation failed for ":class" DataEntry field ":field" with value ":value" because :failure', [
+                    ':class'   => get_class($this->definitions->getDataEntry()),
+                    ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
+                    ':failure' => $failure,
+                    ':value'   => $this->source[$selected_field],
+                ]), 'debug', 6);
+
+            } else {
+                Log::write(tr('Validation failed for field ":field" with value ":value" because :failure', [
+                    ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
+                    ':failure' => $failure,
+                    ':value'   => $this->source[$selected_field],
+                ]), 'debug', 6);
+            }
 
             Log::write('Validation failed on value below:', 'debug', 6);
             Log::printr($this->selected_value, 6, echo_header: false);
             Log::write('Validation backtrace:', 'debug', 6);
             Log::backtrace(threshold: 6);
             Log::write('Validation data source:', 'debug', 6);
-            Log::printr($this->source);
+            Log::write(get_null($this->source) ? print_r($this->source, true) : '-', 'debug', clean: false);
         }
 
         // Build up the failure string
@@ -664,6 +644,27 @@ trait TraitValidatorCore
     {
         $this->selected_is_optional = true;
         $this->selected_optional    = $default;
+
+        return $this;
+    }
+
+
+    /**
+     * This method will validate that the specified key is set as well, in case the current key is not the default
+     *
+     * @param int|string $field
+     *
+     * @return $this
+     */
+    public function requiresField(int|string $field): static
+    {
+        if (!$this->selected_is_default) {
+            if (!array_key_exists($field, $this->source)) {
+                $this->addFailure(tr('requires field ":field" to have a valid value as well', [
+                    ':field' => $field,
+                ]));
+            }
+        }
 
         return $this;
     }
@@ -835,11 +836,11 @@ trait TraitValidatorCore
      *
      * This method will check the failures array and if any failures were registered, it will throw an exception
      *
-     * @param bool $clean_source
+     * @param bool $require_clean_source
      *
      * @return array
      */
-    public function validate(bool $clean_source = true): array
+    public function validate(bool $require_clean_source = true): array
     {
         // Check if there is still a field selected that has no test applied.
         // If so, fail, because all fields must be tested
@@ -856,15 +857,18 @@ trait TraitValidatorCore
         // Remove all unselected and all failed fields
         foreach ($this->source as $field => $value) {
             // Unprocessed fields
-            if ($clean_source) {
-                if (!in_array($field, $this->selected_fields)) {
-                    // These fields were never selected, so we don't know them. Are they meta-columns? If so, ignore
-                    // them because they will have been set manually (DataEntry::apply() will ignore meta columns)
-                    if ($this->meta_columns and !in_array($field, $this->meta_columns)) {
-                        $unclean[$field] = tr('The field ":field" is unknown', [':field' => $field]);
+            if ($require_clean_source) {
+                // Ignore the __csrf field
+                if ($field !== '__csrf') {
+                    if (!in_array($field, $this->selected_fields)) {
+                        // These fields were never selected, so we don't know them. Are they meta-columns? If so, ignore
+                        // them because they will have been set manually (DataEntry::apply() will ignore meta columns)
+                        if (empty($this->meta_columns) or !in_array($field, $this->meta_columns)) {
+                            $unclean[$field] = tr('The field ":field" is unknown', [':field' => $field]);
 
-                        unset($this->source[$field]);
-                        continue;
+                            unset($this->source[$field]);
+                            continue;
+                        }
                     }
                 }
             }
@@ -899,11 +903,11 @@ trait TraitValidatorCore
                                                    'failures' => $this->failures,
                                                    'values'   => $values
                                                ])
-                                               ->setSourceObjectClass($this->source_object_class)
+                                               ->setDataEntry($this->definitions?->getDataEntry())
                                                ->makeWarning();
             }
 
-            Log::error('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!');
+            Log::error('WARNING: SKIPPED FIELDS VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM DATA MAY BE IN UNKNOWN STATE!');
         }
 
         if (isset($unclean)) {
@@ -913,7 +917,7 @@ trait TraitValidatorCore
                                                ->makeWarning();
             }
 
-            Log::error('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!');
+            Log::error('WARNING: SKIPPED DATA CLEAN VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM DATA MAY BE IN UNKNOWN STATE!');
         }
 
         return Arrays::extract($this->source, $this->selected_fields);
@@ -921,11 +925,11 @@ trait TraitValidatorCore
 
 
     /**
-     * Resets the class for a new validation
+     * Clears all the internal content for this object
      *
-     * @return void
+     * @return static
      */
-    public function clear(): void
+    public function clear(): static
     {
         unset($this->selected_fields);
         unset($this->selected_value);
@@ -936,7 +940,8 @@ trait TraitValidatorCore
         $this->selected_fields = [];
         $this->selected_value  = null;
         $this->process_values  = null;
-        $this->source          = null;
+
+        return parent::clear();
     }
 
 

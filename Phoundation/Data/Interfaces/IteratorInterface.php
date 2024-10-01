@@ -12,13 +12,15 @@ use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
+use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
 
-interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
+interface IteratorInterface extends IteratorBaseInterface
 {
     /**
      * Returns the class used to generate the select input
@@ -35,48 +37,6 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      * @return DataIterator
      */
     public function setComponentClass(string $input_select_class): static;
-
-    /**
-     * Returns the current entry
-     *
-     * @return mixed
-     */
-    public function current(): mixed;
-
-    /**
-     * Progresses the internal pointer to the next entry
-     *
-     * @return void
-     */
-    public function next(): void;
-
-    /**
-     * Progresses the internal pointer to the previous entry
-     *
-     * @return void
-     */
-    public function previous(): void;
-
-    /**
-     * Returns the current key for the current button
-     *
-     * @return string|int|null
-     */
-    public function key(): string|int|null;
-
-    /**
-     * Returns if the current pointer is valid or not
-     *
-     * @return bool
-     */
-    public function valid(): bool;
-
-    /**
-     * Rewinds the internal pointer
-     *
-     * @return void
-     */
-    public function rewind(): void;
 
     /**
      * Sets the value for the specified key
@@ -289,7 +249,7 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      * Sets the datatype restrictions for all elements in this iterator, NULL if none
      *
      * @param array|string|null $data_types
-     * return static
+     * @return static
      */
     public function setAcceptedDataTypes(array|string|null $data_types): static;
 
@@ -310,12 +270,14 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      */
     public function getValueOrDefault(Stringable|string|int $key, mixed $value): mixed;
 
+
     /**
      * Returns the first element contained in this object without changing the internal pointer
      *
      * @return mixed
      */
     public function getFirstValue(): mixed;
+
 
     /**
      * Returns the last element contained in this object without changing the internal pointer
@@ -732,7 +694,7 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      *
      * @return HtmlTableInterface
      */
-    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface;
+    public function getHtmlTableObject(array|string|null $columns = null): HtmlTableInterface;
 
     /**
      * Returns an array with array values containing only the specified columns
@@ -755,7 +717,7 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      *
      * @return HtmlDataTableInterface
      */
-    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface;
+    public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface;
 
     /**
      * Returns an HTML <select> for the entries in this list
@@ -769,7 +731,7 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      *
      * @return static
      */
-    public function each(callable $callback): static;
+    public function eachField(callable $callback): static;
 
     /**
      * Returns a diff between this Iterator and the specified Iterator or array
@@ -813,4 +775,67 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      * @throws OutOfBoundsException|Throwable
      */
     public function copyValue(Stringable|string|int|null $from_key, Stringable|string|int|null $to_key): static;
+
+    /**
+     * Returns the source
+     *
+     * @return array
+     */
+    public function getRowCallbacks(): array;
+
+    /**
+     * Set all callbacks to use
+     *
+     * @param array $callbacks
+     *
+     * @return static
+     */
+    public function setRowCallbacks(array $callbacks): static;
+
+    /**
+     * Adds a callback
+     *
+     * @param callable $callbacks
+     *
+     * @return static
+     */
+    public function addRowCallback(callable $callbacks): static;
+
+    /**
+     * Clears the callbacks
+     *
+     * @return static
+     */
+    public function clearRowCallbacks(): static;
+
+    /**
+     * Returns the filter_form
+     *
+     * @return FilterFormInterface
+     */
+    public function getFilterFormObject(): FilterFormInterface;
+
+    /**
+     * Sets the filter_form
+     *
+     * @param FilterFormInterface $filter_form
+     *
+     * @return static
+     */
+    public function setFilterFormObject(FilterFormInterface $filter_form): static;
+
+    /**
+     * Shift an entry off the beginning of this Iterator
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function shift(): mixed;
+
+
+    /**
+     * Prepend elements to the beginning of an array
+     *
+     * @return mixed
+     */
+    public function unshift(mixed ...$values): static;
 }

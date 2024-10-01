@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Trait TraitDataConnector
+ * Trait TraitDataDatabaseConnector
  *
  *
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @license   http://opendebug.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
@@ -18,65 +18,124 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
-use Phoundation\Seo\Seo;
-use Phoundation\Utils\Config;
+use Phoundation\Databases\Connectors\SystemConnector;
 
 
 trait TraitDataConnector
 {
     /**
-     * The connector to use
+     * Tracks the database connector containing the connection information about the database where this DataEntry
+     * object is stored
      *
-     * @var ConnectorInterface|null $connector
+     * @var ConnectorInterface|null $o_connector
      */
-    protected ?ConnectorInterface $connector = null;
+    protected ?ConnectorInterface $o_connector = null;
+
+    /**
+     * Tracks the database connector name
+     *
+     * @var string|null $connector
+     */
+    protected ?string $connector = null;
 
 
     /**
-     * Returns the source
+     * Returns the name of the database connector where this DataEntry is stored
      *
-     * @return ConnectorInterface|null
+     * @return string
      */
-    public function getConnector(): ?ConnectorInterface
+    public function getConnector(): string
     {
-        return $this->connector;
+        return $this->connector ?? static::getDefaultConnector();
     }
 
 
     /**
-     * Sets the source
+     * Sets the database connector by name
      *
-     * @param ConnectorInterface|string|null $connector
-     * @param bool                           $ignore_sql_exceptions
+     * @param string      $connector
+     * @param string|null $database
      *
      * @return static
-     * @throws SqlExceptionInterface
      */
-    public function setConnector(ConnectorInterface|string|null $connector, bool $ignore_sql_exceptions = false): static
+    public function setConnector(string $connector, ?string $database = null): static
     {
-        if (!$connector) {
-            $connector = 'system';
+        $this->connector   = $connector;
+
+        if (empty($this->o_connector)) {
+            $connector = $this->getConnector();
+
+            if (!$connector or ($connector === 'system')) {
+                $this->setConnectorObject(new SystemConnector(), $database);
+
+            } else {
+                $this->setConnectorObject(new Connector($connector), $database);
+            }
         }
 
-        try {
-            $this->connector = Connector::load($connector);
+        return $this;
+    }
 
-        } catch (SqlExceptionInterface $e) {
-            if (!$ignore_sql_exceptions) {
-                throw $e;
+
+    /**
+     * Returns the default database connector to use for this table
+     *
+     * @return string
+     */
+    public static function getDefaultConnector(): string
+    {
+        return 'system';
+    }
+
+
+    /**
+     * Returns a database connector for this DataEntry object
+     *
+     * @return ConnectorInterface
+     */
+    public static function getDefaultConnectorObject(): ConnectorInterface
+    {
+        return new Connector(static::getDefaultConnector());
+    }
+
+
+    /**
+     * Returns the database connector
+     *
+     * @return ConnectorInterface
+     */
+    public function getConnectorObject(): ConnectorInterface
+    {
+        if (empty($this->o_connector)) {
+            $connector = $this->getConnector();
+
+            if ($connector === 'system') {
+                $this->setConnectorObject(new SystemConnector());
+
+            } else {
+                $this->setConnectorObject(new Connector($connector));
             }
+        }
 
-            // Sql failed, which might be due to the system database or databases_connectors table not existing?
-            // Try getting the connector from configuration
-            $entry = Config::getArray('databases.connectors.' . $connector, []);
+        return $this->o_connector;
+    }
 
-            if (count($entry)) {
-                $entry['name']     = $connector;
-                $entry['seo_name'] = Seo::string($connector);
-                $this->connector   = Connector::newFromSource($entry, true)
-                                              ->setReadonly(true);
-            }
+
+    /**
+     * Sets the database connector
+     *
+     * @param ConnectorInterface $o_connector
+     * @param string|null        $database
+     *
+     * @return static
+     */
+    public function setConnectorObject(ConnectorInterface $o_connector, ?string $database = null): static
+    {
+        $this->o_connector = $o_connector;
+        $this->connector   = $o_connector->getName();
+
+        if ($database) {
+            $this->o_connector->setDatabase($database);
         }
 
         return $this;

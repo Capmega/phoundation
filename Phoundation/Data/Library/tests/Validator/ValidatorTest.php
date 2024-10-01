@@ -451,7 +451,7 @@ class ValidatorTest extends TestCase
 //            ->select('test-xora')->xor('test-xorb')->isArray()
 //            ->select('test-optional')->isOptional([])->isArray()
 //            ->select('test-list-array')->recurse()
-//            ->select('sub-list-array')->hasMinimumElements(3)->each()->hasMinCharacters(1)
+//            ->select('sub-list-array')->hasMinimumElements(3)->eachField()->hasMinCharacters(1)
 //            ->validate()
 //            ->select('test-array')->isArray()->recurse()
 //            ->select('sub-integer')->isInteger()

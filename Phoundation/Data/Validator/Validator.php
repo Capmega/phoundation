@@ -19,11 +19,14 @@ namespace Phoundation\Data\Validator;
 use PDOStatement;
 use Phoundation\Accounts\Users\Password;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\IteratorBase;
 use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Data\Traits\TraitValidatorCore;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Date\DateFormats;
 use Phoundation\Date\DateTime;
 use Phoundation\Date\DateTimeFormats;
@@ -31,9 +34,9 @@ use Phoundation\Date\Exception\UnsupportedDateFormatException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\FsPath;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\JsonException;
@@ -48,10 +51,33 @@ use Throwable;
 use UnitEnum;
 
 
-abstract class Validator implements ValidatorInterface
+abstract class Validator extends IteratorBase implements ValidatorInterface
 {
     use TraitValidatorCore;
     use TraitDataRestrictions;
+
+
+    /**
+     * Apply a default value to the specified key if said key is currently not available in the data source
+     *
+     * @param mixed  $value
+     * @param string $key
+     *
+     * @return Validator
+     */
+    public function default(mixed $value, string $key): static
+    {
+        if (array_key_exists($key, $this->source)) {
+            if (($this->source[$key] === null) or ($this->source[$key] === '')) {
+                $this->source[$key] = $value;
+            }
+
+        } else {
+            $this->source[$key] = $value;
+        }
+
+        return $this;
+    }
 
 
     /**
@@ -106,6 +132,20 @@ abstract class Validator implements ValidatorInterface
     public static function enablePasswords(): void
     {
         static::$password_disabled = false;
+    }
+
+
+    /**
+     * Copies the value of the currently selected key to the specified key
+     *
+     * @param string|float|int $to_key
+     *
+     * @return $this
+     */
+    public function copyToKey(string|float|int $to_key): static
+    {
+        $this->source[$to_key] = $this->selected_value;
+        return $this;
     }
 
 
@@ -227,37 +267,6 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
-     * Forcibly set the specified key of this validator source to the specified value
-     *
-     * @param mixed            $value
-     * @param string|float|int $key
-     *
-     * @return static
-     */
-    public function set(mixed $value, string|float|int $key): static
-    {
-        $this->source[$key] = $value;
-
-        return $this;
-    }
-
-
-    /**
-     * Forcibly remove the specified source key
-     *
-     * @param string|float|int $key
-     *
-     * @return static
-     */
-    public function removeSourceKey(string|float|int $key): static
-    {
-        unset($this->source[$key]);
-
-        return $this;
-    }
-
-
-    /**
      * Returns the currently selected value
      *
      * @return mixed
@@ -265,6 +274,21 @@ abstract class Validator implements ValidatorInterface
     public function getSelectedValue(): mixed
     {
         return $this->selected_value;
+    }
+
+
+    /**
+     * Returns the currently selected field
+     *
+     * @return mixed
+     */
+    public function getSelectedField(bool $strip_prefix = true): string
+    {
+        if ($strip_prefix) {
+            return Strings::from($this->selected_field, $this->field_prefix);
+        }
+
+        return $this->selected_field;
     }
 
 
@@ -279,7 +303,7 @@ abstract class Validator implements ValidatorInterface
      * @see DataValidator::select()
      * @see DataValidator::self()
      */
-    public function each(): static
+    public function eachField(): static
     {
         // This very obviously only works on arrays
         $this->isArray();
@@ -367,6 +391,7 @@ abstract class Validator implements ValidatorInterface
 // TODO TEST THIS! IF next line is enabled then multiple tests after each other will continue, even if the previous failed!!
 //                $this->process_value_failed = false;
                 $this->selected_is_default = false;
+
                 $function($this->process_value);
             }
 
@@ -384,12 +409,12 @@ abstract class Validator implements ValidatorInterface
      * Will let the validator treat the value as a single variable
      *
      * Basically each method will expect to process a list always and ->select() will put the selected value in an
-     * artificial array because of this. ->each() actually will have a list of values, so puts that list directly into
+     * artificial array because of this. ->eachField() actually will have a list of values, so puts that list directly into
      * $this->process_values
      *
      * @return static
      * @see DataValidator::select()
-     * @see DataValidator::each()
+     * @see DataValidator::eachField()
      */
     public function single(): static
     {
@@ -894,6 +919,40 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Validates that the selected field has exactly the specified value
+     *
+     * @param mixed $value
+     * @param bool  $strict
+     *
+     * @return static
+     */
+    public function hasValue(mixed $value = null, bool $strict = true): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$test_value) use ($value, $strict) {
+            $this->isString();
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            if ($strict) {
+                if ($value !== $test_value) {
+                    $this->addFailure(tr('has an incorrect value'));
+                }
+
+            } else {
+                if ($value != $test_value) {
+                    $this->addFailure(tr('has an incorrect value'));
+                }
+            }
+        });
+    }
+
+
+    /**
      * Validates the datatype for the selected field
      *
      * This method ensures that the specified array key is a string
@@ -1227,29 +1286,30 @@ abstract class Validator implements ValidatorInterface
             $this->source[$this->field_prefix . $column] = $result;
 
             // Mark the column entry for forced processing, in case it was marked as not rendering to avoid validation issues
-            $this->data_entry?->getDefinitionsObject()->get($column)->setForcedProcessing(true);
+            $this->definitions?->get($column)->setForcedProcessing(true);
         });
     }
 
 
     /**
-     * Validates the datatype for the selected field
+     * Sets the specified column to the results of the executed query
      *
      * This method ensures that the specified key is the same as the column value in the specified query
      *
-     * @param string              $column
-     * @param PDOStatement|string $query
-     * @param array|null          $execute
-     * @param bool                $ignore_case
-     * @param bool                $fail_on_null = true
+     * @param string                  $column
+     * @param PDOStatement|string     $query
+     * @param array|null              $execute
+     * @param bool                    $ignore_case
+     * @param bool                    $fail_on_null = true
+     * @param ConnectorInterface|null $connector
      *
      * @return static
      */
-    public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, bool $fail_on_null = true): static
+    public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, bool $fail_on_null = true, ?ConnectorInterface $connector = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($column, $query, $execute, $ignore_case, $fail_on_null) {
+        return $this->validateValues(function (&$value) use ($column, $query, $execute, $ignore_case, $fail_on_null, $connector) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
@@ -1259,7 +1319,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             $execute = $this->applyExecuteVariables($execute);
-            $result  = sql()->setDebug($this->debug)->getColumn($query, $execute);
+            $result  = sql($connector)->setDebug($this->debug)->getColumn($query, $execute);
 
             if (!$result and $fail_on_null) {
                 $this->addFailure(Strings::plural(count($execute), tr('value ":values" does not exist', [':values' => implode(', ', $execute)]), tr('values ":values" do not exist', [':values' => implode(', ', $execute)])));
@@ -1268,8 +1328,27 @@ abstract class Validator implements ValidatorInterface
             $this->source[$this->field_prefix . $column] = $result;
 
             // Mark the column entry for forced processing, in case it was marked as not rendering to avoid validation issues
-            $this->data_entry?->getDefinitionsObject()->get($column)->setForcedProcessing(true);
+            $this->definitions?->get($column)->setForcedProcessing(true);
         });
+    }
+
+
+    /**
+     * Sets the current column to the results of the executed query
+     *
+     * This method ensures that the specified key is the same as the column value in the specified query
+     *
+     * @param PDOStatement|string     $query
+     * @param array|null              $execute
+     * @param bool                    $ignore_case
+     * @param bool                    $fail_on_null = true
+     * @param ConnectorInterface|null $connector
+     *
+     * @return static
+     */
+    public function setFromQuery(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, bool $fail_on_null = true, ?ConnectorInterface $connector = null): static
+    {
+        return $this->setColumnFromQuery($this->getSelectedField(), $query, $execute, $ignore_case, $fail_on_null, $connector);
     }
 
 
@@ -1311,16 +1390,17 @@ abstract class Validator implements ValidatorInterface
      *
      * This method ensures that the specified key value contains the column value in the specified query
      *
-     * @param PDOStatement|string $query
-     * @param array|null          $execute
+     * @param PDOStatement|string     $query
+     * @param array|null              $execute
+     * @param ConnectorInterface|null $connector
      *
      * @return static
      */
-    public function containsQueryColumn(PDOStatement|string $query, ?array $execute = null): static
+    public function containsQueryColumn(PDOStatement|string $query, ?array $execute = null, ?ConnectorInterface $connector = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($query, $execute) {
+        return $this->validateValues(function (&$value) use ($query, $execute, $connector) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
@@ -1330,7 +1410,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             $execute = $this->applyExecuteVariables($execute);
-            $column  = sql()->setDebug($this->debug)->getColumn($query, $execute);
+            $column  = sql($connector)->setDebug($this->debug)->getColumn($query, $execute);
 
             $this->contains($column);
         });
@@ -1459,16 +1539,17 @@ abstract class Validator implements ValidatorInterface
      *
      * This method ensures that the value is in the results from the specified query
      *
-     * @param PDOStatement|string $query
-     * @param array|null          $execute
+     * @param PDOStatement|string     $query
+     * @param array|null              $execute
+     * @param ConnectorInterface|null $connector
      *
      * @return static
      */
-    public function inQueryResultArray(PDOStatement|string $query, ?array $execute = null): static
+    public function inQueryResultArray(PDOStatement|string $query, ?array $execute = null, ?ConnectorInterface $connector = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($query, $execute) {
+        return $this->validateValues(function (&$value) use ($query, $execute, $connector) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
@@ -1478,7 +1559,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             $execute = $this->applyExecuteVariables($execute);
-            $results = sql()->setDebug($this->debug)->list($query, $execute);
+            $results = sql($connector)->setDebug($this->debug)->list($query, $execute);
 
             $this->isInArray($results);
         });
@@ -1515,7 +1596,7 @@ abstract class Validator implements ValidatorInterface
                     return;
                 }
 
-                $failed = !$array->valueExists($value);
+                $failed = !$array->keyExists($value);
 
             } else {
                 $this->sanitizeTrim()->hasMaxCharacters(Arrays::getLongestValueLength($array));
@@ -1878,6 +1959,73 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Validates that the selected field is a date range
+     *
+     * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     *
+     * @param array|string|null $formats
+     *
+     * @return static
+     * @todo Add locale support instead , see https://www.php.net/manual/en/book.intl.php and
+     *       https://stackoverflow.com/questions/8827514/get-date-format-according-to-the-locale-in-php (INTL section)
+     */
+    public function isDateRange(array|string|null $formats = null): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($formats) {
+            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->sanitizeTrim()->hasMinCharacters(4)->hasMaxCharacters(32);
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            // First check if the date range format is correct, then we can check the content
+            $range_formats = [
+                '/^(\d{2}[-\/\s]?\d{2}[-\/\s]?\d{4})\s?-?\s?(\d{2}[-\/\s]?\d{2}[-\/\s]?\d{4})$/',
+                '/^(\d{4}[-\/\s]?\d{2}[-\/\s]?\d{2})\s?-?\s?(\d{4}[-\/\s]?\d{2}[-\/\s]?\d{2})$/',
+            ];
+
+            foreach ($range_formats as $range_format) {
+                $match = preg_match_all($range_format, $value, $matches);
+
+                if ($match) {
+                    break;
+                }
+            }
+
+            if ($match) {
+                // Now check content. Get the start and stop, and check them individually
+                $dates = [
+                    'start' => $matches[1][0],
+                    'stop'  => $matches[2][0]
+                ];
+
+                foreach ($dates as $date) {
+                    // Ensure we have formats to work with, default to a number of acceptable formats
+                    $formats = $formats ?? DateFormats::getSupportedPhp();
+                    $formats = Arrays::force($formats, null);
+
+                    // We must be able to create a date object using the given formats without failure, and the resulting date
+                    // must be the same as the specified date
+                    if (!static::dateMatchesFormats($date, $formats)) {
+                        $this->addFailure(tr('must be a valid date'));
+                        return;
+                    }
+                }
+
+                // Yay, valid!
+                return;
+            }
+
+            $this->addFailure(tr('must be a valid date range'));
+        });
+    }
+
+
+    /**
      * Returns the given date sanitized if the specified date matches any of the specified formats, NULL otherwise
      *
      * @param string $date
@@ -1895,7 +2043,7 @@ abstract class Validator implements ValidatorInterface
             try {
                 // Create DateTime object
                 $format = DateFormats::normalizeDateFormat($format);
-                $value = DateTime::createFromFormat($format, $given);
+                $value  = DateTime::createFromFormat($format, $given);
 
                 if ($value) {
                     // DateTime object created successfully! Now get a dateformat, and normalize it
@@ -2188,17 +2336,18 @@ abstract class Validator implements ValidatorInterface
      *
      * This method ensures that the specified key is the same as the column value in the specified query
      *
-     * @param PDOStatement|string $query
-     * @param array|null          $execute
-     * @param bool                $ignore_case
+     * @param PDOStatement|string     $query
+     * @param array|null              $execute
+     * @param bool                    $ignore_case
+     * @param ConnectorInterface|null $connector
      *
      * @return static
      */
-    public function isQueryResult(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static
+    public function isQueryResult(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, ?ConnectorInterface $connector = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($query, $execute, $ignore_case) {
+        return $this->validateValues(function (&$value) use ($query, $execute, $ignore_case, $connector) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
@@ -2208,7 +2357,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             $execute        = $this->applyExecuteVariables($execute);
-            $validate_value = sql()->setDebug($this->debug)->getColumn($query, $execute);
+            $validate_value = sql($connector)->setDebug($this->debug)->getColumn($query, $execute);
 
             if ($ignore_case) {
                 $compare_value  = strtolower((string) $value);
@@ -2425,7 +2574,7 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            $this->isPrintable()->isNotNumeric();
+            $this->isPrintable();
         });
     }
 
@@ -3041,6 +3190,16 @@ abstract class Validator implements ValidatorInterface
             }
 
             if (!Url::isValid($value)) {
+                if (str_contains($value, ' ')) {
+                    // Spaces in URL's are common but will make the URL fail, auto replace with + and retry
+                    $value = str_replace(' ', '+', $value);
+
+                    if (Url::isValid($value)) {
+                        // Now we're good!
+                        return;
+                    }
+                }
+
                 $this->addFailure(tr('must contain a valid URL'));
             }
         });
@@ -3399,22 +3558,34 @@ abstract class Validator implements ValidatorInterface
      * @note This requires Validator::$id to be set with an entry id through Validator::setId()
      * @note This requires Validator::setTable() to be set with a valid, existing table
      *
-     * @param string|null $failure
+     * @param string|null             $failure
+     * @param ConnectorInterface|null $connector
      *
      * @return static
      */
-    public function isUnique(?string $failure = null): static
+    public function isUnique(?string $failure = null, ?ConnectorInterface $connector = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($failure) {
+        return $this->validateValues(function (&$value) use ($failure, $connector) {
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
-            if (sql()->setDebug($this->debug)->exists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
-                $this->addFailure($failure ?? tr('it already exists'));
+            $data_entry = $this->definitions?->getDataEntry();
+
+            if ($data_entry) {
+                // TODO Add support for connector passing here
+                if (($data_entry::class)::exists([$this->selected_field => $value], $this->id)) {
+                    $this->addFailure($failure ?? tr('already exists'));
+                }
+
+            } else {
+                // Not a DataEntry object, use manual query
+                if (sql($connector)->setDebug($this->debug)->exists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
+                    $this->addFailure($failure ?? tr('already exists'));
+                }
             }
         });
     }
@@ -4267,7 +4438,7 @@ abstract class Validator implements ValidatorInterface
 
         if ($this->selected_field and !$this->test_count) {
             throw new ValidationFailedException(tr('Cannot select object ":object" field ":field", the previously selected field ":previous" has no validations performed yet', [
-                ':object'   => $this->source_object_class,
+                ':object'   => ($this->definitions?->getDataEntry() ? get_class($this->definitions?->getDataEntry()) : '-'),
                 ':field'    => $field,
                 ':previous' => $this->selected_field,
             ]));

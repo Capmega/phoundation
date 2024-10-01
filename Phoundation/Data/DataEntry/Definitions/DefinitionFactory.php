@@ -17,18 +17,18 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Definitions;
 
 use Phoundation\Accounts\Roles\Roles;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Business\Companies\Companies;
 use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
 use Phoundation\Core\CoreLocale;
 use Phoundation\Core\Locale\Language\Languages;
-use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
@@ -38,6 +38,8 @@ use Phoundation\Geo\States\States;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Servers\Servers;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Input\InputText;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -892,12 +894,12 @@ class DefinitionFactory
     public static function getUsername(?DataEntryInterface $data_entry, ?string $column = 'username'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
-            ->setOptional(true)
-            ->setRender(true)
-            ->setInputType(EnumInputType::name)
-            ->setCliColumn('-u,--username NAME')
-            ->setLabel(tr('Username'))
-            ->setCliAutoComplete(true);
+                         ->setOptional(true)
+                         ->setRender(true)
+                         ->setInputType(EnumInputType::name)
+                         ->setCliColumn('-u,--username NAME')
+                         ->setLabel(tr('Username'))
+                         ->setCliAutoComplete(true);
     }
 
 
@@ -978,14 +980,14 @@ class DefinitionFactory
     public static function getCode(?DataEntryInterface $data_entry, ?string $column = 'code'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
-            ->setOptional(true)
-            ->setInputType(EnumInputType::code)
-            ->setSize(3)
-            ->setMaxlength(64)
-            ->setMinlength(1)
-            ->setCliColumn('-c,--code CODE')
-            ->setCliAutoComplete(true)
-            ->setLabel(tr('Code'));
+                         ->setOptional(true)
+                         ->setInputType(EnumInputType::code)
+                         ->setSize(3)
+                         ->setMaxlength(64)
+                         ->setMinlength(1)
+                         ->setCliColumn('-c,--code CODE')
+                         ->setCliAutoComplete(true)
+                         ->setLabel(tr('Code'));
     }
 
 
@@ -1000,14 +1002,14 @@ class DefinitionFactory
     public static function getHash(?DataEntryInterface $data_entry, ?string $column = 'hash'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
-            ->setOptional(true)
-            ->setReadonly(true)
-            ->setInputType(EnumInputType::code)
-            ->setSize(3)
-            ->setMaxlength(128)
-            ->setMinlength(1)
-            ->setCliAutoComplete(true)
-            ->setLabel(tr('Hash'));
+                         ->setOptional(true)
+                         ->setReadonly(true)
+                         ->setInputType(EnumInputType::code)
+                         ->setSize(3)
+                         ->setMaxlength(128)
+                         ->setMinlength(1)
+                         ->setCliAutoComplete(true)
+                         ->setLabel(tr('Hash'));
     }
 
 
@@ -1383,7 +1385,7 @@ class DefinitionFactory
                          ->setHelpText(tr('Phone numbers where this user can be reached'))
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->isPhoneNumbers();
-                             // $validator->sanitizeForceArray(',')->each()->isPhoneNumber()->sanitizeForceString()
+                             // $validator->sanitizeForceArray(',')->eachField()->isPhoneNumber()->sanitizeForceString()
                          });
     }
 
@@ -1564,13 +1566,158 @@ class DefinitionFactory
     public static function getSubmit(?DataEntryInterface $data_entry, ?string $column): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
+            ->setOptional(true)
+            ->addClasses('btn-primary')
+            ->setRender(true)
+            ->setVirtual(true)
+            ->setElement(EnumElement::input)
+            ->setInputType(EnumInputType::submit)
+            ->setLabel(tr(' '))
+            ->setSize(1);
+    }
+
+
+    /**
+     * Returns a Definition object for created_by
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function getCreatedBy(?DataEntryInterface $data_entry, ?string $column = 'created_by'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+                         ->setDisabled(true)
+                         ->setSize(3)
+                         ->setLabel(tr('Created by'))
+                         ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
+                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($data_entry) {
+                             if ($data_entry->isNew()) {
+                                 // This is a new DataEntry object, so the creator is.. Well, you!
+                                 return InputText::new()
+                                                 ->setDisabled(true)
+                                                 ->addClasses('text-center')
+                                                 ->setValue(Session::getUserObject()
+                                                     ->getDisplayName());
+                             } else {
+                                 // This is created by a user or by the system user
+                                 if ($source[$key]) {
+                                     return InputText::new()
+                                                     ->setDisabled(true)
+                                                     ->addClasses('text-center')
+                                                     ->setValue(User::load($source[$key])
+                                                         ->getDisplayName());
+                                 } else {
+                                     return InputText::new()
+                                                     ->setDisabled(true)
+                                                     ->addClasses('text-center')
+                                                     ->setValue(tr('System'));
+                                 }
+                             }
+                         });
+    }
+
+
+    /**
+     * Returns a Definition object for created_on
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function getCreatedOn(?DataEntryInterface $data_entry, ?string $column = 'created_on'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+                         ->setDisabled(true)
+                         ->setInputType(EnumInputType::datetime_local)
+                         ->setDbNullInputType(EnumInputType::text)
+                         ->addClasses('text-center')
+                         ->setSize(3)
+                         ->setTooltip(tr('This column contains the exact date / time when this object was created'))
+                         ->setLabel(tr('Created on'));
+    }
+
+
+    /**
+     * Returns a Definition object for meta_id
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function getMetaId(?DataEntryInterface $data_entry, ?string $column = 'meta_id'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+                         ->setDisabled(true)
+                         ->setRender(false)
+                         ->setInputType(EnumInputType::dbid)
+                         ->setDbNullInputType(EnumInputType::text)
+                         ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
+                         ->setLabel(tr('Meta ID'));
+    }
+
+
+    /**
+     * Returns a Definition object for status
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function getStatus(?DataEntryInterface $data_entry, ?string $column = 'status'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
                          ->setOptional(true)
-                         ->addClasses('btn-primary')
-                         ->setRender(true)
+                         ->setDisabled(true)
+                         ->setInputType(EnumInputType::text)
+                         ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
+                         ->addClasses('text-center')
+                         ->setSize(3)
+                         ->setMaxlength(32)
+                         ->setLabel(tr('Status'));
+    }
+
+
+    /**
+     * Returns a Definition object for meta_state
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function getMetaState(?DataEntryInterface $data_entry, ?string $column = 'meta_state'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+                         ->setDisabled(true)
+                         ->setRender(false)
+                         ->setInputType(EnumInputType::text)
+                         ->setTooltip(tr('This column contains a cache identifier value for this object. This information usually is of no importance to normal users'))
+                         ->setLabel(tr('Meta state'));
+    }
+
+
+
+    /**
+     * Returns a Definition object for meta_state
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function getDivider(?DataEntryInterface $data_entry, ?string $column = null): DefinitionInterface
+    {
+        if (!$column) {
+            $column = 'divider' . Strings::getUuid();
+        }
+
+        return Definition::new($data_entry, $column)
                          ->setVirtual(true)
-                         ->setElement(EnumElement::input)
-                         ->setInputType(EnumInputType::submit)
-                         ->setLabel(tr(' '))
-                         ->setSize(1);
+                         ->setElement(EnumElement::hr);
     }
 }

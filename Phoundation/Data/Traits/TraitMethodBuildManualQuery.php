@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 
 
 trait TraitMethodBuildManualQuery
@@ -24,18 +25,18 @@ trait TraitMethodBuildManualQuery
     /**
      * Builds the query parts for manual filtering
      *
-     * @param array       $identifiers
-     * @param string|null $where
-     * @param string|null $joins
-     * @param string|null $group
-     * @param string|null $order
-     * @param array|null  $execute
-     * @param string      $separator
+     * @param array|string|int|null $identifiers
+     * @param string|null           $where
+     * @param string|null           $joins
+     * @param string|null           $group
+     * @param string|null           $order
+     * @param array|null            $execute
+     * @param string                $separator
      *
      * @return void
      * @todo EXPAND AND IMPROVE
      */
-    protected static function buildManualQuery(array $identifiers, ?string &$where, ?string &$joins, ?string &$group, ?string &$order, ?array &$execute, string $separator = ' AND '): void
+    protected static function buildManualQuery(array|string|int|null $identifiers, ?string &$where, ?string &$joins, ?string &$group, ?string &$order, ?array &$execute, string $separator = ' AND '): void
     {
         // Build the query parts
         $where   = [];
@@ -44,7 +45,11 @@ trait TraitMethodBuildManualQuery
         $order   = [];
         $group   = [];
 
-        foreach ($identifiers as $column => $value) {
+        foreach (Arrays::force($identifiers) as $column => $value) {
+            if (is_int($column)) {
+                $column = 'id';
+            }
+
             switch ($column[0]) {
                 case '$':
                     // This is SQL

@@ -390,12 +390,12 @@ class Definition implements DefinitionInterface
      * virtual column instead, and will not be validated nor copied in DataEntry::apply()
      *
      * @note Defaults to true
-     * @return bool|null
+     * @return callable|bool|null
      * @see  Definition::getVirtual()
      */
-    public function getRender(): ?bool
+    public function getRender(): callable|bool|null
     {
-        return isset_get_typed('bool', $this->source['render'], true);
+        return isset_get_typed('bool|closure', $this->source['render'], true);
     }
 
 
@@ -407,12 +407,12 @@ class Definition implements DefinitionInterface
      *
      * @note Defaults to true
      *
-     * @param bool|null $value
+     * @param callable|bool|null $value
      *
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function setRender(?bool $value): static
+    public function setRender(callable|bool|null $value): static
     {
         if ($value === null) {
             // Default
@@ -595,6 +595,19 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns if this definition is for the specified column
+     *
+     * @param string|null $column
+     *
+     * @return bool
+     */
+    public function isColumn(?string $column): bool
+    {
+        return ($this->getColumn() === $column);
+    }
+
+
+    /**
      * Sets the column name for this definition
      *
      * @return string|null
@@ -639,12 +652,12 @@ class Definition implements DefinitionInterface
     /**
      * Returns the entry with the specified identifier
      *
-     * @param Stringable|string|int $key
-     * @param bool                  $exception
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
      *
      * @return DataEntry|null
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|int $key, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         // Does this entry exist?
         if (array_key_exists($key, $this->source)) {
@@ -954,6 +967,7 @@ class Definition implements DefinitionInterface
             // Don't set this value, only set it on new entries
             return $this;
         }
+
         if ($value instanceof RenderInterface) {
             $value = $value->render();
         }
@@ -2463,7 +2477,7 @@ class Definition implements DefinitionInterface
      */
     public function getNullElement(): EnumElement|null
     {
-        return isset_get_typed('Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface|null', $this->source['null_element']);
+        return isset_get_typed('Phoundation\Web\Html\Components\EnumInputElement|null', $this->source['null_element']);
     }
 
 
@@ -2687,7 +2701,7 @@ class Definition implements DefinitionInterface
         if (!$this->getRender() and !$this->getForcedProcessing()) {
             // This column isn't rendered and should not have a value whilst applying!
             if ($this->data_entry->isApplying()) {
-                if ($validator->getSourceValue($column)) {
+                if ($validator->get($column)) {
                     Incident::new()
                         ->setSeverity(EnumSeverity::high)
                         ->setType('Non rendered data submitted')
@@ -2708,6 +2722,7 @@ class Definition implements DefinitionInterface
                 // marked as not rendering
                 $this->setStaticValue($validator, $prefix, $column)
                      ->setForcedProcessing(true);
+
                 $validator->doNotValidate();
                 return false;
             }
@@ -2721,6 +2736,23 @@ class Definition implements DefinitionInterface
             return false;
         }
 
+        $this->applyNoValidationOrDefaults($validator, $prefix, $column);
+
+        return true;
+    }
+
+
+    /**
+     * Applies novalidation or default values
+     *
+     * @param ValidatorInterface $validator
+     * @param string|null        $prefix
+     * @param string             $column
+     *
+     * @return $this
+     */
+    protected function applyNoValidationOrDefaults(ValidatorInterface $validator, ?string $prefix, string $column): static
+    {
         if ($this->getNoValidation() or $this->getIgnored()) {
             // Don't perform validations, or ignore the column completely
             $validator->doNotValidate();
@@ -2746,7 +2778,7 @@ class Definition implements DefinitionInterface
             }
         }
 
-        return true;
+        return $this;
     }
 
 
@@ -2762,11 +2794,23 @@ class Definition implements DefinitionInterface
     protected function setStaticValue(ValidatorInterface $validator, ?string $prefix, string $column): static
     {
         if ($this->getValue()) {
+            // For buttons, value is the button label, NOT THE DEFAULT VALUE!
+             switch ($this->getInputType()) {
+                 case EnumInputType::submit:
+                     // no break
+
+                 case EnumInputType::button:
+                     // no break
+
+                 case EnumInputType::reset:
+                    return $this;
+            }
+
             // This column has a static value, force the value
             $value = $this->getValue();
 
             if (is_callable($this->getValue())) {
-                $value = $this->getValue()($validator->getSource(), $prefix);
+                $value = ($this->getValue())($validator->getSource(), $prefix);
             }
 
             $validator->set($value, $prefix . $column);

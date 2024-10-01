@@ -20,19 +20,23 @@ namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
+use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\CsrfFailedException;
 use Phoundation\Data\Validator\Exception\PostValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Debug;
+use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Requests\Request;
+use Stringable;
 
 
 class PostValidator extends Validator
 {
     use TraitDataStaticArrayBackup;
+    use TraitStaticMethodNew;
 
 
     /**
@@ -79,31 +83,15 @@ class PostValidator extends Validator
      *
      * @note Keys that do not exist in $data that are validated will automatically be created
      * @note Keys in $data that are not validated will automatically be removed
-     *
-     * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?ValidatorInterface $parent = null)
+    public function __construct()
     {
-        $this->construct($parent, static::$post);
+        $this->construct(null, static::$post);
     }
 
 
     /**
-     * Returns a new $_POST data Validator object
-     *
-     * @param ValidatorInterface|null $parent
-     *
-     * @return static
-     */
-    public static function new(?ValidatorInterface $parent = null): static
-    {
-        return new static($parent);
-    }
-
-
-    /**
-     * Link $_POST data to internal arrays to ensure developers cannot access them until validation
-     * has been completed
+     * Link $_POST data to internal arrays to ensure developers cannot access them until validation has been completed
      *
      * @note This class will purge the $_REQUEST array as this array contains a mix of $_GET and $_POST variables which
      *       should never be used
@@ -113,6 +101,12 @@ class PostValidator extends Validator
     public static function hideData(): void
     {
         global $_POST;
+
+        // Get $_POST data from RAW JSON?
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            // Check for RAW input
+            static::hideRawData();
+        }
 
         // Copy POST data and reset both POST and REQUEST
         static::$post   = $_POST;
@@ -124,13 +118,34 @@ class PostValidator extends Validator
 
 
     /**
-     * Returns the submitted array keys
+     * Link RAW $_POST data to internal arrays to ensure developers cannot access them until validation has been
+     * completed
      *
-     * @return array|null
+     * @return void
      */
-    public function getSourceKeys(): ?array
+    protected static function hideRawData(): void
     {
-        return array_keys($this->source);
+        // Check for RAW input
+        if(empty($_POST)){
+            try{
+                $json = file_get_contents('php://input');
+
+                if ($json) {
+                    $json = Json::decode($json);
+
+                    if (!is_array($json)) {
+                        throw new ValidationFailedException(tr('Invalid RAW POST JSON ":json" encountered, it should be an array', [
+                            ':json' => $json
+                        ]));
+                    }
+
+                    $_POST = $json;
+                }
+
+            } catch (JsonException $e) {
+                throw new ValidationFailedException(tr('Failed to decode RAW POST JSON'), $e);
+            }
+        }
     }
 
 
@@ -275,16 +290,31 @@ class PostValidator extends Validator
 
 
     /**
-     * Add the specified value for key to the internal GET array
+     * Add the specified value for key to the internal POST array
      *
-     * @param string $key
-     * @param mixed  $value
+     * @param mixed                      $value
+     * @param Stringable|string|int|null $key
+     * @param bool                       $skip_null_values
      *
-     * @return void
+     * @return static
      */
-    public function addData(string $key, mixed $value): void
+    public function add(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = false): static
     {
+        if (($value === null) and $skip_null_values) {
+            // Don't permit empty values
+            return $this;
+        }
+
+        // Don't permit empty keys, quietly drop them
+        $key = trim((string) $key);
+
+        if (!$key) {
+            return $this;
+        }
+
+
         $this->source[$key] = $value;
+        return $this;
     }
 
 
@@ -330,18 +360,19 @@ class PostValidator extends Validator
 
 
     /**
-     * Force a return of all POST data without check
+     * Returns the complete source, or only the source entries starting with the specified prefix
      *
      * @param string|null $prefix
      *
-     * @return array|null
+     * @return array
      */
-    public function &getSource(?string $prefix = null): ?array
+    public function getSource(?string $prefix = null): array
     {
         if (!$prefix) {
-            return $this->source;
+            return parent::getSource();
         }
 
+        // Return only source entries starting with the specified prefix
         $return = [];
 
         foreach ($this->source as $key => $value) {
@@ -355,22 +386,11 @@ class PostValidator extends Validator
 
 
     /**
-     * Force a return of a single POST key value
-     *
-     * @return array
+     * @inheritDoc
      */
-    public function get(string $key): mixed
+    public function get(float|Stringable|int|string $key, bool $exception = false): mixed
     {
-        Log::warning(tr('Forcibly returned $_POST[:key] without data validation at ":location"!', [
-            ':key'      => $key,
-            ':location' => Strings::from(Debug::getPreviousCall()->getLocation(), DIRECTORY_ROOT),
-        ]));
-
-        if (array_key_exists($key, $this->source)) {
-            return $this->source[$key];
-        }
-
-        return null;
+        return parent::get($key, $exception);
     }
 
 
@@ -405,32 +425,20 @@ class PostValidator extends Validator
 
 
     /**
-     * Clears the internal POST array
-     *
-     * @return void
-     */
-    public function clear(): void
-    {
-        $this->source = [];
-        parent::clear();
-    }
-
-
-    /**
      * Called at the end of defining all validation rules.
      *
      * Will throw a PostValidationFailedException if validation fails
      *
-     * @param bool $clean_source
+     * @param bool $require_clean_source
      *
      * @return array
      */
-    public function validate(bool $clean_source = true): array
+    public function validate(bool $require_clean_source = true): array
     {
         try {
             $this->checkCsrf();
 
-            return parent::validate($clean_source);
+            return parent::validate($require_clean_source);
 
         } catch (ValidationFailedException $e) {
             if ($e instanceof CsrfFailedException) {

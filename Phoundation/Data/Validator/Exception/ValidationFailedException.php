@@ -17,7 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator\Exception;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataSourceObjectClass;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Phoundation\Utils\Config;
 use Throwable;
@@ -25,8 +26,8 @@ use Throwable;
 
 class ValidationFailedException extends ValidatorException implements ValidationFailedExceptionInterface
 {
-    use TraitDataSourceObjectClass {
-        setSourceObjectClass as protected __setSourceObjectClass;
+    use TraitDataDataEntry {
+        setDataEntry as protected __setDataEntry;
     }
 
     /**
@@ -50,15 +51,15 @@ class ValidationFailedException extends ValidatorException implements Validation
 
 
     /**
-     * Sets the source object class name used to translate validation failed fields to human-readable labels
+     * Sets the source data entry object used to translate validation failed fields to human-readable labels
      *
-     * @param string|null $source_object_class
+     * @param DataEntryInterface|null $data_entry
      *
      * @return static
      */
-    public function setSourceObjectClass(?string $source_object_class): static
+    public function setSourceObject(?DataEntryInterface $data_entry): static
     {
-        $this->__setSourceObjectClass($source_object_class);
+        $this->__setDataEntry($data_entry);
         $this->applyLabels();
 
         return $this;
@@ -78,7 +79,7 @@ class ValidationFailedException extends ValidatorException implements Validation
         if ($processing) {
             // We've entered an endless loop!
             Log::warning(tr('Failed to apply labels to validation exception keys, creating the source object class ":class" caused another ValidationFailedException', [
-                ':class' => $this->source_object_class
+                ':class' => $this->data_entry::class
             ]));
             return;
         }
@@ -87,11 +88,10 @@ class ValidationFailedException extends ValidatorException implements Validation
         $failures   = $this->getDataKey('failures');
 
         // Apply the data entry definition labels to the data
-        if ($this->source_object_class and $failures) {
+        if ($this->data_entry and $failures) {
             // Create a temporary data entry object to get its definitions.
-            $data_entry_class = new $this->source_object_class();
-            $definitions      = $data_entry_class->getDefinitionsObject();
-            $data             = $failures;
+            $definitions = $this->data_entry->getDefinitionsObject();
+            $data        = $failures;
 
             $this->data['failures'] = [];
 
@@ -117,5 +117,16 @@ class ValidationFailedException extends ValidatorException implements Validation
         $this->applyLabels();
 
         return $this;
+    }
+
+
+    /**
+     * Returns the validation failures that are stored with this object
+     *
+     * @return array
+     */
+    public function getFailures(): array
+    {
+        return isset_get($this->data['failures'], []);
     }
 }

@@ -21,6 +21,7 @@ namespace Phoundation\Data\Validator;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Strings;
+use Stringable;
 
 
 class ArrayValidator extends Validator
@@ -37,6 +38,49 @@ class ArrayValidator extends Validator
     public function __construct(array &$source = [], ?ValidatorInterface $parent = null)
     {
         $this->construct($parent, $source);
+    }
+
+
+    /**
+     * Returns a new ArrayValidator object
+     *
+     * @param array                   $source
+     * @param ValidatorInterface|null $parent
+     *
+     * @return static
+     */
+    public static function new(array &$source = [], ?ValidatorInterface $parent = null): static
+    {
+        return new static($source, $parent);
+    }
+
+
+    /**
+     * Add the specified value for key to the internal source
+     *
+     * @param mixed                      $value
+     * @param Stringable|string|int|null $key
+     * @param bool                       $skip_null_values
+     *
+     * @return static
+     */
+    public function add(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = false): static
+    {
+        if (($value === null) and $skip_null_values) {
+            // Don't permit empty values
+            return $this;
+        }
+
+        // Don't permit empty keys, quietly drop them
+        $key = trim((string) $key);
+
+        if (!$key) {
+            return $this;
+        }
+
+
+        $this->source[$key] = $value;
+        return $this;
     }
 
 
@@ -88,19 +132,5 @@ class ArrayValidator extends Validator
         ]))->addData($messages)
            ->makeWarning()
            ->log();
-    }
-
-
-    /**
-     * Returns a new array data Validator object
-     *
-     * @param array                    $source
-     * @param ValidatorInterface|null &$parent
-     *
-     * @return static
-     */
-    public static function new(array &$source, ?ValidatorInterface $parent = null): static
-    {
-        return new static($source, $parent);
     }
 }
