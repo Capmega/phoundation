@@ -31,7 +31,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.4.11';
+        return '0.5.0';
     }
 
 
@@ -413,12 +413,31 @@ class Updates extends Libraries\Updates
                      ->changeColumn('path', 'directory varchar(255) NOT NULL');
             }
 
-        })->addUpdate('0.4.11', function () {
+        })->addUpdate('0.4.12', function () {
             // Improve meta_history table
+            Log::action(tr('Fixing meta table structure, this may take a second...'));
+
             sql()->getSchemaObject()
                      ->getTableObject('meta_history')
                          ->alter()
                              ->changeColumn('comments', '`comments` varchar(2048) NULL DEFAULT NULL');
-       });
+
+            Log::action(tr('Fixing meta table content, this may take a second...'));
+            sql()->query('UPDATE `meta_history` SET `comments` = NULL WHERE `comments` = ""');
+
+        })->addUpdate('0.5.0', function () {
+            // Add indexed "can_startup" column to core_plugins table
+            $table = sql()->getSchemaObject()->getTableObject('core_plugins');
+
+            if (!$table->columnExists('can_startup')) {
+                $table->alter()
+                      ->addColumn('`can_startup` tinyint NOT NULL', 'AFTER `status`');
+
+                if (!$table->columnExists('can_startup')) {
+                    $table->alter()
+                          ->addIndex('KEY `can_startup` (`can_startup`)');
+                }
+            }
+        });
     }
 }

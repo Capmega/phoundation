@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Script info
+ * Command info
  *
  * This command will display detailed information about the current framework, project, database ,etc.
  *

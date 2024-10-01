@@ -48,4 +48,13 @@ interface ActivityInterface extends ArraySourceInterface
      * @return string|null
      */
     public function render(): ?string;
+
+    /**
+     * Returns if the executed action is the specified action
+     *
+     * @param string $action
+     *
+     * @return bool
+     */
+    public function isAction(string $action): bool;
 }

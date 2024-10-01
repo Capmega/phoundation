@@ -502,6 +502,30 @@ class Plugin extends DataEntry implements PluginInterface
 
 
     /**
+     * Returns if the plugin can startup automatically or not
+     *
+     * @return bool
+     */
+    public function getCanStart(): bool
+    {
+        return $this->getTypesafe('bool', 'can_start', false);
+    }
+
+
+    /**
+     * Sets if the plugin can startup automatically or not
+     *
+     * @param int|bool|null $can_start
+     *
+     * @return static
+     */
+    public function setCanStart(int|bool|null $can_start): static
+    {
+        return $this->set((bool) $can_start, 'can_start');
+    }
+
+
+    /**
      * Delete the plugin from the plugin registry
      *
      * @param string|null $comments
@@ -550,6 +574,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setInputType(EnumInputType::text)
                                     ->setMaxlength(128)
                                     ->setSize(6)
+                                    ->setReadonly(true)
                                     ->setHelpText(tr('The vendor that manages this plugin')))
 
                     ->add(DefinitionFactory::getName($this, 'seo_name')
@@ -557,7 +582,40 @@ class Plugin extends DataEntry implements PluginInterface
 
                     ->add(DefinitionFactory::getName($this)
                                            ->setSize(6)
+                                           ->setReadonly(true)
                                            ->setHelpText(tr('The name of this plugin')))
+
+                    ->add(Definition::new($this, 'directory')
+                                    ->setLabel(tr('Directory'))
+                                    ->setInDirectories(new FsDirectory(DIRECTORY_ROOT . 'Plugins', FsRestrictions::newReadonly(DIRECTORY_ROOT . 'Plugins')))
+                                    ->setInputType(EnumInputType::path)
+                                    ->setMaxlength(128)
+                                    ->setReadonly(true)
+                                    ->setSize(5)
+                                    ->setHelpText(tr('The filesystem directory where this plugin is located')))
+
+                    ->add(Definition::new($this, 'class')
+                                    ->setLabel(tr('Class'))
+                                    ->setInputType(EnumInputType::text)
+                                    ->setMaxlength(255)
+                                    ->setSize(5)
+                                    ->setReadonly(true)
+                                    ->setHelpText(tr('The base class path of this plugin'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->hasMaxCharacters(1024)
+                                                  ->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
+                                    }))
+
+                    ->add(DefinitionFactory::getBoolean($this, 'can_start')
+                                    ->setLabel(tr('Can start'))
+                                    ->setSize(2)
+                                    ->setReadonly(true)
+                                    ->setHelpText(tr('Indicates if this plugin can start automatically when the page loads, or is just a collection of components')))
+
+                    ->add(DefinitionFactory::getDescription($this)
+                                           ->setReadonly(true))
+
+                    ->add(DefinitionFactory::getDivider($this))
 
                     ->add(Definition::new($this, 'priority')
                                     ->setOptional(true)
@@ -612,34 +670,13 @@ class Plugin extends DataEntry implements PluginInterface
                     ->add(Definition::new($this, 'web_enabled')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
-                                    ->setSize(3)
+                                    ->setSize(2)
                                     ->setCliColumn('-w,--web-enabled')
                                     ->setLabel(tr('Web enabled'))
                                     ->setDefault(true)
                                     ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or command execution'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isBoolean();
-                                    }))
-
-                    ->add(Definition::new($this, 'class')
-                                    ->setLabel(tr('Class'))
-                                    ->setInputType(EnumInputType::text)
-                                    ->setMaxlength(255)
-                                    ->setSize(6)
-                                    ->setHelpText(tr('The base class path of this plugin'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->hasMaxCharacters(1024)
-                                                  ->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
-                                    }))
-
-                    ->add(Definition::new($this, 'directory')
-                                    ->setLabel(tr('Directory'))
-                                    ->setInDirectories(new FsDirectory(DIRECTORY_ROOT . 'Plugins', FsRestrictions::newReadonly(DIRECTORY_ROOT . 'Plugins')))
-                                    ->setInputType(EnumInputType::path)
-                                    ->setMaxlength(128)
-                                    ->setSize(6)
-                                    ->setHelpText(tr('The filesystem directory where this plugin is located')))
-
-                    ->add(DefinitionFactory::getDescription($this));
+                                    }));
     }
 }

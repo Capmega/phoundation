@@ -32,17 +32,25 @@ use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\P;
 use Throwable;
 
 
 class Hook implements HookInterface
 {
     /**
-     * The class of hooks that will be executed
+     * The class of hooks that executes
      *
      * @var string|null $class
      */
     protected ?string $class;
+
+    /**
+     * The name of the hook that executes
+     *
+     * @var string|null $hook
+     */
+    protected ?string $hook;
 
     /**
      * The place where all hook scripts live
@@ -56,7 +64,7 @@ class Hook implements HookInterface
      *
      * @var array
      */
-    protected static array $arguments;
+    protected array $arguments;
 
 
     /**
@@ -72,6 +80,33 @@ class Hook implements HookInterface
         if ($this->class) {
             $this->directory = $this->directory->addDirectory($this->class);
         }
+    }
+
+
+    /**
+     * Returns this hook object as a string
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getFile();
+    }
+
+
+    /**
+     * Returns this hook object as an array
+     *
+     * @return array
+     */
+    public function __toArray(): array
+    {
+        return [
+            'class'     => $this->class,
+            'hook'      => $this->hook,
+            'file'      => $this->getFile(),
+            'arguments' => $this->arguments,
+        ];
     }
 
 
@@ -102,15 +137,26 @@ class Hook implements HookInterface
 
 
     /**
+     * Returns the hook class
+     *
+     * @return string
+     */
+    public function getClass(): string
+    {
+        return $this->class;
+    }
+
+
+    /**
      * Returns the FsFileInterface file object for the specified hook
      *
-     * @param string $hook
+     * @param string|null $hook
      *
      * @return mixed
      */
-    public function getFile(string $hook): FsFileInterface
+    public function getFile(?string $hook = null): FsFileInterface
     {
-        return $this->directory->addFile($hook . '.php');
+        return $this->directory->addFile(($hook ?? $this->hook) . '.php');
     }
 
 
@@ -121,8 +167,6 @@ class Hook implements HookInterface
      * @param array|null $arguments
      *
      * @return mixed
-     *
-     * @throws Throwable
      */
     public function execute(string $hook, ?array $arguments = []): mixed
     {
@@ -135,8 +179,9 @@ class Hook implements HookInterface
             return $this;
         }
 
-        static::$arguments = $arguments;
-        $file              = $this->getFile($hook);
+        $this->hook      = $hook;
+        $this->arguments = $arguments;
+        $file            = $this->getFile($hook);
 
         if (!$file->exists()) {
             // Only execute existing files
@@ -159,7 +204,7 @@ class Hook implements HookInterface
         ]));
 
         try {
-            return execute_hook($file->getSource());
+            return execute_hook($file->getSource(), $this);
 
         } catch (Throwable $e) {
             Log::error(tr('Execution of hook ":hook" failed with the following exception', [
@@ -180,10 +225,10 @@ class Hook implements HookInterface
      *
      * @return mixed
      */
-    public static function get(string $key): mixed
+    public function get(string $key): mixed
     {
-        if (array_key_exists($key, static::$arguments)) {
-            return static::$arguments[$key];
+        if (array_key_exists($key, $this->arguments)) {
+            return $this->arguments[$key];
         }
 
         throw new OutOfBoundsException(tr('The specified hook parameter key ":key" does not exist', [
@@ -197,9 +242,9 @@ class Hook implements HookInterface
      *
      * @return mixed
      */
-    public static function getArguments(): array
+    public function getArguments(): array
     {
-        return static::$arguments;
+        return $this->arguments;
     }
 
 
@@ -210,8 +255,24 @@ class Hook implements HookInterface
      *
      * @return mixed
      */
-    public static function getArgument(string|int $key): mixed
+    public function getArgument(string|int $key): mixed
     {
-        return isset_get(static::$arguments[$key]);
+        return isset_get($this->arguments[$key]);
+    }
+
+
+    /**
+     * Returns the specified hook
+     *
+     * This is used in hook files themselves so that editors and static compilers know where the hell the variable
+     * $hook came from
+     *
+     * @param HookInterface $hook
+     *
+     * @return HookInterface
+     */
+    public static function ensure(HookInterface &$hook): HookInterface
+    {
+        return $hook;
     }
 }

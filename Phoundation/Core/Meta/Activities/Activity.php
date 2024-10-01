@@ -108,6 +108,19 @@ class Activity implements ActivityInterface, RenderInterface
 
 
     /**
+     * Returns if the executed action is the specified action
+     *
+     * @param string $action
+     *
+     * @return bool
+     */
+    public function isAction(string $action): bool
+    {
+        return $this->getAction() === $action;
+    }
+
+
+    /**
      * Returns the executed action
      *
      * @return string
@@ -224,9 +237,9 @@ class Activity implements ActivityInterface, RenderInterface
                                                          ->setAlt(tr("Profile picture for :user", [":user" => Html::safe($this->getUserObject()->getDisplayName())]))
                                                          ->render() .'
                                         <span class="username">
-                                          <a href="' . Url::getWww('accounts/users/user+' . $this->getUserObject()->getId() . '.html') .'">' . $this->getUserObject()->getDisplayName() . '</a>
+                                          <a href="' . Url::getWww('profiles/profile+' . $this->getUserObject()->getId() . '.html') .'">' . $this->getUserObject()->getDisplayName() . '</a>
                                         </span>
-                                        <span class="description">' . $action . ' - ' . $this->getMoment() . '</span>
+                                        <span class="description">' . $action . ' - ' . tr(':time ago', [':time' => $this->getMoment()]) . '</span>
                                     </div>
                                     <!-- /.user-block -->
                                     <p>' . $this->getComment() . '</p>

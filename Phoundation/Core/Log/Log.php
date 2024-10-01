@@ -41,6 +41,7 @@ use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
 use Stringable;
@@ -179,6 +180,13 @@ class Log
      * @var bool $syslog_open
      */
     protected static bool $syslog_open = false;
+
+    /**
+     * Tracks if a newline was the last character, so a prefix will be printed
+     *
+     * @var bool $newline_done
+     */
+    protected static bool $newline_done = true;
 
 
     /**
@@ -743,8 +751,13 @@ class Log
         static::ensureInstance();
 
         try {
+            if (static::$failed) {
+                Log::toAlternateLog($messages);
+                return false;
+            }
+
             // Do we have a log file setup?
-            if (empty(static::$file) and !static::$failed) {
+            if (empty(static::$file)) {
                 if (static::getFileEnabled()) {
                     throw new LogException(tr('Cannot log, no log file specified'));
                 }
@@ -832,7 +845,7 @@ class Log
             // Build the message to be logged, clean it and log
             // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL
             if ($clean) {
-                $messages = Strings::cleanWhiteSpace($messages);
+                $messages = Strings::cleanWhiteSpace((string) $messages);
             }
 
             if (!$messages) {
@@ -853,8 +866,9 @@ class Log
             }
 
             // Add coloring for easier reading
-            $messages  = CliColor::apply((string) $messages, $class);
-            $messages .= ($echo_newline ? PHP_EOL : null);
+            $messages    = CliColor::apply((string) $messages, $class);
+            $messages   .= ($echo_newline ? PHP_EOL : null);
+            $echo_prefix = static::$newline_done;
 
             // Build message prefix
             // TODO Check max process id in /proc/sys/kernel/pid_max and use that as max length instead of static 7
@@ -863,14 +877,15 @@ class Log
                 $prefix = DateTime::new(null, 'server')->format('Y-m-d H:i:s.v') . ' ' .
                           ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
                           Strings::size(getmypid(), 7, ' ', true) . ' ' .
-                          Core::getGlobalId() . ' / ' . Core::getLocalId() . (Core::isShuttingDown() ? '#' : ' ');
+                          Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isShuttingDown() ? '#' : ' ');
             } else {
                 $prefix = $echo_prefix;
             }
 
             // Write the log message to screen and file
             static::writeMessage($prefix, $messages, $echo_prefix, $echo_screen);
-            static::$lock = false;
+            static::$lock         = false;
+            static::$newline_done = $echo_newline;
 
             return true;
 
@@ -1338,13 +1353,15 @@ class Log
     protected static function writeExceptionHandler(Throwable $e, mixed $messages = null, int $threshold = 10): bool
     {
         // Don't ever let the system crash because of a log issue, so we catch all possible exceptions
-        static::$failed = true;
-        static::$lock   = false;
+        static::$lock = false;
 
         try {
-            $message = $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . ' Failed to log message to internal log files because "' . $e->getMessage() . '"';
+            if (!static::$failed) {
+                $message = $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . ' Failed to log message to internal log files because "' . $e->getMessage() . '"';
+                static::toAlternateLog($message);
+            }
 
-            static::toAlternateLog($message);
+            static::$failed = true;
 
             try {
                 foreach (Arrays::force($messages, null) as $message) {
@@ -1396,12 +1413,52 @@ class Log
      * @param bool        $clean
      * @param bool        $echo_newline
      * @param string|bool $echo_prefix
+     * @param bool        $echo_screen
      *
      * @return bool
      */
-    public static function cli(mixed $messages = null, int $threshold = 10, bool $clean = false, bool $echo_newline = true, bool $echo_prefix = false): bool
+    public static function cli(mixed $messages = null, int $threshold = 10, bool $clean = false, bool $echo_newline = true, bool $echo_prefix = false, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'cli', $threshold, $clean, $echo_newline, $echo_prefix);
+        if (empty($messages)) {
+            $messages = ' ';
+        }
+
+        switch (OUTPUT) {
+            case 'normal':
+                if (!is_data_scalar($messages)) {
+                    $messages = print_r($messages, true);
+                }
+
+                return static::write($messages, 'cli', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+
+            case 'json':
+                return static::json($messages, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown output type ":output" set, should be one of "normal", or "json"', [
+                    ':output' => OUTPUT
+                ]));
+        }
+    }
+
+
+    /**
+     * Write data in JSON format to the log file and the screen
+     *
+     * @param mixed       $messages
+     * @param int         $threshold
+     * @param bool        $clean
+     * @param bool        $echo_newline
+     * @param string|bool $echo_prefix
+     * @param bool        $echo_screen
+     *
+     * @return bool
+     */
+    public static function json(mixed $messages = null, int $threshold = 10, bool $clean = false, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
+    {
+        $messages = Json::encode($messages, JSON_PRETTY_PRINT|JSON_BIGINT_AS_STRING);
+
+        return static::write($messages, 'notice', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 

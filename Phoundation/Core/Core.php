@@ -44,6 +44,8 @@ use Phoundation\Data\Traits\TraitDataStaticReadonly;
 use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\Date;
 use Phoundation\Date\DateTimeZone;
@@ -66,16 +68,21 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
+use Phoundation\Utils\Exception\ConfigParseFailedException;
 use Phoundation\Utils\Exception\ConfigurationInvalidException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessage;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\JsonPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Routing\Route;
+use Phoundation\Web\Uploads\UploadHandlers;
 use Throwable;
 
 
@@ -507,14 +514,26 @@ class Core implements CoreInterface
             static::$state = 'startup';
 
         } catch (ConfigFileDoesNotExistsException $e) {
-            throw new EnvironmentNotExistsException(tr('The configured or requested environment ":environment" does not exist', [
-                ':environment' => ENVIRONMENT
-            ]));
+            throw new EnvironmentNotExistsException(tr('Failed to start platform ":platform", the configured or requested environment ":environment" does not exist', [
+                ':environment' => ENVIRONMENT,
+                ':platform'    => PLATFORM
+            ]), $e);
+
+        } catch (ConfigParseFailedException $e) {
+            throw new EnvironmentNotExistsException(tr('Failed to start platform ":platform", the configuration could not be parsed', [
+                ':platform' => PLATFORM
+            ]), $e);
+
+        } catch (Throwable $e) {
+            throw new EnvironmentNotExistsException(tr('Failed to start platform ":platform", The configured or requested environment ":environment" does not exist', [
+                ':environment' => ENVIRONMENT,
+                ':platform'    => PLATFORM
+            ]), $e);
         }
     }
 
 
-    /**f
+    /**
      * Startup for HTTP requests
      *
      * @return void
@@ -1340,7 +1359,8 @@ class Core implements CoreInterface
                              ->select('-E,--environment', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(64)
                              ->select('-F,--force')->isOptional(false)->isBoolean()
                              ->select('-H,--help')->isOptional(false)->isBoolean()
-                             ->select('-J,--json', true)->isOptional()->hasMaxCharacters(8192)
+                             ->select('-I,--json-input', true)->isOptional()->hasMaxCharacters(8192)
+                             ->select('-J,--json-output')->isOptional()->isBoolean()
                              ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
                              ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
                              ->select('-P,--page', true)->isOptional(1)->isDbId()
@@ -1383,7 +1403,8 @@ class Core implements CoreInterface
 //            'no_sound'               => false,
 //            'status'                 => false,
 //            'test'                   => false,
-//            'json'                   => null,
+//            'json_input'             => null,
+//            'json_output'            => null,
 //            'usage'                  => false,
 //            'verbose'                => false,
 //            'no_warnings'            => false,
@@ -1412,7 +1433,7 @@ class Core implements CoreInterface
             Core::requireCliEnvironment((bool) $argv['auto_complete']);
         }
 
-        if ($argv['json']) {
+        if ($argv['json_input']) {
             // We received arguments in JSON format
             $argv = static::applyJsonArguments($argv);
         }
@@ -1436,6 +1457,7 @@ class Core implements CoreInterface
         define('ALL'       , $argv['all']);
         define('STATUS'    , $argv['status']);
         define('PAGE'      , $argv['page']);
+        define('OUTPUT'    , $argv['json_output'] ? 'json' : 'normal');
         define('NOAUDIO'   , $argv['no_audio'] or $argv['auto_complete']); // auto complete mode disables audio
         define('LIMIT'     , get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
 
@@ -1775,7 +1797,7 @@ class Core implements CoreInterface
      * @version 2.7.5: Added function and documentation
      *
      */
-    public static function setTimeout(int $timeout = null): bool
+    public static function setTimeout(?int $timeout = null): bool
     {
         if ($timeout === null) {
             if (PLATFORM_WEB) {
@@ -1789,6 +1811,34 @@ class Core implements CoreInterface
         }
 
         return set_time_limit($timeout);
+    }
+
+
+    /**
+     * Returns the process timeout for this process
+     *
+     * @return int
+     */
+    public static function getTimeout(): int
+    {
+        return (int) ini_get('max_execution_time');
+    }
+
+
+    /**
+     * Ensures that the timeout is the specified amount, or more
+     *
+     * @param int $timeout
+     *
+     * @return bool
+     */
+    public static function setMinimumTimeout(int $timeout): bool
+    {
+        if (Core::getTimeout() >= $timeout) {
+            return false;
+        }
+
+        return Core::setTimeout($timeout);
     }
 
 
@@ -2990,7 +3040,7 @@ class Core implements CoreInterface
                         // We CAN only notify after startup!
                         if (!static::inStartupState()) {
                             try {
-                                $e->registerDeveloperIncident();
+                                $e->registerIncident();
 
                             } catch (Throwable $f) {
                                 Log::error(tr('Failed to register uncaught exception because of the following exception'));
@@ -3162,7 +3212,8 @@ class Core implements CoreInterface
      *
      * @return never
      */
-    #[NoReturn] protected static function processUncaughtWebException(Throwable $e, string $state): never {
+    #[NoReturn] protected static function processUncaughtWebException(Throwable $e, string $state): never
+    {
         if ($e instanceof ValidationFailedException) {
             // This is just a simple validation warning, show warning messages in the exception data
             Log::warning($e->getMessage());
@@ -3253,18 +3304,39 @@ class Core implements CoreInterface
             $e->setCode(400);
         }
 
-        if (Debug::isEnabled()) {
+// TODO Change this so that we only return HTML for HTML requests, NOT json requests. With debug on, JsonPage should return full data reports!
+//        if (!Debug::isEnabled()) {
+        if (true) {
             switch (Request::getRequestType()) {
                 case EnumRequestTypes::api:
                     // no break
-
-                case EnumRequestTypes::ajax:
                     if (!headers_sent()) {
                         header('Content-Type: application/json', true);
                     }
 
                     echo "UNCAUGHT EXCEPTION\n\n";
                     showdie($e);
+
+                case EnumRequestTypes::ajax:
+                    if ($e->getWarning()) {
+                        if ($e instanceof ValidationFailedException) {
+                            $message = Strings::force($e->getFailures(), ', ');
+
+                        } else {
+                            $message = $e->getMessage();
+                        }
+
+                    } else {
+                        $message = tr('Something went wrong on the server, please notify your IT department and try again later');
+                    }
+
+                    JsonPage::new()
+                        ->addFlashMessageSections(FlashMessage::new()
+                            ->setMode($e->getWarning() ? EnumDisplayMode::warning : EnumDisplayMode::error)
+                            ->setTitle(tr('Error!'))
+                            ->setMessage($message))
+                        ->reply();
+
             }
 
             $return = ' <style>
@@ -3549,5 +3621,74 @@ class Core implements CoreInterface
         throw new ConfigurationInvalidException(tr('Invalid configuration value ":value" for "security.expose.phoundation" Please use one of "none", "limited", "full", or "fake"', [
             ':value' => $expose,
         ]));
+    }
+
+
+    /**
+     * Generates and returns a full exception data array
+     *
+     * @return array
+     */
+    public static function getProcessDetails(): array
+    {
+        $connected   = sql(connect: false)->isConnected();
+        $initialized = Session::isInitialized();
+
+        try {
+            return [
+                'project'               => PROJECT,
+                'environment'           => ENVIRONMENT,
+                'platform'              => PLATFORM,
+                'session_id'            => Session::getUUID(),
+                'ip'                    => Session::getIpAddress(),
+                'project_version'       => Core::getProjectVersion(),
+                'database_version'      => $connected                    ? Version::getString(Libraries::getMaximumVersion()) : tr('NO SYSTEM DATABASE CONNECTION AVAILABLE'),
+                'user'                  => ($connected and $initialized) ? Session::getUserObject()->getLogId() : 'system',
+                'command'               => PLATFORM_CLI                  ? CliCommand::getCommandsString()      : null,
+                'url'                   => PLATFORM_WEB                  ? Route::getRequest()                  : null,
+                'method'                => PLATFORM_WEB                  ? Route::getMethod()                   : null,
+                'environment_variables' => $_ENV,
+                'server'                => $_SERVER,
+                'session'               => Session::getSource(),
+                'argv'                  => ArgvValidator::getBackup(),
+                'get'                   => GetValidator::getBackup(),
+                'post'                  => PostValidator::getBackup(),
+                'files'                 => UploadHandlers::getBackup(),
+            ];
+
+        } catch (Throwable $e) {
+            $e = Exception::ensurePhoundationException($e);
+
+            Log::error(tr('Failed to generate exception detail, see following details'));
+            Log::error($e);
+
+            return [
+                'oops'                  => [
+                    'oops'     => 'Failed to generate full process details, limited process information will be returned instead',
+                    'message'  => $e->getMessage(),
+                    'messages' => $e->getMessages(),
+                    'trace'    => $e->getTrace(),
+                    'data'     => $e->getData(),
+                ],
+                'project'               => (defined('PROJECT') ? PROJECT : null),
+                'project_version'       => Core::getProjectVersion(),
+                'session_id'            => Session::getUUID(),
+                'ip'                    => Session::getIpAddress(),
+                'database_version'      => null,
+                'environment'           => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
+                'platform'              => (defined('PLATFORM')    ? PLATFORM    : null),
+                'session'               => Session::getSource(),
+                'user'                  => null,
+                'command'               => null,
+                'url'                   => null,
+                'method'                => PLATFORM_WEB ? Route::getMethod() : null,
+                'environment_variables' => $_ENV,
+                'server'                => $_SERVER,
+                'argv'                  => null,
+                'get'                   => null,
+                'post'                  => null,
+                'files'                 => null,
+            ];
+        }
     }
 }

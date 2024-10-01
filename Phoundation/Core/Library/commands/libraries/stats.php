@@ -34,7 +34,7 @@ CliDocumentation::setHelp('The libraries info script will show detailed informat
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('-t,--type,--types', true)->isOptional(null)->isName()
-                     ->select('library')->isOptional(null)->hasMaxCharacters(64)->sanitizeForceArray()->each()->isName()
+                     ->select('library')->isOptional(null)->hasMaxCharacters(64)->sanitizeForceArray()->eachField()->isName()
                      ->validate();
 
 

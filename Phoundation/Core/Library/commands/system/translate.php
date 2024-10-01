@@ -46,7 +46,7 @@ ARGUMENTS
 // Get command line arguments
 $argv = ArgvValidator::new()
                      ->select('--clear')->isOptional(false)->isBoolean()
-                     ->select('-l,--languages', true)->isOptional()->sanitizeForceArray(',')->each()->hasCharacters(2)
+                     ->select('-l,--languages', true)->isOptional()->sanitizeForceArray(',')->eachField()->hasCharacters(2)
                      ->validate();
 
 

@@ -54,7 +54,7 @@ class MetaList
      *
      * @return HtmlDataTableInterface
      */
-    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface
+    public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface
     {
         // Create and return the table
         $in     = SqlQueries::in($this->meta_list);
