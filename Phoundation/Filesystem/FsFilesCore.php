@@ -18,6 +18,7 @@ namespace Phoundation\Filesystem;
 
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -295,6 +296,24 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
 
 
     /**
+     * Returns an iterator containing the basename for all files in this object
+     *
+     * @return IteratorInterface
+     */
+    public function getBasenames(): IteratorInterface
+    {
+        $source = [];
+
+        foreach ($this->source as $file) {
+            $basename = $file->getBasename();
+            $source[$basename] = $basename;
+        }
+
+        return new Iterator($source);
+    }
+
+
+    /**
      * Will delete all files in this FsFiles object
      *
      * @note This will remove the files from this FsFiles object
@@ -348,6 +367,13 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
      */
     public function append(mixed $value, Stringable|int|string|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null_values) {
+                return $this;
+            }
+        }
+
         // specified value must match FsPathInterface::class
         $this->checkDataType($value);
 

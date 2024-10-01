@@ -1174,6 +1174,8 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
 
         // Get directory pattern part and file pattern part
         if ($file_patterns) {
+            $file_patterns     = FsFile::realPath($file_patterns, $this->getSource());
+            $file_patterns     = Strings::from($file_patterns, $this->source);
             $directory_pattern = dirname($file_patterns);
             $file_patterns     = basename($file_patterns);
 
@@ -1228,8 +1230,9 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         }
 
         // Get files
-        $return = [];
-        $glob   = glob($this->getRealPath(true) . Strings::ensureStartsNotWith($directory_pattern, '/') . '*', $glob_flags);
+        $directory_pattern = Strings::ensureStartsNotWith($directory_pattern, '/');
+        $return            = [];
+        $glob              = glob($this->getRealPath(true) . $directory_pattern . '*', $glob_flags);
 
         // Check file patterns
         if ($glob) {

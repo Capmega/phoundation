@@ -53,15 +53,6 @@ class FsMimetype extends DataEntry implements FsMimetypeInterface
 
 
     /**
-     * @inheritDoc
-     */
-    public function init(bool $identifier_must_exist, bool $ignore_deleted): static
-    {
-        return parent::init($identifier_must_exist, $ignore_deleted);
-    }
-
-
-    /**
      * Returns the table name used by this object
      *
      * @return string|null

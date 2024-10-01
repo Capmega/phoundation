@@ -31,14 +31,12 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
-// Build the page content
-// Build requirements filter card
-$filters      = FilterForm::new()->apply();
+// Build the filters card
+$filters      = FilterForm::new();
 $filters_card = Card::new()
-    ->setCollapseSwitch(true)
-    ->setTitle('Filters')
-    ->setContent($filters->render())
-    ->useForm(true);
+                    ->setCollapseSwitch(true)
+                    ->setTitle('Filters')
+                    ->setContent($filters->render());
 
 
 // Button clicked?
@@ -47,7 +45,7 @@ if (Request::isPostRequestMethod()) {
     $post = PostValidator::new()
         ->select('filesystem_requirements_length')->isOptional()->isNumeric()    // This is paging length, ignore
         ->select('submit')->isOptional()->isVariable()
-        ->select('id')->isOptional()->isArray()->each()->isDbId()
+        ->select('id')->isOptional()->isArray()->eachField()->isDbId()
         ->validate();
 
     try {
@@ -90,7 +88,7 @@ $builder = $requirements->getQueryBuilder()
                  `filesystem_requirements`.`status`, 
                  `filesystem_requirements`.`created_on`');
 
-switch ($filters->get('entry_status')) {
+switch ($filters->get('status')) {
     case '__all':
         break;
 
@@ -99,7 +97,7 @@ switch ($filters->get('entry_status')) {
         break;
 
     default:
-        $builder->addWhere('`filesystem_requirements`.`status` = :status', [':status' => $filters->get('entry_status')]);
+        $builder->addWhere('`filesystem_requirements`.`status` = :status', [':status' => $filters->get('status')]);
 }
 
 // Build SQL requirements table
@@ -115,7 +113,7 @@ $requirements_card = Card::new()
     ->setSwitches('reload')
     ->setContent($requirements
         ->load()
-        ->getHtmlDataTable()
+        ->getHtmlDataTableObject()
             ->setRowUrl('/phoundation/file-system/requirements/requirement+:ROW.html')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
@@ -140,10 +138,10 @@ $documentation = Card::new()
     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Build and render the page grid
+// Render and return the page grid
 $grid = Grid::new()
-    ->addColumn($filters_card->render() . $requirements_card->render(), EnumDisplaySize::nine)
-    ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+    ->addGridColumn($filters_card->render() . $requirements_card->render(), EnumDisplaySize::nine)
+    ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 
