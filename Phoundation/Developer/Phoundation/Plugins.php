@@ -473,7 +473,7 @@ class Plugins extends Project
     {
         return FsDirectory::new(DIRECTORY_ROOT . 'Plugins/', DIRECTORY_ROOT . 'Plugins/')
                           ->scan()
-                          ->each(function ($key, &$value) {
+                          ->eachField(function ($key, &$value) {
                               $value = Strings::ensureEndsNotWith($value, '/');
                           });
     }
@@ -488,7 +488,7 @@ class Plugins extends Project
     {
         return FsDirectory::new($this->directory . 'Plugins/', $this->directory)
                           ->scan()
-                          ->each(function ($key, &$value) {
+                          ->eachField(function ($key, &$value) {
                               $value = Strings::ensureEndsNotWith($value, '/');
                           });
     }

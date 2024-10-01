@@ -73,13 +73,13 @@ class KubernetesObject
     /**
      * Load the deployment description
      *
-     * @param array|null $identifiers
-     * @param bool       $clear
-     * @param bool       $only_if_empty
+     * @param array|string|int|null $identifiers
+     * @param bool                  $clear
+     * @param bool                  $only_if_empty
      *
      * @return static
      */
-    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
         if ($this->getName()) {
             $output = Process::new('kubectl')

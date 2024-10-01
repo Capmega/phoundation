@@ -19,6 +19,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Servers\Server;
 
 
 CliDocumentation::setUsage('./pho servers authenticate USER');

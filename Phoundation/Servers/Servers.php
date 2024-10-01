@@ -82,9 +82,9 @@ class Servers extends DataIterator
      *
      * @return HtmlTableInterface
      */
-    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
+    public function getHtmlTableObject(array|string|null $columns = null): HtmlTableInterface
     {
-        $table = parent::getHtmlTable();
+        $table = parent::getHtmlTableObject();
         $table->setCheckboxSelectors(EnumTableIdColumn::checkbox);
 
         return $table;
@@ -114,7 +114,7 @@ class Servers extends DataIterator
     /**
      * @inheritDoc
      */
-    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
         throw new UnderConstructionException();
         $this->source = sql()->list('SELECT `servers`.`id`, `servers`.`hostname`, `servers`.`created_on`, `servers`.`status` 

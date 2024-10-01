@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Page security/incident
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Security
+ */
+
+
 declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
@@ -17,6 +29,7 @@ use Phoundation\Web\Requests\Response;
 // Validate
 $get = GetValidator::new()
                    ->select('id')->isDbId()
+                   ->select('date_range')->isOptional()->isDateRange()
                    ->validate();
 
 
@@ -27,7 +40,12 @@ $card     = Card::new()
                 ->setTitle($incident->getTitle())
                 ->setMaximizeSwitch(true)
                 ->setContent($form->render())
-                ->setButtons(Buttons::new()->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/security/incidents.html'), true));
+                ->setButtons(Buttons::new()->addButton(
+                    tr('Back'), EnumDisplayMode::secondary,
+                    Url::getPrevious('/security/incidents.html')->addQueries(
+                        $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
+                    ),
+                    true));
 
 
 // Build relevant links
@@ -35,29 +53,32 @@ $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
                 ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                         <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+                              <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation
 $documentation = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Documentation'))
-                     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
-
-
-// Build and render the page grid
-$grid = Grid::new()
-            ->addColumn($card, EnumDisplaySize::nine)
-            ->addColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
+                     ->setContent('This page shows the details of a single specific incident. The information on this page cannot be modified');
 
 
 // Set page meta data
+$url = Url::getWww('/security/incidents.html')->addQueries(
+    $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
+)->getSource();
+
 Response::setHeaderTitle(tr('Incident'));
 Response::setHeaderSubTitle($incident->getId());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'                        => tr('Home'),
-                                                           '/security/incidents.html' => tr('Incidents'),
-                                                           ''                         => $incident->getId(),
-                                                       ]));
+    '/'              => tr('Home'),
+    '/security.html' => tr('Security'),
+    $url             => tr('Incidents management'),
+    ''               => $incident->getId(),
+]));
+
+
+// Render and return the page grid
+return Grid::new()
+           ->addGridColumn($card, EnumDisplaySize::nine)
+           ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);

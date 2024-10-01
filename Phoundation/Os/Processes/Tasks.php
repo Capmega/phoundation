@@ -115,11 +115,11 @@ class Tasks extends DataIterator implements TasksInterface
         }
 
         return InputSelect::new()
-                          ->setConnector(static::getConnector())
+                          ->setConnectorObject($this->getConnectorObject())
                           ->setSourceQuery('SELECT   `' . $key_column . '`, ' . $value_column . ' 
-                                                       FROM     `' . static::getTable() . '` 
-                                                       WHERE    `status` IS NULL 
-                                                       ORDER BY `created_on` ASC')
+                                            FROM     `' . static::getTable() . '` 
+                                            WHERE    `status` IS NULL 
+                                            ORDER BY `created_on` ASC')
                           ->setName('tasks_id')
                           ->setNotSelectedLabel(tr('Select a task'))
                           ->setComponentEmptyLabel(tr('No tasks available'));

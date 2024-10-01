@@ -20,9 +20,12 @@ namespace Phoundation\Notifications;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
@@ -33,6 +36,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryLine;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryMessage;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryMode;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryPriority;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntrySetCreatedBy;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
@@ -53,6 +57,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Http\Url;
 use Throwable;
 
 
@@ -69,7 +74,9 @@ class Notification extends DataEntry implements NotificationInterface
     use TraitDataEntryTitle;
     use TraitDataEntryMessage;
     use TraitDataEntryDetails;
+    use TraitDataEntrySetCreatedBy;
     use TraitDataEntryTrace;
+
 
     /**
      * Keeps track of if this noticication was logged or not
@@ -133,7 +140,25 @@ class Notification extends DataEntry implements NotificationInterface
 //                EnumDisplayMode::info, EnumDisplayMode::notice    => 'info-circle',
 //                default                                           => 'question-circle',
 
+        if (!isset($this->meta_columns)) {
+            // By default, the Notification object has created_by NOT meta so that it can set it manually
+            $this->meta_columns = [
+                'id',
+                'created_on',
+                'meta_id',
+                'status',
+                'meta_state',
+            ];
+        }
+
         parent::__construct($identifier, $meta_enabled, $init);
+
+        if ($this->isNew()) {
+            if (Session::isInitialized()) {
+                // By default, the object is created by the current user
+                $this->setCreatedBy(Session::getUserObject()->getId());
+            }
+        }
     }
 
 
@@ -192,9 +217,9 @@ class Notification extends DataEntry implements NotificationInterface
             $mode = EnumDisplayMode::exception;
         }
 
-        $details = $e->generateDetails();
+        $details = Core::getProcessDetails();
 
-        $this->setUrl('/development/incidents.html')
+        $this->setUrl(Url::getCurrent())
              ->setMode($mode)
              ->setFile($e->getFile())
              ->setLine($e->getLine())
@@ -244,30 +269,34 @@ GET variables:
 
 POST variables:
 :POST
+
+FILES variables:
+:FILES
 </pre>
 </body>
 </html>', [
-                 ':url'              => (($details['platform'] === 'web') ? '[' . $details['method'] . '] ' . $this->getUrl() : $details['command']),
-                 ':request'          => (($details['platform'] === 'web') ? Strings::size('Requested URL', 23) : Strings::size('Executed command', 23)),
-                 ':file'             => Strings::from($e->getFile(), DIRECTORY_ROOT),
-                 ':line'             => $e->getLine(),
-                 ':code'             => $e->getCode(),
-                 ':class'            => get_class($e),
-                 ':trace'            => $e->getTraceAsFormattedString(),
-                 ':message'          => $e->getMessage(),
-                 ':all_messages'     => $e->getMessages() ? Strings::force($e->getMessages(), PHP_EOL) : '-',
-                 ':data'             => ($e->getData() ? print_r($e->getData(), true) : '-'),
-                 ':project'          => $details['project'],
-                 ':version_project'  => $details['project_version'],
-                 ':version_database' => $details['database_version'],
-                 ':environment'      => $details['environment'],
-                 ':platform'         => $details['platform'],
-                 ':user'             => $details['user'],
-                 ':SESSION'          => $details['session'],
+                 ':url'              =>  (($details['platform'] === 'web') ? '[' . $details['method'] . '] ' . $this->getUrl() : $details['command']),
+                 ':request'          =>  (($details['platform'] === 'web') ? Strings::size('Requested URL', 23) : Strings::size('Executed command', 23)),
+                 ':file'             =>  Strings::from($e->getFile(), DIRECTORY_ROOT),
+                 ':line'             =>  $e->getLine(),
+                 ':code'             =>  $e->getCode(),
+                 ':class'            =>  get_class($e),
+                 ':trace'            =>  $e->getTraceAsFormattedString(),
+                 ':message'          =>  $e->getMessage(),
+                 ':all_messages'     =>  $e->getMessages() ? Strings::force($e->getMessages(), PHP_EOL) : '-',
+                 ':data'             =>  ($e->getData() ? print_r($e->getData(), true) : '-'),
+                 ':project'          =>  $details['project'],
+                 ':version_project'  =>  $details['project_version'],
+                 ':version_database' =>  $details['database_version'],
+                 ':environment'      =>  $details['environment'],
+                 ':platform'         =>  $details['platform'],
+                 ':user'             =>  $details['user'],
+                 ':SESSION'          =>  $details['session'],
                  ':ENV'              => ($details['environment_variables'] ? print_r($details['environment_variables'], true) : '-'),
-                 ':ARGV'             => $details['argv'] ? Strings::force($details['argv'], ' ') : '-',
-                 ':GET'              => $details['get'] ? print_r($details['get'], true) : '-',
-                 ':POST'             => $details['post'] ? print_r($details['post'], true) : '-',
+                 ':ARGV'             =>  $details['argv']  ? Strings::force($details['argv'], ' ') : '-',
+                 ':GET'              =>  $details['get']   ? print_r($details['get'], true)        : '-',
+                 ':POST'             =>  $details['post']  ? print_r($details['post'], true)       : '-',
+                 ':FILES'            =>  $details['files'] ? print_r($details['files'], true)      : '-',
              ], clean: false))->e = $e;
 
         return $this;
@@ -420,6 +449,7 @@ POST variables:
     public function log(): static
     {
         Log::information(tr('Notification:'));
+
         // Remove HTML from the message for logging
         $message = $this->getMessage();
         $message = strip_tags($message);
@@ -430,35 +460,35 @@ POST variables:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'error', echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($message, 'error', echo_prefix: false);
+                Log::write($message, 'error', clean: false, echo_prefix: false);
                 break;
 
             case EnumDisplayMode::warning:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'warning', echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($message, 'warning', echo_prefix: false);
+                Log::write($message, 'warning', clean: false, echo_prefix: false);
                 break;
 
             case EnumDisplayMode::success:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'success', echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($message, 'success', echo_prefix: false);
+                Log::write($message, 'success', clean: false, echo_prefix: false);
                 break;
 
             case EnumDisplayMode::info:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'information', echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($message, 'information', echo_prefix: false);
+                Log::write($message, 'information', clean: false, echo_prefix: false);
                 break;
 
             default:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'notice', echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($message, 'notice', echo_prefix: false);
+                Log::write($message, 'notice', clean: false, echo_prefix: false);
                 break;
         }
 
@@ -577,7 +607,6 @@ POST variables:
 
         Pho::new()
            ->setPhoCommands('email send')
-           ->addArgument('--no-audio')
            ->addArgument('-h')
            ->addArguments(['-t', $user->getEmail()])
            ->addArguments(['-s', $this->getTitle()])
@@ -646,12 +675,16 @@ POST variables:
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(Definition::new($this, 'users_id')
+        $definitions->add(DefinitionFactory::getCreatedBy($this))
+
+                    ->add(Definition::new($this, 'users_id')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::dbid)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDbId()
-                                                  ->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$users_id']);
+                                                  ->isQueryResult('SELECT `id` 
+                                                                   FROM   `accounts_users` 
+                                                                   WHERE  `id` = :id', [':id' => '$users_id']);
                                     }))
 
                     ->add(Definition::new($this, 'code')

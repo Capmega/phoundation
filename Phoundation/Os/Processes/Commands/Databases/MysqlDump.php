@@ -407,6 +407,10 @@ class MysqlDump extends Command implements MysqlDumpInterface
             $file  = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName();
             $file .= DateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
             $file  = new FsFile($file);
+
+        } elseif ($this->gzip) {
+            // If we're making a gzipped file, make sure it has the .gz extension
+            $file->ensureExtension('.gz');
         }
 
         // TODO Improve this, we make a file object a string and a file object again
@@ -417,9 +421,9 @@ class MysqlDump extends Command implements MysqlDumpInterface
         $this->setCommand('mysqldump')
              ->clearArguments()
              ->addArguments([
-                 '-h', $this->connector->getHostname(),
-                 '-u', $this->connector->getUsername(),
-                 '-p' . $this->connector->getPassword()])
+                 '-h', $this->o_connector->getHostname(),
+                 '-u', $this->o_connector->getUsername(),
+                 '-p' . $this->o_connector->getPassword()])
              ->addArgument($this->disable_keys ? '--disable-keys' : null)
              ->addArgument($this->events ? '--events' : null)
              ->addArgument($this->routines ? '--routines' : null)
@@ -429,8 +433,8 @@ class MysqlDump extends Command implements MysqlDumpInterface
              ->addArgument($this->comments ? '--comments' : '--skip-comments')
              ->addArgument(($this->comments and $this->dump_date) ? '--dump-date' : null);
 
-        if ($this->connector->getPort()) {
-            $this->addArguments(['-p', $this->connector->getPort()]);
+        if ($this->o_connector->getPort()) {
+            $this->addArguments(['-p', $this->o_connector->getPort()]);
         }
 
         // Add databases

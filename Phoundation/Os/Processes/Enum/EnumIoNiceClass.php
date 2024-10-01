@@ -16,9 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Enum;
 
-use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
 
-enum EnumIoNiceClass: int implements EnumIoNiceClassInterface
+enum EnumIoNiceClass: int
 {
     case none        = 0;
     case realtime    = 1;

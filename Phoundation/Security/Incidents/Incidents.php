@@ -25,19 +25,6 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 class Incidents extends DataIterator
 {
     /**
-     * Incidents class constructor
-     */
-    public function __construct()
-    {
-        $this->setQuery('SELECT   `id`, `type`, `created_on`, `severity`, `title` 
-                               FROM     `security_incidents` 
-                               WHERE    `status` IS NULL 
-                               ORDER BY `created_on` DESC');
-        parent::__construct();
-    }
-
-
-    /**
      * Returns the table name used by this object
      *
      * @return string|null

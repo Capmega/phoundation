@@ -81,9 +81,9 @@ class SshAccounts extends DataIterator
      *
      * @return HtmlTableInterface
      */
-    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
+    public function getHtmlTableObject(array|string|null $columns = null): HtmlTableInterface
     {
-        $table = parent::getHtmlTable();
+        $table = parent::getHtmlTableObject();
 
         $table->setCheckboxSelectors(EnumTableIdColumn::checkbox);
 
@@ -114,7 +114,7 @@ class SshAccounts extends DataIterator
     /**
      * @inheritDoc
      */
-    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
         parent::load($identifiers, $clear, $only_if_empty);
 

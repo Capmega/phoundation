@@ -20,10 +20,10 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug;
-use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Kill;
@@ -176,17 +176,19 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
         if ($this->debug) {
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
-
-        } else {
-            Log::action(tr('Executing command ":command" using exec() to return an array', [
-                ':command' => $this->getFullCommandLine(),
-            ]), 2);
         }
+
+        $command = $this->getFullCommandLine();
+
+        Log::action(tr('Executing command ":command" using exec() to return an array', [
+            ':command' => $command,
+        ]), $this->log_level);
 
         $this->start = microtime(true);
 
         do {
-            exec($this->getFullCommandLine(), $output, $exit_code);
+            exec($command, $output, $exit_code);
+
         } while ($this->fixPermissionDenied($exit_code));
 
         $this->setExitCode($exit_code, $output);
@@ -536,18 +538,19 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         // Ensure that this background command uses a terminal,
         $this->setTerm('xterm', true);
 
-        if ($this->debug) {
-            Log::printr($this->getFullCommandLine());
+        $command = $this->getFullCommandLine(true);
 
-        } else {
-            Log::action(tr('Executing background command ":command" using exec()', [
-                ':command' => $this->getFullCommandLine(true),
-            ]), 2);
+        if ($this->debug) {
+            Log::printr($command);
         }
+
+        Log::action(tr('Executing background command ":command" using exec()', [
+            ':command' => $command,
+        ]), $this->log_level);
 
         $this->start = microtime(true);
 
-        exec($this->getFullCommandLine(true), $output, $exit_code);
+        exec($command, $output, $exit_code);
 
         if ($exit_code) {
             // Something went wrong immediately while executing the command?
@@ -581,17 +584,16 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         $this->setExecutionMethod(EnumExecuteMethod::passthru);
 
         $output_file = FsFile::getTemporaryObject(false)->getSource();
-        $commands    = $this->getFullCommandLine();
-        $commands    = Strings::ensureEndsNotWith($commands, ';');
+        $command     = $this->getFullCommandLine();
+        $command     = Strings::ensureEndsNotWith($command, ';');
 
         if ($this->debug) {
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
-
-        } elseif (Debug::isEnabled()) {
-            Log::action(tr('Executing command ":commands" using passthru()', [
-                ':commands' => $commands,
-            ]), 2);
         }
+
+        Log::action(tr('Executing command ":commands" using passthru()', [
+            ':commands' => $command,
+        ]), $this->log_level);
 
         $this->start = microtime(true);
 

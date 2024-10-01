@@ -27,8 +27,6 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Zcat;
@@ -59,7 +57,7 @@ class MySql extends Command
     {
         if ($database) {
             // Drop the requested database
-            sql($this->connector, false)
+            sql($this->o_connector, false)
                 ->getSchemaObject(false)
                 ->getDatabaseObject($database, false)
                 ->drop();
@@ -80,7 +78,7 @@ class MySql extends Command
     {
         if ($database) {
             // Drop the requested database
-            sql($this->connector, false)
+            sql($this->o_connector, false)
                 ->getSchemaObject(false)
                 ->getDatabaseObject($database, false)
                 ->create();
@@ -93,9 +91,7 @@ class MySql extends Command
     /**
      * Imports the specified MySQL dump file into the specified database
      *
-     * @param FsFileInterface         $file
-     *
-     * @throws Throwable
+     * @param FsFileInterface $file
      */
     public function import(FsFileInterface $file): void
     {
@@ -103,7 +99,7 @@ class MySql extends Command
         $threshold = Log::setThreshold(3);
 
         // If we're importing the system database, then switch to init mode!
-        if ($this->connector->getDatabase() === sql()->getDatabase()) {
+        if ($this->o_connector->getDatabase() === sql()->getDatabase()) {
             Core::enableInitState();
         }
 
@@ -116,27 +112,28 @@ class MySql extends Command
                      ->setTimeout($this->timeout)
                      ->addArguments([
                          '-h',
-                         $this->connector->getHostname(),
+                         $this->o_connector->getHostname(),
                          '-u',
-                         $this->connector->getUsername(),
-                         '-p' . $this->connector->getPassword(),
+                         $this->o_connector->getUsername(),
+                         '-p' . $this->o_connector->getPassword(),
                          '-B',
-                         $this->connector->getDatabase(),
+                         $this->o_connector->getDatabase(),
                      ])
                      ->setInputRedirect($file)
                      ->executeNoReturn();
                 break;
+
             case 'application/gzip':
                 $this->setCommand('mysql')
                      ->setTimeout($this->timeout)
                      ->addArguments([
                          '-h',
-                         $this->connector->getHostname(),
+                         $this->o_connector->getHostname(),
                          '-u',
-                         $this->connector->getUsername(),
-                         '-p' . $this->connector->getPassword(),
+                         $this->o_connector->getUsername(),
+                         '-p' . $this->o_connector->getPassword(),
                          '-B',
-                         $this->connector->getDatabase(),
+                         $this->o_connector->getDatabase(),
                      ]);
 
                 Zcat::new()

@@ -19,13 +19,13 @@ namespace Phoundation\Os\Processes;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataLogLevel;
 use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
@@ -39,7 +39,6 @@ use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Which;
 use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
@@ -51,6 +50,7 @@ use Stringable;
 
 trait ProcessVariables
 {
+    use TraitDataLogLevel;
     use TraitDataServer;
     use TraitDataRestrictions {
         setRestrictions as protected ___setRestrictions;
@@ -184,9 +184,9 @@ trait ProcessVariables
     /**
      * Sets the ionice class for this process
      *
-     * @var EnumIoNiceClassInterface $ionice_class
+     * @var EnumIoNiceClass $ionice_class
      */
-    protected EnumIoNiceClassInterface $ionice_class = EnumIoNiceClass::none;
+    protected EnumIoNiceClass $ionice_class = EnumIoNiceClass::none;
 
     /**
      * Sets the ionice level for this process
@@ -364,7 +364,8 @@ trait ProcessVariables
             }
         }
 
-        $this->packages = new Packages();
+        $this->packages  = new Packages();
+        $this->log_level = 2;
     }
 
 
@@ -607,9 +608,9 @@ trait ProcessVariables
     /**
      * Returns the nice level for this process
      *
-     * @return EnumIoNiceClassInterface
+     * @return EnumIoNiceClass
      */
-    public function getIoNiceClass(): EnumIoNiceClassInterface
+    public function getIoNiceClass(): EnumIoNiceClass
     {
         return $this->ionice_class;
     }
@@ -618,11 +619,11 @@ trait ProcessVariables
     /**
      * Sets the ionice class for this process
      *
-     * @param EnumIoNiceClassInterface|int|null $ionice_class
+     * @param EnumIoNiceClass|int|null $ionice_class
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setIoNiceClass(EnumIoNiceClassInterface|int|null $ionice_class): static
+    public function setIoNiceClass(EnumIoNiceClass|int|null $ionice_class): static
     {
         if (is_null($ionice_class)) {
             $ionice_class = EnumIoNiceClass::none;

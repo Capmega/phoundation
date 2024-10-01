@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataEnvironment;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
@@ -44,6 +45,7 @@ class Pho extends WorkersCore implements PhoInterface
     /**
      * Pho class constructor.
      *
+     * @param array|string|null    $commands
      * @param FsFileInterface|null $pho
      */
     public function __construct(array|string|null $commands, ?FsFileInterface $pho = null)
@@ -64,10 +66,11 @@ class Pho extends WorkersCore implements PhoInterface
         parent::__construct($pho->getParentDirectory());
 
         // Set the command to execute phoundation, pass basic arguments and settings like timeout
-        // --no-audio is always set to avoid sub commands pinging differently from the main command, causing confusion
-        // --ignore-readonly is added if the current process is also ignoring the readonly mode file
+        // --no-audio        is always added to avoid sub commands pinging differently from the main command, causing confusion
+        // --ignore-readonly is always added if the current process is also ignoring the readonly mode file
+        // --no-warnings     is always added because all pho commands should NEVER cause warning type exceptions.
         $this->setCommand($pho->getSource(), false)
-             ->addArguments(['--no-audio'])
+             ->addArguments(['--no-audio', '--no-warnings'])
              ->addArguments(Core::getIgnoreReadonly() || Core::inInitState() ? '--ignore-readonly' : null)
              ->setPhoCommands($commands)
              ->setEnvironment(ENVIRONMENT)
@@ -143,5 +146,53 @@ class Pho extends WorkersCore implements PhoInterface
         }
 
         return parent::getFullCommandLine($background);
+    }
+
+
+    /**
+     * Executes this Pho command as a background process
+     *
+     * @return int
+     */
+    public function executeBackground(): int
+    {
+        $pid = parent::executeBackground();
+
+        Log::action(tr('Executing background Pho command ":command" with PID ":pid"', [
+            ':command' => implode(' ', $this->pho_commands),
+            ':pid'     => $pid
+        ]));
+
+        return $pid;
+    }
+
+
+    /**
+     * Executes this Pho command in a normal way, returning the output as an array
+     *
+     * @return array
+     */
+    public function executeReturnArray(): array
+    {
+        Log::action(tr('Executing normal Pho command ":command"', [
+            ':command' => implode(' ', $this->pho_commands)
+        ]));
+
+        return parent::executeReturnArray();
+    }
+
+
+    /**
+     * Executes this Pho command, passing through all output directly to the client
+     *
+     * @return bool
+     */
+    public function executePassthru(): bool
+    {
+        Log::action(tr('Executing passthru Pho command ":command"', [
+            ':command' => implode(' ', $this->pho_commands)
+        ]));
+
+        return parent::executePassthru();
     }
 }

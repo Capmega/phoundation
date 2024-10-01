@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\SlowPages;
 
-use Phoundation\Developer\Incidents\Incident;
+use Phoundation\Security\Incidents\Incident;
 
 
 class SlowProcess extends Incident

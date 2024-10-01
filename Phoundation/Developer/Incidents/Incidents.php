@@ -68,9 +68,9 @@ class Incidents extends DataIterator
      *
      * @return HtmlTableInterface
      */
-    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
+    public function getHtmlTableObject(array|string|null $columns = null): HtmlTableInterface
     {
-        $table = parent::getHtmlTable($columns);
+        $table = parent::getHtmlTableObject($columns);
         $table->setCheckboxSelectors(EnumTableIdColumn::checkbox);
 
         return $table;
@@ -92,7 +92,7 @@ class Incidents extends DataIterator
     public function getHtmlSelect(string $value_column = 'title', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
-                          ->setConnector(static::getConnector())
+                          ->setConnectorObject($this->getConnectorObject())
                           ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 

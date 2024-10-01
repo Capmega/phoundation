@@ -72,7 +72,7 @@ Validator::new($array)
          ->select('test-xora')->xor('test-xorb')->isArray()
          ->select('test-optional')->isOptional([])->isArray()
          ->select('test-list-array')->recurse()
-         ->select('sub-list-array')->hasMinimumElements(3)->each()->hasMinCharacters(1)
+         ->select('sub-list-array')->hasMinimumElements(3)->eachField()->hasMinCharacters(1)
          ->validate()
          ->select('test-array')->isArray()->recurse()
          ->select('sub-integer')->isInteger()
@@ -98,7 +98,7 @@ show($array);
 ////        ->select('sub-email')->isString()
 ////        ->validate()
 //    ->select('test-integer')->isInteger()
-//    ->select('test-list-array')->hasMinimumElements(3)->each()->hasMinSize(4)
+//    ->select('test-list-array')->hasMinimumElements(3)->eachField()->hasMinSize(4)
 //    ->select('test-email')->isEmail()
 //    ->validate();
 //

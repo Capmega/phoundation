@@ -127,11 +127,11 @@ class Notifications extends DataIterator implements NotificationsInterface
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
-                          ->setConnector(static::getConnector())
+                          ->setConnectorObject($this->getConnectorObject())
                           ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
-                                         FROM     `' . static::getTable() . '` 
-                                         WHERE    `status` IS NULL 
-                                         ORDER BY `title` ASC')
+                                            FROM     `' . static::getTable() . '` 
+                                            WHERE    `status` IS NULL 
+                                            ORDER BY `title` ASC')
                           ->setName('notifications_id')
                           ->setNotSelectedLabel(tr('Select a notification'))
                           ->setComponentEmptyLabel(tr('No notifications available'));
@@ -141,7 +141,7 @@ class Notifications extends DataIterator implements NotificationsInterface
 //    /**
 //     * @inheritDoc
 //     */
-//    public function load(?array $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+//    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
 //    {
 //        $this->source = sql()->list('SELECT `notifications`.`id`, `notifications`.`title`
 //                                   FROM     `notifications`
@@ -215,7 +215,7 @@ class Notifications extends DataIterator implements NotificationsInterface
      */
     public function markSeverityColumn(): static
     {
-        return $this->addCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
+        return $this->addRowCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
             if (!array_key_exists('severity', $row)) {
                 return;
             }
@@ -233,7 +233,7 @@ class Notifications extends DataIterator implements NotificationsInterface
                     $row['severity'] = '<span class="notification-danger">' . tr('Danger') . '</span>';
                     break;
                 default:
-                    $row['severity'] = htmlspecialchars($row['severity']);
+                    $row['severity'] = htmlspecialchars($row['severity'] ?? tr('Unknown'));
                     $row['severity'] = str_replace(PHP_EOL, '<br>', $row['severity']);
             }
             $params['skiphtmlentities']['severity'] = true;
