@@ -121,7 +121,7 @@ The following arguments are available to ALL commands
 
 [-H, --help]                            If specified, will display the help page for the typed command
 
-[-J, --json JSON]                       Allows argument to be specified in JSON format. The system will decode the 
+[-J, --json]                            Allows argument to be specified in JSON format. The system will decode the 
                                         arguments and add them to the rest of the argument list without overwriting 
                                         arguments that were already specified on the command line
 
