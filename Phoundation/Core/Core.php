@@ -1009,7 +1009,7 @@ class Core implements CoreInterface
      *
      * @return never
      * @note : This function should never be called directly
-     * @todo Refactor this, its a godawful mess
+     * @todo Refactor uncaught exception handling, its a bloody godawful mess!
      */
     #[NoReturn] public static function uncaughtException(Throwable $e): never
     {
@@ -3141,9 +3141,9 @@ class Core implements CoreInterface
      * @param Throwable $e
      * @param string    $state
      *
-     * @return never
+     * @return void
      */
-    #[NoReturn] protected static function processUncaughtCliException(Throwable $e, string $state): never
+    #[NoReturn] protected static function processUncaughtCliException(Throwable $e, string $state): void
     {
         // Command line command crashed.
         // If not using Debug::enabled() mode, then try to give nice error messages for known issues
@@ -3210,9 +3210,9 @@ class Core implements CoreInterface
      * @param Throwable $e
      * @param string    $state
      *
-     * @return never
+     * @return void
      */
-    #[NoReturn] protected static function processUncaughtWebException(Throwable $e, string $state): never
+    #[NoReturn] protected static function processUncaughtWebException(Throwable $e, string $state): void
     {
         if ($e instanceof ValidationFailedException) {
             // This is just a simple validation warning, show warning messages in the exception data
@@ -3239,12 +3239,6 @@ class Core implements CoreInterface
             Log::error($e);
         }
 
-        // Show nice error page
-        static::executeUncaughtExceptionSystemPage(500, $e);
-
-        // Make sure the Router shutdown won't happen, so it won't send a 404
-        Core::removeShutdownCallback('route[postprocess]');
-
         // Remove all caching headers
         if (!headers_sent()) {
             header_remove('ETag');
@@ -3256,9 +3250,6 @@ class Core implements CoreInterface
             header('Content-Type: text/html');
             header('Content-length: 1048576'); // Required or browser won't show half the information
         }
-
-        //
-        static::removeShutdownCallback('route_postprocess');
 
         try {
             if (sql(connect: false)->isConnected()) {
@@ -3274,6 +3265,11 @@ class Core implements CoreInterface
             Log::error('Failed to generate notification of uncaught exception, see following exception');
             Log::exception($f);
         }
+
+        // Make sure the Router shutdown won't happen, so it won't send a 404
+        // TODO Clean this mess up
+        Core::removeShutdownCallback('route[postprocess]');
+        Core::removeShutdownCallback('route_postprocess');
 
         if (static::inStartupState($state)) {
             /*
@@ -3304,167 +3300,153 @@ class Core implements CoreInterface
             $e->setCode(400);
         }
 
-// TODO Change this so that we only return HTML for HTML requests, NOT json requests. With debug on, JsonPage should return full data reports!
-        if (!Debug::isEnabled()) {
-            switch (Request::getRequestType()) {
-                case EnumRequestTypes::api:
-                    // no break
-                    if (!headers_sent()) {
-                        header('Content-Type: application/json', true);
-                    }
+        // Show nice error page
+        static::executeUncaughtExceptionSystemPage(500, $e);
 
-                    echo "UNCAUGHT EXCEPTION\n\n";
-                    showdie($e);
+        // TODO Change this so that we only return HTML for HTML requests, NOT json requests. With debug on, JsonPage should return full data reports!
+        switch (Request::getRequestType()) {
+            case EnumRequestTypes::api:
+                // no break
+                if (!headers_sent()) {
+                    header('Content-Type: application/json', true);
+                }
 
-                case EnumRequestTypes::ajax:
-                    if ($e->getWarning()) {
-                        if ($e instanceof ValidationFailedException) {
-                            $message = Strings::force($e->getFailures(), ', ');
+                echo "UNCAUGHT EXCEPTION\n\n";
+                showdie($e);
 
-                        } else {
-                            $message = $e->getMessage();
-                        }
+            case EnumRequestTypes::ajax:
+                if ($e->getWarning()) {
+                    if ($e instanceof ValidationFailedException) {
+                        $message = Strings::force($e->getFailures(), ', ');
 
                     } else {
-                        $message = tr('Something went wrong on the server, please notify your IT department and try again later');
+                        $message = $e->getMessage();
                     }
 
-                    JsonPage::new()
-                        ->addFlashMessageSections(FlashMessage::new()
-                            ->setMode($e->getWarning() ? EnumDisplayMode::warning : EnumDisplayMode::error)
-                            ->setTitle(tr('Error!'))
-                            ->setMessage($message))
-                        ->reply();
+                } else {
+                    $message = tr('Something went wrong on the server, please notify your IT department and try again later');
+                }
 
-            }
+                JsonPage::new()
+                    ->addFlashMessageSections(FlashMessage::new()
+                        ->setMode($e->getWarning() ? EnumDisplayMode::warning : EnumDisplayMode::error)
+                        ->setTitle(tr('Error!'))
+                        ->setMessage($message))
+                    ->reply();
 
-            $return = ' <style>
-                                        table.exception{
-                                            font-family: sans-serif;
-                                            width:99%;
-                                            background:#AAAAAA;
-                                            border-collapse:collapse;
-                                            border-spacing:2px;
-                                            margin: 5px auto 5px auto;
-                                            border-radius: 10px;
-                                        }
-                                        td.center{
-                                            text-align: center;
-                                        }
-                                        table.exception thead{
-                                            background: #CE0000;
-                                            color: white;
-                                            font-weight: bold;
-                                        }
-                                        table.exception thead td{
-                                            border-top-left-radius: 10px;
-                                            border-top-right-radius: 10px;
-                                        }
-                                        table.exception td{
-                                            border: 0;
-                                            padding: 15px;
-                                        }
-                                        table.exception td.value{
-                                            word-break: break-all;
-                                        }
-                                        table.debug{
-                                            background:#AAAAAA !important;
-                                        }
-                                        table.debug thead{
-                                            background: #CE0000 !important;
-                                            color: white;
-                                        }
-                                        table.debug .debug-header{
-                                            display: none;
-                                        }
-                                        pre {
-                                            white-space: break-spaces;
-                                        }
-                                        </style>
-                                        <table class="exception">
-                                            <thead>
-                                                <td colspan="2" class="center">
-                                                    ' . tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE COMMAND ":command" ***', [
-                    ':code'    => $e->getCode(),
-                    ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
-                    ':type'    => Request::getRequestType()->value,
-                ]) . '
-                                                </td>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td colspan="2" class="center">
-                                                        ' . tr('An uncaught exception with code ":code" occurred in web page ":command". See the exception core dump below for more information on how to fix this issue', [
-                    ':code'    => $e->getCode(),
-                    ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
-                ]) . '
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        ' . tr('Message') . '
-                                                    </td>
-                                                    <td>
-                                                        ' . $e->getMessage() . '
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        ' . tr('File') . '
-                                                    </td>
-                                                    <td>
-                                                        ' . $e->getFile() . '
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        ' . tr('Line') . '
-                                                    </td>
-                                                    <td>
-                                                        ' . $e->getLine() . '
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td colspan="2">
-                                                        <a href="' . Url::getWww('signout') . '">Sign out</a>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>';
-
-            if (!headers_sent()) {
-                header_remove('Content-Type');
-                header('Content-Type: text/html', true);
-            }
-
-            echo $return;
-
-            if ($e instanceof Exception) {
-                // Clean data
-                $e->addData(Arrays::hideSensitive(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
-            }
-
-            showdie($e);
         }
 
-        // We're not in debug mode.
+        $return = ' <style>
+                        table.exception{
+                            font-family: sans-serif;
+                            width:99%;
+                            background:#AAAAAA;
+                            border-collapse:collapse;
+                            border-spacing:2px;
+                            margin: 5px auto 5px auto;
+                            border-radius: 10px;
+                        }
+                        td.center{
+                            text-align: center;
+                        }
+                        table.exception thead{
+                            background: #CE0000;
+                            color: white;
+                            font-weight: bold;
+                        }
+                        table.exception thead td{
+                            border-top-left-radius: 10px;
+                            border-top-right-radius: 10px;
+                        }
+                        table.exception td{
+                            border: 0;
+                            padding: 15px;
+                        }
+                        table.exception td.value{
+                            word-break: break-all;
+                        }
+                        table.debug{
+                            background:#AAAAAA !important;
+                        }
+                        table.debug thead{
+                            background: #CE0000 !important;
+                            color: white;
+                        }
+                        table.debug .debug-header{
+                            display: none;
+                        }
+                        pre {
+                            white-space: break-spaces;
+                        }
+                        </style>
+                        <table class="exception">
+                            <thead>
+                                <td colspan="2" class="center">
+                                    ' . tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE COMMAND ":command" ***', [
+                                            ':code'    => $e->getCode(),
+                                            ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
+                                            ':type'    => Request::getRequestType()->value,
+                                        ]) . '
+                                </td>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="2" class="center">
+                                        ' . tr('An uncaught exception with code ":code" occurred in web page ":command". See the exception core dump below for more information on how to fix this issue', [
+                                                ':code'    => $e->getCode(),
+                                                ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
+                                            ]) . '
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        ' . tr('Message') . '
+                                    </td>
+                                    <td>
+                                        ' . $e->getMessage() . '
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        ' . tr('File') . '
+                                    </td>
+                                    <td>
+                                        ' . $e->getFile() . '
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        ' . tr('Line') . '
+                                    </td>
+                                    <td>
+                                        ' . $e->getLine() . '
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <a href="' . Url::getWww('signout') . '">Sign out</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>';
+
+        if (!headers_sent()) {
+            header_remove('Content-Type');
+            header('Content-Type: text/html', true);
+        }
+
+        echo $return;
+
+        if ($e instanceof Exception) {
+            // Clean data
+            $e->addData(Arrays::hideSensitive(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
+        }
+
         Notification::new()
                     ->setException($e)
                     ->send();
 
-        switch (Request::getRequestType()) {
-            case EnumRequestTypes::api:
-                // no break
-            case EnumRequestTypes::ajax:
-                if ($e instanceof CoreException) {
-                    JsonPage::new()->replyWithHttpCode($e->getCode(), ['reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')]);
-                }
-
-                // Assume that all non CoreException exceptions are not warnings!
-                JsonPage::new()->replyWithHttpCode($e->getCode(), ['reason' => '']);
-        }
-
-        static::executeUncaughtExceptionSystemPage($e->getCode(), $e);
+        showdie($e);
     }
 
 
