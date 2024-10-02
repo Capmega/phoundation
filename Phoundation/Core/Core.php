@@ -3606,6 +3606,28 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns the current process id
+     *
+     * @return int
+     */
+    public static function getPid(): int
+    {
+        return getmypid();
+    }
+
+
+    /**
+     * Returns the current parent process id
+     *
+     * @return int
+     */
+    public static function getPpid(): int
+    {
+        return posix_getppid();
+    }
+
+
+    /**
      * Generates and returns a full exception data array
      *
      * @return array
@@ -3670,6 +3692,32 @@ class Core implements CoreInterface
                 'post'                  => null,
                 'files'                 => null,
             ];
+        }
+    }
+
+
+    /**
+     * This method will fork the current process
+     *
+     * @param callable $parent_callback
+     * @param callable $child_callback
+     *
+     * @return void
+     */
+    public function fork(callable $parent_callback, callable $child_callback): void
+    {
+        $pid = pcntl_fork();
+
+        switch ($pid) {
+            case -1:
+                throw new CoreException(tr('Failed to fork the current exception'));
+
+            case null:
+                $parent_callback();
+                break;
+
+            default:
+                $child_callback($pid);
         }
     }
 }
