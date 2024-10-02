@@ -110,7 +110,7 @@ $argv = ArgvValidator::new()
 Log::information(tr('Executing database import'));
 
 Import::new()
-      ->setConnector($argv['connector'], true)
+      ->setConnector($argv['connector'])
       ->setDatabase($argv['database'])
       ->setDrop(!$argv['no_drop'])
       ->setFile($argv['file'])
