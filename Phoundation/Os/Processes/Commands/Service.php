@@ -25,6 +25,7 @@ class Service extends Command
 {
     use TraitDataServiceName;
 
+
     /**
      * Execute the service status command operation and return the specified service status
      *
@@ -115,9 +116,11 @@ class Service extends Command
     public function stop(): static
     {
         $this->validateService();
+
         Log::action(tr('Stopping service ":service"', [
             ':service' => $this->service_name,
         ]));
+
         $this->executeService('stop');
 
         return $this;

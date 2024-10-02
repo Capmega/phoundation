@@ -21,7 +21,7 @@ use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessWorkerInterface;
 
 
-class ProcessWorker extends WorkersCore implements ProcessWorkerInterface
+class Worker extends WorkersCore implements ProcessWorkerInterface
 {
     /**
      * Returns a new Workers object

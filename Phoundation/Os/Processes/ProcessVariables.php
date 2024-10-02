@@ -343,6 +343,14 @@ trait ProcessVariables
      */
     protected ?DateTime $executed_on = null;
 
+    /**
+     * Tracks if this process runs as a stand-alone service or not.
+     * If true, requires background to be true as well.
+     *
+     * @var bool $service
+     */
+    protected bool $service = false;
+
 
     /**
      * Process class constructor
@@ -440,6 +448,34 @@ trait ProcessVariables
     public function getExecutionStopTime(): ?float
     {
         return $this->stop;
+    }
+
+
+    /**
+     * Returns  if this process runs as a service
+     *
+     * @return bool
+     */
+    public function getService(): bool
+    {
+        return $this->service;
+    }
+
+
+    /**
+     * Sets if this process runs as a service
+     *
+     * If set to true, this will require $background set true on execution as well, or will cause an exception
+     *
+     * @param bool $service
+     *
+     * @return static
+     */
+    public function setService(bool $service): static
+    {
+        $this->service = $service;
+
+        return $this;
     }
 
 

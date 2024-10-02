@@ -25,7 +25,9 @@ use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
+use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
 use Phoundation\Os\Processes\Commands\Kill;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
@@ -352,11 +354,25 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             $this->cached_command_line .= ' ' . (($channel > 1) ? $channel : '') . '< ' . $file;
         }
 
+        // Setup "nohup"
+        if ($this->service) {
+            if (!$background) {
+                throw new OutOfBoundsException(tr('Cannot run process command ":command" in the foreground, as it is set to run as a service', [
+                    'command' => $this->command,
+                ]));
+            }
+
+            $nohup = 'nohup ';
+
+        } elseif ($background) {
+            $nohup = '';
+        }
+
         // Background commands get some extra options around
         if ($this->use_run_file) {
-            // Create command line with run file
+            // Create command line with run-file
             if ($background) {
-                $this->cached_command_line = "(nohup bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$! >&3) 3> " . ($this->getRunFile() ?? '/dev/null');
+                $this->cached_command_line = "(" . $nohup . "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$! >&3) 3> " . ($this->getRunFile() ?? '/dev/null');
 
             } elseif ($this->register_run_file) {
                 // Make sure the PID will be registered in the run file
@@ -364,9 +380,9 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             }
 
         } else {
-            // Create command line without run file
+            // Create command line without run-file
             if ($background) {
-                $this->cached_command_line = "(nohup bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$!)";
+                $this->cached_command_line = "(" . $nohup . "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$!)";
 
             } elseif ($this->register_run_file) {
                 // Make sure the PID will be registered in the run file
@@ -701,5 +717,44 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             Kill::new($this->restrictions)
                 ->pid($signal, $this->pid);
         }
+    }
+
+
+    /**
+     * Returns true if the process can execute the specified command with sudo privileges
+     *
+     * @param string $command
+     * @param bool   $exception
+     *
+     * @return bool
+     * @todo Find a better option than "--version" which may not be available for everything. What about shell commands
+     *       like "true", or "which", etc?
+     */
+    public function sudoAvailable(string $command, bool $exception = false): bool
+    {
+        try {
+            Process::new($this->command, $this->getRestrictions())
+                ->setSudo(true)
+                ->addArgument('--version')
+                ->executeReturnArray();
+
+            return true;
+
+        } catch (CommandNotFoundException) {
+            if ($exception) {
+                throw new NoSudoException(tr('Cannot check for sudo privileges for the ":command" command, the command was not found', [
+                    ':command' => $command,
+                ]));
+            }
+
+        } catch (ProcessFailedException) {
+            if ($exception) {
+                throw new NoSudoException(tr('The current process owner has no sudo privileges available for the ":command" command', [
+                    ':command' => $command,
+                ]));
+            }
+        }
+
+        return false;
     }
 }

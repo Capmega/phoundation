@@ -595,7 +595,7 @@ class Task extends DataEntry implements TaskInterface
         Hook::new('tasks')
             ->execute('pre-execute', ['task' => $this]);
         // Execute the command
-        $worker = ProcessWorker::new($this->getCommand(), $this->getExecutionDirectory())
+        $worker = Worker::new($this->getCommand(), $this->getExecutionDirectory())
                                ->setServer($this->getServer())
                                ->setArguments($this->getArguments())
                                ->setVariables($this->getVariables())
