@@ -122,17 +122,17 @@ $documentation = Card::new()
                      ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Render and return the page grid
-return Grid::new()
-           ->addGridColumn($card, EnumDisplaySize::nine, true)
-           ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
-
-
 // Set page meta data
 Response::setHeaderTitle(tr('Right'));
 Response::setHeaderSubTitle($right->getName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'                     => tr('Home'),
-                                                           '/accounts/rights.html' => tr('Rights'),
-                                                           ''                      => $right->getName() ?? tr('[NEW]'),
-                                                       ]));
+    '/'                     => tr('Home'),
+    '/accounts/rights.html' => tr('Rights'),
+    ''                      => $right->getName() ?? tr('[NEW]'),
+]));
+
+
+// Render and return the page grid
+return Grid::new()
+           ->addGridColumn($card, EnumDisplaySize::nine, true)
+           ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
