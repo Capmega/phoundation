@@ -123,11 +123,9 @@ $documentation = Card::new()
 
 
 // Render and return the page grid
-$grid = Grid::new()
-            ->addGridColumn($card, EnumDisplaySize::nine, true)
-            ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
+return Grid::new()
+           ->addGridColumn($card, EnumDisplaySize::nine, true)
+           ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 
 // Set page meta data
