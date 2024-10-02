@@ -432,7 +432,7 @@ class CliAutoComplete
                 // Limit the number of results
                 $results = static::limit($results);
 
-            } elseif (!is_string($results) or !($results instanceof IteratorInterface)) {
+            } elseif (!is_string($results) and !($results instanceof IteratorInterface)) {
                 throw OutOfBoundsException::new(tr('Executed auto complete callback ":name" with word ":word" returned invalid value with datatype ":results", it should be either null, string, array, or IteratorInterface', [
                     ':results' => get_object_class_or_data_type($results),
                     ':word'    => $word,
