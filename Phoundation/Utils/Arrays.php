@@ -997,7 +997,7 @@ class Arrays extends Utils
      */
     public static function keepMatchingValuesStartingWith(IteratorInterface|array $source, ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): array
     {
-        return static::keepMatchingValues($source, $needles, $flags, $column);
+        return static::keepMatchingValues($source, $needles, $flags | Utils::MATCH_STARTS_WITH, $column);
     }
 
 
@@ -1012,7 +1012,7 @@ class Arrays extends Utils
      */
     public static function keepMatchingKeysStartingWith(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): array
     {
-        return static::keepMatchingKeys($source, $needles, $flags);
+        return static::keepMatchingKeys($source, $needles, $flags | Utils::MATCH_STARTS_WITH);
     }
 
 
