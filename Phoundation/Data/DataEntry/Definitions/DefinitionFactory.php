@@ -1718,6 +1718,10 @@ class DefinitionFactory
 
         return Definition::new($data_entry, $column)
                          ->setVirtual(true)
-                         ->setElement(EnumElement::hr);
+                         ->setElement(EnumElement::hr)
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             // Nothing to validate, this is not an input
+                             $validator->doNotValidate();
+                         });
     }
 }
