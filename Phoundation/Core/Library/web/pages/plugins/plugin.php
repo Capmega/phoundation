@@ -41,7 +41,7 @@ $plugin_card = Card::new()
                    ->setContent($plugin->getHtmlDataEntryFormObject())
                    ->setButtons(Buttons::new()
                                        ->addButton('Submit')
-                                       ->addButton('Back', EnumDisplayMode::secondary, '/development/plugins.html', true));
+                                       ->addButton('Back', EnumDisplayMode::secondary, '/plugins/plugins.html', true));
 
 
 // Build relevant links
@@ -65,9 +65,9 @@ $documentation_card = Card::new()
 Response::setHeaderTitle(tr('Plugin'));
 Response::setHeaderSubTitle($plugin->getName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                         => tr('Home'),
-    '/development/plugins.html' => tr('Plugins'),
-    ''                          => $plugin->getName(),
+    '/'                     => tr('Home'),
+    '/plugins/plugins.html' => tr('Plugins'),
+    ''                      => $plugin->getName(),
 ]));
 
 

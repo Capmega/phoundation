@@ -93,7 +93,7 @@ class Menu extends \Phoundation\Web\Html\Components\Widgets\Menus\Menu
                 'menu' => [
                     tr('Plugins') => [
                         'rights' => 'plugins',
-                        'url'    => '/development/plugins.html',
+                        'url'    => '/plugins/plugins.html',
                         'icon'   => 'fas fa-key'
                     ],
                     tr('Slow webpage log') => [
