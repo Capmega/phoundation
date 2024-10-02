@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class CurlException
+ * Class ServerException
  *
  *
  *
@@ -14,11 +14,9 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Network\Curl\Exception;
-
-use Phoundation\Network\Exception\SocketException;
+namespace Phoundation\Network\Sockets\Exception;
 
 
-class CurlException extends SocketException
+class ServerException extends SocketException
 {
 }

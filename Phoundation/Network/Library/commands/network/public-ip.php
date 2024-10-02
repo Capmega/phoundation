@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Network\Exception\NetworkException;
+use Phoundation\Network\Exception\SocketException;
 use Phoundation\Network\Network;
 
 
@@ -40,6 +40,6 @@ try {
     // Display the public IP address
     Log::cli(Network::getPublicIpAddress());
 
-} catch (NetworkException $e) {
-    throw NetworkException::new(tr('Failed to detect public IP address, see logs for more information'), $e)->makeWarning();
+} catch (SocketException $e) {
+    throw SocketException::new(tr('Failed to detect public IP address, see logs for more information'), $e)->makeWarning();
 }
