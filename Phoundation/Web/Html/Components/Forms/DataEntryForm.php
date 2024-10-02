@@ -590,6 +590,14 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             $this->rows->add($definition, $component);
                             break;
 
+                        case EnumElement::hr:
+                            // Get the class for this element and ensure the library file is loaded
+                            $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Hr');
+                            $component     = $element_class::new();
+
+                            $this->rows->add($definition, $component);
+                            break;
+
                         case null:
                             throw new OutOfBoundsException(tr('No element specified for key ":key"', [
                                 ':key' => $column,

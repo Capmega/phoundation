@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class P
+ * Class Hr
  *
- * This class represents (and can render) an <p>...content...</p> tag
+ * This class represents (and can render) an <hr> tag
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -16,7 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
-class P extends Div
+
+class Hr extends Div
 {
     /**
      * P class constructor
@@ -27,6 +28,7 @@ class P extends Div
     {
         parent::__construct($content);
 
-        $this->setElement('p');
+        $this->setElement('hr')
+             ->requires_closing_tag = false;
     }
 }
