@@ -721,16 +721,15 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * Returns true if the process can execute the specified command with sudo privileges
+     * Returns true if the process can execute the current command with sudo privileges
      *
-     * @param string $command
      * @param bool   $exception
      *
      * @return bool
      * @todo Find a better option than "--version" which may not be available for everything. What about shell commands
      *       like "true", or "which", etc?
      */
-    public function sudoAvailable(string $command, bool $exception = false): bool
+    public function hasSudoAvailable(bool $exception = false): bool
     {
         try {
             Process::new($this->command, $this->getRestrictions())
@@ -743,14 +742,14 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         } catch (CommandNotFoundException) {
             if ($exception) {
                 throw new NoSudoException(tr('Cannot check for sudo privileges for the ":command" command, the command was not found', [
-                    ':command' => $command,
+                    ':command' => $this->command,
                 ]));
             }
 
         } catch (ProcessFailedException) {
             if ($exception) {
                 throw new NoSudoException(tr('The current process owner has no sudo privileges available for the ":command" command', [
-                    ':command' => $command,
+                    ':command' => $this->command,
                 ]));
             }
         }

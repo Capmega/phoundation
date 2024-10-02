@@ -1222,7 +1222,7 @@ trait ProcessVariables
                                 ]));
                             }
 
-                            if (!Command::sudoAvailable('apt-get', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
+                            if (!Command::checkSudoAvailable('apt-get', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
                                 throw new ProcessesException(tr('Specified command ":command" does not exist and this process does not have sudo access to apt-get', [
                                     ':command' => $command,
                                 ]));
