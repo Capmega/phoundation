@@ -71,9 +71,9 @@ class SocketServer
     /**
      * The Master Socket.
      *
-     * @var ?Socket
+     * @var ?PhoSocket
      */
-    protected ?Socket $masterSocket = null;
+    protected ?PhoSocket $masterSocket = null;
 
     /**
      * Maximum Amount of Clients Allowed to Connect.
@@ -93,7 +93,7 @@ class SocketServer
     /**
      * Connected Clients.
      *
-     * @var Socket[]
+     * @var PhoSocket[]
      */
     protected array $clients = [];
 
@@ -175,7 +175,7 @@ class SocketServer
     {
         Core::disableTimeout();
 
-        $this->masterSocket = Socket::create($this->domain, SOCK_STREAM, 0);
+        $this->masterSocket = PhoSocket::create($this->domain, SOCK_STREAM, 0);
         $this->masterSocket->bind($this->address, $this->port);
         $this->masterSocket->getSockName($this->address, $this->port);
         $this->masterSocket->listen();
@@ -229,7 +229,7 @@ class SocketServer
         // Set up a block call to socket_select
         $write = [];
         $except = [];
-        $ret = Socket::select($read, $write, $except, $this->timeout);
+        $ret = PhoSocket::select($read, $write, $except, $this->timeout);
 
         if (
             !is_null($this->timeout)
@@ -280,10 +280,10 @@ class SocketServer
     /**
      * Overrideable Read Functionality.
      *
-     * @param Socket $client
+     * @param PhoSocket $client
      * @throws SocketException
      */
-    protected function read(Socket $client): string
+    protected function read(PhoSocket $client): string
     {
         return $client->read($this->maxRead, $this->readType);
     }
@@ -292,12 +292,12 @@ class SocketServer
     /**
      * Disconnect the supplied Client Socket.
      *
-     * @param Socket $client
+     * @param PhoSocket $client
      * @param string $message Disconnection Message.  Could be used to trigger a disconnect with a status code
      *
      * @return bool Whether or not to continue running the server (true: continue, false: shutdown)
      */
-    public function disconnect(Socket $client, string $message = ''): bool
+    public function disconnect(PhoSocket $client, string $message = ''): bool
     {
         $clientIndex = array_search($client, $this->clients);
         $return = $this->triggerHooks(
@@ -323,12 +323,12 @@ class SocketServer
      * Triggers the hooks for the supplied command.
      *
      * @param string $command Hook to listen for (e.g. HOOK_CONNECT, HOOK_INPUT, HOOK_DISCONNECT, HOOK_TIMEOUT)
-     * @param Socket $client
+     * @param PhoSocket $client
      * @param string $input Message Sent along with the Trigger
      *
      * @return bool Whether or not to continue running the server (true: continue, false: shutdown)
      */
-    protected function triggerHooks(string $command, Socket $client, string $input = null): bool
+    protected function triggerHooks(string $command, PhoSocket $client, string $input = null): bool
     {
         if (isset($this->hooks[$command])) {
             foreach ($this->hooks[$command] as $callable) {
