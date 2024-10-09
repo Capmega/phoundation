@@ -2323,12 +2323,18 @@ class Arrays extends Utils
     /**
      * Returns an array with all the values from the specified enum
      *
-     * @param UnitEnum $enum
+     * @param string $enum
      *
      * @return array
      */
-    public static function fromEnum(UnitEnum $enum): array
+    public static function fromEnum(string $enum): array
     {
+        if (!is_a($enum, UnitEnum::class, true)) {
+            throw new OutOfBoundsException(tr('Specified class path ":enum" is not an Enum class', [
+                ':enum' => $enum,
+            ]));
+        }
+
         $array = $enum::cases();
         $array = array_column($array, 'value');
 
