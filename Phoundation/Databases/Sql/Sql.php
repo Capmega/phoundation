@@ -1737,45 +1737,6 @@ class Sql implements SqlInterface
 
 
     /**
-     * Import data from specified file
-     *
-     * @param string                                    $file
-     * @param FsRestrictionsInterface|array|string|null $restrictions
-     *
-     * @return void
-     */
-    public function import(string $file, FsRestrictionsInterface|array|string|null $restrictions): void
-    {
-        throw new UnderConstructionException();
-
-        $tel  = 0;
-        $file = FsFile::new($file, $restrictions)
-                      ->open(EnumFileOpenMode::readOnly);
-
-        while (($line = $file->readLine()) !== false) {
-            $line = trim($line);
-
-            if (!empty($line)) {
-                $this->pdo->query($line);
-                $tel++;
-                // :TODO:SVEN:20130717: Right now it updates the display for each record. This may actually slow down import. Make display update only every 10 records or so
-                echo 'Importing SQL data (' . $file . ') : ' . number_format($tel) . "\n";
-                //one line up!
-                echo "\033[1A";
-            }
-        }
-
-        echo "\nDone\n";
-
-        if (!$file->isEof()) {
-            throw new SqlException(tr('Import of file ":file" unexpectedly halted', [':file' => $file]));
-        }
-
-        $file->close();
-    }
-
-
-    /**
      * Close the connection for the specified connector
      *
      * @return void

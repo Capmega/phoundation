@@ -19,7 +19,7 @@ namespace Phoundation\Databases;
 use Memcached;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Interfaces\DatabaseInterface;
+use Phoundation\Databases\Interfaces\DatastoreInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
@@ -32,7 +32,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Throwable;
 
 
-class Mc implements DatabaseInterface
+class Mc implements DatastoreInterface
 {
     /**
      * PHP Memcached drivers
@@ -81,7 +81,7 @@ class Mc implements DatabaseInterface
     public function __construct(ConnectorInterface|string|null $connector = null)
     {
         if (!class_exists('Memcached')) {
-            throw new PhpModuleNotAvailableException(tr('The PHP module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
+            throw new PhpModuleNotAvailableException(tr('The PHP module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php-memcached; sudo phpenmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
         }
 
         // Get the configuration for the specified instance. Always default to "system"

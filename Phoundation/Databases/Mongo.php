@@ -18,7 +18,7 @@ namespace Phoundation\Databases;
 
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Exception\UnderConstructionException;
-
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 
 class Mongo implements DatabaseInterface
 {
@@ -210,6 +210,30 @@ class Mongo implements DatabaseInterface
     public function test(): static
     {
         throw new UnderConstructionException();
+        return $this;
+    }
+
+
+    /**
+     * @param FsFileInterface $file
+     *
+     * @return $this
+     */
+    public function import(FsFileInterface $file): static
+    {
+        // TODO: Implement import() method.
+        return $this;
+    }
+
+
+    /**
+     * @param FsFileInterface $file
+     *
+     * @return $this
+     */
+    public function export(FsFileInterface $file): static
+    {
+        // TODO: Implement export() method.
         return $this;
     }
 }
