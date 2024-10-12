@@ -16,10 +16,8 @@ declare(strict_types=1);
 
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Url;
-echo Card::new()
+
+
+return Card::new()
          ->setTitle(tr('Reports pages'))
-         ->setContent('<a href="' . Url::getWww('/reports/timesheets.html') . '">' . tr('Timesheet reports') . '</a><br>
-                         <a href="' . Url::getWww('/user-timesheets/user-timesheet-reports/detailed.html') . '">' . tr('Detailed report') . '</a><br>
-                         <a href="' . Url::getWww('/user-timesheets/user-timesheet-reports/summary.html') . '">' . tr('Summary report') . '</a><br>
-                         <a href="' . Url::getWww('/timesheets-approval/approval.html') . '">' . tr('Approval') . '</a><hr>')
-         ->render();
+         ->setContent();

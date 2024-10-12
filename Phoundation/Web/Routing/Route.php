@@ -710,7 +710,7 @@ class Route
                     ':count'   => $count,
                     ':regex'   => $url_regex,
                     ':matches' => Strings::force($matches, ', '),
-                    ':flags'   => Strings::force($flags, ', '),
+                    ':flags'   => Strings::force($flags  , ', '),
                 ]), 5);
             }
 
