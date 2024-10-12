@@ -449,4 +449,11 @@ interface ConnectorInterface extends DataEntryInterface
      * @return static
      */
     public function test(): static;
+
+    /**
+     * Returns the connector configuration in an array that can be understood by the Redis driver
+     *
+     * @return array
+     */
+    public function getRedisConfiguration(): array;
 }

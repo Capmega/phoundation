@@ -34,7 +34,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Databases;
+use Phoundation\Databases\DataStores;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Utils\Arrays;
@@ -231,7 +231,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     function getDisplayName(): string
     {
-        return $this->getType() . ':' . $this->getUsername() . '@' . $this->getHostname() . '/' . $this->getDatabase();
+        return $this->getLogId();
     }
 
 
@@ -549,7 +549,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function test(): static
     {
-        Databases::fromConnector($this)
+        DataStores::fromConnector($this)
                  ->test();
 
         return $this;
