@@ -492,10 +492,11 @@ class Arrays extends Utils
 
         foreach ($source as $key => $value) {
             if (is_array($value)) {
+                // Recurse
                 $return[] .= $key . $key_separator . $row_separator . static::implodeWithKeys($value, $row_separator, $key_separator, $quote_character, $options);
 
             } else {
-                if (!$value) {
+                if (!$value and !is_numeric($value)) {
                     if ($filter_empty) {
                         // Don't add this value at all
                         continue;
@@ -997,7 +998,7 @@ class Arrays extends Utils
      */
     public static function keepMatchingValuesStartingWith(IteratorInterface|array $source, ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): array
     {
-        return static::keepMatchingValues($source, $needles, $flags, $column);
+        return static::keepMatchingValues($source, $needles, $flags | Utils::MATCH_STARTS_WITH, $column);
     }
 
 
@@ -1012,7 +1013,7 @@ class Arrays extends Utils
      */
     public static function keepMatchingKeysStartingWith(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): array
     {
-        return static::keepMatchingKeys($source, $needles, $flags);
+        return static::keepMatchingKeys($source, $needles, $flags | Utils::MATCH_STARTS_WITH);
     }
 
 
@@ -3423,5 +3424,23 @@ class Arrays extends Utils
         }
 
         return $return;
+    }
+
+
+    /**
+     * Makes all values in the specified array null
+     *
+     * @param array $source
+     *
+     * @return array
+     */
+    public static function nullValues(array $source): array
+    {
+        foreach ($source as &$value) {
+            $value = null;
+        }
+
+        unset($value);
+        return $source;
     }
 }

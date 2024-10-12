@@ -365,11 +365,11 @@ class Utils
     protected static function useCleanedHaystackValue(mixed &$value, array $flags): bool
     {
         if ($flags['trim']) {
-            $value = trim($value);
+            $value = trim((string) $value);
         }
 
         if ($flags['no_case']) {
-            $value = strtolower($value);
+            $value = strtolower((string) $value);
         }
 
         if (!$value) {

@@ -1021,19 +1021,18 @@ class Config implements ConfigInterface
 
             // Read the section for each environment
             foreach ($environments as $environment) {
-                $file = DIRECTORY_ROOT . 'config/' . self::$section . $environment . '.yaml';
-
-                FsRestrictions::new(DIRECTORY_ROOT . 'config/')
-                            ->check($file, false);
-
-                // Check if a configuration file exists for this environment
-                if (!file_exists($file)) {
-                    // Do NOT use tr() here as it will cause endless loops!
-                    throw ConfigFileDoesNotExistsException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" does not exist')
-                                                          ->makeWarning();
-                }
-
                 try {
+                    $file = DIRECTORY_ROOT . 'config/' . self::$section . $environment . '.yaml';
+
+                    FsRestrictions::new(DIRECTORY_ROOT . 'config/')->check($file, false);
+
+                    // Check if a configuration file exists for this environment
+                    if (!file_exists($file)) {
+                        // Do NOT use tr() here as it will cause endless loops!
+                        throw ConfigFileDoesNotExistsException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" does not exist')
+                                                              ->makeWarning();
+                    }
+
                     // Read the configuration data and merge it in the internal configuration data array
                     $data = yaml_parse_file($file);
 

@@ -32,7 +32,7 @@ class Json
      * @return string
      * @throws JsonException If JSON encoding failed
      */
-    public static function encode(mixed $source, int $options = 0, int $depth = 512): string
+    public static function encode(mixed $source, int $options = JSON_PRETTY_PRINT|JSON_BIGINT_AS_STRING, int $depth = 512): string
     {
         if ($source === null) {
             return '';
