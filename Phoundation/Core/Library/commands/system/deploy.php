@@ -137,7 +137,7 @@ TARGET                                  - The target name to which to deploy
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('target')->isOptional()->sanitizeForceArray(',')->each()->isVariable()
+                     ->select('target')->isOptional()->sanitizeForceArray(',')->eachField()->isVariable()
                      ->select('--targets')->isOptional()->isBoolean()
                      ->select('-c,--categories')->isOptional()->isBoolean()
                      ->select('--do-ignore-changes')->isOptional()->orColumn('--no-ignore-changes')->isBoolean()

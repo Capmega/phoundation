@@ -170,7 +170,7 @@ class Library implements LibraryInterface
 
             Exception::new($e)
                      ->log()
-                     ->registerDeveloperIncident()
+                     ->registerIncident()
                      ->getNotificationObject()
                      ->send();
 

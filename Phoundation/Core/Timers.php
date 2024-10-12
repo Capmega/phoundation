@@ -85,11 +85,21 @@ class Timers implements TimersInterface
     /**
      * Returns the number of timer groups
      *
+     * @param string|null $group
+     *
      * @return int
      */
-    public static function getCount(): int
+    public static function getCount(?string $group = null): int
     {
-        return count(static::$timers);
+        if (static::exists($group)) {
+            if ($group) {
+                return count(static::$timers[$group]);
+            }
+
+            return count(static::$timers);
+        }
+
+        return 0;
     }
 
 
@@ -123,7 +133,8 @@ class Timers implements TimersInterface
                 ]));
             }
         }
-        uasort(static::$timers[$group], function (Timer $a, Timer $b): int {
+
+        uasort(static::$timers[$group], function (TimerInterface $a, TimerInterface $b): int {
             if ($a->getTotal() < $b->getTotal()) {
                 return 1;
             }
@@ -139,14 +150,29 @@ class Timers implements TimersInterface
     /**
      * Returns the total for all the timers
      *
+     * @param string|null $group
+     *
      * @return float
      */
-    public static function getTotal(): float
+    public static function getTotal(?string $group = null): float
     {
         $total = 0;
-        foreach (static::$timers as $group) {
-            foreach ($group as $timer) {
-                $total += $timer->getTotal();
+
+        if (static::exists($group)) {
+            if ($group) {
+                $group = static::$timers[$group];
+
+                foreach ($group as $timer) {
+                    $total += $timer->getTotal();
+                }
+
+                return $total;
+            }
+
+            foreach (static::$timers as $group) {
+                foreach ($group as $timer) {
+                    $total += $timer->getTotal();
+                }
             }
         }
 
@@ -185,6 +211,7 @@ class Timers implements TimersInterface
             // Return the timers array
             return static::$timers[$group];
         }
+
         if ($exception) {
             throw new TimerException(tr('Timers for the group ":group" do not exist', [
                 ':group' => $group,

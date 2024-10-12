@@ -20,6 +20,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Interfaces\PluginsInterface;
+use Phoundation\Core\Timers;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
@@ -56,14 +57,14 @@ class Plugins extends DataIterator implements PluginsInterface
     public function __construct()
     {
         $this->setQuery('SELECT   `id`, 
-                                        `vendor`, 
-                                        `name`, 
-                                        `status`, 
-                                        `priority`, 
-                                        `description`,
-                                         NULL AS `blacklisted`
-                               FROM     `core_plugins` 
-                               ORDER BY `name`');
+                                  `vendor`, 
+                                  `name`, 
+                                  `status`, 
+                                  `priority`, 
+                                  `description`,
+                                   NULL AS `blacklisted`
+                         FROM     `core_plugins` 
+                         ORDER BY `name`');
 
         parent::__construct();
     }
@@ -268,7 +269,9 @@ class Plugins extends DataIterator implements PluginsInterface
                         ]), 4);
 
                         include_once(DIRECTORY_ROOT . $plugin['directory'] . 'Library/Plugin.php');
+                        $timer = Timers::new('plugins_start', $plugin['vendor'] . '/' . $plugin['name']);
                         $plugin['class']::start();
+                        $timer->stop();
                     }
                 }
 

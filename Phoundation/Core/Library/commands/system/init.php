@@ -95,7 +95,7 @@ $argv = ArgvValidator::new()
                      ->select('-p,--plugins')->isOptional(false)->isBoolean()
                      ->select('-s,--system')->isOptional(false)->isBoolean()
                      ->select('-t,--templates')->isOptional(false)->isBoolean()
-                     ->select('-v,--set-version', true)->isOptional()->hasMaxCharacters(2048)->sanitizeForceArray()->each()->matchesRegex('/^[a-z0-9-_]+\/v?\d{1,4}\.\d{1,4}\.\d{1,4}$/i')
+                     ->select('-v,--set-version', true)->isOptional()->hasMaxCharacters(2048)->sanitizeForceArray()->eachField()->matchesRegex('/^[a-z0-9-_]+\/v?\d{1,4}\.\d{1,4}\.\d{1,4}$/i')
                      ->validate();
 
 

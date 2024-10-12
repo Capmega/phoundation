@@ -165,6 +165,7 @@ class CoreLocale
                  */
                 continue;
             }
+
             $value = str_replace(':LANGUAGE', $language, $value);
             $value = str_replace(':COUNTRY', $country, $value);
             setlocale($key, $value);
