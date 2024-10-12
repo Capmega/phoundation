@@ -40,4 +40,32 @@ class InputCheckbox extends Input
              ->setValue(1);
         parent::__construct($content);
     }
+
+
+    /**
+     * Sets the HTML readonly AND disabled element attribute
+     *
+     * @param bool $readonly
+     *
+     * @return static
+     */
+    public function setReadonly(bool $readonly): static
+    {
+               parent::setReadonly($readonly);
+        return parent::setDisabled($readonly);
+    }
+
+
+    /**
+     * Sets the HTML readonly AND disabled element attribute
+     *
+     * @param bool $disabled
+     *
+     * @return static
+     */
+    public function setDisabled(bool $disabled): static
+    {
+               parent::setDisabled($disabled);
+        return parent::setReadonly($disabled);
+    }
 }

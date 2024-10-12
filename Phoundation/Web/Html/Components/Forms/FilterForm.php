@@ -20,25 +20,40 @@ use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataDateFormat;
+use Phoundation\Data\Traits\TraitDataIterator;
+use Phoundation\Data\Traits\TraitDataRequestMethod;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\DateFormats;
 use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 use Phoundation\Web\Html\Components\Input\InputDateRange;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Url;
 use ReturnTypeWillChange;
 use Stringable;
 
 
-class FilterForm extends DataEntryForm
+class FilterForm extends DataEntryForm implements FilterFormInterface
 {
+    use TraitDataRequestMethod;
+    use TraitDataDateFormat;
+    use TraitDataIterator;
+
+
     /**
      * Tracks the default date range
      *
@@ -60,6 +75,13 @@ class FilterForm extends DataEntryForm
      */
     protected array $states;
 
+    /**
+     * Returns the filters that (still) have to be applied
+     *
+     * @var IteratorInterface $apply_filters
+     */
+    protected IteratorInterface $apply_filters;
+
 
     /**
      * FilterForm class constructor
@@ -69,6 +91,9 @@ class FilterForm extends DataEntryForm
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
+
+        $this->defaultRequestMethod()
+             ->setFormat(DateFormats::getDefaultPhp());
 
         // Define possible record states
         if (empty($this->states)) {
@@ -80,30 +105,15 @@ class FilterForm extends DataEntryForm
             ];
         }
 
-//        if (empty($this->source)) {
-//            // Pull all filter data from HTTP GET
-//            $this->source = GetValidator::new()
-//                ->select('date_range')->isOptional()->copyTo('date_range_split')->doNotValidate()
-//                ->select('date_range_split')->isOptional($this->getDateRangeDefault())->sanitizeForceArray(' - ')->each()->isDate()
-//                ->select('users_id')->isOptional()->isDbId()
-//                ->validate(false);
-//        }
-
         // Make sure this is a submittable form with GET method
         $this->setId('filters')
              ->useForm(true)
              ->getForm()
-             ->setRequestMethod(EnumHttpRequestMethod::get)
-             ->setAction(Url::getWww());
+                ->setRequestMethod($this->request_method)
+                ->setAction(Url::getWww());
 
         // Set basic definitions
         $this->definitions = Definitions::new()
-                                        ->add(Definition::new(null, 'date_range_split')
-                                                        ->setRender(false)
-                                                        ->addValidationFunction(function (ValidatorInterface $validator) {
-                                                            $validator->isOptional($this->getDateRangeDefault())->sanitizeForceArray(' - ')->each()->isDate();
-                                                        }))
-
                                         ->add(Definition::new(null, 'date_range')
                                                         ->setLabel(tr('Date range'))
                                                         ->setSize(4)
@@ -111,7 +121,10 @@ class FilterForm extends DataEntryForm
                                                         ->setElement(EnumElement::select)
                                                         ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                                             if (empty($this->source[$key])) {
-                                                                $this->source[$key] = $this->source['date_range_split'][0] . ' - ' . $this->source['date_range_split'][1];
+                                                                if (empty($this->source['date_range'])) {
+                                                                    $source = $this->getDateRangeDefault();
+                                                                    $this->source[$key] = $source[0] . ' - ' . $source[1];
+                                                                }
                                                             }
 
                                                             return InputDateRange::new()
@@ -122,19 +135,20 @@ class FilterForm extends DataEntryForm
                                                                                  ->setValue($this->source[$key]);
                                                         })
                                                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                                                            if ($validator->getSelectedValue()) {
-                                                                $validator->matchesRegex('/^[\d]{2}[-/\s][\d]{2}[-/\s][\d]{4}/]\s-\s[\d]{2}[-/\s][\d]{2}[-/\s][\d]{4}/]$/');
+                                                            $validator->isOptional()->isDateRange()->copyToKey('date_range_split');
+                                                        }))
 
-                                                            } else {
-                                                                $validator->doNotValidate();
-                                                            }
+                                        ->add(Definition::new(null, 'date_range_split')
+                                                        ->setRender(false)
+                                                        ->addValidationFunction(function (ValidatorInterface $validator) {
+                                                            $validator->isOptional($this->getDateRangeDefault())->sanitizeForceArray(' - ')->eachField()->isDate();
                                                         }))
 
                                         ->add(Definition::new(null, 'users_id')
                                                         ->setLabel(tr('User'))
-                                                        ->setSize(2)
+                                                        ->setSize(4)
                                                         ->setOptional(true)
-                                                        ->setElement(EnumElement::select)
+                                                        ->setInputType(EnumInputType::dbid)
                                                         ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                                             return Users::new()->getHtmlSelect()
                                                                                ->setSourceQuery('SELECT    `accounts_users`.`id`, COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('System') . '") AS `name` 
@@ -146,45 +160,33 @@ class FilterForm extends DataEntryForm
                                                                                                  ORDER BY  `name`')
                                                                                ->setAutoSubmit(true)
                                                                                ->setName($field_name)
-                                                                               ->setNotSelectedLabel(tr('Select'))
-                                                                               ->setSelected($this->source[$key]);
+                                                                               ->setNotSelectedLabel(tr('All'))
+                                                                               ->setSelected(isset_get($this->source[$key]));
                                                         }))
 
-                                        ->add(Definition::new(null, 'entry_status')
+                                        ->add(Definition::new(null, 'status')
                                                         ->setLabel(tr('Status'))
-                                                        ->setSize(2)
+                                                        ->setSize(4)
                                                         ->setOptional(true)
                                                         ->setElement(EnumElement::select)
-                                                        ->setValue(isset_get($this->source['entry_status']))
                                                         ->setKey(true, 'auto_submit')
                                                         ->setDataSource($this->states));
+
+        // Auto apply
+        $this->applyValidator(self::class);
     }
 
 
     /**
-     * Apply the filters from the Validator
+     * Sets a default value of GET for the request method of these filter forms
      *
-     * @param bool $clear_source
-     *
-     * @return static
+     * @return $this
      */
-    public function apply(bool $clear_source = true): static
+    protected function defaultRequestMethod(): static
     {
-        $validator = GetValidator::new()
-                                 ->setSourceObjectClass(static::class);
-
-        // Go over each field and let the field definition do the validation since it knows the specs
-        foreach ($this->definitions as $definition) {
-            $definition->validate($validator, null);
-        }
-
-        try {
-            // Execute the validate method to get the results of the validation
-            $this->source = $validator->validate($clear_source);
-
-        } catch (ValidationFailedException $e) {
-            // Add the DataEntry object type to the exception message
-            throw $e->setMessage('(' . get_class($this) . ') ' . $e->getMessage());
+        if ($this->request_method === null) {
+            // By default, filter forms submit with GET method
+            $this->request_method = EnumHttpRequestMethod::get;
         }
 
         return $this;
@@ -194,7 +196,9 @@ class FilterForm extends DataEntryForm
     /**
      * Returns value for the specified key
      *
-     * @note This is the standard Iterator::getSourceKey, but here $exception is by default false
+     * @note This is the standard Iterator::get() call, but here $exception is by default false
+     *
+     * @note If the form element for the requested key is not rendering, no value will be returned!
      *
      * @param Stringable|string|float|int $key
      * @param bool                        $exception
@@ -203,7 +207,39 @@ class FilterForm extends DataEntryForm
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): mixed
     {
+        $definition = $this->definitions->get($key, false);
+
+        if (!$definition?->getRender()) {
+            // NOTE: Non rendered elements will always return null
+            return null;
+        }
+
         return parent::get($key, $exception);
+    }
+
+
+    /**
+     * Returns value for the specified key whether the entry rendered or not
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getForce(Stringable|string|float|int $key, bool $exception = false): mixed
+    {
+        return parent::get($key, $exception);
+    }
+
+
+    /**
+     * Returns an Iterator object containing the filters that (still) have to be applied
+     *
+     * @return IteratorInterface
+     */
+    public function getApplyFilters(): IteratorInterface
+    {
+        return $this->apply_filters;
     }
 
 
@@ -241,7 +277,7 @@ class FilterForm extends DataEntryForm
         // Set default date range
         if (empty($this->date_range_default)) {
             $this->date_range_default = [
-                DateTime::new('-7 day')->format(DateFormats::getDefaultPhp()),
+                DateTime::new('-6 day')->format(DateFormats::getDefaultPhp()),
                 DateTime::new()->format(DateFormats::getDefaultPhp())
             ];
         }
@@ -294,28 +330,65 @@ class FilterForm extends DataEntryForm
     /**
      * Returns the date range
      *
+     * @param bool $force
+     *
      * @return string|null
      */
-    public function getDateRange(): ?string
+    public function getDateRange(bool $force = false): ?string
     {
-        return $this->get('date_range_split');
+        if ($force) {
+            return $this->getForce('date_range');
+        }
+
+        return $this->get('date_range');
+    }
+
+
+    /**
+     * Returns the date range
+     *
+     * @note This method defaults $force to true to ensure date_range_split (by default) is always visible
+     *
+     * @param bool $force
+     *
+     * @return array|null
+     */
+    public function getDateRangeSplit(bool $force = true): ?array
+    {
+        if ($force) {
+            // Only return the split date range if the date range itself is set too
+            if ($this::getForce('date_range')) {
+                return $this->getForce('date_range_split');
+            }
+
+        } else {
+            // Only return the split date range if the date range itself is set too
+            if (parent::get('date_range')) {
+                return $this->get('date_range_split');
+            }
+        }
+
+        return null;
     }
 
 
     /**
      * Returns the start date, if selected
      *
+     * @param string|null $timezone
+     *
      * @return DateTimeInterface|null
      */
-    public function getDateStart(): ?DateTimeInterface
+    public function getStartDate(?string $timezone = 'user'): ?DateTimeInterface
     {
         static $return;
 
         if (!isset($return)) {
-            $split = $this->get('date_range_split');
+            $range = parent::get('date_range');
+            $split = parent::get('date_range_split');
 
-            if ($split) {
-                $return = DateTime::new($split[0]);
+            if ($range and $split) {
+                $return = DateTime::getBeginningOfDay($split[0], $timezone);
 
             } else {
                 $return = null;
@@ -329,17 +402,20 @@ class FilterForm extends DataEntryForm
     /**
      * Returns the stop date, if selected
      *
+     * @param string|null $timezone
+     *
      * @return DateTimeInterface|null
      */
-    public function getDateStop(): ?DateTimeInterface
+    public function getStopDate(?string $timezone = 'user'): ?DateTimeInterface
     {
         static $return;
 
         if (!isset($return)) {
-            $split = $this->get('date_range_split');
+            $range = parent::get('date_range');
+            $split = parent::get('date_range_split');
 
-            if ($split) {
-                $return = DateTime::new($split[1]);
+            if ($range and $split) {
+                $return = DateTime::getEndOfDay($split[1], $timezone);
 
             } else {
                 $return = null;
@@ -347,5 +423,157 @@ class FilterForm extends DataEntryForm
         }
 
         return $return;
+    }
+
+
+    /**
+     * Returns the filtered users_id
+     *
+     * @return int|null
+     */
+    public function getUsersId(): ?int
+    {
+        return get_null((int) $this->get('users_id'));
+    }
+
+
+    /**
+     * Returns the filtered status
+     *
+     * @note This method is one of the very few object::getStatus() methods that might return FALSE. The reason for that
+     *        is that "not selected" would normally return NULL, but status NULL actually (mostly) means "normal". So
+     *        here, FALSE means "don't filter", NULL means "filter on status NULL", and any string means "Filter on this
+     *        string"
+     *
+     * @return string|false|null
+     */
+    public function getStatus(): string|false|null
+    {
+        $definition = $this->definitions->get('status', false);
+
+        if (!$definition?->getRender()) {
+            return false;
+        }
+
+        return get_null((string) $this->get('status'));
+    }
+
+
+    /**
+     * Selects and returns the Validator object required for the current request method
+     *
+     * @return ValidatorInterface
+     */
+    protected function selectValidator(): ValidatorInterface
+    {
+        switch ($this->request_method) {
+            case EnumHttpRequestMethod::get:
+                return GetValidator::new();
+
+            case EnumHttpRequestMethod::post:
+                return PostValidator::new();
+
+            default:
+                throw new OutOfBoundsException(tr('HTTP method ":method" is not supported by the FilterForm class', [
+                    ':method' => $this->request_method->value
+                ]));
+        }
+    }
+
+
+    /**
+     * Apply the filters from the Validator
+     *
+     * @param string $class
+     * @param bool   $clear_source
+     *
+     * @return static
+     */
+    protected function applyValidator(string $class, bool $clear_source = true): static
+    {
+        // Auto apply
+        if ($class === static::class) {
+            $validator = $this->selectValidator()->setDefinitionsObject($this->definitions);
+
+            // Go over each field and let the field definition do the validation since it knows the specs
+            foreach ($this->definitions as $column => $definition) {
+//if ($column !== 'action') continue;
+                $definition->validate($validator, null);
+            }
+
+            // Validate buttons too
+            if ($this->definitions->hasButtons()) {
+                foreach ($this->definitions->getButtons() as $button) {
+                    $validator->select($button->getName())->isOptional()->hasValue($button->getValue());
+                }
+            }
+
+            try {
+                // Execute the validate method to get the results of the validation
+                $this->source = $validator->validate($clear_source);
+
+            } catch (ValidationFailedException $e) {
+                // Add the DataEntry object type to the exception message
+                throw $e->setMessage('(' . get_class($this) . ') ' . $e->getMessage());
+            }
+
+            // Generate a list of all available filters so that we can tick them off one by one when we apply them later
+            $this->apply_filters = new Iterator($this->definitions->getKeyIndices());
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Automatically apply current filters to the query builder
+     *
+     * @param QueryBuilderInterface $builder
+     *
+     * @return $this
+     */
+    public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
+    {
+        if ($this->apply_filters->keyExists('status')) {
+            // Is the status filter rendered and available?
+            if ($this->getStatus() !== false) {
+                // Is the status filter not set to "All"?
+                if ($this->getStatus() !== 'all') {
+                    $builder->addWhere(
+                        SqlQueries::is('`' . $builder->getFromTable() . '`.`status`', $this->getStatus(), ':from_status', $builder->getExecuteByReference())
+                    );
+                }
+            }
+        }
+
+        if ($this->apply_filters->keyExists('date_range')) {
+            if ($this->getStartDate()) {
+                $builder->addWhere(
+                    '`' . $builder->getFromTable() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format('mysql')]
+                );
+            }
+
+            if ($this->getStopDate()) {
+                $builder->addWhere(
+                    '`' . $builder->getFromTable() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format('mysql')]
+                );
+            }
+        }
+
+        if ($this->apply_filters->keyExists('users_id')) {
+            if ($this->getUsersId()) {
+                $builder->addWhere(
+                    '`' . $builder->getFromTable() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
+                );
+            }
+        }
+
+        $this->apply_filters->removeKeys([
+            'status',
+            'date_range',
+            'users_id',
+        ]);
+
+        return $this;
     }
 }

@@ -24,8 +24,6 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
-use Phoundation\Utils\Config;
-use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Pages\SignInPage;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
@@ -39,17 +37,10 @@ if (!Session::getUserObject()->isGuest()) {
 
 
 // Is email specified by URL?
-try {
-    $get = GetValidator::new()
-                       ->select('email')->isOptional()->isEmail()
-                       ->select('redirect')->isOptional()->isUrl()
-                       ->validate();
-
-} catch (ValidationFailedException $e) {
-    // If validation failed, this means that either the specified email or redirect variables were invalid. Redirect to
-    // a clean sign-in page to ensure we have valid values
-    Response::redirect('sign-in');
-}
+$get = GetValidator::new()
+                   ->select('email')->isOptional()->isEmail()
+                   ->select('redirect')->isOptional()->isUrl()
+                   ->validate();
 
 
 // Validate sign in data and sign in
@@ -63,14 +54,7 @@ if (Request::isPostRequestMethod()) {
 
             Response::redirect(Url::getRedirect($redirect, $user->getDefaultPage()));
 
-        } catch (PasswordTooShortException | NoPasswordSpecifiedException) {
-            Response::getFlashMessagesObject()->addWarning(tr('Please specify at least ":count" characters for the password', [
-                ':count' => Config::getInteger('security.passwords.size.minimum', 10),
-            ]));
-
-            break;
-
-        } catch (ValidationFailedException $e) {
+        } catch (PasswordTooShortException | NoPasswordSpecifiedException | ValidationFailedException $e) {
             Response::getFlashMessagesObject()->addWarning(tr('Please specify a valid email and password'));
             break;
 

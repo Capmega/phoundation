@@ -94,13 +94,15 @@ class Email extends DataEntry implements EmailInterface
     public function setUsersId(?int $users_id): static
     {
         if (!$this->is_loading) {
-            $current = $this->getUsersId();
+            if ($users_id) {
+                $current = $this->getUsersId();
 
-            if ($current and ($current !== $users_id)) {
-                throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from", only unassigned emails can be assigned', [
-                    ':from' => $current,
-                    ':to' => $users_id,
-                ]));
+                if ($current and ($current !== $users_id)) {
+                    throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from", only unassigned emails can be assigned', [
+                        ':from' => $current,
+                        ':to' => $users_id,
+                    ]));
+                }
             }
         }
 
@@ -117,13 +119,15 @@ class Email extends DataEntry implements EmailInterface
      */
     public function setUsersEmail(?string $users_email): static
     {
-        $current = $this->getUsersEmail();
+        if ($users_email) {
+            $current = $this->getUsersEmail();
 
-        if ($current and ($current !== $users_email)) {
-            throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from", only unassigned emails can be assigned', [
-                ':from' => $current,
-                ':to'   => $users_email,
-            ]));
+            if ($current and ($current !== $users_email)) {
+                throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from", only unassigned emails can be assigned', [
+                    ':from' => $current,
+                    ':to'   => $users_email,
+                ]));
+            }
         }
 
         return $this->set($users_email, 'users_email');
@@ -142,16 +146,16 @@ class Email extends DataEntry implements EmailInterface
                                     ->setRender(false)
                                     ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getUsersId($this)
+                    ->add(DefinitionFactory::newUsersId($this)
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::getEmail($this)
+                    ->add(DefinitionFactory::newEmail($this)
                                            ->setSize(4)
                                            ->setOptional(false)
                                            ->setHelpText(tr('The extra email address for the user'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                // Email cannot exist in accounts_users or accounts_emails!
-                                               $validator->isUnique(tr('it already exists as an additional email address'));
+                                               $validator->isUnique(tr('already exists as an additional email address'));
 
                                                $exists = sql()->get('SELECT `id` FROM `accounts_users` WHERE `email` = :email', [
                                                    ':email' => $validator->getSelectedValue(),
@@ -191,11 +195,11 @@ class Email extends DataEntry implements EmailInterface
                                     ->setLabel(tr('Type'))
                                     ->setHelpText(tr('The type of email address')))
 
-                    ->add(DefinitionFactory::getDateTime($this, 'verified_on')
+                    ->add(DefinitionFactory::newDateTime($this, 'verified_on')
                                            ->setReadonly(true)
                                            ->setSize(3)
                                            ->setDbNullInputType(EnumInputType::text)
-                                           ->setDbNullValue(true, tr('Not verified'))
+                                           ->setNullDefault(tr('Not verified'))
                                            ->addClasses('text-center')
                                            ->setLabel(tr('Verified on'))
                                            ->setHelpGroup(tr('Account information'))
@@ -209,7 +213,7 @@ class Email extends DataEntry implements EmailInterface
                                     ->addClasses('btn btn-outline-warning')
                                     ->setValue(tr('Delete')))
 
-                    ->add(DefinitionFactory::getDescription($this)
+                    ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this email')));
     }
 

@@ -38,5 +38,8 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                 'label' => tr('Filter'),
             ],
         ];
+
+        // Auto apply
+        $this->applyValidator(self::class);
     }
 }

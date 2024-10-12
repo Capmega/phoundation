@@ -28,6 +28,7 @@ use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Html\Enums\EnumAttachJavascript;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Enums\EnumPagingType;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
@@ -282,19 +283,23 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             'print'  => '{ extend: "print" , text: "' . tr('Print') . '" }',
             'colvis' => '{ extend: "colvis", text: "' . tr('Column visibility') . '" }',
         ];
+
         // Validate buttons & reformat definition
         $buttons = Arrays::force($buttons);
-        foreach ($buttons as &$button) {
+        $source  = [];
+
+        foreach ($buttons as $button) {
             if (!array_key_exists($button, $builtin)) {
                 throw new OutOfBoundsException(tr('Unknown button ":button" specified. Please specify one of ":builtin"', [
                     ':button'  => $button,
                     ':builtin' => $builtin,
                 ]));
             }
-            $button = $builtin[$button];
+
+            $source['"' . $button . '"'] = $builtin[$button];
         }
-        $this->buttons = new Buttons($buttons);
-        unset($button);
+
+        $this->buttons = new Buttons($source);
 
         return $this;
     }
@@ -1310,7 +1315,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             $options[] = 'orderFixed: { pre: [' . implode(', ' . PHP_EOL, $this->order_fixed) . '] }';
         }
 
-        if (isset($this->buttons)) {
+        if (isset($this->buttons) and $this->buttons->isNotEmpty()) {
             $options[] = 'buttons: { buttons: [ ' . implode(', ' . PHP_EOL, array_keys($this->buttons->getSource())) . ' ] }';
         }
 
@@ -1341,12 +1346,12 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         }
 
         $render = Script::new()
+//->setAttach(EnumAttachJavascript::here)
                         ->setJavascriptWrapper(EnumJavascriptWrappers::dom_content)
                         ->setContent($content . '
                 $("#' . Html::safe($id) . '").DataTable({
                   ' . implode(', ' . PHP_EOL, $options) . '
-                })
-                    .buttons()
+                })  .buttons()
                     .container()
                     .appendTo("#' . Html::safe($id) . '_wrapper .col-md-6:eq(0)");')
                         ->render();
@@ -1354,6 +1359,8 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
 //showdie('$("#' . Html::safe($id) . '").DataTable({
 //                  ' . implode(', ' . PHP_EOL, $options) . '
 //                }).buttons().container().appendTo("#' . Html::safe($id) . '_wrapper .col-md-6:eq(0)");');
+
+//showdie($render);
         return $render . parent::render();
     }
 

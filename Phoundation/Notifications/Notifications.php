@@ -39,10 +39,10 @@ class Notifications extends DataIterator implements NotificationsInterface
     public function __construct()
     {
         $this->setQuery('SELECT   `id`, `title`, `mode` AS `severity`, `priority`, `created_on` 
-                               FROM     `notifications` 
-                               WHERE    `users_id` = :users_id 
-                                 AND    `status`   = "UNREAD" 
-                               ORDER BY `created_by` ASC', [
+                         FROM     `notifications` 
+                         WHERE    `users_id` = :users_id 
+                           AND    `status`   = "UNREAD" 
+                         ORDER BY `created_by` ASC', [
             ':users_id' => Session::getUserObject()
                                   ->getId(),
         ]);
@@ -127,11 +127,11 @@ class Notifications extends DataIterator implements NotificationsInterface
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
-                          ->setConnector(static::getConnector())
+                          ->setConnectorObject($this->getConnectorObject())
                           ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
-                                         FROM     `' . static::getTable() . '` 
-                                         WHERE    `status` IS NULL 
-                                         ORDER BY `title` ASC')
+                                            FROM     `' . static::getTable() . '` 
+                                            WHERE    `status` IS NULL 
+                                            ORDER BY `title` ASC')
                           ->setName('notifications_id')
                           ->setNotSelectedLabel(tr('Select a notification'))
                           ->setComponentEmptyLabel(tr('No notifications available'));
@@ -223,19 +223,24 @@ class Notifications extends DataIterator implements NotificationsInterface
                 case 'info':
                     $row['severity'] = '<span class="notification-info">' . tr('Info') . '</span>';
                     break;
+
                 case 'warning':
                     $row['severity'] = '<span class="notification-warning">' . tr('Warning') . '</span>';
                     break;
+
                 case 'success':
                     $row['severity'] = '<span class="notification-success">' . tr('Success') . '</span>';
                     break;
+
                 case 'danger':
                     $row['severity'] = '<span class="notification-danger">' . tr('Danger') . '</span>';
                     break;
+
                 default:
-                    $row['severity'] = htmlspecialchars($row['severity']);
+                    $row['severity'] = htmlspecialchars($row['severity'] ?? tr('Unknown'));
                     $row['severity'] = str_replace(PHP_EOL, '<br>', $row['severity']);
             }
+
             $params['skiphtmlentities']['severity'] = true;
         });
     }

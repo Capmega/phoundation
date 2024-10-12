@@ -87,6 +87,16 @@ interface QueryObjectInterface
     public function addHaving(string $having, ?array $execute = null): static;
 
     /**
+     * Sets the ORDER BY part of the query
+     *
+     * @param string|null $order_by
+     * @param array|null  $execute
+     *
+     * @return static
+     */
+    public function setOrderBy(?string $order_by, ?array $execute = null): static;
+
+    /**
      * Add a ORDER BY part of the query
      *
      * @param string     $order_by
@@ -154,4 +164,47 @@ interface QueryObjectInterface
      * @return static
      */
     public function setSelect(string $select, ?array $execute = null): static;
+
+    /**
+     * Returns the principle "FROM" table
+     *
+     * @return string|null
+     */
+    public function getFromTable(): ?string;
+
+    /**
+     * Sets the principle "FROM" table
+     *
+     * @param string|null $from_table
+     *
+     * @return static
+     */
+    public function setFromTable(?string $from_table): static;
+
+    /**
+     * Sets the "FROM" part of the query
+     *
+     * @param string|null $from
+     * @param array|null  $execute
+     *
+     * @return static
+     */
+    public function setFrom(?string $from, ?array $execute = null): static;
+
+    /**
+     * Sets the WHERE part of the query
+     *
+     * @param string|null $where
+     * @param array|null  $execute
+     *
+     * @return static
+     */
+    public function setWhere(?string $where, ?array $execute = null): static;
+
+    /**
+     * Returns the WHERE parts of the query
+     *
+     * @return array
+     */
+    public function getWheres(): array;
 }

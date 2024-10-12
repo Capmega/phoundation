@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Network\Curl\Exception;
 
-use Phoundation\Network\Exception\NetworkException;
+use Phoundation\Network\Exception\SocketException;
 
 
-class CurlException extends NetworkException
+class CurlException extends SocketException
 {
 }

@@ -169,7 +169,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getName($this)
+        $definitions->add(DefinitionFactory::newName($this)
                                            ->setSize(6)
                                            ->setUnique(true)
                                            ->setHelpGroup(tr('Identification'))
@@ -188,10 +188,10 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                     ->setMaxlength(64)
                                     ->setHelpText(tr('The username on the server for this account')))
 
-                    ->add(DefinitionFactory::getDescription($this)
+                    ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this account')))
 
-                    ->add(DefinitionFactory::getFile($this)
+                    ->add(DefinitionFactory::newFile($this)
                                            ->setLabel(tr('SSH key file'))
                                            ->setCliColumn(tr('-i,--ssh-key-file FILE'))
                                            ->setHelpText(tr('The SSH key file for this account'))

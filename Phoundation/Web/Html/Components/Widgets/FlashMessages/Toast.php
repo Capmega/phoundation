@@ -20,6 +20,7 @@ use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Html;
 
 class Toast implements RenderInterface
 {
@@ -46,6 +47,17 @@ class Toast implements RenderInterface
 
 
     /**
+     * Returns the rendered version of this object in a string
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->render();
+    }
+
+
+    /**
      * Returns a new Toast object
      *
      * @param FlashMessage $message
@@ -59,23 +71,23 @@ class Toast implements RenderInterface
 
 
     /**
-     * Renders and returns the HTML and javascript to display a toast
+     * Renders and returns the HTML and JavaScript to display a toast
      *
      * @return string|null
      */
     public function render(): ?string
     {
         return '
-            $(document).Toasts("create", ' . $this->renderConfiguration() . ');';
+            $(document).Toasts("create", ' . $this->renderJson() . ');';
     }
 
 
     /**
-     * Renders and returns the HTML and javascript to display a toast
+     * Renders and returns the HTML and JavaScript to display a toast
      *
-     * @return string|null
+     * @return array
      */
-    public function renderConfiguration(): ?string
+    public function renderArray(): array
     {
         $message = $this->message;
         $image   = $message->getImage()?->getImgObject();
@@ -99,19 +111,19 @@ class Toast implements RenderInterface
 
         $return = [
             'class'    => 'bg-' . $message->getMode()->value,
-            'title'    => Strings::escape($message->getTitle()),
-            'subtitle' => Strings::escape($message->getSubTitle()),
+            'title'    => Html::safe($message->getTitle()),
+            'subtitle' => Html::safe($message->getSubTitle()),
             'position' => $position,
-            'body'     => Strings::escape($message->getContent())
+            'body'     => Html::safe($message->getContent())
         ];
 
         if ($image) {
-            $return['image']     = Strings::escape($image->getSrc());
-            $return['image-alt'] = Strings::escape($image->getAlt());
+            $return['image']     = Html::safe($image->getSrc());
+            $return['image-alt'] = Html::safe($image->getAlt());
         }
 
         if ($message->getIcon()) {
-            $return['icon'] = 'fas fa-' . Strings::escape($message->getIcon()) . ' fa-lg';
+            $return['icon'] = 'fas fa-' . Html::safe($message->getIcon()) . ' fa-lg';
         }
 
         if ($message->getAutoClose()) {
@@ -119,6 +131,17 @@ class Toast implements RenderInterface
             $return['delay']    = $message->getAutoClose();
         }
 
-        return Json::encode($return);
+        return $return;
+    }
+
+
+    /**
+     * Renders and returns the HTML and JavaScript to display a toast
+     *
+     * @return string|null
+     */
+    public function renderJson(): ?string
+    {
+        return Json::encode($this->renderArray());
     }
 }

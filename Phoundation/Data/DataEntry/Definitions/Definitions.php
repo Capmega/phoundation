@@ -18,16 +18,19 @@ namespace Phoundation\Data\DataEntry\Definitions;
 
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\Iterator;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Traits\TraitDataPrefix;
 use Phoundation\Data\Traits\TraitDataTable;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Traits\TraitButtons;
 use Stringable;
 
 
-class Definitions extends Iterator implements DefinitionsInterface
+class Definitions extends IteratorCore implements DefinitionsInterface
 {
+    use TraitButtons;
     use TraitDataDataEntry;
     use TraitDataTable;
     use TraitDataPrefix {
@@ -35,12 +38,37 @@ class Definitions extends Iterator implements DefinitionsInterface
         setPrefix as setColumnPrefix;
     }
 
+
     /**
      * Tracks if meta-information can be visible or not
      *
      * @var bool
      */
     protected bool $meta_visible = true;
+
+
+    /**
+     * Definitions class constructor
+     *
+     * @param DataEntryInterface|null $data_entry
+     */
+    public function __construct(?DataEntryInterface $data_entry = null)
+    {
+        $this->data_entry = $data_entry;
+    }
+
+
+    /**
+     * Returns a new Definitions object
+     *
+     * @param DataEntryInterface|null $data_entry
+     *
+     * @return static
+     */
+    public static function new(?DataEntryInterface $data_entry = null): static
+    {
+        return new static($data_entry);
+    }
 
 
     /**
@@ -66,7 +94,7 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Adds the specified Definition object to the definitions list
+     * Adds the specified Definition object to the "definitions" list
      *
      * @param mixed                            $value
      * @param float|Stringable|int|string|null $key
@@ -218,6 +246,20 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
+     * Returns the specified column
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
+     * @return DefinitionInterface|null
+     */
+    public function get(Stringable|string|float|int $key, bool $exception = true): ?DefinitionInterface
+    {
+        return parent::get($key, $exception);
+    }
+
+
+    /**
      * Direct method to hide entries
      *
      * @param Stringable|string|float|int $key
@@ -228,23 +270,9 @@ class Definitions extends Iterator implements DefinitionsInterface
     public function hide(Stringable|string|float|int $key, bool $exception = true): static
     {
         $this->get($key, $exception)
-             ->setHidden(true);
+            ->setHidden(true);
 
         return $this;
-    }
-
-
-    /**
-     * Returns the specified column
-     *
-     * @param Stringable|string|float|int $key
-     * @param bool                        $exception
-     *
-     * @return DefinitionInterface
-     */
-    public function get(Stringable|string|float|int $key, bool $exception = true): DefinitionInterface
-    {
-        return parent::get($key, $exception);
     }
 
 
@@ -259,7 +287,79 @@ class Definitions extends Iterator implements DefinitionsInterface
     public function show(Stringable|string|float|int $key, bool $exception = true): static
     {
         $this->get($key, $exception)
-             ->setHidden(false);
+            ->setHidden(false);
+
+        return $this;
+    }
+
+
+    /**
+     * Direct method to render or not render entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $render
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setRender(Stringable|string|float|int $key, bool $render, bool $exception = true): static
+    {
+        $this->get($key, $exception)
+            ->setRender($render);
+
+        return $this;
+    }
+
+
+    /**
+     * Direct method to set size for entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param int                         $size
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setSize(Stringable|string|float|int $key, int $size, bool $exception = true): static
+    {
+        $this->get($key, $exception)
+             ->setSize($size);
+
+        return $this;
+    }
+
+
+    /**
+     * Direct method to make entries readonly
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $render
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setReadonly(Stringable|string|float|int $key, bool $render, bool $exception = true): static
+    {
+        $this->get($key, $exception)
+             ->setReadonly($render);
+
+        return $this;
+    }
+
+
+    /**
+     * Direct method to make entries disabled
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $render
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setDisabled(Stringable|string|float|int $key, bool $render, bool $exception = true): static
+    {
+        $this->get($key, $exception)
+             ->setDisabled($render);
 
         return $this;
     }

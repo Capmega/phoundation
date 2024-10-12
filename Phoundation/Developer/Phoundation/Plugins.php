@@ -471,9 +471,9 @@ class Plugins extends Project
      */
     public function getLocalPlugins(): IteratorInterface
     {
-        return FsDirectory::new(DIRECTORY_ROOT . 'Plugins/', DIRECTORY_ROOT . 'Plugins/')
+        return FsDirectory::new(DIRECTORY_ROOT . 'Plugins/', FsRestrictions::newRoot(false, 'Plugins/'))
                           ->scan()
-                          ->each(function ($key, &$value) {
+                          ->eachField(function (&$value, $key) {
                               $value = Strings::ensureEndsNotWith($value, '/');
                           });
     }
@@ -486,9 +486,9 @@ class Plugins extends Project
      */
     public function getPhoundationPlugins(): IteratorInterface
     {
-        return FsDirectory::new($this->directory . 'Plugins/', $this->directory)
+        return FsDirectory::new($this->directory . 'Plugins/', $this->directory->getRestrictions())
                           ->scan()
-                          ->each(function ($key, &$value) {
+                          ->eachField(function (&$value, $key) {
                               $value = Strings::ensureEndsNotWith($value, '/');
                           });
     }
@@ -503,7 +503,11 @@ class Plugins extends Project
      */
     protected function filterNonGitPlugins(array $phoundation_plugins): array
     {
-        $paths = $this->git->getStatusFilesObject(DIRECTORY_ROOT . 'Plugins/');
+        $paths = $this->git
+                      ->getStatusFilesObject(
+                          FsDirectory::new(DIRECTORY_ROOT . 'Plugins/',
+                          FsRestrictions::newRoot(false, 'Plugins/')
+                      ));
 
         foreach ($paths as $path => $info) {
             $path = Strings::from($path, 'Plugins/');

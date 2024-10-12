@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Interfaces;
 
-interface RenderInterface
+use Stringable;
+
+
+interface RenderInterface extends Stringable
 {
     /**
      * Renders and returns the HTML for this object using the template renderer if available

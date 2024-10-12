@@ -140,12 +140,7 @@ class Databases
         }
 
         if ($connector instanceof ConnectorInterface) {
-            $connector_name = $connector->getName();
-            if (!$connector_name) {
-                throw new ConnectorException(tr('Specified connector ":connector" has empty name', [
-                    ':connector' => $connector->getSource(),
-                ]));
-            }
+            $connector_name = $connector->getDisplayName();
 
         } else {
             // The connector specified was a connector name

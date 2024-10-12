@@ -52,17 +52,17 @@ class SignInModal extends Modal
         $layout = Grid::new()
                       ->addGridRow(GridRow::new()
                                       ->addGridColumn(GridColumn::new()
-                                                            ->setSize(EnumDisplaySize::three))
+                                                                ->setSize(EnumDisplaySize::three))
                                       ->addGridColumn(GridColumn::new()
-                                                            ->setSize(EnumDisplaySize::six)
-                                                            ->setContent($form))
+                                                                ->setSize(EnumDisplaySize::six)
+                                                                ->setContent($form))
                                       ->addGridColumn(GridColumn::new()
-                                                            ->setSize(EnumDisplaySize::three)));
+                                                                ->setSize(EnumDisplaySize::three)));
         // Set defaults
         $this->setId('signinModal')
              ->setSize('lg')
              ->setTitle(tr('Sign in'))
-             ->setContent($layout->render());
+             ->setContent($layout);
 
         // Render the sign in modal.
         return parent::render() . Script::new()

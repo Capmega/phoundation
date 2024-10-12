@@ -14,6 +14,7 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliDocumentation;
@@ -42,7 +43,7 @@ $argv = ArgvValidator::new()
 try {
     // Get a password and try to authenticate
     $password = Cli::readPassword(tr('Password:'));
-    $user     = User::authenticate($argv['user'], $password);
+    $user     = User::authenticate(['email' => $argv['user']], $password, EnumAuthenticationAction::authentication);
 
 } catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();

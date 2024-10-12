@@ -3,7 +3,34 @@
 /**
  * Class Exception
  *
- * This is the most basic Phoundation exception class
+ * This is the most basic Phoundation Exception class, expanding the PHP Exception class with a variety of new functions
+ *
+ * This class can:
+ *
+ * Store multiple exception messages
+ *
+ * Attach data relevant to the exception in an array using Exception::setData(), Exception::addData()
+ *
+ * Register the exception as a security incident using Exception::registerIncident()
+ *
+ * Distinguish between normal exceptions and warning exceptions, the latter being logged in yellow and not displaying
+ * backtrace information. Warning exceptions are usually used in cases where input data is invalid, like
+ * ValidationFailedException, or NotFound type exceptions. Warning exceptions will have their message shown in flash
+ * messages, and on the command line (for example) the warning would only display the message in yellow.
+ *
+ * Export the exception as an array or JSON string
+ *
+ * Import exported string or array exceptions into a new exception
+ *
+ * Return limited traced that start at the executed command or web page using Exception->getLimitedTrace()
+ *
+ * Automatically track if the exception has been logged by Log::exception()
+ *
+ * Convert PHP exceptions into Phoundation exceptions using Exception::ensurePhoundationException()
+ *
+ * Send the exception as a notification using Exception::getNotificationObject()
+ *
+ * Check if exception messages and or data matches specified needles
  *
  * @author    Sven Olaf Oostenbrink
  * @copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -17,29 +44,20 @@ declare(strict_types=1);
 namespace Phoundation\Exception;
 
 use Phoundation\Cli\CliAutoComplete;
-use Phoundation\Cli\CliCommand;
-use Phoundation\Core\Core;
 use Phoundation\Core\Exception\LogException;
-use Phoundation\Core\Libraries\Libraries;
-use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Developer\Debug;
-use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Exception\Interfaces\ExceptionInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
-use Phoundation\Web\Routing\Route;
 use RuntimeException;
 use Throwable;
 
@@ -302,28 +320,34 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @return static|null
      */
-    public static function import(array|string|null $source): ?static
+    public static function newFromImport(array|string|null $source): ?static
     {
         if ($source === null) {
             // Nothing to import, there is no exception
             return null;
         }
 
-        if (is_string($source)) {
-            // Make it an exception array
-            $source = Json::decode($source);
+        try {
+            if (is_string($source)) {
+                // Make it an exception array
+                $source = Json::decode($source);
+            }
+
+            $source['class'] = isset_get($source['class'], Exception::class);
+
+            // Import data
+            $e = new $source['class']($source['message']);
+            $e->setCode(isset_get($source['code']));
+            $e->setData(isset_get($source['data']));
+            $e->setWarning((bool) isset_get($source['warning']));
+            $e->addMessages(isset_get($source['messages']));
+
+            return $e;
+
+        } catch (Throwable $e) {
+            throw Exception::new(tr('Failed to generate exception object from import data'), $e)
+                           ->setData(['data' => $source]);
         }
-
-        $source['class'] = isset_get($source['class'], Exception::class);
-
-        // Import data
-        $e = new $source['class']($source['message']);
-        $e->setCode(isset_get($source['code']));
-        $e->setData(isset_get($source['data']));
-        $e->setWarning((bool) isset_get($source['warning']));
-        $e->addMessages(isset_get($source['messages']));
-
-        return $e;
     }
 
 
@@ -722,78 +746,26 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     /**
      * Register this exception in the developer incidents log
      *
+     * @param EnumSeverity $severity
+     * @param string|null  $type
+     *
      * @return static
      */
-    public function registerDeveloperIncident(): static
+    public function registerIncident(EnumSeverity $severity, ?string $type = null): static
     {
-        Incident::new()
-                ->setException($this)
-                ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
-                ->setType('exception')
-                ->setData($this->generateDetails())
-                ->save();
+        $incident = Incident::new()->setException($this);
+
+        if ($type) {
+            $incident->setType($type);
+        }
+
+        if ($severity) {
+            $incident->setSeverity($severity);
+        }
+
+        $incident->save();
 
         return $this;
-    }
-
-
-    /**
-     * Generates and returns a full exception data array
-     *
-     * @return array
-     */
-    public function generateDetails(): array
-    {
-        $connected = sql(connect: false)->isConnected();
-
-        try {
-            return [
-                'project'               => PROJECT,
-                'project_version'       => Core::getProjectVersion(),
-                'database_version'      => $connected ? Version::getString(Libraries::getMaximumVersion()) : tr('NO SYSTEM DATABASE CONNECTION AVAILABLE'),
-                'environment'           => ENVIRONMENT,
-                'platform'              => PLATFORM,
-                'session'               => Session::getUUID(),
-                'user'                  => $connected ? Session::getUserObject()->getLogId() : 'system',
-                'command'               => PLATFORM_CLI ? CliCommand::getCommandsString() : null,
-                'url'                   => PLATFORM_WEB ? Route::getRequest() : null,
-                'method'                => PLATFORM_WEB ? Route::getMethod() : null,
-                'environment_variables' => $_ENV,
-                'argv'                  => ArgvValidator::getBackup(),
-                'get'                   => GetValidator::getBackup(),
-                'post'                  => PostValidator::getBackup(),
-            ];
-
-        } catch (Throwable $e) {
-            $e = static::ensurePhoundationException($e);
-
-            Log::error(tr('Failed to generate exception detail, see following details'));
-            Log::error($e);
-
-            return [
-                'oops'                  => 'Failed to generate exception details, see section "generate_exception"',
-                'project'               => (defined('PROJECT') ? PROJECT : null),
-                'project_version'       => Core::getProjectVersion(),
-                'database_version'      => null,
-                'environment'           => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
-                'platform'              => (defined('PLATFORM') ? PLATFORM : null),
-                'session'               => null,
-                'user'                  => null,
-                'command'               => null,
-                'url'                   => null,
-                'method'                => PLATFORM_WEB ? Route::getMethod() : null,
-                'environment_variables' => $_ENV,
-                'argv'                  => null,
-                'get'                   => null,
-                'post'                  => null,
-                'generate_exception'    => [
-                    'message'  => $e->getMessage(),
-                    'messages' => $e->getMessages(),
-                    'trace'    => $e->getTrace(),
-                    'data'     => $e->getData(),
-                ],
-            ];
-        }
     }
 
 
@@ -826,9 +798,9 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @return string
      */
-    public function exportString(): string
+    public function exportToString(): string
     {
-        $return = $this->exportArray();
+        $return = $this->exportToArray();
         $return = Json::encode($return);
 
         return $return;
@@ -840,7 +812,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @return array
      */
-    public function exportArray(): array
+    public function exportToArray(): array
     {
         return [
             'class'    => get_class($this),
@@ -914,25 +886,6 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     public function getTraceAsFormattedArray(): array
     {
         return Debug::formatBackTrace($this->getTrace());
-    }
-
-
-    /**
-     * This method will register this exception as a security incident
-     *
-     * @param EnumSeverity $severity
-     *
-     * @return static
-     */
-    public function makeSecurityIncident(EnumSeverity $severity): static
-    {
-        \Phoundation\Security\Incidents\Incident::new()
-            ->setSeverity($severity)
-            ->setTitle($this->message)
-            ->setDetails($this->data)
-            ->save();
-
-        return $this;
     }
 
 

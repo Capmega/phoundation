@@ -30,6 +30,22 @@ trait TraitButtons
      */
     protected ButtonsInterface $buttons;
 
+
+    /**
+     * Returns if any buttons have been defined
+     *
+     * @return bool
+     */
+    public function hasButtons(): bool
+    {
+        if (empty($this->buttons)) {
+            return false;
+        }
+
+        return $this->buttons->isNotEmpty();
+    }
+
+
     /**
      * Returns the modal buttons
      *
@@ -66,6 +82,20 @@ trait TraitButtons
 
 
     /**
+     * Adds the specified buttons to this buttons list
+     *
+     * @param ButtonsInterface|null $buttons
+     *
+     * @return static
+     */
+    public function addButtons(?ButtonsInterface $buttons): static
+    {
+        $this->getButtons()->addSource($buttons);
+        return $this;
+    }
+
+
+    /**
      * Sets the modal buttons
      *
      * @param ButtonInterface|null $button
@@ -74,11 +104,10 @@ trait TraitButtons
      */
     public function addButton(?ButtonInterface $button): static
     {
-        if (!$button) {
-            return $this;
+        if ($button) {
+            $this->getButtons()->addButton($button);
         }
 
-        $this->getButtons()->addButton($button);
         return $this;
     }
 }

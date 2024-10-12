@@ -5,6 +5,12 @@
  *
  * This library contains the basic functionalities to manage filesystem paths
  *
+ * On relative, and absolute paths, paths with ./ and ../ and realpaths:
+ *
+ * FsPathCore::normalizePath() only normalizes this objects path
+ * FsPathCore::absolutePath() normalizes and absolutes this objects path
+ * FsPathCore::realPath() normalizes, absolutes, and "reals" the this objects path
+ *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -470,24 +476,6 @@ class FsPathCore implements FsPathInterface
 
 
     /**
-     * Make this objects' path a normalized path
-     *
-     * Normalized path will have all "~/", "./", "../" resolved, symlinks will NOT be resolved. Target does not need to
-     * exist
-     *
-     * @param Stringable|string|bool|null $absolute_prefix
-     *
-     * @return static
-     */
-    public function makeNormalized(Stringable|string|bool|null $absolute_prefix = null): static
-    {
-        $this->source = static::normalizePath($this->source, $absolute_prefix);
-
-        return $this;
-    }
-
-
-    /**
      * Make this path a real path
      *
      * Real path will resolve all symlinks, requires that the path exists!
@@ -497,7 +485,7 @@ class FsPathCore implements FsPathInterface
      *
      * @return static
      */
-    public function makeRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static
+    public function makeReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static
     {
         $this->source = static::realpath($this->source, $absolute_prefix, $must_exist);
 
@@ -508,14 +496,28 @@ class FsPathCore implements FsPathInterface
     /**
      * Returns the absolute version of this path
      *
-     * @param string|null $prefix
-     * @param bool        $must_exist
+     * @param Stringable|string|bool|null $prefix
+     * @param bool                        $must_exist
      *
-     * @return string|null
+     * @return string
      */
-    public function getAbsolutePath(?string $prefix = null, bool $must_exist = true): ?string
+    public function getAbsolutePath(Stringable|string|bool|null $prefix = null, bool $must_exist = true): string
     {
         return static::absolutePath($this->source, $prefix, $must_exist);
+    }
+
+
+    /**
+     * Returns the absolute version of this path
+     *
+     * @param Stringable|string|bool|null $prefix
+     * @param bool                        $must_exist
+     *
+     * @return FsPathInterface
+     */
+    public function getAbsolute(Stringable|string|bool|null $prefix = null, bool $must_exist = true): FsPathInterface
+    {
+        return FsPath::new($this->getAbsolutePath($prefix, $must_exist), $this->restrictions);
     }
 
 
@@ -601,7 +603,8 @@ class FsPathCore implements FsPathInterface
         switch ($path[0]) {
             case '/':
                 // This is already an absolute directory
-                $return = static::normalizePath($path);
+                // Normalize the path to resolve any ./ and ../ references that might break the path
+                $return = $path;
                 break;
 
             case '~':
@@ -627,10 +630,15 @@ class FsPathCore implements FsPathInterface
                 $return          = Strings::slash($absolute_prefix) . Strings::unslash($path);
         }
 
+        // Path is now absolute, now normalize it too, so we can check if it exists
+        $return = static::normalizePath($return);
+
         // If this is a directory, make sure it has a slash suffix
         if (file_exists($return)) {
-            if (is_dir($return)) {
-                $return = Strings::slash($return);
+            if (!is_link($return)) {
+                if (is_dir($return)) {
+                    $return = Strings::slash($return);
+                }
             }
 
         } else {
@@ -757,18 +765,19 @@ class FsPathCore implements FsPathInterface
 
         } catch (FilesystemMimetypeNotSupported) {
             Incident::new()
-                ->setSeverity(EnumSeverity::medium)
-                ->setTitle(tr('File ":file" with extension ":ext" has mimetype ":mimetype" which is not supported', [
-                    ':file'     => $this->source,
-                    ':ext'      => $this->getExtension(),
-                    ':mimetype' => $this->getMimetype(),
-                ]))
-                ->setDetails([
-                    'file'     => $this->source,
-                    'ext'      => $this->getExtension(),
-                    'mimetype' => $this->getMimetype(),
-                ])
-                ->save();
+                    ->setType(tr('Mimetype unsupported'))
+                    ->setSeverity(EnumSeverity::medium)
+                    ->setTitle(tr('File ":file" with extension ":ext" has mimetype ":mimetype" which is not supported', [
+                        ':file'     => $this->source,
+                        ':ext'      => $this->getExtension(),
+                        ':mimetype' => $this->getMimetype(),
+                    ]))
+                    ->setDetails([
+                        'file'     => $this->source,
+                        'ext'      => $this->getExtension(),
+                        'mimetype' => $this->getMimetype(),
+                    ])
+                    ->save();
         }
 
         return false;
@@ -800,20 +809,21 @@ class FsPathCore implements FsPathInterface
         $correct_file      = $this->getParentDirectory()->addFile($correct_filename);
 
         Incident::new()
-            ->setSeverity(EnumSeverity::medium)
-            ->setTitle(tr('File ":file" has mimetype ":mimetype" which requires extension ":extension". Renaming to ":rename" to fix this issue', [
-                ':file'      => $this->source,
-                ':mimetype'  => $this->getMimetype(),
-                ':rename'    => $correct_filename,
-                ':extension' => $correct_extension,
-            ]))
-            ->setDetails([
-                'file'      => $this->source,
-                'mimetype'  => $this->getMimetype(),
-                'rename'    => $correct_filename,
-                'extension' => $correct_extension,
-            ])
-            ->save();
+                ->setType(tr('Incorrect file extension for mimetype'))
+                ->setSeverity(EnumSeverity::medium)
+                ->setTitle(tr('File ":file" has mimetype ":mimetype" which requires extension ":extension". Renaming to ":rename" to fix this issue', [
+                    ':file'      => $this->getRootname(),
+                    ':mimetype'  => $this->getMimetype(),
+                    ':rename'    => $correct_filename,
+                    ':extension' => $correct_extension,
+                ]))
+                ->setDetails([
+                    'file'      => $this->source,
+                    'mimetype'  => $this->getMimetype(),
+                    'rename'    => $correct_filename,
+                    'extension' => $correct_extension,
+                ])
+                ->save();
 
         return $this->rename($correct_file);
     }
@@ -838,21 +848,22 @@ class FsPathCore implements FsPathInterface
 
         // Register a security incident
         Incident::new()
-            ->setSeverity(EnumSeverity::medium)
-            ->setTitle(tr('File ":file" with extension ":current" has mimetype ":mimetype" which requires the extension ":extension"', [
-                ':file'      => $this->source,
-                ':current'   => $this->getExtension(),
-                ':mimetype'  => $this->getMimetype(),
-                ':extension' => $extension
-            ]))
-            ->setDetails([
-                'file'      => $this->source,
-                'ext'       => $this->getExtension(),
-                'mimetype'  => $this->getMimetype(),
-                'extension' => $extension,
-            ])
-            ->save()
-            ->throw();
+                ->setType(tr('Incorrect file extension for mimetype'))
+                ->setSeverity(EnumSeverity::medium)
+                ->setTitle(tr('File ":file" with extension ":current" has mimetype ":mimetype" which requires the extension ":extension"', [
+                    ':file'      => $this->source,
+                    ':current'   => $this->getExtension(),
+                    ':mimetype'  => $this->getMimetype(),
+                    ':extension' => $extension
+                ]))
+                ->setDetails([
+                    'file'      => $this->source,
+                    'ext'       => $this->getExtension(),
+                    'mimetype'  => $this->getMimetype(),
+                    'extension' => $extension,
+                ])
+                ->save()
+                ->throw();
     }
 
 
@@ -1053,6 +1064,20 @@ class FsPathCore implements FsPathInterface
      */
     public function exists(bool $check_dead_symlink = false, bool $auto_mount = true): bool
     {
+        return $this->getExists($check_dead_symlink, $auto_mount);
+    }
+
+
+    /**
+     * Checks if the specified file exists
+     *
+     * @param bool $auto_mount
+     * @param bool $check_dead_symlink
+     *
+     * @return bool
+     */
+    public function getExists(bool $check_dead_symlink = false, bool $auto_mount = true): bool
+    {
         if (!$this->source) {
             // There is no path specified
             return false;
@@ -1193,21 +1218,23 @@ class FsPathCore implements FsPathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(true)->checkWriteAccess();
 
+        $path = $this->getAbsolute();
+
         // Delete all specified patterns
         // Execute the rm command
         Process::new('rm', $this->restrictions)
                ->setSudo($sudo)
                ->setUseRunFile($use_run_file)
                ->setTimeout(10)
-               ->addArgument(Strings::ensureEndsNotWith($this->getRealPath(), '/'), $escape)     // All files to be deleted
+               ->addArgument(Strings::ensureEndsNotWith($path, '/'), $escape)           // All files to be deleted
                ->addArgument('-f')                                                      // No questions asked
-               ->addArgument(($this->isDirectory() and !$this->isLink()) ? '-r' : null) // Only non-symlink directories delete recursive
+               ->addArgument(($path->isDirectory() and !$path->isLink()) ? '-r' : null) // Only non-symlink directories delete recursive
                ->executeNoReturn();
 
         // If specified, to do so, clear the path upwards from the specified pattern
         if ($clean_path) {
             if ($clean_path === true) {
-                // This will clean path until a non-empty directory is encountered.
+                // This will clean the parent path until a non-empty directory is encountered.
                 $clean_path = null;
             }
 
@@ -1221,7 +1248,29 @@ class FsPathCore implements FsPathInterface
 
 
     /**
-     * Checks restrictions
+     * Checks restrictions against internal rules and throws an exception if no applicable match was found
+     *
+     * @param bool           $write
+     * @param Throwable|null $e
+     *
+     * @return bool
+     */
+    public function hasRestrictions(bool $write, ?Throwable $e = null): bool
+    {
+        // Check restrictions
+        $this->restrictions->isRestricted(static::realPath($this->source), $write, $e);
+
+        // Check system read / write access
+        if ($write) {
+            return $this->hasWriteAccess();
+        }
+
+        return $this->hasReadAccess();
+    }
+
+
+    /**
+     * Checks restrictions against internal rules and throws an exception if no applicable match was found
      *
      * @param bool           $write
      * @param Throwable|null $e
@@ -1230,14 +1279,10 @@ class FsPathCore implements FsPathInterface
      */
     public function checkRestrictions(bool $write, ?Throwable $e = null): static
     {
-        if (empty($this->restrictions)) {
-            throw new FilesystemNoRestrictionsSetException(tr('Cannot perform action, no filesystem restrictions have been set for this ":class" object', [
-                ':class' => get_class($this)
-            ]), $e);
-        }
-
+        // Check restrictions
         $this->restrictions->check(static::realPath($this->source), $write, $e);
 
+        // Check system read / write access
         if ($write) {
             return $this->checkWriteAccess($e);
         }
@@ -2007,7 +2052,7 @@ class FsPathCore implements FsPathInterface
      */
     protected function getRealPathLogString(): ?string
     {
-        if ($this->source === $this->getRealPath()) {
+        if ($this->source === $this->getRealPath()->getSource()) {
             return null;
         }
 
@@ -2028,48 +2073,58 @@ class FsPathCore implements FsPathInterface
      */
     public static function realPath(string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string
     {
-        $real = FsPath::new($path, FsRestrictions::newWritable($path))->makeAbsolute($absolute_prefix, $must_exist);
+        $real = FsPath::absolutePath($path, $absolute_prefix, $must_exist);
 
-        if ($real->isOnDomain()) {
+        if (static::onDomain($real)) {
             // This is a domain:/file URL, we can't make this real
             return $path;
         }
 
-        $base = $real->getBasename();
-        $real = $real->getParentDirectory()->ensure()->getSource();
-        $real = realpath($real);
+        // Ensure that the parent directory exists to make the path real.
+        // Use FsRestrictionsAllowAll as FsRestrictions will use FsPathCore::realPath() and cause endless loops!
+        $base   = basename($real);
+        $parent = dirname($real);
+        $parent = FsDirectory::new($parent, new FsRestrictionsAllowAll())->ensure()->getSource();
+        $parent = realpath($parent);
 
-        if (!$real) {
-            throw new FilesystemException(tr('Failed to convert path ":path" in a realpath', [
-                ':path' => $path,
+        if (!$parent) {
+            throw new FilesystemException(tr('Failed to convert parent of path ":path" into a realpath', [
+                ':path' => $real,
             ]));
         }
 
-        return Strings::slash($real) . $base;
+        // Now try to make the last part real too
+        $real = realpath(Strings::slash($parent) . $base);
+
+        if ($real) {
+            return $real;
+        }
+
+        return Strings::slash($parent) . $base;
     }
 
 
     /**
      * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
      *
-     * @return string string The real directory extrapolated from the specified $directory, if exists. False if
-     *                whatever was specified does not exist.
-     *
-     * @example
-     * code
-     * show(FsFile::new()->getRealPath());
-     * showdie(FsFile::new()->getRealPath());
-     * /code
-     *
-     * This would result in
-     * code
-     * null
-     * /bin
-     * /code
+     * @return string The real directory extrapolated from the specified $directory, if exists. False if whatever was
+     *                specified does not exist.
      */
     public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string
     {
         return static::realPath($this->source, $absolute_prefix, $must_exist);
+    }
+
+
+    /**
+     * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
+     *
+     * @return FsPathInterface The real directory extrapolated from the specified $directory, if exists. False if
+     *                         whatever was specified does not exist.
+     */
+    public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): FsPathInterface
+    {
+        return static::new($this->getRealPath($absolute_prefix, $must_exist), $this->restrictions);
     }
 
 
@@ -2238,14 +2293,14 @@ class FsPathCore implements FsPathInterface
      *
      * @note Will return a NEW Path object (FsPathInterface) for the specified target
      *
-     * @param FsPathInterface|string      $target
+     * @param FsPathInterface             $target
      * @param FsPathInterface|string|bool $make_relative
      *
      * @return FsPathInterface
      */
-    public function symlinkTargetFromThis(FsPathInterface|string $target, FsPathInterface|string|bool $make_relative = true): FsPathInterface
+    public function symlinkTargetFromThis(FsPathInterface $target, FsPathInterface|string|bool $make_relative = true): FsPathInterface
     {
-        $target = new FsPath($target, $this->restrictions);
+        $target->getRestrictions()->addRestrictions($this->restrictions);
 
         // Calculate absolute or relative path
         if ($make_relative and $this->isAbsolute()) {
@@ -2258,18 +2313,17 @@ class FsPathCore implements FsPathInterface
 
         // Check if target exists as a link
         if ($target->isLink()) {
-            // The target itself exists and is a link. Whether that link target exists or not does not matter here, just
-            // that its target matches our target
+            // The target itself exists and is a link.
+            // Whether that link target exists or not doesn't matter here, just that its target matches our target
             if (Strings::ensureEndsNotWith($target->readLink(true)->getSource(), '/') === Strings::ensureEndsNotWith($this->getSource(), '/')) {
                 // Symlink already exists and points to the same file. This is what we wanted to begin with, so all fine
                 return $target;
             }
 
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists and points to ":current" instead', [
-                ':target'  => $target->getNormalizedPath(),
+                ':target'  => $target->getAbsolutePath(),
                 ':link'    => Strings::ensureEndsNotWith($calculated_target->getSource(), '/'),
-                ':current' => $target->readLink(true)
-                                     ->getNormalizedPath(),
+                ':current' => $target->readLink(true)->getAbsolutePath(),
             ]));
         }
 
@@ -2330,8 +2384,8 @@ class FsPathCore implements FsPathInterface
     public function getRelativePathTo(FsPathInterface|string $target, FsPathInterface|string|bool $absolute_prefix = null): FsPathInterface
     {
         $target      = static::new($target, $this->restrictions);
-        $target_path = Strings::ensureEndsNotWith($target->getNormalizedPath($absolute_prefix), '/');
-        $source_path = Strings::ensureEndsNotWith($this->getNormalizedPath($absolute_prefix), '/');
+        $target_path = Strings::ensureEndsNotWith($target->getAbsolutePath($absolute_prefix, false), '/');
+        $source_path = Strings::ensureEndsNotWith($this->getAbsolutePath($absolute_prefix  , false), '/');
         $source_path = explode('/', $source_path);
         $target_path = explode('/', $target_path);
         $return      = [];
@@ -2376,52 +2430,14 @@ class FsPathCore implements FsPathInterface
     /**
      * Returns a normalized path that has all ./ and ../ resolved
      *
-     * @param Stringable|string|bool|null $absolute_prefix
-     *
-     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if
-     *                 whatever was specified does not exist.
-     *
-     * @example
-     * code
-     * show(FsFile::new()->getRealPath());
-     * showdie(FsFile::new()->getRealPath());
-     * /code
-     *
-     * This would result in
-     * code
-     * null
-     * /bin
-     * /code
-     */
-    public function getNormalizedPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): ?string
-    {
-        return static::normalizePath($this->source, $absolute_prefix, $must_exist);
-    }
-
-
-    /**
-     * Returns a normalized path that has all ./ and ../ resolved
-     *
      * @param Stringable|string           $path
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
      *
      * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if
      *                 whatever was specified does not exist.
-     *
-     * @example
-     * code
-     * show(FsFile::new()->getRealPath());
-     * showdie(FsFile::new()->getRealPath());
-     * /code
-     *
-     * This would result in
-     * code
-     * null
-     * /bin
-     * /code
      */
-    public static function normalizePath(Stringable|string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): ?string
+    protected static function normalizePath(Stringable|string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): ?string
     {
         $path = trim((string) $path);
 
@@ -3650,12 +3666,12 @@ class FsPathCore implements FsPathInterface
         $target = FsPath::new($target, $restrictions ?? $this->restrictions);
 
         if (empty($alternate_path)) {
-            // We'll create the symlinks in the same directory as where we're linking from. Use Target object
+            // We'll create the symlinks in the same directory as where we're linking from. Use "target" object
             $alternate_path = clone $target;
 
         } else {
-            // We'll create the symlink in a different directory than where we're linking from. Ensure alternate path is
-            // a Path object
+            // We'll create the symlink in a different directory than where we're linking from. Ensure "alternate_path"
+            // is a Path object
             $alternate_path = FsPath::new($alternate_path, $target->restrictions);
         }
 
@@ -3683,6 +3699,7 @@ class FsPathCore implements FsPathInterface
                             $link = $dir_target->addFile($section)->getRelativePathTo($path);
                             $dir_alternate_path->addFile($section . $number)->symlinkThisToTarget($link);
                             break;
+
                         } catch (FileExistsException $e) {
                             if (!$rename) {
                                 throw $e;
@@ -3771,10 +3788,9 @@ class FsPathCore implements FsPathInterface
             }
 
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists and points to ":current" instead', [
-                ':target'  => $this->getNormalizedPath(),
+                ':target'  => $this->getAbsolutePath(),
                 ':link'    => $calculated_target->getSource(),
-                ':current' => $this->readLink(true)
-                                   ->getNormalizedPath(),
+                ':current' => $this->readLink(true)->getAbsolutePath(),
             ]));
         }
 
@@ -3782,7 +3798,7 @@ class FsPathCore implements FsPathInterface
         if ($this->exists()) {
             throw new FileExistsException(tr('Cannot create symlink ":source" that points to ":target", the file already exists as a ":type"', [
                 ':target' => $calculated_target->getSource(),
-                ':source' => $this->getNormalizedPath(),
+                ':source' => $this->getAbsolutePath(),
                 ':type'   => $this->getTypeName(),
             ]));
         }
@@ -3794,6 +3810,7 @@ class FsPathCore implements FsPathInterface
         // Symlink!
         try {
             symlink(Strings::ensureEndsNotWith($calculated_target->getSource(), '/'), $this->getSource());
+
         } catch (PhpException $e) {
             // Crap, what happened?
             if ($e->messageMatches('symlink(): File exists')) {
@@ -4024,6 +4041,17 @@ class FsPathCore implements FsPathInterface
     /**
      * Checks if write access is available for this file
      *
+     * @return bool
+     */
+    public function hasWriteAccess(): bool
+    {
+        return static::$write_enabled or $this->force_access;
+    }
+
+
+    /**
+     * Checks if write access is available for this file
+     *
      * @param Throwable|null $e
      *
      * @return static
@@ -4031,8 +4059,7 @@ class FsPathCore implements FsPathInterface
      */
     public function checkWriteAccess(?Throwable $e = null): static
     {
-
-        if (!static::getWriteEnabled() and !$this->force_access) {
+        if (!$this->hasWriteAccess()) {
             throw new FileNotWritableException(tr('The file ":file" cannot be written because all write access has been disabled', [
                 ':file' => $this->source
             ]), $e);
@@ -4043,7 +4070,18 @@ class FsPathCore implements FsPathInterface
 
 
     /**
-     * Checks if read access is available
+     * Returns true if read access for this file is available
+     *
+     * @return bool
+     */
+    public function hasReadAccess(): bool
+    {
+        return static::$read_enabled or $this->force_access;
+    }
+
+
+    /**
+     * Checks if read access for this file is available
      *
      * @param Throwable|null $e
      *
@@ -4051,7 +4089,7 @@ class FsPathCore implements FsPathInterface
      */
     public function checkReadAccess(?Throwable $e = null): static
     {
-        if (!static::getReadEnabled() and !$this->force_access) {
+        if (!$this->hasReadAccess()) {
             throw new FileNotReadableException(tr('The file ":file" cannot be read because all read access has been disabled', [
                 ':file' => $this->source
             ]), $e);
@@ -4532,7 +4570,7 @@ class FsPathCore implements FsPathInterface
      */
     public function isSameAs(FsPathInterface $path): bool
     {
-        if ($this->getRealPath() === $path->getRealPath()){
+        if ($this->getRealPath()->getSource() === $path->getRealPath()->getSource()){
             // Doh, it's the same path!
             return true;
         }

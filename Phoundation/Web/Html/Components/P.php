@@ -3,7 +3,7 @@
 /**
  * Class P
  *
- *
+ * This class represents (and can render) an <p>...content...</p> tag
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -26,6 +26,7 @@ class P extends Div
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
+
         $this->setElement('p');
     }
 }

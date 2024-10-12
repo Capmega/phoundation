@@ -54,7 +54,7 @@ ROLE[,ROLE,ROLE,...]                    The roles linked with the role. Each use
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('user', true)->isEmail()
-                     ->select('roles', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+                     ->select('roles', true)->isOptional(null)->sanitizeForceArray()->eachField()->isName()
                      ->validate();
 
 

@@ -10,7 +10,7 @@ use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 
-interface InputInterface extends ElementInterface
+interface InputInterface extends ElementInterface, BeforeAfterButtonsInterface
 {
     /**
      * Input class constructor

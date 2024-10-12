@@ -22,11 +22,11 @@ trait TraitDataEntryHttpCode
     /**
      * Returns the http_code for this object
      *
-     * @return int|null
+     * @return int
      */
-    public function getHttpCode(): ?int
+    public function getHttpCode(): int
     {
-        return $this->getTypesafe('int', 'http_code');
+        return (int) $this->getTypesafe('int', 'http_code');
     }
 
 

@@ -366,12 +366,12 @@ class CliAutoComplete
                         // partial word
                         if ($word) {
                             if (array_key_exists('word', $requires_value)) {
-                                $results = static::processDefinition($requires_value['word'], $word);
+                                $results = static::processDefinition('argument ' . isset_get($previous_word, 'unknown'), $requires_value['word'], $word);
                             }
 
                         } else {
                             if (array_key_exists('noword', $requires_value)) {
-                                $results = static::processDefinition($requires_value['noword'], null);
+                                $results = static::processDefinition('argument ' . isset_get($previous_word, 'unknown'), $requires_value['noword'], null);
                             }
                         }
 
@@ -411,12 +411,13 @@ class CliAutoComplete
     /**
      * Process the specified definition
      *
+     * @param string      $name
      * @param mixed       $definition
      * @param string|null $word
      *
      * @return IteratorInterface|array|string|null
      */
-    protected static function processDefinition(mixed $definition, ?string $word): IteratorInterface|array|string|null
+    protected static function processDefinition(string $name, mixed $definition, ?string $word): IteratorInterface|array|string|null
     {
         // If no definitions were given, we're done
         if (is_null($definition)) {
@@ -430,6 +431,15 @@ class CliAutoComplete
             if (is_array($results)) {
                 // Limit the number of results
                 $results = static::limit($results);
+
+            } elseif (!is_string($results) and !($results instanceof IteratorInterface)) {
+                throw OutOfBoundsException::new(tr('Executed auto complete callback ":name" with word ":word" returned invalid value with datatype ":results", it should be either null, string, array, or IteratorInterface', [
+                    ':results' => get_class_or_data_type($results),
+                    ':word'    => $word,
+                    ':name'    => $name,
+                ]))->setData([
+                    'results' => $results
+                ]);
             }
 
             return $results;
@@ -583,12 +593,12 @@ class CliAutoComplete
             // We may have a word or not, check if position_data allows word (or not) and process
             if ($word) {
                 if (array_key_exists('word', $position_data)) {
-                    $results = static::processDefinition($position_data['word'], $word);
+                    $results = static::processDefinition('position ' . $position, $position_data['word'], $word);
                 }
 
             } else {
                 if (array_key_exists('noword', $position_data)) {
-                    $results = static::processDefinition($position_data['noword'], null);
+                    $results = static::processDefinition('position ' . $position, $position_data['noword'], null);
                 }
             }
 
@@ -680,7 +690,7 @@ class CliAutoComplete
         $command          = explode('/', $command);
         static::$position = static::$position - count($command);
 
-        return !empty(FsFile::new(static::$command . '.php', FsRestrictions::newCommands())
+        return !empty(FsFile::new(static::$command . '.php', FsRestrictions::newRoot())
                             ->grep(['Documentation::setAutoComplete('], 500));
     }
 

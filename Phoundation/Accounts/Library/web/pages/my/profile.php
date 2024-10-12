@@ -30,48 +30,56 @@ use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Uploads\UploadHandler;
 
 
+// Get the user and alter the default user form
+$user = Session::getUserObject();
+$user->getDefinitionsObject()->setSize('last_sign_in'           , 4)
+                             ->setSize('sign_in_count'          , 4)
+                             ->setSize('authentication_failures', 4)
+                             ->setSize('keywords'               , 3)
+                             ->setSize('url'                    , 6)
+                             ->setRender('locked_until'         , false)
+                             ->setRender('username'             , false)
+                             ->setRender('nickname'             , false)
+                             ->setRender('latitude'             , false)
+                             ->setRender('longitude'            , false)
+                             ->setRender('keywords'             , false)
+                             ->setRender('url'                  , false)
+                             ->setRender('accuracy'             , false)
+                             ->setRender('verified_on'          , false)
+                             ->setRender('description'          , false)
+                             ->setRender('data'                 , false)
+                             ->setRender('comments'             , false)
+                             ->setRender('is_leader'            , false)
+                             ->setRender('leaders_id'           , false)
+                             ->setRender('code'                 , false)
+                             ->setRender('type'                 , false)
+                             ->setRender('priority'             , false)
+                             ->setRender('offset_latitude'      , false)
+                             ->setRender('offset_longitude'     , false)
+                             ->setRender('domain'               , false)
+                             ->setRender('redirect'             , false)
+                             ->setReadonly('email'              , true)
+                             ->setReadonly('comments'           , true)
+                             ->setReadonly('domain'             , true)
+                             ->setReadonly('offset_longitude'   , true)
+                             ->setReadonly('is_leader'          , true)
+                             ->setReadonly('leaders_id'         , true)
+                             ->setReadonly('code'               , true)
+                             ->setReadonly('type'               , true)
+                             ->setReadonly('priority'           , true)
+                             ->setReadonly('offset_latitude'    , true)
+                             ->moveBeforeKey('zipcode', 'address');
+
+
 // Define the drag/drop upload selector
 Request::getFileUploadHandlersObject()
-       ->add(UploadHandler::new('image')
-                          ->getDropZoneObject()
-                              ->setUrl(Url::getAjax('my/profile/image/upload'))
-                              ->setSelector('#profile-picture-card')
-                              ->setMaxFiles(1)
-                              ->getHandler()
-       )->process();
-
-
-// Get the user and alter the default user form
-$user        = Session::getUserObject();
-$definitions = $user->getDefinitionsObject();
-$definitions->get('last_sign_in')->setSize(4);
-$definitions->get('sign_in_count')->setSize(4);
-$definitions->get('authentication_failures')->setSize(4);
-$definitions->get('locked_until')->setRender(false);
-$definitions->get('username')->setRender(false);
-$definitions->get('nickname')->setRender(false);
-$definitions->get('latitude')->setRender(false);
-$definitions->get('longitude')->setRender(false);
-$definitions->get('keywords')->setRender(false);
-$definitions->get('url')->setRender(false);
-$definitions->get('accuracy')->setRender(false);
-$definitions->get('comments')->setReadonly(true)->setRender(false);
-$definitions->get('is_leader')->setReadonly(true)->setRender(false);
-$definitions->get('leaders_id')->setReadonly(true)->setRender(false);
-$definitions->get('code')->setReadonly(true)->setRender(false);
-$definitions->get('type')->setReadonly(true)->setRender(false);
-$definitions->get('priority')->setReadonly(true)->setRender(false);
-$definitions->get('offset_latitude')->setReadonly(true)->setRender(false);
-$definitions->get('email')->setReadonly(true);
-$definitions->get('offset_longitude')->setReadonly(true)->setRender(false);
-$definitions->get('domain')->setReadonly(true)->setRender(false);
-$definitions->get('verified_on')->setRender(false);
-$definitions->get('keywords')->setSize(3);
-$definitions->get('redirect')->setRender(false)->setReadonly(true);
-$definitions->get('url')->setSize(6);
-$definitions->get('description')->setRender(false);
-$definitions->get('data')->setRender(false);
-$definitions->moveBeforeKey('zipcode', 'address');
+    ->add(UploadHandler::new('image')
+        ->getDropZoneObject()
+        ->setUrl(Url::getAjax('my/profile/image/upload'))
+        ->setSelector('#profile-picture-card')
+        ->setMaxFiles(0)
+        ->getHandler()
+    )->process();
 
 
 // Validate POST and submit
@@ -101,11 +109,11 @@ if (Request::isPostRequestMethod()) {
 $buttons = Buttons::new()->addButton('Submit');
 
 
-// Build the user form
+// Build the "user" form
 $card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('Manage your profile information here'))
-            ->setContent($user->getHtmlDataEntryFormObject()->render())
+            ->setContent($user->getHtmlDataEntryFormObject())
             ->setButtons($buttons);
 
 
@@ -135,7 +143,7 @@ $relevant = Card::new()
                 ->setContent('<a href="' . Url::getWww('/my/password.html') . '">' . tr('Change my password') . '</a><br>
                               <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage my settings') . '</a><br>
                               <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage my API access') . '</a><br>
-                              <a href="' . Url::getWww('/my/sign-in-history.html') . '">' . tr('Review my sign-in history') . '</a><br>
+                              <a href="' . Url::getWww('/my/authentication-history.html') . '">' . tr('Review my authentication history') . '</a><br>
                               <a href="' . Url::getWww('/profiles/profile+' . $user->getId() . '.html') . '">' . tr('View my public profile') . '</a><br>');
 
 
@@ -157,7 +165,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 ]));
 
 
-// Build and render the page grid
+// Render and return the page grid
 return Grid::new()
            ->addGridColumn($column)
            ->addGridColumn($picture->render() . '<br>' .

@@ -190,11 +190,11 @@ interface UserInterface extends DataEntryInterface
     /**
      * Sets the locked_until for this user
      *
-     * @param string|null $locked_until
+     * @param DateTimeInterface|string|null $locked_until
      *
      * @return static
      */
-    public function setLockedUntil(?string $locked_until): static;
+    public function setLockedUntil(DateTimeInterface|string|null $locked_until): static;
 
 
     /**

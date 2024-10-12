@@ -58,6 +58,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
             switch (PostValidator::new()->getSubmitButton()) {
                 case tr('Lock'):
                     $user->lock();
+
                     Response::getFlashMessagesObject()->addSuccess(tr('The account for user ":user" has been locked', [
                         ':user' => $user->getDisplayName(),
                     ]));
@@ -66,6 +67,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
 
                 case tr('Unlock'):
                     $user->unlock();
+
                     Response::getFlashMessagesObject()->addSuccess(tr('The account for user ":user" has been unlocked', [
                         ':user' => $user->getDisplayName(),
                     ]));
@@ -74,6 +76,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
 
                 case tr('Impersonate'):
                     $user->impersonate();
+
                     Response::getFlashMessagesObject()->addSuccess(tr('You are now impersonating ":user"', [
                         ':user' => $user->getDisplayName(),
                     ]));
@@ -90,13 +93,14 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
 
     $edit = Button::new()
                   ->setMode(EnumDisplayMode::secondary)
+                  ->setBlock(true)
                   ->setValue(tr('Edit'))
                   ->setContent(tr('Edit'))
                   ->setAnchorUrl('/accounts/user+' . $user->getId() . '.html');
 
     if ($user->canBeImpersonated()) {
         $impersonate = Button::new()
-                             ->setFloatRight(true)
+                             ->setBlock(true)
                              ->setMode(EnumDisplayMode::danger)
                              ->setValue(tr('Impersonate'))
                              ->setContent(tr('Impersonate'));
@@ -105,13 +109,13 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
     if ($user->canBeStatusChanged()) {
         if ($user->isLocked()) {
             $lock = Button::new()
-                          ->setFloatRight(true)
+                          ->setBlock(true)
                           ->setMode(EnumDisplayMode::warning)
                           ->setValue(tr('Unlock'))
                           ->setContent(tr('Unlock'));
         } else {
             $lock = Button::new()
-                          ->setFloatRight(true)
+                          ->setBlock(true)
                           ->setMode(EnumDisplayMode::warning)
                           ->setValue(tr('Lock'))
                           ->setContent(tr('Lock'));
@@ -159,7 +163,16 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
                             </li>
                         </ul>
 
-                        <a href="#" class="btn btn-primary btn-block"><b>Follow</b></a>
+                        <?=
+                        Form::new()
+                            ->setRequestMethod(EnumHttpRequestMethod::post)
+                            ->setContent(Buttons::new()
+                                    ->addButton(isset_get($edit))
+                                    ->addButton(isset_get($lock))
+                                    ->addButton(isset_get($impersonate))
+                                    ->render())
+                            ->render();
+                        ?>
                     </div>
                     <!-- /.card-body -->
                 </div>
@@ -236,18 +249,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
                             <!-- /.tab-pane -->
 
                             <div class="tab-pane" id="actions">
-                                <?=
-                                Form::new()
-                                    ->setRequestMethod(EnumHttpRequestMethod::post)
-                                    ->setContent('   <div class="form-group row">' .
-                                                 Buttons::new()
-                                                        ->addButton(isset_get($edit))
-                                                        ->addButton(isset_get($lock))
-                                                        ->addButton(isset_get($impersonate))
-                                                        ->render() . '
-                                                </div>')
-                                    ->render();
-                                ?>
+
                             </div>
                             <!-- /.tab-pane -->
                         </div>

@@ -26,6 +26,7 @@ enum EnumElement: string
     case span     = 'span';
     case label    = 'label';
     case p        = 'p';
+    case hr       = 'hr';
 
     // Pseudo elements
     case inputmultibuttontext = 'inputmultibuttontext';

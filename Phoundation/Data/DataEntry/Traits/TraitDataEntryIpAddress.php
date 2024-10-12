@@ -24,6 +24,30 @@ trait TraitDataEntryIpAddress
      *
      * @return string|null
      */
+    public function getIpAddressBinary(): ?string
+    {
+        return $this->getTypesafe('string', 'ip_address_binary');
+    }
+
+
+    /**
+     * Sets the ip address for this user
+     *
+     * @param string|null $ip_address
+     *
+     * @return static
+     */
+    public function setIpAddressBinary(?string $ip_address): static
+    {
+        return $this->set($ip_address, 'ip_address_binary');
+    }
+
+
+    /**
+     * Returns the ip address for this user
+     *
+     * @return string|null
+     */
     public function getIpAddress(): ?string
     {
         return $this->getTypesafe('string', 'ip_address');
@@ -39,9 +63,33 @@ trait TraitDataEntryIpAddress
      */
     public function setIpAddress(?string $ip_address): static
     {
-        $this->set(strlen($ip_address), 'net_len');
-        $this->set($ip_address, 'ip_address');
+        $this->set(strlen((string) $ip_address), 'net_len');
+        $this->set(null                        , 'ip_address');
 
-        return $this->set($ip_address, 'ip_address_human');
+        return $this->set($ip_address, 'ip_address');
+    }
+
+
+    /**
+     * Returns the ip address net_len for this user
+     *
+     * @return int|null
+     */
+    public function getNetLen(): ?int
+    {
+        return $this->getTypesafe('string', 'net_len');
+    }
+
+
+    /**
+     * Sets the ip address net_len
+     *
+     * @param int|null $net_len
+     *
+     * @return static
+     */
+    public function setNetLen(?int $net_len): static
+    {
+        return $this->set($net_len, 'net_len');
     }
 }

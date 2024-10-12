@@ -28,7 +28,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.20';
+        return '0.1.1';
     }
 
 
@@ -99,6 +99,26 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()
                  ->getTableObject('security_incidents')->alter()
                  ->addColumn('`body` text NOT NULL', 'AFTER `title`');
+
+        })->addUpdate('0.1.0', function () {
+            $table = sql()->getSchemaObject()->getTableObject('security_incidents');
+
+            if (!$table->columnExists('url')) {
+                $table->alter()->addColumn('`url` varchar(2048) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `details`');
+            }
+
+            if (!$table->columnExists('exception')) {
+                $table->alter()->addColumn('`exception` mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `url`');
+            }
+
+            if (!$table->columnExists('data')) {
+                $table->alter()->addColumn('`data` mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `exception`');
+            }
+
+        })->addUpdate('0.1.1', function () {
+            sql()->getSchemaObject()->getTableObject('security_incidents')->alter()
+                 ->modifyColumn('`body`'   , 'text COLLATE utf8mb4_general_ci NULL DEFAULT NULL,')
+                 ->modifyColumn('`details`', 'text COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
         });
     }
 }

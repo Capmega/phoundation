@@ -1,11 +1,9 @@
 <?php
 
 /**
- * PostValidator class
+ * Class CookieValidator
  *
  * This class validates data from untrusted $_COOKIE
- *
- * $_REQUEST will be cleared automatically as this array should not  be used.
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -20,15 +18,17 @@ namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
+use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Utils\Strings;
+use Stringable;
 
 
 class CookieValidator extends Validator
 {
     use TraitDataStaticArrayBackup;
+    use TraitStaticMethodNew;
 
 
     /**
@@ -47,12 +47,10 @@ class CookieValidator extends Validator
      *
      * @note Keys that do not exist in $data that are validated will automatically be created
      * @note Keys in $data that are not validated will automatically be removed
-     *
-     * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    protected function __construct(?ValidatorInterface $parent = null)
+    protected function __construct()
     {
-        $this->construct($parent, static::$cookies);
+        $this->construct(null, static::$cookies);
     }
 
 
@@ -78,17 +76,6 @@ class CookieValidator extends Validator
 
 
     /**
-     * Returns the submitted array keys
-     *
-     * @return array|null
-     */
-    public static function getSourceKeys(): ?array
-    {
-        return array_keys(static::$cookies);
-    }
-
-
-    /**
      * Throws an exception if there are still arguments left in the COOKIE source
      *
      * @param bool $apply
@@ -101,12 +88,15 @@ class CookieValidator extends Validator
         if (!$apply) {
             return $this;
         }
+
         if (count($this->selected_fields) === count(static::$cookies)) {
             return $this;
         }
+
         $messages = [];
         $fields   = [];
         $post     = array_keys(static::$cookies);
+
         foreach ($post as $field) {
             if (!in_array($field, $this->selected_fields)) {
                 $fields[]   = $field;
@@ -115,55 +105,60 @@ class CookieValidator extends Validator
                 ]);
             }
         }
+
         throw ValidationFailedException::new(tr('Unknown COOKIE fields ":fields" encountered', [
             ':fields' => Strings::force($fields, ', '),
         ]))
-                                       ->addData($messages)
-                                       ->makeWarning()
-                                       ->log();
+        ->addData($messages)
+        ->makeWarning()
+        ->log();
     }
 
 
     /**
      * Add the specified value for key to the internal COOKIE array
      *
-     * @param string $key
-     * @param mixed  $value
-     *
-     * @return void
-     */
-    public static function addData(string $key, mixed $value): void
-    {
-        static::$cookies[$key] = $value;
-    }
-
-
-    /**
-     * Returns a new $_COOKIE data Validator object
-     *
-     * @param ValidatorInterface|null $parent
+     * @param mixed                      $value
+     * @param Stringable|string|int|null $key
+     * @param bool                       $skip_null_values
      *
      * @return static
      */
-    public static function new(?ValidatorInterface $parent = null): static
+    public function add(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = false): static
     {
-        return new static($parent);
+        if (($value === null) and $skip_null_values) {
+            // Don't permit empty values
+            return $this;
+        }
+
+        // Don't permit empty keys, quietly drop them
+        $key = trim((string) $key);
+
+        if (!$key) {
+            return $this;
+        }
+
+
+        $this->source[$key] = $value;
+        return $this;
     }
 
 
     /**
-     * Force a return of all COOKIE data without check
+     * Returns the complete source, or only the source entries starting with the specified prefix
      *
      * @param string|null $prefix
      *
-     * @return array|null
+     * @return array
      */
-    public function &getSource(?string $prefix = null): ?array
+    public function getSource(?string $prefix = null): array
     {
         if (!$prefix) {
-            return $this->source;
+            return parent::getSource();
         }
+
         $return = [];
+
         foreach ($this->source as $key => $value) {
             if (str_starts_with($key, $prefix)) {
                 $return[Strings::from($key, $prefix)] = $value;
@@ -171,22 +166,6 @@ class CookieValidator extends Validator
         }
 
         return $return;
-    }
-
-
-    /**
-     * Force a return of a single COOKIE key value
-     *
-     * @return array
-     */
-    public function getSourceKey(string $key): mixed
-    {
-        Log::warning(tr('Forcibly returned $_COOKIE[:key] without data validation at ":location"!', [
-            ':key'      => $key,
-            ':location' => Strings::from(Debug::getPreviousCall()->getLocation(), DIRECTORY_ROOT),
-        ]));
-
-        return isset_get($this->source[$key]);
     }
 
 

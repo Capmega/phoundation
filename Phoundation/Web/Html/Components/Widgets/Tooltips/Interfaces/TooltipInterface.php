@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces;
 
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipBoundaryInterface;
-use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipPlacementInterface;
-use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipTriggerInterface;
+use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipBoundary;
+use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipPlacement;
+use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipTrigger;
 
 interface TooltipInterface extends ElementInterface
 {
@@ -22,11 +22,11 @@ interface TooltipInterface extends ElementInterface
     /**
      * Sets the tooltip trigger for this element
      *
-     * @param EnumTooltipTriggerInterface ...$triggers
+     * @param EnumTooltipTrigger ...$triggers
      *
      * @return static
      */
-    public function setTriggers(EnumTooltipTriggerInterface ...$triggers): static;
+    public function setTriggers(EnumTooltipTrigger ...$triggers): static;
 
 
     /**
@@ -180,9 +180,9 @@ interface TooltipInterface extends ElementInterface
      * Returns the positioning the tooltip - auto | top | bottom | left | right.
      *
      * @note Does not apply to manual trigger type
-     * @return EnumTooltipPlacementInterface
+     * @return EnumTooltipPlacement
      */
-    public function getPlacement(): EnumTooltipPlacementInterface;
+    public function getPlacement(): EnumTooltipPlacement;
 
 
     /**
@@ -190,11 +190,11 @@ interface TooltipInterface extends ElementInterface
      *
      * @note Does not apply to manual trigger type
      *
-     * @param EnumTooltipPlacementInterface $placement
+     * @param EnumTooltipPlacement $placement
      *
      * @return static
      */
-    public function setPlacement(EnumTooltipPlacementInterface $placement): static;
+    public function setPlacement(EnumTooltipPlacement $placement): static;
 
 
     /**
@@ -239,9 +239,9 @@ interface TooltipInterface extends ElementInterface
      * Returns the overflow constraint boundary of the tooltip
      *
      * @note Does not apply to manual trigger type
-     * @return EnumTooltipBoundaryInterface|string
+     * @return EnumTooltipBoundary|string
      */
-    public function getBoundary(): EnumTooltipBoundaryInterface|string;
+    public function getBoundary(): EnumTooltipBoundary|string;
 
 
     /**
@@ -249,11 +249,11 @@ interface TooltipInterface extends ElementInterface
      *
      * @note Does not apply to manual trigger type
      *
-     * @param EnumTooltipBoundaryInterface|string $boundary
+     * @param EnumTooltipBoundary|string $boundary
      *
      * @return static
      */
-    public function setBoundary(EnumTooltipBoundaryInterface|string $boundary): static;
+    public function setBoundary(EnumTooltipBoundary|string $boundary): static;
 
 
     /**

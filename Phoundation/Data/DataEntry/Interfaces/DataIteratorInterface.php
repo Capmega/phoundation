@@ -6,6 +6,7 @@ namespace Phoundation\Data\DataEntry\Interfaces;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
@@ -238,14 +239,6 @@ interface DataIteratorInterface extends IteratorInterface
 
 
     /**
-     * This method will load ALL database entries into this object
-     *
-     * @return static
-     */
-    public function loadAll(): static;
-
-
-    /**
      * Adds the specified source to the internal source
      *
      * @param IteratorInterface|array|string|null $source
@@ -298,4 +291,70 @@ interface DataIteratorInterface extends IteratorInterface
      * @return static
      */
     public function setDebug(bool $debug): static;
+
+    /**
+     * Returns the name of the database connector where this DataEntry is stored
+     *
+     * @return string
+     */
+    public function getConnector(): string;
+
+
+    /**
+     * Sets the database connector by name
+     *
+     * @param string      $connector
+     * @param string|null $database
+     *
+     * @return static
+     */
+    public function setConnector(string $connector, ?string $database = null): static;
+
+    /**
+     * Returns the default database connector to use for this table
+     *
+     * @return string
+     */
+    public static function getDefaultConnector(): string;
+
+    /**
+     * Returns a database connector for this DataEntry object
+     *
+     * @return ConnectorInterface
+     */
+    public static function getDefaultConnectorObject(): ConnectorInterface;
+
+    /**
+     * Returns the database connector
+     *
+     * @return ConnectorInterface
+     */
+    public function getConnectorObject(): ConnectorInterface;
+
+
+    /**
+     * Sets the database connector
+     *
+     * @param ConnectorInterface $o_connector
+     * @param string|null        $database
+     *
+     * @return static
+     */
+    public function setConnectorObject(ConnectorInterface $o_connector, ?string $database = null): static;
+
+    /**
+     * Sets the QueryBuilder object to modify the internal query for this object
+     *
+     * @param QueryBuilderInterface $query_builder
+     *
+     * @return static
+     */
+    public function setQueryBuilder(QueryBuilderInterface $query_builder): static;
+
+    /**
+     * Shift an entry off the beginning of this Iterator
+     *
+     * @return DataEntryInterface|null
+     */
+    #[ReturnTypeWillChange] public function shift(): ?DataEntryInterface;
 }

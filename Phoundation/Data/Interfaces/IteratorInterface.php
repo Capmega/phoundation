@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Interfaces;
 
-use Countable;
-use Iterator;
 use PDOStatement;
+use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
+use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
 
-interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
+interface IteratorInterface extends IteratorBaseInterface
 {
     /**
      * Returns the class used to generate the select input
@@ -37,58 +38,16 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
     public function setComponentClass(string $input_select_class): static;
 
     /**
-     * Returns the current entry
-     *
-     * @return mixed
-     */
-    public function current(): mixed;
-
-    /**
-     * Progresses the internal pointer to the next entry
-     *
-     * @return void
-     */
-    public function next(): void;
-
-    /**
-     * Progresses the internal pointer to the previous entry
-     *
-     * @return void
-     */
-    public function previous(): void;
-
-    /**
-     * Returns the current key for the current button
-     *
-     * @return string|int|null
-     */
-    public function key(): string|int|null;
-
-    /**
-     * Returns if the current pointer is valid or not
-     *
-     * @return bool
-     */
-    public function valid(): bool;
-
-    /**
-     * Rewinds the internal pointer
-     *
-     * @return void
-     */
-    public function rewind(): void;
-
-    /**
      * Sets the value for the specified key
      *
      * @note this is basically a wrapper function for IteratorCore::add($value, $key, false) that always requires a key
      *
-     * @param mixed                 $value
-     * @param Stringable|string|int $key
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
      *
      * @return mixed
      */
-    public function set(mixed $value, Stringable|string|int $key): static;
+    public function set(mixed $value, Stringable|string|float|int $key): static;
 
     /**
      * Wrapper for Iterator::append()
@@ -289,7 +248,7 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      * Sets the datatype restrictions for all elements in this iterator, NULL if none
      *
      * @param array|string|null $data_types
-     * return static
+     * @return static
      */
     public function setAcceptedDataTypes(array|string|null $data_types): static;
 
@@ -310,12 +269,14 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      */
     public function getValueOrDefault(Stringable|string|int $key, mixed $value): mixed;
 
+
     /**
      * Returns the first element contained in this object without changing the internal pointer
      *
      * @return mixed
      */
     public function getFirstValue(): mixed;
+
 
     /**
      * Returns the last element contained in this object without changing the internal pointer
@@ -350,20 +311,6 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      * @return bool
      */
     public function valueExists(mixed $value): bool;
-
-    /**
-     * Returns if the list is empty
-     *
-     * @return bool
-     */
-    public function isEmpty(): bool;
-
-    /**
-     * Returns if the list is not empty
-     *
-     * @return bool
-     */
-    public function isNotEmpty(): bool;
 
     /**
      * Returns the length of the longest value
@@ -769,7 +716,7 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      *
      * @return static
      */
-    public function each(callable $callback): static;
+    public function eachField(callable $callback): static;
 
     /**
      * Returns a diff between this Iterator and the specified Iterator or array
@@ -845,4 +792,42 @@ interface IteratorInterface extends Iterator, Stringable, ArraySourceInterface
      * @return static
      */
     public function clearRowCallbacks(): static;
+
+    /**
+     * Returns the filter_form
+     *
+     * @return FilterFormInterface
+     */
+    public function getFilterFormObject(): FilterFormInterface;
+
+    /**
+     * Sets the filter_form
+     *
+     * @param FilterFormInterface $filter_form
+     *
+     * @return static
+     */
+    public function setFilterFormObject(FilterFormInterface $filter_form): static;
+
+    /**
+     * Shift an entry off the beginning of this Iterator
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function shift(): mixed;
+
+
+    /**
+     * Prepend elements to the beginning of an array
+     *
+     * @return mixed
+     */
+    public function unshift(mixed ...$values): static;
+
+    /**
+     * Returns a SpreadSheet object with this object's source data in it
+     *
+     * @return SpreadSheetInterface
+     */
+    public function getSpreadSheet(): SpreadSheetInterface;
 }

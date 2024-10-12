@@ -73,26 +73,6 @@ class Countries extends DataIterator
 
 
     /**
-     * Returns an HTML <select> object with all states available in this country
-     *
-     * @param string $name
-     *
-     * @return InputSelect
-     */
-    public static function getHtmlCountriesSelect(string $name = 'countries_id'): InputSelect
-    {
-        return InputSelect::new()
-                          ->setConnector(static::getConnector())
-                          ->setSourceQuery('SELECT `id`, `name` 
-                                          FROM  `geo_countries` 
-                                          WHERE `status` IS NULL ORDER BY `name`')
-                          ->setName($name)
-                          ->setNotSelectedLabel(tr('Select a country'))
-                          ->setComponentEmptyLabel(tr('No countries available'));
-    }
-
-
-    /**
      * Creates and returns an HTML table for the data in this list
      *
      * @param array|string|null $columns
@@ -105,6 +85,26 @@ class Countries extends DataIterator
         $table->setCheckboxSelectors(EnumTableIdColumn::checkbox);
 
         return $table;
+    }
+
+
+    /**
+     * Returns an HTML <select> object with all states available in this country
+     *
+     * @param string $name
+     *
+     * @return InputSelect
+     */
+    public static function getHtmlCountriesSelect(string $name = 'countries_id'): InputSelect
+    {
+        return InputSelect::new()
+                          ->setConnectorObject(static::getDefaultConnectorObject())
+                          ->setSourceQuery('SELECT `id`, `name` 
+                                            FROM  `geo_countries` 
+                                            WHERE `status` IS NULL ORDER BY `name`')
+                          ->setName($name)
+                          ->setNotSelectedLabel(tr('Select a country'))
+                          ->setComponentEmptyLabel(tr('No countries available'));
     }
 
 

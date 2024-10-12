@@ -1125,7 +1125,7 @@ class Response implements ResponseInterface
     #[NoReturn] public static function redirect(UrlInterface|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
     {
         if (!PLATFORM_WEB) {
-            throw new ResponseRedirectException(tr('Response::redirect() can only be called on web sessions'));
+            throw new ResponseRedirectException(tr('Response->redirect() can only be called on web sessions'));
         }
 
         //        if (Session::getSignInKey()?->getAllowNavigation()) {

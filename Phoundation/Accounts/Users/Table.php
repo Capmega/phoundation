@@ -26,7 +26,7 @@ class Table extends HtmlTable
      */
     public function __construct()
     {
-        $this->setConnector($this->connector)
+        $this->setConnectorObject($this->getConnectorObject())
              ->setSourceQuery('SELECT * FROM `accounts_users`');
         parent::__construct();
     }

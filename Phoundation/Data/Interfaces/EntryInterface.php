@@ -36,23 +36,27 @@ interface EntryInterface extends ArraySourceInterface, CliFormInterface, Stringa
      */
     public function displayCliForm(?string $key_header = null, ?string $value_header = null): static;
 
+
     /**
      * Returns only the specified key from the source of this DataEntry
      *
      * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
      *       will not become available outside this object
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
      * @return array
      */
-    public function get(string $key): mixed;
+    public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
 
     /**
      * Sets the value for the specified data key
      *
-     * @param mixed $value
-     * @param string $column
-     * @param bool   $force
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
      *
      * @return static
      */
-    public function set(mixed $value, string $column, bool $force = false): static;
+    public function set(mixed $value, Stringable|string|float|int $key): static;
 }

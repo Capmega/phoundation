@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Page security/incidents
+ * Page security/authentications
  *
  *
  *
@@ -14,13 +14,18 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Authentications;
 use Phoundation\Accounts\Users\AuthenticationsFilterForm;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Date\DateTime;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
+use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Html\Layouts\Grid;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -29,42 +34,49 @@ $filters      = AuthenticationsFilterForm::new();
 $filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('Authentication filters')
-                    ->setContent($filters->render());
+                    ->setContent($filters);
 
 
-// Build the incident table
-$table = Authentications::new();
-$query = $table->getQueryBuilder()
-    ->addJoin('JOIN `accounts_users` ON `accounts_authentications`.`users_id` = `accounts_users`.`id`')
-    ->addSelect('`accounts_authentications`.`id`')
-    ->addSelect('COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('System') . '") AS `biller`')
-    ->addSelect('`accounts_authentications`.`ip`')
-    ->addSelect('`accounts_authentications`.`action`')
-    ->addSelect('`accounts_authentications`.`method`');
+// Build the authentication table
+$authentications = Authentications::new()->setFilterFormObject($filters);
+$builder         = $authentications->getQueryBuilder()->addJoin('LEFT JOIN `accounts_users` ON `accounts_authentications`.`created_by` = `accounts_users`.`id`')
+                                                      ->addSelect('`accounts_authentications`.`id`')
+                                                      ->addSelect('`accounts_authentications`.`created_on`')
+                                                      ->addSelect('IFNULL(`accounts_authentications`.`status`, "Ok") AS `status`')
+                                                      ->addSelect('COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('No matched account') . '") AS `user`')
+                                                      ->addSelect('`accounts_authentications`.`ip_address`')
+                                                      ->addSelect('`accounts_authentications`.`account`')
+                                                      ->addSelect('`accounts_authentications`.`action`')
+                                                      ->addSelect('`accounts_authentications`.`method`');
 
-if ($filters->getDateStart()) {
-    $query->addWhere('`accounts_authentications`.`created_on` >= :start', [':start' => $filters->getDateStart()->format('mysql')]);
-}
-
-if ($filters->getDateStop()) {
-    $query->addWhere('`accounts_authentications`.`created_on` >= :start', [':stop' => $filters->getDateStop()->format('mysql')]);
-}
-
-
-// Build the incidents card
-$incidents_card = Card::new()
-                      ->setTitle('Authentications')
-                      ->setSwitches('reload')
-                      ->setContent($table->getHtmlDataTableObject()
-                                         ->setRowUrl('/security/authentication+:ROW.html'))
-                      ->useForm(true);
+// Build the "authentications" card
+$authentications_card = Card::new()
+                            ->setTitle('Authentications')
+                            ->setSwitches('reload')
+                            ->setContent($authentications->getHtmlDataTableObject([
+                                                             'id'         => tr('ID'),
+                                                             'created_on' => tr('Date'),
+                                                             'account'    => tr('Account'),
+                                                             'user'       => tr('User'),
+                                                             'ip_address' => tr('IP Address'),
+                                                             'action'     => tr('Action'),
+                                                             'status'     => tr('Status'),
+                                                         ])
+                                                         ->setRowUrl(Url::getWww('/security/authentication+:ROW.html')->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''))
+                                                         ->addRowCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
+                                                             // Adjust date to correct timezone and format
+                                                             $row['created_on'] = DateTime::new($row['created_on'], 'user')->format('human_datetime');
+                                                             $row['status']     = Authentication::getHumanReadableStatus($row['status']);
+                                                         }))
+                            ->useForm(true);
 
 
 // Build relevant links
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('');
+                     ->setContent('<a href="' . Url::getWww('/security/incidents.html')->addQueries($filters->getUsersId()   ? 'users_id='   . $filters->getUsersId()   : '')
+                                                                                       ->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : '')  . '">' . tr('Incidents management') . '</a>');
 
 
 // Build documentation
@@ -75,17 +87,15 @@ $documentation_card = Card::new()
 
 
 // Set page meta data
-Response::setHeaderTitle(tr('Authentications'));
+Response::setHeaderTitle(tr('Authentications management'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'              => tr('Home'),
     '/security.html' => tr('Security'),
-    ''               => tr('Authentications'),
+    ''               => tr('Authentications management'),
 ]));
 
 
-// Build and render the page grid
-$grid = Grid::new()
-            ->addGridColumn($filters_card->render() . $incidents_card->render(), EnumDisplaySize::nine)
-            ->addGridColumn($relevant_card->render() . '<br>' . $documentation_card->render(), EnumDisplaySize::three);
-
-return $grid->render();
+// Render and return the page grid
+return Grid::new()
+           ->addGridColumn($filters_card  . $authentications_card, EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . $documentation_card  , EnumDisplaySize::three);

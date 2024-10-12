@@ -29,7 +29,7 @@ use ReturnTypeWillChange;
 use Stringable;
 
 
-class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
+class Buttons extends ElementsBlock implements ButtonsInterface
 {
     use TraitButtonProperties;
 
@@ -90,10 +90,12 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
             // Don't add anything
             return $this;
         }
+
         if (is_string($button)) {
             if ($button === tr('Save')) {
                 $type_or_url = EnumButtonType::submit;
             }
+
             // Button was specified as string, create a button first
             $button = Button::new()
                             ->setWrapping($this->wrapping)
@@ -106,6 +108,7 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
                             ->setFloatRight($right)
                             ->setMode($mode)
                             ->setName('submit');
+
             switch ($type_or_url) {
                 case EnumButtonType::submit:
                     // no break
@@ -119,15 +122,17 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
                     // This is a URL button, place an anchor with href instead
                     $button->setAnchorUrl($type_or_url);
             }
-
         }
+
         if (empty($button->getValue())) {
             if (empty($button->getContent())) {
                 throw new OutOfBoundsException(tr('No name specified for button ":button"', [
                     ':button' => $button,
                 ]));
             }
+
             $this->source[$button->getContent()] = $button;
+
         } else {
             $this->source[$button->getValue()] = $button;
         }

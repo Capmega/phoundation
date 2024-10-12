@@ -19,26 +19,26 @@ namespace Phoundation\Os\Processes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Developer\Debug;
-use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
+use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
 use Phoundation\Os\Processes\Commands\Kill;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
-use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
+use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessVariablesInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Throwable;
 
 
-abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInterface
+abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterface
 {
     use ProcessVariables;
 
@@ -176,17 +176,19 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
         if ($this->debug) {
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
-
-        } else {
-            Log::action(tr('Executing command ":command" using exec() to return an array', [
-                ':command' => $this->getFullCommandLine(),
-            ]), 2);
         }
+
+        $command = $this->getFullCommandLine();
+
+        Log::action(tr('Executing command ":command" using exec() to return an array', [
+            ':command' => $command,
+        ]), $this->log_level);
 
         $this->start = microtime(true);
 
         do {
-            exec($this->getFullCommandLine(), $output, $exit_code);
+            exec($command, $output, $exit_code);
+
         } while ($this->fixPermissionDenied($exit_code));
 
         $this->setExitCode($exit_code, $output);
@@ -350,11 +352,25 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             $this->cached_command_line .= ' ' . (($channel > 1) ? $channel : '') . '< ' . $file;
         }
 
+        // Setup "nohup"
+        if ($this->service) {
+            if (!$background) {
+                throw new OutOfBoundsException(tr('Cannot run process command ":command" in the foreground, as it is set to run as a service', [
+                    'command' => $this->command,
+                ]));
+            }
+
+            $nohup = 'nohup ';
+
+        } elseif ($background) {
+            $nohup = '';
+        }
+
         // Background commands get some extra options around
         if ($this->use_run_file) {
-            // Create command line with run file
+            // Create command line with run-file
             if ($background) {
-                $this->cached_command_line = "(nohup bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$! >&3) 3> " . ($this->getRunFile() ?? '/dev/null');
+                $this->cached_command_line = "(" . $nohup . "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$! >&3) 3> " . ($this->getRunFile() ?? '/dev/null');
 
             } elseif ($this->register_run_file) {
                 // Make sure the PID will be registered in the run file
@@ -362,9 +378,9 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             }
 
         } else {
-            // Create command line without run file
+            // Create command line without run-file
             if ($background) {
-                $this->cached_command_line = "(nohup bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$!)";
+                $this->cached_command_line = "(" . $nohup . "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$!)";
 
             } elseif ($this->register_run_file) {
                 // Make sure the PID will be registered in the run file
@@ -536,18 +552,19 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         // Ensure that this background command uses a terminal,
         $this->setTerm('xterm', true);
 
-        if ($this->debug) {
-            Log::printr($this->getFullCommandLine());
+        $command = $this->getFullCommandLine(true);
 
-        } else {
-            Log::action(tr('Executing background command ":command" using exec()', [
-                ':command' => $this->getFullCommandLine(true),
-            ]), 2);
+        if ($this->debug) {
+            Log::printr($command);
         }
+
+        Log::action(tr('Executing background command ":command" using exec()', [
+            ':command' => $command,
+        ]), $this->log_level);
 
         $this->start = microtime(true);
 
-        exec($this->getFullCommandLine(true), $output, $exit_code);
+        exec($command, $output, $exit_code);
 
         if ($exit_code) {
             // Something went wrong immediately while executing the command?
@@ -581,17 +598,16 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         $this->setExecutionMethod(EnumExecuteMethod::passthru);
 
         $output_file = FsFile::getTemporaryObject(false)->getSource();
-        $commands    = $this->getFullCommandLine();
-        $commands    = Strings::ensureEndsNotWith($commands, ';');
+        $command     = $this->getFullCommandLine();
+        $command     = Strings::ensureEndsNotWith($command, ';');
 
         if ($this->debug) {
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
-
-        } elseif (Debug::isEnabled()) {
-            Log::action(tr('Executing command ":commands" using passthru()', [
-                ':commands' => $commands,
-            ]), 2);
         }
+
+        Log::action(tr('Executing command ":commands" using passthru()', [
+            ':commands' => $command,
+        ]), $this->log_level);
 
         $this->start = microtime(true);
 
@@ -699,5 +715,43 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             Kill::new($this->restrictions)
                 ->pid($signal, $this->pid);
         }
+    }
+
+
+    /**
+     * Returns true if the process can execute the current command with sudo privileges
+     *
+     * @param bool   $exception
+     *
+     * @return bool
+     * @todo Find a better option than "--version" which may not be available for everything. What about shell commands
+     *       like "true", or "which", etc?
+     */
+    public function hasSudoAvailable(bool $exception = false): bool
+    {
+        try {
+            Process::new($this->command, $this->getRestrictions())
+                ->setSudo(true)
+                ->addArgument('--version')
+                ->executeReturnArray();
+
+            return true;
+
+        } catch (CommandNotFoundException) {
+            if ($exception) {
+                throw new NoSudoException(tr('Cannot check for sudo privileges for the ":command" command, the command was not found', [
+                    ':command' => $this->command,
+                ]));
+            }
+
+        } catch (ProcessFailedException) {
+            if ($exception) {
+                throw new NoSudoException(tr('The current process owner has no sudo privileges available for the ":command" command', [
+                    ':command' => $this->command,
+                ]));
+            }
+        }
+
+        return false;
     }
 }

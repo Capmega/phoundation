@@ -22,19 +22,27 @@ namespace Phoundation\Security\Incidents;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryBody;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDetails;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryException;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntrySetCreatedBy;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryType;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -48,16 +56,23 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Uploads\UploadHandlers;
 use Throwable;
 
 
 class Incident extends DataEntry implements IncidentInterface
 {
-    use TraitDataEntryType;
-    use TraitDataEntryTitle;
     use TraitDataEntryBody;
+    use TraitDataEntryData;
     use TraitDataEntryDetails;
+    use TraitDataEntryException {
+        setException as protected __setException;
+    }
+    use TraitDataEntrySetCreatedBy;
+    use TraitDataEntryTitle;
+    use TraitDataEntryType;
+    use TraitDataEntryUrl;
 
 
     /**
@@ -67,6 +82,7 @@ class Incident extends DataEntry implements IncidentInterface
      */
     protected bool $log = true;
 
+
     /**
      * Sets if this incident causes a notification to the specified groups
      *
@@ -74,12 +90,34 @@ class Incident extends DataEntry implements IncidentInterface
      */
     protected IteratorInterface $notify_roles;
 
+
     /**
-     * Tracks exceptions for this incident
+     * Incident class constructor
      *
-     * @var Throwable $e
+     * @param array|int|string|DataEntryInterface|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
      */
-    protected Throwable $e;
+    public function __construct(array|int|string|DataEntryInterface|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    {
+        if (!isset($this->meta_columns)) {
+            // By default, the Notification object has created_by NOT meta so that it can set it manually
+            $this->meta_columns = [
+                'id',
+                'created_on',
+                'meta_id',
+                'status',
+                'meta_state',
+            ];
+        }
+
+        parent::__construct($identifier, $meta_enabled, $init);
+
+        if ($this->isNew()) {
+            // By default, the object is created by the current user
+            $this->setCreatedBy(Session::getUserObject()->getId());
+        }
+    }
 
 
     /**
@@ -142,43 +180,50 @@ class Incident extends DataEntry implements IncidentInterface
 
 
     /**
-     * Returns the exception for this incident
-     *
-     * @return Throwable
-     */
-    public function getException(): Throwable
-    {
-        return $this->e;
-    }
-
-
-    /**
      * Sets the exception for this incident
      *
-     * @param Throwable|null $e
+     * @param Throwable|string|null $e
      *
      * @return static
      */
-    public function setException(?Throwable $e): static
+    public function setException(Throwable|string|null $e): static
     {
         if ($e) {
+            if (is_string($e)) {
+                // This is (presumably) a JSON encoded exception data source. Import it into a new exception
+                $e = Exception::newFromImport($e);
+            }
+
             if ($e instanceof Exception) {
-                $this->setTitle(tr('Encountered exception ":e"', [':e' => $e->getMessage()]))
-                    ->setSeverity($e->isWarning() ? EnumSeverity::low : EnumSeverity::medium)
-                    ->setBody(implode(PHP_EOL, $e->getMessages()))
-                    ->setDetails(['exception' => $e->getSource()])
-                    ->e = $e;
+                $this->setTitle(tr('Encountered exception: :e', [':e' => $e->getMessage()]))
+                     ->setType('exception')
+                     ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
+                     ->setSeverity($e->isWarning() ? EnumSeverity::medium : EnumSeverity::high)
+                     ->setBody(get_null(implode(PHP_EOL, $e->getMessages())) ?? $e->getMessage())
+                     ->setDetails([
+                         'exception' => $e->exportToArray(),
+                         'data'      => $e->getData(),
+                         'details'   => Core::getProcessDetails()
+                     ]);
 
             } else {
-                $this->setTitle(tr('Encountered exception ":e"', [':e' => $e->getMessage()]))
-                    ->setSeverity(EnumSeverity::medium)
-                    ->setBody($e->getMessage())
-                    ->setDetails(['exception' => Arrays::force($e)])
-                    ->e = $e;
+                $this->setTitle(tr('Encountered exception: :e', [':e' => $e->getMessage()]))
+                     ->setType('exception')
+                     ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
+                     ->setSeverity(EnumSeverity::medium)
+                     ->setBody($e->getMessage())
+                     ->setDetails([
+                         'exception' => [
+                             'message'   => $e->getMessage(),
+                             'backtrace' => $e->getTrace(),
+                         ],
+                         'data'      => $e->getData(),
+                         'details'   => Core::getProcessDetails()
+                     ]);
             }
         }
 
-        return $this;
+        return $this->__setException($e);
     }
 
 
@@ -263,28 +308,21 @@ class Incident extends DataEntry implements IncidentInterface
         // Save the incident
         $severity = strtolower($this->getSeverity());
         $incident = parent::save($force, $skip_validation, $comments);
+        $details  = $this->getDetails();
 
         // Default details added to security incidents medium or higher
         if ($this->severityIsEqualOrHigherThan(EnumSeverity::medium)) {
             $this->addDetails([
-                'platform'    => PLATFORM,
-                'environment' => ENVIRONMENT,
-                'url'         => Url::getCurrent(),
-                'command'     => CliCommand::getExecutedPath(),
-                'user'        => Session::getUserObject()->getLogId(),
-                'get'         => GetValidator::getBackup(),
-                'post'        => PostValidator::getBackup(),
-                'server'      => $_SERVER,
-                'session'     => Session::getSource(),
-                'files'       => UploadHandlers::getBackup(),
-                '$argv'       => ArgvValidator::getBackup(),
+                'process' => Core::getProcessDetails()
             ]);
         }
-
 
         if ($this->log) {
             switch ($severity) {
                 case 'notice':
+                    // no break
+
+                case 'low':
                     Log::notice(tr('Security notice (:id): :message', [
                         ':id'      => $this->getId(),
                         ':message' => $this->getTitle(),
@@ -300,7 +338,7 @@ class Incident extends DataEntry implements IncidentInterface
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
                     ]));
-                    Log::error(print_r($this->getDetails(), true));
+                    Log::error(print_r($details, true));
                     break;
 
                 default:
@@ -309,7 +347,7 @@ class Incident extends DataEntry implements IncidentInterface
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
                     ]));
-                    Log::warning(print_r($this->getDetails(), true), clean: false);
+                    Log::warning(print_r($details, true), clean: false);
             }
         }
 
@@ -336,11 +374,11 @@ class Incident extends DataEntry implements IncidentInterface
                     break;
             }
 
-            $notification->setUrl('security/incident+' . $this->getId() . '.html')
+            $notification->setUrl(Url::getWww('security/incident+' . $this->getId() . '.html'))
                          ->setRoles($this->notify_roles)
                          ->setTitle($this->getType())
                          ->setMessage($this->getTitle())
-                         ->setDetails($this->getDetails())
+                         ->setDetails($details)
                          ->send();
         }
 
@@ -425,13 +463,12 @@ class Incident extends DataEntry implements IncidentInterface
      */
     #[NoReturn] public function throw(?string $exception = null): never
     {
-        if ($exception) {
-            throw $exception::new($this->getTitle())
-                            ->addData(['details' => $this->getDetails()]);
+        if (empty($exception)) {
+            $exception = IncidentsException::class;
         }
 
-        throw IncidentsException::new($this->getTitle())
-                                ->addData(['details' => $this->getDetails()]);
+        throw $exception::new($this->getTitle())
+                        ->addData(['details' => $this->getDetails()]);
     }
 
 
@@ -442,9 +479,11 @@ class Incident extends DataEntry implements IncidentInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(Definition::new($this, 'type')
+        $definitions->add(DefinitionFactory::newCreatedBy($this))
+
+                    ->add(Definition::new($this, 'type')
                                     ->setLabel(tr('Incident type'))
-                                    ->setDisabled(true)
+                                    ->setReadonly(true)
                                     ->setDefault(tr('Unknown'))
                                     ->setSize(6)
                                     ->setMaxlength(64))
@@ -452,7 +491,7 @@ class Incident extends DataEntry implements IncidentInterface
                     ->add(Definition::new($this, 'severity')
                                     ->setElement(EnumElement::select)
                                     ->setLabel(tr('Severity'))
-                                    ->setDisabled(true)
+                                    ->setReadonly(true)
                                     ->setSize(6)
                                     ->setMaxlength(6)
                                     ->setDataSource([
@@ -465,41 +504,54 @@ class Incident extends DataEntry implements IncidentInterface
 
                     ->add(Definition::new($this, 'title')
                                     ->setLabel(tr('Title'))
-                                    ->setDisabled(true)
+                                    ->setReadonly(true)
                                     ->setSize(12)
                                     ->setMinlength(4)
                                     ->setMaxlength(255))
 
                     ->add(Definition::new($this, 'body')
+                                    ->setElement(EnumElement::textarea)
                                     ->setLabel(tr('Body'))
-                                    ->setDisabled(true)
+                                    ->setReadonly(true)
                                     ->setOptional(true)
                                     ->setSize(12)
+                                    ->setRows(10)
                                     ->setMaxlength(65_535))
 
                     ->add(Definition::new($this, 'details')
                                     ->setElement(EnumElement::textarea)
                                     ->setLabel(tr('Details'))
-                                    ->setDisabled(true)
+                                    ->setReadonly(true)
                                     ->setSize(12)
+                                    ->setRows(15)
                                     ->setMaxlength(65_535)
-                                    ->setDisplayCallback(function (mixed $value, array $source) {
+                                    ->setDisplayCallback(function (mixed $details, array $source) {
                                         // Since the details almost always have an array encoded in JSON, decode it and
                                         // display it using print_r
-                                        if (!$value) {
+                                        if (!$details) {
                                             return null;
                                         }
 
                                         try {
-                                            $return  = '';
-                                            $details = Json::decode($value);
-                                            $largest = Arrays::getLongestKeyLength($details);
-
-                                            foreach ($details as $key => $value) {
-                                                $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;
+                                            if (is_string($details)) {
+                                                // Details are JSON encoded, decode here
+                                                $details = Json::decode($details);
                                             }
 
-                                            return $return;
+                                            $return  = '';
+                                            $lines   = [];
+                                            $largest = Arrays::getLongestKeyLength($details);
+
+                                            // Reformat the details into a human readable table string
+                                            foreach ($details as $key => $value) {
+                                                if (!is_data_scalar($value)) {
+                                                    $value = Strings::log($value);
+                                                }
+
+                                                $lines[] .= Strings::size($key, $largest) . ' : ' . $value;
+                                            }
+
+                                            return $return . implode(PHP_EOL, $lines);
 
                                         } catch (JsonException $e) {
                                             // We couldn't decode it! Why? Let's move on, it's not THAT important... yet
@@ -507,6 +559,34 @@ class Incident extends DataEntry implements IncidentInterface
 
                                             return $value;
                                         }
-                                    }));
+                                    }))
+
+                    ->add(Definition::new($this, 'url')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setLabel('URL')
+                                    ->setSize(12)
+                                    ->setMaxlength(2048))
+
+                    ->add(Definition::new($this, 'exception')
+                                    ->setElement(EnumElement::textarea)
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setLabel('Exception')
+                                    ->setSize(12)
+                                    ->setRows(15)
+                                    ->setMaxlength(16_777_200)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isPrintable();
+                                    }))
+
+                    ->add(Definition::new($this, 'data')
+                                    ->setOptional(true)
+                                    ->setReadonly(true)
+                                    ->setElement(EnumElement::textarea)
+                                    ->setLabel('Data')
+                                    ->setSize(12)
+                                    ->setRows(15)
+                                    ->setMaxlength(16_777_200));
     }
 }

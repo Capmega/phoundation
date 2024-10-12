@@ -540,7 +540,7 @@ class Script extends Element implements ScriptInterface
 //                    try {
 //                        Uglify::js($file.'.js');
 //
-//                    }catch(Throwable $e) {
+//                    }catch (Throwable $e) {
 //                        // Minify process failed. Notification and fall back on a plain copy
 //                        Notification::new()
 //                            ->setException($e)
@@ -556,7 +556,7 @@ class Script extends Element implements ScriptInterface
 //                $count++;
 //                return '';
 //
-//            }catch(Throwable $e) {
+//            }catch (Throwable $e) {
 //                // Moving internal javascript to external files failed, Notification developers
 //                Notification::new()
 //                    ->setException($e)

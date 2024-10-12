@@ -23,8 +23,8 @@ use Phoundation\Databases\Sql\Limit;
 CliDocumentation::setAutoComplete(User::getAutoComplete([
                                                             'positions' => [
                                                                 0 => [
-                                                                    'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-                                                                    'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                                                    'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` = "locked" LIMIT ' . Limit::shellAutoCompletion(),
+                                                                    'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` = "locked" LIMIT ' . Limit::shellAutoCompletion(),
                                                                 ],
                                                             ],
                                                         ]));

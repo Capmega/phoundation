@@ -20,6 +20,7 @@ namespace Phoundation\Accounts\Roles;
 use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Accounts\Rights\RightsBySeoName;
 use Phoundation\Accounts\Roles\Exception\Interfaces\RoleNotExistsExceptionInterface;
 use Phoundation\Accounts\Roles\Exception\RoleNotExistsException;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
@@ -34,6 +35,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
@@ -102,22 +104,32 @@ class Role extends DataEntry implements RoleInterface
      */
     public function getRightsHtmlDataEntryForm(string $name = 'rights_id[]'): DataEntryFormInterface
     {
-        $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
-        $rights = Rights::new();
-        $select = $rights->getHtmlSelect()
-                         ->setCache(true)
-                         ->setName($name);
-
-        // Add extra entry with nothing selected
-        $select->clearSelected();
-        $entry->appendContent($select->render() . '<br>');
-
+        // Get a list of all rights for this role
         foreach ($this->getRightsObject() as $right) {
-            $select->setSelected($right->getId());
-            $entry->appendContent($select->render() . '<br>');
+            $selected[] = $right->getId();
         }
 
-        return $entry;
+        // Build up the rights select object
+        $rights = Rights::new();
+        $rights->setQueryBuilder(QueryBuilder::new($rights)
+                                             ->setSelect('`accounts_rights`.`id`, 
+                                                          CONCAT(
+                                                            UPPER(LEFT(`accounts_rights`.`name`, 1)), 
+                                                            SUBSTRING(`accounts_rights`.`name`, 2)
+                                                          ) AS `name`')
+                                             ->setWhere('`accounts_rights`.`status` IS NULL')
+                                             ->setOrderBy('`name`'))
+               ->load();
+
+        $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
+        $select = $rights->getHtmlSelect()->setCache(true)
+                                          ->setNotSelectedLabel(null)
+                                          ->setMultiple(true)
+                                          ->setName($name)
+                                          ->setSize($rights->getCount())
+                                          ->setSelected($selected);
+
+        return $entry->appendContent($select->render());
     }
 
 
@@ -135,9 +147,9 @@ class Role extends DataEntry implements RoleInterface
         }
 
         if (!$this->list) {
-            $this->list = Rights::new()
-                                ->setParentObject($this)
-                                ->load();
+            $this->list = RightsBySeoName::new()
+                                         ->setParentObject($this)
+                                         ->load();
         }
 
         return $this->list;
@@ -194,7 +206,7 @@ class Role extends DataEntry implements RoleInterface
      *
      * @return Role
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
+    public static function load(DataEntryInterface|array|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
     {
         try {
             return parent::load(static::convertToLowerCaseDash($identifier), $meta_enabled, $ignore_deleted);
@@ -231,7 +243,7 @@ class Role extends DataEntry implements RoleInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getName($this)
+        $definitions->add(DefinitionFactory::newName($this)
                                            ->setOptional(false)
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(12)
@@ -241,9 +253,9 @@ class Role extends DataEntry implements RoleInterface
                                                $validator->isUnique();
                                            }))
 
-                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(DefinitionFactory::newSeoName($this))
 
-                    ->add(DefinitionFactory::getDescription($this)
+                    ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this role')));
     }
 }

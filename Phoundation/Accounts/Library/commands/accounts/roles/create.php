@@ -41,7 +41,7 @@ NAME                                    The name for the role
 $argv = ArgvValidator::new()
                      ->select('name', true)->isName()
                      ->select('-d,--description', true)->isOptional(null)->isDescription()
-                     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+                     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->eachField()->isName()
                      ->validate();
 
 

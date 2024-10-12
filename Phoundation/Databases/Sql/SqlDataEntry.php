@@ -23,6 +23,7 @@ use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\TraitDataDataEntry;
+use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataIdColumn;
 use Phoundation\Data\Traits\TraitDataInsertUpdate;
 use Phoundation\Data\Traits\TraitDataMaxIdRetries;
@@ -45,12 +46,14 @@ class SqlDataEntry implements SqlDataEntryInterface
     use TraitDataDataEntry {
         setDataEntry as protected __setDataEntry;
     }
+    use TraitDataDebug;
     use TraitDataIdColumn;
     use TraitDataInsertUpdate;
     use TraitDataMaxIdRetries;
     use TraitDataMetaEnabled;
     use TraitDataRandomId;
     use TraitDataTable;
+
 
     /**
      * The actual SQL connector
@@ -77,6 +80,20 @@ class SqlDataEntry implements SqlDataEntryInterface
     {
         $this->setSql($sql)
              ->setDataEntry($data_entry);
+    }
+
+
+    /**
+     * Returns a new SqlDataEntry object
+     *
+     * @param SqlInterface       $sql
+     * @param DataEntryInterface $data_entry
+     *
+     * @return static
+     */
+    public static function new(SqlInterface $sql, DataEntryInterface $data_entry): static
+    {
+        return new static($sql, $data_entry);
     }
 
 
@@ -123,20 +140,6 @@ class SqlDataEntry implements SqlDataEntryInterface
         $this->max_id_retries = $max_id_retries;
 
         return $this;
-    }
-
-
-    /**
-     * Returns a new SqlDataEntry object
-     *
-     * @param SqlInterface       $sql
-     * @param DataEntryInterface $data_entry
-     *
-     * @return static
-     */
-    public static function new(SqlInterface $sql, DataEntryInterface $data_entry): static
-    {
-        return new static($sql, $data_entry);
     }
 
 
@@ -232,10 +235,17 @@ class SqlDataEntry implements SqlDataEntryInterface
 
                 if ($column === $this->id_column) {
                     // Duplicate ID, try with a different random number
-                    Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry ":rowid" encountered for insert in table ":table", retrying', [
-                            ':rowid' => $insert[$this->id_column],
+                    if (isset($insert)) {
+                        Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry ":row_id" encountered for insert in table ":table", retrying', [
+                            ':row_id' => $insert[$this->id_column],
+                            ':table'  => $this->table,
+                        ]));
+
+                    } else {
+                        Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry encountered for insert in table ":table", retrying', [
                             ':table' => $this->table,
                         ]));
+                    }
                     continue;
                 }
 
@@ -288,9 +298,10 @@ class SqlDataEntry implements SqlDataEntryInterface
         $update_values = SqlQueries::getBoundValues($update_row, 'update_' . $this->data_entry->getColumnPrefix(), false, [$this->id_column]);
         $execute       = array_merge($insert_values, $update_values);
 
-        $this->sql->query('INSERT INTO            `' . $this->table . '` (' . $insert_columns . ')
-                                 VALUES                                        (' . $keys . ')
-                                 ON DUPLICATE KEY UPDATE ' . $updates, $execute);
+        $this->sql->setDebug($this->debug)
+                  ->query('INSERT INTO            `' . $this->table . '` (' . $insert_columns . ')
+                           VALUES                                        (' . $keys . ')
+                           ON DUPLICATE KEY UPDATE ' . $updates, $execute);
 
         if (empty($insert_row[$this->id_column])) {
             // No row id specified, get the insert id from SQL driver
@@ -405,8 +416,9 @@ class SqlDataEntry implements SqlDataEntryInterface
         $values  = SqlQueries::getBoundValues($row, $this->data_entry->getColumnPrefix(), true);
         $keys    = SqlQueries::getBoundKeys($row);
 
-        $this->sql->query('INSERT INTO `' . $this->table . '` (' . $columns . ')
-                                 VALUES                             (' . $keys . ')', $values);
+        $this->sql->setDebug($this->debug)
+                  ->query('INSERT INTO `' . $this->table . '` (' . $columns . ')
+                           VALUES                             (' . $keys . ')', $values);
 
         if (empty($row[$this->id_column])) {
             // No row id specified, get the insert id from SQL driver
@@ -444,9 +456,10 @@ class SqlDataEntry implements SqlDataEntryInterface
         $update = SqlQueries::getUpdateKeyValues($row, id_column: $this->id_column);
         $values = SqlQueries::getBoundValues($row);
 
-        $this->sql->query('UPDATE `' . $this->table . '`
-                                 SET     ' . $update . '
-                                 WHERE  `' . $this->id_column . '` = :' . $this->id_column, $values);
+        $this->sql->setDebug($this->debug)
+                  ->query('UPDATE `' . $this->table . '`
+                           SET     ' . $update . '
+                           WHERE  `' . $this->id_column . '` = :' . $this->id_column, $values);
 
         return $row[$this->id_column];
     }
@@ -499,9 +512,10 @@ class SqlDataEntry implements SqlDataEntryInterface
         Meta::get($this->data_entry->getMetaId())->erase();
 
         // Erase the record
-        return sql()->query('DELETE FROM `' . $this->table . '` WHERE `' . $this->getIdColumn() . '` = :id', [
-            ':id' => $this->data_entry->get($this->getIdColumn()),
-        ])->rowCount();
+        return sql()->setDebug($this->debug)
+                    ->query('DELETE FROM `' . $this->table . '` WHERE `' . $this->getIdColumn() . '` = :id', [
+                        ':id' => $this->data_entry->get($this->getIdColumn()),
+                    ])->rowCount();
     }
 
 
@@ -532,12 +546,13 @@ class SqlDataEntry implements SqlDataEntryInterface
         }
 
         // Update the row status
-        return $this->sql->query('UPDATE `' . $this->table . '`
-                                  SET     `status`             = :status
+        return $this->sql->setDebug($this->debug)
+                         ->query('UPDATE `' . $this->table . '`
+                                  SET     `status`                   = :status
                                   WHERE   `' . $this->id_column . '` = :' . $this->id_column, [
-            ':status'              => $status,
-            ':' . $this->id_column => $entry->getId(),
-        ])->rowCount();
+                                      ':status'              => $status,
+                                      ':' . $this->id_column => $entry->getId(),
+                         ])->rowCount();
     }
 
 

@@ -163,13 +163,15 @@ class Phone extends DataEntry implements PhoneInterface
     public function setUsersId(?int $users_id): static
     {
         if (!$this->is_loading) {
-            $current = $this->getUsersId();
+            if ($users_id) {
+                $current = $this->getUsersId();
 
-            if ($current and ($current !== $users_id)) {
-                throw new ValidationFailedException(tr('Cannot assign additional phone to ":to" from ":from", only unassigned phones can be assigned', [
-                    ':from' => $current,
-                    ':to'   => $users_id,
-                ]));
+                if ($current and ($current !== $users_id)) {
+                    throw new ValidationFailedException(tr('Cannot assign additional phone to ":to" from ":from", only unassigned phones can be assigned', [
+                        ':from' => $current,
+                        ':to'   => $users_id,
+                    ]));
+                }
             }
         }
 
@@ -178,24 +180,26 @@ class Phone extends DataEntry implements PhoneInterface
 
 
     /**
-     * Sets the users_email for this additional phone
+     * Sets the users_phone for this additional phone
      *
-     * @param string|null $users_email
+     * @param string|null $users_phone
      *
      * @return static
      */
-    public function setUsersEmail(?string $users_email): static
+    public function setUsersPhone(?string $users_phone): static
     {
-        $current = $this->getUsersEmail();
+        if ($users_phone) {
+            $current = $this->getUsersPhone();
 
-        if ($current and ($current !== $users_email)) {
-            throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from", only unassigned emails can be assigned', [
-                ':from' => $current,
-                ':to'   => $users_email,
-            ]));
+            if ($current and ($current !== $users_phone)) {
+                throw new ValidationFailedException(tr('Cannot assign additional phone to ":to" from ":from", only unassigned phones can be assigned', [
+                    ':from' => $current,
+                    ':to'   => $users_phone,
+                ]));
+            }
         }
 
-        return $this->set($users_email, 'users_email');
+        return $this->set($users_phone, 'users_phone');
     }
 
 
@@ -211,10 +215,10 @@ class Phone extends DataEntry implements PhoneInterface
                                     ->setRender(false)
                                     ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getUsersId($this)
+                    ->add(DefinitionFactory::newUsersId($this)
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::getPhone($this)
+                    ->add(DefinitionFactory::newPhone($this)
                                            ->setSize(4)
                                            ->setOptional(false)
                                            ->setHelpText(tr('An extra phone for the user')))
@@ -248,11 +252,11 @@ class Phone extends DataEntry implements PhoneInterface
                                     ->setLabel(tr('Type'))
                                     ->setHelpText(tr('The type of phone')))
 
-                    ->add(DefinitionFactory::getDateTime($this, 'verified_on')
+                    ->add(DefinitionFactory::newDateTime($this, 'verified_on')
                                            ->setReadonly(true)
                                            ->setSize(3)
                                            ->setDbNullInputType(EnumInputType::text)
-                                           ->setDbNullValue(true, tr('Not verified'))
+                                           ->setNullDefault(tr('Not verified'))
                                            ->addClasses('text-center')
                                            ->setLabel(tr('Verified on'))
                                            ->setHelpGroup(tr('Account information'))
@@ -266,7 +270,7 @@ class Phone extends DataEntry implements PhoneInterface
                                     ->addClasses('btn btn-outline-warning')
                                     ->setValue(tr('Delete')))
 
-                    ->add(DefinitionFactory::getDescription($this)
+                    ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this phone')));
     }
 }

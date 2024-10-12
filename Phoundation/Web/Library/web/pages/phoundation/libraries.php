@@ -22,7 +22,7 @@ use Phoundation\Web\Requests\Response;
 
 // Build the page content
 echo Card::new()
-         ->setContent(Libraries::new()->getHtmlDataTableObject()->render())
+         ->setContent(Libraries::new()->getHtmlDataTableObject()))
          ->render();
 
 

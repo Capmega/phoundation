@@ -106,7 +106,7 @@ abstract class ElementCore implements ElementInterface
         $postfix = null;
 
         if ($this->attributes->get('auto_submit', false)) {
-            // Add javascript to automatically submit on change
+            // Add JavaScript code to automatically submit on change
             $this->attributes->removeKeys('auto_submit');
 
             $postfix .= Script::new()
@@ -114,10 +114,9 @@ abstract class ElementCore implements ElementInterface
                               ->setJavascriptWrapper(EnumJavascriptWrappers::window);
         }
 
-        $renderer_class = Request::getTemplate()->getRendererClass($this);
-
+        $renderer_class  = Request::getTemplate()->getRendererClass($this);
         $render_function = function () use ($postfix) {
-            $attributes = $this->renderAttributes();
+            $attributes = $this->renderAttributesArray();
             $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
 
             if ($attributes) {
@@ -177,7 +176,7 @@ abstract class ElementCore implements ElementInterface
      *       values that were added as general attributes using Element::getAttributes()->add()
      * @return IteratorInterface
      */
-    protected function renderAttributes(): IteratorInterface
+    protected function renderAttributesArray(): IteratorInterface
     {
         $return = [
             'id'        => $this->id,
@@ -244,6 +243,7 @@ abstract class ElementCore implements ElementInterface
         if (is_enum($element)) {
             $element = $element->value;
         }
+
         if ($element) {
             $this->requires_closing_tag = match ($element) {
                 'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr' => false,
@@ -255,6 +255,7 @@ abstract class ElementCore implements ElementInterface
                 ':element' => $element,
             ]));
         }
+
         $this->element = $element;
 
         return $this;
@@ -269,6 +270,7 @@ abstract class ElementCore implements ElementInterface
     protected function renderClassString(): ?string
     {
         $class = $this->getClass();
+
         if ($class) {
             return ' class="' . $class . '"';
         }

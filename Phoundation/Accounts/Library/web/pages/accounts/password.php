@@ -89,7 +89,7 @@ $buttons = Buttons::new()
 $card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('Change password for :name', [':name' => $user->getDisplayName()]))
-            ->setContent($password->getHtmlDataEntryFormObject()->render())
+            ->setContent($password->getHtmlDataEntryFormObject())
             ->setButtons($buttons);
 
 
@@ -118,10 +118,10 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Build and render the page grid
+// Render and return the page grid
 $grid = Grid::new()
             ->addGridColumn($column)
-            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

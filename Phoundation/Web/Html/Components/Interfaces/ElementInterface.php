@@ -122,4 +122,21 @@ interface ElementInterface extends RenderInterface
      * @return static
      */
     public function clearRenderCache(): static;
+
+    /**
+     * Returns the HTML class element attribute
+     *
+     * @param string|null $prefix                       If true, will prefix the class list with the specified prefix
+     * @param bool        $add_definition_name_to_class If true, will add the element's name attribute to the list of classes
+     *
+     * @return string|null
+     */
+    public function getClass(?string $prefix = null, bool $add_definition_name_to_class = true): ?string;
+
+    /**
+     * Returns the HTML name attribute for this element
+     *
+     * @return string|null
+     */
+    public function getName(): ?string;
 }

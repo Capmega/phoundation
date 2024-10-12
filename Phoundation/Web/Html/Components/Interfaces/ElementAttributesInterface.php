@@ -19,23 +19,9 @@ interface ElementAttributesInterface
     /**
      * Return new Templated HTML Element object using the current Page template
      *
-     * return static
+     * @return static
      */
     public static function new(): static;
-
-
-    /**
-     * Ensures that the specified object has ElementAttributes
-     *
-     * @note This is just a wrapper around ElementAttributes::ensureElementAttributesTrait(). While that function
-     *       explains more clearly what it does, this one says more clearly WHY and as such is the public one.
-     *
-     * @param object|string $class
-     *
-     * @return void
-     * @see  TraitElementAttributes::ensureElementAttributesTrait()
-     */
-    static function canRenderHtml(object|string $class): void;
 
 
     /**

@@ -27,12 +27,15 @@ use PDOStatement;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliColor;
+use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
+use Phoundation\Content\Documents\SpreadSheet;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -48,9 +51,8 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDefinitions;
 use Phoundation\Data\EntryCore;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataConfigPath;
-use Phoundation\Data\Traits\TraitDataDatabaseConnector;
+use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataDisabled;
 use Phoundation\Data\Traits\TraitDataInsertUpdate;
@@ -66,8 +68,6 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
-use Phoundation\Databases\Connectors\Connector;
-use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
@@ -86,7 +86,6 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Input\InputText;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
-use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 use Throwable;
@@ -95,7 +94,7 @@ use Throwable;
 class DataEntryCore extends EntryCore implements DataEntryInterface
 {
     use TraitDataConfigPath;
-    use TraitDataDatabaseConnector;
+    use TraitDataConnector;
     use TraitDataDebug;
     use TraitDataDisabled;
     use TraitDataEntryDefinitions;
@@ -354,10 +353,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *
      * @return static
      */
-    public function init(bool $identifier_must_exist, bool $ignore_deleted): static
+    public function init(bool $identifier_must_exist = true, bool $ignore_deleted = false): static
     {
+        if ($this->connector === null) {
+            // Use the default connector for this DataEntry object
+            $this->setConnectorObject(static::getDefaultConnectorObject());
+        }
+
         $this->columns_filter_on_insert = [static::getIdColumn()];
-        $this->database_connector       =  static::getConnector();
 
         if ($this->identifier) {
             if (is_array($this->identifier)) {
@@ -399,6 +402,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     {
         // This entry has been deleted and can only be viewed by user with the "access_deleted" right
         if ($ignore_deleted or Session::getUserObject()->hasAllRights('access_deleted')) {
+            Log::warning(tr('Continuing load of dataEntry object ":class" with identifier ":identifier" with status "deleted"', [
+                ':class'      => static::class,
+                ':identifier' => $this->identifier
+            ]));
             return;
         }
 
@@ -442,35 +449,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
 
     /**
-     * Returns the default database connector to use for this table
-     *
-     * @return string
-     */
-    public static function getConnector(): string
-    {
-        return 'system';
-    }
-
-
-    /**
-     * Returns a database connector for this DataEntry object
-     *
-     * @return ConnectorInterface
-     */
-    public static function getConnectorObject(): ConnectorInterface
-    {
-        return new Connector(static::getConnector());
-    }
-
-
-    /**
      * Returns either the specified valid column, or if empty, a default column
      *
-     * @param DataEntryInterface|string|int|null $identifier
+     * @param array|DataEntryInterface|string|int|null $identifier
      *
      * @return string|null
      */
-    protected static function determineColumn(DataEntryInterface|string|int|null $identifier): ?string
+    protected static function determineColumn(array|DataEntryInterface|string|int|null $identifier): ?string
     {
         if (!$identifier) {
             // No identifier specified, this is just an empty DataEntry object
@@ -487,7 +472,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             return null;
         }
 
-        // If its not numeric, then it must be a string, so it must have been the unique column
+        if (is_array($identifier)) {
+            // The specified identifier is an array. If it has a single key, we can determine the column
+            return match (count($identifier)) {
+                1       => key($identifier),
+                default => throw new OutOfBoundsException(tr('Cannot determine column from identifier ":identifier", it contains multiple columns', [
+                    ':identifier' => $identifier
+                ])),
+            };
+        }
+
+        // If it's not numeric, then it must be a string, so it must have been the unique column
         $return = static::getUniqueColumn();
 
         if ($return) {
@@ -577,7 +572,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     protected function setMetaDefinitions(): void
     {
-        $definitions = Definitions::new()->setTable(static::getTable());
+        $definitions = Definitions::new($this)->setTable(static::getTable());
 
         foreach ($this->meta_columns as $meta_column) {
             switch ($meta_column) {
@@ -593,77 +588,23 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                     break;
 
                 case 'created_on':
-                    $definitions->add(Definition::new($this, 'created_on')
-                                                ->setDisabled(true)
-                                                ->setInputType(EnumInputType::datetime_local)
-                                                ->setDbNullInputType(EnumInputType::text)
-                                                ->addClasses('text-center')
-                                                ->setSize(3)
-                                                ->setTooltip(tr('This column contains the exact date / time when this object was created'))
-                                                ->setLabel(tr('Created on')));
+                    $definitions->add(DefinitionFactory::newCreatedOn($this));
                     break;
 
                 case 'created_by':
-                    $definitions->add(Definition::new($this, 'created_by')
-                                                ->setDisabled(true)
-                                                ->setSize(3)
-                                                ->setLabel(tr('Created by'))
-                                                ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
-                                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) {
-                                                    if ($this->isNew()) {
-                                                        // This is a new DataEntry object, so the creator is.. Well, you!
-                                                        return InputText::new()
-                                                                        ->setDisabled(true)
-                                                                        ->addClasses('text-center')
-                                                                        ->setValue(Session::getUserObject()
-                                                                                          ->getDisplayName());
-                                                    } else {
-                                                        // This is created by a user or by the system user
-                                                        if ($source[$key]) {
-                                                            return InputText::new()
-                                                                            ->setDisabled(true)
-                                                                            ->addClasses('text-center')
-                                                                            ->setValue(User::load($source[$key])
-                                                                                           ->getDisplayName());
-                                                        } else {
-                                                            return InputText::new()
-                                                                            ->setDisabled(true)
-                                                                            ->addClasses('text-center')
-                                                                            ->setValue(tr('System'));
-                                                        }
-                                                    }
-                                                }));
+                    $definitions->add(DefinitionFactory::newCreatedBy($this));
                     break;
 
                 case 'meta_id':
-                    $definitions->add(Definition::new($this, 'meta_id')
-                                                ->setDisabled(true)
-                                                ->setRender(false)
-                                                ->setInputType(EnumInputType::dbid)
-                                                ->setDbNullInputType(EnumInputType::text)
-                                                ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
-                                                ->setLabel(tr('Meta ID')));
+                    $definitions->add(DefinitionFactory::newMetaId($this));
                     break;
 
                 case 'status':
-                    $definitions->add(Definition::new($this, 'status')
-                                                ->setOptional(true)
-                                                ->setDisabled(true)
-                                                ->setInputType(EnumInputType::text)
-                                                ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
-//                                                ->setDisplayDefault(tr('Ok'))
-                                                ->addClasses('text-center')
-                                                ->setSize(3)
-                                                ->setLabel(tr('Status')));
+                    $definitions->add(DefinitionFactory::newStatus($this));
                     break;
 
                 case 'meta_state':
-                    $definitions->add(Definition::new($this, 'meta_state')
-                                                ->setDisabled(true)
-                                                ->setRender(false)
-                                                ->setInputType(EnumInputType::text)
-                                                ->setTooltip(tr('This column contains a cache identifier value for this object. This information usually is of no importance to normal users'))
-                                                ->setLabel(tr('Meta state')));
+                    $definitions->add(DefinitionFactory::newMetaState($this));
                     break;
 
                 default:
@@ -745,7 +686,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function setUniqueColumnValue(mixed $value, bool $force = false): static
     {
-        return $this->set($value, static::getUniqueColumn(), $force);
+        return $this->doSet($value, static::getUniqueColumn(), $force);
     }
 
 
@@ -790,22 +731,36 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * Sets the value for the specified data key
      *
-     * @param mixed $value
-     * @param string $column
-     * @param bool   $force
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
      *
      * @return static
      */
-    public function set(mixed $value, string $column, bool $force = false): static
+    public function set(mixed $value, Stringable|string|float|int $key): static
+    {
+        return $this->doSet($value, $key, false);
+    }
+
+
+    /**
+     * Sets the value for the specified data key
+     *
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
+     * @param bool                        $force
+     *
+     * @return static
+     */
+    protected function doSet(mixed $value, Stringable|string|float|int $key, bool $force): static
     {
         if ($this->debug) {
-            Log::debug('TRY SET SOURCE VALUE FIELD "' . get_class($this) . '>' . $column . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
+            Log::debug('TRY SET SOURCE VALUE FIELD "' . get_class($this) . '>' . $key . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
         }
 
         // Only save values that are defined for this object
-        if (!$this->definitions->keyExists($column)) {
+        if (!$this->definitions->keyExists($key)) {
             if ($this->debug) {
-                Log::debug('NOT SETTING SOURCE VALUE FIELD "' . get_class($this) . '>' . $column . '" THE FIELD IS NOT DEFINED. THE FOLLOWING KEYS ARE DEFINED:', 10, echo_header: false);
+                Log::debug('NOT SETTING SOURCE VALUE FIELD "' . get_class($this) . '>' . $key . '" THE FIELD IS NOT DEFINED. THE FOLLOWING KEYS ARE DEFINED:', 10, echo_header: false);
                 Log::printr($this->definitions->getSourceKeys());
             }
 
@@ -816,15 +771,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             }
 
             throw new DataEntryException(tr('Not setting column ":column", it is not defined for the ":class" class', [
-                ':column' => $column,
+                ':column' => $key,
                 ':class'  => get_class($this),
             ]));
         }
 
         // Skip all meta-columns like id, created_on, meta_id, etc., etc., etc...
-        if (in_array($column, $this->meta_columns) and !$force) {
+        if (in_array($key, $this->meta_columns) and !$force) {
             if ($this->debug) {
-                Log::debug('NOT SETTING SOURCE VALUE FIELD "' . get_class($this) . '>' . $column . '", IT IS META FIELD. USE FORCE TO MODIFY ANYWAY', 10, echo_header: false);
+                Log::debug('NOT SETTING SOURCE VALUE FIELD "' . get_class($this) . '>' . $key . '", IT IS META FIELD. USE FORCE TO MODIFY ANYWAY', 10, echo_header: false);
                 Log::printr($this->definitions->getSourceKeys());
             }
 
@@ -833,12 +788,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object or a
         // static value.
-        $definition = $this->definitions->get($column);
+        $definition = $this->definitions->get($key);
 
         // If a column is ignored, we won't update anything
         if ($definition->getIgnored()) {
             Log::warning(tr('Not updating DataEntry object ":object" column ":column" because it has the "ignored" flag set', [
-                ':column' => $column,
+                ':column' => $key,
                 ':object' => get_class($this),
             ]), 6);
 
@@ -874,16 +829,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 //        }
 
         if (!$this->is_modified and !$definition->getIgnoreModify()) {
-            $this->is_modified = (isset_get($this->source[$column]) !== $value);
+            $this->is_modified = (isset_get($this->source[$key]) !== $value);
 
             if ($this->debug) {
-                Log::debug('MODIFIED FIELD "' . get_class($this) . '>' . $column . '" FROM "' . $this->source[$column] . '" [' . gettype(isset_get($this->source[$column])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
+                Log::debug('MODIFIED FIELD "' . get_class($this) . '>' . $key . '" FROM "' . $this->source[$key] . '" [' . gettype(isset_get($this->source[$key])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
             }
         }
 
         // Update the column value
-        $this->changes[]       = $column;
-        $this->source[$column] = $value;
+        $this->changes[]       = $key;
+        $this->source[$key] = $value;
         $this->is_validated    = false;
 
         return $this;
@@ -904,6 +859,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         }
 
         return $keys;
+    }
+
+
+    /**
+     * Reload the contents for this DataEntry object
+     *
+     * @return $this
+     */
+    public function reload(bool $ignore_deleted = false): static
+    {
+        return $this->init(true, $ignore_deleted);
     }
 
 
@@ -944,10 +910,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         if (is_object($identifier)) {
             // This already is a DataEntry object, no need to create one. Validate that this is the same class
             if (!$identifier instanceof static) {
-                throw new OutOfBoundsException(tr('Specified DataEntry identifier has the class ":has" but should have this object\'s class ":should"', [
-                    ':has'    => get_class($identifier),
-                    ':should' => static::class,
-                ]));
+                if (!is_subclass_of(static::class, get_class($identifier), true)) {
+                    throw new OutOfBoundsException(tr('Specified DataEntry identifier has the class ":has" but should have this object\'s class ":should"', [
+                        ':has' => get_class($identifier),
+                        ':should' => static::class,
+                    ]));
+                }
+
+                // This class extended the specified identifier, copy its source inside, and we should be good to go?
+                // EXPERIMENTAL
+                return static::newFromSource($identifier->getSource());
             }
 
             return $identifier;
@@ -1323,12 +1295,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     {
         try {
             // Get the data using the query builder
-            $data = $this->getQueryBuilderObject()
-                         ->setMetaEnabled($this->meta_enabled)
-                         ->setDatabaseConnectorName($this->database_connector)
-                         ->addSelect('`' . static::getTable() . '`.*')
-                         ->addWhere($where, $execute)
-                         ->get();
+            $data = $this->getQueryBuilderObject()->setMetaEnabled($this->meta_enabled)
+                                                  ->setConnectorObject($this->getConnectorObject())
+                                                  ->addSelect('`' . static::getTable() . '`.*')
+                                                  ->addWhere($where, $execute)
+                                                  ->get();
 
             if ($data) {
                 // If data was found, store all data in the object
@@ -1361,6 +1332,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         }
 
         return $this->query_builder;
+    }
+
+
+    /**
+     * Sets the QueryBuilder object to modify the internal query for this object
+     *
+     * @param QueryBuilderInterface $query_builder
+     *
+     * @return static
+     */
+    public function setQueryBuilder(QueryBuilderInterface $query_builder): static
+    {
+        $this->query_builder = $query_builder;
+        return $this;
     }
 
 
@@ -1752,15 +1737,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         //
         // When in force mode we will NOT clear the failed columns so that they can be sent back to the user for
         // corrections
-        $data_source = Validator::pick($source);
-        $data_source->setSourceObjectClass(static::class);
+        $data_source = Validator::pick($source)->setDefinitionsObject($this->definitions);
 
         if ($this->debug) {
             Log::debug('APPLY ' . static::getDataEntryName() . ' (' . get_class($this) . ')', 10, echo_header: false);
             Log::debug('CURRENT DATA', 10         , echo_header: false);
             Log::vardump($this->source            , echo_header: false);
-            Log::debug('SOURCE'      , 10         , echo_header: false);
-            Log::vardump($data_source             , echo_header: false);
             Log::debug('SOURCE DATA' , 10         , echo_header: false);
             Log::vardump($data_source->getSource(), echo_header: false);
         }
@@ -1816,7 +1798,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             $return[Strings::from($key, $prefix)] = $value;
 
             if ($clear_source) {
-                $validator->removeSourceKey($key);
+                $validator->removeKeys($key);
             }
         }
 
@@ -1845,7 +1827,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
         // what columns to select
         $validator->setId($this->getId())
-                  ->setDataEntry($this)
+                  ->setDefinitionsObject($this->definitions)
                   ->setMetaColumns($this->getMetaColumns())
                   ->setTable(static::getTable());
 
@@ -1859,7 +1841,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             }
 
             if ($this->debug) {
-                Log::debug('VALIDATING COLUMN "' . get_class($this) . '>' . $column . '"', echo_header: false);
+                Log::debug('VALIDATING COLUMN "' . get_class($this) . ' > ' . $column . '" WITH VALUE "'  . $this->get($column). '"', echo_header: false);
             }
 
             try {
@@ -1916,18 +1898,26 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *
      * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
      *       will not become available outside this object
-     * @return array
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
+     * @return mixed
      */
-    public function get(string $key): mixed
+    public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         if ($this->definitions->keyExists($key)) {
             return isset_get($this->source[$key]);
         }
 
-        throw new OutOfBoundsException(tr('Specified key ":key" is not defined for the ":class" class DataEntry object', [
-            ':class' => get_class($this),
-            ':key'   => $key,
-        ]));
+        if ($exception) {
+            throw new OutOfBoundsException(tr('Specified key ":key" is not defined for the ":class" class DataEntry object', [
+                ':class' => get_class($this),
+                ':key'   => $key,
+            ]));
+        }
+
+        return null;
     }
 
 
@@ -2139,6 +2129,26 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
 
     /**
+     * Returns a DataEntry object matching the specified identifier in the database if it exists, or a new object with
+     * specified identifier, or NULL if NULL identifier was specified
+     *
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool                                     $meta_enabled
+     * @param bool                                     $ignore_deleted
+     *
+     * @return static|null
+     */
+    public static function newOrNull(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): ?static
+    {
+        if ($identifier === null) {
+            return null;
+        }
+
+        return static::new($identifier, $meta_enabled, $ignore_deleted);
+    }
+
+
+    /**
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
      * identifier was specified
      *
@@ -2167,10 +2177,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public static function loadRandom(bool $meta_enabled = false): ?static
     {
-        $identifier = sql(static::getConnector())->getInteger('SELECT   `id` 
-                                                                                FROM     `' . static::getTable() . '` 
-                                                                                ORDER BY RAND() 
-                                                                                LIMIT    1;');
+        $identifier = sql(static::getDefaultConnector())->getInteger('SELECT   `id` 
+                                                                      FROM     `' . static::getTable() . '` 
+                                                                      ORDER BY RAND() 
+                                                                      LIMIT    1;');
 
         if ($identifier) {
             return static::load($identifier, $meta_enabled);
@@ -2213,11 +2223,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             $execute[':id'] = $not_id;
         }
 
-        return sql(static::getConnector())->get('SELECT `id`, `status` 
-                                                       FROM   `' . static::getTable() . '` 
-                                                       WHERE  ' . $where . '
-                                       ' . ($not_id ? '  AND  `id` != :id' : '') . ' 
-                                                       LIMIT  1', $execute);
+        return sql(static::getDefaultConnector())->get('SELECT `id`, `status` 
+                                                        FROM   `' . static::getTable() . '` 
+                                                        WHERE  ' . $where . '
+                                        ' . ($not_id ? '  AND  `id` != :id' : '') . ' 
+                                                        LIMIT  1', $execute);
     }
 
 
@@ -2424,10 +2434,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         $data_entry   = clone $data_entry;
         $this->source = array_merge(($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()), $this->source);
 
-        $data_entry->getDefinitionsObject()
-                   ->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null)
-                   ->appendSource($this->definitions)
-                   ->setDataEntry($this);
+        $data_entry->getDefinitionsObject()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null)
+                                           ->appendSource($this->definitions)
+                                           ->setDataEntry($this);
 
         return $this;
     }
@@ -2485,7 +2494,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $definition = null, bool $after = true): static
     {
         // Render the specified element directly into the definition. Remove the specified column from this source (overwrite, basically)
-        $element_definition                             = $value->getDefinition()->setContent($value->render());
+        $element_definition                             = $value->getDefinition()->setContent($value);
         $this->source[$element_definition->getColumn()] = null;
 
         try {
@@ -2841,10 +2850,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function setStatus(?string $status, ?string $comments = null): static
     {
+        if ($status and (strlen($status) > 32)) {
+            throw new OutOfBoundsException(tr('Cannot set DataEntry ":class" status to ":status", status length cannot be more than 32 characters', [
+                ':status' => $status,
+                ':class'  => static::class,
+            ]));
+        }
+
         $this->checkReadonly('set-status "' . $status . '"');
 
         if ($this->getId()) {
-            (new SqlDataEntry(sql($this->database_connector), $this))->setStatus($status, $comments);
+            SqlDataEntry::new(sql($this->o_connector), $this)
+                        ->setDebug($this->debug)
+                        ->setStatus($status, $comments);
         }
 
         $this->source['status'] = $status;
@@ -2877,7 +2895,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
              ->getMetaObject()
                 ->erase();
 
-        sql($this->database_connector)->erase(static::getTable(), ['id' => $this->getId()]);
+        sql($this->o_connector)->erase(static::getTable(), ['id' => $this->getId()]);
 
         return $this;
     }
@@ -3170,22 +3188,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         // Debug this specific entry?
         if ($this->debug) {
-            Log::debug('SAVING "' . get_class($this) . '" DATA ENTRY WITH ID "' . $this->getId() . '"', 10, echo_header: false);
-            $debug = sql($this->database_connector)->getDebug();
-            sql($this->database_connector)->setDebug($this->debug);
+            Log::debug('SAVING DATA ENTRY "' . get_class($this) . '" WITH ID "' . $this->getId() . '"', 10, echo_header: false);
+            sql($this->o_connector)->setDebug($this->debug);
         }
 
         // Write the data and store the returned ID column
-        $this->source[static::getIdColumn()] = (new SqlDataEntry(sql($this->database_connector), $this))
-            ->write($comments, $this->diff);
+        $this->source[static::getIdColumn()] = SqlDataEntry::new(sql($this->o_connector), $this)
+                                                           ->setDebug($this->debug)
+                                                           ->write($comments, $this->diff);
 
         if ($this->debug) {
-            Log::information('SAVED DATA ENTRY WITH ID "' . $this->getId() . '"', 10);
-        }
-
-        // Return debug mode if required
-        if (isset($debug)) {
-            sql($this->database_connector)->setDebug($debug);
+            Log::information('SAVED DATA ENTRY "' . get_class($this) . '" WITH ID "' . $this->getId() . '"', 10);
         }
 
         // Write the list, if exists
@@ -3220,16 +3233,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                         continue;
                     }
                 }
-
-            } else {
-                // We're about to update
-                if ($definition->getReadonly() or $definition->getDisabled()) {
-                    // Don't update readonly or disabled columns, only meta-columns should pass
-                    if (!$definition->isMeta()) {
-                        // For updates we do require meta data!
-                        continue;
-                    }
-                }
             }
 
             $column = $definition->getColumn();
@@ -3256,13 +3259,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             }
 
             // Apply definition prefix and postfix only if they are not empty
-            $prefix = $definition->getPrefix();
+            $prefix  = $definition->getPrefix();
+            $postfix = $definition->getPostfix();
 
             if ($prefix) {
                 $return[$column] = $prefix . $return[$column];
             }
 
-            $postfix = $definition->getPostfix();
             if ($postfix) {
                 $return[$column] .= $postfix;
             }
@@ -3294,13 +3297,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             } else {
                 // The data in this object hasn't been validated yet! Do so now...
                 if ($this->debug) {
-                    Log::debug('VALIDATING "' . get_class($this) . '" DATA ENTRY WITH ID "' . $this->getId() . '"', 10, echo_header: false);
+                    Log::debug('VALIDATING "' . get_class($this) . '" DATA ENTRY WITH ID "' . $this->getId() . '"', echo_header: false);
                 }
 
                 // Gather data that required validation
                 $source = $this->getDataForValidation();
 
                 // Merge the validated data over the current data
+                // TODO Shouldn't the source data just be the validated value? What if validation removes a colum, it would AGAIN exist after this!!! INVESTIGATE!
                 $this->source = array_merge($this->source, $this->validateSourceData(ArrayValidator::new($source), true));
             }
         }
@@ -3319,14 +3323,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     protected function getDataForValidation(): array
     {
-        return Arrays::removeKeys($this->source, [
-            'id',
-            'created_by',
-            'created_on',
-            'status',
-            'meta_id',
-            'meta_state',
-        ]);
+        return Arrays::removeKeys($this->source, $this->meta_columns);
     }
 
 
@@ -3334,6 +3331,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * Creates and returns an HTML for the data in this entry
      *
      * @return DataEntryFormInterface
+     * @todo Move this to the EntryCore class
      */
     public function getHtmlDataEntryFormObject(): DataEntryFormInterface
     {
@@ -3343,6 +3341,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                             ->setReadonly($this->readonly)
                             ->setDisabled($this->disabled)
                             ->setDefinitionsObject($this->definitions);
+    }
+
+
+    /**
+     * Returns a SpreadSheet object with this object's source data in it
+     *
+     * @return SpreadSheetInterface
+     * @todo Move this to the EntryCore class
+     */
+    public function getSpreadSheet(): SpreadSheetInterface
+    {
+        return new SpreadSheet($this);
     }
 
 

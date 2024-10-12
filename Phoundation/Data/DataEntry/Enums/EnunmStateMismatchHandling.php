@@ -16,9 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Enums;
 
-use Phoundation\Data\DataEntry\Enums\Interfaces\EnunmStateMismatchHandlingInterface;
 
-enum EnunmStateMismatchHandling: string implements EnunmStateMismatchHandlingInterface
+enum EnunmStateMismatchHandling: string
 {
     case restrict       = 'restrict';
     case allow_override = 'allow_override';

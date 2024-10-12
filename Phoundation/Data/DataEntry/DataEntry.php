@@ -127,7 +127,7 @@ namespace Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
 
-class DataEntry extends DataEntryCore implements DataEntryInterface
+class DataEntry extends DataEntryCore
 {
     /**
      * Returns a new DataEntry object

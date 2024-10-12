@@ -70,11 +70,6 @@ class Menu extends \Phoundation\Web\Html\Components\Widgets\Menus\Menu
                         'url'    => '/security/authentications.html',
                         'icon'   => 'fas fa-key'
                     ],
-                    tr('Authentication failures') => [
-                        'rights' => 'logs',
-                        'url'    => '/security/authentication-failures.html',
-                        'icon'   => 'fas fa-key'
-                    ],
                     tr('Incidents') => [
                         'rights' => 'logs',
                         'url'    => '/security/incidents.html',
@@ -98,12 +93,7 @@ class Menu extends \Phoundation\Web\Html\Components\Widgets\Menus\Menu
                 'menu' => [
                     tr('Plugins') => [
                         'rights' => 'plugins',
-                        'url'    => '/development/plugins.html',
-                        'icon'   => 'fas fa-key'
-                    ],
-                    tr('Developer incidents') => [
-                        'rights' => 'incidents',
-                        'url'    => '/development/incidents.html',
+                        'url'    => '/plugins/plugins.html',
                         'icon'   => 'fas fa-key'
                     ],
                     tr('Slow webpage log') => [

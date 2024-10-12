@@ -48,7 +48,7 @@ $argv = ArgvValidator::new()
 
 
 // Ensure that the process command has sudo privileges
-Command::sudoAvailable('service', FsRestrictions::new('/sbin,/usr/sbin'), true);
+Command::checkSudoAvailable('service', FsRestrictions::new('/sbin,/usr/sbin'), true);
 
 
 // Get process ids

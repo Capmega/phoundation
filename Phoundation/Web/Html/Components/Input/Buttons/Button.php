@@ -40,11 +40,11 @@ class Button extends Input implements ButtonInterface
     {
         parent::__construct($content);
 
-        $this->setName('submit');
-        $this->setValue($content);
-        $this->setClasses('btn');
-        $this->setElement('button');
-        $this->setButtonType(EnumButtonType::submit);
+        $this->setName('submit')
+             ->setValue($content)
+             ->setClasses('btn')
+             ->setElement('button')
+             ->setButtonType(EnumButtonType::submit);
     }
 
 
@@ -62,12 +62,14 @@ class Button extends Input implements ButtonInterface
         if ($this->floating) {
             // What does this do?????????????
             $this->addClasses('btn-floating');
+
             Icons::new()
                  ->setContent($this->content)
                  ->render();
 
             return $this;
         }
+
         parent::setValue($value, $make_safe);
 
         return parent::setContent($value, $make_safe);
@@ -88,6 +90,7 @@ class Button extends Input implements ButtonInterface
         if ($this->floating) {
             // What does this do?????????????
             $this->addClasses('btn-floating');
+
             Icons::new()
                  ->setContent($this->content, $make_safe)
                  ->render();

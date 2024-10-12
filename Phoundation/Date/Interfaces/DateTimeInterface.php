@@ -27,9 +27,11 @@ interface DateTimeInterface extends \DateTimeInterface
     /**
      * Returns a new DateTime object with the specified timezone
      *
-     * @return \DateTimeInterface
+     * @param \DateTimeZone|DateTimeZone|string $timezone
+     *
+     * @return DateTimeInterface
      */
-    public function setTimezone(\DateTimeZone|DateTimeZone|string|null $timezone = null): static;
+    public function setTimezone(\DateTimeZone|DateTimeZone|string $timezone): static;
 
 
     /**

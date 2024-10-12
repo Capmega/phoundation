@@ -20,6 +20,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Traits\TraitDataDataIterator;
+use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataIdColumn;
 use Phoundation\Data\Traits\TraitDataInsertUpdate;
 use Phoundation\Data\Traits\TraitDataMaxIdRetries;
@@ -37,6 +38,7 @@ class SqlDataIterator implements SqlDataIteratorInterface
     use TraitDataDataIterator {
         setDataIterator as protected __setDataIterator;
     }
+    use TraitDataDebug;
     use TraitDataIdColumn;
     use TraitDataInsertUpdate;
     use TraitDataMaxIdRetries;
@@ -145,13 +147,15 @@ class SqlDataIterator implements SqlDataIteratorInterface
     public function delete(array $row, ?string $comments = null): int
     {
         Core::checkReadonly('sql data-list-delete');
+
         // DataIterator table?
         if (array_key_exists('meta_id', $row)) {
             return $this->setStatus('deleted', $row, $comments);
         }
 
         // This table is not a DataIterator table, delete the list
-        return $this->sql->delete($this->table, $row);
+        return $this->sql->setDebug($this->debug)
+                         ->delete($this->table, $row);
     }
 
 
@@ -167,15 +171,18 @@ class SqlDataIterator implements SqlDataIteratorInterface
     public function setStatus(?string $status, DataIteratorInterface|array $list, ?string $comments = null): int
     {
         Core::checkReadonly('sql set-status');
+
         if (is_object($list)) {
             $list = [
                 $this->id_column => $list->getId(),
                 'meta_id'        => $list->getMetaId(),
             ];
         }
+
         if (empty($list[$this->id_column])) {
             throw new OutOfBoundsException(tr('Cannot set status, no row id specified'));
         }
+
         // Update the meta data
         if ($this->meta_enabled) {
             Meta::get($list['meta_id'], false)
@@ -185,13 +192,13 @@ class SqlDataIterator implements SqlDataIteratorInterface
         }
 
         // Update the row status
-        return $this->sql->query('UPDATE `' . $this->table . '`
-                                   SET     `status`             = :status
-                                   WHERE   `' . $this->id_column . '` = :' . $this->id_column, [
-            ':status'              => $status,
-            ':' . $this->id_column => $list[$this->id_column],
-        ])
-                         ->rowCount();
+        return $this->sql->setDebug($this->debug)
+                         ->query('UPDATE `' . $this->table . '`
+                                  SET    `status`                   = :status
+                                  WHERE  `' . $this->id_column . '` = :' . $this->id_column, [
+                                      ':status'              => $status,
+                                      ':' . $this->id_column => $list[$this->id_column],
+                         ])->rowCount();
     }
 
 

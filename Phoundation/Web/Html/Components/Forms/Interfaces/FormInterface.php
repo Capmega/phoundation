@@ -32,9 +32,9 @@ interface FormInterface
     /**
      * Sets the form method
      *
-     * @return EnumHttpRequestMethod
+     * @return EnumHttpRequestMethod|null
      */
-    public function getRequestMethod(): EnumHttpRequestMethod;
+    public function getRequestMethod(): ?EnumHttpRequestMethod;
 
 
     /**

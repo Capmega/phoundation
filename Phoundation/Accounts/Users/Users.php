@@ -24,6 +24,7 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlQueries;
@@ -31,8 +32,16 @@ use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Components\Widgets\Badge;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Http\Url;
+use Plugins\Medinet\Packages\Package;
 use Stringable;
 
 
@@ -60,6 +69,17 @@ class Users extends DataIterator implements UsersInterface
                                ORDER BY  `name`');
 
         parent::__construct();
+
+        $this->columns = [
+            'id'            => tr('Id'),
+            'profile_image' => tr('Profile image'),
+            'email'         => tr('Email'),
+            'name'          => tr('Name'),
+            'roles'         => tr('Roles'),
+            'status'        => tr('Status'),
+            'sign_in_count' => tr('Sign-in count'),
+            'created_on'    => tr('Created on'),
+        ];
     }
 
 
@@ -187,7 +207,7 @@ class Users extends DataIterator implements UsersInterface
             ':parent' => $this->parent ? get_class($this->parent) : 'NULL'
         ]));
 
-        if ($value and $this->require_parent) {
+        if ($value and $this->parent) {
             if (is_array($value)) {
                 // Add multiple rights
                 foreach ($value as $entry) {
@@ -387,6 +407,7 @@ class Users extends DataIterator implements UsersInterface
      *
      * @param array|string|null $columns
      * @param array             $filters
+     * @param array             $order_by
      *
      * @return array
      */
@@ -396,23 +417,28 @@ class Users extends DataIterator implements UsersInterface
         if (!$columns) {
             $columns = 'id,domain,email,first_names,last_names,phones,roles';
         }
+
         // Default ordering
         if (!$order_by) {
             $order_by = ['email' => false];
         }
+
         // Get column information
         $columns = Arrays::force($columns);
         $roles   = Arrays::replaceIfExists($columns, 'roles', '1 AS roles');
         $rights  = Arrays::replaceIfExists($columns, 'rights', '1 AS rights');
         $columns = Strings::force($columns);
+
         // Build query
         $builder = new QueryBuilder();
         $builder->addSelect($columns);
         $builder->addFrom('`accounts_users`');
+
         // Add ordering
         foreach ($order_by as $column => $direction) {
             $builder->addOrderBy($column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
+
         // Build filters
         foreach ($filters as $key => $value) {
             switch ($key) {
@@ -432,7 +458,9 @@ class Users extends DataIterator implements UsersInterface
                     break;
             }
         }
+
         $return = sql()->list($builder->getQuery(), $builder->getExecute());
+
         if ($roles) {
             // Add roles information to each item
             foreach ($return as $id => &$item) {
@@ -443,10 +471,13 @@ class Users extends DataIterator implements UsersInterface
                                               AND    `accounts_users_roles`.`roles_id` = `accounts_roles`.`id`', [
                     ':users_id' => $id,
                 ]);
+
                 $item['roles'] = implode(', ', $item['roles']);
             }
+
             unset($item);
         }
+
         if ($rights) {
             // Add rights information to each item
             // Add roles information to each item
@@ -458,6 +489,7 @@ class Users extends DataIterator implements UsersInterface
                                                AND    `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`', [
                     ':users_id' => $id,
                 ]);
+
                 $item['rights'] = implode(', ', $item['rights']);
             }
         }
@@ -484,7 +516,7 @@ class Users extends DataIterator implements UsersInterface
         }
 
         return InputSelect::new()
-                          ->setConnector(static::getConnector())
+                          ->setConnectorObject($this->getConnectorObject())
                           ->setSourceQuery('SELECT `' . $key_column . '`, ' . $value_column . ' 
                                          FROM  `accounts_users`
                                          WHERE `status` IS NULL ORDER BY ' . Strings::ensureSurroundedWith(Strings::fromReverse($value_column, ' '), '`'))
@@ -586,5 +618,85 @@ class Users extends DataIterator implements UsersInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getHtmlTableObject(array|string|null $columns = null): HtmlTableInterface
+    {
+        return parent::getHtmlTableObject($columns)->addCellCallback($this->getCellCallback());
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface
+    {
+        return parent::getHtmlDataTableObject($columns)
+                     ->addCellCallback($this->getCellCallback())
+                     ->setColumnsOrderable([
+                         1 => false,
+                         2 => true,
+                         3 => true,
+                         4 => true,
+                         5 => true,
+                         6 => true,
+                         7 => true
+                     ])
+                     ->setJsDateFormat('YYYY-MM-DD HH:mm:ss')
+                     ->setOrder([2 => 'asc']);
+    }
+
+
+    /**
+     * Returns the function used for cell callbacks in the Users table
+     *
+     * @return callable
+     */
+    protected function getCellCallback(): callable
+    {
+        return function (string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|bool|null &$value, IteratorInterface|array &$row, array &$params) {
+            switch ($column) {
+                case 'status':
+                    $params['htmlentities'] = false;
+
+                    switch ($value) {
+                        case '':
+                            $value = Badge::new()->setLabel(Html::safe('Active'))->setMode(EnumDisplayMode::success);
+                            break;
+
+                        case 'locked':
+                            $value = Badge::new()->setLabel(Html::safe($value))->setMode(EnumDisplayMode::warning);
+                            break;
+
+                        case 'deleted':
+                            // no break
+                        default:
+                            $value = Badge::new()->setLabel(Html::safe($value))->setMode(EnumDisplayMode::danger);
+                            break;
+                    }
+
+                    break;
+
+                case 'profile_image':
+                    $params['htmlentities'] = false;
+
+                    if ($value) {
+                        $image = Img::new($value);
+
+                    } else {
+                        $image = Img::new('img/profiles/default.png');
+                    }
+
+                    // Convert the value into a user profile image tag
+                    $value = $image->setClass('img-circle')
+                                   ->setWidth(48)
+                                   ->setHeight(48)
+                                   ->setAlt(tr('Profile picture'));
+            }
+        };
     }
 }

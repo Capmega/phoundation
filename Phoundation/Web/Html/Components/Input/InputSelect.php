@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -260,6 +261,17 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     /**
      * Sets if the select element allows multiple options to be selected
      *
+     * @return bool
+     */
+    public function getMultiple(): bool
+    {
+        return (bool) $this->attributes->get('multiple', false);
+    }
+
+
+    /**
+     * Sets if the select element allows multiple options to be selected
+     *
      * @param bool $multiple
      *
      * @return static
@@ -267,6 +279,30 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     public function setMultiple(bool $multiple): static
     {
         return $this->setAttribute($multiple, 'multiple');
+    }
+
+
+    /**
+     * Returns how many rows of the select will be displayed
+     *
+     * @return int|null
+     */
+    public function getSize(): ?int
+    {
+        return get_null((int) $this->attributes->get('size'));
+    }
+
+
+    /**
+     * Sets how many rows of the select will be displayed
+     *
+     * @param int|null $size
+     *
+     * @return static
+     */
+    public function setSize(?int $size): static
+    {
+        return $this->setAttribute($size, 'size');
     }
 
 
@@ -447,12 +483,12 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     /**
      * Sets multiple selected options
      *
-     * @param array|string|int|null $selected
-     * @param bool                  $value
+     * @param IteratorInterface|array|string|int|null $selected
+     * @param bool                                    $value
      *
      * @return static
      */
-    public function setSelected(array|string|int|null $selected = null, bool $value = false): static
+    public function setSelected(IteratorInterface|array|string|int|null $selected = null, bool $value = false): static
     {
         $this->selected = [];
 
@@ -463,14 +499,14 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     /**
      * Adds a single or multiple selected options
      *
-     * @param array|string|int|null $selected
-     * @param bool                  $value
+     * @param IteratorInterface|array|string|int|null $selected
+     * @param bool                                    $value
      *
      * @return static
      */
-    public function addSelected(array|string|int|null $selected, bool $value = false): static
+    public function addSelected(IteratorInterface|array|string|int|null $selected, bool $value = false): static
     {
-        if (is_array($selected)) {
+        if (is_array($selected) or ($selected instanceof IteratorInterface)) {
             // Add multiple selected, only supported when multiple is enabled
             if (!$this->getMultiple()) {
                 throw new OutOfBoundsException(tr('Cannot add multiple selected values to this select, it is configured to not allow multiples'));
@@ -487,17 +523,6 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
         }
 
         return $this;
-    }
-
-
-    /**
-     * Sets if the select element allows multiple options to be selected
-     *
-     * @return bool
-     */
-    public function getMultiple(): bool
-    {
-        return (bool) $this->attributes->get('multiple', false);
     }
 
 

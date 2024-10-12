@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class UrlBuilderException
+ * Class UrlException
  *
- * This exception is thrown by the UrlBuilder class in case of exceptions
+ * This exception is thrown by the Url class in case of exceptions
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -16,6 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Exception;
 
-class UrlBuilderException extends HttpException
+class UrlException extends HttpException
 {
 }

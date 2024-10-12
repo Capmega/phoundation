@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Interfaces;
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
+use Phoundation\Data\DataEntry\DataEntryCore;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
@@ -29,21 +32,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @return static
      */
-    public function init(bool $identifier_must_exist, bool $ignore_deleted): static;
-
-    /**
-     * Returns the default database connector to use for this table
-     *
-     * @return string
-     */
-    public static function getConnector(): string;
-
-//    /**
-//     * Returns the column considered the "id" column
-//     *
-//     * @return string
-//     */
-//    public static function getIdColumn(): string;
+    public function init(bool $identifier_must_exist = true, bool $ignore_deleted = false): static;
 
     /**
      * Returns true if the ID column is the specified column
@@ -371,9 +360,13 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
      *       will not become available outside this object
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
      * @return array
      */
-    public function get(string $key): mixed;
+    public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
 
     /**
      * Sets the value for the specified data key
@@ -529,7 +522,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
      *
      * @param bool $meta_enabled
-     * return static
+     * @return static
      */
     public function setMetaEnabled(bool $meta_enabled): static;
 
@@ -597,4 +590,77 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return $this
      */
     public function addMetaAction(?string $action, ?string $comments = null, Stringable|array|string|null $data = null): static;
+
+    /**
+     * Reload the contents for this DataEntry object
+     *
+     * @return $this
+     */
+    public function reload(bool $ignore_deleted = false): static;
+
+    /**
+     * Returns the name of the database connector where this DataEntry is stored
+     *
+     * @return string
+     */
+    public function getConnector(): string;
+
+
+    /**
+     * Sets the database connector by name
+     *
+     * @param string      $connector
+     * @param string|null $database
+     *
+     * @return static
+     */
+    public function setConnector(string $connector, ?string $database = null): static;
+
+    /**
+     * Returns the default database connector to use for this table
+     *
+     * @return string
+     */
+    public static function getDefaultConnector(): string;
+
+    /**
+     * Returns a database connector for this DataEntry object
+     *
+     * @return ConnectorInterface
+     */
+    public static function getDefaultConnectorObject(): ConnectorInterface;
+
+    /**
+     * Returns the database connector
+     *
+     * @return ConnectorInterface
+     */
+    public function getConnectorObject(): ConnectorInterface;
+
+
+    /**
+     * Sets the database connector
+     *
+     * @param ConnectorInterface $o_connector
+     * @param string|null        $database
+     *
+     * @return static
+     */
+    public function setConnectorObject(ConnectorInterface $o_connector, ?string $database = null): static;
+
+    /**
+     * Sets the QueryBuilder object to modify the internal query for this object
+     *
+     * @param QueryBuilderInterface $query_builder
+     *
+     * @return static
+     */
+    public function setQueryBuilder(QueryBuilderInterface $query_builder): static;
+
+    /**
+     * Returns a SpreadSheet object with this object's source data in it
+     *
+     * @return SpreadSheetInterface
+     */
+    public function getSpreadSheet(): SpreadSheetInterface;
 }

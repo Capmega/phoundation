@@ -28,65 +28,57 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
-// Build users filter card
-$filters_content = FilterForm::new()->apply();
+// Build filter card
+$filters    = FilterForm::new();
+$defintions = $filters->getDefinitionsObject();
+$defintions->get('roles_id')->setRender(false);
+$defintions->get('rights_id')->setSize(6);
+$defintions->get('status')->setSize(6);
 
-$filters = Card::new()
+$filters_card = Card::new()
                ->setCollapseSwitch(true)
                ->setTitle('Users filters')
-               ->setContent($filters_content->render())
-               ->useForm(true);
+               ->setContent($filters);
 
 
-// Build users table
-$buttons = Buttons::new()
-                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/role.html')
-                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
-
-
-// Build roles table
-$table = Roles::new()
-              ->getHtmlDataTableObject()
-              ->setRowUrl('/accounts/role+:ROW.html');
-
-$roles = Card::new()
-             ->setTitle('Active roles')
-             ->setSwitches('reload')
-             ->setContent($table->render())
-             ->useForm(true)
-             ->setButtons($buttons);
-
-$roles->getForm()
-      ->setAction(Url::getCurrent())
-      ->setRequestMethod(EnumHttpRequestMethod::post);
+// Build "roles" card
+$roles_card = Card::new()
+                  ->setTitle('Active roles')
+                  ->setSwitches('reload')
+                  ->setContent(Roles::new()
+                                    ->setFilterFormObject($filters)
+                                    ->getHtmlDataTableObject()
+                                    ->setRowUrl('/accounts/role+:ROW.html'))
+                  ->useForm(true)
+                  ->setButtons(Buttons::new()
+                                      ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/role.html')
+                                      ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
 
 
 // Build relevant links
-$relevant = Card::new()
-                ->setMode(EnumDisplayMode::info)
-                ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                         <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+$relevant_card = Card::new()
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Relevant links'))
+                     ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
+                                   <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation
-$documentation = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Documentation'))
-                     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
-
-
-// Build and render the page grid
-$grid = Grid::new()
-            ->addGridColumn($filters->render() . $roles, EnumDisplaySize::nine)
-            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
+$documentation_card = Card::new()
+                          ->setMode(EnumDisplayMode::info)
+                          ->setTitle(tr('Documentation'))
+                          ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Set page meta data
 Response::setHeaderTitle(tr('Roles'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/' => tr('Home'),
-                                                           ''  => tr('Roles'),
-                                                       ]));
+    '/' => tr('Home'),
+    ''  => tr('Roles'),
+]));
+
+
+// Render and return the page grid
+return Grid::new()
+           ->addGridColumn($filters_card  . $roles_card        , EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

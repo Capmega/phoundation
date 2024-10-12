@@ -60,7 +60,7 @@ Response::setRenderMainWrapper(false);
             <!-- /.lockscreen-image -->
 
             <!-- lockscreen credentials (contains the form) -->
-            <form class="lockscreen-credentials">
+            <form class="lockscreen-credentials" method="post">
                 <?php Csrf::getHiddenElement() ?>
                 <div class="input-group">
                     <input type="password" class="form-control" placeholder="password">

@@ -517,7 +517,7 @@ class Sync
 
             if ($file->exists()){
                 Log::success(tr('Received target file ":file" with size ":size"', [
-                    ':file' => $file,
+                    ':file' => $file->getRootname(),
                     ':size' => Numbers::getHumanReadableAndPreciseBytes($file->getSize()),
                 ]));
 

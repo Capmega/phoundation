@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Developer\SlowPages;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Developer\Incidents\Incident;
+use Phoundation\Security\Incidents\Incident;
 
 
 class SlowPage extends Incident

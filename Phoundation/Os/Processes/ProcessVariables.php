@@ -19,13 +19,13 @@ namespace Phoundation\Os\Processes;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataLogLevel;
 use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
@@ -39,10 +39,9 @@ use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Which;
 use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Exception\ProcessException;
-use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
+use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Servers\Traits\TraitDataServer;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -51,6 +50,7 @@ use Stringable;
 
 trait ProcessVariables
 {
+    use TraitDataLogLevel;
     use TraitDataServer;
     use TraitDataRestrictions {
         setRestrictions as protected ___setRestrictions;
@@ -184,9 +184,9 @@ trait ProcessVariables
     /**
      * Sets the ionice class for this process
      *
-     * @var EnumIoNiceClassInterface $ionice_class
+     * @var EnumIoNiceClass $ionice_class
      */
-    protected EnumIoNiceClassInterface $ionice_class = EnumIoNiceClass::none;
+    protected EnumIoNiceClass $ionice_class = EnumIoNiceClass::none;
 
     /**
      * Sets the ionice level for this process
@@ -212,16 +212,16 @@ trait ProcessVariables
     /**
      * If specified, output from this command will be piped to the next command
      *
-     * @var ProcessCoreInterface|FsFileInterface|string|null $pipe
+     * @var ProcessInterface|FsFileInterface|string|null $pipe
      */
-    protected ProcessCoreInterface|FsFileInterface|string|null $pipe = null;
+    protected ProcessInterface|FsFileInterface|string|null $pipe = null;
 
     /**
      * If specified, will pipe the string or process output into this command
      *
-     * @var ProcessCoreInterface|FsFileInterface|string|null $pipe
+     * @var ProcessInterface|FsFileInterface|string|null $pipe
      */
-    protected ProcessCoreInterface|FsFileInterface|string|null $pipe_from = null;
+    protected ProcessInterface|FsFileInterface|string|null $pipe_from = null;
 
     /**
      * Stores the data on where to redirect input channels
@@ -343,6 +343,14 @@ trait ProcessVariables
      */
     protected ?DateTime $executed_on = null;
 
+    /**
+     * Tracks if this process runs as a stand-alone service or not.
+     * If true, requires background to be true as well.
+     *
+     * @var bool $service
+     */
+    protected bool $service = false;
+
 
     /**
      * Process class constructor
@@ -364,7 +372,8 @@ trait ProcessVariables
             }
         }
 
-        $this->packages = new Packages();
+        $this->packages  = new Packages();
+        $this->log_level = 2;
     }
 
 
@@ -443,11 +452,39 @@ trait ProcessVariables
 
 
     /**
+     * Returns  if this process runs as a service
+     *
+     * @return bool
+     */
+    public function getService(): bool
+    {
+        return $this->service;
+    }
+
+
+    /**
+     * Sets if this process runs as a service
+     *
+     * If set to true, this will require $background set true on execution as well, or will cause an exception
+     *
+     * @param bool $service
+     *
+     * @return static
+     */
+    public function setService(bool $service): static
+    {
+        $this->service = $service;
+
+        return $this;
+    }
+
+
+    /**
      * Returns the exact time that execution started
      *
-     * @return ProcessCoreInterface|null
+     * @return ProcessInterface|null
      */
-    public function getPreExecution(): ?ProcessCoreInterface
+    public function getPreExecution(): ?ProcessInterface
     {
         return $this->pre_exec;
     }
@@ -456,11 +493,11 @@ trait ProcessVariables
     /**
      * Sets the process to execute before the main process
      *
-     * @param ProcessCoreInterface|null $process
+     * @param ProcessInterface|null $process
      *
      * @return static
      */
-    public function setPreExecution(?ProcessCoreInterface $process): static
+    public function setPreExecution(?ProcessInterface $process): static
     {
         $this->pre_exec = $process;
 
@@ -471,9 +508,9 @@ trait ProcessVariables
     /**
      * Returns the process to execute after the main process
      *
-     * @return ProcessCoreInterface|null
+     * @return ProcessInterface|null
      */
-    public function getPostExecution(): ?ProcessCoreInterface
+    public function getPostExecution(): ?ProcessInterface
     {
         return $this->post_exec;
     }
@@ -482,11 +519,11 @@ trait ProcessVariables
     /**
      * Sets the process to execute after the main process
      *
-     * @param ProcessCoreInterface|null $process
+     * @param ProcessInterface|null $process
      *
      * @return static
      */
-    public function setPostExecution(?ProcessCoreInterface $process): static
+    public function setPostExecution(?ProcessInterface $process): static
     {
         $this->post_exec = $process;
 
@@ -607,9 +644,9 @@ trait ProcessVariables
     /**
      * Returns the nice level for this process
      *
-     * @return EnumIoNiceClassInterface
+     * @return EnumIoNiceClass
      */
-    public function getIoNiceClass(): EnumIoNiceClassInterface
+    public function getIoNiceClass(): EnumIoNiceClass
     {
         return $this->ionice_class;
     }
@@ -618,11 +655,11 @@ trait ProcessVariables
     /**
      * Sets the ionice class for this process
      *
-     * @param EnumIoNiceClassInterface|int|null $ionice_class
+     * @param EnumIoNiceClass|int|null $ionice_class
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setIoNiceClass(EnumIoNiceClassInterface|int|null $ionice_class): static
+    public function setIoNiceClass(EnumIoNiceClass|int|null $ionice_class): static
     {
         if (is_null($ionice_class)) {
             $ionice_class = EnumIoNiceClass::none;
@@ -1185,7 +1222,7 @@ trait ProcessVariables
                                 ]));
                             }
 
-                            if (!Command::sudoAvailable('apt-get', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
+                            if (!Command::checkSudoAvailable('apt-get', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
                                 throw new ProcessesException(tr('Specified command ":command" does not exist and this process does not have sudo access to apt-get', [
                                     ':command' => $command,
                                 ]));
@@ -1661,9 +1698,9 @@ trait ProcessVariables
     /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
-     * @return ProcessCoreInterface|FsFileInterface|string|null
+     * @return ProcessInterface|FsFileInterface|string|null
      */
-    public function getPipe(): ProcessCoreInterface|FsFileInterface|string|null
+    public function getPipe(): ProcessInterface|FsFileInterface|string|null
     {
         return $this->pipe;
     }
@@ -1672,11 +1709,11 @@ trait ProcessVariables
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param ProcessCoreInterface|FsFileInterface|string|null $pipe
+     * @param ProcessInterface|FsFileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipe(ProcessCoreInterface|FsFileInterface|string|null $pipe): static
+    public function setPipe(ProcessInterface|FsFileInterface|string|null $pipe): static
     {
         $this->cached_command_line = null;
         $this->pipe                = $pipe;
@@ -1693,9 +1730,9 @@ trait ProcessVariables
     /**
      * Returns the process or string that will be piped into this process
      *
-     * @return ProcessCoreInterface|FsFileInterface|string|null
+     * @return ProcessInterface|FsFileInterface|string|null
      */
-    public function getPipeFrom(): ProcessCoreInterface|FsFileInterface|string|null
+    public function getPipeFrom(): ProcessInterface|FsFileInterface|string|null
     {
         return $this->pipe_from;
     }
@@ -1704,11 +1741,11 @@ trait ProcessVariables
     /**
      * Sets the process or string that will be piped into this process*
      *
-     * @param ProcessCoreInterface|FsFileInterface|string|null $pipe
+     * @param ProcessInterface|FsFileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipeFrom(ProcessCoreInterface|FsFileInterface|string|null $pipe): static
+    public function setPipeFrom(ProcessInterface|FsFileInterface|string|null $pipe): static
     {
         $this->cached_command_line = null;
         $this->pipe_from           = $pipe;

@@ -16,9 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Tooltips\Enums;
 
-use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\Interfaces\EnumTooltipTriggerInterface;
 
-enum EnumTooltipTrigger: string implements EnumTooltipTriggerInterface
+enum EnumTooltipTrigger: string
 {
     case click  = 'click';
     case focus  = 'focus';

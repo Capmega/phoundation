@@ -6,12 +6,14 @@ namespace Phoundation\Web\Html\Components\Input\Buttons\Interfaces;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 
-interface ButtonsInterface
+
+interface ButtonsInterface extends ElementsBlockInterface
 {
     /**
      * Sets the buttons list

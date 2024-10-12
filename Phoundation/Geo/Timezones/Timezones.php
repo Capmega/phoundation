@@ -82,10 +82,10 @@ class Timezones extends DataIterator
     public static function getHtmlTimezonesSelect(string $name = 'timezones_id'): InputSelect
     {
         return InputSelect::new()
-                          ->setConnector(static::getConnector())
+                          ->setConnectorObject(static::getDefaultConnectorObject())
                           ->setSourceQuery('SELECT `id`, `name` 
-                                          FROM  `geo_timezones` 
-                                          WHERE `status` IS NULL ORDER BY `name`')
+                                            FROM  `geo_timezones` 
+                                            WHERE `status` IS NULL ORDER BY `name`')
                           ->setName($name)
                           ->setNotSelectedLabel(tr('Select a timezone'))
                           ->setComponentEmptyLabel(tr('No timezones available'));

@@ -98,7 +98,6 @@ class AutoSuggestRequest
      */
     public static function setTerm(string $term): void
     {
-        static::ensureGet();
-        static::$get['term'] = $term;
+        static::$get['term'] = trim($term);
     }
 }

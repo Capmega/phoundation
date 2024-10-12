@@ -40,10 +40,10 @@ ARGUMENTS
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('--domains,--domain')->isOptional(null)->sanitizeForceArray()->each()->isDomain()
+                     ->select('--domains,--domain')->isOptional(null)->sanitizeForceArray()->eachField()->isDomain()
                      ->select('--status')->isOptional(null)->isVariable()
-                     ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
-                     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+                     ->select('-r,--roles,--role', true)->isOptional(null)->sanitizeForceArray()->eachField()->isName()
+                     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->eachField()->isName()
                      ->validate();
 
 

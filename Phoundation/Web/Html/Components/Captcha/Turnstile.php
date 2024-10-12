@@ -19,6 +19,7 @@ namespace Phoundation\Web\Html\Components\Captcha;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Network\Curl\Post;
 use Phoundation\Utils\Config;
@@ -61,7 +62,7 @@ class Turnstile extends Captcha
     {
         if (!$this->isValid($response, $remote_ip, $secret)) {
             throw new ValidationFailedException(tr('The Turnstile response is invalid for ":remote_ip"', [
-                ':remote_ip' => $remote_ip ?? $_SERVER['REMOTE_ADDR'],
+                ':remote_ip' => $remote_ip ?? Session::getIpAddress(),
             ]));
         }
     }
@@ -81,9 +82,9 @@ class Turnstile extends Captcha
         if (!$response) {
             // There is no response, this is failed before we even begin
             Log::warning(tr('No captcha client response received'));
-
             return false;
         }
+
         // Get captcha secret key
         if (!$secret) {
             // Use configured secret key
@@ -95,11 +96,13 @@ class Turnstile extends Captcha
                 $secret = '';
             }
         }
+
         if (!$remote_ip) {
             // Default to the IP address of this client
             // TODO This might cause issues with reverse proxies, look into that later
-            $remote_ip = $_SERVER['REMOTE_ADDR'];
+            $remote_ip = Session::getIpAddress();
         }
+
         // Check with Google if captcha passed or not
         $post = Post::new('')
                     ->setPostUrlEncoded(true)
@@ -109,11 +112,14 @@ class Turnstile extends Captcha
                         'remote_ip' => $remote_ip,
                     ])
                     ->execute();
+
         $response = $post->getResultData();
         $response = Json::decode($response);
         $response = Strings::toBoolean($response['success']);
+
         if ($response) {
             Log::success(tr('Passed Turnstile CAPTCHA test'));
+
         } else {
             Log::warning(tr('Failed Turnstile CAPTCHA test'));
         }

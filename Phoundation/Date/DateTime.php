@@ -24,6 +24,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
+use Phoundation\Date\Interfaces\DateTimeZoneInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
@@ -90,6 +91,9 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
             case 'human_date':
                 return SessionConfig::getString('locale.dates.formats.human.date', DateFormats::getDefaultPhp());
+
+            case 'human_datetime':
+                // no break
 
             case 'human_date_time':
                 return SessionConfig::getString('locale.dates.formats.human.datetime', DateTimeFormats::getDefaultPhp());
@@ -601,15 +605,17 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Returns a new DateTime object with the specified timezone
      *
+     * @param \DateTimeZone|DateTimeZone|string $timezone
+     *
      * @return static
      */
-    public function setTimezone(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    public function setTimezone(\DateTimeZone|DateTimeZone|string $timezone): static
     {
-        if ($timezone) {
-            parent::setTimezone(DateTimeZone::new($timezone)->getPhpDateTimeZone());
+        if (!$timezone) {
+            throw new OutOfBoundsException(tr('Cannot set timezone, no timezone specified'));
         }
 
-        return $this;
+        return parent::setTimezone(DateTimeZone::new($timezone)->getPhpDateTimeZone());
     }
 
 

@@ -81,7 +81,7 @@ abstract class Command extends ProcessCore implements CommandInterface
      * @todo Find a better option than "--version" which may not be available for everything. What about shell commands
      *       like "true", or "which", etc?
      */
-    public static function sudoAvailable(array|string $commands, FsRestrictions $restrictions, bool $exception = false): bool
+    public static function checkSudoAvailable(array|string $commands, FsRestrictions $restrictions, bool $exception = false): bool
     {
         try {
             $command = null;

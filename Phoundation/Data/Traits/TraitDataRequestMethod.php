@@ -25,17 +25,17 @@ trait TraitDataRequestMethod
     /**
      * The submit method
      *
-     * @var EnumHttpRequestMethod $request_method
+     * @var EnumHttpRequestMethod|null $request_method
      */
-    protected EnumHttpRequestMethod $request_method = EnumHttpRequestMethod::post;
+    protected ?EnumHttpRequestMethod $request_method = null;
 
 
     /**
      * Returns the form request method
      *
-     * @return EnumHttpRequestMethod
+     * @return EnumHttpRequestMethod|null
      */
-    public function getRequestMethod(): EnumHttpRequestMethod
+    public function getRequestMethod(): ?EnumHttpRequestMethod
     {
         return $this->request_method;
     }

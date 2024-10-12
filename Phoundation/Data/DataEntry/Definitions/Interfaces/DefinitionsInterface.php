@@ -6,6 +6,9 @@ namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Stringable;
 
 interface DefinitionsInterface extends IteratorInterface
@@ -60,9 +63,9 @@ interface DefinitionsInterface extends IteratorInterface
      * @param Stringable|string|float|int $key
      * @param bool                        $exception
      *
-     * @return DefinitionInterface
+     * @return DefinitionInterface|null
      */
-    public function get(Stringable|string|float|int $key, bool $exception = false): DefinitionInterface;
+    public function get(Stringable|string|float|int $key, bool $exception = false): ?DefinitionInterface;
 
 
     /**
@@ -109,4 +112,67 @@ interface DefinitionsInterface extends IteratorInterface
      * @return bool
      */
     public function getMetaVisible(): bool;
+
+    /**
+     * Returns if any buttons have been defined
+     *
+     * @return bool
+     */
+    public function hasButtons(): bool;
+
+    /**
+     * Returns the modal buttons
+     *
+     * @return ButtonsInterface
+     */
+    public function getButtons(): ButtonsInterface;
+
+    /**
+     * Sets the modal buttons
+     *
+     * @param ButtonsInterface|null $buttons
+     *
+     * @return static
+     */
+    public function setButtons(?ButtonsInterface $buttons): static;
+
+    /**
+     * Adds the specified buttons to this buttons list
+     *
+     * @param ButtonsInterface|null $buttons
+     *
+     * @return static
+     */
+    public function addButtons(?ButtonsInterface $buttons): static;
+
+    /**
+     * Sets the modal buttons
+     *
+     * @param ButtonInterface|null $button
+     *
+     * @return static
+     */
+    public function addButton(?ButtonInterface $button): static;
+
+    /**
+     * Direct method to render or not render entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $render
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setRender(Stringable|string|float|int $key, bool $render, bool $exception = true): static;
+
+    /**
+     * Direct method to set size for entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param int                         $size
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setSize(Stringable|string|float|int $key, int $size, bool $exception = true): static;
 }

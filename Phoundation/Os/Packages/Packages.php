@@ -84,14 +84,14 @@ class Packages extends Iterator implements PackagesInterface
         }
         switch ($manager) {
             case 'apt':
-                if (!Command::sudoAvailable('apt-get', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
+                if (!Command::checkSudoAvailable('apt-get', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
                     throw new ProcessesException(tr('This process does not have sudo access to apt-get', [
                         ':command' => $command,
                     ]));
                 }
                 break;
             case 'yum':
-                if (!Command::sudoAvailable('yum', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
+                if (!Command::checkSudoAvailable('yum', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
                     throw new ProcessesException(tr('This process does not have sudo access to yum', [
                         ':command' => $command,
                     ]));

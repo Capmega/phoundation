@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -40,7 +41,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$role = Role::new($get['id']);
+$role = Role::load($get['id']);
 
 
 // Validate POST and submit
@@ -50,15 +51,14 @@ if (Request::isPostRequestMethod()) {
             case tr('Save'):
                 // Validate rights
                 $post = PostValidator::new()
-                                     ->select('rights_id')->isOptional()->isArray()->each()->isOptional()->isDbId()
+                                     ->select('rights_id')->isOptional()->isArray()->eachField()->isOptional()->isDbId()
                                      ->validate(false);
 
                 // Update role and rights
-                $role
-                    ->apply()
-                    ->save()
-                    ->getRightsObject()
-                    ->setRights($post['rights_id']);
+                $role->apply()
+                     ->save()
+                     ->getRightsObject()
+                         ->setRights($post['rights_id']);
 
 // TODO Implement timers
 //showdie(Timers::get('query'));
@@ -105,55 +105,57 @@ if (!$role->isNew()) {
 
 
 // Build the role card
-$form = $role->getHtmlDataEntryFormObject();
-$card = Card::new()
-            ->setTitle(tr('Edit data for role :name', [':name' => $role->getName()]))
-            ->setContent($form->render())
-            ->setButtons(Buttons::new()
-                                ->addButton(tr('Save'))
-                                ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/roles.html'), true)
-                                ->addButton(isset_get($delete))
-                                ->addButton(isset_get($audit)));
+$form      = $role->getHtmlDataEntryFormObject();
+$role_card = Card::new()
+                 ->setTitle(tr('Edit data for role :name', [':name' => $role->getName()]))
+                 ->setContent($form)
+                 ->setButtons(Buttons::new()
+                                     ->addButton(tr('Save'))
+                                     ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/roles.html'), true)
+                                     ->addButton(isset_get($delete))
+                                     ->addButton(isset_get($audit)));
 
 
 // Build relevant links
-$relevant = Card::new()
-                ->setMode(EnumDisplayMode::info)
-                ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                         <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+$relevant_card = Card::new()
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Relevant links'))
+                     ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
+                                   <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation
-$documentation = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Documentation'))
-                     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+$documentation_card = Card::new()
+                          ->setMode(EnumDisplayMode::info)
+                          ->setTitle(tr('Documentation'))
+                          ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Build the rights list management section
-$rights = Card::new()
-              ->setTitle(tr('Rights for this role'))
-              ->setContent($role->getRightsHtmlDataEntryForm())
-              ->setForm(Form::new()
-                            ->setAction('#')
-                            ->setRequestMethod(EnumHttpRequestMethod::post))
-              ->render();
-
-
-// Build and render the page grid
-$grid = Grid::new()
-            ->addGridColumn($card . $rights, EnumDisplaySize::nine, true)
-            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
+// Build the "rights" list management section
+$rights_card = Card::new()
+                   ->setTitle(tr('Rights for this role'))
+                   ->setContent($role->getRightsHtmlDataEntryForm())
+                   ->setForm(Form::new()
+                                 ->setAction('#')
+                                 ->setRequestMethod(EnumHttpRequestMethod::post))
+                   ->render();
 
 
 // Set page meta data
 Response::setHeaderTitle(tr('Role'));
 Response::setHeaderSubTitle($role->getName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'                    => tr('Home'),
-                                                           '/accounts/roles.html' => tr('Roles'),
-                                                           ''                     => $role->getName(),
-                                                       ]));
+    '/'                    => tr('Home'),
+    '/accounts/roles.html' => tr('Roles'),
+    ''                     => $role->getName(),
+]));
+
+
+// Render and return the page grid
+$grid = Grid::new()
+            ->addGridColumn($role_card . $rights_card, EnumDisplaySize::nine, true)
+            ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+
+return $grid;
+
+

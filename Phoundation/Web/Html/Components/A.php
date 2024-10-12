@@ -57,7 +57,7 @@ class A extends Span implements AInterface
      */
     public function setHref(UrlInterface|string|null $href): static
     {
-        // Run the href through UrlBuilder to ensure that preconfigured URL's like "sign-out" are converted to full URLs
+        // Run the href through Url to ensure that preconfigured URL's like "sign-out" are converted to full URLs
         $this->attributes->set((string) Url::getWww($href), 'href');
 
         return $this;

@@ -16,14 +16,19 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\FlashMessages;
 
+use PDOStatement;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
+use Phoundation\Core\Sessions\SessionConfig;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessageInterface;
+use Phoundation\Web\Html\Enums\EnumAttachJavascript;
 use Phoundation\Web\Html\Traits\TraitMode;
 
 
@@ -88,6 +93,20 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      * @var string $flash_handler
      */
     protected string $flash_handler = 'toast';
+
+
+    /**
+     * FlashMessage class constructor
+     *
+     * @param IteratorInterface|array|string|PDOStatement|null $source
+     */
+    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
+    {
+        parent::__construct($source);
+
+        // Set default auto close for flash messages
+        $this->setAutoClose(get_null(SessionConfig::getInteger('web.feedback.messages.auto-close', 15000)));
+    }
 
 
     /**
@@ -310,7 +329,16 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     public function setAutoClose(?int $auto_close): static
     {
-        $this->auto_close = get_null($auto_close);
+        $auto_close = get_null($auto_close);
+
+        if ($auto_close) {
+            if ($auto_close < 500) {
+                // Assume that time was specified in seconds instead of milliseconds, automatically correct this issue
+                $auto_close *= 1000;
+            }
+        }
+
+        $this->auto_close = $auto_close;
 
         return $this;
     }
@@ -345,12 +373,16 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     /**
      * Renders and returns the HTML for this flash message
      *
+     * @param EnumAttachJavascript $attach_javascript Specified where to attach the data, either in the HTML header,
+     *                                                HTML footer, or "here" which will return the rendered string
+     *
      * @return string|null
      */
-    public function render(): ?string
+    public function renderScript(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string
     {
         $this->render = Script::new()
-                              ->setContent($this->renderBare())
+                              ->setAttach($attach_javascript)
+                              ->setContent($this->render())
                               ->render();
 
         return parent::render();
@@ -358,27 +390,45 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
 
 
     /**
-     * Renders and returns the javascript for this flash message without javascript tags
+     * Renders and returns the HTML for this flash message
+     *
+     * @param EnumAttachJavascript $attach_javascript Specified where to attach the data, either in the HTML header,
+     *                                                HTML footer, or "here" which will return the rendered string
      *
      * @return string|null
      */
-    public function renderBare(): ?string
+    public function render(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string
     {
-        return match ($this->flash_handler) {
-            'toast' => Toast::new($this)->render()
+        $this->render = match ($this->flash_handler) {
+            'toast' => Toast::new($this)->render(),
         };
+
+        return parent::render();
     }
 
 
     /**
-     * Renders and returns the configuration for this flash message without javascript tags or calls
+     * Renders and returns the configuration for this flash message without JavaScript tags or calls
      *
      * @return string|null
      */
     public function renderJson(): ?string
     {
         return match ($this->flash_handler) {
-            'toast' => Toast::new($this)->renderConfiguration()
+            'toast' => Toast::new($this)->renderJson(),
+        };
+    }
+
+
+    /**
+     * Renders and returns the configuration for this flash message without JavaScript tags or calls
+     *
+     * @return array
+     */
+    public function renderArray(): array
+    {
+        return match ($this->flash_handler) {
+            'toast' => Toast::new($this)->renderArray(),
         };
     }
 

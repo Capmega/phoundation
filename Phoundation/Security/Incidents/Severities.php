@@ -34,8 +34,8 @@ class Severities extends Iterator
                 'notice' => tr('Notice or higher'),
                 'low'    => tr('Low or higher'),
                 'medium' => tr('Medium or higher'),
-                'high'   => tr('High or higher'),
-                'severe' => tr('Severe or higher'),
+                'high'   => tr('High or severe'),
+                'severe' => tr('Severe only'),
             ];
         }
 

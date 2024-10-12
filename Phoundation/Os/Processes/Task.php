@@ -595,7 +595,7 @@ class Task extends DataEntry implements TaskInterface
         Hook::new('tasks')
             ->execute('pre-execute', ['task' => $this]);
         // Execute the command
-        $worker = ProcessWorker::new($this->getCommand(), $this->getExecutionDirectory())
+        $worker = Worker::new($this->getCommand(), $this->getExecutionDirectory())
                                ->setServer($this->getServer())
                                ->setArguments($this->getArguments())
                                ->setVariables($this->getVariables())
@@ -1289,7 +1289,7 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getCode($this)
+        $definitions->add(DefinitionFactory::newCode($this)
                                            ->setReadonly(true)
                                            ->setOptional(true)
                                            ->setLabel(tr('Code'))
@@ -1298,8 +1298,8 @@ class Task extends DataEntry implements TaskInterface
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isCode();
                                            }))
-                    ->add(DefinitionFactory::getName($this))
-                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(DefinitionFactory::newName($this))
+                    ->add(DefinitionFactory::newSeoName($this))
                     ->add(Definition::new($this, 'parents_id')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::select)
@@ -1623,7 +1623,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setInputType(EnumInputType::text)
                                     ->setSize(6)
                                     ->setMaxLength(512))
-                    ->add(DefinitionFactory::getComments($this)
+                    ->add(DefinitionFactory::newComments($this)
                                            ->setHelpText(tr('A description for this task')));
     }
 

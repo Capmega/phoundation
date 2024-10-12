@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Stringable;
 
@@ -103,10 +104,11 @@ trait TraitDataCellCallbacks
      */
     protected function executeCellCallbacks(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|bool|null &$value, IteratorInterface|array &$row, array &$params): static
     {
-        $params = [
-            'htmlentities'     => $this->process_entities,
-            'skiphtmlentities' => ['id' => true],
-        ];
+        Arrays::ensure($params);
+        Arrays::ensure($params['skiphtmlentities']);
+
+        $params['htmlentities']           = $this->process_entities;
+        $params['skiphtmlentities']['id'] = true;
 
         foreach ($this->cell_callbacks as $callback) {
             $callback($row_id, $column, $value, $row, $params);

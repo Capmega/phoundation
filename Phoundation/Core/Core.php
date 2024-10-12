@@ -1473,7 +1473,7 @@ class Core implements CoreInterface
             $argv['no_color']      = true;
             $argv['auto_complete'] = explode(' ', trim($argv['auto_complete']));
 
-            $location = (int)array_shift($argv['auto_complete']);
+            $location = (int) array_shift($argv['auto_complete']);
 
             // Reset the $argv array to the auto complete data
             ArgvValidator::hideData($argv['auto_complete']);
@@ -2142,7 +2142,7 @@ class Core implements CoreInterface
         }
 
         $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'maintenance', FsRestrictions::newSystem())
-            ->setAutoMount(false);
+                                ->setAutoMount(false);
 
         if ($directory->exists()) {
             // The system is in maintenance mode, show who put it there
@@ -2711,7 +2711,7 @@ class Core implements CoreInterface
             $limit = ceil($free['memory']['available'] * .8);
         }
 
-        return (int)floor($limit);
+        return (int) floor($limit);
     }
 
 

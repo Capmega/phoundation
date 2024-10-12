@@ -269,14 +269,17 @@ abstract class Curl implements CurlInterface
         if (!extension_loaded('curl')) {
             throw new WebException(tr('The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'));
         }
+
         // Verbose is always on when running in debug mode
         if (Debug::isEnabled()) {
             $this->verbose = true;
         }
+
         $this->url   = (string) $url;
         $this->retry = 0;
-        $this->setLogDirectory(DIRECTORY_DATA . 'log/curl/');
+
         // Setup new cURL request
+        $this->setLogDirectory(DIRECTORY_DATA . 'log/curl/');
         $this->curl = curl_init();
     }
 
@@ -295,7 +298,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the request method
+     * Returns the request HTTP version
      *
      * @return int
      */
@@ -315,7 +318,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Sets the request method
+     * Sets Returns the request HTTP version
      *
      * @param int $http_version
      *
@@ -434,6 +437,7 @@ abstract class Curl implements CurlInterface
         if ($follow_location and ($this->method === EnumHttpRequestMethod::post)) {
             throw new OutOfBoundsException(tr('Cannot follow location for POST method requests'));
         }
+
         $this->follow_location = $follow_location;
 
         return $this;
@@ -505,9 +509,9 @@ abstract class Curl implements CurlInterface
     {
         if ($log_directory) {
             $this->log_restrictions = FsRestrictions::new($restrictions, true);
-            FsDirectory::new($log_directory, $this->log_restrictions)
-                     ->ensure();
+            FsDirectory::new($log_directory, $this->log_restrictions)->ensure();
         }
+
         $this->log_directory = $log_directory;
 
         return $this;
@@ -1064,9 +1068,10 @@ abstract class Curl implements CurlInterface
     {
         foreach ($headers as $key => $value) {
             if (is_numeric($key)) {
-                $this->addRequestHeader($key, $value);
+                $this->addRequestHeader($value);
+
             } else {
-                $this->addRequestHeader($key, $value);
+                $this->addRequestHeader($value, $key);
             }
         }
 
@@ -1077,14 +1082,19 @@ abstract class Curl implements CurlInterface
     /**
      * Returns the result headers
      *
-     * @param string                $key
      * @param string|float|int|null $value
+     * @param string|null           $key
      *
      * @return static
      */
-    public function addRequestHeader(string $key, string|float|int|null $value): static
+    public function addRequestHeader(string|float|int|null $value, ?string $key = null): static
     {
-        $this->request_headers[$key] = $value;
+        if ($key === null) {
+            $this->request_headers[] = $value;
+
+        } else {
+            $this->request_headers[$key] = $value;
+        }
 
         return $this;
     }
@@ -1140,11 +1150,11 @@ abstract class Curl implements CurlInterface
      * Returns the HTTP code for the request
      *
      * @note Returns NULL if the request has not yet been executed or completed.
-     * @return int|null
+     * @return int
      */
-    public function getHttpCode(): ?int
+    public function getHttpCode(): int
     {
-        return get_null((int) $this->result_status['http_code']);
+        return (int) $this->result_status['http_code'];
     }
 
 

@@ -181,6 +181,7 @@ class Dropzone implements DropzoneInterface
     {
         $this->setUrl(Url::getWww())
              ->setSelector($selector)
+             ->setRequestMethod(EnumHttpRequestMethod::post)
              ->handler = $handler;
     }
 

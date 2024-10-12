@@ -20,7 +20,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 trait TraitDataEntryUserAgent
 {
     /**
-     * Returns the ip address for this user
+     * Returns the user agent for this user
      *
      * @return string|null
      */
@@ -31,7 +31,7 @@ trait TraitDataEntryUserAgent
 
 
     /**
-     * Sets the ip address for this user
+     * Sets the user agent for this user
      *
      * @param string|null $user_agent
      *

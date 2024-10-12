@@ -18,37 +18,53 @@ namespace Phoundation\Security\Incidents;
 
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
+use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 
 class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
     public function __construct(?string $content = null)
     {
-        // Pull all filter data from HTTP GET
-        $this->source = GetValidator::new()
-            ->select('date_range')->isOptional()->copyTo('date_range_split')->doNotValidate()
-            ->select('date_range_split')->isOptional($this->getDateRangeDefault())->sanitizeForceArray(' - ')->each()->isDate()
-            ->select('users_id')->isOptional()->isDbId()
-            ->select('severity')->isOptional('medium')->isInArray(Severities::new())
-            ->validate(false);
-
         parent::__construct($content);
+
+        $this->definitions->get('status')->setRender(false);
 
         // Set basic definitions
         $this->definitions
              ->add(Definition::new(null, 'severity')
                  ->setLabel(tr('Severity'))
-                 ->setSize(2)
+                 ->setSize(4)
                  ->setOptional(true)
-                 ->setElement(EnumElement::select)
+                 ->setInputType(EnumInputType::text)
                  ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                      return Severities::new()->getHtmlSelect()
                                              ->setAutoSubmit(true)
                                              ->setName($field_name)
                                              ->setSelected(isset_get($this->source[$key], 'medium'));
                  }));
+
+        // Auto apply
+        $this->applyValidator(self::class);
+    }
+
+
+    /**
+     * Automatically apply current filters to the query builder
+     *
+     * @param QueryBuilderInterface $builder
+     *
+     * @return $this
+     */
+    public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
+    {
+        if ($this->getSeverities()) {
+            $values = SqlQueries::in($this->getSeverities());
+            $builder->addWhere('`security_incidents`.`severity` IN (' . SqlQueries::inColumns($values) . ')', $values);
+        }
+
+        return parent::applyFiltersToQueryBuilder($builder);
     }
 
 

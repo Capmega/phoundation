@@ -144,19 +144,11 @@ interface ExceptionInterface extends Throwable, ArrayableInterface
 
 
     /**
-     * Register this exception in the developer incidents log
-     *
-     * @return Exception
-     */
-    public function registerDeveloperIncident(): static;
-
-
-    /**
      * Export this exception as an array
      *
      * @return array
      */
-    public function exportArray(): array;
+    public function exportToArray(): array;
 
 
     /**
@@ -164,7 +156,7 @@ interface ExceptionInterface extends Throwable, ArrayableInterface
      *
      * @return string
      */
-    public function exportString(): string;
+    public function exportToString(): string;
 
 
     /**
@@ -203,13 +195,6 @@ interface ExceptionInterface extends Throwable, ArrayableInterface
 
 
     /**
-     * Generates and returns a full exception data array
-     *
-     * @return array
-     */
-    public function generateDetails(): array;
-
-    /**
      * Returns this exception object as an array
      *
      * @return array
@@ -224,13 +209,14 @@ interface ExceptionInterface extends Throwable, ArrayableInterface
     public function getSource(): array;
 
     /**
-     * This method will register this exception as a security incident
+     * Register this exception in the developer incidents log
      *
      * @param EnumSeverity $severity
+     * @param string|null  $type
      *
      * @return static
      */
-    public function makeSecurityIncident(EnumSeverity $severity): static;
+    public function registerIncident(EnumSeverity $severity, ?string $type = null): static;
 
     /**
      * Tracks if this exception has been logged

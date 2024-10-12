@@ -16,13 +16,17 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Cards;
 
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
+use Phoundation\Web\Html\Components\Forms\DataEntryForm;
+use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
+use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Tabs;
 use Phoundation\Web\Html\Components\Widgets\Widget;
@@ -33,6 +37,7 @@ class Card extends Widget
 {
     use TraitDataTitle;
     use TraitDataDescription;
+
 
     /**
      * If this card is collapsable or not
@@ -396,6 +401,17 @@ class Card extends Widget
             if (!empty($this->tabs)) {
                 throw new OutOfBoundsException(tr('Cannot add content to card, tabs have already been specified and card can only display either content or tabs'));
             }
+        }
+
+        if ($content instanceof DataEntryFormInterface) {
+            $this->addClass('form');
+
+            if ($content->getDefinitionsObject()?->hasButtons()) {
+                $this->setButtons($content->getDefinitionsObject()->getButtons());
+            }
+
+        } elseif ($content instanceof HtmlTableInterface) {
+            $this->addClass('table');
         }
 
         return parent::setContent($content, $make_safe);

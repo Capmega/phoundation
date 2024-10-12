@@ -511,9 +511,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setFooters(IteratorInterface|array|null $footers): static
     {
         if (is_array($footers)) {
-            $footers = Iterator::new()
-                               ->setSource($footers);
+            $footers = Iterator::new()->setSource($footers);
         }
+
         $this->footers = $footers;
 
         return $this;
@@ -563,7 +563,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         }
 
         // Process SQL resource
-        while ($row = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
+        while ($row = $this->source_query->fetch()) {
+            if (isset($this->columns)) {
+                $row = Arrays::keepKeysOrdered($row, $this->columns);
+            }
+
             $this->executeRowCallbacks($row, EnumTableRowType::row, $params);
             $return .= $this->doRenderRow(array_first($row), $row, $params);
         }
@@ -661,7 +665,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
                 $this->executeCellCallbacks($row_id, $column, $value, $row_values, $params);
 
-                $return          .= $this->renderCell($row_id, $column, $value, $params);
+                $return .= $this->renderCell($row_id, $column, $value, $params);
             }
         }
 
@@ -693,11 +697,20 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     public function setHeaders(IteratorInterface|array|null $headers): static
     {
-        if (is_array($headers)) {
-            $headers = new Iterator($headers);
-        }
+        if ($headers) {
+            if (is_array($headers)) {
+                $this->headers = new Iterator($headers);
+                $this->columns = array_keys($headers);
 
-        $this->headers = $headers;
+            } else {
+                $this->headers = $headers;
+                $this->columns = array_keys($headers->__toArray());
+            }
+
+        } else {
+            $this->headers = null;
+            $this->columns = null;
+        }
 
         return $this;
     }
@@ -945,7 +958,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             }
 
             if (isset($this->columns)) {
-                $row = Arrays::keepKeysOrdered($row, array_keys($this->columns));
+                $row = Arrays::keepKeysOrdered($row, $this->columns);
             }
 
             $this->executeRowCallbacks($row, EnumTableRowType::row, $params);
@@ -968,7 +981,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $return = '<tbody>';
 
         if ($this->empty) {
-            $return .= '<tr class="empty-row"><td>' . $this->empty . '</td></tr>';
+            $return .= '<tr class="empty-row"><td class="text-center">' . $this->empty . '</td></tr>';
         }
 
         return $return . '</tbody>';

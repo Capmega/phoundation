@@ -29,6 +29,8 @@ namespace Phoundation\Data;
 
 use PDOStatement;
 use Phoundation\Cli\Cli;
+use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
+use Phoundation\Content\Documents\SpreadSheet;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataIterator;
@@ -41,6 +43,7 @@ use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataColumns;
+use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataRestrictions;
@@ -49,11 +52,11 @@ use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
@@ -64,9 +67,10 @@ use Stringable;
 use Throwable;
 
 
-class IteratorCore implements IteratorInterface
+class IteratorCore extends IteratorBase implements IteratorInterface
 {
     use TraitDataColumns;
+    use TraitDataFilterForm;
     use TraitDataParent {
         setParentObject as protected __setParent;
     }
@@ -88,17 +92,6 @@ class IteratorCore implements IteratorInterface
      * @var string
      */
     protected string $input_select_class = InputSelect::class;
-
-
-    /**
-     * Returns the contents of this iterator object as a JSON string
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return Json::encode($this->source);
-    }
 
 
     /**
@@ -175,118 +168,14 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns the current entry
      *
+     * @note overrides the IteratorBase::current() method which does not support the protected Iterator||ensureobject()
+     *       method
+     *
      * @return mixed
      */
     #[ReturnTypeWillChange] public function current(): mixed
     {
         return $this->ensureObject(key($this->source));
-    }
-
-
-    /**
-     * Progresses the internal pointer to the next entry
-     *
-     * @return void
-     */
-    public function next(): void
-    {
-        next($this->source);
-    }
-
-
-    /**
-     * Progresses the internal pointer to the previous entry
-     *
-     * @return void
-     */
-    public function previous(): void
-    {
-        prev($this->source);
-    }
-
-
-    /**
-     * Returns the current key for the current button
-     *
-     * @return string|int|null
-     */
-    public function key(): string|int|null
-    {
-        return key($this->source);
-    }
-
-
-    /**
-     * Returns if the current pointer is valid or not
-     *
-     * @return bool
-     */
-    public function valid(): bool
-    {
-        $key    = key($this->source);
-        $exists = array_key_exists($key, $this->source);
-
-        if (!$exists) {
-            return false;
-        }
-
-        // The entry MIGHT exist, but we can't be 100% sure if the source array has a NULL key!
-        // Weird PHP quirk coming up due to isset() / array_key_exists() not being typesafe...
-        if ($key === null) {
-            // key() will give NULL when the internal array pointer is out of range, great! However, this  messes up
-            // when having an array with '', null or 0 because isset() and or array_key_exists() will both claim that
-            // the current key exists (meaning, we're still in range) while in reality we're out of range and the key
-            // doesn't exist.
-            // We can't check if IteratorCore::source[null] exists because IteratorCore::source[""] will also respond to that,
-            // same goes for isset() and array_key_exists()
-            // current() will also return NULL when out of range, so assume that IteratorCore::source[null]
-            // has a non-NULL value. If we're really in range, current() will give a non-NULL value, like
-            // IteratorCore::source[null], and we'll know we're in range. If they are not equal (current() gives NULL) then
-            // we're out of range.
-            // However... This will still fail if some clever dipshit decides to use an array with an empty key with
-            // a null value, like [null => null, 'a' => 'a'] or [null, 'a' => 'a']
-            $exists = current($this->source) === $this->source[null];
-            if (!$exists) {
-                // Yay, the current value doesn't match the empty key value, we're out of range
-                return false;
-            }
-
-            // null value, perhaps?
-            if ($this->source[null] === null) {
-                // Oh fork me...
-                throw new OutOfBoundsException(tr('Invalid array NULL detected for empty key. Due to a PHP quirk, this value combination is NOT allowed to avoid endless loops when iterating over Iterator objects'));
-            }
-        }
-
-        // We're okay!
-        return true;
-    }
-
-
-    /**
-     * Rewinds the internal pointer
-     *
-     * @return void
-     */
-    public function rewind(): void
-    {
-        reset($this->source);
-    }
-
-
-    /**
-     * Sets the value for the specified key
-     *
-     * @note this is basically a wrapper function for IteratorCore::add($value, $key, false) that always requires a key
-     *
-     * @param mixed                 $value
-     * @param Stringable|string|int $key
-     *
-     * @return mixed
-     */
-    public function set(mixed $value, Stringable|string|int $key): static
-    {
-        return $this->append($value, $key, false, false);
     }
 
 
@@ -951,7 +840,7 @@ class IteratorCore implements IteratorInterface
      * Sets the datatype restrictions for all elements in this iterator, NULL if none
      *
      * @param array|string|null $data_types
-     * return static
+     * @return static
      */
     public function setAcceptedDataTypes(array|string|null $data_types): static
     {
@@ -974,17 +863,6 @@ class IteratorCore implements IteratorInterface
         $this->accepted_data_types = $data_types;
 
         return $this;
-    }
-
-
-    /**
-     * Returns a list of all internal definition keys with their indices (positions within the array)
-     *
-     * @return mixed
-     */
-    public function getKeyIndices(): array
-    {
-        return array_flip(array_keys($this->source));
     }
 
 
@@ -1037,19 +915,6 @@ class IteratorCore implements IteratorInterface
 
 
     /**
-     * Clears all the internal content for this object
-     *
-     * @return static
-     */
-    public function clear(): static
-    {
-        $this->source = [];
-
-        return $this;
-    }
-
-
-    /**
      * Returns if the specified key exists or not
      *
      * @param Stringable|string|int $key
@@ -1078,28 +943,6 @@ class IteratorCore implements IteratorInterface
     public function valueExists(mixed $value): bool
     {
         return in_array($value, $this->source);
-    }
-
-
-    /**
-     * Returns if the list is empty
-     *
-     * @return bool
-     */
-    public function isEmpty(): bool
-    {
-        return !count($this->source);
-    }
-
-
-    /**
-     * Returns if the list is not empty
-     *
-     * @return bool
-     */
-    public function isNotEmpty(): bool
-    {
-        return (bool) count($this->source);
     }
 
 
@@ -1154,66 +997,6 @@ class IteratorCore implements IteratorInterface
 
 
     /**
-     * Keep source keys on the specified needles with the specified match mode
-     *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param bool                                     $strict
-     *
-     * @return static
-     */
-    public function keepKeys(ArrayableInterface|array|string|int|null $needles, bool $strict = false): static
-    {
-        $this->source = Arrays::keepKeys($this->source, $needles, $strict);
-        return $this;
-    }
-
-
-    /**
-     * Remove source keys on the specified needles with the specified match mode
-     *
-     * @param Stringable|array|string|int $keys
-     * @param bool                        $strict
-     *
-     * @return static
-     */
-    public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
-    {
-        $this->source = Arrays::removeKeys($this->source, $keys, $strict);
-        return $this;
-    }
-
-
-    /**
-     * Keep source values on the specified needles with the specified match mode
-     *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param bool                                     $strict
-     *
-     * @return static
-     */
-    public function keepValues(ArrayableInterface|array|string|int|null $needles, ?string $column = null, bool $strict = false): static
-    {
-        $this->source = Arrays::keepValues($this->source, $needles, $column, $strict);
-        return $this;
-    }
-
-
-    /**
-     * Remove source values on the specified needles with the specified match mode
-     *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param bool                                     $strict
-     *
-     * @return static
-     */
-    public function removeValues(ArrayableInterface|array|string|int|null $needles, ?string $column = null, bool $strict = false): static
-    {
-        $this->source = Arrays::removeValues($this->source, $needles, $column, $strict);
-        return $this;
-    }
-
-
-    /**
      * Remove source keys on the specified needles with the specified match mode
      *
      * @param ArrayableInterface|array|string|int|null $needles
@@ -1233,6 +1016,7 @@ class IteratorCore implements IteratorInterface
      *
      * @param ArrayableInterface|array|string|int|null $needles
      * @param int                                      $flags
+     * @param string|null                              $column
      *
      * @return static
      */
@@ -1263,6 +1047,7 @@ class IteratorCore implements IteratorInterface
      *
      * @param ArrayableInterface|array|string|int|null $needles
      * @param int                                      $flags
+     * @param string|null                              $column
      *
      * @return static
      */
@@ -1360,7 +1145,7 @@ class IteratorCore implements IteratorInterface
 //                            ':column' => $column,
 //                        ]));
 //                    }
-//                    // This entry is not an array but DataEntry object. Compare using DataEntry::getSourceValue()
+//                    // This entry is not an array but DataEntry object. Compare using DataEntry::get()
 //                    if ($data->load($key) === $value) {
 //                        unset($this->source[$key]);
 //                    }
@@ -1391,13 +1176,25 @@ class IteratorCore implements IteratorInterface
         }
 
         // Get the first entry to use for columns, and remove the ID column
-        $return = $this->getFirstValue();
-        array_shift($return);
+        $entry = $this->getFirstValue();
+
+        // If the first entry is ArraySourceInterface object, get the source data array
+        if (is_object($entry)) {
+            if (!($entry instanceof ArraySourceInterface)) {
+                throw new OutOfBoundsException(tr('Cannot generate totals, first entry ":entry" is a non ArraySourceInterface object', [
+                    ':entry' => get_class($entry)
+                ]));
+            }
+
+            $entry = $entry->getSource();
+        }
+
+        array_shift($entry);
 
         // Build up the return columns
-        $key    = array_key_first($return);
-        $return = Arrays::setValues($return, null);
-        $return = array_merge($return, [$totals_column ?? $key => tr('Totals')]);
+        $key   = array_key_first($entry);
+        $entry = Arrays::setValues($entry, null);
+        $entry = array_merge($entry, [$totals_column ?? $key => tr('Totals')]);
 
         foreach ($columns as $column => $total) {
             $return[$column] = 0;
@@ -1405,9 +1202,20 @@ class IteratorCore implements IteratorInterface
 
         // Build up the totals
         foreach ($this->source as &$entry) {
+            // If the entry is ArraySourceInterface object, get the source data array
+            if (is_object($entry)) {
+                if (!($entry instanceof ArraySourceInterface)) {
+                    throw new OutOfBoundsException(tr('Cannot generate totals, entry ":entry" is a non ArraySourceInterface object', [
+                        ':entry' => get_class($entry)
+                    ]));
+                }
+
+                $entry = $entry->getSource();
+            }
+
             if (!is_array($entry)) {
                 throw new OutOfBoundsException(tr('Cannot generate source totals, source contains non-array entry ":entry"', [
-                    ':entry' => $entry,
+                    ':entry' => get_class($entry),
                 ]));
             }
 
@@ -1468,7 +1276,6 @@ class IteratorCore implements IteratorInterface
     public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static
     {
         Cli::displayTable($this->source, $columns, $id_column);
-
         return $this;
     }
 
@@ -1485,7 +1292,29 @@ class IteratorCore implements IteratorInterface
     public function displayCliKeyValueTable(?string $key_header = null, string $value_header = null, int $offset = 0): static
     {
         Cli::displayForm($this->source, $key_header, $value_header, $offset);
+        return $this;
+    }
 
+
+    /**
+     * Shift an entry off the beginning of this Iterator
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function shift(): mixed
+    {
+        return array_shift($this->source);
+    }
+
+
+    /**
+     * Prepend elements to the beginning of an array
+     *
+     * @return mixed
+     */
+    public function unshift(mixed ...$values): static
+    {
+        array_unshift($this->source, $values);
         return $this;
     }
 
@@ -1498,7 +1327,6 @@ class IteratorCore implements IteratorInterface
     public function sort(): static
     {
         asort($this->source);
-
         return $this;
     }
 
@@ -1511,7 +1339,6 @@ class IteratorCore implements IteratorInterface
     public function rsort(): static
     {
         arsort($this->source);
-
         return $this;
     }
 
@@ -1524,7 +1351,6 @@ class IteratorCore implements IteratorInterface
     public function ksort(): static
     {
         ksort($this->source);
-
         return $this;
     }
 
@@ -1537,7 +1363,6 @@ class IteratorCore implements IteratorInterface
     public function krsort(): static
     {
         krsort($this->source);
-
         return $this;
     }
 
@@ -1545,12 +1370,13 @@ class IteratorCore implements IteratorInterface
     /**
      * Sorts the Iterator source using the specified callback
      *
+     * @param callable $callback
+     *
      * @return static
      */
     public function uasort(callable $callback): static
     {
         uasort($this->source, $callback);
-
         return $this;
     }
 
@@ -1565,7 +1391,6 @@ class IteratorCore implements IteratorInterface
     public function uksort(callable $callback): static
     {
         uksort($this->source, $callback);
-
         return $this;
     }
 
@@ -1578,7 +1403,6 @@ class IteratorCore implements IteratorInterface
     public function limitAutoComplete(): static
     {
         $this->source = Arrays::limit($this->source, Limit::shellAutoCompletion());
-
         return $this;
     }
 
@@ -1667,7 +1491,7 @@ class IteratorCore implements IteratorInterface
         }
 
         $value = $this->get($key, $exception);
-        $value = $this->checkSourceValueHasColumns($value, $columns);
+        $value = $this->ensureSourceValueHasColumns($value, $columns);
 
         return new Iterator(Arrays::keepKeys($value, $columns));
     }
@@ -1701,17 +1525,18 @@ class IteratorCore implements IteratorInterface
 
 
     /**
-     * Returns the random entry
+     * Sets the value for the specified key
      *
-     * @return Stringable|string|int|null
+     * @note this is basically a wrapper function for IteratorCore::add($value, $key, false) that always requires a key
+     *
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
+     *
+     * @return mixed
      */
-    #[ReturnTypeWillChange] public function getRandomKey(): Stringable|string|int|null
+    public function set(mixed $value, Stringable|string|float|int $key): static
     {
-        if (empty($this->source)) {
-            return null;
-        }
-
-        return array_rand($this->source, 1);
+        return $this->append($value, $key, false, false);
     }
 
 
@@ -1746,14 +1571,16 @@ class IteratorCore implements IteratorInterface
 
 
     /**
-     * Validate that the specified value has the requested columns
+     * Checks that the specified value has the requested columns
      *
      * @param mixed        $value
      * @param array|string $columns
      *
-     * @return array
+     * @return array|null
+     *
+     * @throws OutOfBoundsException When the specified value is neither an array nor an ArrayableInterface object
      */
-    protected function checkSourceValueHasColumns(mixed $value, array|string $columns): array
+    protected function checkSourceValueHasColumns(ArrayableInterface|array $value, array|string $columns): ?array
     {
         // Ensure we have arrays
         if (is_object($value)) {
@@ -1771,6 +1598,39 @@ class IteratorCore implements IteratorInterface
                 throw new OutOfBoundsException(tr('The requested column ":column" does not exist', [
                     ':column' => $column,
                 ]));
+            }
+        }
+
+        return $value;
+    }
+
+
+    /**
+     * Ensures that the specified value has the requested columns
+     *
+     * @param mixed        $value
+     * @param array|string $columns
+     * @param mixed|null   $default
+     *
+     * @return array|null
+     *
+     */
+    protected function ensureSourceValueHasColumns(ArrayableInterface|array $value, array|string $columns, mixed $default = null): ?array
+    {
+        // Ensure we have arrays
+        if (is_object($value)) {
+            if (!$value instanceof ArrayableInterface) {
+                throw new OutOfBoundsException(tr('Cannot get source columns for ":this", the source contains non arrayable objects', [
+                    ':this' => get_class($this),
+                ]));
+            }
+
+            $value = $value->__toArray();
+        }
+
+        foreach (Arrays::force($columns) as $column) {
+            if (!array_key_exists($column, $value)) {
+                $value[$column] = $default;
             }
         }
 
@@ -1896,7 +1756,7 @@ class IteratorCore implements IteratorInterface
     /**
      * Returns an IteratorInterface with array values containing only the specified columns
      *
-     * @note This only works on sources that contains array / DataEntry object values. Any other value will cause an
+     * @note This only works on sources that contain array / DataEntry object values. Any other value will cause an
      *       OutOfBoundsException
      *
      * @note If no columns were specified, then all columns will be assumed and the complete source will be returned
@@ -1917,7 +1777,7 @@ class IteratorCore implements IteratorInterface
         $columns = Arrays::force($columns);
 
         foreach ($this->source as $key => $value) {
-            $value        = $this->checkSourceValueHasColumns($value, $columns);
+            $value        = $this->ensureSourceValueHasColumns($value, $columns);
             $return[$key] = Arrays::keepKeysOrdered($value, $columns);
         }
 
@@ -1935,6 +1795,11 @@ class IteratorCore implements IteratorInterface
     protected function prepareHeaders(array|string|null $columns): ?array
     {
         if ($columns and is_array($columns)) {
+            foreach ($columns as &$column) {
+                $column = Strings::capitalize($column);
+            }
+
+            unset($column);
             return $columns;
         }
 
@@ -1976,6 +1841,8 @@ class IteratorCore implements IteratorInterface
     {
         $this->ensureArrays();
 
+        $columns = $columns ?? $this->columns;
+
         return HtmlTable::new()
                         ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                         ->setHeaders($this->prepareHeaders($columns))
@@ -1996,12 +1863,25 @@ class IteratorCore implements IteratorInterface
     {
         $this->ensureArrays();
 
+        $columns = $columns ?? $this->columns;
+
         return HtmlDataTable::new()
                             ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                             ->setHeaders($this->prepareHeaders($columns))
                             ->setSource($this->getAllRowsMultipleColumns($this->prepareColumns($columns)))
                             ->setRowCallbacks($this->row_callbacks)
                             ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
+    }
+
+
+    /**
+     * Returns a SpreadSheet object with this object's source data in it
+     *
+     * @return SpreadSheetInterface
+     */
+    public function getSpreadSheet(): SpreadSheetInterface
+    {
+        return new SpreadSheet($this);
     }
 
 
@@ -2023,10 +1903,10 @@ class IteratorCore implements IteratorInterface
      *
      * @return static
      */
-    public function each(callable $callback): static
+    public function eachField(callable $callback): static
     {
         foreach ($this->source as $key => &$value) {
-            $callback($key, $value);
+            $callback($value, $key);
         }
 
         unset($value);
@@ -2096,6 +1976,22 @@ class IteratorCore implements IteratorInterface
     protected function fetchKeyFromValue(mixed $value): mixed
     {
         return null;
+    }
+
+
+    /**
+     * Ensures that all iterator entries are arrays
+     *
+     * @return $this
+     */
+    public function ensureObjects(): static
+    {
+        foreach ($this->source as $key => &$value) {
+            $value = $this->ensureObject($key);
+        }
+
+        unset($value);
+        return $this;
     }
 
 

@@ -213,7 +213,7 @@ class ImgCore extends SpanCore implements ImgInterface
     {
 //        // Get a built src string. If $built_src is equal to specified $src then it wasn't changed and so it's an
 //        $domain         = Url::getDomain($src);
-//        $built_src      = UrlBuilder::getCdn($src);
+//        $built_src      = Url::getCdn($src);
 //        $this->external = Url::isExternal($src);
 //
 //        if ($this->external) {
@@ -256,7 +256,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //            $file_src =
 //            $file_src = DIRECTORY_DATA . 'cdn/' . Session::getLanguage() . 'img/' . $src;
 //            $file_src = '/pub'.Strings::startsWith($src, '/');
-//            $src      = UrlBuilder::getImg($src);
+//            $src      = Url::getImg($src);
 //        }
         $this->src = Url::getImg($src);
 
@@ -380,7 +380,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //                }
 //            }
 //
-//        }catch(Exception $e) {
+//        }catch (Exception $e) {
 //            notify($e);
 //            $image = null;
 //        }
@@ -401,7 +401,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //                        $file  = file_move_to_target($file_src, DIRECTORY_TMP, false, true);
 //                        $image = getimagesize(DIRECTORY_TMP.$file);
 //
-//                    }catch(Exception $e) {
+//                    }catch (Exception $e) {
 //                        switch ($e->getCode()) {
 //                            case 404:
 //                                log_file(tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src)));
@@ -440,7 +440,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //                        try {
 //                            $image = getimagesize($file_src);
 //
-//                        }catch(Exception $e) {
+//                        }catch (Exception $e) {
 //                            switch ($e->getCode()) {
 //                                case 404:
 //                                    log_file(tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src)));
@@ -481,7 +481,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //                $image['height'] = $image[1];
 //                $status          = null;
 //
-//            }catch(Exception $e) {
+//            }catch (Exception $e) {
 //                notify($e);
 //
 //                $image['width']  = 0;
@@ -512,7 +512,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //                            ':height' => $image['height'],
 //                            ':status' => $status));
 //
-//                }catch(Exception $e) {
+//                }catch (Exception $e) {
 //                    notify($e);
 //                }
 //            }
@@ -620,7 +620,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //                        $params['src'] = $target;
 //                        $file_src      = $file_target;
 //
-//                    }catch(Exception $e) {
+//                    }catch (Exception $e) {
 //                        /*
 //                         * Failed to auto resize the image. Notify and stay with
 //                         * the current version meanwhile.
@@ -795,7 +795,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //                    $this->render .= html_script(array('event'  => 'function',
 //                        'script' => '$(".lazy").Lazy({'.array_implode_with_keys($options, ',', ':').'});'));
 //
-//                }catch(Exception $e) {
+//                }catch (Exception $e) {
 //                    /*
 //                     * Oops, jquery.lazy failed to install or load. Notify, and
 //                     * ignore, we will just continue without lazy loading.
@@ -818,9 +818,9 @@ class ImgCore extends SpanCore implements ImgInterface
      *
      * @return IteratorInterface
      */
-    protected function renderAttributes(): IteratorInterface
+    protected function renderAttributesArray(): IteratorInterface
     {
-        return parent::renderAttributes()
+        return parent::renderAttributesArray()
                      ->appendSource([
                          'src' => $this->src,
                          'alt' => $this->alt,
@@ -916,9 +916,9 @@ class ImgCore extends SpanCore implements ImgInterface
 //
 //            // Convert src back to URL again
 //            $this->file_src = $target;
-//            $this->src      = UrlBuilder::getImg($target_part);
+//            $this->src      = Url::getImg($target_part);
 //
-//        }catch(Throwable $e) {
+//        }catch (Throwable $e) {
 //            // Failed to upgrade image. Use the original image
 //            $e->makeWarning(true);
 //            $e->addMessages(tr('Failed to auto convert image ":src" to format ":format". Leaving image as-is', [

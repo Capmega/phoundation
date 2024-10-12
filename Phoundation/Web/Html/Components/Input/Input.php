@@ -50,10 +50,10 @@ abstract class Input extends Element implements InputInterface
      *       values that were added as general attributes using Element::getAttributes()->add()
      * @return IteratorInterface
      */
-    protected function renderAttributes(): IteratorInterface
+    protected function renderAttributesArray(): IteratorInterface
     {
         $this->attributes = $this->renderInputAttributes()->appendSource($this->attributes);
 
-        return parent::renderAttributes();
+        return parent::renderAttributesArray();
     }
 }

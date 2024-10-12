@@ -22,9 +22,9 @@ trait TraitDataEntryConnector
     /**
      * Returns the connector for this object
      *
-     * @return string|null
+     * @return string
      */
-    public function getConnector(): ?string
+    public function getConnector(): string
     {
         return $this->getTypesafe('string', 'connector');
     }
@@ -34,11 +34,17 @@ trait TraitDataEntryConnector
      * Sets the connector for this object
      *
      * @param string|null $connector
+     * @param string|null $database
      *
      * @return static
      */
-    public function setConnector(?string $connector): static
+    public function setConnector(?string $connector, ?string $database = null): static
     {
+        if ($database) {
+            return $this->set($connector, 'connector')
+                        ->set($database , 'database');
+        }
+
         return $this->set($connector, 'connector');
     }
 }

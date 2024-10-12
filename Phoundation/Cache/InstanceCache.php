@@ -20,6 +20,7 @@ namespace Phoundation\Cache;
 
 use Phoundation\Cache\Exception\CacheNotFoundException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Timers;
 use Phoundation\Developer\Debug;
 use Stringable;
 
@@ -285,11 +286,16 @@ class InstanceCache
     public static function logStatistics(): void
     {
         if (Debug::isEnabled() and !QUIET) {
-            Log::write(tr('InstanceCache object has ":count" cached object(s) with ":checks" checks, ":hits" hits, and ":percent" effectiveness', [
+            Log::write(tr('STATISTIC InstanceCache object has ":count" cached object(s) with ":checks" checks, ":hits" hits, and ":percent" effectiveness', [
                 ':count'   => InstanceCache::getCacheCount(),
                 ':checks'  => InstanceCache::getCacheChecks(),
                 ':hits'    => InstanceCache::getCacheHits(),
                 ':percent' => number_format(InstanceCache::getCacheEfficiency(), 2) . '%',
+            ]), 'debug', 9);
+
+            Log::write(tr('STATISTIC SQL object executed ":count" queries in ":time" seconds', [
+                ':count' => Timers::getCount('sql'),
+                ':time'  => number_format(Timers::getTotal('sql'), 5),
             ]), 'debug', 9);
         }
     }

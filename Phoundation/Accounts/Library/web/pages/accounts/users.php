@@ -31,14 +31,12 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
-// Build the page content
-// Build users filter card
-$filters      = FilterForm::new()->apply();
+// Build the "filters" card
+$filters      = FilterForm::new();
 $filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('Filters')
-                    ->setContent($filters->render())
-                    ->useForm(true);
+                    ->setContent($filters);
 
 
 // Button clicked?
@@ -47,7 +45,7 @@ if (Request::isPostRequestMethod()) {
     $post = PostValidator::new()
                          ->select('accounts_users_length')->isOptional()->isNumeric()    // This is paging length, ignore
                          ->select('submit')->isOptional()->isVariable()
-                         ->select('id')->isOptional()->isArray()->each()->isDbId()
+                         ->select('id')->isOptional()->isArray()->eachField()->isDbId()
                          ->validate();
 
     try {
@@ -85,7 +83,8 @@ $builder = $users->getQueryBuilder()
                      `accounts_users`.`status`, 
                      GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`, 
                      `accounts_users`.`sign_in_count`,
-                     `accounts_users`.`created_on`
+                     `accounts_users`.`created_on`,
+                     `accounts_users`.`profile_image`
                  ')
                  ->addJoin('LEFT JOIN `accounts_users_roles`
                             ON        `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
@@ -94,8 +93,8 @@ $builder = $users->getQueryBuilder()
                  ->addWhere('`accounts_users`.`email` != "guest"')
                  ->addGroupBy('`accounts_users`.`id`');
 
-switch ($filters->get('entry_status')) {
-    case '__all':
+switch ($filters->get('status')) {
+    case 'all':
         break;
 
     case null:
@@ -104,7 +103,7 @@ switch ($filters->get('entry_status')) {
 
     default:
         $builder->addWhere('`accounts_users`.`status` = :status', [
-            ':status' => $filters->get('entry_status'),
+            ':status' => $filters->get('status'),
         ]);
 }
 
@@ -115,8 +114,10 @@ if ($filters->get('roles_id')) {
 }
 
 if ($filters->get('rights_id')) {
-    $builder->addJoin('JOIN `accounts_users_rights` ON `accounts_users_rights`.`rights_id` :rights_id AND `accounts_users_rights`.`users_id` = `accounts_users`.`id`', [
-        ':rights_id' => $filters->get('rights_id'),
+    $builder->addJoin('JOIN `accounts_users_rights` 
+                         ON `accounts_users_rights`.`rights_id` = :rights_id 
+                        AND `accounts_users_rights`.`users_id`  = `accounts_users`.`id`', [
+                            ':rights_id' => $filters->get('rights_id'),
     ]);
 }
 
@@ -134,8 +135,7 @@ $users_card = Card::new()
                   ->setSwitches('reload')
                   ->setContent($users->load()
                                      ->getHtmlDataTableObject()
-                                         ->setRowUrl('/accounts/user+:ROW.html')
-                                         ->setOrder([1 => 'asc']))
+                                         ->setRowUrl('/accounts/user+:ROW.html'))
                   ->useForm(true)
                   ->setButtons($buttons);
 
@@ -149,7 +149,7 @@ $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
                 ->setContent('<a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+                              <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation
@@ -159,10 +159,10 @@ $documentation = Card::new()
                      ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Build and render the page grid
+// Render and return the page grid
 $grid = Grid::new()
-            ->addGridColumn($filters_card->render() . $users_card->render(), EnumDisplaySize::nine)
-            ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+            ->addGridColumn($filters_card . $users_card, EnumDisplaySize::nine)
+            ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

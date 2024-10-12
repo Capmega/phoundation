@@ -110,23 +110,27 @@ class MaxMind extends GeoIp
             if (isset($cityDbReader) and str_contains($e->getMessage(), '127.0.0.1')) {
                 // THIS... IS... LOCALHOST!!!! We can't get any GeoIP data from this address.
                 // Spoof the IP address, use the public IP address for this machine
+                Log::warning(tr('Connection is localhost, finding public IP address of this machine to spoof IP'));
+
                 $ip_address = Network::getPublicIpAddress();
 
                 if ($ip_address) {
-                    Log::warning(tr('Connection is localhost, spoofing IP address with public IP address ":ip" for this machine', [
+                    Log::warning(tr('Spoofing IP address with this machine public IP address ":ip"', [
                         ':ip' => $ip_address,
                     ]));
 
                 } else {
                     // Fine, if that doesn't work then spoof the IP address by using the IP for phoundation.org
                     $ip_address = gethostbyname('phoundation.org');
+
                     if ($ip_address) {
-                        Log::warning(tr('Connection is localhost, spoofing IP address with ":ip" from phoundation.org', [
+                        Log::warning(tr('Unable to get public IP address, spoofing IP address with ":ip" from phoundation.org', [
                             ':ip' => $ip_address,
                         ]));
+
                     } else {
                         // FINE! We failed...
-                        Log::warning(tr('Unable to get any GeoIP data. Connection is localhost and unable to spoof IP address'));
+                        Log::warning(tr('Unable to get any public IP address for GeoIP data.'));
 
                         return $this;
                     }
@@ -192,7 +196,7 @@ class MaxMind extends GeoIp
      *
      * @return City|null
      */
-    public function getLocation(): ?City
+    public function getCity(): ?City
     {
         return $this->record;
     }

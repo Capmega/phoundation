@@ -528,12 +528,12 @@ interface CurlInterface
     /**
      * Returns the result headers
      *
-     * @param string                $key
      * @param string|float|int|null $value
+     * @param string                $key
      *
      * @return static
      */
-    public function addRequestHeader(string $key, string|float|int|null $value): static;
+    public function addRequestHeader(string|float|int|null $value, string $key): static;
 
 
     /**

@@ -266,14 +266,14 @@ class Database extends SchemaAbstract implements DatabaseInterface
 
         // Export the current database
         Export::new()
-              ->setConnector($this->sql->getConnector())
+              ->setConnectorObject($this->sql->getConnectorObject())
               ->setDatabase($this->getName())
               ->setTimeout($timeout)
               ->dump($file);
 
         // Import dump into new database
         Import::new()
-              ->setConnector($this->sql->getConnector())
+              ->setConnectorObject($this->sql->getConnectorObject())
               ->setDatabase($database_name)
               ->setFile($file)
               ->setTimeout($timeout)

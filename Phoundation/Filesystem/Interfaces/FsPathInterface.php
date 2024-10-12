@@ -450,22 +450,18 @@ interface FsPathInterface extends Stringable
     /**
      * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
      *
-     * @return string string The real directory extrapolated from the specified $directory, if exists. False if
-     *                whatever was specified does not exist.
-     *
-     * @example
-     * code
-     * show(FsFile::new()->getRealPath());
-     * showdie(FsFile::new()->getRealPath());
-     * /code
-     *
-     * This would result in
-     * code
-     * null
-     * /bin
-     * /code
+     * @return FsPathInterface string The real path extrapolated from the specified $directory, if exists. False if
+     *                         whatever was specified does not exist.
      */
     public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string;
+
+    /**
+     * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
+     *
+     * @return FsPathInterface string The real path extrapolated from the specified $directory, if exists. False if
+     *                         whatever was specified does not exist.
+     */
+    public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): FsPathInterface;
 
     /**
      * Make this path a real path
@@ -476,30 +472,7 @@ interface FsPathInterface extends Stringable
      * @param bool $must_exist
      * @return static
      */
-    public function makeRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static;
-
-    /**
-     * Returns a normalized path that has all ./ and ../ resolved
-     *
-     * @param Stringable|string|bool|null $absolute_prefix
-     * @param bool                        $must_exist
-     *
-     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if
-     *                 whatever was specified does not exist.
-     *
-     * @example
-     * code
-     * show(FsFile::new()->getRealPath());
-     * showdie(FsFile::new()->getRealPath());
-     * /code
-     *
-     * This would result in
-     * code
-     * null
-     * /bin
-     * /code
-     */
-    public function getNormalizedPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): ?string;
+    public function makeReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static;
 
     /**
      * Ensure that the object file is writable
@@ -622,17 +595,18 @@ interface FsPathInterface extends Stringable
      */
     public function isOpen(): bool;
 
+
     /**
      * Creates a symlink $target that points to this file.
      *
      * @note Will return a NEW Path object (FsFileInterface or FsDirectory, basically) for the specified target
      *
-     * @param FsPathInterface|string      $target
+     * @param FsPathInterface             $target
      * @param FsPathInterface|string|bool $make_relative
      *
      * @return FsPathInterface
      */
-    public function symlinkTargetFromThis(FsPathInterface|string $target, FsPathInterface|string|bool $make_relative = true): FsPathInterface;
+    public function symlinkTargetFromThis(FsPathInterface $target, FsPathInterface|string|bool $make_relative = true): FsPathInterface;
 
     /**
      * Makes this path a symlink that points to the specified target.
@@ -1252,4 +1226,34 @@ interface FsPathInterface extends Stringable
      * @return $this
      */
     public function ensureExtension(string $extension): static;
+
+    /**
+     * Returns the absolute version of this path
+     *
+     * @param Stringable|string|bool|null $prefix
+     * @param bool                        $must_exist
+     *
+     * @return string
+     */
+    public function getAbsolutePath(Stringable|string|bool|null $prefix = null, bool $must_exist = true): string;
+
+    /**
+     * Returns the absolute version of this path
+     *
+     * @param Stringable|string|bool|null $prefix
+     * @param bool                        $must_exist
+     *
+     * @return FsPathInterface
+     */
+    public function getAbsolute(Stringable|string|bool|null $prefix = null, bool $must_exist = true): FsPathInterface;
+
+    /**
+     * Checks if the specified file exists
+     *
+     * @param bool $auto_mount
+     * @param bool $check_dead_symlink
+     *
+     * @return bool
+     */
+    public function getExists(bool $check_dead_symlink = false, bool $auto_mount = true): bool;
 }

@@ -21,11 +21,13 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessageInterface;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
+use Phoundation\Web\Html\Enums\EnumAttachJavascript;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Stringable;
 use Throwable;
@@ -241,18 +243,21 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
     /**
      * Renders all flash messages
      *
+     * @param EnumAttachJavascript $attach_javascript
+     *
      * @return string|null
      */
-    public function render(): ?string
+    public function render(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string
     {
         $this->render = '';
 
         foreach ($this->source as $message) {
-            $this->render .= $message->renderBare();
+            $this->render .= $message->render();
         }
 
         // Add script tags around all the flash calls
         $this->render = Script::new()
+                              ->setAttach($attach_javascript)
                               ->setContent($this->render)
                               ->render();
 
@@ -265,23 +270,34 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
 
 
     /**
-     * Renders all flash messages for JSON replies
+     * Renders all flash messages into an array and returns it
      *
      * @return array
      */
-    public function renderJson(): array
+    public function renderArray(): array
     {
         $render = [];
 
         foreach ($this->source as $message) {
-            $render[] = $message->renderBare();
+            $render[] = $message->renderArray();
         }
 
         // Remove all flash messages from this object
         $this->clear();
         $this->has_rendered = true;
-
+Log::printr($render);
         return $render;
+    }
+
+
+    /**
+     * Renders all flash messages into a JSON object and returns it
+     *
+     * @return ?string
+     */
+    public function renderJson(): ?string
+    {
+        return Json::encode($this->renderArray());
     }
 
 

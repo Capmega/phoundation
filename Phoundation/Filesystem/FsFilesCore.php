@@ -18,6 +18,7 @@ namespace Phoundation\Filesystem;
 
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -291,6 +292,24 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
         }
 
         return $files;
+    }
+
+
+    /**
+     * Returns an iterator containing the basename for all files in this object
+     *
+     * @return IteratorInterface
+     */
+    public function getBasenames(): IteratorInterface
+    {
+        $source = [];
+
+        foreach ($this->source as $file) {
+            $basename = $file->getBasename();
+            $source[$basename] = $basename;
+        }
+
+        return new Iterator($source);
     }
 
 

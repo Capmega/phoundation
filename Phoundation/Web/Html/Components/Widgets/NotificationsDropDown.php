@@ -32,7 +32,7 @@ use Stringable;
 class NotificationsDropDown extends ElementsBlock
 {
     use TraitDataStatus {
-        setStatus as setStatusTrait;
+        setStatusFilter as setStatusTrait;
     }
 
     /**
@@ -66,9 +66,9 @@ class NotificationsDropDown extends ElementsBlock
      *
      * @return static
      */
-    public function setStatus(?string $status): static
+    public function setStatusFilter(?string $status): static
     {
-        if ($this->status !== $status) {
+        if ($this->status_filter !== $status) {
             $this->notifications = null;
         }
 
@@ -163,12 +163,12 @@ class NotificationsDropDown extends ElementsBlock
                                 ->addSelect('`id` AS `_id`, `notifications`.*')
                                 ->addOrderBy('`created_on` DESC');
 
-            if ($this->status) {
+            if ($this->status_filter) {
                 $this->notifications->getQueryBuilder()
-                                    ->addWhere('`users_id` = :users_id AND ' . SqlQueries::is('`status`', $this->status, 'status'), [
+                                    ->addWhere('`users_id` = :users_id AND ' . SqlQueries::is('`status`', $this->status_filter, 'status'), [
                                         ':users_id' => Session::getUserObject()
                                                               ->getId(),
-                                        ':status'   => $this->status,
+                                        ':status'   => $this->status_filter,
                                     ]);
             }
 

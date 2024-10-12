@@ -48,7 +48,7 @@ if (Request::isPostRequestMethod()) {
             case tr('Save'):
                 // Validate roles
                 $post = PostValidator::new()
-                    ->select('roles_id')->isOptional()->isArray()->each()->isOptional()->isDbId()
+                    ->select('roles_id')->isOptional()->isArray()->eachField()->isOptional()->isDbId()
                     ->validate(false);
 
                 // Update requirement, roles, emails, and phones
@@ -59,7 +59,7 @@ if (Request::isPostRequestMethod()) {
                 ]));
 
                 // Redirect away from POST
-                Response::redirect(UrlBuilder::getWww('/phoundation/file-system/requirements/requirement+' . $requirement->getId() . '.html'));
+                Response::redirect(Url::getWww('/phoundation/file-system/requirements/requirement+' . $requirement->getId() . '.html'));
 
             case tr('Delete'):
                 $requirement->delete();
@@ -155,15 +155,15 @@ if (!$requirement->isNew()) {
 }
 
 
-// Build the requirement form
+// Build the "requirement" form
 $requirement_card = Card::new()
     ->setCollapseSwitch(true)
     ->setMaximizeSwitch(true)
     ->setTitle(tr('Edit requirement :name', [':name' => $requirement->getDisplayName()]))
-    ->setContent($requirement->getHtmlDataEntryFormObject()->render())
+    ->setContent($requirement->getHtmlDataEntryFormObject())
     ->setButtons(Buttons::new()
                         ->addButton(isset_get($save))
-                        ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/file-system/requirements/requirements.html'), true)
+                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/phoundation/file-system/requirements/requirements.html'), true)
                         ->addButton(isset_get($audit))
                         ->addButton(isset_get($delete))
                         ->addButton(isset_get($lock))
@@ -175,7 +175,7 @@ $picture = Card::new()
     ->setTitle(tr('Requirement profile picture'))
     ->setContent(Img::new()
         ->addClasses('w100')
-        ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+        ->setSrc(Url::getImg('img/profiles/default.png'))
 //        ->setSrc($requirement->getPicture())
         ->setAlt(tr('Profile picture for :requirement', [':requirement' => $requirement->getDisplayName()])));
 
@@ -184,7 +184,7 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
-->setContent('<a href="' . UrlBuilder::getWww('/phoundation/file-systems.html') . '">' . tr('Manage filesystems') . '</a><br>');
+->setContent('<a href="' . Url::getWww('/phoundation/file-systems.html') . '">' . tr('Manage filesystems') . '</a><br>');
 
 
 // Build documentation
@@ -196,14 +196,14 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Build and render the page grid
+// Render and return the page grid
 $grid = Grid::new()
     ->addGridColumn(GridColumn::new()
         // The requirement card and all additional cards
-        ->addContent($requirement_card->render())
+        ->addContent($requirement_card)
         ->setSize(9)
         ->useForm(true))
-    ->addGridColumn($picture->render() . '<br>' . $relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+    ->addGridColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

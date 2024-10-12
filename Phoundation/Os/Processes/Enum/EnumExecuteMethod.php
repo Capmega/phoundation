@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Enum;
 
+
 enum EnumExecuteMethod: string
 {
     case background     = 'background';

@@ -45,8 +45,8 @@ trait TraitDataGeoIp
     {
         $this->geo_ip = $geo_ip;
         if ($geo_ip) {
-            $this->setLatitude($geo_ip->getLocation()?->location->latitude);
-            $this->setLongitude($geo_ip->getLocation()?->location->longitude);
+            $this->setLatitude($geo_ip->getCity()?->location->latitude);
+            $this->setLongitude($geo_ip->getCity()?->location->longitude);
         }
 
         return $this;

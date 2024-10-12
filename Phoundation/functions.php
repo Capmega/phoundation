@@ -13,15 +13,6 @@
  * @package   functions
  */
 
-/**
- * Returns true if the specified string is a version, or false if it is not
- *
- * @param string $version The version to be validated
- *
- * @return boolean True if the specified $version is an N.N.N version string
- * @version 2.5.46: Added function and documentation
- */
-
 
 declare(strict_types=1);
 
@@ -29,6 +20,7 @@ use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Interfaces\FloatableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -50,6 +42,8 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
+
+
 function is_version(string $version): bool
 {
     $return = preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
@@ -182,10 +176,15 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
             foreach ($replace as &$value) {
                 $value = Strings::log($value);
             }
+
+        } else {
+            // Ensure all replacements are strings to avoid a crash
+            foreach ($replace as &$value) {
+                $value = Strings::force($value);
+            }
         }
 
         unset($value);
-
         return str_replace(array_keys($replace), array_values($replace), $text);
     }
 
@@ -362,8 +361,10 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                     }
 
                     if (is_numeric($variable)) {
-                        // This is a float number stored as a string, convert it to integer
-                        return (float) $variable;
+                        if (!is_integer($variable)) {
+                            // This is a float number stored as a string, convert it to integer
+                            return (float) $variable;
+                        }
                     }
 
                     break;
@@ -388,11 +389,11 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                     if (is_string($variable)) {
                         $variable = strtolower(trim($variable));
 
-                        if ($variable === 'true') {
+                        if (($variable === 'true') or ($variable === '1')) {
                             return true;
                         }
 
-                        if ($variable === 'false') {
+                        if (($variable === 'false') or ($variable === '0')) {
                             return false;
                         }
                     }
@@ -416,6 +417,8 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                 case 'function':
                     // no break
                 case 'callable':
+                    // no break
+                case 'closure':
                     if (is_callable($variable)) {
                         return $variable;
                     }
@@ -452,7 +455,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
                 default:
                     // This should be an object
-                    if (is_subclass_of($variable, $type)) {
+                    if ($variable instanceof $type) {
                         return $variable;
                     }
 
@@ -837,15 +840,17 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
 
 
 /**
- * Return $source if $source is not considered "empty".
+ * Return $source if $source is not considered "empty", NULL otherwise
  *
  * Return null if the specified variable is considered "empty", like 0, "", array(), etc.
  *
+ * @see get_false()
+ * @see get_empty()
  * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
  *
  * @return mixed Either $source or null, depending on if $source is empty or not
- * @see     get_empty()
  * @note    This function is a wrapper for get_empty($source, null);
+ * @see     get_empty()
  * @version 2.6.27: Added documentation
  * @example
  * code
@@ -862,6 +867,26 @@ function get_null(mixed $source): mixed
 {
     if (empty($source)) {
         return null;
+    }
+
+    return $source;
+}
+
+
+/**
+ * Return $source if $source is not considered "empty", FALSE otherwise.
+ *
+ * Return false if the specified variable is considered "empty", like 0, "", array(), etc.
+ *
+ * @see get_null()
+ * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ *
+ * @return mixed Either $source or null, depending on if $source is empty or not
+ */
+function get_false(mixed $source): mixed
+{
+    if (empty($source)) {
+        return false;
     }
 
     return $source;
@@ -932,7 +957,7 @@ function is_really_natural(mixed $source, bool $allow_zero = false): bool
 function get_integer(mixed $source, bool $allow_null = true): ?int
 {
     if (is_integer($source)) {
-        // Well that was easy!
+        // Well, that was easy!
         return $source;
     }
 
@@ -1047,11 +1072,12 @@ function execute(): ?string
 /**
  * Executes the specified hook file
  *
- * @param string $__file
+ * @param string        $__file
+ * @param HookInterface $hook
  *
  * @return mixed
  */
-function execute_hook(string $__file): mixed
+function execute_hook(string $__file, HookInterface $hook): mixed
 {
     return include($__file);
 }
@@ -1170,7 +1196,7 @@ function null(?string $instance_name = null): NullDb
 
 
 /**
- * Returns true if the specified class has the specified trait
+ * Returns true if the specified class uses the specified trait
  *
  * @param string        $trait
  * @param object|string $class
@@ -1335,7 +1361,7 @@ function render(RenderInterface|callable|string|float|int|null $content): ?strin
  *
  * @return string
  */
-function get_object_class_or_data_type(mixed $value): string
+function get_class_or_data_type(mixed $value): string
 {
     $type = gettype($value);
 
@@ -1393,7 +1419,11 @@ function no_strpos(string $source, string $char, int $offset = 0): int|false
  */
 function array_value_first(array $source): mixed
 {
-    return $source[array_key_first($source)];
+    if ($source) {
+        return $source[array_key_first($source)];
+    }
+
+    throw new OutOfBoundsException(tr('Cannot get first value of source array, the array is empty'));
 }
 
 
@@ -1405,7 +1435,11 @@ function array_value_first(array $source): mixed
  */
 function array_value_last(array $source): mixed
 {
-    return $source[array_key_last($source)];
+    if ($source) {
+        return $source[array_key_last($source)];
+    }
+
+    throw new OutOfBoundsException(tr('Cannot get last value of source array, the array is empty'));
 }
 
 
@@ -1503,6 +1537,24 @@ function strip_extension(?string $filename, bool $all_extensions = false): ?stri
 function is_absolute_path(string $path): bool
 {
     return starts_with($path, '/');
+}
+
+
+/**
+ * Will implode all given entries to a string, quoting each item individually before imploding
+ *
+ * @param array $source
+ * @param string $separator
+ * @return string
+ */
+function implode_with_quotes(array $source, string $separator = ','): string
+{
+    foreach ($source as &$value) {
+        $value = '"' . $value . '"';
+    }
+
+    unset($value);
+    return implode($separator, $source);
 }
 
 

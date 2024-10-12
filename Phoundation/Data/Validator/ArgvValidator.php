@@ -21,6 +21,7 @@ use Phoundation\Cli\Exception\CliArgumentsException;
 use Phoundation\Cli\Exception\CliInvalidArgumentsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
+use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -34,6 +35,7 @@ use Phoundation\Utils\Strings;
 class ArgvValidator extends Validator implements ArgvValidatorInterface
 {
     use TraitDataStaticArrayBackup;
+    use TraitStaticMethodNew;
 
 
     /**
@@ -73,14 +75,12 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *
      * @note Keys that do not exist in $data that are validated will automatically be created
      * @note Keys in $data that are not validated will automatically be removed
-     *
-     * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?ValidatorInterface $parent = null)
+    public function __construct()
     {
         // NOTE: ArgValidator does NOT pass $argv to the parent constructor, the $argv values are manually copied to
         // static::source!
-        $this->construct($parent);
+        $this->construct();
     }
 
 
@@ -181,17 +181,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     public static function recoverBackupSource(): void
     {
         static::$argv = static::$backup;
-    }
-
-
-    /**
-     * Returns the number of command line arguments still available.
-     *
-     * @return int
-     */
-    public static function count(): int
-    {
-        return count(static::$argv);
     }
 
 
@@ -338,17 +327,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
-     * Returns the entire source for this validator object
-     *
-     * @return array|null
-     */
-    public function getSource(): ?array
-    {
-        return static::$argv;
-    }
-
-
-    /**
      * Selects all arguments
      *
      * @param string|int $fields The array key (or HTML form field) that needs to be validated / sanitized
@@ -468,7 +446,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             ]));
         }
 
-        // Make sure the field value doesn't have any extras like -e,--email EMAIL <<< The EMAIL part is extra
+        // Make sure the field value doesn't have any extras like "-e,--email EMAIL" <<< The EMAIL part is extra
         $fields = Strings::until($fields, ' ');
 
         // Unset various values first to ensure the byref link is broken
@@ -824,19 +802,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
-     * Returns a new Command Line Arguments data Validator object
-     *
-     * @param ValidatorInterface|null $parent
-     *
-     * @return static
-     */
-    public static function new(?ValidatorInterface $parent = null): static
-    {
-        return new static($parent);
-    }
-
-
-    /**
      * Returns the $argv array
      *
      * @return array
@@ -960,13 +925,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * @note For command line arguments, this will check if any unvalidated arguments were left and throw a validation
      *       exception if there are
      *
-     * @param bool $clean_source
+     * @param bool $require_clean_source
      *
      * @return array
      */
-    public function validate(bool $clean_source = true): array
+    public function validate(bool $require_clean_source = true): array
     {
-        if ($clean_source) {
+        if ($require_clean_source) {
             $this->noArgumentsLeft();
         }
 

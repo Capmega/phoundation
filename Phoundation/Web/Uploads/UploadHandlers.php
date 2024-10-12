@@ -186,15 +186,15 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
 
         static::$backup = $_FILES;
 
-        // Check if we get the weird subarrays in name. If so, restructure that mess
+        // Check if we get the weird sub arrays in name. If so, restructure that mess
         if (count($_FILES)) {
             if (empty($_FILES['file'])) {
                 Incident::new()
-                    ->setType('Invalid file upload detected')
-                    ->setSeverity(EnumSeverity::high)
-                    ->setTitle(tr('Received invalid $_FILES data from client'))
-                    ->save()
-                    ->throw(ValidationFailedException::class);
+                        ->setType('Invalid file upload detected')
+                        ->setSeverity(EnumSeverity::high)
+                        ->setTitle(tr('Received invalid $_FILES data from client'))
+                        ->save()
+                        ->throw(ValidationFailedException::class);
 
             } else {
                 if (is_array($_FILES['file']['name'])) {
@@ -324,12 +324,13 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
                 ]));
 
                 foreach (static::$mimetypes_groups as $mimetype => $files) {
-                    $handler = $this->getHandlerForMimetype($mimetype);
+                    $handler = $this->getHandlerForMimetype($mimetype, $files);
 
                     foreach ($files as $file) {
                         try {
-                            Log::action(tr('Processing uploaded file ":file"', [
-                                ':file' => $file->getBasename()
+                            Log::action(tr('Processing uploaded file ":file" with mimetype handler ":handler"', [
+                                ':file'    => $file->getBasename(),
+                                ':handler' => get_class($handler)
                             ]), 4);
 
                             $handler->process($file);
@@ -341,13 +342,14 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
 
                             // Register the incident in text & developer incidents log
                             $incident = Incident::new()
-                                ->setSeverity(EnumSeverity::low)
-                                ->setTitle($e->getMessage())
-                                ->setDetails([
-                                    'file'      => $file,
-                                    'exception' => $e
-                                ])
-                                ->save();
+                                                ->setType('File upload processing failed')
+                                                ->setSeverity(EnumSeverity::low)
+                                                ->setTitle($e->getMessage())
+                                                ->setDetails([
+                                                    'file'      => $file,
+                                                    'exception' => $e
+                                                ])
+                                                ->save();
                         }
                     }
                 }
@@ -377,7 +379,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
     protected function fixMimetypeGroups(): void
     {
         foreach (static::$mimetypes_groups as $mimetype => $group) {
-            $handler = $this->getHandlerForMimetype($mimetype);
+            $handler = $this->getHandlerForMimetype($mimetype, $group);
 
             if ($handler->getDropZoneObject()->getMimetype() !== $mimetype) {
                 static::$mimetypes_groups->renameKey($mimetype, $handler->getDropZoneObject()->getMimetype());
@@ -443,7 +445,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
 
         foreach (static::$mimetypes_groups as $mimetype => $files) {
             try {
-                $handler = $this->getHandlerForMimetype($mimetype);
+                $handler = $this->getHandlerForMimetype($mimetype, $files);
 
                 foreach ($files as $file) {
                     try {
@@ -503,33 +505,12 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
     /**
      * Returns the handler for the specified file mimetype if available, throws an FileUploadHandlerException if not
      *
-     * @param FsUploadedFileInterface $file
+     * @param string           $mimetype
+     * @param FsFilesInterface $files
      *
      * @return UploadHandlerInterface
      */
-    protected function getHandlerForFile(FsUploadedFileInterface $file): UploadHandlerInterface
-    {
-        try {
-            return $this->getHandlerForMimetype($file->getMimetype());
-
-        } catch (FileUploadHandlerException $e) {
-            throw new FileUploadHandlerException(tr('Cannot process uploaded file ":file" with size ":size" and mimetype ":mimetype", it has no mimetype handler specified', [
-                ':file'     => $file->getRealName(),
-                ':size'     => $file->getSize(),
-                ':mimetype' => $file->getMimetype(),
-            ]), $e);
-        }
-    }
-
-
-    /**
-     * Returns the handler for the specified file mimetype if available, throws an FileUploadHandlerException if not
-     *
-     * @param string $mimetype
-     *
-     * @return UploadHandlerInterface
-     */
-    protected function getHandlerForMimetype(string $mimetype): UploadHandlerInterface
+    protected function getHandlerForMimetype(string $mimetype, FsFilesInterface $files): UploadHandlerInterface
     {
         foreach ($this->source as $source_mimetype => $handler) {
             if (str_starts_with($mimetype, $source_mimetype)) {
@@ -540,9 +521,11 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
         }
 
         if (empty($handler)) {
-            throw new ValidationFailedException(tr('No handler found for mimetype ":mimetype"', [
+            throw ValidationFailedException::new(tr('No handler found for mimetype ":mimetype"', [
                 ':mimetype' => $mimetype,
-            ]));
+            ]))->setData([
+                'files' => $files
+            ]);
         }
 
         return $handler;

@@ -26,7 +26,7 @@ use Phoundation\Web\Requests\Response;
 
 // Validate GET
 $get = GetValidator::new()
-                   ->select('id')->sanitizeForceArray('-')->each()->isDbId()
+                   ->select('id')->sanitizeForceArray('-')->eachField()->isDbId()
                    ->validate();
 
 
@@ -35,7 +35,7 @@ $table = $meta->getHtmlDataTableObject();
 $card  = Card::new()
              ->setTitle('Registered activities')
              ->setSwitches('reload,maximize')
-             ->setContent($table->render());
+             ->setContent($table);
 
 
 // Build documentation
@@ -45,7 +45,7 @@ $documentation = Card::new()
                      ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Build and render the page grid
+// Render and return the page grid
 $grid = Grid::new()
             ->addGridColumn($card->render(), EnumDisplaySize::nine)
             ->addGridColumn($documentation->render(), EnumDisplaySize::three);

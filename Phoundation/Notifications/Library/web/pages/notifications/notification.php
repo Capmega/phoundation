@@ -66,12 +66,12 @@ if ($notification->getUrl()) {
                 ->setAnchorUrl($notification->getUrl());
 }
 
-// Build the notification form
+// Build the "notification" form
 $notification_card = Card::new()
     ->setCollapseSwitch(true)
     ->setMaximizeSwitch(true)
     ->setTitle($notification->getTitle())
-    ->setContent($notification->getHtmlDataEntryFormObject()->render())
+    ->setContent($notification->getHtmlDataEntryFormObject())
     ->setButtons(Buttons::new()
                         ->addButton(tr('Mark unread'))
                         ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/notifications/notifications.html'), true)
@@ -85,8 +85,7 @@ $relevant = Card::new()
     ->setContent('<a href="' . Url::getWww('/notifications/all.html') . '">' . tr('All notifications') . '</a><br>
                           <a href="' . Url::getWww('/notifications/unread.html') . '">' . tr('Unread notifications') . '</a><br>
                           <hr>
-                          <a href="' . Url::getWww('/security/incidents.html') . '">' . tr('Security incidents') . '</a><br>
-                          <a href="' . Url::getWww('/development/incidents.html') . '">' . tr('Development incidents') . '</a>');
+                          <a href="' . Url::getWww('/security/incidents.html') . '">' . tr('Security incidents') . '</a>');
 
 
 // Build documentation
@@ -98,10 +97,10 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Build and render the page grid
+// Render and return the page grid
 $grid = Grid::new()
     ->addGridColumn($notification_card, EnumDisplaySize::nine, true)
-    ->addGridColumn($relevant->render() . '<br>' . $documentation->render(), EnumDisplaySize::three);
+    ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

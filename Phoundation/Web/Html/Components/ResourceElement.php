@@ -21,7 +21,6 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
-use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Html\Traits\TraitInputElement;
@@ -106,6 +105,8 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
+
+        $this->empty = tr('No results available');
     }
 
 
@@ -272,7 +273,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
 
         if (is_string($source_query)) {
             // Get a PDOStatement instead by executing the query
-            $source_query = sql($this->connector)->setDebug($this->debug)
+            $source_query = sql($this->o_connector)->setDebug($this->debug)
                                                  ->query($source_query, $execute);
         }
 
@@ -348,8 +349,8 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      *       values that were added as general attributes using Element::getAttributes()->add()
      * @return IteratorInterface
      */
-    protected function renderAttributes(): IteratorInterface
+    protected function renderAttributesArray(): IteratorInterface
     {
-        return parent::renderAttributes();
+        return parent::renderAttributesArray();
     }
 }

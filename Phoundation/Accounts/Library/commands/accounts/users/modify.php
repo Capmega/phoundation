@@ -58,9 +58,9 @@ EXTRA INFORMATION
 // Validate user
 $argv = ArgvValidator::new()
                      ->select('user', true)->hasMaxCharacters(128)->isEmail()
-                     ->select('roles', true)->isOptional()->sanitizeForceArray()->each()->isName()
-                     ->select('emails', true)->isOptional()->sanitizeForceArray()->each()->matchesRegex('/^.+?\/(?:personal|business|other/.+?)$/i')
-                     ->select('phones', true)->isOptional()->sanitizeForceArray()->each()->matchesRegex('/^.+?\/(?:personal|business|other/.+?)$/i')
+                     ->select('roles', true)->isOptional()->sanitizeForceArray()->eachField()->isName()
+                     ->select('emails', true)->isOptional()->sanitizeForceArray()->eachField()->matchesRegex('/^.+?\/(?:personal|business|other/.+?)$/i')
+                     ->select('phones', true)->isOptional()->sanitizeForceArray()->eachField()->matchesRegex('/^.+?\/(?:personal|business|other/.+?)$/i')
                      ->validate();
 
 
@@ -76,10 +76,11 @@ if ($argv['roles']) {
 
 // Get the user and modify, then update roles
 $user = User::find([
-                       'username' => $argv['user'],
-                       'email'    => $argv['user'],
-                       'code'     => $argv['user'],
-                   ], filter: 'OR')->apply()->save();
+    'username' => $argv['user'],
+    'email'    => $argv['user'],
+    'code'     => $argv['user'],
+], filter: 'OR')->apply()->save();
+
 $user->getRolesObject()->setRoles($argv['roles']);
 $user->getEmailsObject()->apply()->save();
 $user->getPhonesObject()->apply()->save();

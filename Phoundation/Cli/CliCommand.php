@@ -224,7 +224,7 @@ class CliCommand
 
         // Execute the command and finish execution
         try {
-            Request::setRestrictions(FsRestrictions::newReadonly(DIRECTORY_COMMANDS));
+            Request::setRestrictions(FsRestrictions::newRoot());
             Request::execute(static::$command . '.php');
 
         } catch (SqlNoTimezonesException $e) {
@@ -264,11 +264,7 @@ class CliCommand
             // Startup the system core
             Core::startup();
 
-        } catch (ProjectException $e) {
-            $return['limit']  = 'system/project/setup';
-            $return['reason'] = $e;
-
-        } catch (EnvironmentException $e) {
+        } catch (ProjectException|EnvironmentException $e) {
             $return['limit']  = 'system/project/setup';
             $return['reason'] = $e;
 
@@ -309,15 +305,14 @@ class CliCommand
      */
     protected static function detectProcessUidMatchesPhoundationOwner(): void
     {
-        $owner = @fileowner(__DIR__ . '/../../pho');
+        try {
+            static::$pho_uid = fileowner(__DIR__ . '/../../pho');
 
-        if ($owner === false) {
+        } catch (Throwable $e) {
             // Wut? What happened? Does the pho command exist? If it does, how did we got here? ./pho renamed, perhaps?
             echo 'Failed to get file owner information of "PROJECT_ROOT/pho" command file' . PHP_EOL;
             exit();
         }
-
-        static::$pho_uid = $owner;
 
         Core::getInstance();
 
@@ -384,7 +379,7 @@ class CliCommand
         // From here we will restart the process using SUDO with the correct user
         // Start building the argument list
         $command   = escapeshellcmd(DIRECTORY_ROOT . 'pho');
-        $arguments = ArgvValidator::new()->getSource();
+        $arguments = ArgvValidator::getBackup();
 
         if (CliAutoComplete::isActive()) {
             // Auto complete requires re-adding the --auto-complete and position and a different argument handling
@@ -842,7 +837,8 @@ class CliCommand
         if (!file_exists($file)) {
             Log::warning(tr('Commands cache directory ":path" does not yet exists, rebuilding commands cache', [
                 ':path' => $file,
-            ]), 3);
+            ]), 7);
+
             // Rebuild the command cache
             Libraries::rebuildCommandsCache();
         }
@@ -1064,8 +1060,14 @@ class CliCommand
 ./pho <TAB>
 ./pho sy<TAB>
 ./pho system <TAB>', false);
-            CliDocumentation::setHelp(tr('This is the Phoundation CLI interface command "pho". For more basic information please execute ./pho intro which will print an introduction text to Phoundation
-'), false);
+
+            CliDocumentation::setHelp(tr('This is the Phoundation CLI interface command "pho". For more basic information please execute the command ./pho intro which will print an introduction text to Phoundation
+            
+            
+GLOBAL SYSTEM ARGUMENTS
+            
+            
+') . static::getHelpGlobalArguments(), false);
         }
     }
 
@@ -1135,10 +1137,8 @@ class CliCommand
         global $argv;
 
         if ($argv['help']) {
-            $results = FsFile::new(
-                static::$command . '.php',
-                FsRestrictions::newCommands(false, 'CliCommand::checkUsage()')
-            )->grep(['CliDocumentation::setHelp('], 100);
+            $results = FsFile::new(static::$command . '.php', FsRestrictions::newCommands(false))
+                             ->grep(['CliDocumentation::setHelp('], 100);
 
             if (empty($results)) {
                 throw CliCommandException::new(tr('The command ":command" has no help information available', [
@@ -1426,5 +1426,101 @@ class CliCommand
 //        }
 //
 //        return $matches;
+    }
+
+
+    /**
+     * Returns a help file with the global arguments
+     *
+     * @return string
+     */
+    public static function getHelpGlobalArguments(): string
+    {
+        return tr('[-A, --all]                             If set, the system will run in ALL mode, which typically will display normally
+                                        hidden information like deleted entries. Only used by specific commands, check
+                                        --help on commands to see if and how this flag is used.
+
+[-C, --no-color]                        If set, your log and console output will no longer have color
+
+[-D, --debug]                           If set will run your system in debug mode. Debug commands will now generate and
+                                        display output
+
+[-E, --environment ENVIRONMENT]         Sets or overrides the environment with which your pho command will be running.
+                                        If no environment was set in the shell environment using the
+                                        ":environment" variable, your pho command will refuse to
+                                        run unless you specify the environment manually using these flags. The
+                                        environment has to exist as a ROOT/config/ENVIRONMENT.yaml file
+
+[-F, --force]                           If specified, will run the CLI command in FORCE mode, which will override certain
+                                        restrictions. See --help for information on how specific commands deal with this
+                                        flag
+
+[-H, --help]                            If specified, will display the help page for the typed command
+
+[-J, --json]                            Allows argument to be specified in JSON format. The system will decode the 
+                                        arguments and add them to the rest of the argument list without overwriting 
+                                        arguments that were already specified on the command line
+
+[-L, --log-level LEVEL]                 If specified, will set the minimum threshold level for log messages to appear.
+                                        Any message with a threshold level below the indicated amount will not appear in
+                                        the logs. Defaults to 5.
+
+[-O, --order-by "COLUMN ASC|DESC"]      If specified, and used by the command (only commands that display tables) will
+                                        order the table contents on the specified column in the specified direction.
+                                        Defaults to nothing
+
+[-P, --page PAGE]                       If specified, and used by the command (only commands that display tables) will
+                                        show the table on the specified page. Defaults to 1
+
+[-Q, --quiet]                           Will have the system run in quiet mode, suppressing log startup and shutdown
+                                        messages. NOTE: This will override DEBUG output; QUIET will suppress all debug
+                                        messages!
+
+[-G, --no-prefix]                       Will suppress the DATETIME - LOGLEVEL - PROCESS ID - GLOBAL PROCESS ID prefix
+                                        that normally begins each log line output
+
+[-S, --status STATUS]                   If specified, will only display DataEntry entries with the specified status
+
+[-T, --test]                            Will run the system in test mode. Different commands may change their behaviour
+                                        depending on this flag, see their --help output for more information.
+
+                                        NOTE: In this mode, temporary directories will NOT be removed upon shutdown so
+                                        that their contents can be used for debugging and testing.
+
+[-U, --usage]                           Prints various command usage examples for the typed command
+
+[-V, --verbose]                         Will print more output during log startup and shutdown
+
+[-W, --no-warnings]                     Will only use "error" type exceptions with backtrace and extra information,
+                                        instead of displaying only the main exception message for warnings
+
+[-X, --ignore-readonly]                 Will make the core system ignore readonly modes, and continue writing to both 
+                                        disk and databases. Use with care!
+
+[-Y, --clear-tmp]                       Will clear all temporary data in ROOT/data/tmp, and memcached
+
+[-Z, --clear-caches]                    Will clear all caches in ROOT/data/cache, and memcached
+
+[--system-language]                     Sets the system language for all output
+
+[--deleted]                             Will show deleted DataEntry records
+
+[--version]                             Will display the current version for your Phoundation installation
+
+[--limit NUMBER]                        Will limit table output to the number of specified fields
+
+[--timezone STRING]                     Sets the specified timezone for the command you are executing
+
+[--show-passwords]                      Will display passwords visibly on the command line. Both typed passwords and
+                                        data output will show passwords in the clear!
+
+[--no-validation]                       Will not validate any of the data input.
+
+                                        WARNING: This may result in invalid data in your database!
+
+[--no-password-validation]              Will not validate passwords.
+                                        WARNING: This may result in weak and or compromised passwords in your database
+                                        
+', [':environment' => 'PHOUNDATION_' . PROJECT . '_ENVIRONMENT']);
     }
 }

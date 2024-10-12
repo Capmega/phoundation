@@ -22,6 +22,7 @@ use Phoundation\Data\Traits\TraitDataLabel;
 use Phoundation\Data\Traits\TraitDataMaximumInteger;
 use Phoundation\Data\Traits\TraitDataMinimumInteger;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\ProgressBarInterface;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
 
 class Badge extends Widget
@@ -37,7 +38,7 @@ class Badge extends Widget
     {
         parent::__construct();
 
-        $this->setBackgroundColor('primary');
+        $this->setMode(EnumDisplayMode::primary);
     }
 
 
@@ -46,6 +47,6 @@ class Badge extends Widget
      */
     public function render(): ?string
     {
-        return  '<span class="badge badge-' . $this->background_color . '">' . $this->label . '</span>';
+        return  '<span class="badge badge-' . $this->mode->value . '">' . $this->label . '</span>';
     }
 }

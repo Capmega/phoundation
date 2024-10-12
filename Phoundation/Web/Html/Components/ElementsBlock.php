@@ -28,11 +28,12 @@ use Phoundation\Web\Html\Template\TemplateRenderer;
 use Phoundation\Web\Requests\Request;
 
 
-abstract class ElementsBlock extends Iterator implements IteratorInterface, ElementsBlockInterface
+abstract class ElementsBlock extends Iterator implements ElementsBlockInterface
 {
     use TraitElementAttributes {
         __construct as ___construct;
     }
+
 
     /**
      * If true, this element block will only render the contents

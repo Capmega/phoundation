@@ -605,9 +605,11 @@ class Request implements RequestInterface
     public static function getReferer(string|bool $default = false): ?string
     {
         $url = isset_get($_SERVER['HTTP_REFERER']);
+
         if ($url) {
             return $url;
         }
+
         if ($default) {
             if (is_bool($default)) {
                 // We don't have a referer, return the current URL instead
@@ -660,7 +662,15 @@ class Request implements RequestInterface
      */
     public static function getUrl(bool $no_queries = false): string
     {
-        return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . static::getUri($no_queries);
+        if (PLATFORM_WEB) {
+            return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . static::getUri($no_queries);
+        }
+
+        // This is a command line process, things like request scheme are not available!
+        $url = Config::getString('web.domains.primary.web');
+        $url = str_replace(':LANGUAGE', Session::getLanguage(), $url);
+
+        return $url;
     }
 
 
@@ -908,8 +918,8 @@ class Request implements RequestInterface
         if (static::isExecutedDirectly()) {
             if (!$message) {
                 $message = tr('The target ":target" cannot be accessed directly', [
-                    ':page' => static::getTarget()
-                                     ->getSource('root'),
+                    ':target' => static::getTarget()
+                                       ->getSource('root'),
                 ]);
             }
             throw Http404Exception::new($message)
@@ -954,12 +964,20 @@ class Request implements RequestInterface
     /**
      * Sets the target for this request
      *
-     * @param string $target
+     * @param FsFileInterface|string|int $target
      *
      * @return void
      */
-    protected static function setTarget(string $target): void
+    protected static function setTarget(FsFileInterface|string|int $target): void
     {
+        // Get a target string
+        if (is_integer($target)) {
+            $target = 'system/' . $target . '.php';
+
+        } elseif ($target instanceof FsFileInterface) {
+            $target = $target->getSource();
+        }
+
         // Determine the target request type
         static::detectRequestType($target);
 
@@ -1093,23 +1111,24 @@ class Request implements RequestInterface
      *
      * @return void
      */
-    protected static function hasRightsOrRedirects(array|string $rights, string|int|null $rights_redirect = null, string|int|null $guest_redirect = null): void
+    protected static function hasRightsOrRedirect(array|string $rights, string|int|null $rights_redirect = null, string|int|null $guest_redirect = null): void
     {
         if (Session::getUserObject()->hasAllRights($rights)) {
-
-            if (Session::getSignInKey() === null) {
+            // The user has all the required rights, but did the user sign in through a sign-in key?
+            // If so, then there may be restrictions!
+            if (!Session::getSignInKey()) {
                 // Well, then, all fine and dandy!
                 return;
             }
 
             // Check sign-key restrictions and if those are okay, we are good to go
-            static::hasSignKeyRestrictions($rights, static::$target);
+            static::hasSignKeyRestrictions($rights, static::$target->getSource());
             return;
         }
 
         // Is this a system page though? System pages require no rights to be viewed.
         if (static::getRequestType() === EnumRequestTypes::system) {
-            // Hurrah, it's a bo, eh, system page! System pages require no rights. Everyone can see a 404, 500, etc...
+            // Hurrah, it's a bo, eh, system page! System pages require no rights. Everyone can see 404, 500, etc...
             return;
         }
 
@@ -1122,7 +1141,7 @@ class Request implements RequestInterface
 
             $current        = Response::getRedirect(Url::getCurrent());
             $guest_redirect = Url::getWww($guest_redirect)
-                                 ->addQueries($current ? 'redirect=' . $current : null);
+                                 ->addQueries($current ? 'redirect=' . urlencode($current) : null);
 
             Incident::new()
                     ->setType('401 - Unauthorized')
@@ -1250,6 +1269,7 @@ class Request implements RequestInterface
                         ':sign_in_key' => $key->getUuid(),
                     ])
                     ->save();
+
             static::executeSystem(401);
         }
 
@@ -1269,6 +1289,7 @@ class Request implements RequestInterface
                                      ':uuid'     => $key->getUuid(),
                     ])
                     ->save();
+
             // This method will exit
             static::executeSystem(401);
         }
@@ -1309,7 +1330,8 @@ class Request implements RequestInterface
 
                 case EnumRequestTypes::system:
                     // Any HTML request can cause a 404, 500, etc., so any HTML request can switch to a system page
-                    // no break
+                    $fail = false;
+                    break;
 
                 case EnumRequestTypes::file:
                     // Any HTML request may generate and return a file, so any HTML request can switch to a file
@@ -1325,6 +1347,7 @@ class Request implements RequestInterface
 
                         case EnumRequestTypes::file:
                             break;
+
                         default:
                             $fail = false;
                     }
@@ -1417,11 +1440,11 @@ class Request implements RequestInterface
     /**
      * Execute the specified target for this request and returns the output
      *
-     * @param FsFileInterface|string $target
+     * @param FsFileInterface|string|int $target
      *
      * @return string|null
      */
-    public static function execute(FsFileInterface|string $target): ?string
+    public static function execute(FsFileInterface|string|int $target): ?string
     {
         return static::doExecute($target, false, false);
     }
@@ -1444,17 +1467,17 @@ class Request implements RequestInterface
     /**
      * Execute the specified target for this request and returns the output
      *
-     * @param FsFileInterface|string $target
-     * @param bool                   $flush
-     * @param bool                   $die
+     * @param FsFileInterface|string|int $target
+     * @param bool                       $flush
+     * @param bool                       $die
      *
      * @return string|null
      */
-    protected static function doExecute(FsFileInterface|string $target, bool $flush, bool $die): ?string
+    protected static function doExecute(FsFileInterface|string|int $target, bool $flush, bool $die): ?string
     {
         // Set target and check if we have this target in the cache
         try {
-            static::setTarget((string) $target);
+            static::setTarget($target);
             static::$stack_level++;
 
         } catch (FileNotExistException $e) {
@@ -1478,7 +1501,8 @@ class Request implements RequestInterface
             static::preparePageVariable();
 
             if (!static::getSystem()) {
-                static::hasRightsOrRedirects(static::$parameters->getRequiredRights((string) static::$target));
+                // Check if the user has access to the requested page, then check if the user should be force redirected
+                static::hasRightsOrRedirect(static::$parameters->getRequiredRights((string) static::$target));
                 Response::checkForceRedirect();
             }
 
@@ -1745,17 +1769,17 @@ class Request implements RequestInterface
             $new_target = $e->getNewTarget();
 
             if (!$new_target) {
-                static::executeSystem(403, $e, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
+                static::executeSystem(403, $e, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/403" instead'));
             }
 
             Log::warning(tr('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
-                ':target' => static::$target,
-                ':user'   => Session::getUserObject()
-                                    ->getDisplayId(),
                 ':new'    => $new_target,
+                ':target' => static::$target->getRootname(),
+                ':user'   => Session::getUserObject()->getDisplayId(),
             ]));
 
-            return static::execute($new_target);
+            // Execute the new system page target instead
+            static::executeSystem($new_target, $e, $e->getMessage());
 
         } catch (Http404Exception|DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             static::executeSystem(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
@@ -1827,5 +1851,17 @@ class Request implements RequestInterface
         }
 
         return static::$web_restrictions;
+    }
+
+
+    /**
+     * Returns a validated useragent
+     *
+     * @todo Implement useragent validation
+     * @return string
+     */
+    public static function getUserAgent(): string
+    {
+        return $_SERVER['HTTP_USER_AGENT'];
     }
 }

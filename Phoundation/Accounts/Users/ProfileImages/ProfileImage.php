@@ -377,11 +377,11 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getUsersId($this))
+        $definitions->add(DefinitionFactory::newUsersId($this))
 
-                    ->add(DefinitionFactory::getId($this, 'uploads_id'))
+                    ->add(DefinitionFactory::newId($this, 'uploads_id'))
 
-                    ->add(DefinitionFactory::getFile($this)
+                    ->add(DefinitionFactory::newFile($this)
                                            ->setMaxlength(2048)
                                            ->setRender(false)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -393,6 +393,6 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                                                    prefix: FsDirectory::newCdnObject());
                                            }))
 
-                    ->add(DefinitionFactory::getDescription($this));
+                    ->add(DefinitionFactory::newDescription($this));
     }
 }

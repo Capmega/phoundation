@@ -94,7 +94,7 @@ class Country extends DataEntry
     public function getHtmlStatesSelect(string $name = 'states_id'): InputSelect
     {
         return InputSelect::new()
-                          ->setConnector(static::getConnector())
+                          ->setConnectorObject($this->getConnectorObject())
                           ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_states` 
                                           WHERE `countries_id` = :countries_id AND `status` IS NULL ORDER BY `name`', [

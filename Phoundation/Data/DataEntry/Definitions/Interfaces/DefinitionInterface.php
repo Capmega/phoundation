@@ -144,10 +144,10 @@ interface DefinitionInterface
      * virtual column instead.
      *
      * @note Defaults to true
-     * @return bool|null
+     * @return callable|bool|null
      * @see  Definition::getVirtual()
      */
-    public function getRender(): ?bool;
+    public function getRender(): callable|bool|null;
 
 
     /**
@@ -158,12 +158,12 @@ interface DefinitionInterface
      *
      * @note Defaults to true
      *
-     * @param bool|null $value
+     * @param callable|bool|null $value
      *
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function setRender(?bool $value): static;
+    public function setRender(callable|bool|null $value): static;
 
 
     /**
@@ -223,12 +223,10 @@ interface DefinitionInterface
     /**
      * Returns the extra HTML classes for this DataEntryForm object
      *
-     * @param bool $add_prefixless_names
-     *
      * @return array
      * @see Definition::getVirtual()
      */
-    public function getClasses(bool $add_prefixless_names = true): array;
+    public function getClasses(): array;
 
 
     /**
@@ -1028,10 +1026,9 @@ interface DefinitionInterface
     /**
      * Returns if this column should be stored with NULL in the database if empty
      *
-     * @note Defaults to false
-     * @return bool
+     * @return string|float|int|bool|null
      */
-    public function getNullDb(): bool;
+    public function getNullDefault(): string|float|int|bool|null;
 
 
     /**
@@ -1039,12 +1036,11 @@ interface DefinitionInterface
      *
      * @note Defaults to false
      *
-     * @param bool                       $value
-     * @param string|float|int|bool|null $default
+     * @param string|float|int|bool|null $value
      *
      * @return static
      */
-    public function setDbNullValue(bool $value, string|float|int|bool|null $default = null): static;
+    public function setNullDefault(string|float|int|bool|null $value = null): static;
 
 
     /**
@@ -1405,4 +1401,13 @@ interface DefinitionInterface
      * @see  Definition::setVirtual()
      */
     public function setForcedProcessing(?bool $value): static;
+
+    /**
+     * Returns if this definition is for the specified column
+     *
+     * @param string|null $column
+     *
+     * @return bool
+     */
+    public function isColumn(?string $column): bool;
 }

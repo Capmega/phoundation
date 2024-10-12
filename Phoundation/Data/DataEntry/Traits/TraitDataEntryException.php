@@ -29,28 +29,28 @@ trait TraitDataEntryException
      */
     public function getException(): ?Exception
     {
-        return Exception::import($this->getTypesafe('string', 'exception'));
+        return Exception::newFromImport($this->getTypesafe('string', 'exception'));
     }
 
 
     /**
      * Sets the exception for this object
      *
-     * @param Throwable|string|null $exception
+     * @param Throwable|string|null $e
      *
      * @return static
      */
-    public function setException(Throwable|string|null $exception): static
+    public function setException(Throwable|string|null $e): static
     {
-        if (is_object($exception)) {
-            if ($exception instanceof Exception) {
-                // Make it a base Exception
-                $exception = new Exception($exception);
+        if (is_object($e)) {
+            if ($e instanceof Exception) {
+                // Make it a Phoundation Exception
+                $e = new Exception($e);
             }
 
-            $exception = $exception->exportString();
+            $e = $e->exportToString();
         }
 
-        return $this->set($exception, 'exception');
+        return $this->set($e, 'exception');
     }
 }

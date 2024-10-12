@@ -19,7 +19,7 @@ namespace Phoundation\Network;
 use Phoundation\Core\Log\Log;
 use Phoundation\Network\Curl\Exception\CurlException;
 use Phoundation\Network\Curl\Get;
-use Phoundation\Network\Exception\NetworkException;
+use Phoundation\Network\Exception\SocketException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 
@@ -52,7 +52,7 @@ class Network
 
             } catch (CurlException $f) {
                 Log::warning(tr('Failed to get public IP address from ipinfo.io'));
-                throw new NetworkException(tr('Failed to determine public IP address'), $f);
+                throw new SocketException(tr('Failed to determine public IP address'), $f);
             }
         }
     }

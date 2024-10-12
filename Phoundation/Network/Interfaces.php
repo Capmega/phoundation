@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Network;
 
-use Phoundation\Network\Exception\NetworkException;
+use Phoundation\Network\Exception\SocketException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -70,17 +70,17 @@ class Interfaces
                                            ->addArgument('addr|inet'))
                           ->executeReturnString();
         if (!preg_match_all('/(?:addr|inet)6?(?:\:| )(.+?) /', $results, $matches)) {
-            throw new NetworkException(tr('ifconfig returned no IPs'));
+            throw new SocketException(tr('ifconfig returned no IPs'));
         }
         if (!$matches or empty($matches[1])) {
-            throw new NetworkException(tr('No IP interface information found'));
+            throw new SocketException(tr('No IP interface information found'));
         }
         $flags   = FILTER_VALIDATE_IP;
         $options = null;
         $ips     = [];
         if (!$ipv4) {
             if (!$ipv6) {
-                throw new NetworkException(tr('Both IPv4 and IPv6 IP\'s are specified to be disallowed'));
+                throw new SocketException(tr('Both IPv4 and IPv6 IP\'s are specified to be disallowed'));
             }
             $options = $options | FILTER_FLAG_IPV6;
 
@@ -105,7 +105,7 @@ class Interfaces
         // Ensure we have unique IP addresses
         $ips = array_unique($ips);
         if (!$ips) {
-            throw new NetworkException(tr('Failed to find any IP addresses'));
+            throw new SocketException(tr('Failed to find any IP addresses'));
         }
 
         return $ips;

@@ -53,15 +53,6 @@ class FsMimetype extends DataEntry implements FsMimetypeInterface
 
 
     /**
-     * @inheritDoc
-     */
-    public function init(bool $identifier_must_exist, bool $ignore_deleted): static
-    {
-        return parent::init($identifier_must_exist, $ignore_deleted);
-    }
-
-
-    /**
      * Returns the table name used by this object
      *
      * @return string|null
@@ -237,16 +228,16 @@ class FsMimetype extends DataEntry implements FsMimetypeInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getName($this)
+        $definitions->add(DefinitionFactory::newName($this)
                                            ->setOptional(false)
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(6)
                                            ->setMaxlength(128)
                                            ->setHelpText(tr('The name for this mimetype')))
 
-            ->add(DefinitionFactory::getSeoName($this))
+            ->add(DefinitionFactory::newSeoName($this))
 
-            ->add(DefinitionFactory::getCode($this, 'extension')
+            ->add(DefinitionFactory::newCode($this, 'extension')
                                    ->setOptional(false)
                                    ->setInputType(EnumInputType::code)
                                    ->setSize(2)
@@ -254,21 +245,21 @@ class FsMimetype extends DataEntry implements FsMimetypeInterface
                                    ->setLabel('Extension')
                                    ->setHelpText(tr('The extension for this mimetype')))
 
-            ->add(DefinitionFactory::getCode($this, 'primary_part')
+            ->add(DefinitionFactory::newCode($this, 'primary_part')
                                    ->setRender(false)
                                    ->setDisabled(true)
                                    ->setOptional(true)
                                    ->setLabel('Primary part')
                                    ->setMaxlength(32))
 
-            ->add(DefinitionFactory::getCode($this, 'secondary_part')
+            ->add(DefinitionFactory::newCode($this, 'secondary_part')
                                    ->setRender(false)
                                    ->setDisabled(true)
                                    ->setOptional(true)
                                    ->setLabel('Secondary part')
                                    ->setMaxlength(96))
 
-            ->add(DefinitionFactory::getCode($this, 'mimetype')
+            ->add(DefinitionFactory::newCode($this, 'mimetype')
                                    ->setOptional(false)
                                    ->setInputType(EnumInputType::code)
                                    ->setSize(4)
@@ -279,7 +270,7 @@ class FsMimetype extends DataEntry implements FsMimetypeInterface
                                        $validator->matchesRegex('/\w+\/[a-z0-9-.]+/');
                                    }))
 
-            ->add(DefinitionFactory::getNumber($this, 'priority')
+            ->add(DefinitionFactory::newNumber($this, 'priority')
                                    ->setOptional(false)
                                    ->setSize(2)
                                    ->setMin(0)
@@ -288,7 +279,7 @@ class FsMimetype extends DataEntry implements FsMimetypeInterface
                                    ->setLabel('Priority')
                                    ->setHelpText(tr('The priority for this mimetype / extension')))
 
-            ->add(DefinitionFactory::getDescription($this)
+            ->add(DefinitionFactory::newDescription($this)
                                    ->setSize(10)
                                    ->setHelpText(tr('The description for this mimetype')));
     }
