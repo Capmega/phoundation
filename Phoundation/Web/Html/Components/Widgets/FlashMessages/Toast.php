@@ -47,6 +47,17 @@ class Toast implements RenderInterface
 
 
     /**
+     * Returns the rendered version of this object in a string
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->render();
+    }
+
+
+    /**
      * Returns a new Toast object
      *
      * @param FlashMessage $message
@@ -60,23 +71,23 @@ class Toast implements RenderInterface
 
 
     /**
-     * Renders and returns the HTML and javascript to display a toast
+     * Renders and returns the HTML and JavaScript to display a toast
      *
      * @return string|null
      */
     public function render(): ?string
     {
         return '
-            $(document).Toasts("create", ' . $this->renderConfiguration() . ');';
+            $(document).Toasts("create", ' . $this->renderJson() . ');';
     }
 
 
     /**
-     * Renders and returns the HTML and javascript to display a toast
+     * Renders and returns the HTML and JavaScript to display a toast
      *
-     * @return string|null
+     * @return array
      */
-    public function renderConfiguration(): ?string
+    public function renderArray(): array
     {
         $message = $this->message;
         $image   = $message->getImage()?->getImgObject();
@@ -120,6 +131,17 @@ class Toast implements RenderInterface
             $return['delay']    = $message->getAutoClose();
         }
 
-        return Json::encode($return);
+        return $return;
+    }
+
+
+    /**
+     * Renders and returns the HTML and JavaScript to display a toast
+     *
+     * @return string|null
+     */
+    public function renderJson(): ?string
+    {
+        return Json::encode($this->renderArray());
     }
 }

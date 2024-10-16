@@ -99,7 +99,7 @@ if (!$right->isNew()) {
 $form = $right->getHtmlDataEntryFormObject();
 $card = Card::new()
             ->setTitle(tr('Edit data for right :name', [':name' => $right->getName()]))
-            ->setContent($form->render())
+            ->setContent($form)
             ->setButtons(Buttons::new()
                                 ->addButton(tr('Save'))
                                 ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/rights.html'), true)

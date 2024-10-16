@@ -61,6 +61,17 @@ class Template implements TemplateInterface
 
 
     /**
+     * Returns the rendered version of this object
+     *
+     * @return string|null
+     */
+    public function __toString()
+    {
+        return $this->render();
+    }
+
+
+    /**
      * Returns a new Template page object
      *
      * @param string $page

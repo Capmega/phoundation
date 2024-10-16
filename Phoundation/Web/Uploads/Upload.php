@@ -293,6 +293,7 @@ class Upload extends DataEntry implements UploadInterface
         }
 
         Incident::new()
+                ->setType(tr('Hash code not generated'))
                 ->setSeverity(EnumSeverity::medium)
                 ->setTitle(tr('Did not generate hash for file ":file", the file size ":size" is larger than the configured maximum size ":max" for hashing', [
                     ':file' => $this->getTmpName(),
@@ -364,42 +365,42 @@ class Upload extends DataEntry implements UploadInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getFilename($this, 'name')
+        $definitions->add(DefinitionFactory::newFilename($this, 'name')
                                            ->setLabel(tr('File name'))
                                            ->setMaxlength(2048)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getFilename($this, 'full_path')
+                    ->add(DefinitionFactory::newFilename($this, 'full_path')
                                            ->setLabel(tr('Full file path'))
                                            ->setMaxlength(2048)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getFile($this, new FsDirectory('/tmp/', FsRestrictions::newWritable('/tmp/')), null,'tmp_name')
+                    ->add(DefinitionFactory::newFile($this, new FsDirectory('/tmp/', FsRestrictions::newWritable('/tmp/')), null,'tmp_name')
                                            ->setLabel(tr('Temporary file name'))
                                            ->setMaxlength(255)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getCode($this, 'type')
+                    ->add(DefinitionFactory::newCode($this, 'type')
                                            ->setLabel(tr('File mimetype'))
                                            ->setMaxlength(128)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getNumber($this, 'size')
+                    ->add(DefinitionFactory::newNumber($this, 'size')
                                            ->setLabel(tr('File size'))
                                            ->setMin(0)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getNumber($this, 'error')
+                    ->add(DefinitionFactory::newNumber($this, 'error')
                                            ->setLabel(tr('Upload error code'))
                                            ->setMin(0)
                                            ->setMax(8)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getCode($this, 'hash')
+                    ->add(DefinitionFactory::newCode($this, 'hash')
                                            ->setLabel(tr('File hash'))
                                            ->setMaxlength(128)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getComments($this));
+                    ->add(DefinitionFactory::newComments($this));
     }
 }

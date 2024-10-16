@@ -240,7 +240,7 @@ Database version       : :version_database
 Environment            : :environment
 Platform               : :platform
 :request: :url
-Command line arguments : :ARGV
+Command line arguments : :_argv
 Exception location     : :file@:line
 Exception class        : :class
 Exception code         : :code
@@ -259,19 +259,19 @@ User:
 :user
 
 Session:
-:SESSION
+:_session
 
 Environment variables:
-:ENV
+:_env
 
 GET variables:
-:GET
+:_get
 
 POST variables:
-:POST
+:_post
 
 FILES variables:
-:FILES
+:_files
 </pre>
 </body>
 </html>', [
@@ -291,12 +291,12 @@ FILES variables:
                  ':environment'      =>  $details['environment'],
                  ':platform'         =>  $details['platform'],
                  ':user'             =>  $details['user'],
-                 ':SESSION'          =>  $details['session'],
-                 ':ENV'              => ($details['environment_variables'] ? print_r($details['environment_variables'], true) : '-'),
-                 ':ARGV'             =>  $details['argv']  ? Strings::force($details['argv'], ' ') : '-',
-                 ':GET'              =>  $details['get']   ? print_r($details['get'], true)        : '-',
-                 ':POST'             =>  $details['post']  ? print_r($details['post'], true)       : '-',
-                 ':FILES'            =>  $details['files'] ? print_r($details['files'], true)      : '-',
+                 ':_session'         =>  Json::encode($details['session']),
+                 ':_env'             => ($details['environment_variables'] ? print_r($details['environment_variables'], true) : '-'),
+                 ':_argv'            =>  $details['argv']  ? Strings::force($details['argv'], ' ') : '-',
+                 ':_get'             =>  $details['get']   ? Json::encode($details['get'])         : '-',
+                 ':_post'            =>  $details['post']  ? Json::encode($details['post'])        : '-',
+                 ':_files'           =>  $details['files'] ? Json::encode($details['files'])       : '-',
              ], clean: false))->e = $e;
 
         return $this;
@@ -406,6 +406,7 @@ FILES variables:
                         Log::error(tr('Failed to save notification for user ":user" because of the following exception', [
                             ':user' => $user->getId(),
                         ]));
+
                         Log::error($e);
                     }
                 }
@@ -605,6 +606,18 @@ FILES variables:
 
         $user = User::load($user);
 
+        if (!Core::isProductionEnvironment()) {
+            if ($user->hasAllRights('developer,test,admin')) {
+                // We're not in production environment, don't send any notifications!
+                Log::warning(tr('Not sending notification ":title" to user ":user" because we are not in production environment', [
+                    ':title' => $this->getTitle(),
+                    ':user'  => $user->getEmail()
+                ]));
+
+                return $this;
+            }
+        }
+
         Pho::new()
            ->setPhoCommands('email send')
            ->addArgument('-h')
@@ -675,15 +688,15 @@ FILES variables:
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getCreatedBy($this))
+        $definitions->add(DefinitionFactory::newCreatedBy($this))
 
                     ->add(Definition::new($this, 'users_id')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::dbid)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDbId()
-                                                  ->isQueryResult('SELECT `id` 
-                                                                   FROM   `accounts_users` 
+                                                  ->isQueryResult('SELECT `id`
+                                                                   FROM   `accounts_users`
                                                                    WHERE  `id` = :id', [':id' => '$users_id']);
                                     }))
 

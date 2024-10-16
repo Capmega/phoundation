@@ -33,7 +33,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.5.1';
+        return '0.5.2';
     }
 
 
@@ -1150,6 +1150,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.5.1', function () {
             sql()->getSchemaObject()->getTableObject('accounts_authentications')->alter()->modifyColumn('`status`', 'varchar(32) CHARACTER SET latin1 NULL DEFAULT NULL,');
+
+        })->addUpdate('0.5.2', function () {
+            // Fix nullable datetime column issues
+            sql()->query('UPDATE `accounts_users` SET    `last_sign_in` = NULL WHERE `last_sign_in` = "0000-00-00 00:00:00"');
+            sql()->query('UPDATE `accounts_users` SET    `locked_until` = NULL WHERE `locked_until` = "0000-00-00 00:00:00"');
+            sql()->query('UPDATE `accounts_users` SET    `verified_on`  = NULL WHERE `verified_on`  = "0000-00-00 00:00:00"');
         });
     }
 }

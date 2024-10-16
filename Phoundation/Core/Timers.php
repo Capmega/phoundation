@@ -91,11 +91,15 @@ class Timers implements TimersInterface
      */
     public static function getCount(?string $group = null): int
     {
-        if ($group) {
-            return count(static::$timers[$group]);
+        if (static::exists($group)) {
+            if ($group) {
+                return count(static::$timers[$group]);
+            }
+
+            return count(static::$timers);
         }
 
-        return count(static::$timers);
+        return 0;
     }
 
 
@@ -130,7 +134,7 @@ class Timers implements TimersInterface
             }
         }
 
-        uasort(static::$timers[$group], function (Timer $a, Timer $b): int {
+        uasort(static::$timers[$group], function (TimerInterface $a, TimerInterface $b): int {
             if ($a->getTotal() < $b->getTotal()) {
                 return 1;
             }
@@ -154,19 +158,21 @@ class Timers implements TimersInterface
     {
         $total = 0;
 
-        if ($group) {
-            $group = static::$timers[$group];
+        if (static::exists($group)) {
+            if ($group) {
+                $group = static::$timers[$group];
 
-            foreach ($group as $timer) {
-                $total += $timer->getTotal();
+                foreach ($group as $timer) {
+                    $total += $timer->getTotal();
+                }
+
+                return $total;
             }
 
-            return $total;
-        }
-
-        foreach (static::$timers as $group) {
-            foreach ($group as $timer) {
-                $total += $timer->getTotal();
+            foreach (static::$timers as $group) {
+                foreach ($group as $timer) {
+                    $total += $timer->getTotal();
+                }
             }
         }
 

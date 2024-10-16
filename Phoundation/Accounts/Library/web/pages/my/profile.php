@@ -109,11 +109,11 @@ if (Request::isPostRequestMethod()) {
 $buttons = Buttons::new()->addButton('Submit');
 
 
-// Build the user form
+// Build the "user" form
 $card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('Manage your profile information here'))
-            ->setContent($user->getHtmlDataEntryFormObject()->render())
+            ->setContent($user->getHtmlDataEntryFormObject())
             ->setButtons($buttons);
 
 

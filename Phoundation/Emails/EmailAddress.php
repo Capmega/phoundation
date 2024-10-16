@@ -57,17 +57,17 @@ class EmailAddress extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getUsersEmail($this)
+        $definitions->add(DefinitionFactory::newUsersEmail($this)
                                            ->setRender(false))
-                    ->add(DefinitionFactory::getUsersId($this)
+                    ->add(DefinitionFactory::newUsersId($this)
                                            ->setRender(false))
-                    ->add(DefinitionFactory::getRolesId($this, 'view_roles_id')
+                    ->add(DefinitionFactory::newRolesId($this, 'view_roles_id')
                                            ->setRender(false))
-                    ->add(DefinitionFactory::getRolesName($this, 'view_roles_name')
+                    ->add(DefinitionFactory::newRolesName($this, 'view_roles_name')
                                            ->setRender(false))
-                    ->add(DefinitionFactory::getRolesId($this, 'send_roles_id')
+                    ->add(DefinitionFactory::newRolesId($this, 'send_roles_id')
                                            ->setRender(false))
-                    ->add(DefinitionFactory::getRolesName($this, 'send_roles_name')
+                    ->add(DefinitionFactory::newRolesName($this, 'send_roles_name')
                                            ->setRender(false))
                     ->add(DefinitionFactory::getHost($this, 'smtp_host')
                                            ->setRender(false))
@@ -80,14 +80,14 @@ class EmailAddress extends DataEntry
                                     ->setInputType(EnumInputType::text)
                                     ->setDataSource(['tls' => tr('TLS')])
                                     ->setRender(false))
-                    ->add(DefinitionFactory::getName($this)
+                    ->add(DefinitionFactory::newName($this)
                                            ->setSize(3))
-                    ->add(DefinitionFactory::getSeoName($this)
+                    ->add(DefinitionFactory::newSeoName($this)
                                            ->setSize(3))
-                    ->add(DefinitionFactory::getUsername($this)
+                    ->add(DefinitionFactory::newUsername($this)
                                            ->setSize(3))
-                    ->add(DefinitionFactory::getPassword($this)
+                    ->add(DefinitionFactory::newPassword($this)
                                            ->setSize(3))
-                    ->add(DefinitionFactory::getDescription($this));
+                    ->add(DefinitionFactory::newDescription($this));
     }
 }

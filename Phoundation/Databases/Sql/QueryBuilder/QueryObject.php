@@ -393,6 +393,17 @@ class QueryObject implements QueryObjectInterface
 
 
     /**
+     * Returns the WHERE parts of the query
+     *
+     * @return array
+     */
+    public function getWheres(): array
+    {
+        return $this->wheres;
+    }
+
+
+    /**
      * Sets the WHERE part of the query
      *
      * @param string|null $where

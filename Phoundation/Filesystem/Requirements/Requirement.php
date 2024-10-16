@@ -78,7 +78,7 @@ class Requirement extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getName($this)
+        $definitions->add(DefinitionFactory::newName($this)
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(12)
                                            ->setMaxlength(128)
@@ -87,7 +87,7 @@ class Requirement extends DataEntry
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }))
-                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(DefinitionFactory::newSeoName($this))
                     ->add(Definition::new($this, 'path')
                                     ->setInputType(EnumInputType::name)
                                     ->setSize(6)
@@ -142,7 +142,7 @@ class Requirement extends DataEntry
                                     ->setMaxlength(16)
                                     ->setLabel(tr('File type'))
                                     ->setHelpText(tr('The type of file this should be')))
-                    ->add(DefinitionFactory::getDescription($this)
+                    ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this mount')));
     }
 }

@@ -186,15 +186,15 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
 
         static::$backup = $_FILES;
 
-        // Check if we get the weird subarrays in name. If so, restructure that mess
+        // Check if we get the weird sub arrays in name. If so, restructure that mess
         if (count($_FILES)) {
             if (empty($_FILES['file'])) {
                 Incident::new()
-                    ->setType('Invalid file upload detected')
-                    ->setSeverity(EnumSeverity::high)
-                    ->setTitle(tr('Received invalid $_FILES data from client'))
-                    ->save()
-                    ->throw(ValidationFailedException::class);
+                        ->setType('Invalid file upload detected')
+                        ->setSeverity(EnumSeverity::high)
+                        ->setTitle(tr('Received invalid $_FILES data from client'))
+                        ->save()
+                        ->throw(ValidationFailedException::class);
 
             } else {
                 if (is_array($_FILES['file']['name'])) {
@@ -328,8 +328,9 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
 
                     foreach ($files as $file) {
                         try {
-                            Log::action(tr('Processing uploaded file ":file"', [
-                                ':file' => $file->getBasename()
+                            Log::action(tr('Processing uploaded file ":file" with mimetype handler ":handler"', [
+                                ':file'    => $file->getBasename(),
+                                ':handler' => get_class($handler)
                             ]), 4);
 
                             $handler->process($file);
@@ -341,13 +342,14 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
 
                             // Register the incident in text & developer incidents log
                             $incident = Incident::new()
-                                ->setSeverity(EnumSeverity::low)
-                                ->setTitle($e->getMessage())
-                                ->setDetails([
-                                    'file'      => $file,
-                                    'exception' => $e
-                                ])
-                                ->save();
+                                                ->setType('File upload processing failed')
+                                                ->setSeverity(EnumSeverity::low)
+                                                ->setTitle($e->getMessage())
+                                                ->setDetails([
+                                                    'file'      => $file,
+                                                    'exception' => $e
+                                                ])
+                                                ->save();
                         }
                     }
                 }

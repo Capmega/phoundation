@@ -28,7 +28,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.0';
+        return '0.1.1';
     }
 
 
@@ -114,6 +114,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             if (!$table->columnExists('data')) {
                 $table->alter()->addColumn('`data` mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `exception`');
             }
+
+        })->addUpdate('0.1.1', function () {
+            sql()->getSchemaObject()->getTableObject('security_incidents')->alter()
+                 ->modifyColumn('`body`'   , 'text COLLATE utf8mb4_general_ci NULL DEFAULT NULL,')
+                 ->modifyColumn('`details`', 'text COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
         });
     }
 }

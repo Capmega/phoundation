@@ -82,6 +82,7 @@ class Incident extends DataEntry implements IncidentInterface
      */
     protected bool $log = true;
 
+
     /**
      * Sets if this incident causes a notification to the specified groups
      *
@@ -181,19 +182,24 @@ class Incident extends DataEntry implements IncidentInterface
     /**
      * Sets the exception for this incident
      *
-     * @param Throwable|null $e
+     * @param Throwable|string|null $e
      *
      * @return static
      */
-    public function setException(?Throwable $e): static
+    public function setException(Throwable|string|null $e): static
     {
         if ($e) {
+            if (is_string($e)) {
+                // This is (presumably) a JSON encoded exception data source. Import it into a new exception
+                $e = Exception::newFromImport($e);
+            }
+
             if ($e instanceof Exception) {
                 $this->setTitle(tr('Encountered exception: :e', [':e' => $e->getMessage()]))
                      ->setType('exception')
                      ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
                      ->setSeverity($e->isWarning() ? EnumSeverity::medium : EnumSeverity::high)
-                     ->setBody(implode(PHP_EOL, $e->getMessages()))
+                     ->setBody(get_null(implode(PHP_EOL, $e->getMessages())) ?? $e->getMessage())
                      ->setDetails([
                          'exception' => $e->exportToArray(),
                          'data'      => $e->getData(),
@@ -302,6 +308,7 @@ class Incident extends DataEntry implements IncidentInterface
         // Save the incident
         $severity = strtolower($this->getSeverity());
         $incident = parent::save($force, $skip_validation, $comments);
+        $details  = $this->getDetails();
 
         // Default details added to security incidents medium or higher
         if ($this->severityIsEqualOrHigherThan(EnumSeverity::medium)) {
@@ -310,10 +317,12 @@ class Incident extends DataEntry implements IncidentInterface
             ]);
         }
 
-
         if ($this->log) {
             switch ($severity) {
                 case 'notice':
+                    // no break
+
+                case 'low':
                     Log::notice(tr('Security notice (:id): :message', [
                         ':id'      => $this->getId(),
                         ':message' => $this->getTitle(),
@@ -329,7 +338,7 @@ class Incident extends DataEntry implements IncidentInterface
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
                     ]));
-                    Log::error(print_r($this->getDetails(), true));
+                    Log::error(print_r($details, true));
                     break;
 
                 default:
@@ -338,7 +347,7 @@ class Incident extends DataEntry implements IncidentInterface
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
                     ]));
-                    Log::warning(print_r($this->getDetails(), true), clean: false);
+                    Log::warning(print_r($details, true), clean: false);
             }
         }
 
@@ -365,11 +374,11 @@ class Incident extends DataEntry implements IncidentInterface
                     break;
             }
 
-            $notification->setUrl('security/incident+' . $this->getId() . '.html')
+            $notification->setUrl(Url::getWww('security/incident+' . $this->getId() . '.html'))
                          ->setRoles($this->notify_roles)
                          ->setTitle($this->getType())
                          ->setMessage($this->getTitle())
-                         ->setDetails($this->getDetails())
+                         ->setDetails($details)
                          ->send();
         }
 
@@ -470,7 +479,7 @@ class Incident extends DataEntry implements IncidentInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getCreatedBy($this))
+        $definitions->add(DefinitionFactory::newCreatedBy($this))
 
                     ->add(Definition::new($this, 'type')
                                     ->setLabel(tr('Incident type'))
@@ -516,19 +525,24 @@ class Incident extends DataEntry implements IncidentInterface
                                     ->setSize(12)
                                     ->setRows(15)
                                     ->setMaxlength(65_535)
-                                    ->setDisplayCallback(function (mixed $value, array $source) {
+                                    ->setDisplayCallback(function (mixed $details, array $source) {
                                         // Since the details almost always have an array encoded in JSON, decode it and
                                         // display it using print_r
-                                        if (!$value) {
+                                        if (!$details) {
                                             return null;
                                         }
 
                                         try {
+                                            if (is_string($details)) {
+                                                // Details are JSON encoded, decode here
+                                                $details = Json::decode($details);
+                                            }
+
                                             $return  = '';
                                             $lines   = [];
-                                            $details = Json::decode($value);
                                             $largest = Arrays::getLongestKeyLength($details);
 
+                                            // Reformat the details into a human readable table string
                                             foreach ($details as $key => $value) {
                                                 if (!is_data_scalar($value)) {
                                                     $value = Strings::log($value);

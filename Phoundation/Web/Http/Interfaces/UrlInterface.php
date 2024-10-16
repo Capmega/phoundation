@@ -66,9 +66,9 @@ interface UrlInterface
     /**
      * Remove specified queries from the specified URL and return
      *
-     * @param array|string|bool ...$queries All the queries to add to this URL
+     * @param array|string|null ...$keys All the queries to add to this URL
      *
      * @return static
      */
-    public function removeQueries(array|string|bool ...$queries): static;
+    public function removeQueryKeys(array|string|null ...$keys): static;
 }

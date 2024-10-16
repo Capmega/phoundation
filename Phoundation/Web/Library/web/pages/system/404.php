@@ -38,18 +38,6 @@ switch (Request::getRequestType()) {
 }
 
 
-// Build the error page
-echo Template::new('system/http-error')->setSource([
-                                                       ':h2'     => '404',
-                                                       ':h3'     => tr('Page not found'),
-                                                       ':p'      => tr('We could not find the page you were looking for. Please go back where you came from!'),
-                                                       ':type'   => 'warning',
-                                                       ':search' => tr('Search'),
-                                                       ':img'    => Url::getImg('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg'),
-                                                       ':action' => Url::getWww('search/'),
-                                                   ])->render();
-
-
 // Set page meta data
 Response::setHttpCode(404);
 Response::setRenderMainWrapper(false);
@@ -57,3 +45,15 @@ Response::setPageTitle('404 - Page not found');
 Response::setHeaderTitle(tr('404 - Page not found'));
 Response::setDescription(tr('The specified page is not found'));
 Response::setBreadCrumbs();
+
+
+// Build the error page
+return Template::new('system/http-error')->setSource([
+    ':h2'     => '404',
+    ':h3'     => tr('Page not found'),
+    ':p'      => tr('We could not find the page you were looking for. Please go back where you came from!'),
+    ':type'   => 'warning',
+    ':search' => tr('Search'),
+    ':img'    => Url::getImg('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg'),
+    ':action' => Url::getWww('search/'),
+]);

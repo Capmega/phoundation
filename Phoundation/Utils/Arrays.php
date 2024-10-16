@@ -492,10 +492,11 @@ class Arrays extends Utils
 
         foreach ($source as $key => $value) {
             if (is_array($value)) {
+                // Recurse
                 $return[] .= $key . $key_separator . $row_separator . static::implodeWithKeys($value, $row_separator, $key_separator, $quote_character, $options);
 
             } else {
-                if (!$value) {
+                if (!$value and !is_numeric($value)) {
                     if ($filter_empty) {
                         // Don't add this value at all
                         continue;

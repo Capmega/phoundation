@@ -6,6 +6,10 @@ namespace Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces;
 
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\Toast;
+use Phoundation\Web\Html\Enums\EnumAttachJavascript;
+
 
 interface FlashMessageInterface extends ElementsBlockInterface
 {
@@ -176,17 +180,28 @@ interface FlashMessageInterface extends ElementsBlockInterface
     /**
      * Renders and returns the HTML for this flash message
      *
-     * @return string|null
-     */
-    public function render(): ?string;
-
-
-    /**
-     * Renders and returns the HTML for this flash message without javascript tags
+     * @param EnumAttachJavascript $attach_javascript Specified where to attach the data, either in the HTML header,
+     *                                                HTML footer, or "here" which will return the rendered string
      *
      * @return string|null
      */
-    public function renderBare(): ?string;
+    public function render(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string;
+
+
+    /**
+     * Renders and returns the configuration for this flash message without JavaScript tags or calls
+     *
+     * @return string|null
+     */
+    public function renderJson(): ?string;
+
+
+    /**
+     * Renders and returns the configuration for this flash message without JavaScript tags or calls
+     *
+     * @return array
+     */
+    public function renderArray(): array;
 
 
     /**

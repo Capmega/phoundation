@@ -19,18 +19,15 @@ namespace Phoundation\Databases;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Exception\RedisConnectionFailedException;
 use Phoundation\Databases\Exception\RedisException;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Json;
-use Throwable;
 
 class Redis implements DatabaseInterface
 {
@@ -44,46 +41,26 @@ class Redis implements DatabaseInterface
      */
     protected \Redis $client;
 
-    /**
-     * The Specified list name
-     *
-     * @var string
-     */
-    protected string $list_name;
-
 
     /**
      * Initialize the class object through the constructor.
      *
-     * Redis constructor.
+     * MC constructor.
      *
      * @param ConnectorInterface|string|null $connector
-     * @param bool                           $use_database
-     * @param bool                           $connect
      */
-    public function __construct(ConnectorInterface|string|null $connector = null, bool $use_database = true, bool $connect = true)
+    public function __construct(ConnectorInterface|string|null $connector = null)
     {
-        if (!class_exists('\Redis')) {
-            throw new PhpModuleNotAvailableException(tr('The PHP module "redis" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php-redis; sudo phpenmod redis" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
-        }
-
         if ($connector === null) {
             $connector = Config::getString('databases.redis.connectors.default', 'system-redis');
 
-        } elseif (is_string($connector)) {
+        }
+
+        if (is_string($connector)) {
             $connector = new Connector($connector);
         }
 
-        if ($connector instanceof ConnectorInterface) {
-            $this->connector = $connector->getName();
-            // $this->configuration = static::readConfiguration($connector); // TODO: implement to match SQL constructor
-        }
-
         $this->setConnectorObject($connector);
-
-        if ($connect) {
-            $this->connect();
-        }
     }
 
 
@@ -91,20 +68,12 @@ class Redis implements DatabaseInterface
      * Connects to the Redis database
      *
      * @return static
-     * @throws RedisConnectionFailedException
      */
-    protected function connect(): static
+    public function connect(): static
     {
         if (empty($this->client)) {
-            try {
-                // Read configuration and connect
-                $this->client = new \Redis($this->o_connector->getRedisConfiguration());
-
-            } catch (Throwable $e) {
-                throw new RedisConnectionFailedException(tr('Failed to connect to Redis connector ":connector"', [
-                    ':connector' => $this->o_connector->getName(),
-                ]), $e);
-            }
+            // Read configuration and connect
+            $this->client = new \Redis($this->o_connector->getRedisConfiguration());
         }
 
         return $this;
@@ -112,147 +81,79 @@ class Redis implements DatabaseInterface
 
 
     /**
-     * Returns an entire list //TODO (probably going to be a string in JSON format)
+     * Returns the value for the specified key
      *
-     * @param string $list
-     *
+     * @param string $key
      * @return mixed
      */
-    public function get(string $list): mixed
+    public function get($key): mixed
     {
-        try {
-            $value = $this->connect()->client->get($list);
-            if ($value) {
-                return Json::decode($value);
-            }
+        $this->connect();
 
-            return null;
+        $value = parent::get($key);
 
-        } catch (Throwable $e) {
-            throw new RedisException(tr('Failed to get list ":list" from Redis connector ":connector', [
-                ':list' => $list,
-                ':connector' => $this->o_connector->getName()
-            ]), $e);
+        if ($value) {
+            return Json::decode($value);
         }
+
+        return null;
     }
 
 
     /**
-     * Sets a list as a specific string value
+     * Get the document for the specified key from the specified collection
      *
      * @param string|array $value
-     * @param string       $list
-     * @param int|null     $timeout
-     *
-     * @return static
+     * @param string $key
+     * @param int|null $timeout
+     * @return int The _id of the inserted document
      */
-    public function set(mixed $value, string $list, ?int $timeout = null): static
+    public function set(mixed $value, string $key, ?int $timeout = null): int
     {
-        try {
-            $this->connect()->client
-                ->set($list, $value, $timeout);
+        $this->connect();
 
-            return $this;
-
-        } catch (Throwable $e) {
-            throw new RedisException(tr('Failed to set list ":list" with value ":value" from Redis connector ":connector', [
-                ':list' => $list,
-                ':value' => $value,
-                ':connector' => $this->o_connector->getName()
-            ]), $e);
-        }
+        return parent::set($key, Json::encode($value), $timeout);
     }
 
 
     /**
-     * Get the list name
+     * Get the document for the specified key from the specified collection
      *
-     * @return string
+     * @param $key
+     * @return int The number of documents deleted
      */
-    public function getListName(): string
+    public function delete($key): int
     {
-        return $this->list_name;
+        $this->connect();
+
+        return parent::del($key);
     }
 
 
     /**
-     * Set the list name
-     *
-     * @param string $name
-     *
-     * @return Redis
-     */
-    public function setListName(string $name): static
-    {
-        $this->list_name = $name;
-        return $this;
-    }
-
-
-    /**
-     * Drop a list from the Redis database
-     *
-     * @param string $list
-     *
-     * @return Redis The number of documents deleted
-     */
-    public function drop(string $list): static
-    {
-        try {
-            $this->connect()
-                 ->client->del($list);
-
-            return $this;
-
-        } catch (Throwable $e) {
-            throw new RedisException(tr('Failed to drop list ":list" from Redis connector ":connector', [
-                ':list'      => $list,
-                ':connector' => $this->o_connector->getName()
-            ]), $e);
-        }
-    }
-
-
-    /**
-     * Pushes the specified value to the beginning of the queue (on the left) to the list
+     * Pushes the specified value at the beginning of the queue
      *
      * @param mixed $value
      *
      * @return $this
+     * @throws \RedisException
      */
     public function push(mixed $value): static
     {
-        try {
-            $this->client->lPush($this->list_name, Json::encode($value));
-            return $this;
-
-        } catch (Throwable $e) {
-            throw new RedisException(tr('Failed to push value ":value" to Redis connector ":connector', [
-                ':value'     => $value,
-                ':connector' => $this->o_connector->getName()
-            ]), $e);
-        }
+        $this->client->lPush($value);
+        return $this;
     }
 
 
     /**
-     * Pops the last value off the queue (from the right) from the list and returns it
-     *
-     * @param int|null $timeout
+     * Pops the last value off the queue and returns it
      *
      * @return mixed
+     * @throws \RedisException
      */
-    public function pop(?int $timeout = null): mixed
+    public function pop(): mixed
     {
-        try {
-            return Json::decode($this->client->brPop($this->list_name, $timeout));
-
-        } catch (Throwable $e) {
-            throw new RedisException(tr('Failed to pop from Redis connector ":connector', [
-                ':connector' => $this->o_connector->getName()
-            ]), $e);
-        }
-
+        return $this->client->brPop();
     }
 
 

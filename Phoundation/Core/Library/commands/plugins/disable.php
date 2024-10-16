@@ -54,9 +54,9 @@ $argv = ArgvValidator::new()
 
 if (ALL) {
     // Get all plugins
-    $plugin = Plugins::new()->load()->eachField(function ($plugin) {
+    $plugin = Plugins::new()->load()->eachField(function ($plugin, $plugin_name) {
         // Disable plugin
-        Plugin::load($plugin)->disable();
+        Plugin::load($plugin_name)->disable();
     });
 
     // Done!

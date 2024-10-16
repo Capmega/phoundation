@@ -20,7 +20,7 @@ use Phoundation\Web\Requests\JsonPage;
 
 // Gets the notification dropdown
 $dropdown = NotificationsDropDown::new()
-                                 ->setStatus('UNREAD')
+                                 ->setStatusFilter('UNREAD')
                                  ->setNotificationsUrl('/notifications/notification-:ID.html')
                                  ->setAllNotificationsUrl('/notifications/unread.html');
 

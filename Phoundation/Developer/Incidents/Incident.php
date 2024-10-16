@@ -89,7 +89,7 @@ class Incident extends DataEntry
                                         $validator->isName(16);
                                     }))
 
-                    ->add(DefinitionFactory::getTitle($this)
+                    ->add(DefinitionFactory::newTitle($this)
                                            ->setSize(6))
 
                     ->add(Definition::new($this, 'url')
@@ -99,7 +99,7 @@ class Incident extends DataEntry
                                     ->setSize(12)
                                     ->setMaxlength(2048))
 
-                    ->add(DefinitionFactory::getDescription($this))
+                    ->add(DefinitionFactory::newDescription($this))
 
                     ->add(Definition::new($this, 'exception')
                                     ->setOptional(true)

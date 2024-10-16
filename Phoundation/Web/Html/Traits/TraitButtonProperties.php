@@ -361,9 +361,7 @@ trait TraitButtonProperties
 
         if ($this->floating) {
             $this->addClasses('btn-floating');
-            $this->setContent(Icons::new()
-                                   ->setContent($this->content)
-                                   ->render());
+            $this->setContent(Icons::new()->setContent($this->content));
         }
     }
 }

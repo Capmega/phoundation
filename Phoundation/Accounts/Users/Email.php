@@ -146,10 +146,10 @@ class Email extends DataEntry implements EmailInterface
                                     ->setRender(false)
                                     ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getUsersId($this)
+                    ->add(DefinitionFactory::newUsersId($this)
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::getEmail($this)
+                    ->add(DefinitionFactory::newEmail($this)
                                            ->setSize(4)
                                            ->setOptional(false)
                                            ->setHelpText(tr('The extra email address for the user'))
@@ -195,11 +195,11 @@ class Email extends DataEntry implements EmailInterface
                                     ->setLabel(tr('Type'))
                                     ->setHelpText(tr('The type of email address')))
 
-                    ->add(DefinitionFactory::getDateTime($this, 'verified_on')
+                    ->add(DefinitionFactory::newDateTime($this, 'verified_on')
                                            ->setReadonly(true)
                                            ->setSize(3)
                                            ->setDbNullInputType(EnumInputType::text)
-                                           ->setDbNullValue(true, tr('Not verified'))
+                                           ->setNullDefault(tr('Not verified'))
                                            ->addClasses('text-center')
                                            ->setLabel(tr('Verified on'))
                                            ->setHelpGroup(tr('Account information'))
@@ -213,7 +213,7 @@ class Email extends DataEntry implements EmailInterface
                                     ->addClasses('btn btn-outline-warning')
                                     ->setValue(tr('Delete')))
 
-                    ->add(DefinitionFactory::getDescription($this)
+                    ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this email')));
     }
 

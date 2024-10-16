@@ -359,7 +359,7 @@ class Route
      */
     protected static function init(): void
     {
-        Request::setRestrictions(FsRestrictions::newReadonly(DIRECTORY_WEB));
+        Request::setRestrictions(FsRestrictions::newRoot());
         Response::initialize();
 
         if (Core::getMaintenanceMode()) {
@@ -1628,7 +1628,7 @@ class Route
     {
         Log::notice(tr('*POSSIBLE HACK ATTEMPT DETECTED*'));
         Notification::new()
-            ->setUrl('security/incidents.html')
+            ->setUrl(Url::getWww('security/incidents.html'))
             ->setMode(EnumDisplayMode::exception)
             ->setCode('hack')
             ->setRoles('security')

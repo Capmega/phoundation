@@ -1403,7 +1403,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
      */
     public function upload(bool $attachment, ?string $description = null, bool $exit = true): static
     {
-        $this->makeRealPath();
+        $this->makeReal();
 
         header('Content-Type: ' . $this->getMimetype());
         header('Content-length: ' . $this->getSize());

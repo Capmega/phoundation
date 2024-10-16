@@ -166,10 +166,10 @@ class Language extends DataEntry implements LanguageInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getName($this)
+        $definitions->add(DefinitionFactory::newName($this)
                                            ->setDisabled(true)
                                            ->setHelpText(tr('The name for this language')))
-                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(DefinitionFactory::newSeoName($this))
                     ->add(Definition::new($this, 'code_639_1')
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::code)
@@ -202,7 +202,7 @@ class Language extends DataEntry implements LanguageInterface
                                     ->setSize(12)
                                     ->setMaxlength(3)
                                     ->setHelpText(tr('The ISO 639-3 code for this language')))
-                    ->add(DefinitionFactory::getDescription($this)
+                    ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this language')));
     }
 }

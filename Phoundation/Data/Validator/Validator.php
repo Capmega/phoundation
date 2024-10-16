@@ -35,6 +35,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsPathInterface;
 use Phoundation\Utils\Arrays;
@@ -48,7 +49,6 @@ use Phoundation\Web\Http\Url;
 use ReflectionProperty;
 use Stringable;
 use Throwable;
-use UnitEnum;
 
 
 abstract class Validator extends IteratorBase implements ValidatorInterface
@@ -765,6 +765,45 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is a valid database id (integer, 1 and above)
+     *
+     * @param string|null $table
+     * @param string|null $failure_message
+     *
+     * @return static
+     */
+    public function dbIdExists(?string $table = null, ?string $failure_message = null): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($table, $failure_message) {
+            $this->isDbId();
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            $table = $table ?? $this->table;
+
+            if (empty($table)) {
+                throw new ValidatorException(tr('Cannot validate if database id exists, no table configured for this validator, and no table specified'));
+            }
+
+            $exists = sql()->getColumn('SELECT `id` FROM `' . $table . '` WHERE `id` = :id', [
+                ':id' => $value,
+            ]);
+
+            if (!$exists) {
+                $this->addFailure($failure_message ?? tr('must exist'));
+            }
+        });
+    }
+
+
+    /**
      * Validates that the selected field is the specified value
      *
      * @param mixed $validate_value The value that should not be matched
@@ -1255,7 +1294,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
-     * This method ensures that the specified key is the same as the column value in the specified query
+     * This will set the specified column to have the value from the given callback
      *
      * @param string   $column
      * @param callable $callback
@@ -1280,7 +1319,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $result = $callback($value, $this->source, $this);
 
             if (!$result and $fail_on_null) {
-                $this->addFailure(Strings::plural(count($value), tr('value ":values" does not exist', [':values' => implode(', ', $value)]), tr('values ":values" do not exist', [':values' => implode(', ', $value)])));
+                $this->addFailure(
+                    Strings::plural(count($value),
+                    tr('value ":values" does not exist', [
+                        ':values' => implode(', ', $value)
+                    ]),
+                    tr('values ":values" do not exist', [':values' => implode(', ', $value)]))
+                );
             }
 
             $this->source[$this->field_prefix . $column] = $result;
@@ -2773,8 +2818,24 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             return new $class($path, $this->restrictions);
         }
 
-        // Get the absolute path, file does not need to exist here, we'll check that later
-        $path = FsPath::realPath($path, $prefix, false);
+        // Extract restrictions
+        if (is_array($exists_in_directories)) {
+            // We need the restrictions from $exists_in_directories.
+            // If multiple directories were specified, get restrictions from them all
+            $restrictions = new FsRestrictions();
+
+            foreach ($exists_in_directories as $exists_in_directory) {
+                $restrictions->addRestrictions($exists_in_directory->getRestrictions());
+            }
+
+        } else {
+            $restrictions = $exists_in_directories->getRestrictions();
+        }
+
+        // Get the absolute "path", "file" does not need to exist here, we'll check that later
+        $path = FsPath::new($path, $restrictions)
+                      ->makeReal($prefix, false)
+                      ->getSource();
 
         foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
             if (!$exists_in_directory instanceof FsDirectoryInterface) {
@@ -4437,8 +4498,8 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         }
 
         if ($this->selected_field and !$this->test_count) {
-            throw new ValidationFailedException(tr('Cannot select object ":object" field ":field", the previously selected field ":previous" has no validations performed yet', [
-                ':object'   => ($this->definitions?->getDataEntry() ? get_class($this->definitions?->getDataEntry()) : '-'),
+            throw new ValidatorException(tr('Cannot select field ":field" for object ":object", the previously selected field ":previous" has no validations performed yet', [
+                ':object'   => ($this->definitions?->getDataEntry() ? get_class($this->definitions->getDataEntry()) : '-'),
                 ':field'    => $field,
                 ':previous' => $this->selected_field,
             ]));
@@ -4505,27 +4566,5 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
         $this->reflection_selected_optional = new ReflectionProperty($this, 'selected_optional');
         $this->reflection_process_value     = new ReflectionProperty($this, 'process_value');
-    }
-
-
-    /**
-     * Returns the number values that this validator holds in its source
-     *
-     * @return int
-     */
-    public function getCount(): int
-    {
-        return count($this->source);
-    }
-
-
-    /**
-     * Returns true if the current Validator has no values in its source
-     *
-     * @return bool
-     */
-    public function isEmpty(): bool
-    {
-        return !$this->getCount();
     }
 }

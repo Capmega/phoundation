@@ -26,32 +26,26 @@ use Phoundation\Web\Non200Urls\Non200Urls;
 use Phoundation\Web\Requests\Response;
 
 
-// Build the page content
-
-
 // Build users filter card
-$filters_content = FilterForm::new();
-
-$filters = Card::new()
+$filters      = FilterForm::new();
+$filters_card = Card::new()
                ->setCollapseSwitch(true)
                ->setTitle('Non200Urls filters')
-               ->setContent($filters_content->render())
+               ->setContent($filters)
                ->useForm(true);
 
 
-// Build urls table
-$table = Non200Urls::new()->getHtmlDataTableObject()
-                   ->setRowUrl('/security/non-200-url+:ROW.html');
+// Build "urls" table
+$urls_card = Card::new()
+                 ->setTitle('Security Non-200 URL\'s')
+                 ->setSwitches('reload')
+                 ->setContent(Non200Urls::new()->getHtmlDataTableObject()
+                     ->setRowUrl('/security/non-200-url+:ROW.html'))
+                 ->useForm(true);
 
-$users = Card::new()
-             ->setTitle('Security Non-200 URL\'s')
-             ->setSwitches('reload')
-             ->setContent($table->render())
-             ->useForm(true);
-
-$users->getForm()
-      ->setAction(Url::getCurrent())
-      ->setRequestMethod(EnumHttpRequestMethod::post);
+$urls_card->getForm()
+          ->setAction(Url::getCurrent())
+          ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links
@@ -68,18 +62,16 @@ $documentation = Card::new()
                      ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Render and return the page grid
-$grid = Grid::new()
-            ->addGridColumn($filters->render() . $users->render(), EnumDisplaySize::nine)
-            ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
-
-
 // Set page meta data
 Response::setHeaderTitle(tr('Non HTTP-200 URL\'s'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'              => tr('Home'),
-                                                           '/security.html' => tr('Security'),
-                                                           ''               => tr('Non HTTP-200 URL\'s'),
-                                                       ]));
+    '/'              => tr('Home'),
+    '/security.html' => tr('Security'),
+    ''               => tr('Non HTTP-200 URL\'s'),
+]));
+
+
+// Render and return the page grid
+return Grid::new()
+           ->addGridColumn($filters_card . $urls_card, EnumDisplaySize::nine)
+           ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);

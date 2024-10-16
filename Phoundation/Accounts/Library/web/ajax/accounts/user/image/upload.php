@@ -51,7 +51,7 @@ try {
         ->add(UploadHandler::new('image')
             ->addValidationFunction(function (FileValidatorInterface $validator) {
                 $validator->isImage('jpg,png')->isSmallerThan('10MB')
-                          ->validate();
+                    ->validate();
             })
             ->setFunction(function(FsUploadedFileInterface $file) use ($user) {
                 // Set this image as the profile image
@@ -74,12 +74,12 @@ try {
                         JsonHtmlSection::new('#profile-picture')
                             ->setMethod(EnumJsonHtmlMethods::replace)
                             ->setHtml($user->getProfileImageObject()
-                                               ->getHtmlImgObject()
-                                                   ->setId('profile-picture')
-                                                   ->addClasses('w100')
-                                                   ->setAlt(tr('Profile picture for :name', [
-                                                       ':name' => $user->getDisplayName()
-                                                   ])))))
+                                ->getHtmlImgObject()
+                                    ->setId('profile-picture')
+                                    ->addClasses('w100')
+                                    ->setAlt(tr('Profile picture for :name', [
+                                        ':name' => $user->getDisplayName()
+                                    ])))))
                     ->reply();
             })
         )->process();
@@ -88,9 +88,9 @@ try {
     if (str_starts_with($e->getMessage(), 'No handler found for mimetype')) {
         JsonPage::new()
             ->addFlashMessageSections(FlashMessage::new()
-                                                  ->setMode(EnumDisplayMode::warning)
-                                                  ->setTitle(tr('Warning!'))
-                                                  ->setMessage(tr('Failed to update your profile image with the uploaded file, it is not an image')))
+                ->setMode(EnumDisplayMode::warning)
+                ->setTitle(tr('Warning!'))
+                ->setMessage(tr('Failed to update your profile image with the uploaded file, it is not an image')))
             ->reply();
     }
 

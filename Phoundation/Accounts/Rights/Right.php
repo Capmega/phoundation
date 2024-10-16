@@ -135,7 +135,7 @@ class Right extends DataEntry implements RightInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getName($this)
+        $definitions->add(DefinitionFactory::newName($this)
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(12)
                                            ->setMaxlength(64)
@@ -143,8 +143,8 @@ class Right extends DataEntry implements RightInterface
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }))
-                    ->add(DefinitionFactory::getSeoName($this))
-                    ->add(DefinitionFactory::getDescription($this)
+                    ->add(DefinitionFactory::newSeoName($this))
+                    ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this right')));
     }
 }

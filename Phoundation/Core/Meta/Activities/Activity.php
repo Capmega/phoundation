@@ -19,6 +19,7 @@ namespace Phoundation\Core\Meta\Activities;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Meta\Activities\Interfaces\ActivityInterface;
+use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Data\Traits\TraitDataSourceArray;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Date\DateTime;
@@ -65,6 +66,15 @@ class Activity implements ActivityInterface, RenderInterface
 
 
     /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->get('id');
+    }
+
+
+    /**
      * Returns a new Activity object
      *
      * @param array|null $source
@@ -74,6 +84,20 @@ class Activity implements ActivityInterface, RenderInterface
     public static function new(?array $source = null): static
     {
         return new static($source);
+    }
+
+
+    /**
+     * Returns a new Activity object for the specified meta-history object
+     *
+     *
+     * @param MetaInterface $meta
+     *
+     * @return static
+     */
+    public static function newFromMetaObject(MetaInterface $meta): static
+    {
+        return new static($meta->getSource());
     }
 
 

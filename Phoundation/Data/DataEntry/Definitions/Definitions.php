@@ -18,7 +18,8 @@ namespace Phoundation\Data\DataEntry\Definitions;
 
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\Iterator;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Traits\TraitDataPrefix;
 use Phoundation\Data\Traits\TraitDataTable;
@@ -27,7 +28,7 @@ use Phoundation\Web\Html\Traits\TraitButtons;
 use Stringable;
 
 
-class Definitions extends Iterator implements DefinitionsInterface
+class Definitions extends IteratorCore implements DefinitionsInterface
 {
     use TraitButtons;
     use TraitDataDataEntry;
@@ -44,6 +45,30 @@ class Definitions extends Iterator implements DefinitionsInterface
      * @var bool
      */
     protected bool $meta_visible = true;
+
+
+    /**
+     * Definitions class constructor
+     *
+     * @param DataEntryInterface|null $data_entry
+     */
+    public function __construct(?DataEntryInterface $data_entry = null)
+    {
+        $this->data_entry = $data_entry;
+    }
+
+
+    /**
+     * Returns a new Definitions object
+     *
+     * @param DataEntryInterface|null $data_entry
+     *
+     * @return static
+     */
+    public static function new(?DataEntryInterface $data_entry = null): static
+    {
+        return new static($data_entry);
+    }
 
 
     /**
@@ -69,7 +94,7 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Adds the specified Definition object to the definitions list
+     * Adds the specified Definition object to the "definitions" list
      *
      * @param mixed                            $value
      * @param float|Stringable|int|string|null $key

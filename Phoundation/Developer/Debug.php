@@ -5,7 +5,11 @@
  *
  * This class contains the basic debug methods for use in Phoundation
  *
+ * Added Debug::dump() from https://github.com/google-code-export/prado3/blob/master/framework/Util/TVarDumper.php
+ * Upgraded by Sven Olaf Oostenbrink <so.oostenbrink@gmail.com> for use with PHP8.3 and Phoundation
+ *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author    Qiang Xue <qiang.xue@gmail.com> (Debug::dump() from prado3 framework)
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Developer
@@ -78,6 +82,13 @@ class Debug
      * @var DebugCounter|null $counter
      */
     protected static ?DebugCounter $counter = null;
+
+    /**
+     * Objects cache for the dump() method
+     *
+     * @var array $objects
+     */
+    protected static array $objects;
 
 
     /**
@@ -1322,6 +1333,130 @@ class Debug
                     $return = $call;
                 }
             }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Converts a variable into a string representation.
+     *
+     * This method achieves a similar functionality as var_dump() and print_r() but is more robust when handling complex
+     * objects
+     *
+     * Taken from prado3 framework TVarDumper class, written by Qiang Xue
+     *
+     * @see https://github.com/google-code-export/prado3/blob/master/framework/Util/TVarDumper.php
+     * @author Qiang Xue <qiang.xue@gmail.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     *
+     * @param mixed   $source    variable to be dumped
+     * @param integer $max_depth maximum depth that the dumper should go into the variable. Defaults to 10.
+     * @param bool    $highlight the string representation of the variable
+     *
+     * @return string
+     */
+    public static function dump(mixed $source, int $max_depth = 10, bool $highlight = false): string
+    {
+        static::$objects = [];
+
+        $return = self::doDump($source, $max_depth);
+
+        if ($highlight) {
+            $return = highlight_string("<?php\n" . $return, true);
+            $return = preg_replace('/&lt;\\?php<br \\/>/', '', $return, 1);
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Generates and returns the dump string for Debug::dump()
+     *
+     * @param mixed $var
+     * @param int   $max_depth
+     * @param int   $level
+     *
+     * @return string
+     */
+    protected static function doDump(mixed $var, int $max_depth, int $level = 0): string
+    {
+        $return = '';
+
+        switch(gettype($var)) {
+            case 'boolean':
+                $return .= $var ? 'true' : 'false';
+                break;
+
+            case 'double':
+            case 'integer':
+                $return .= "$var";
+                break;
+
+            case 'string':
+                $return .= '"' . $var . '"';
+                break;
+
+            case 'resource':
+                $return .= '{resource}';
+                break;
+
+            case 'NULL':
+                $return .= "null";
+                break;
+
+            case 'unknown type':
+                $return .= '{unknown}';
+                break;
+
+            case 'array':
+                if ($max_depth <= $level) {
+                    $return .= 'array(...)';
+
+                } elseif (empty($var)) {
+                    $return .= 'array()';
+
+                } else {
+                    $keys    = array_keys($var);
+                    $spaces  = str_repeat(' ', $level * 4);
+                    $return .= "array\n" . $spaces . '(';
+
+                    foreach ($keys as $key) {
+                        $return .= "\n" . $spaces . "    [$key] => ";
+                        $return .= static::doDump($var[$key], $level + 1);
+                    }
+
+                    $return .= "\n" . $spaces . ')';
+                }
+                break;
+
+            case 'object':
+                if (($id = array_search($var, static::$objects, true)) !== false) {
+                    $return .= get_class($var) . '#' . ($id + 1) . '(...)';
+
+                } elseif ($max_depth <= $level) {
+                    $return .= get_class($var) . '(...)';
+
+                } else {
+                    $id        = array_push(static::$objects, $var);
+                    $className = get_class($var);
+                    $members   = (array) $var;
+                    $keys      = array_keys($members);
+                    $spaces    = str_repeat(' ', $level * 4);
+                    $return   .= "$className#$id\n" . $spaces . '(';
+
+                    foreach($keys as $key) {
+                        $keyDisplay = strtr(trim((string) $key) , ["\0" => ':']);
+                        $return    .= "\n" . $spaces . "    [$keyDisplay] => ";
+                        $return    .= static::doDump($members[$key], $level + 1);
+                    }
+
+                    $return .= "\n" . $spaces . ')';
+                }
+
+                break;
         }
 
         return $return;

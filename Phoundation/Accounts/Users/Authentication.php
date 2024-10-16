@@ -87,6 +87,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
                 Log::warning(tr('Geo IP lookup failed for address ":ip", no GEO IP data will be available', [
                     ':ip' => Session::getIpAddress()
                 ]));
+
                 Log::exception($e);
                 $city = null;
             }
@@ -264,7 +265,9 @@ class Authentication extends DataEntry implements AuthenticationInterface
 
 
     /**
-     * Returns all possible actions
+     * Returns an array with all possible actions on which can be authenticated
+     *
+     * The key will contain the action identifier, the value will contain the user-friendly label
      *
      * @return array
      */
@@ -284,6 +287,57 @@ class Authentication extends DataEntry implements AuthenticationInterface
         }
 
         return $actions;
+    }
+
+
+    /**
+     * Returns an array with all possible methods on which can be authenticated
+     *
+     * The key will contain the method identifier, the value will contain the user-friendly label
+     *
+     * @return array
+     */
+    public static function getMethods(): array
+    {
+        static $methods;
+
+        if (empty($methods)) {
+            $methods = [
+                'password' => tr('Password'),
+                'magic'    => tr('Magic'),
+                'sso'      => tr('SSO'),
+                'google'   => tr('Google'),
+                'facebook' => tr('Facebook'),
+                'other'    => tr('Other')
+            ];
+        }
+
+        return $methods;
+    }
+
+
+    /**
+     * Returns an array with all possible platforms on which can be authenticated
+     *
+     * The key will contain the platform identifier, the value will contain the user-friendly label
+     *
+     * @return array
+     */
+    public static function getPlatforms(): array
+    {
+        static $platforms;
+
+        if (empty($platforms)) {
+            $platforms = [
+                'cli'   => tr('CLI'),
+                'api'   => tr('API'),
+                'ajax'  => tr('AJAX'),
+                'html'  => tr('HTML'),
+                'other' => tr('Other')
+            ];
+        }
+
+        return $platforms;
     }
 
 
@@ -382,22 +436,22 @@ class Authentication extends DataEntry implements AuthenticationInterface
         // Ensure status will be limited to the defined possible states
         $definitions->get('status')->setDataSource(static::getStatuses());
 
-        $definitions->add(DefinitionFactory::getCreatedBy($this))
+        $definitions->add(DefinitionFactory::newCreatedBy($this))
 
-                    ->add(DefinitionFactory::getVariable($this, 'account')
-                                           ->setLabel(tr('Used user account'))
-                                           ->setDisabled(true)
-                                           ->setMaxlength(128)
-                                           ->setSize(6))
+                    ->add(Definition::new($this, 'account')
+                                    ->setLabel(tr('Used user account'))
+                                    ->setDisabled(true)
+                                    ->setMaxlength(128)
+                                    ->setSize(6))
 
-                    ->add(DefinitionFactory::getNumber($this, 'ip_address_binary')
+                    ->add(DefinitionFactory::newNumber($this, 'ip_address_binary')
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::getNumber($this, 'net_len')
+                    ->add(DefinitionFactory::newNumber($this, 'net_len')
                                            ->setDefault(0)
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::getIpAddress($this, 'ip_address')
+                    ->add(DefinitionFactory::newIpAddress($this, 'ip_address')
                                            ->setLabel(tr('IP address'))
                                            ->setDisabled(true)
                                            ->setOptional(true)
@@ -421,51 +475,53 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                     ->setLabel(tr('Platform'))
                                     ->setDisabled(true)
                                     ->setOptional(true)
-                                    ->setSize(4))
+                                    ->setSize(4)
+                                    ->setDataSource(static::getPlatforms()))
 
                     ->add(Definition::new($this, 'method')
                                     ->setLabel(tr('Method'))
                                     ->setDisabled(true)
                                     ->setOptional(true)
-                                    ->setSize(4))
+                                    ->setSize(4)
+                                    ->setDataSource(static::getMethods()))
 
-                    ->add(DefinitionFactory::getNumber($this, 'latitude')
+                    ->add(DefinitionFactory::newNumber($this, 'latitude')
                                            ->setLabel(tr('Latitude'))
                                            ->setDisabled(true)
                                            ->setOptional(true)
                                            ->setSize(6))
 
-                    ->add(Definition::new($this, 'longitude')
+                    ->add(DefinitionFactory::newNumber($this, 'longitude')
                                     ->setLabel(tr('Longitude'))
                                     ->setDisabled(true)
                                     ->setOptional(true)
                                     ->setSize(6))
 
-                    ->add(DefinitionFactory::getDatabaseId($this, 'timezones_id')
+                    ->add(DefinitionFactory::newDatabaseId($this, 'timezones_id')
                                            ->setLabel(tr('Timezone'))
                                            ->setDisabled(true)
                                            ->setOptional(true)
                                            ->setSize(3))
 
-                    ->add(DefinitionFactory::getDatabaseId($this, 'countries_id')
+                    ->add(DefinitionFactory::newDatabaseId($this, 'countries_id')
                                            ->setLabel(tr('Country'))
                                            ->setDisabled(true)
                                            ->setOptional(true)
                                            ->setSize(3))
 
-                    ->add(DefinitionFactory::getDatabaseId($this, 'states_id')
+                    ->add(DefinitionFactory::newDatabaseId($this, 'states_id')
                                            ->setLabel(tr('State'))
                                            ->setDisabled(true)
                                            ->setOptional(true)
                                            ->setSize(3))
 
-                    ->add(DefinitionFactory::getDatabaseId($this, 'cities_id')
+                    ->add(DefinitionFactory::newDatabaseId($this, 'cities_id')
                                            ->setLabel(tr('City'))
                                            ->setDisabled(true)
                                            ->setOptional(true)
                                            ->setSize(3))
 
-                    ->add(DefinitionFactory::getBoolean($this, 'captcha_required')
+                    ->add(DefinitionFactory::newBoolean($this, 'captcha_required')
                                            ->setLabel(tr('Required CAPTCHA'))
                                            ->setDisabled(true)
                                            ->setOptional(true, false)

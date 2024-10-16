@@ -69,11 +69,17 @@ class AuthenticationsFilterForm extends \Phoundation\Web\Html\Components\Forms\F
      */
     public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
     {
-        if ($this->getAction()) {
-            $builder->addWhere(
-                '`' . $builder->getFromTable() . '`.`action` = :action', [':action' => $this->getAction()]
-            );
+        if ($this->apply_filters->keyExists('action')) {
+            if ($this->getAction()) {
+                $builder->addWhere(
+                    '`' . $builder->getFromTable() . '`.`action` = :action', [':action' => $this->getAction()]
+                );
+            }
         }
+
+        $this->apply_filters->removeKeys([
+            'action',
+        ]);
 
         return parent::applyFiltersToQueryBuilder($builder);
     }

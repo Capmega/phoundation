@@ -119,8 +119,8 @@ class Non200Url extends DataEntry
                                     ->setIgnored(true)
                                     ->setRender(false))
 
-                    ->add(DefinitionFactory::getIpAddress($this, 'ip_address')
-                                    ->setReadonly(true))
+                    ->add(DefinitionFactory::newIpAddress($this, 'ip_address')
+                                           ->setReadonly(true))
 
                     ->add(Definition::new($this, 'method')
                                     ->setReadonly(true)
@@ -151,40 +151,40 @@ class Non200Url extends DataEntry
                                     ->setMax(599)
                                     ->setHelpText(tr('The HTTP method used for this request')))
 
-                    ->add(DefinitionFactory::getComments($this, 'reason')
+                    ->add(DefinitionFactory::newComments($this, 'reason')
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setSize(12)
                                            ->setMaxlength(255)
                                            ->setHelpText(tr('Reason why this request failed')))
 
-                    ->add(DefinitionFactory::getUrl($this)
+                    ->add(DefinitionFactory::newUrl($this)
                                            ->setReadonly(true)
                                            ->setSize(12)
                                            ->setHelpText(tr('Request URL that failed')))
 
-                    ->add(DefinitionFactory::getData($this, 'headers')
+                    ->add(DefinitionFactory::newData($this, 'headers')
 ->setNoValidation(true)
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setLabel(tr('Request headers'))
                                            ->setHelpText(tr('The HTTP headers that were received from the client for this request')))
 
-                    ->add(DefinitionFactory::getData($this, 'cookies')
+                    ->add(DefinitionFactory::newData($this, 'cookies')
 ->setNoValidation(true)
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setLabel(tr('Request cookies'))
                                            ->setHelpText(tr('The cookies that were received from the client for this request')))
 
-                    ->add(DefinitionFactory::getData($this, 'post')
+                    ->add(DefinitionFactory::newData($this, 'post')
 ->setNoValidation(true)
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setLabel(tr('Request POST data'))
                                            ->setHelpText(tr('The POST data that was  received from the client for this request')))
 
-                    ->add(DefinitionFactory::getComments($this)
+                    ->add(DefinitionFactory::newComments($this)
                                            ->setOptional(true)
                                            ->setHelpText(tr('Comments on this failed request')));
     }

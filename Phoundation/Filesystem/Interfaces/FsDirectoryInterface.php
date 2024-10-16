@@ -18,7 +18,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Interfaces;
 
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Stringable;
@@ -40,6 +39,11 @@ interface FsDirectoryInterface extends FsPathInterface
      * @inheritDoc
      */
     public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string;
+
+    /**
+     * @inheritDoc
+     */
+    public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): FsPathInterface;
 
     /**
      * Returns an Execute object to execute callbacks on each file in specified directories

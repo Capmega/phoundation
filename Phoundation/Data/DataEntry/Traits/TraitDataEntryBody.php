@@ -26,7 +26,7 @@ trait TraitDataEntryBody
      */
     public function getBody(): ?string
     {
-        return $this->get('string', 'body');
+        return $this->getTypesafe('string', 'body');
     }
 
 

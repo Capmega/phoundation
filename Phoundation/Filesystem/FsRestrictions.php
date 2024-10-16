@@ -380,9 +380,9 @@ class FsRestrictions implements FsRestrictionsInterface
      *
      * @param int|null $levels
      *
-     * @return FsRestrictions
+     * @return FsRestrictionsInterface
      */
-    public function getParent(?int $levels = null): FsRestrictions
+    public function getParent(?int $levels = null): FsRestrictionsInterface
     {
         if (!$levels) {
             $levels = 1;
@@ -419,7 +419,7 @@ class FsRestrictions implements FsRestrictionsInterface
     public function addDirectory(Stringable|string|null $directory, bool $write = false): static
     {
         if ($directory) {
-            $this->source[FsPath::absolutePath($directory, null, false)] = $write;
+            $this->source[FsPath::realPath($directory)] = $write;
         }
 
         unset($this->ordered);
@@ -435,9 +435,9 @@ class FsRestrictions implements FsRestrictionsInterface
      * @param string|array $child_directories
      * @param bool|null    $write
      *
-     * @return FsRestrictions
+     * @return FsRestrictionsInterface
      */
-    public function getChild(string|array $child_directories, ?bool $write = null): FsRestrictions
+    public function getChild(string|array $child_directories, ?bool $write = null): FsRestrictionsInterface
     {
         $restrictions      = FsRestrictions::new()->setLabel($this->label);
         $child_directories = Arrays::force($child_directories);
@@ -577,6 +577,10 @@ class FsRestrictions implements FsRestrictionsInterface
 
 
     /**
+     * Checks if the specified pattern is restricted.
+     *
+     * Either one of WriteRestrictionsException or RestrictionsException will be thrown if the pattern is restricted.
+     *
      * @param Stringable|string $pattern
      * @param bool              $write
      * @param Throwable|null    $e

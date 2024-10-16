@@ -39,28 +39,6 @@ trait TraitIterator
 
 
     /**
-     * Returns the contents of this iterator object as a JSON string
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return Json::encode($this->source);
-    }
-
-
-    /**
-     * Returns the contents of this iterator object as an array
-     *
-     * @return array
-     */
-    public function __toArray(): array
-    {
-        return $this->source;
-    }
-
-
-    /**
      * Returns the current entry
      *
      * @return mixed

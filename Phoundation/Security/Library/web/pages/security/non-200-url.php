@@ -36,9 +36,9 @@ $get = GetValidator::new()
 $url  = Non200Url::load($get['id']);
 $form = $url->getHtmlDataEntryFormObject();
 $card = Card::new()
-            ->setTitle($url->getTitle())
+            ->setTitle($url->getDisplayName())
             ->setMaximizeSwitch(true)
-            ->setContent($form->render())
+            ->setContent($form)
             ->setButtons(Buttons::new()->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/security/non-200-urls.html'), true));
 
 

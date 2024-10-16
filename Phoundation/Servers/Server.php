@@ -532,7 +532,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('cities_id', 'SELECT `id` FROM `geo_cities` WHERE `name` = :name AND `status` IS NULL', [':name' => '$city']);
                                     }))
 
-                    ->add(DefinitionFactory::getName($this)
+                    ->add(DefinitionFactory::newName($this)
                                            ->setOptional(false)
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(12)
@@ -542,7 +542,7 @@ class Server extends DataEntry implements ServerInterface
                                                $validator->isUnique();
                                            }))
 
-                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(DefinitionFactory::newSeoName($this))
 
                     ->add(Definition::new($this, 'hostname')
                                     ->setInputType(EnumInputType::text)
@@ -814,7 +814,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliColumn('-s,--allow-sshd-modification')
                                     ->setHelpText(tr('Sets if this server allows automated modification of SSH configuration')))
 
-                    ->add(DefinitionFactory::getDescription($this)
+                    ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('A description for this server')));
     }
 }

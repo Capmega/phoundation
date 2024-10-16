@@ -31,22 +31,11 @@ $e = Core::readRegister('e');
 switch (Request::getRequestType()) {
     case EnumRequestTypes::ajax:
         // no break
+
     case EnumRequestTypes::api:
         Response::setHttpCode(403);
         JsonPage::new()->reply(['error' => tr('Forbidden')]);
 }
-
-
-// Build the error page
-echo Template::new('system/http-error')->setSource([
-                                                       ':h2'     => '403',
-                                                       ':h3'     => tr('Forbidden'),
-                                                       ':img'    => Url::getImg('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg'),
-                                                       ':p'      => tr('You do not have access to this page. Please contact the system administrator if you think this was in error'),
-                                                       ':type'   => 'warning',
-                                                       ':search' => tr('Search'),
-                                                       ':action' => Url::getWww('search/'),
-                                                   ])->render();
 
 
 // Set page meta data
@@ -56,3 +45,15 @@ Response::setPageTitle('403 - Forbidden');
 Response::setHeaderTitle(tr('403 - Error'));
 Response::setDescription(tr('You do not have access to the specified resource'));
 Response::setBreadCrumbs();
+
+
+// Build and send the error page
+return Template::new('system/http-error')->setSource([
+    ':h2'     => '403',
+    ':h3'     => tr('Forbidden'),
+    ':img'    => Url::getImg('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg'),
+    ':p'      => tr('You do not have access to this page. Please contact the system administrator if you think this was in error'),
+    ':type'   => 'warning',
+    ':search' => tr('Search'),
+    ':action' => Url::getWww('search/'),
+]);

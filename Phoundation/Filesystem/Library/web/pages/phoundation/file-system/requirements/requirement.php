@@ -155,12 +155,12 @@ if (!$requirement->isNew()) {
 }
 
 
-// Build the requirement form
+// Build the "requirement" form
 $requirement_card = Card::new()
     ->setCollapseSwitch(true)
     ->setMaximizeSwitch(true)
     ->setTitle(tr('Edit requirement :name', [':name' => $requirement->getDisplayName()]))
-    ->setContent($requirement->getHtmlDataEntryFormObject()->render())
+    ->setContent($requirement->getHtmlDataEntryFormObject())
     ->setButtons(Buttons::new()
                         ->addButton(isset_get($save))
                         ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/phoundation/file-system/requirements/requirements.html'), true)
@@ -200,7 +200,7 @@ $documentation = Card::new()
 $grid = Grid::new()
     ->addGridColumn(GridColumn::new()
         // The requirement card and all additional cards
-        ->addContent($requirement_card->render())
+        ->addContent($requirement_card)
         ->setSize(9)
         ->useForm(true))
     ->addGridColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);

@@ -76,10 +76,11 @@ if ($argv['roles']) {
 
 // Get the user and modify, then update roles
 $user = User::find([
-                       'username' => $argv['user'],
-                       'email'    => $argv['user'],
-                       'code'     => $argv['user'],
-                   ], filter: 'OR')->apply()->save();
+    'username' => $argv['user'],
+    'email'    => $argv['user'],
+    'code'     => $argv['user'],
+], filter: 'OR')->apply()->save();
+
 $user->getRolesObject()->setRoles($argv['roles']);
 $user->getEmailsObject()->apply()->save();
 $user->getPhonesObject()->apply()->save();

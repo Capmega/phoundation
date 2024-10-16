@@ -70,17 +70,15 @@ $documentation_card = Card::new()
                           ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Render and return the page grid
-$grid = Grid::new()
-            ->addGridColumn($filters_card->render() . $roles_card->render(), EnumDisplaySize::nine)
-            ->addGridColumn($relevant_card->render() . $documentation_card->render(), EnumDisplaySize::three);
-
-echo $grid->render();
-
-
 // Set page meta data
 Response::setHeaderTitle(tr('Roles'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/' => tr('Home'),
-                                                           ''  => tr('Roles'),
-                                                       ]));
+    '/' => tr('Home'),
+    ''  => tr('Roles'),
+]));
+
+
+// Render and return the page grid
+return Grid::new()
+           ->addGridColumn($filters_card  . $roles_card        , EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

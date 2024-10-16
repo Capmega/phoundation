@@ -56,6 +56,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         setRestrictions as protected __setRestrictions;
     }
 
+
     /**
      * Temporary process  directory (public data), if set
      *
@@ -1180,28 +1181,28 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             $file_patterns     = basename($file_patterns);
 
             // Parse file patterns
-            switch (substr_count($file_patterns, '{')) {
+            switch (substr_count($file_patterns, '[')) {
                 case 0:
                     $base_pattern  = '';
                     $file_patterns = [$file_patterns];
                     break;
 
                 case 1:
-                    switch (substr_count($file_patterns, '}')) {
+                    switch (substr_count($file_patterns, ']')) {
                         case 0:
                             throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching { and } or none', [
                                 ':patterns' => $file_patterns,
                             ]));
 
                         case 1:
-                            // Remove the {} and explode on ,
-                            $base_pattern  = Strings::until($file_patterns, '{');
-                            $file_patterns = Strings::cut($file_patterns, '{', '}');
+                            // Remove the [] and explode on ,
+                            $base_pattern  = Strings::until($file_patterns, '[');
+                            $file_patterns = Strings::cut($file_patterns, '[', ']');
                             $file_patterns = explode(',', $file_patterns);
-                            break;
+                        break;
 
                         default:
-                            throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching { and } or none', [
+                            throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching [ and ] or none', [
                                 ':patterns' => $file_patterns,
                             ]));
                     }
@@ -1209,7 +1210,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                     break;
 
                 default:
-                    throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching { and } or none', [
+                    throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching [ and ] or none', [
                         ':patterns' => $file_patterns,
                     ]));
             }
@@ -1238,13 +1239,13 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         if ($glob) {
             foreach ($glob as $file) {
                 foreach ($file_patterns as $file_pattern) {
-                    $file_pattern = $base_pattern . $file_pattern;
+                    $file_pattern = $base_pattern . '[' . $file_pattern . ']';
                     $file         = Strings::from($file, $this->getRealPath());
                     $test         = Strings::fromReverse(Strings::ensureEndsNotWith($file, '/'), '/');
 
                     if ($file_pattern) {
                         if (is_dir($this->source . $file)) {
-                            $directory_pattern = Strings::until($file_pattern, '.');
+                            $directory_pattern = $base_pattern;
 
                             if (!fnmatch($directory_pattern, $test, $match_flags)) {
                                 // This directory doesn't match the test pattern
@@ -1278,6 +1279,15 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         $path = parent::getRealPath($absolute_prefix, $must_exist);
 
         return Strings::slash($path);
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): FsDirectoryInterface
+    {
+        return FsDirectory::new($this->getRealPath($absolute_prefix, $must_exist), $this->restrictions);
     }
 
 
@@ -1531,10 +1541,11 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                 if ($recursive) {
                     $path->copy($target->addDirectory($basename), $target->getRestrictions(), $callback, $context, $recursive);
                 }
+
             } else {
                 copy($this->addFile($basename)
                           ->getSource(), $target->addFile($basename)
-                                              ->getSource(), $context);
+                                                ->getSource(), $context);
             }
         }
 

@@ -528,12 +528,11 @@ class Libraries
             $library->rebuildCommandsCache($cache, $temporary);
         }
 
+        $target = FsFile::new(DIRECTORY_ROOT . 'commands', FsRestrictions::newRoot(true))->delete();
+
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis(
-                  FsFile::new(DIRECTORY_ROOT . 'commands',
-                      FsRestrictions::newWritable(DIRECTORY_ROOT . 'commands')
-                  )->delete());
+              ->symlinkTargetFromThis($target);
 
         static::$cache_has_been_rebuilt = true;
 
@@ -550,9 +549,9 @@ class Libraries
     {
         Log::action(tr('Clearing commands caches (symlinks only)'), 3);
 
-        FsDirectory::new(DIRECTORY_COMMANDS, FsRestrictions::newWritable(DIRECTORY_COMMANDS))
-                   ->clearTreeSymlinks(true)
-                   ->ensure();
+        FsDirectory::new(DIRECTORY_COMMANDS, FsRestrictions::newRoot(true))
+            ->clearTreeSymlinks(true)
+            ->ensure();
 
         static::$cache_has_been_cleared = true;
     }
@@ -587,12 +586,11 @@ class Libraries
             $library->rebuildHookCache($cache, $temporary);
         }
 
+        $target = FsFile::new(DIRECTORY_ROOT . 'hooks', FsRestrictions::newRoot(true))->delete();
+
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis(
-                  FsFile::new(DIRECTORY_ROOT . 'hooks',
-                      FsRestrictions::newWritable(DIRECTORY_ROOT . 'hooks')
-                  )->delete());
+              ->symlinkTargetFromThis($target);
 
         static::$cache_has_been_rebuilt = true;
 
@@ -609,7 +607,7 @@ class Libraries
     {
         Log::action(tr('Clearing hooks caches (symlinks only)'), 3);
 
-        FsDirectory::new(DIRECTORY_HOOKS, FsRestrictions::newWritable(DIRECTORY_HOOKS))
+        FsDirectory::new(DIRECTORY_HOOKS, FsRestrictions::newRoot(true))
                    ->clearTreeSymlinks(true)
                    ->ensure();
 
@@ -780,12 +778,11 @@ class Libraries
             $library->rebuildWebCache($cache, $temporary);
         }
 
+        $target = FsFile::new(DIRECTORY_ROOT . 'web', FsRestrictions::newRoot(true))->delete();
+
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-            ->symlinkTargetFromThis(
-                FsFile::new(DIRECTORY_ROOT . 'web',
-                    FsRestrictions::newWritable(DIRECTORY_ROOT . 'web')
-                )->delete());
+            ->symlinkTargetFromThis($target);
 
         Log::success(tr('Finished rebuilding web cache'));
     }
@@ -800,9 +797,9 @@ class Libraries
     {
         Log::action(tr('Clearing web caches (symlinks only)'), 3);
 
-        FsDirectory::new(DIRECTORY_WEB, FsRestrictions::newWeb(true))
-            ->clearTreeSymlinks(true)
-            ->ensure();
+        FsDirectory::new(DIRECTORY_WEB, FsRestrictions::newRoot(true))
+                   ->clearTreeSymlinks(true)
+                   ->ensure();
     }
 
 
@@ -835,12 +832,11 @@ class Libraries
             $library->rebuildCronCache($cache, $temporary);
         }
 
+        $target = FsFile::new(DIRECTORY_ROOT . 'cron', FsRestrictions::newRoot(true))->delete();
+
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-            ->symlinkTargetFromThis(
-                FsFile::new(DIRECTORY_ROOT . 'cron',
-                    FsRestrictions::newWritable(DIRECTORY_ROOT . 'cron')
-                )->delete());
+            ->symlinkTargetFromThis($target);
 
         Log::success(tr('Finished rebuilding cron cache'));
     }
@@ -855,7 +851,7 @@ class Libraries
     {
         Log::action(tr('Clearing cron caches (symlinks only)'), 3);
 
-        FsDirectory::new(DIRECTORY_CRON, FsRestrictions::newCron(true))
+        FsDirectory::new(DIRECTORY_CRON, FsRestrictions::newRoot(true))
             ->clearTreeSymlinks(true)
             ->ensure();
     }
@@ -890,12 +886,11 @@ class Libraries
             $library->rebuildTestsCache($cache, $temporary);
         }
 
+        $target = FsFile::new(DIRECTORY_ROOT . 'tests', FsRestrictions::newRoot(true))->delete();
+
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis(
-                  FsFile::new(DIRECTORY_ROOT . 'tests',
-                  FsRestrictions::newWritable(DIRECTORY_ROOT . 'tests')
-              )->delete());
+              ->symlinkTargetFromThis($target);
 
         Log::success(tr('Finished rebuilding tests cache'));
     }
@@ -910,7 +905,7 @@ class Libraries
     {
         Log::action(tr('Clearing test caches (symlinks only)'), 3);
 
-        FsDirectory::new(DIRECTORY_SYSTEM . 'cache/system/tests', FsRestrictions::newWritable(DIRECTORY_SYSTEM . 'cache/system/tests'))
+        FsDirectory::new(DIRECTORY_TESTS, FsRestrictions::newRoot(true))
                    ->clearTreeSymlinks(true)
                    ->ensure();
     }

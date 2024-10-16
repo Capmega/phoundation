@@ -28,6 +28,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessageInterface;
+use Phoundation\Web\Html\Enums\EnumAttachJavascript;
 use Phoundation\Web\Html\Traits\TraitMode;
 
 
@@ -372,12 +373,16 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     /**
      * Renders and returns the HTML for this flash message
      *
+     * @param EnumAttachJavascript $attach_javascript Specified where to attach the data, either in the HTML header,
+     *                                                HTML footer, or "here" which will return the rendered string
+     *
      * @return string|null
      */
-    public function render(): ?string
+    public function renderScript(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string
     {
         $this->render = Script::new()
-                              ->setContent($this->renderBare())
+                              ->setAttach($attach_javascript)
+                              ->setContent($this->render())
                               ->render();
 
         return parent::render();
@@ -385,27 +390,45 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
 
 
     /**
-     * Renders and returns the javascript for this flash message without javascript tags
+     * Renders and returns the HTML for this flash message
+     *
+     * @param EnumAttachJavascript $attach_javascript Specified where to attach the data, either in the HTML header,
+     *                                                HTML footer, or "here" which will return the rendered string
      *
      * @return string|null
      */
-    public function renderBare(): ?string
+    public function render(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string
     {
-        return match ($this->flash_handler) {
+        $this->render = match ($this->flash_handler) {
             'toast' => Toast::new($this)->render(),
         };
+
+        return parent::render();
     }
 
 
     /**
-     * Renders and returns the configuration for this flash message without javascript tags or calls
+     * Renders and returns the configuration for this flash message without JavaScript tags or calls
      *
      * @return string|null
      */
     public function renderJson(): ?string
     {
         return match ($this->flash_handler) {
-            'toast' => Toast::new($this)->renderConfiguration(),
+            'toast' => Toast::new($this)->renderJson(),
+        };
+    }
+
+
+    /**
+     * Renders and returns the configuration for this flash message without JavaScript tags or calls
+     *
+     * @return array
+     */
+    public function renderArray(): array
+    {
+        return match ($this->flash_handler) {
+            'toast' => Toast::new($this)->renderArray(),
         };
     }
 

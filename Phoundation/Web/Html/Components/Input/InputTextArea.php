@@ -183,7 +183,7 @@ class InputTextArea extends Input
      *       Element::getAttributes()->set()
      * @return IteratorInterface
      */
-    protected function renderAttributes(): IteratorInterface
+    protected function renderAttributesArray(): IteratorInterface
     {
         $return = [
             'cols' => $this->cols,
@@ -191,7 +191,7 @@ class InputTextArea extends Input
         ];
 
         // Merge the system values over the set attributes
-        return parent::renderAttributes()
+        return parent::renderAttributesArray()
                      ->appendSource($this->attributes, $return);
     }
 }

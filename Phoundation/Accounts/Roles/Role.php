@@ -243,7 +243,7 @@ class Role extends DataEntry implements RoleInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getName($this)
+        $definitions->add(DefinitionFactory::newName($this)
                                            ->setOptional(false)
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(12)
@@ -253,9 +253,9 @@ class Role extends DataEntry implements RoleInterface
                                                $validator->isUnique();
                                            }))
 
-                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(DefinitionFactory::newSeoName($this))
 
-                    ->add(DefinitionFactory::getDescription($this)
+                    ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this role')));
     }
 }

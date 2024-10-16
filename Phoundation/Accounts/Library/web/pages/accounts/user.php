@@ -45,13 +45,13 @@ $user = User::load($get['id']);
 
 // Define the drag/drop upload selector
 Request::getFileUploadHandlersObject()
-    ->add(UploadHandler::new('image')
-        ->getDropZoneObject()
-        ->setUrl(Url::getAjax('accounts/user/image/upload+' . $user->getId()))
-        ->setSelector('#profile-picture-card')
-        ->setMaxFiles(0)
-        ->getHandler()
-    )->process();
+       ->add(UploadHandler::new('image')
+           ->getDropZoneObject()
+           ->setUrl(Url::getAjax('accounts/user/image/upload+' . $user->getId()))
+           ->setSelector('#profile-picture-card')
+           ->setMaxFiles(0)
+           ->getHandler()
+       )->process();
 
 
 // Validate POST and submit
@@ -82,6 +82,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Impersonate'):
                 $user->impersonate();
+
                 Response::getFlashMessagesObject()->addSuccess(tr('You are now impersonating ":user"', [
                     ':user' => $user->getDisplayName(),
                 ]));
@@ -90,6 +91,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Delete'):
                 $user->delete();
+
                 Response::getFlashMessagesObject()->addSuccess(tr('The account for user ":user" has been deleted', [
                     ':user' => $user->getDisplayName(),
                 ]));
@@ -98,6 +100,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Lock'):
                 $user->lock();
+
                 Response::getFlashMessagesObject()->addSuccess(tr('The account for user ":user" has been locked', [
                     ':user' => $user->getDisplayName(),
                 ]));
@@ -106,6 +109,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Unlock'):
                 $user->unlock();
+
                 Response::getFlashMessagesObject()->addSuccess(tr('The account for user ":user" has been unlocked', [
                     ':user' => $user->getDisplayName(),
                 ]));
@@ -114,6 +118,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Undelete'):
                 $user->undelete();
+
                 Response::getFlashMessagesObject()->addSuccess(tr('The account for user ":user" has been undeleted', [
                     ':user' => $user->getDisplayName(),
                 ]));
@@ -196,7 +201,7 @@ if (!$user->isNew()) {
 }
 
 
-// Build the user form
+// Build the "user" form
 $user_card = Card::new()
                  ->setCollapseSwitch(true)
                  ->setMaximizeSwitch(true)
@@ -217,7 +222,7 @@ if ($user->getId()) {
                       ->setCollapseSwitch(true)
                       ->setCollapsed(true)
                       ->setTitle(tr('Edit roles for this user [:count]', [':count' => $user->getRolesObject()->getCount()]))
-                      ->setContent($user->getRolesHtmlDataEntryFormObject()->render())
+                      ->setContent($user->getRolesHtmlDataEntryFormObject())
                       ->setButtons(Buttons::new()
                                           ->addButton(tr('Save'))
                                           ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/users.html'), true));
@@ -313,11 +318,11 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 return Grid::new()
             ->addGridColumn(GridColumn::new()
                             // The user card and all additional cards
-                                  ->addContent($user_card->render() .
+                                  ->addContent($user_card .
                                                isset_get($roles_card)?->render() .
                                                isset_get($rights_card)?->render() .
                                                isset_get($emails_card)?->render() .
                                                isset_get($phones_card)?->render())
                                   ->setSize(9)
                                   ->useForm(true))
-            ->addGridColumn($picture_card->render() . $relevant_card->render() . $documentation_card->render(), EnumDisplaySize::three);
+            ->addGridColumn($picture_card . $relevant_card . $documentation_card, EnumDisplaySize::three);

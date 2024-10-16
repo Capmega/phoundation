@@ -13,15 +13,6 @@
  * @package   functions
  */
 
-/**
- * Returns true if the specified string is a version, or false if it is not
- *
- * @param string $version The version to be validated
- *
- * @return boolean True if the specified $version is an N.N.N version string
- * @version 2.5.46: Added function and documentation
- */
-
 
 declare(strict_types=1);
 
@@ -52,6 +43,8 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
+
+
 function is_version(string $version): bool
 {
     $return = preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
@@ -373,8 +366,10 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                     }
 
                     if (is_numeric($variable)) {
-                        // This is a float number stored as a string, convert it to integer
-                        return (float) $variable;
+                        if (!is_integer($variable)) {
+                            // This is a float number stored as a string, convert it to integer
+                            return (float) $variable;
+                        }
                     }
 
                     break;
@@ -465,7 +460,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
                 default:
                     // This should be an object
-                    if (is_subclass_of($variable, $type)) {
+                    if ($variable instanceof $type) {
                         return $variable;
                     }
 
@@ -967,7 +962,7 @@ function is_really_natural(mixed $source, bool $allow_zero = false): bool
 function get_integer(mixed $source, bool $allow_null = true): ?int
 {
     if (is_integer($source)) {
-        // Well that was easy!
+        // Well, that was easy!
         return $source;
     }
 
@@ -1207,7 +1202,7 @@ function null(?string $instance_name = null): NullDb
 
 
 /**
- * Returns true if the specified class has the specified trait
+ * Returns true if the specified class uses the specified trait
  *
  * @param string        $trait
  * @param object|string $class
@@ -1372,7 +1367,7 @@ function render(RenderInterface|callable|string|float|int|null $content): ?strin
  *
  * @return string
  */
-function get_object_class_or_data_type(mixed $value): string
+function get_class_or_data_type(mixed $value): string
 {
     $type = gettype($value);
 

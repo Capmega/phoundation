@@ -267,7 +267,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 }
 
                 if ($definition->isMeta()) {
-                    // This is an immutable meta column, virtual column, or readonly column.
+                    // This is an immutable meta-column, virtual column, or readonly column.
                     // In creation mode we're not even going to show this, in edit mode don't put a column name because
                     // users aren't even supposed to be able to submit this
                     if (empty($source['id'])) {
@@ -354,7 +354,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                         $definition->setReadonly($definition->getNullReadonly());
                     }
 
-                    $source[$column] = $definition->getDefault();
+                    $source[$column] = $definition->getNullDefault();
                 }
 
                 // Set value to value specified in $data
@@ -633,7 +633,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                         throw new WebRenderException(tr('Failed to render DataEntryForm ":class", the column ":column" setContent method should return a RenderInterface object but returns a ":type" instead', [
                                             ':class'  => get_class($this->data_entry),
                                             ':column' => $column,
-                                            ':type'   => get_object_class_or_data_type($component),
+                                            ':type'   => get_class_or_data_type($component),
                                         ]));
                                     }
                                 }
@@ -664,7 +664,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 throw new WebRenderException(tr('Failed to render DataEntryForm ":class", the column ":column" setContent method should return a RenderInterface object but returns a ":type" instead', [
                                     ':class'  => get_class($this->data_entry),
                                     ':column' => $column,
-                                    ':type'   => get_object_class_or_data_type($component),
+                                    ':type'   => get_class_or_data_type($component),
                                 ]));
                             }
 
@@ -701,10 +701,12 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
             $return = '<div>' . $this->rows->render() . '</div>';
 
         } else {
-            $return = '<div id="' . $this->data_entry->getObjectName() . '">' . $this->rows->render() . '</div>';
+            $return = '<div id="' . $this->data_entry->getObjectName() . ($this->data_entry->getId() ? '_' . $this->data_entry->getId() : null) . '" class="' . $this->data_entry->getObjectName() . '">' .
+                          $this->rows->render() .
+                      '</div>';
         }
 
-        // Add optional HTML form
+        // Add an optional HTML form
         if ($this->form) {
             $return = $this->form
                 ->setContent($return)

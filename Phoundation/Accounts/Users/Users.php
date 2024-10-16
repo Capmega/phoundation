@@ -52,21 +52,21 @@ class Users extends DataIterator implements UsersInterface
      */
     public function __construct()
     {
-        $this->setQuery('SELECT    `accounts_users`.`id`, 
-                                         TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, 
-                                         GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`, 
-                                         `accounts_users`.`email`, 
-                                         `accounts_users`.`status`, 
-                                         `accounts_users`.`sign_in_count`,
-                                         `accounts_users`.`created_on`
-                               FROM      `accounts_users` 
-                               LEFT JOIN `accounts_users_roles`
-                               ON        `accounts_users_roles`.`users_id` = `accounts_users`.`id`  
-                               LEFT JOIN `accounts_roles`
-                               ON        `accounts_roles`.`id` = `accounts_users_roles`.`roles_id`
-                               WHERE     `accounts_users`.`status` IS NULL AND `email` != "guest" 
-                               GROUP BY  `accounts_users`.`id`
-                               ORDER BY  `name`');
+//        $this->setQuery('SELECT    `accounts_users`.`id`,
+//                                         TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`,
+//                                         GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`,
+//                                         `accounts_users`.`email`,
+//                                         `accounts_users`.`status`,
+//                                         `accounts_users`.`sign_in_count`,
+//                                         `accounts_users`.`created_on`
+//                               FROM      `accounts_users`
+//                               LEFT JOIN `accounts_users_roles`
+//                               ON        `accounts_users_roles`.`users_id` = `accounts_users`.`id`
+//                               LEFT JOIN `accounts_roles`
+//                               ON        `accounts_roles`.`id` = `accounts_users_roles`.`roles_id`
+//                               WHERE     `accounts_users`.`status` IS NULL AND `email` != "guest"
+//                               GROUP BY  `accounts_users`.`id`
+//                               ORDER BY  `name`');
 
         parent::__construct();
 
@@ -511,18 +511,24 @@ class Users extends DataIterator implements UsersInterface
      */
     public function getHtmlSelect(string $value_column = '', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
+        $select = InputSelect::new()
+                             ->setName('users_id')
+                             ->setNotSelectedLabel(tr('Select a user'))
+                             ->setComponentEmptyLabel(tr('No users available'));
+
+        if ($this->source) {
+            return $select->setSource($this->source)
+                          ->setValueColumn('name');
+        }
+
         if (!$value_column) {
             $value_column = 'COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `name`';
         }
 
-        return InputSelect::new()
-                          ->setConnectorObject($this->getConnectorObject())
-                          ->setSourceQuery('SELECT `' . $key_column . '`, ' . $value_column . ' 
-                                         FROM  `accounts_users`
-                                         WHERE `status` IS NULL ORDER BY ' . Strings::ensureSurroundedWith(Strings::fromReverse($value_column, ' '), '`'))
-                          ->setName('users_id')
-                          ->setNotSelectedLabel(tr('Select a user'))
-                          ->setComponentEmptyLabel(tr('No users available'));
+        return $select->setConnectorObject($this->getConnectorObject())
+                      ->setSourceQuery('SELECT `' . $key_column . '`, ' . $value_column . ' 
+                                        FROM  `accounts_users`
+                                        WHERE `status` IS NULL ORDER BY ' . Strings::ensureSurroundedWith(Strings::fromReverse($value_column, ' '), '`'));
     }
 
 
@@ -560,43 +566,45 @@ class Users extends DataIterator implements UsersInterface
      */
     public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
-        if ($this->parent) {
-            if ($this->parent instanceof RoleInterface) {
-                $this->query   = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
-                                  FROM   `accounts_users_roles` 
-                                  JOIN   `accounts_users` 
-                                  ON     `accounts_users_roles`.`users_id` = `accounts_users`.`id`
-                                  WHERE  `accounts_users_roles`.`roles_id` = :roles_id';
+        if (empty($this->query) and empty($this->query_builder)) {
+            if ($this->parent) {
+                if ($this->parent instanceof RoleInterface) {
+                    $this->query   = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
+                                      FROM   `accounts_users_roles` 
+                                      JOIN   `accounts_users` 
+                                      ON     `accounts_users_roles`.`users_id` = `accounts_users`.`id`
+                                      WHERE  `accounts_users_roles`.`roles_id` = :roles_id';
 
-                $this->execute = [
-                    ':roles_id' => $this->parent->getId(),
-                ];
+                    $this->execute = [
+                        ':roles_id' => $this->parent->getId(),
+                    ];
 
-            } elseif ($this->parent instanceof RightInterface) {
-                $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
-                                FROM   `accounts_users_rights` 
-                                JOIN   `accounts_users` 
-                                ON     `accounts_users_rights`.`users_id`  = `accounts_users`.`id`
-                                WHERE  `accounts_users_rights`.`rights_id` = :rights_id';
+                } elseif ($this->parent instanceof RightInterface) {
+                    $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
+                                    FROM   `accounts_users_rights` 
+                                    JOIN   `accounts_users` 
+                                    ON     `accounts_users_rights`.`users_id`  = `accounts_users`.`id`
+                                    WHERE  `accounts_users_rights`.`rights_id` = :rights_id';
 
-                $this->execute = [
-                    ':rights_id' => $this->parent->getId(),
-                ];
+                    $this->execute = [
+                        ':rights_id' => $this->parent->getId(),
+                    ];
+                }
+
+            } elseif ($identifiers) {
+                $identifiers   = Arrays::force($identifiers);
+                $this->execute = SqlQueries::in($identifiers, ':identifiers', true);
+
+                $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*
+                                FROM   `accounts_users`
+                                WHERE  `accounts_users`.`id` IN (' . SqlQueries::inColumns($this->execute) . ')';
+
+            } else {
+                $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*
+                                FROM   `accounts_users`
+                                WHERE  `accounts_users`.`status` IS NULL
+                                  AND  `accounts_users`.`email`    != "guest"';
             }
-
-        } elseif ($identifiers) {
-            $identifiers   = Arrays::force($identifiers);
-            $this->execute = SqlQueries::in($identifiers, ':identifiers', true);
-
-            $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*
-                            FROM   `accounts_users`
-                            WHERE  `accounts_users`.`id` IN (' . SqlQueries::inColumns($this->execute) . ')';
-
-        } else {
-            $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*
-                            FROM   `accounts_users`
-                            WHERE  `accounts_users`.`status` IS NULL
-                              AND  `accounts_users`.`email`    != "guest"';
         }
 
         return parent::load();

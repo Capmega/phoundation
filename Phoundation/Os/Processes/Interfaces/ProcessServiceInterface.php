@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Interfaces;
 
-interface ProcessServiceInterface extends ProcessCoreInterface
+
+interface ProcessServiceInterface extends ProcessInterface
 {
 }

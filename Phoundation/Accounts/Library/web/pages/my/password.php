@@ -86,11 +86,11 @@ $buttons = Buttons::new()
                   ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/my/profile.html'), true);
 
 
-// Build the user form
+// Build the "user" form
 $card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('Change your password'))
-            ->setContent($password->getHtmlDataEntryFormObject()->render())
+            ->setContent($password->getHtmlDataEntryFormObject())
             ->setButtons($buttons);
 
 

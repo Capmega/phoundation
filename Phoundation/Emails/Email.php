@@ -134,10 +134,10 @@ class Email extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getUsersEmail($this)
+        $definitions->add(DefinitionFactory::newUsersEmail($this)
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::getUsersId($this))
+                    ->add(DefinitionFactory::newUsersId($this))
 
                     ->add(Definition::new($this, 'parents_id')
                                     ->setRender(false)
@@ -180,7 +180,7 @@ class Email extends DataEntry
                                                   ]);
                                     }))
 
-                    ->add(DefinitionFactory::getCode($this)
+                    ->add(DefinitionFactory::newCode($this)
                                            ->setSize(3))
 
                     ->add(Definition::new($this, 'subject')

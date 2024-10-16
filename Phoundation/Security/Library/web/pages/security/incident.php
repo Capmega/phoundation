@@ -39,7 +39,7 @@ $form     = $incident->getHtmlDataEntryFormObject();
 $card     = Card::new()
                 ->setTitle($incident->getTitle())
                 ->setMaximizeSwitch(true)
-                ->setContent($form->render())
+                ->setContent($form)
                 ->setButtons(Buttons::new()->addButton(
                     tr('Back'), EnumDisplayMode::secondary,
                     Url::getPrevious('/security/incidents.html')->addQueries(

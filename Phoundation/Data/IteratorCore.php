@@ -29,6 +29,8 @@ namespace Phoundation\Data;
 
 use PDOStatement;
 use Phoundation\Cli\Cli;
+use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
+use Phoundation\Content\Documents\SpreadSheet;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataIterator;
@@ -864,17 +866,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Returns a list of all internal definition keys with their indices (positions within the array)
-     *
-     * @return mixed
-     */
-    public function getKeyIndices(): array
-    {
-        return array_flip(array_keys($this->source));
-    }
-
-
-    /**
      * Returns value for the specified key, defaults that key to the specified value if it does not yet exist
      *
      * @param Stringable|string|int $key
@@ -955,28 +946,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Returns if the list is empty
-     *
-     * @return bool
-     */
-    public function isEmpty(): bool
-    {
-        return !count($this->source);
-    }
-
-
-    /**
-     * Returns if the list is not empty
-     *
-     * @return bool
-     */
-    public function isNotEmpty(): bool
-    {
-        return (bool) count($this->source);
-    }
-
-
-    /**
      * Returns the length of the longest value
      *
      * @return int
@@ -1027,66 +996,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Keep source keys on the specified needles with the specified match mode
-     *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param bool                                     $strict
-     *
-     * @return static
-     */
-    public function keepKeys(ArrayableInterface|array|string|int|null $needles, bool $strict = false): static
-    {
-        $this->source = Arrays::keepKeys($this->source, $needles, $strict);
-        return $this;
-    }
-
-
-    /**
-     * Remove source keys on the specified needles with the specified match mode
-     *
-     * @param Stringable|array|string|int $keys
-     * @param bool                        $strict
-     *
-     * @return static
-     */
-    public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
-    {
-        $this->source = Arrays::removeKeys($this->source, $keys, $strict);
-        return $this;
-    }
-
-
-    /**
-     * Keep source values on the specified needles with the specified match mode
-     *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param bool                                     $strict
-     *
-     * @return static
-     */
-    public function keepValues(ArrayableInterface|array|string|int|null $needles, ?string $column = null, bool $strict = false): static
-    {
-        $this->source = Arrays::keepValues($this->source, $needles, $column, $strict);
-        return $this;
-    }
-
-
-    /**
-     * Remove source values on the specified needles with the specified match mode
-     *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param bool                                     $strict
-     *
-     * @return static
-     */
-    public function removeValues(ArrayableInterface|array|string|int|null $needles, ?string $column = null, bool $strict = false): static
-    {
-        $this->source = Arrays::removeValues($this->source, $needles, $column, $strict);
-        return $this;
-    }
-
-
-    /**
      * Remove source keys on the specified needles with the specified match mode
      *
      * @param ArrayableInterface|array|string|int|null $needles
@@ -1106,6 +1015,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @param ArrayableInterface|array|string|int|null $needles
      * @param int                                      $flags
+     * @param string|null                              $column
      *
      * @return static
      */
@@ -1136,6 +1046,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @param ArrayableInterface|array|string|int|null $needles
      * @param int                                      $flags
+     * @param string|null                              $column
      *
      * @return static
      */
@@ -1617,12 +1528,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @note this is basically a wrapper function for IteratorCore::add($value, $key, false) that always requires a key
      *
-     * @param mixed                 $value
-     * @param Stringable|string|int $key
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
      *
      * @return mixed
      */
-    public function set(mixed $value, Stringable|string|int $key): static
+    public function set(mixed $value, Stringable|string|float|int $key): static
     {
         return $this->append($value, $key, false, false);
     }
@@ -1963,6 +1874,17 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
+     * Returns a SpreadSheet object with this object's source data in it
+     *
+     * @return SpreadSheetInterface
+     */
+    public function getSpreadSheet(): SpreadSheetInterface
+    {
+        return new SpreadSheet($this);
+    }
+
+
+    /**
      * Returns an HTML <select> for the entries in this list
      *
      * @return InputSelectInterface
@@ -1983,7 +1905,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     public function eachField(callable $callback): static
     {
         foreach ($this->source as $key => &$value) {
-            $callback($key, $value);
+            $callback($value, $key);
         }
 
         unset($value);

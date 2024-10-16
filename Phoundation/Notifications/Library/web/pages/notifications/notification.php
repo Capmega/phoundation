@@ -66,12 +66,12 @@ if ($notification->getUrl()) {
                 ->setAnchorUrl($notification->getUrl());
 }
 
-// Build the notification form
+// Build the "notification" form
 $notification_card = Card::new()
     ->setCollapseSwitch(true)
     ->setMaximizeSwitch(true)
     ->setTitle($notification->getTitle())
-    ->setContent($notification->getHtmlDataEntryFormObject()->render())
+    ->setContent($notification->getHtmlDataEntryFormObject())
     ->setButtons(Buttons::new()
                         ->addButton(tr('Mark unread'))
                         ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/notifications/notifications.html'), true)

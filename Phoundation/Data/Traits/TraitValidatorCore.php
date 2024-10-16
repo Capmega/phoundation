@@ -846,8 +846,8 @@ trait TraitValidatorCore
         // If so, fail, because all fields must be tested
         if ($this->selected_field and !$this->test_count) {
             if (!Config::getBoolean('security.validation.disabled', false)) {
-                throw new ValidatorException(tr('Cannot validate because the previously selected field ":previous" has no validations performed yet', [
-                    ':previous' => $this->selected_field,
+                throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no validations performed yet', [
+                    ':field' => $this->selected_field,
                 ]));
             }
 

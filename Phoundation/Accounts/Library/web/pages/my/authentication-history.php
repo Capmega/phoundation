@@ -44,18 +44,19 @@ $filters_card = Card::new()
 
 
 // Build the authentication table
-$authentications = Authentications::new()->setFilterFormObject($filters)->setDebug(true);
-$builder         = $authentications->getQueryBuilder()->addJoin('LEFT JOIN `accounts_users` ON `accounts_authentications`.`created_by` = `accounts_users`.`id`')
-                                                      ->addSelect('`accounts_authentications`.`id`')
-                                                      ->addSelect('`accounts_authentications`.`created_on`')
-                                                      ->addSelect('IFNULL(`accounts_authentications`.`status`, "Ok") AS `status`')
-                                                      ->addSelect('`accounts_authentications`.`ip_address`')
-                                                      ->addSelect('`accounts_authentications`.`account`')
-                                                      ->addSelect('`accounts_authentications`.`action`')
-                                                      ->addSelect('`accounts_authentications`.`method`')
-                                                      ->addWhere('`accounts_authentications`.`created_by` = :user_id', [
-                                                          ':user_id' => Session::getUserObject()->getId()
-                                                      ]);
+$authentications = Authentications::new()->setFilterFormObject($filters);
+$authentications->getQueryBuilder()->addJoin('LEFT JOIN `accounts_users` ON `accounts_authentications`.`created_by` = `accounts_users`.`id`')
+                                   ->addSelect('`accounts_authentications`.`id`')
+                                   ->addSelect('`accounts_authentications`.`created_on`')
+                                   ->addSelect('IFNULL(`accounts_authentications`.`status`, "Ok") AS `status`')
+                                   ->addSelect('`accounts_authentications`.`ip_address`')
+                                   ->addSelect('`accounts_authentications`.`account`')
+                                   ->addSelect('`accounts_authentications`.`action`')
+                                   ->addSelect('`accounts_authentications`.`method`')
+                                   ->addWhere('`accounts_authentications`.`created_by` = :user_id', [
+                                       ':user_id' => Session::getUserObject()->getId()
+                                   ]);
+
 
 // Build the "authentications" card
 $authentications_card = Card::new()
@@ -103,5 +104,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card->render()  . $authentications_card->render(), EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card->render() . $documentation_card->render()  , EnumDisplaySize::three);
+           ->addGridColumn($filters_card  . $authentications_card, EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . $documentation_card  , EnumDisplaySize::three);

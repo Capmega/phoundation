@@ -436,7 +436,7 @@ class JsonPage implements JsonPageInterface
 
         } else {
             // This is just a single HTML section, make a list out of it
-            static::$flash[] = $messages->renderJson();
+            static::$flash[] = $messages->renderArray();
         }
 
         return $this;

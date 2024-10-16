@@ -35,7 +35,7 @@ $table = $meta->getHtmlDataTableObject();
 $card  = Card::new()
              ->setTitle('Registered activities')
              ->setSwitches('reload,maximize')
-             ->setContent($table->render());
+             ->setContent($table);
 
 
 // Build documentation

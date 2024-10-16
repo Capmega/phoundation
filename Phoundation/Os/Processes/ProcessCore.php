@@ -19,11 +19,9 @@ namespace Phoundation\Os\Processes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
@@ -33,14 +31,14 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
-use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
+use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessVariablesInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Throwable;
 
 
-abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInterface
+abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterface
 {
     use ProcessVariables;
 

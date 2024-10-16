@@ -108,7 +108,7 @@ if (!$role->isNew()) {
 $form      = $role->getHtmlDataEntryFormObject();
 $role_card = Card::new()
                  ->setTitle(tr('Edit data for role :name', [':name' => $role->getName()]))
-                 ->setContent($form->render())
+                 ->setContent($form)
                  ->setButtons(Buttons::new()
                                      ->addButton(tr('Save'))
                                      ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/roles.html'), true)
@@ -131,7 +131,7 @@ $documentation_card = Card::new()
                           ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Build the rights list management section
+// Build the "rights" list management section
 $rights_card = Card::new()
                    ->setTitle(tr('Rights for this role'))
                    ->setContent($role->getRightsHtmlDataEntryForm())
@@ -152,10 +152,6 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 
 // Render and return the page grid
-$grid = Grid::new()
-            ->addGridColumn($role_card . $rights_card, EnumDisplaySize::nine, true)
-            ->addGridColumn($relevant_card->render() . $documentation_card->render(), EnumDisplaySize::three);
-
-return $grid;
-
-
+return Grid::new()
+           ->addGridColumn($role_card     . $rights_card       , EnumDisplaySize::nine, true)
+           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

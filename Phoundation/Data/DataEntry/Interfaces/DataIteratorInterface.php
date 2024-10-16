@@ -239,14 +239,6 @@ interface DataIteratorInterface extends IteratorInterface
 
 
     /**
-     * This method will load ALL database entries into this object
-     *
-     * @return static
-     */
-    public function loadAll(): static;
-
-
-    /**
      * Adds the specified source to the internal source
      *
      * @param IteratorInterface|array|string|null $source

@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class WorkersCore
+ * Class ProcessService
  *
- * This class can manage worker processes running in the background
+ *
  *
  * @see       https://stackoverflow.com/questions/2036654/run-php-script-as-daemon-process for more information of
  *            running services through systemd, upstart, etc

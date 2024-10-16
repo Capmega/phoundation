@@ -511,9 +511,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setFooters(IteratorInterface|array|null $footers): static
     {
         if (is_array($footers)) {
-            $footers = Iterator::new()
-                               ->setSource($footers);
+            $footers = Iterator::new()->setSource($footers);
         }
+
         $this->footers = $footers;
 
         return $this;
@@ -981,7 +981,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $return = '<tbody>';
 
         if ($this->empty) {
-            $return .= '<tr class="empty-row"><td>' . $this->empty . '</td></tr>';
+            $return .= '<tr class="empty-row"><td class="text-center">' . $this->empty . '</td></tr>';
         }
 
         return $return . '</tbody>';
@@ -1006,6 +1006,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         foreach ($this->headers as $column => $header) {
             if ($first) {
                 $first = false;
+
                 switch ($this->checkbox_selectors) {
                     case EnumTableIdColumn::hidden:
                         break;

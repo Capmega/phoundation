@@ -446,7 +446,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             ]));
         }
 
-        // Make sure the field value doesn't have any extras like -e,--email EMAIL <<< The EMAIL part is extra
+        // Make sure the field value doesn't have any extras like "-e,--email EMAIL" <<< The EMAIL part is extra
         $fields = Strings::until($fields, ' ');
 
         // Unset various values first to ensure the byref link is broken

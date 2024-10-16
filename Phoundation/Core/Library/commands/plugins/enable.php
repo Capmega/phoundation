@@ -54,9 +54,9 @@ $argv = ArgvValidator::new()
 
 if (ALL) {
     // Get all plugins
-    $plugin = Plugins::new()->load()->eachField(function ($plugin) {
+    $plugin = Plugins::new()->load()->eachField(function ($plugin, $plugin_name) {
         // Enable plugin
-        Plugin::load($plugin)->enable();
+        Plugin::load($plugin_name)->enable();
     });
 
     // Done!

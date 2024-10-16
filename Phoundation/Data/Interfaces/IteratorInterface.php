@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Interfaces;
 
-use Countable;
-use Iterator;
 use PDOStatement;
+use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
@@ -43,12 +42,12 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @note this is basically a wrapper function for IteratorCore::add($value, $key, false) that always requires a key
      *
-     * @param mixed                 $value
-     * @param Stringable|string|int $key
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
      *
      * @return mixed
      */
-    public function set(mixed $value, Stringable|string|int $key): static;
+    public function set(mixed $value, Stringable|string|float|int $key): static;
 
     /**
      * Wrapper for Iterator::append()
@@ -312,20 +311,6 @@ interface IteratorInterface extends IteratorBaseInterface
      * @return bool
      */
     public function valueExists(mixed $value): bool;
-
-    /**
-     * Returns if the list is empty
-     *
-     * @return bool
-     */
-    public function isEmpty(): bool;
-
-    /**
-     * Returns if the list is not empty
-     *
-     * @return bool
-     */
-    public function isNotEmpty(): bool;
 
     /**
      * Returns the length of the longest value
@@ -838,4 +823,11 @@ interface IteratorInterface extends IteratorBaseInterface
      * @return mixed
      */
     public function unshift(mixed ...$values): static;
+
+    /**
+     * Returns a SpreadSheet object with this object's source data in it
+     *
+     * @return SpreadSheetInterface
+     */
+    public function getSpreadSheet(): SpreadSheetInterface;
 }

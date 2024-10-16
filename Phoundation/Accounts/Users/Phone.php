@@ -215,10 +215,10 @@ class Phone extends DataEntry implements PhoneInterface
                                     ->setRender(false)
                                     ->setReadonly(true))
 
-                    ->add(DefinitionFactory::getUsersId($this)
+                    ->add(DefinitionFactory::newUsersId($this)
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::getPhone($this)
+                    ->add(DefinitionFactory::newPhone($this)
                                            ->setSize(4)
                                            ->setOptional(false)
                                            ->setHelpText(tr('An extra phone for the user')))
@@ -252,11 +252,11 @@ class Phone extends DataEntry implements PhoneInterface
                                     ->setLabel(tr('Type'))
                                     ->setHelpText(tr('The type of phone')))
 
-                    ->add(DefinitionFactory::getDateTime($this, 'verified_on')
+                    ->add(DefinitionFactory::newDateTime($this, 'verified_on')
                                            ->setReadonly(true)
                                            ->setSize(3)
                                            ->setDbNullInputType(EnumInputType::text)
-                                           ->setDbNullValue(true, tr('Not verified'))
+                                           ->setNullDefault(tr('Not verified'))
                                            ->addClasses('text-center')
                                            ->setLabel(tr('Verified on'))
                                            ->setHelpGroup(tr('Account information'))
@@ -270,7 +270,7 @@ class Phone extends DataEntry implements PhoneInterface
                                     ->addClasses('btn btn-outline-warning')
                                     ->setValue(tr('Delete')))
 
-                    ->add(DefinitionFactory::getDescription($this)
+                    ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this phone')));
     }
 }

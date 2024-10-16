@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Interfaces;
 
-interface WorkersCoreInterface extends ProcessCoreInterface
+interface WorkersCoreInterface extends ProcessInterface
 {
     /**
      * Returns if this process waits for the workers to finish before returning

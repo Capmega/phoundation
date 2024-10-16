@@ -34,7 +34,7 @@ $get = GetValidator::new()
 $plugin = Plugin::load($get['id']);
 
 
-// Build the plugin form
+// Build the "plugin" form
 $plugin_card = Card::new()
                    ->setCollapseSwitch(true)
                    ->setTitle(tr('Edit data for Plugin :name', [':name' => $plugin->getName()]))

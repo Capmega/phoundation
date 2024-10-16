@@ -17,20 +17,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
 
-use Phoundation\Exception\Exception;
-use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
-use Phoundation\Os\Processes\Commands\Exception\CommandsException;
-use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
-use Phoundation\Os\Processes\Exception\ProcessFailedException;
-use Phoundation\Os\Processes\Interfaces\ProcessInterface;
-use Phoundation\Utils\Arrays;
-use Throwable;
 
 
-class Process extends ProcessCore implements ProcessInterface
+class Process extends ProcessCore
 {
     /**
      * Processes constructor.

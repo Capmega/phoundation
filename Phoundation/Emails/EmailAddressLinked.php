@@ -78,9 +78,9 @@ class EmailAddressLinked extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getDatabaseId($this, 'emails_id')
+        $definitions->add(DefinitionFactory::newDatabaseId($this, 'emails_id')
                                            ->setRender(false))
-                    ->add(DefinitionFactory::getDatabaseId($this, 'address_id')
+                    ->add(DefinitionFactory::newDatabaseId($this, 'address_id')
                                            ->setRender(false))
                     ->add(Definition::new($this, 'type')
                                     ->setRender(false)
@@ -91,7 +91,7 @@ class EmailAddressLinked extends DataEntry
                                         'bcc'  => tr('Bcc'),
                                     ])
                                     ->setMaxlength(4))
-                    ->add(DefinitionFactory::getEmail($this))
-                    ->add(DefinitionFactory::getName($this));
+                    ->add(DefinitionFactory::newEmail($this))
+                    ->add(DefinitionFactory::newName($this));
     }
 }

@@ -47,25 +47,26 @@ class MetaModal extends Modal
     {
         // Build the form
         $form = $this->form->render();
+
         // Build the layout
         $layout = Grid::new()
                       ->addGridRow(GridRow::new()
                                       ->addGridColumn(GridColumn::new()
-                                                            ->setSize(EnumDisplaySize::three))
+                                                                ->setSize(EnumDisplaySize::three))
                                       ->addGridColumn(GridColumn::new()
-                                                            ->setSize(EnumDisplaySize::six)
-                                                            ->setContent($form))
+                                                                ->setSize(EnumDisplaySize::six)
+                                                                ->setContent($form))
                                       ->addGridColumn(GridColumn::new()
-                                                            ->setSize(EnumDisplaySize::three)));
+                                                                ->setSize(EnumDisplaySize::three)));
+
         // Set defaults
         $this->setId('MetaModal')
              ->setSize('lg')
              ->setTitle(tr('Audit information'))
-             ->setContent($layout->render());
+             ->setContent($layout);
 
         // Render the sign in modal.
-        return parent::render() . Script::new()
-                                        ->setContent('
+        return parent::render() . Script::new()->setContent('
             $("table.showmeta").click(function(e) {
                 e.stopPropagation();
 
@@ -76,7 +77,6 @@ class MetaModal extends Modal
                 // Load the meta-information here                
                     
                 return false;
-            })')
-                                        ->render();
+            })')->render();
     }
 }

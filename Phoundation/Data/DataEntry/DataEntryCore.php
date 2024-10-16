@@ -27,6 +27,8 @@ use PDOStatement;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliColor;
+use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
+use Phoundation\Content\Documents\SpreadSheet;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
@@ -570,7 +572,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     protected function setMetaDefinitions(): void
     {
-        $definitions = Definitions::new()->setTable(static::getTable());
+        $definitions = Definitions::new($this)->setTable(static::getTable());
 
         foreach ($this->meta_columns as $meta_column) {
             switch ($meta_column) {
@@ -586,23 +588,23 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                     break;
 
                 case 'created_on':
-                    $definitions->add(DefinitionFactory::getCreatedOn($this));
+                    $definitions->add(DefinitionFactory::newCreatedOn($this));
                     break;
 
                 case 'created_by':
-                    $definitions->add(DefinitionFactory::getCreatedBy($this));
+                    $definitions->add(DefinitionFactory::newCreatedBy($this));
                     break;
 
                 case 'meta_id':
-                    $definitions->add(DefinitionFactory::getMetaId($this));
+                    $definitions->add(DefinitionFactory::newMetaId($this));
                     break;
 
                 case 'status':
-                    $definitions->add(DefinitionFactory::getStatus($this));
+                    $definitions->add(DefinitionFactory::newStatus($this));
                     break;
 
                 case 'meta_state':
-                    $definitions->add(DefinitionFactory::getMetaState($this));
+                    $definitions->add(DefinitionFactory::newMetaState($this));
                     break;
 
                 default:
@@ -684,7 +686,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function setUniqueColumnValue(mixed $value, bool $force = false): static
     {
-        return $this->set($value, static::getUniqueColumn(), $force);
+        return $this->doSet($value, static::getUniqueColumn(), $force);
     }
 
 
@@ -729,22 +731,36 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * Sets the value for the specified data key
      *
-     * @param mixed $value
-     * @param string $column
-     * @param bool   $force
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
      *
      * @return static
      */
-    public function set(mixed $value, string $column, bool $force = false): static
+    public function set(mixed $value, Stringable|string|float|int $key): static
+    {
+        return $this->doSet($value, $key, false);
+    }
+
+
+    /**
+     * Sets the value for the specified data key
+     *
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
+     * @param bool                        $force
+     *
+     * @return static
+     */
+    protected function doSet(mixed $value, Stringable|string|float|int $key, bool $force): static
     {
         if ($this->debug) {
-            Log::debug('TRY SET SOURCE VALUE FIELD "' . get_class($this) . '>' . $column . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
+            Log::debug('TRY SET SOURCE VALUE FIELD "' . get_class($this) . '>' . $key . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
         }
 
         // Only save values that are defined for this object
-        if (!$this->definitions->keyExists($column)) {
+        if (!$this->definitions->keyExists($key)) {
             if ($this->debug) {
-                Log::debug('NOT SETTING SOURCE VALUE FIELD "' . get_class($this) . '>' . $column . '" THE FIELD IS NOT DEFINED. THE FOLLOWING KEYS ARE DEFINED:', 10, echo_header: false);
+                Log::debug('NOT SETTING SOURCE VALUE FIELD "' . get_class($this) . '>' . $key . '" THE FIELD IS NOT DEFINED. THE FOLLOWING KEYS ARE DEFINED:', 10, echo_header: false);
                 Log::printr($this->definitions->getSourceKeys());
             }
 
@@ -755,15 +771,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             }
 
             throw new DataEntryException(tr('Not setting column ":column", it is not defined for the ":class" class', [
-                ':column' => $column,
+                ':column' => $key,
                 ':class'  => get_class($this),
             ]));
         }
 
         // Skip all meta-columns like id, created_on, meta_id, etc., etc., etc...
-        if (in_array($column, $this->meta_columns) and !$force) {
+        if (in_array($key, $this->meta_columns) and !$force) {
             if ($this->debug) {
-                Log::debug('NOT SETTING SOURCE VALUE FIELD "' . get_class($this) . '>' . $column . '", IT IS META FIELD. USE FORCE TO MODIFY ANYWAY', 10, echo_header: false);
+                Log::debug('NOT SETTING SOURCE VALUE FIELD "' . get_class($this) . '>' . $key . '", IT IS META FIELD. USE FORCE TO MODIFY ANYWAY', 10, echo_header: false);
                 Log::printr($this->definitions->getSourceKeys());
             }
 
@@ -772,12 +788,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object or a
         // static value.
-        $definition = $this->definitions->get($column);
+        $definition = $this->definitions->get($key);
 
         // If a column is ignored, we won't update anything
         if ($definition->getIgnored()) {
             Log::warning(tr('Not updating DataEntry object ":object" column ":column" because it has the "ignored" flag set', [
-                ':column' => $column,
+                ':column' => $key,
                 ':object' => get_class($this),
             ]), 6);
 
@@ -813,16 +829,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 //        }
 
         if (!$this->is_modified and !$definition->getIgnoreModify()) {
-            $this->is_modified = (isset_get($this->source[$column]) !== $value);
+            $this->is_modified = (isset_get($this->source[$key]) !== $value);
 
             if ($this->debug) {
-                Log::debug('MODIFIED FIELD "' . get_class($this) . '>' . $column . '" FROM "' . $this->source[$column] . '" [' . gettype(isset_get($this->source[$column])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
+                Log::debug('MODIFIED FIELD "' . get_class($this) . '>' . $key . '" FROM "' . $this->source[$key] . '" [' . gettype(isset_get($this->source[$key])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
             }
         }
 
         // Update the column value
-        $this->changes[]       = $column;
-        $this->source[$column] = $value;
+        $this->changes[]       = $key;
+        $this->source[$key] = $value;
         $this->is_validated    = false;
 
         return $this;
@@ -1727,8 +1743,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             Log::debug('APPLY ' . static::getDataEntryName() . ' (' . get_class($this) . ')', 10, echo_header: false);
             Log::debug('CURRENT DATA', 10         , echo_header: false);
             Log::vardump($this->source            , echo_header: false);
-            Log::debug('SOURCE'      , 10         , echo_header: false);
-            Log::vardump($data_source             , echo_header: false);
             Log::debug('SOURCE DATA' , 10         , echo_header: false);
             Log::vardump($data_source->getSource(), echo_header: false);
         }
@@ -1884,18 +1898,26 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *
      * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
      *       will not become available outside this object
-     * @return array
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
+     * @return mixed
      */
-    public function get(string $key): mixed
+    public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         if ($this->definitions->keyExists($key)) {
             return isset_get($this->source[$key]);
         }
 
-        throw new OutOfBoundsException(tr('Specified key ":key" is not defined for the ":class" class DataEntry object', [
-            ':class' => get_class($this),
-            ':key'   => $key,
-        ]));
+        if ($exception) {
+            throw new OutOfBoundsException(tr('Specified key ":key" is not defined for the ":class" class DataEntry object', [
+                ':class' => get_class($this),
+                ':key'   => $key,
+            ]));
+        }
+
+        return null;
     }
 
 
@@ -2472,7 +2494,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $definition = null, bool $after = true): static
     {
         // Render the specified element directly into the definition. Remove the specified column from this source (overwrite, basically)
-        $element_definition                             = $value->getDefinition()->setContent($value->render());
+        $element_definition                             = $value->getDefinition()->setContent($value);
         $this->source[$element_definition->getColumn()] = null;
 
         try {
@@ -3166,21 +3188,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         // Debug this specific entry?
         if ($this->debug) {
-            Log::debug('SAVING "' . get_class($this) . '" DATA ENTRY WITH ID "' . $this->getId() . '"', 10, echo_header: false);
-            $debug = sql($this->o_connector)->getDebug();
+            Log::debug('SAVING DATA ENTRY "' . get_class($this) . '" WITH ID "' . $this->getId() . '"', 10, echo_header: false);
             sql($this->o_connector)->setDebug($this->debug);
         }
 
         // Write the data and store the returned ID column
-        $this->source[static::getIdColumn()] = SqlDataEntry::new(sql($this->o_connector), $this)->write($comments, $this->diff);
+        $this->source[static::getIdColumn()] = SqlDataEntry::new(sql($this->o_connector), $this)
+                                                           ->setDebug($this->debug)
+                                                           ->write($comments, $this->diff);
 
         if ($this->debug) {
-            Log::information('SAVED DATA ENTRY WITH ID "' . $this->getId() . '"', 10);
-        }
-
-        // Return debug mode if required
-        if (isset($debug)) {
-            sql($this->o_connector)->setDebug($debug);
+            Log::information('SAVED DATA ENTRY "' . get_class($this) . '" WITH ID "' . $this->getId() . '"', 10);
         }
 
         // Write the list, if exists
@@ -3313,6 +3331,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * Creates and returns an HTML for the data in this entry
      *
      * @return DataEntryFormInterface
+     * @todo Move this to the EntryCore class
      */
     public function getHtmlDataEntryFormObject(): DataEntryFormInterface
     {
@@ -3322,6 +3341,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                             ->setReadonly($this->readonly)
                             ->setDisabled($this->disabled)
                             ->setDefinitionsObject($this->definitions);
+    }
+
+
+    /**
+     * Returns a SpreadSheet object with this object's source data in it
+     *
+     * @return SpreadSheetInterface
+     * @todo Move this to the EntryCore class
+     */
+    public function getSpreadSheet(): SpreadSheetInterface
+    {
+        return new SpreadSheet($this);
     }
 
 

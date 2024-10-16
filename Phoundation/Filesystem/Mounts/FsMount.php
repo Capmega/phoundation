@@ -453,7 +453,7 @@ class FsMount extends DataEntry implements FsMountInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getName($this)
+        $definitions->add(DefinitionFactory::newName($this)
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(12)
                                            ->setMaxlength(64)
@@ -463,7 +463,7 @@ class FsMount extends DataEntry implements FsMountInterface
                                                $validator->isUnique();
                                            }))
 
-                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(DefinitionFactory::newSeoName($this))
 
                     ->add(Definition::new($this, 'source_path')
                                     ->setInputType(EnumInputType::name)
@@ -523,23 +523,23 @@ class FsMount extends DataEntry implements FsMountInterface
                                     ->setLabel(tr('Options'))
                                     ->setHelpText(tr('The options for this mount')))
 
-                    ->add(DefinitionFactory::getBoolean($this, 'auto_mount')
+                    ->add(DefinitionFactory::newBoolean($this, 'auto_mount')
                                            ->setSize(2)
                                            ->setHelpText(tr('If checked, this mount will automatically be mounted by the process using a path in this mount'))
                                            ->setLabel(tr('Auto mount')))
 
-                    ->add(DefinitionFactory::getBoolean($this, 'auto_unmount')
+                    ->add(DefinitionFactory::newBoolean($this, 'auto_unmount')
                                            ->setSize(2)
                                            ->setHelpText(tr('If checked, this mount will automatically be unmounted after use when the process using a path in this mount terminates'))
                                            ->setLabel(tr('Auto unmount')))
 
-                    ->add(DefinitionFactory::getNumber($this, 'timeout')
+                    ->add(DefinitionFactory::newNumber($this, 'timeout')
                                            ->setOptional(true, 3)
                                            ->setSize(2)
                                            ->setHelpText(tr('If specified, the mount attempt for this filesystem will be aborted after this number of seconds'))
                                            ->setLabel(tr('Timeout')))
 
-                    ->add(DefinitionFactory::getDescription($this)
+                    ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this mount')));
     }
 }

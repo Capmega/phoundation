@@ -41,7 +41,7 @@ use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Exception\ProcessException;
-use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
+use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Servers\Traits\TraitDataServer;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -212,16 +212,16 @@ trait ProcessVariables
     /**
      * If specified, output from this command will be piped to the next command
      *
-     * @var ProcessCoreInterface|FsFileInterface|string|null $pipe
+     * @var ProcessInterface|FsFileInterface|string|null $pipe
      */
-    protected ProcessCoreInterface|FsFileInterface|string|null $pipe = null;
+    protected ProcessInterface|FsFileInterface|string|null $pipe = null;
 
     /**
      * If specified, will pipe the string or process output into this command
      *
-     * @var ProcessCoreInterface|FsFileInterface|string|null $pipe
+     * @var ProcessInterface|FsFileInterface|string|null $pipe
      */
-    protected ProcessCoreInterface|FsFileInterface|string|null $pipe_from = null;
+    protected ProcessInterface|FsFileInterface|string|null $pipe_from = null;
 
     /**
      * Stores the data on where to redirect input channels
@@ -482,9 +482,9 @@ trait ProcessVariables
     /**
      * Returns the exact time that execution started
      *
-     * @return ProcessCoreInterface|null
+     * @return ProcessInterface|null
      */
-    public function getPreExecution(): ?ProcessCoreInterface
+    public function getPreExecution(): ?ProcessInterface
     {
         return $this->pre_exec;
     }
@@ -493,11 +493,11 @@ trait ProcessVariables
     /**
      * Sets the process to execute before the main process
      *
-     * @param ProcessCoreInterface|null $process
+     * @param ProcessInterface|null $process
      *
      * @return static
      */
-    public function setPreExecution(?ProcessCoreInterface $process): static
+    public function setPreExecution(?ProcessInterface $process): static
     {
         $this->pre_exec = $process;
 
@@ -508,9 +508,9 @@ trait ProcessVariables
     /**
      * Returns the process to execute after the main process
      *
-     * @return ProcessCoreInterface|null
+     * @return ProcessInterface|null
      */
-    public function getPostExecution(): ?ProcessCoreInterface
+    public function getPostExecution(): ?ProcessInterface
     {
         return $this->post_exec;
     }
@@ -519,11 +519,11 @@ trait ProcessVariables
     /**
      * Sets the process to execute after the main process
      *
-     * @param ProcessCoreInterface|null $process
+     * @param ProcessInterface|null $process
      *
      * @return static
      */
-    public function setPostExecution(?ProcessCoreInterface $process): static
+    public function setPostExecution(?ProcessInterface $process): static
     {
         $this->post_exec = $process;
 
@@ -1698,9 +1698,9 @@ trait ProcessVariables
     /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
-     * @return ProcessCoreInterface|FsFileInterface|string|null
+     * @return ProcessInterface|FsFileInterface|string|null
      */
-    public function getPipe(): ProcessCoreInterface|FsFileInterface|string|null
+    public function getPipe(): ProcessInterface|FsFileInterface|string|null
     {
         return $this->pipe;
     }
@@ -1709,11 +1709,11 @@ trait ProcessVariables
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param ProcessCoreInterface|FsFileInterface|string|null $pipe
+     * @param ProcessInterface|FsFileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipe(ProcessCoreInterface|FsFileInterface|string|null $pipe): static
+    public function setPipe(ProcessInterface|FsFileInterface|string|null $pipe): static
     {
         $this->cached_command_line = null;
         $this->pipe                = $pipe;
@@ -1730,9 +1730,9 @@ trait ProcessVariables
     /**
      * Returns the process or string that will be piped into this process
      *
-     * @return ProcessCoreInterface|FsFileInterface|string|null
+     * @return ProcessInterface|FsFileInterface|string|null
      */
-    public function getPipeFrom(): ProcessCoreInterface|FsFileInterface|string|null
+    public function getPipeFrom(): ProcessInterface|FsFileInterface|string|null
     {
         return $this->pipe_from;
     }
@@ -1741,11 +1741,11 @@ trait ProcessVariables
     /**
      * Sets the process or string that will be piped into this process*
      *
-     * @param ProcessCoreInterface|FsFileInterface|string|null $pipe
+     * @param ProcessInterface|FsFileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipeFrom(ProcessCoreInterface|FsFileInterface|string|null $pipe): static
+    public function setPipeFrom(ProcessInterface|FsFileInterface|string|null $pipe): static
     {
         $this->cached_command_line = null;
         $this->pipe_from           = $pipe;

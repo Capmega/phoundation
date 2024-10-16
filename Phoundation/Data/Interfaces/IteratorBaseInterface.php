@@ -50,4 +50,18 @@ interface IteratorBaseInterface extends Iterator, Stringable, ArraySourceInterfa
      * @return void
      */
     public function rewind(): void;
+
+    /**
+     * Returns if the list is empty
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool;
+
+    /**
+     * Returns if the list is not empty
+     *
+     * @return bool
+     */
+    public function isNotEmpty(): bool;
 }

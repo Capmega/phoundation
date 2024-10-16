@@ -25,7 +25,6 @@ use Phoundation\Developer\Versioning\Git\Interfaces\StashInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\TagInterface;
 use Phoundation\Developer\Versioning\Versioning;
-use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;

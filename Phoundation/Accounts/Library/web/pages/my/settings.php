@@ -31,13 +31,13 @@ $get = GetValidator::new()
                    ->validate();
 
 
-// Build the settings card
+// Build the "settings" card
 $user = Session::getUserObject();
 $form = $user->getSettingsObject()->getHtmlDataEntryFormObject();
 
 $settings_card = Card::new()
                      ->setTitle(tr('Edit data for right :name', [':name' => $user->getName()]))
-                     ->setContent($form->render())
+                     ->setContent($form)
                      ->setButtons(Buttons::new()
                                          ->addButton(tr('Save'))
                                          ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/my/settings.html'), true)
@@ -46,17 +46,17 @@ $settings_card = Card::new()
 
 
 // Build relevant links
-$relevant = Card::new()
-                ->setMode(EnumDisplayMode::info)
-                ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('My profile page') . '</a>');
+$relevant_card = Card::new()
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Relevant links'))
+                     ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('My profile page') . '</a>');
 
 
 // Build documentation
-$documentation = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Documentation'))
-                     ->setContent('In this settings page you may configure various details about how your account behaves on this platform. These settings are unique to your account alone');
+$documentation_card = Card::new()
+                          ->setMode(EnumDisplayMode::info)
+                          ->setTitle(tr('Documentation'))
+                          ->setContent('In this settings page you may configure various details about how your account behaves on this platform. These settings are unique to your account alone');
 
 
 // Set page meta data
@@ -71,5 +71,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-            ->addGridColumn($settings_card            , EnumDisplaySize::nine, true)
-            ->addGridColumn($relevant . $documentation, EnumDisplaySize::three);
+            ->addGridColumn($settings_card                      , EnumDisplaySize::nine, true)
+            ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

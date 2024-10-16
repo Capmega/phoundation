@@ -178,12 +178,12 @@ if (!$connector->isNew()) {
 }
 
 
-// Build the connector form
+// Build the "connector" form
 $connector_card = Card::new()
                       ->setCollapseSwitch(true)
                       ->setMaximizeSwitch(true)
                       ->setTitle(tr('Edit connector :name', [':name' => $connector->getDisplayName()]))
-                      ->setContent($connector->getHtmlDataEntryFormObject()->render())
+                      ->setContent($connector->getHtmlDataEntryFormObject())
                       ->setButtons(Buttons::new()
                                           ->addButton(isset_get($save))
                                           ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/phoundation/databases/connectors/connectors.html'), true)
@@ -214,7 +214,7 @@ $documentation = Card::new()
 $grid = Grid::new()
             ->addGridColumn(GridColumn::new()
                             // The connector card and all additional cards
-                                  ->addContent($connector_card->render())
+                                  ->addContent($connector_card)
                                   ->setSize(9)
                                   ->useForm(true))
             ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);

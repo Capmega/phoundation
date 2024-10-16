@@ -95,11 +95,11 @@ if (!$authentication->isNew()) {
 }
 
 
-// Build the authentication card
+// Build the "authentication" card
 $form = $authentication->getHtmlDataEntryFormObject();
 $card = Card::new()
             ->setTitle(tr('Edit data for authentication :id', [':id' => $authentication->getId()]))
-            ->setContent($form->render())
+            ->setContent($form)
             ->setButtons(Buttons::new()
                                 ->addButton(tr('Save'))
                                 ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/authentications.html'), true)
@@ -138,8 +138,6 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 
 // Render and return the page grid
-$grid = Grid::new()
-            ->addGridColumn($card, EnumDisplaySize::nine, true)
-            ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
-
-return $grid;
+return Grid::new()
+           ->addGridColumn($card, EnumDisplaySize::nine, true)
+           ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);

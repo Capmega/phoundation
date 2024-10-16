@@ -34,18 +34,18 @@ $filters_content = FilterForm::new();
 $filters = Card::new()
                ->setCollapseSwitch(true)
                ->setTitle('Plugins filters')
-               ->setContent($filters_content->render())
+               ->setContent($filters_content)
                ->useForm(true);
 
 
-// Build plugins table
+// Build "plugins" table
 $buttons = Buttons::new()
                   ->addButton(tr('Add'), EnumDisplayMode::primary, '/phoundation/plugins/plugin.html')
                   ->addButton(tr('Delete'), EnumDisplayMode::danger, EnumButtonType::submit, true, true)
                   ->addButton(tr('Disable'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
 
 
-// Build plugins table
+// Build "plugins" table
 $table = Plugins::new()
                 ->getHtmlDataTableObject()
                 ->setRowUrl('/phoundation/plugins/plugin+:ROW.html');
@@ -53,7 +53,7 @@ $table = Plugins::new()
 $plugins = Card::new()
                ->setTitle('Active plugins')
                ->setSwitches('reload')
-               ->setContent($table->render())
+               ->setContent($table)
                ->useForm(true)
                ->setButtons($buttons);
 

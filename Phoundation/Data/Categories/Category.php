@@ -175,13 +175,13 @@ class Category extends DataEntry implements CategoryInterface
                                                   ->isName(64)
                                                   ->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
                                     }))
-                    ->add(DefinitionFactory::getName($this)
+                    ->add(DefinitionFactory::newName($this)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isFalse(function ($value, $source) {
                                                    Category::exists(['name' => $value], isset_get($source['id']));
                                                }, tr('already exists'));
                                            }))
-                    ->add(DefinitionFactory::getSeoName($this))
-                    ->add(DefinitionFactory::getDescription($this));
+                    ->add(DefinitionFactory::newSeoName($this))
+                    ->add(DefinitionFactory::newDescription($this));
     }
 }

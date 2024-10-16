@@ -231,7 +231,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     function getDisplayName(): string
     {
-        return $this->getLogId();
+        return $this->getType() . ':' . $this->getUsername() . '@' . $this->getHostname() . '/' . $this->getDatabase();
     }
 
 
@@ -599,14 +599,14 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::getName($this)
+        $definitions->add(DefinitionFactory::newName($this)
                                            ->setOptional(false)
                                            ->setSize(4)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }))
 
-                    ->add(DefinitionFactory::getSeoName($this))
+                    ->add(DefinitionFactory::newSeoName($this))
 
                     ->add(Definition::new($this, 'environment')
                                     ->setSize(4)
@@ -618,7 +618,7 @@ class Connector extends DataEntry implements ConnectorInterface
                                         'local'      => tr('Local'),
                                     ]))
 
-                    ->add(DefinitionFactory::getVariable($this, 'type')
+                    ->add(DefinitionFactory::newVariable($this, 'type')
                                            ->setSize(4)
                                            ->setLabel('Connector type')
                                            ->setInputType(null)
@@ -630,7 +630,7 @@ class Connector extends DataEntry implements ConnectorInterface
                                                'redis'     => tr('Redis'),
                                            ]))
 
-                    ->add(DefinitionFactory::getVariable($this, 'driver')
+                    ->add(DefinitionFactory::newVariable($this, 'driver')
                                            ->setSize(4)
                                            ->setOptional(true)
                                            ->setLabel('Driver')
@@ -643,11 +643,11 @@ class Connector extends DataEntry implements ConnectorInterface
                                                'oracle'  => tr('Oracle'),
                                                'mssql'   => tr('MSSQL'),
                                            ]))
-                    ->add(DefinitionFactory::getHostname($this, 'hostname')
+                    ->add(DefinitionFactory::newHostname($this, 'hostname')
                                            ->setLabel(tr('Hostname'))
                                            ->setSize(8))
 
-                    ->add(DefinitionFactory::getNumber($this, 'port')
+                    ->add(DefinitionFactory::newNumber($this, 'port')
                                            ->setLabel(tr('Port'))
                                            ->setSize(4)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -655,15 +655,15 @@ class Connector extends DataEntry implements ConnectorInterface
                                                          ->isBetween(0, 65535);
                                            }))
 
-                    ->add(DefinitionFactory::getVariable($this, 'username')
+                    ->add(DefinitionFactory::newVariable($this, 'username')
                                            ->setSize(4)
                                            ->setLabel(tr('Username')))
 
-                    ->add(DefinitionFactory::getPassword($this, 'password')
+                    ->add(DefinitionFactory::newPassword($this, 'password')
                                            ->setSize(4)
                                            ->setLabel(tr('Password')))
 
-                    ->add(DefinitionFactory::getVariable($this, 'database')
+                    ->add(DefinitionFactory::newVariable($this, 'database')
                                            ->setSize(4)
                                            ->setLabel(tr('Database')))
 
@@ -683,7 +683,7 @@ class Connector extends DataEntry implements ConnectorInterface
                                     ->setLabel(tr('Collate'))
                                     ->setSize(3))
 
-                    ->add(DefinitionFactory::getTimezonesId($this, 'timezones_id')
+                    ->add(DefinitionFactory::newTimezonesId($this, 'timezones_id')
                                            ->setLabel(tr('Timezone'))
                                            ->setVirtual(true)
                                            ->setSize(2)
@@ -693,7 +693,7 @@ class Connector extends DataEntry implements ConnectorInterface
                                                          ->setColumnFromQuery('timezones_name', 'SELECT `name` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
                                            }))
 
-                    ->add(DefinitionFactory::getTimezone($this, 'timezones_name')
+                    ->add(DefinitionFactory::newTimezone($this, 'timezones_name')
                                            ->setLabel(tr('Timezone'))
                                            ->setRender(false)
                                            ->setSize(2)
@@ -713,45 +713,45 @@ class Connector extends DataEntry implements ConnectorInterface
                                     ->setInputType(EnumInputType::select)
                                     ->setSize(2))
 
-                    ->add(DefinitionFactory::getNumber($this, 'auto_increment')
+                    ->add(DefinitionFactory::newNumber($this, 'auto_increment')
                                            ->setLabel(tr('Auto increment'))
                                            ->setInputType(EnumInputType::positiveInteger)
                                            ->setSize(1))
 
-                    ->add(DefinitionFactory::getNumber($this, 'limit_max')
+                    ->add(DefinitionFactory::newNumber($this, 'limit_max')
                                            ->setLabel(tr('Maximum row limit'))
                                            ->setDefault(1_000_000)
                                            ->setInputType(EnumInputType::positiveInteger)
                                            ->setSize(1))
 
-                    ->add(DefinitionFactory::getBoolean($this, 'persist')
+                    ->add(DefinitionFactory::newBoolean($this, 'persist')
                                            ->setLabel(tr('Persist'))
                                            ->setHelpText(tr('If enabled, Phoundation will use persistent connections. This may speed up database connections but may potentially cause your database to be overloaded with open connections'))
                                            ->setSize(1))
 
-                    ->add(DefinitionFactory::getBoolean($this, 'sync')
+                    ->add(DefinitionFactory::newBoolean($this, 'sync')
                                            ->setLabel(tr('Sync'))
                                            ->setHelpText(tr('If enabled, Phoundation will sync this database when executing the sync command'))
                                            ->setSize(1))
 
-                    ->add(DefinitionFactory::getBoolean($this, 'log')
+                    ->add(DefinitionFactory::newBoolean($this, 'log')
                                            ->setLabel(tr('Log'))
                                            ->setHelpText(tr('If enabled, Phoundation will log all queries to this database'))
                                            ->setSize(1))
 
-                    ->add(DefinitionFactory::getBoolean($this, 'init')
+                    ->add(DefinitionFactory::newBoolean($this, 'init')
                                            ->setLabel(tr('Initializes'))
                                            ->setHelpText(tr('If enabled, Phoundation will try to initialize this database during the init phase'))
                                            ->setSize(1))
 
-                    ->add(DefinitionFactory::getBoolean($this, 'buffered')
+                    ->add(DefinitionFactory::newBoolean($this, 'buffered')
                                            ->setLabel(tr('Buffered'))
                                            ->setSize(1))
 
-                    ->add(DefinitionFactory::getBoolean($this, 'statistics')
+                    ->add(DefinitionFactory::newBoolean($this, 'statistics')
                                            ->setLabel(tr('Statistics'))
                                            ->setSize(1))
 
-                    ->add(DefinitionFactory::getDescription($this));
+                    ->add(DefinitionFactory::newDescription($this));
     }
 }

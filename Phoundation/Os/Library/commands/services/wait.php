@@ -18,7 +18,8 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Os\Processes\Commands\Service;
+use Phoundation\Os\Processes\ProcessServiceThis;
+use Phoundation\Os\Processes\ProcessThis;
 
 
 CliDocumentation::setAutoComplete([
@@ -50,21 +51,24 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-$service = Service::new()
-                  ->ensure(function (int $pid) {
-                      // Done!
-                      Log::success(tr('Started service ":service" with PID ":pid"', [
-                          ':pid'     => $pid,
-                          ':service' => CliCommand::getCommands()
-                      ]));
-                  })
-                  ->execute(function () use ($argv) {
-                      // Wait for the specified amount of time, and terminate
-                      sleep($argv['seconds']);
+$p = ProcessThis::new();
+showdie();
+
+$service = ProcessServiceThis::new()
+                             ->ensure(function (int $pid) {
+                                 // Done!
+                                 Log::success(tr('Started service ":service" with PID ":pid"', [
+                                     ':pid'     => $pid,
+                                     ':service' => CliCommand::getCommands()
+                                 ]));
+                             })
+                             ->execute(function () use ($argv) {
+                                 // Wait for the specified amount of time, and terminate
+                                 sleep($argv['seconds']);
 
 
-                      // Done!
-                      Log::success(tr('Finished waiting ":seconds" seconds', [
-                          ':seconds' => $argv['seconds']
-                      ]));
-                  });
+                                 // Done!
+                                 Log::success(tr('Finished waiting ":seconds" seconds', [
+                                     ':seconds' => $argv['seconds']
+                                 ]));
+                             });

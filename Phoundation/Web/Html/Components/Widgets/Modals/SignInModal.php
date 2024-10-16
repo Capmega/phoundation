@@ -48,36 +48,38 @@ class SignInModal extends Modal
     {
         // Build the form
         $form = $this->form->render();
+
         // Build the layout
         $layout = Grid::new()
                       ->addGridRow(GridRow::new()
                                       ->addGridColumn(GridColumn::new()
-                                                            ->setSize(EnumDisplaySize::three))
+                                                                ->setSize(EnumDisplaySize::three))
                                       ->addGridColumn(GridColumn::new()
-                                                            ->setSize(EnumDisplaySize::six)
-                                                            ->setContent($form))
+                                                                ->setSize(EnumDisplaySize::six)
+                                                                ->setContent($form))
                                       ->addGridColumn(GridColumn::new()
-                                                            ->setSize(EnumDisplaySize::three)));
+                                                                ->setSize(EnumDisplaySize::three)));
+
         // Set defaults
         $this->setId('signinModal')
              ->setSize('lg')
              ->setTitle(tr('Sign in'))
-             ->setContent($layout->render());
+             ->setContent($layout);
 
         // Render the sign in modal.
         return parent::render() . Script::new()
-                                        ->setContent('
-            $("form#form-sign-in").submit(function(e) {
-                e.stopPropagation();
-                
-                $.post("' . Url::getAjax('sign-in') . '", $(this).serialize())
-                    .done(function (data, textStatus, jqXHR) {
-                        $(".image-menu").replaceWith(data.html);
-                        $("#signinModal").modal("hide");                     
-                    });
-                    
-                return false;
-            })')
-                                        ->render();
+                ->setContent('
+                    $("form#form-sign-in").submit(function(e) {
+                        e.stopPropagation();
+                        
+                        $.post("' . Url::getAjax('sign-in') . '", $(this).serialize())
+                            .done(function (data, textStatus, jqXHR) {
+                                $(".image-menu").replaceWith(data.html);
+                                $("#signinModal").modal("hide");                     
+                            });
+                            
+                        return false;
+                    })')
+                ->render();
     }
 }

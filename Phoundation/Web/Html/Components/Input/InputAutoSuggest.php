@@ -223,7 +223,7 @@ class InputAutoSuggest extends InputText
         // This input element requires some javascript
         Response::loadJavascript('phoundation/adminlte/plugins/jquery-ui/jquery-ui');
 
-        // Setup javascript for the component
+        // Create JavaScript code for the component
         $script = Script::new()
                         ->setContent('$(\'[name="' . $this->name . '"]\').autocomplete({
                                           source: function(request, response) {
@@ -252,6 +252,7 @@ class InputAutoSuggest extends InputText
                                             console.log("Selected: " + ui.item.value + " aka " + ui.item.id);
                                           }
                                         });');
+
         $this->attributes = $this->renderInputAttributes()
                                  ->appendSource($this->attributes);
 

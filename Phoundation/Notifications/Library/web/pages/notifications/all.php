@@ -30,13 +30,13 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
-// Build incidents filter card
+// Build incidents "filter" card
 $filters      = FilterForm::new();
 $filters_card = Card::new()
-    ->setCollapseSwitch(true)
-    ->setTitle('Notifications filters')
-    ->setContent($filters->render())
-    ->useForm(true);
+                    ->setCollapseSwitch(true)
+                    ->setTitle('Notifications filters')
+                    ->setContent($filters)
+                    ->useForm(true);
 
 
 // Get a new "notifications" object
@@ -102,17 +102,15 @@ $documentation_card = Card::new()
                           ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Render and return the page grid
-$grid = Grid::new()
-    ->addGridColumn($filters_card->render() . $notifications_card->render(), EnumDisplaySize::nine)
-    ->addGridColumn($relevant_card->render() . $documentation_card->render(), EnumDisplaySize::three);
-
-echo $grid->render();
-
-
 // Set page meta data
 Response::setHeaderTitle(tr('Notifications'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('Notifications')
 ]));
+
+
+// Render and return the page grid
+return Grid::new()
+    ->addGridColumn($filters_card  . $notifications_card, EnumDisplaySize::nine)
+    ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

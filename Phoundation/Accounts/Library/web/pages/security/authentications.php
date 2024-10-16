@@ -39,15 +39,16 @@ $filters_card = Card::new()
 
 // Build the authentication table
 $authentications = Authentications::new()->setFilterFormObject($filters);
-$builder         = $authentications->getQueryBuilder()->addJoin('LEFT JOIN `accounts_users` ON `accounts_authentications`.`created_by` = `accounts_users`.`id`')
-                                                      ->addSelect('`accounts_authentications`.`id`')
-                                                      ->addSelect('`accounts_authentications`.`created_on`')
-                                                      ->addSelect('IFNULL(`accounts_authentications`.`status`, "Ok") AS `status`')
-                                                      ->addSelect('COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('No matched account') . '") AS `user`')
-                                                      ->addSelect('`accounts_authentications`.`ip_address`')
-                                                      ->addSelect('`accounts_authentications`.`account`')
-                                                      ->addSelect('`accounts_authentications`.`action`')
-                                                      ->addSelect('`accounts_authentications`.`method`');
+$authentications->getQueryBuilder()->addJoin('LEFT JOIN `accounts_users` ON `accounts_authentications`.`created_by` = `accounts_users`.`id`')
+                                   ->addSelect('`accounts_authentications`.`id`')
+                                   ->addSelect('`accounts_authentications`.`created_on`')
+                                   ->addSelect('IFNULL(`accounts_authentications`.`status`, "Ok") AS `status`')
+                                   ->addSelect('COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('No matched account') . '") AS `user`')
+                                   ->addSelect('`accounts_authentications`.`ip_address`')
+                                   ->addSelect('`accounts_authentications`.`account`')
+                                   ->addSelect('`accounts_authentications`.`action`')
+                                   ->addSelect('`accounts_authentications`.`method`');
+
 
 // Build the "authentications" card
 $authentications_card = Card::new()
@@ -97,5 +98,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card->render()  . $authentications_card->render(), EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card->render() . $documentation_card->render()  , EnumDisplaySize::three);
+           ->addGridColumn($filters_card  . $authentications_card, EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . $documentation_card  , EnumDisplaySize::three);

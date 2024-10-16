@@ -21,11 +21,13 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDefinition;
+use Phoundation\Data\Traits\TraitDataPrefix;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\AInterface;
 use Phoundation\Web\Html\Components\Interfaces\DivInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
@@ -559,21 +561,32 @@ trait TraitElementAttributes
     /**
      * Returns the HTML class element attribute
      *
-     * @param string|null $prefix
+     * @param string|null $prefix                       If true, will prefix the class list with the specified prefix
+     * @param bool        $add_definition_name_to_class If true, will add the element's name attribute to the list of
+     *                                                  classes
      *
      * @return string|null
      */
-    public function getClass(?string $prefix = null): ?string
+    public function getClass(?string $prefix = null, bool $add_definition_name_to_class = true): ?string
     {
         if (empty($this->class)) {
             $this->class = implode(' ', $this->classes->getSourceKeys());
+
+            if ($add_definition_name_to_class) {
+                if ($this->name) {
+                    if (preg_match('/^\d+_/', $this->name)) {
+                        // Add the name attribute from the definition
+                        $this->class .= ' ' . Strings::from($this->name, '_');
+
+                    } else {
+                        // Add the name attribute from the definition
+                        $this->class .= ' ' . $this->name;
+                    }
+                }
+            }
         }
 
-        if ($this->class) {
-            return $prefix . $this->class;
-        }
-
-        return null;
+        return get_null($prefix . $this->class);
     }
 
 
@@ -683,6 +696,7 @@ trait TraitElementAttributes
         if (is_object($content)) {
             // This object must be able to render HTML. Check this and then render.
             static::canRenderHtml($content);
+
             $content   = $content->render();
             $make_safe = false;
         }
@@ -700,38 +714,26 @@ trait TraitElementAttributes
     /**
      * Ensures that the specified object has ElementAttributes
      *
-     * @note This is just a wrapper around ElementAttributes::ensureElementAttributesTrait(). While that function
-     *       explains more clearly what it does, this one says more clearly WHY and as such is the public one.
-     *
      * @param object|string $class
-     *
-     * @return void
-     * @see  TraitElementAttributes::ensureElementAttributesTrait()
+     * @param bool          $exception
+     *`
+     * @return bool
      */
-    public static function canRenderHtml(object|string $class): void
+    protected static function canRenderHtml(object|string $class, bool $exception = true): bool
     {
-        // TODO Replace this with a RenderInterface check
-        static::ensureElementAttributesTrait($class);
-    }
+        if ($class instanceof RenderInterface) {
+            return true;
+        }
 
-
-    /**
-     * Ensures that the specified object has ElementAttributes
-     *
-     * @param object|string $class
-     *
-     * @return void
-     */
-    protected static function ensureElementAttributesTrait(object|string $class): void
-    {
-        if (!has_trait(TraitElementAttributes::class, $class)) {
-            if (is_object($class)) {
-                $class = get_class($class);
-            }
-            throw new OutOfBoundsException(tr('Specified object or class ":class" is not using ElementAttributes trait and thus cannot render HTML', [
-                ':class' => $class,
+        // The specified variable cannot be rendered
+        if ($exception) {
+            throw new OutOfBoundsException(tr('Specified variable with datatype ":class" is not a class that implements :interface', [
+                ':class'     => get_class_or_data_type($class),
+                ':interface' => RenderInterface::class,
             ]));
         }
+
+        return false;
     }
 
 
@@ -960,7 +962,7 @@ trait TraitElementAttributes
         } else {
             // Unset autofocus? Only if this is the element that had it in the first place!
             if (static::$autofocus !== null) {
-                // Some element has auto-focus, is it this one?
+                // Some element has autofocus, is it this one?
                 if (static::$autofocus === $this->name) {
                     throw new OutOfBoundsException(tr('Cannot remove autofocus from element name ":name", it does not have autofocus', [
                         ':name' => $this->name,
@@ -976,7 +978,7 @@ trait TraitElementAttributes
 
 
     /**
-     * Returns the HTML name element attribute
+     * Returns the HTML name attribute for this element
      *
      * @return string|null
      */
@@ -987,10 +989,10 @@ trait TraitElementAttributes
 
 
     /**
-     * Sets the HTML name element attribute
+     * Sets the HTML name attribute for this element
      *
-     * @param string|null $name
-     * @param bool        $id_too
+     * @param string|null $name   The "name" attribute for this element
+     * @param bool        $id_too If true, will make the elements id the same as the name
      *
      * @return static
      */

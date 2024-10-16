@@ -51,12 +51,12 @@ if (Request::isPostRequestMethod()) {
 }
 
 
-// Build incidents filter card
+// Build "incidents filter" card
 $filters      = FilterForm::new();
 $filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('Notifications filters')
-                    ->setContent($filters->render())
+                    ->setContent($filters)
                     ->useForm(true);
 
 
@@ -101,5 +101,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card->render() . $notifications_card->render(), EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card->render() . $documentation_card->render(), EnumDisplaySize::three);
+           ->addGridColumn($filters_card  . $notifications_card, EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

@@ -22,9 +22,9 @@ trait TraitDataStatus
     /**
      * The status to use
      *
-     * @var string|false|null $status
+     * @var string|false|null $status_filter
      */
-    protected string|false|null $status = null;
+    protected string|false|null $status_filter = false;
 
 
     /**
@@ -32,27 +32,26 @@ trait TraitDataStatus
      *
      * @return string|false|null
      */
-    public function getStatus(): string|false|null
+    public function getStatusFilter(): string|false|null
     {
-        return $this->status;
+        return $this->status_filter;
     }
 
 
     /**
      * Sets the status
      *
-     * @param string|false|null $status
+     * @param string|false|null $status_filter
      *
      * @return static
      */
-    public function setStatus(string|false|null $status): static
+    public function setStatusFilter(string|false|null $status_filter): static
     {
-        if ($status === 'all') {
-            $status = false;
+        if ($status_filter === 'all') {
+            $status_filter = false;
         }
 
-        $this->status = $status;
-
+        $this->status_filter = $status_filter;
         return $this;
     }
 }

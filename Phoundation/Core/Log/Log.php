@@ -971,11 +971,7 @@ class Log
      */
     public static function information(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        if (VERY_QUIET) {
-            return false;
-        }
-
-        return static::write($messages, 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return static::write($messages, 'information', $threshold, $clean, $echo_newline, $echo_prefix, ($echo_screen and VERY_QUIET));
     }
 
 
@@ -1670,7 +1666,7 @@ class Log
             static::logDebugHeader('VARDUMP', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        return static::write(var_export($messages, true), 'debug', $threshold, false, echo_screen: $echo_screen);
+        return static::write(Debug::dump($messages, 100), 'debug', $threshold, false, echo_screen: $echo_screen);
     }
 
 
@@ -1735,7 +1731,10 @@ class Log
         }
 
         if (empty($messages)) {
-            if ($messages !== 0) {
+            if (is_bool($messages)) {
+                $messages = Strings::fromBoolean($messages);
+
+            } elseif (($messages !== 0) and ($messages !== 0.0)) {
                 $messages = '-';
             }
         }
@@ -1759,7 +1758,7 @@ class Log
      */
     public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        $query = SqlQueries::renderQueryString($query, $execute);
+        $query = SqlQueries::renderQueryString($query, $execute, true);
         $query = Strings::ensureEndsWith($query, ';');
 
         return static::write('SQL QUERY: ' . $query, 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);

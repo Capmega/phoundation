@@ -60,7 +60,7 @@ class TopPanel extends Panel
     {
         if ($this->elements->valueExists('notifications')) {
             $this->getNotificationsDropDown()
-                 ->setStatus('UNREAD')
+                 ->setStatusFilter('UNREAD')
                  ->setNotifications(null)
                  ->setNotificationsUrl('/notifications/notification-:ID.html')
                  ->setAllNotificationsUrl('/notifications/unread.html');

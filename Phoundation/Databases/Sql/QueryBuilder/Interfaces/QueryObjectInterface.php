@@ -200,4 +200,11 @@ interface QueryObjectInterface
      * @return static
      */
     public function setWhere(?string $where, ?array $execute = null): static;
+
+    /**
+     * Returns the WHERE parts of the query
+     *
+     * @return array
+     */
+    public function getWheres(): array;
 }

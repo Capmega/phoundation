@@ -141,7 +141,8 @@ class DataIterator extends Iterator implements DataIteratorInterface
     {
         parent::__construct($source);
 
-        $this->status = false;
+        // If this data iterator had a source specified, consider it loaded
+        $this->is_loaded = (bool) $source;
     }
 
 
@@ -234,7 +235,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
 
 
     /**
-     * Returns a QueryBuilder object to modify the internal query for this object
+     * Returns a QueryBuilder object from this DataIterator to modify the internal query for this object
      *
      * @return QueryBuilderInterface
      */
@@ -245,9 +246,8 @@ class DataIterator extends Iterator implements DataIteratorInterface
                                                ->setDebug($this->debug)
                                                ->setConnectorObject($this->getConnectorObject());
 
-            if ($this->status !== false) {
-                // TODO See how we can resolve this $this->status better. Static code checks show it as failed, even though its not
-                $this->query_builder->addWhere(SqlQueries::is('`' . static::getTable() . '`.`status`', $this->status, ':status'));
+            if ($this->status_filter !== false) {
+                $this->query_builder->addWhere(SqlQueries::is('`' . static::getTable() . '`.`status`', $this->status_filter, ':status'));
             }
         }
 
@@ -279,6 +279,8 @@ class DataIterator extends Iterator implements DataIteratorInterface
      */
     public function setQuery(?string $query, ?array $execute = null): static
     {
+        unset($this->query_builder);
+
         $this->query   = $query;
         $this->execute = $execute;
 
@@ -311,7 +313,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
                     $identifiers = ['status' => null];
                 }
 
-                // Create query with optional filtering for parents_id
+                // Create a query with optional filtering for parents_id
                 if ($this->parent) {
                     $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->parent::getTable(), '_') . '_id` = :parents_id AND ';
                     $this->execute['parents_id'] = $this->parent->getId();
@@ -323,8 +325,8 @@ class DataIterator extends Iterator implements DataIteratorInterface
                 $this->buildManualQuery($identifiers, $where, $joins, $group, $order, $this->execute);
 
                 // Set default query
-                $this->query = 'SELECT                  ' . $this->getSqlColumns() . '
-                                FROM                   `' . static::getTable() . '`
+                $this->query = 'SELECT  ' . $this->getSqlColumns() . '
+                                FROM   `' . static::getTable() . '`
                                 ' . $joins . '
                                 WHERE  ' . $parent_filter .  $where . $group . $order;
             }
@@ -530,11 +532,12 @@ class DataIterator extends Iterator implements DataIteratorInterface
      */
     public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface
     {
-        if ($this->source) {
+        if ($this->is_loaded) {
             // Source is already loaded, use that
             return parent::getHtmlDataTableObject($columns)->setId(static::getTable());
         }
 
+        // This DataIterator is empty, automatically load
         $this->selectQuery();
 
         $columns = $columns ?? $this->columns;
@@ -579,8 +582,8 @@ class DataIterator extends Iterator implements DataIteratorInterface
             $select->setSource($this->getAllRowsSingleColumn($value_column, true));
 
         } else {
-            $query = 'SELECT ' . $key_column . ', ' . $value_column . ' 
-                      FROM  `' . static::getTable() . '` 
+            $query = 'SELECT ' . $key_column . ', ' . $value_column . '
+                      FROM  `' . static::getTable() . '`
                       ' . Strings::force($joins, ' ');
 
             if ($filters) {
@@ -683,8 +686,6 @@ class DataIterator extends Iterator implements DataIteratorInterface
         $ids  = [];
         $meta = [];
 
-        $this->loadAll();
-
         // Delete the meta data entries
         foreach ($this->source as $id => $entry) {
             $ids[] = $id;
@@ -704,21 +705,6 @@ class DataIterator extends Iterator implements DataIteratorInterface
             sql($this->getConnectorObject())->setDebug($this->debug)
                                             ->erase(static::getTable(), ['id' => $ids]);
         }
-
-        return $this;
-    }
-
-
-    /**
-     * This method will load ALL database entries into this object
-     *
-     * @return static
-     */
-    public function loadAll(): static
-    {
-        $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
-                                                        ->listKeyValues('SELECT ' . static::getTableIdColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
-                                                                         FROM  `' . static::getTable() . '`');
 
         return $this;
     }
@@ -752,8 +738,8 @@ class DataIterator extends Iterator implements DataIteratorInterface
             $in = SqlQueries::in($identifiers);
 
             return sql($this->getConnectorObject())->setDebug($this->debug)
-                                                   ->list('SELECT `id` 
-                                                           FROM   `' . static::getTable() . '` 
+                                                   ->list('SELECT `id`
+                                                           FROM   `' . static::getTable() . '`
                                                            WHERE  `' . static::getUniqueColumn() . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
         }
 
@@ -880,10 +866,12 @@ class DataIterator extends Iterator implements DataIteratorInterface
      * Clears all entries in this DataIterator, but also ALL entries from the table
      *
      * @param string|bool|null $status
+     * @todo This method is utterly useless as its only use is deleting every entry in a database. Rewrite the entire setStatus set methods
+     *       There should be 2 methods: setStatus on the current entry in the table, and setStatus on all entries specified in a query
      *
      * @return static
      */
-    public function clearAllFromTable(string|bool|null $status = false): static
+    public function deleteAllFromTable(string|bool|null $status = false): static
     {
         if ($status === false) {
             $results = sql()->listKeyValues('SELECT `id` FROM `' . static::getTable() . '`');
@@ -1034,11 +1022,11 @@ class DataIterator extends Iterator implements DataIteratorInterface
     /**
      * Shift an entry off the beginning of this Iterator
      *
-     * @return mixed
+     * @return DataEntryInterface|null
      */
     #[ReturnTypeWillChange] public function shift(): ?DataEntryInterface
     {
-        return $this->ensureObject(parent::shift($this->source));
+        return $this->ensureObject(parent::shift());
     }
 
 
@@ -1052,9 +1040,9 @@ class DataIterator extends Iterator implements DataIteratorInterface
         foreach ($values as $value) {
             if (($value !== null) and !($value instanceof DataEntryInterface)) {
                 throw OutOfBoundsException::new(tr('Cannot unshift value ":value" to this iterator, the value must be an DataEntryInterface object', [
-                    ':value' => get_object_class_or_data_type($value)
+                    ':value' => get_class_or_data_type($value)
                 ]))->setData([
-                    'entry' => $entry
+                    'value' => $value
                 ]);
             }
         }
@@ -1093,6 +1081,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
                 }
             }
 
+            $this->is_loaded = true;
             return $this;
         }
 
@@ -1103,6 +1092,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
             $this->source = array_merge($this->source, $this->loadFromConfiguration());
         }
 
+        $this->is_loaded = true;
         return $this;
     }
 
@@ -1200,5 +1190,19 @@ class DataIterator extends Iterator implements DataIteratorInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if this DataIterator has data loaded into it's source
+     *
+     * Data will be considered loaded into the source if either it was specified as a source during constructor, or
+     * whendata was loaded using the DataIterator::load() method
+     *
+     * @return bool
+     */
+    public function isLoaded(): bool
+    {
+        return $this->is_loaded;
     }
 }

@@ -410,7 +410,6 @@ class Repositories extends IteratorCore implements RepositoriesInterface
         $directories = new Iterator($directories);
 
         foreach ($directories as $path => $directory) {
-            $directory = FsDirectory::normalizePath($directory);
             $directory = FsDirectory::absolutePath($directory, must_exist: false);
             $directory = FsDirectory::realPath($directory);
 
@@ -468,8 +467,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
             foreach ($directory->scan() as $path) {
                 try {
                     // Ensure that the path that we're working with is absolute, normalized, and real.
-                    $path->makeNormalized()
-                         ->makeAbsolute(must_exist: false)
+                    $path->makeAbsolute(must_exist: false)
                          ->makeRealPath(false);
 
                     if (!$path->exists()) {

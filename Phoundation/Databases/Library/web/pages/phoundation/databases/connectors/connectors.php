@@ -31,12 +31,12 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
-// Build the filters card
+// Build the "filters" card
 $filters      = FilterForm::new();
 $filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('Filters')
-                    ->setContent($filters->render());
+                    ->setContent($filters);
 
 
 // Button clicked?
@@ -76,12 +76,12 @@ if (Request::isPostRequestMethod()) {
 // Get the connectors list and apply filters
 $connectors = Connectors::new();
 $builder    = $connectors->getQueryBuilder()
-                         ->addSelect('`databases_connectors`.`id`, 
-                 `databases_connectors`.`name`, 
-                 `databases_connectors`.`hostname`, 
-                 `databases_connectors`.`username`, 
-                 `databases_connectors`.`database`, 
-                 `databases_connectors`.`status`, 
+                         ->addSelect('`databases_connectors`.`id`,
+                 `databases_connectors`.`name`,
+                 `databases_connectors`.`hostname`,
+                 `databases_connectors`.`username`,
+                 `databases_connectors`.`database`,
+                 `databases_connectors`.`status`,
                  `databases_connectors`.`created_on`');
 
 switch ($filters->get('status')) {
@@ -96,13 +96,11 @@ switch ($filters->get('status')) {
         $builder->addWhere('`databases_connectors`.`status` = :status', [':status' => $filters->get('status')]);
 }
 
-// Build SQL connectors table
-$buttons = Buttons::new()
-                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/phoundation/databases/connectors/connector.html')
-                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
 
+// Build "connectors" card
 // TODO Automatically re-select items if possible
 //    ->select($post['id']);
+
 
 $connectors_card = Card::new()
                        ->setTitle('Available connectors')
@@ -114,7 +112,9 @@ $connectors_card = Card::new()
                                         ->setColumns('id,name,hostname,username,database,status,created_on')
                                         ->setOrder([1 => 'asc']))
                        ->useForm(true)
-                       ->setButtons($buttons);
+                       ->setButtons(Buttons::new()
+                                           ->addButton(tr('Create'), EnumDisplayMode::primary, '/phoundation/databases/connectors/connector.html')
+                                           ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
 
 $connectors_card->getForm()
                 ->setAction(Url::getCurrent())
@@ -122,33 +122,31 @@ $connectors_card->getForm()
 
 
 // Build relevant links
-$relevant = Card::new()
-                ->setMode(EnumDisplayMode::info)
-                ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/phoundation/databases/connectors/roles.html') . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . Url::getWww('/phoundation/databases/connectors/rights.html') . '">' . tr('Rights management') . '</a>');
+$relevant_card = Card::new()
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Relevant links'))
+                     ->setContent('<a href="' . Url::getWww('/phoundation/databases/connectors/roles.html') . '">' . tr('Roles management') . '</a><br>
+                                   <a href="' . Url::getWww('/phoundation/databases/connectors/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation
-$documentation = Card::new()
+$documentation_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Documentation'))
                      ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Render and return the page grid
-$grid = Grid::new()
-            ->addGridColumn($filters_card->render() . $connectors_card->render(), EnumDisplaySize::nine)
-            ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
-
-
 // Set page meta data
 Response::setHeaderTitle(tr('Database connectors'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'                           => tr('Home'),
-                                                           '/system-administration.html' => tr('System administration'),
-                                                           '/phoundation/databases.html' => tr('Databases'),
-                                                           ''                            => tr('Connectors'),
-                                                       ]));
+    '/'                           => tr('Home'),
+    '/system-administration.html' => tr('System administration'),
+    '/phoundation/databases.html' => tr('Databases'),
+    ''                            => tr('Connectors'),
+]));
+
+
+// Render and return the page grid
+return Grid::new()
+           ->addGridColumn($filters_card  . $connectors_card   , EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

@@ -124,12 +124,12 @@ if (!$mount->isNew()) {
 }
 
 
-// Build the mount form
+// Build the "mount" form
 $mount_card = Card::new()
     ->setCollapseSwitch(true)
     ->setMaximizeSwitch(true)
     ->setTitle(tr('Edit mount :name', [':name' => $mount->getDisplayName()]))
-    ->setContent($mount->getHtmlDataEntryFormObject()->render())
+    ->setContent($mount->getHtmlDataEntryFormObject())
     ->setButtons(Buttons::new()
                         ->addButton(isset_get($save))
                         ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/phoundation/file-system/mounts.html'), true)
@@ -168,7 +168,7 @@ $documentation = Card::new()
 $grid = Grid::new()
     ->addGridColumn(GridColumn::new()
         // The mount card and all additional cards
-        ->addContent($mount_card->render())
+        ->addContent($mount_card)
         ->setSize(9)
         ->useForm(true))
     ->addGridColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);

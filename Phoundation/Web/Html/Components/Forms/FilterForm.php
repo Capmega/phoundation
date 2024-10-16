@@ -21,9 +21,9 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDateFormat;
 use Phoundation\Data\Traits\TraitDataIterator;
-use Phoundation\Data\Traits\TraitDataIteratorSource;
 use Phoundation\Data\Traits\TraitDataRequestMethod;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -37,7 +37,6 @@ use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
-use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 use Phoundation\Web\Html\Components\Input\InputDateRange;
 use Phoundation\Web\Html\Enums\EnumElement;
@@ -75,6 +74,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      * @var array $states
      */
     protected array $states;
+
+    /**
+     * Returns the filters that (still) have to be applied
+     *
+     * @var IteratorInterface $apply_filters
+     */
+    protected IteratorInterface $apply_filters;
 
 
     /**
@@ -192,7 +198,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      *
      * @note This is the standard Iterator::get() call, but here $exception is by default false
      *
-     * @note If the form element is not rendering, no value will be returned
+     * @note If the form element for the requested key is not rendering, no value will be returned!
      *
      * @param Stringable|string|float|int $key
      * @param bool                        $exception
@@ -204,7 +210,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         $definition = $this->definitions->get($key, false);
 
         if (!$definition?->getRender()) {
-            // Non rendered elements will always return null
+            // NOTE: Non rendered elements will always return null
             return null;
         }
 
@@ -313,10 +319,16 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     /**
      * Returns the date range
      *
+     * @param bool $force
+     *
      * @return string|null
      */
-    public function getDateRange(): ?string
+    public function getDateRange(bool $force = false): ?string
     {
+        if ($force) {
+            return $this->getForce('date_range');
+        }
+
         return $this->get('date_range');
     }
 
@@ -324,13 +336,25 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     /**
      * Returns the date range
      *
+     * @note This method defaults $force to true to ensure date_range_split (by default) is always visible
+     *
+     * @param bool $force
+     *
      * @return array|null
      */
-    public function getDateRangeSplit(): ?array
+    public function getDateRangeSplit(bool $force = true): ?array
     {
-        // Only return the split date range if the date range itself is set too
-        if (parent::get('date_range')) {
-            return $this->get('date_range_split');
+        if ($force) {
+            // Only return the split date range if the date range itself is set too
+            if ($this::getForce('date_range')) {
+                return $this->getForce('date_range_split');
+            }
+
+        } else {
+            // Only return the split date range if the date range itself is set too
+            if (parent::get('date_range')) {
+                return $this->get('date_range_split');
+            }
         }
 
         return null;
@@ -425,18 +449,28 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     protected function selectValidator(): ValidatorInterface
     {
-        switch ($this->request_method) {
-            case EnumHttpRequestMethod::get:
-                return GetValidator::new();
+        return match ($this->request_method) {
+            EnumHttpRequestMethod::get  => GetValidator::new(),
+            EnumHttpRequestMethod::post => PostValidator::new(),
+            default                     => throw new OutOfBoundsException(tr('HTTP method ":method" is not supported by the FilterForm class', [
+                ':method' => $this->request_method->value
+            ])),
+        };
+    }
 
-            case EnumHttpRequestMethod::post:
-                return PostValidator::new();
 
-            default:
-                throw new OutOfBoundsException(tr('HTTP method ":method" is not supported by the FilterForm class', [
-                    ':method' => $this->request_method->value
-                ]));
+    /**
+     * Returns the filters that will be applied
+     *
+     * @return Iterator|null
+     */
+    public function getApplyFilters(): ?IteratorInterface
+    {
+        if (empty($this->apply_filters)) {
+            return null;
         }
+
+        return $this->apply_filters;
     }
 
 
@@ -463,9 +497,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             // Validate buttons too
             if ($this->definitions->hasButtons()) {
                 foreach ($this->definitions->getButtons() as $button) {
-                    $validator->select($button->getName())
-                        ->isOptional()
-                        ->hasValue($button->getValue());
+                    $validator->select($button->getName())->isOptional()->hasValue($button->getValue());
                 }
             }
 
@@ -477,6 +509,9 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                 // Add the DataEntry object type to the exception message
                 throw $e->setMessage('(' . get_class($this) . ') ' . $e->getMessage());
             }
+
+            // Generate a list of all available filters so that we can tick them off one by one when we apply them later
+            $this->apply_filters = new Iterator($this->definitions->getKeyIndices());
         }
 
         return $this;
@@ -492,29 +527,45 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
     {
-        if ($this->get('status') !== 'all') {
-            $builder->addWhere(
-                SqlQueries::is('`' . $builder->getFromTable() . '`.`status`', $this->get('status'), ':from_status', $builder->getExecuteByReference())
-            );
+        if ($this->apply_filters->keyExists('status')) {
+            // Is the status filter rendered and available?
+            if ($this->getStatus() !== false) {
+                // Is the status filter not set to "All"?
+                if ($this->getStatus() !== 'all') {
+                    $builder->addWhere(
+                        SqlQueries::is('`' . $builder->getFromTable() . '`.`status`', $this->getStatus(), ':from_status', $builder->getExecuteByReference())
+                    );
+                }
+            }
         }
 
-        if ($this->getStartDate()) {
-            $builder->addWhere(
+        if ($this->apply_filters->keyExists('date_range')) {
+            if ($this->getStartDate()) {
+                $builder->addWhere(
                     '`' . $builder->getFromTable() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format('mysql')]
                 );
+            }
+
+            if ($this->getStopDate()) {
+                $builder->addWhere(
+                    '`' . $builder->getFromTable() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format('mysql')]
+                );
+            }
         }
 
-        if ($this->getStopDate()) {
-            $builder->addWhere(
-                '`' . $builder->getFromTable() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format('mysql')]
-            );
+        if ($this->apply_filters->keyExists('users_id')) {
+            if ($this->getUsersId()) {
+                $builder->addWhere(
+                    '`' . $builder->getFromTable() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
+                );
+            }
         }
 
-        if ($this->getUsersId()) {
-            $builder->addWhere(
-                '`' . $builder->getFromTable() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
-            );
-        }
+        $this->apply_filters->removeKeys([
+            'status',
+            'date_range',
+            'users_id',
+        ]);
 
         return $this;
     }

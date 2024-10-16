@@ -34,37 +34,37 @@ interface ProcessVariablesInterface
     /**
      * Returns the exact time that execution started
      *
-     * @return ProcessCoreInterface|null
+     * @return ProcessInterface|null
      */
-    public function getPreExecution(): ?ProcessCoreInterface;
+    public function getPreExecution(): ?ProcessInterface;
 
 
     /**
      * Sets the process to execute before the main process
      *
-     * @param ProcessCoreInterface|null $process
+     * @param ProcessInterface|null $process
      *
      * @return static
      */
-    public function setPreExecution(?ProcessCoreInterface $process): static;
+    public function setPreExecution(?ProcessInterface $process): static;
 
 
     /**
      * Returns the process to execute after the main process
      *
-     * @return ProcessCoreInterface|null
+     * @return ProcessInterface|null
      */
-    public function getPostExecution(): ?ProcessCoreInterface;
+    public function getPostExecution(): ?ProcessInterface;
 
 
     /**
      * Sets the process to execute after the main process
      *
-     * @param ProcessCoreInterface|null $process
+     * @param ProcessInterface|null $process
      *
      * @return static
      */
-    public function setPostExecution(?ProcessCoreInterface $process): static;
+    public function setPostExecution(?ProcessInterface $process): static;
 
 
     /**
@@ -411,19 +411,19 @@ interface ProcessVariablesInterface
     /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
-     * @return ProcessCoreInterface|FsFileInterface|string|null
+     * @return ProcessInterface|FsFileInterface|string|null
      */
-    public function getPipe(): ProcessCoreInterface|FsFileInterface|string|null;
+    public function getPipe(): ProcessInterface|FsFileInterface|string|null;
 
 
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param ProcessCoreInterface|FsFileInterface|string|null $pipe
+     * @param ProcessInterface|FsFileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipe(ProcessCoreInterface|FsFileInterface|string|null $pipe): static;
+    public function setPipe(ProcessInterface|FsFileInterface|string|null $pipe): static;
 
 
     /**

@@ -36,26 +36,26 @@ $defintions->get('roles_id')->setSize(6);
 $defintions->get('status')->setSize(6);
 
 $filters_card = Card::new()
-               ->setCollapseSwitch(true)
-               ->setTitle('Users filters')
-               ->setContent($filters);
+                    ->setCollapseSwitch(true)
+                    ->setTitle('Users filters')
+                    ->setContent($filters);
 
 
 // Build rights card
 $rights_card = Card::new()
-              ->setTitle('Active rights')
-              ->setSwitches('reload')
-              ->setContent(Rights::new()
-                                 ->setFilterFormObject($filters)
-                                 ->getHtmlDataTableObject()
-                                 ->setRowUrl('/accounts/right+:ROW.html'))
-              ->useForm(true)
-              ->setButtons(Buttons::new()
-                                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')
-                                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
+                   ->setTitle('Active rights')
+                   ->setSwitches('reload')
+                   ->setContent(Rights::new()
+                                      ->setFilterFormObject($filters)
+                                      ->getHtmlDataTableObject()
+                                      ->setRowUrl('/accounts/right+:ROW.html'))
+                   ->useForm(true)
+                   ->setButtons(Buttons::new()
+                                       ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')
+                                       ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
 
 
-// Add form for the rights card
+// Add form for the "rights" card
 $rights_card->getForm()
             ->setAction(Url::getCurrent())
             ->setRequestMethod(EnumHttpRequestMethod::post);
@@ -66,7 +66,7 @@ $relevant_card = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
                 ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                         <a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
+                              <a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
 
 
 // Build documentation
@@ -76,17 +76,15 @@ $documentation_card = Card::new()
                      ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Render and return the page grid
-$grid = Grid::new()
-            ->addGridColumn($filters_card->render() . $rights_card, EnumDisplaySize::nine)
-            ->addGridColumn($relevant_card->render() . $documentation_card->render(), EnumDisplaySize::three);
-
-echo $grid->render();
-
-
 // Set page meta data
 Response::setHeaderTitle(tr('Rights'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/' => tr('Home'),
-                                                           ''  => tr('Rights'),
-                                                       ]));
+    '/' => tr('Home'),
+    ''  => tr('Rights'),
+]));
+
+
+// Render and return the page grid
+return Grid::new()
+           ->addGridColumn($filters_card  . $rights_card       , EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

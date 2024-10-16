@@ -105,6 +105,8 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
+
+        $this->empty = tr('No results available');
     }
 
 
@@ -347,8 +349,8 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      *       values that were added as general attributes using Element::getAttributes()->add()
      * @return IteratorInterface
      */
-    protected function renderAttributes(): IteratorInterface
+    protected function renderAttributesArray(): IteratorInterface
     {
-        return parent::renderAttributes();
+        return parent::renderAttributesArray();
     }
 }

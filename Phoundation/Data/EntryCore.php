@@ -21,6 +21,7 @@ use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Traits\TraitDataSourceArray;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
+use Stringable;
 
 
 class EntryCore implements EntryInterface
@@ -122,9 +123,13 @@ class EntryCore implements EntryInterface
      *
      * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
      *       will not become available outside this object
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
      * @return array
      */
-    public function get(string $key): mixed
+    public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         return isset_get($this->source[$key]);
     }
@@ -133,15 +138,14 @@ class EntryCore implements EntryInterface
     /**
      * Sets the value for the specified data key
      *
-     * @param mixed $value
-     * @param string $column
-     * @param bool   $force
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
      *
      * @return static
      */
-    public function set(mixed $value, string $column, bool $force = false): static
+    public function set(mixed $value, Stringable|string|float|int $key): static
     {
-        $this->source[$column] = $value;
+        $this->source[$key] = $value;
         return $this;
     }
 }

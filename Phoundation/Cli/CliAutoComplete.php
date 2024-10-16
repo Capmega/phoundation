@@ -434,7 +434,7 @@ class CliAutoComplete
 
             } elseif (!is_string($results) and !($results instanceof IteratorInterface)) {
                 throw OutOfBoundsException::new(tr('Executed auto complete callback ":name" with word ":word" returned invalid value with datatype ":results", it should be either null, string, array, or IteratorInterface', [
-                    ':results' => get_object_class_or_data_type($results),
+                    ':results' => get_class_or_data_type($results),
                     ':word'    => $word,
                     ':name'    => $name,
                 ]))->setData([
@@ -690,7 +690,7 @@ class CliAutoComplete
         $command          = explode('/', $command);
         static::$position = static::$position - count($command);
 
-        return !empty(FsFile::new(static::$command . '.php', FsRestrictions::newCommands())
+        return !empty(FsFile::new(static::$command . '.php', FsRestrictions::newRoot())
                             ->grep(['Documentation::setAutoComplete('], 500));
     }
 

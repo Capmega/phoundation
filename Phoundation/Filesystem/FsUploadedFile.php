@@ -83,6 +83,7 @@ class FsUploadedFile extends FsFileCore implements FsUploadedFileInterface
         if ($this->getMimetype() != $source->getType()) {
             // Fix the mimetype. If the new filetype is not supported, it will be ignored anyway
             Incident::new()
+                    ->setType('Specified mimetype invalid')
                     ->setSeverity(EnumSeverity::medium)
                     ->setTitle(tr('Uploaded file ":file" was specified as mimetype ":indicated" but has mimetype ":detected", correcting mimetype to what was detected', [
                         ':file'      => $source->getName(),

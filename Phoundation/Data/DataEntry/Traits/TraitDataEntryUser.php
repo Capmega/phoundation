@@ -54,11 +54,25 @@ trait TraitDataEntryUser
     public function getUserObject(): ?UserInterface
     {
         $users_id = $this->getTypesafe('int', 'users_id');
+
         if ($users_id) {
             return User::load($users_id);
         }
 
         return null;
+    }
+
+
+    /**
+     * Sets the user for this object
+     *
+     * @param UserInterface|null $user
+     *
+     * @return static
+     */
+    public function setUser(?UserInterface $user): static
+    {
+        return $this->setUsersId($user?->getId());
     }
 
 

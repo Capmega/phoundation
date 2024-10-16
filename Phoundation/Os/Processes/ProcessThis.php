@@ -18,19 +18,10 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes;
 
 use Phoundation\Data\Traits\TraitStaticMethodNew;
-use Phoundation\Os\Processes\Interfaces\ProcessInterface;
+use Phoundation\Os\Processes\Commands\PhoCore;
 
 
-class ProcessThis extends ProcessCore implements ProcessInterface
+class ProcessThis extends PhoCore
 {
     use TraitStaticMethodNew;
-
-
-    /**
-     * ProcessesThis constructor.
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
 }

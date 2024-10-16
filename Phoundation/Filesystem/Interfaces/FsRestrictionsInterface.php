@@ -15,21 +15,14 @@ use Throwable;
 interface FsRestrictionsInterface extends ArraySourceInterface
 {
     /**
-     * Returns system general file access restrictions
-     *
-     * @return FsRestrictionsInterface
-     */
-    public static function newSystem(): FsRestrictionsInterface;
-
-    /**
      * Returns a restrictions object with parent directories for all directories in this restrictions object
      *
      * This is useful for the Directory object where one will want to be able to access or create the parent directory
      * of the file that needs to be accessed
      *
-     * @return FsRestrictions
+     * @return FsRestrictionsInterface
      */
-    public function getParent(?int $levels = null): FsRestrictions;
+    public function getParent(?int $levels = null): FsRestrictionsInterface;
 
     /**
      * Returns a restrictions object with the current directory and the specified child directory attached
@@ -39,9 +32,9 @@ interface FsRestrictionsInterface extends ArraySourceInterface
      * @param string|array $child_directories
      * @param bool|null    $write
      *
-     * @return FsRestrictions
+     * @return FsRestrictionsInterface
      */
-    public function getChild(string|array $child_directories, ?bool $write = null): FsRestrictions;
+    public function getChild(string|array $child_directories, ?bool $write = null): FsRestrictionsInterface;
 
     /**
      * Clear all directories for this restriction

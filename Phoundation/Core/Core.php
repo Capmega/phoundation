@@ -64,6 +64,7 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
 use Phoundation\Os\Processes\Commands\Id;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
@@ -98,7 +99,7 @@ class Core implements CoreInterface
      */
     public const FRAMEWORK_CODE_VERSION = '4.11.0';
 
-    public const PHP_MINIMUM_VERSION    = '8.2.0';
+    public const PHP_MINIMUM_VERSION = '8.2.0';
 
 
     /**
@@ -137,12 +138,12 @@ class Core implements CoreInterface
      * General purpose data register
      */
     protected static array $register = [
-        'tabindex'      => 0,
-        'js_header'     => [],
-        'js_footer'     => [],
-        'css'           => [],
-        'quiet'         => true,
-        'footer'        => '',
+        'tabindex' => 0,
+        'js_header' => [],
+        'js_footer' => [],
+        'css' => [],
+        'quiet' => true,
+        'footer' => '',
         'debug_queries' => [],
     ];
 
@@ -272,7 +273,7 @@ class Core implements CoreInterface
      */
     protected function __construct()
     {
-        static::$state                         = 'boot';
+        static::$state = 'boot';
         static::$register['system']['startup'] = microtime(true);
 
         // Set local and global process identifiers
@@ -291,7 +292,7 @@ class Core implements CoreInterface
         // DIRECTORY_WEB      is the system cache location for all web pages
         // DIRECTORY_COMMANDS is the system cache location for all commands
 
-        define('REQUEST'           , substr(uniqid(), 7));
+        define('REQUEST', substr(uniqid(), 7));
         define('DIRECTORY_START'   , Strings::slash(getcwd()));
         define('DIRECTORY_ROOT'    , realpath(__DIR__ . '/../..') . '/');
         define('DIRECTORY_DATA'    , DIRECTORY_ROOT . 'data/');
@@ -299,12 +300,23 @@ class Core implements CoreInterface
 
         define('DIRECTORY_CDN'     , DIRECTORY_DATA . 'content/cdn/');
         define('DIRECTORY_PUBTMP'  , DIRECTORY_CDN . 'content/cdn/tmp/');
-
         define('DIRECTORY_TMP'     , DIRECTORY_SYSTEM . 'tmp/');
+
         define('DIRECTORY_COMMANDS', DIRECTORY_SYSTEM . 'cache/system/commands/');
         define('DIRECTORY_HOOKS'   , DIRECTORY_SYSTEM . 'cache/system/hooks/');
         define('DIRECTORY_WEB'     , DIRECTORY_SYSTEM . 'cache/system/web/');
         define('DIRECTORY_CRON'    , DIRECTORY_SYSTEM . 'cache/system/cron/');
+        define('DIRECTORY_TESTS'   , DIRECTORY_SYSTEM . 'cache/system/tests/');
+
+        // Load the system function files
+        try {
+            require(DIRECTORY_ROOT . 'Phoundation/functions.php');
+            require(DIRECTORY_ROOT . 'Phoundation/mb.php');
+
+        } catch (Throwable $e) {
+            error_log($e->getMessage());
+            die('Failed to load system function files, see logs for more information' . PHP_EOL);
+        }
 
         // Setup error handling, report ALL errors, setup shutdown functions
         static::setErrorHandling(true);
@@ -334,10 +346,6 @@ class Core implements CoreInterface
                 'execute',
             ]);
         }
-
-        // Load the functions and mb files
-        require(DIRECTORY_ROOT . 'Phoundation/functions.php');
-        require(DIRECTORY_ROOT . 'Phoundation/mb.php');
 
         // Register the process start
         static::$timer = Timers::new('core', 'system');
@@ -369,8 +377,7 @@ class Core implements CoreInterface
             static::startPlatform();
 
             // Check if we're in readonly mode
-            static::$readonly = (bool) static::getReadonlyMode();
-
+            static::$readonly = (bool)static::getReadonlyMode();
         } catch (Throwable $e) {
             Config::allowNoEnvironment();
             Core::ensureCoreDefines();
@@ -432,11 +439,10 @@ class Core implements CoreInterface
             }
 
             define('PROJECT', $project);
-
         } catch (Throwable $e) {
             static::$failed = true;
 
-            define('PROJECT'          , 'UNKNOWN');
+            define('PROJECT', 'UNKNOWN');
             define('DIRECTORY_PROJECT', DIRECTORY_DATA . 'sources/' . PROJECT . '/');
 
             if ($e instanceof OutOfBoundsException) {
@@ -478,16 +484,16 @@ class Core implements CoreInterface
         // Check what platform we're in
         switch (php_sapi_name()) {
             case 'cli':
-                define('PLATFORM'    , 'cli');
+                define('PLATFORM', 'cli');
                 define('PLATFORM_WEB', false);
                 define('PLATFORM_CLI', true);
                 break;
 
             default:
-                define('PLATFORM'    , 'web');
+                define('PLATFORM', 'web');
                 define('PLATFORM_WEB', true);
                 define('PLATFORM_CLI', false);
-                define('NOCOLOR'     , (getenv('NOCOLOR') ? 'NOCOLOR' : null));
+                define('NOCOLOR', (getenv('NOCOLOR') ? 'NOCOLOR' : null));
                 break;
         }
     }
@@ -512,7 +518,6 @@ class Core implements CoreInterface
             }
 
             static::$state = 'startup';
-
         } catch (ConfigFileDoesNotExistsException $e) {
             throw new EnvironmentNotExistsException(tr('Failed to start platform ":platform", the configured or requested environment ":environment" does not exist', [
                 ':environment' => ENVIRONMENT,
@@ -525,9 +530,8 @@ class Core implements CoreInterface
             ]), $e);
 
         } catch (Throwable $e) {
-            throw new EnvironmentNotExistsException(tr('Failed to start platform ":platform", The configured or requested environment ":environment" does not exist', [
-                ':environment' => ENVIRONMENT,
-                ':platform'    => PLATFORM
+            throw new EnvironmentNotExistsException(tr('Failed to start platform ":platform"', [
+                ':platform' => PLATFORM
             ]), $e);
         }
     }
@@ -548,7 +552,7 @@ class Core implements CoreInterface
             // No environment set in ENV, maybe given by parameter?
             Config::allowNoEnvironment();
             throw EnvironmentNotDefinedException::new('No required web environment specified for project "' . PROJECT . '"')
-                                      ->setCode(500);
+                ->setCode(500);
         }
 
         // Set environment and protocol
@@ -571,16 +575,16 @@ class Core implements CoreInterface
         define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
         define('PAGE'      , $_GET['page'] ?? 1);
         define('QUIET'     , (get_null(getenv('QUIET')) or get_null(getenv('VERY_QUIET'))) ?? false);
-        define('ALL'       , get_null(getenv('ALL'))        ?? false);
-        define('DELETED'   , get_null(getenv('DELETED'))    ?? false);
-        define('FORCE'     , get_null(getenv('FORCE'))      ?? false);
-        define('ORDERBY'   , get_null(getenv('ORDERBY'))    ?? '');
-        define('STATUS'    , get_null(getenv('STATUS'))     ?? '');
+        define('ALL'       , get_null(getenv('ALL')) ?? false);
+        define('DELETED'   , get_null(getenv('DELETED')) ?? false);
+        define('FORCE'     , get_null(getenv('FORCE')) ?? false);
+        define('ORDERBY'   , get_null(getenv('ORDERBY')) ?? '');
+        define('STATUS'    , get_null(getenv('STATUS')) ?? '');
         define('VERY_QUIET', get_null(getenv('VERY_QUIET')) ?? false);
-        define('TEST'      , get_null(getenv('TEST'))       ?? false);
-        define('VERBOSE'   , get_null(getenv('VERBOSE'))    ?? false);
-        define('NOAUDIO'   , get_null(getenv('NOAUDIO'))    ?? false);
-        define('LIMIT'     , get_null(getenv('LIMIT'))      ?? Config::getNatural('paging.limit', 50));
+        define('TEST'      , get_null(getenv('TEST')) ?? false);
+        define('VERBOSE'   , get_null(getenv('VERBOSE')) ?? false);
+        define('NOAUDIO'   , get_null(getenv('NOAUDIO')) ?? false);
+        define('LIMIT'     , get_null(getenv('LIMIT')) ?? Config::getNatural('paging.limit', 50));
         define('NOWARNINGS', get_null(getenv('NOWARNINGS')) ?? false);
 
         // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
@@ -674,7 +678,7 @@ class Core implements CoreInterface
 
                     } catch (Throwable $e) {
                         // Uncaught exception handler for exit
-                        Core::uncaughtException($e);
+                        Core::uncaughtExceptionHandler($e);
                     }
                 }
 
@@ -707,7 +711,7 @@ class Core implements CoreInterface
     public static function setScriptState(): void
     {
         // We're done, transfer control to script
-        static::$state  = 'script';
+        static::$state = 'script';
         static::$script = true;
     }
 
@@ -715,13 +719,13 @@ class Core implements CoreInterface
     /**
      * Lets the core know that the system is now in a shutdown state
      *
-     * @todo Get rid of this method. ALL methods (including showdie()) should call exit() which Core will then handle
      * @return void
+     * @todo Get rid of this method. ALL methods (including showdie()) should call exit() which Core will then handle
      */
     public static function setShutdownState(): void
     {
         static::$script = false;
-        static::$state  = 'shutdown';
+        static::$state = 'shutdown';
     }
 
 
@@ -820,7 +824,6 @@ class Core implements CoreInterface
                                     $function[0]->$function[1]($value);
                                     continue;
                                 }
-
                                 // no break
                             } elseif (is_string($function[0])) {
                                 if (is_string($function[1])) {
@@ -830,13 +833,10 @@ class Core implements CoreInterface
                                     $function[0]::{$function[1]}($value);
                                     continue;
                                 }
-
                                 // no break
                             }
-
                             // no break
                         }
-
                         // no break
                     }
 
@@ -844,11 +844,10 @@ class Core implements CoreInterface
                         ':function' => $function,
                     ]));
                 }
-
             } catch (Throwable $e) {
                 Notification::new()
-                            ->setException($e)
-                            ->send(true);
+                    ->setException($e)
+                    ->send(true);
                 throw $e;
             }
         }
@@ -961,7 +960,6 @@ class Core implements CoreInterface
             foreach (Timers::pop('sql', false) as $timer) {
                 Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $timer->getLabel(), 'debug', 10);
             }
-
         } else {
             Log::warning('-', 10);
         }
@@ -1011,7 +1009,7 @@ class Core implements CoreInterface
      * @note : This function should never be called directly
      * @todo Refactor uncaught exception handling, its a bloody godawful mess!
      */
-    #[NoReturn] public static function uncaughtException(Throwable $e): never
+    #[NoReturn] public static function uncaughtExceptionHandler(Throwable $e): never
     {
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
 
@@ -1060,8 +1058,8 @@ class Core implements CoreInterface
             try {
                 if (!defined('PLATFORM')) {
                     // The system crashed before platform detection.
-                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":command" ***', [
-                        ':code'    => $e->getCode(),
+                    Log::error(tr('*** UNCAUGHT EXCEPTION ":class" IN ":type" TYPE SCRIPT ":command" ***', [
+                        ':class'   => get_class($e),
                         ':type'    => Request::getRequestType()->value,
                         ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
                     ]));
@@ -1083,14 +1081,12 @@ class Core implements CoreInterface
                 // Great! The uncaught exception handler caused an exception itself! Try to log / notify both
                 static::processUncaughtExceptionException($e, $f, $state);
             }
-
         } catch (Throwable $g) {
             // Well, we tried. Here we just give up all together. Just try to log to error_log, then exit the process
             echo 'Fatal error. check data/syslog, application server logs, or webserver logs for more information' . PHP_EOL;
 
             try {
                 error_log($g->getMessage());
-
             } catch (Throwable) {
                 echo 'Failed to log' . PHP_EOL;
             }
@@ -1130,7 +1126,7 @@ class Core implements CoreInterface
 
                 // Return the setting
                 $return = Config::getBoolean('debug.production', false);
-                $loop   = false;
+                $loop = false;
 
                 return $return;
             }
@@ -1162,7 +1158,7 @@ class Core implements CoreInterface
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-         * @package   system
+     * @package   system
      * @see       exit()
      * @see       Core::addShutdownCallback()
      * @version   1.27.0: Added function and documentation
@@ -1216,13 +1212,12 @@ class Core implements CoreInterface
             }
 
             define('LANGUAGE', $language);
-            define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
+            define('LOCALE', $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
 
             // Ensure $_SESSION['language'] available
             if (empty($_SESSION['language'])) {
                 $_SESSION['language'] = LANGUAGE;
             }
-
         } catch (Throwable $e) {
             // Language selection failed
             if (!defined('LANGUAGE')) {
@@ -1245,6 +1240,7 @@ class Core implements CoreInterface
         // Setup locale and character encoding
         // TODO Check this mess!
         ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
+
         $locale = Config::get('locale', [
             LC_ALL      => ':LANGUAGE_:COUNTRY.UTF8',
             LC_COLLATE  => null,
@@ -1268,6 +1264,7 @@ class Core implements CoreInterface
         } else {
             $language = Config::get('language.default', 'en');
         }
+
         if (isset($_SESSION['location']['country']['code'])) {
             $country = strtoupper($_SESSION['location']['country']['code']);
 
@@ -1296,8 +1293,8 @@ class Core implements CoreInterface
                 continue;
             }
 
-            $value = str_replace(':LANGUAGE', $language, (string) $value);
-            $value = str_replace(':COUNTRY', $country, (string) $value);
+            $value = str_replace(':LANGUAGE', $language, (string)$value);
+            $value = str_replace(':COUNTRY', $country, (string)$value);
 
             setlocale($key, $value);
         }
@@ -1317,17 +1314,18 @@ class Core implements CoreInterface
     {
         // Set system timezone
         $timezone = isset_get($_SESSION['user']['timezone'], Config::get('system.timezone.system', 'UTC'));
+
         try {
-            date_default_timezone_set(DateTimeZone::new($timezone)
-                                                  ->getName());
+            date_default_timezone_set(DateTimeZone::new($timezone)->getName());
 
         } catch (Throwable $e) {
             // Accounts timezone failed, default to UTC
             date_default_timezone_set('UTC');
             Notification::new()
-                        ->setException($e)
-                        ->send();
+                ->setException($e)
+                ->send();
         }
+
         // Set user timezone
         define('TIMEZONE', $timezone);
         ensure_variable($_SESSION['user']['timezone'], 'UTC');
@@ -1337,8 +1335,8 @@ class Core implements CoreInterface
     /**
      * Startup for Command Line Interface
      *
-     * @todo Move this to the CliCommand class
      * @return void
+     * @todo Move this to the CliCommand class
      */
     protected static function startCli(): void
     {
@@ -1358,15 +1356,16 @@ class Core implements CoreInterface
                              ->select('-D,--debug')->isOptional(false)->isBoolean()
                              ->select('-E,--environment', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(64)
                              ->select('-F,--force')->isOptional(false)->isBoolean()
+                             ->select('-G,--prefix')->isOptional(false)->isBoolean()
                              ->select('-H,--help')->isOptional(false)->isBoolean()
                              ->select('-I,--json-input', true)->isOptional()->hasMaxCharacters(8192)
                              ->select('-J,--json-output')->isOptional()->isBoolean()
                              ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
+                             ->select('-M,--very-quiet')->isOptional(false)->isBoolean()
                              ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
                              ->select('-P,--page', true)->isOptional(1)->isDbId()
                              ->select('-Q,--quiet')->isOptional(false)->isBoolean()
-                             ->select('-R,--very-quiet')->isOptional(false)->isBoolean()
-                             ->select('-G,--prefix')->isOptional(false)->isBoolean()
+                             ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
                              ->select('-M,--timeout', true)->isOptional(false)->isInteger()
                              ->select('-N,--no-audio')->isOptional(false)->isBoolean()
                              ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
@@ -1387,6 +1386,7 @@ class Core implements CoreInterface
                              ->select('--no-validation')->isOptional(false)->isBoolean()
                              ->select('--no-password-validation')->isOptional(false)->isBoolean()
                              ->validate(false);
+
 //        $argv = [
 //            'all'                    => false,
 //            'no_color'               => false,
@@ -1423,14 +1423,13 @@ class Core implements CoreInterface
         if ($argv['environment']) {
             // The Environment was manually specified on the command line
             $env = $argv['environment'];
-
         } else {
             // Get environment variable from the shell environment
             $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
         }
 
         if (empty($env)) {
-            Core::requireCliEnvironment((bool) $argv['auto_complete']);
+            Core::requireCliEnvironment((bool)$argv['auto_complete']);
         }
 
         if ($argv['json_input']) {
@@ -1468,10 +1467,10 @@ class Core implements CoreInterface
             // We're in auto complete mode. Show only direct output, don't use any color, don't log to screen
             Log::disableScreen();
 
-            $argv['no_color']      = true;
+            $argv['no_color'] = true;
             $argv['auto_complete'] = explode(' ', trim($argv['auto_complete']));
 
-            $location = (int) array_shift($argv['auto_complete']);
+            $location = (int)array_shift($argv['auto_complete']);
 
             // Reset the $argv array to the auto complete data
             ArgvValidator::hideData($argv['auto_complete']);
@@ -1534,6 +1533,7 @@ class Core implements CoreInterface
 
         if ($argv['no_warnings']) {
             define('NOWARNINGS', true);
+
         } else {
             define('NOWARNINGS', false);
         }
@@ -1556,7 +1556,7 @@ class Core implements CoreInterface
         // Set timeout
         if ($argv['timeout']) {
             // User set timeout
-            static::setTimeout((int) $argv['timeout']);
+            static::setTimeout((int)$argv['timeout']);
 
         } else {
             // Use default timeout
@@ -1645,10 +1645,11 @@ class Core implements CoreInterface
                 Log::warning(tr('Running in DEBUG mode, started @ ":datetime"', [
                     ':datetime' => Date::convert(STARTTIME, 'ISO8601'),
                 ]), 8);
+
                 Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
-                    ':size'    => static::$register['cli']['size'],
+                    ':size' => static::$register['cli']['size'],
                     ':columns' => static::$register['cli']['columns'],
-                    ':lines'   => static::$register['cli']['lines'],
+                    ':lines' => static::$register['cli']['lines'],
                 ]));
             }
         }
@@ -1690,6 +1691,17 @@ class Core implements CoreInterface
             }
         }
 
+        // Switch core to script mode from here so that all functions are available
+        static::$state = 'script';
+
+        if ($argv['rebuild_commands']) {
+            // Rebuild only the "commands" cache
+            static::enableInitState();
+            CliCommand::rebuildCache();
+            CliCommand::setRequireDefault(false);
+            static::disableInitState();
+        }
+
         if ($argv['clear_caches']) {
             // Clear all caches
             static::enableInitState();
@@ -1721,6 +1733,7 @@ class Core implements CoreInterface
      * Applies the JSON arguments in the given argv array
      *
      * @param array $argv
+     *
      * @return array
      */
     protected static function applyJsonArguments(array $argv): array
@@ -1762,16 +1775,15 @@ class Core implements CoreInterface
         }
 
         if ($subkey) {
-            // We want to write to a sub key. Ensure that the key exists and is an array
+            // We want to write to a subkey. Ensure that the key exists and is an array
             if (array_key_exists($key, static::$register)) {
                 if (!is_array(static::$register[$key])) {
                     // Key exists but is not an array so cannot handle sub keys
                     throw new CoreException(tr('Cannot write to register key ":key.:subkey" as register key ":key" already exist as a value instead of an array', [
-                        ':key'   => $key,
+                        ':key' => $key,
                         'subkey' => $subkey,
                     ]));
                 }
-
             } else {
                 // Libraries the register subarray
                 static::$register[$key] = [];
@@ -1794,8 +1806,6 @@ class Core implements CoreInterface
      *
      * @return bool Returns TRUE on success, or FALSE on failure.
      * @see     set_time_limit()
-     * @version 2.7.5: Added function and documentation
-     *
      */
     public static function setTimeout(?int $timeout = null): bool
     {
@@ -1811,6 +1821,20 @@ class Core implements CoreInterface
         }
 
         return set_time_limit($timeout);
+    }
+
+
+    /**
+     * Adds the specified number of seconds to the process timeout
+     *
+     * @param int $timeout The number of extra seconds this script can run until it is aborted automatically
+     *
+     * @return bool Returns TRUE on success, or FALSE on failure.
+     * @see     set_time_limit()
+     */
+    public static function addTimeout(int $timeout): bool
+    {
+        return static::setTimeout(static::getTimeout() + $timeout);
     }
 
 
@@ -2015,7 +2039,7 @@ class Core implements CoreInterface
     protected static function doSleep(int $seconds, int $offset = null): void
     {
         if (Core::$usleep) {
-            // Ups, we were sleeping but it got interrupted. Resume
+            // Ups, we were sleeping, but it got interrupted. Resume
             sleep(Core::$usleep - time() + $offset);
 
         } else {
@@ -2064,7 +2088,7 @@ class Core implements CoreInterface
     protected static function doUsleep(int $micro_seconds, int $offset = null): void
     {
         if (Core::$usleep) {
-            // Ups, we were sleeping but it got interrupted. Resume
+            // Ups, we were sleeping, but it got interrupted. Resume
             usleep(Core::$usleep - (microtime(true) * 1000000) + $offset);
 
         } else {
@@ -2089,7 +2113,7 @@ class Core implements CoreInterface
      */
     public static function setMaintenanceMode(bool $enable): void
     {
-        $enabled   = static::getMaintenanceMode();
+        $enabled = static::getMaintenanceMode();
         $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'maintenance', FsRestrictions::newSystem(true));
 
         if ($enable) {
@@ -2141,7 +2165,7 @@ class Core implements CoreInterface
         }
 
         $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'maintenance', FsRestrictions::newSystem())
-                                ->setAutoMount(false);
+            ->setAutoMount(false);
 
         if ($directory->exists()) {
             // The system is in maintenance mode, show who put it there
@@ -2278,7 +2302,7 @@ class Core implements CoreInterface
         }
 
         if ($readonly) {
-            FsFile::new(DIRECTORY_SYSTEM . 'readonly'  , $restrictions)->delete();
+            FsFile::new(DIRECTORY_SYSTEM . 'readonly', $restrictions)->delete();
             Log::warning(tr('System has been relieved from readonly mode. All write requests will now again be answered, all commands are available'), 10);
         }
 
@@ -2407,7 +2431,7 @@ class Core implements CoreInterface
                 if (!is_array(static::$register[$key])) {
                     // Key exists but is not an array so cannot handle sub keys
                     throw new CoreException(tr('Cannot write to register key ":key.:subkey" as register key ":key" already exist as a value instead of an array', [
-                        ':key'   => $key,
+                        ':key' => $key,
                         'subkey' => $subkey,
                     ]));
                 }
@@ -2711,15 +2735,15 @@ class Core implements CoreInterface
             // Wut? We're not even ready to go! Likely we don't have configuration available, so we cannot even send out
             // notifications. Just crash with a standard PHP exception
             throw PhpException::new('Core startup PHP ERROR: ' . $errstr)
-                              ->setCode($errno)
-                              ->setFile($errfile)
-                              ->setLine($errline);
+                ->setCode($errno)
+                ->setFile($errfile)
+                ->setLine($errline);
         }
 
         throw PhpException::new('PHP ERROR: ' . $errstr)
-                          ->setCode($errno)
-                          ->setFile($errfile)
-                          ->setLine($errline);
+            ->setCode($errno)
+            ->setFile($errfile)
+            ->setLine($errline);
     }
 
 
@@ -2754,7 +2778,7 @@ class Core implements CoreInterface
     {
         static::$shutdown_callbacks[$identifier] = [
             'function' => $function,
-            'data'     => $data,
+            'data' => $data,
         ];
     }
 
@@ -2796,11 +2820,11 @@ class Core implements CoreInterface
 
         if ($limit === -1) {
             // No memory limit configured, just get how much memory we have available in total
-            $free  = Free::new()->free();
+            $free = Free::new()->free();
             $limit = ceil($free['memory']['available'] * .8);
         }
 
-        return (int) floor($limit);
+        return (int)floor($limit);
     }
 
 
@@ -2863,7 +2887,7 @@ class Core implements CoreInterface
         $user = posix_getpwuid(Core::getProcessUid());
 
         if ($user) {
-            return $user['user'];
+            return $user['name'];
         }
 
         return null;
@@ -2947,7 +2971,7 @@ class Core implements CoreInterface
 
         set_exception_handler($enabled ? [
             '\Phoundation\Core\Core',
-            'uncaughtException',
+            'uncaughtExceptionHandler',
         ] : null);
     }
 
@@ -3027,40 +3051,45 @@ class Core implements CoreInterface
     {
         // Don't register warning exceptions
         if (!$e->isWarning()) {
-            if (defined('ENVIRONMENT')) {
-                if ($e instanceof EnvironmentNotExistsException) {
-                    // Don't register the uncaught exception incident, the exception is the environment does not exist
-                    Log::error(tr('Not attempting to register the following uncaught exception incident, environment ":environment" does not exist', [
-                        ':environment' => ENVIRONMENT
-                    ]));
+            if (Core::getReadonly()) {
+                Log::error('Not attempting to register the following uncaught exception incident, system is in readonly mode');
 
-                } else {
-                    // Only notify and register developer incident if we're on production
-                    if (Core::isProductionEnvironment()) {
-                        // We CAN only notify after startup!
-                        if (!static::inStartupState()) {
-                            try {
-                                $e->registerIncident();
+            } else {
+                if (defined('ENVIRONMENT')) {
+                    if ($e instanceof EnvironmentNotExistsException) {
+                        // Don't register the uncaught exception incident, the exception is the environment does not exist
+                        Log::error(tr('Not attempting to register the following uncaught exception incident, environment ":environment" does not exist', [
+                            ':environment' => ENVIRONMENT
+                        ]));
 
-                            } catch (Throwable $f) {
-                                Log::error(tr('Failed to register uncaught exception because of the following exception'));
-                                Log::error($f);
-                            }
+                    } else {
+                        // Only notify and register developer incident if we're on production
+                        if (Core::isProductionEnvironment()) {
+                            // We CAN only notify after startup!
+                            if (!static::inStartupState()) {
+                                try {
+                                    $e->registerIncident(EnumSeverity::severe);
 
-                            try {
-                                $e->getNotificationObject()
-                                  ->send(false);
+                                } catch (Throwable $f) {
+                                    Log::error(tr('Failed to register uncaught exception because of the following exception'));
+                                    Log::error($f);
+                                }
 
-                            } catch (Throwable $f) {
-                                Log::error(tr('Failed to notify developers of uncaught exception because of the following exception'));
-                                Log::error($f);
+                                try {
+                                    $e->getNotificationObject()
+                                      ->send(false);
+
+                                } catch (Throwable $f) {
+                                    Log::error(tr('Failed to notify developers of uncaught exception because of the following exception'));
+                                    Log::error($f);
+                                }
                             }
                         }
                     }
-                }
 
-            } else {
-                Log::error('Not attempting to register the following uncaught exception incident, environment has not yet been defined');
+                } else {
+                    Log::error('Not attempting to register the following uncaught exception incident, environment has not yet been defined');
+                }
             }
         }
     }
@@ -3169,7 +3198,6 @@ class Core implements CoreInterface
                         Log::notice($file, 10);
                     }
                 }
-
             } elseif ($e instanceof CliCommandNotFoundException) {
                 if ($data = $e->getData()) {
                     Log::information('Available sub methods:', 9, echo_prefix: false);
@@ -3182,8 +3210,8 @@ class Core implements CoreInterface
             Core::exit(255);
         }
 
-        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" CLI PLATFORM COMMAND ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
-            ':code'        => $e->getCode(),
+        Log::error(tr('*** UNCAUGHT EXCEPTION ":class" IN ":type" CLI PLATFORM COMMAND ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+            ':class'       => get_class($e),
             ':type'        => Request::getRequestType()->value,
             ':state'       => static::$state,
             ':command'     => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
@@ -3227,8 +3255,8 @@ class Core implements CoreInterface
 
         } else {
             // Log full exception data
-            Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
-                ':code'        => $e->getCode(),
+            Log::error(tr('*** UNCAUGHT EXCEPTION ":class" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+                ':class'       => get_class($e),
                 ':type'        => Request::getRequestType()->value,
                 ':state'       => static::$state,
                 ':command'     => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
@@ -3256,6 +3284,7 @@ class Core implements CoreInterface
                 Notification::new()
                             ->setException($e)
                             ->send();
+
             } else {
                 // System database is not available, we cannot send or store notifications!
                 Log::error('Not sending notification for this uncaught exception, the system database is not available');
@@ -3318,22 +3347,19 @@ class Core implements CoreInterface
                 if ($e->getWarning()) {
                     if ($e instanceof ValidationFailedException) {
                         $message = Strings::force($e->getFailures(), ', ');
-
                     } else {
                         $message = $e->getMessage();
                     }
-
                 } else {
                     $message = tr('Something went wrong on the server, please notify your IT department and try again later');
                 }
 
                 JsonPage::new()
-                    ->addFlashMessageSections(FlashMessage::new()
-                        ->setMode($e->getWarning() ? EnumDisplayMode::warning : EnumDisplayMode::error)
-                        ->setTitle(tr('Error!'))
-                        ->setMessage($message))
-                    ->reply();
-
+                        ->addFlashMessageSections(FlashMessage::new()
+                            ->setMode($e->getWarning() ? EnumDisplayMode::warning : EnumDisplayMode::error)
+                            ->setTitle(tr('Error!'))
+                            ->setMessage($message))
+                        ->reply();
         }
 
         $return = ' <style>
@@ -3382,8 +3408,8 @@ class Core implements CoreInterface
                         <table class="exception">
                             <thead>
                                 <td colspan="2" class="center">
-                                    ' . tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE COMMAND ":command" ***', [
-                                            ':code'    => $e->getCode(),
+                                    ' . tr('*** UNCAUGHT EXCEPTION ":class" IN ":type" TYPE COMMAND ":command" ***', [
+                                            ':class'   => get_class($e),
                                             ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
                                             ':type'    => Request::getRequestType()->value,
                                         ]) . '
@@ -3393,9 +3419,9 @@ class Core implements CoreInterface
                                 <tr>
                                     <td colspan="2" class="center">
                                         ' . tr('An uncaught exception with code ":code" occurred in web page ":command". See the exception core dump below for more information on how to fix this issue', [
-                                                ':code'    => $e->getCode(),
-                                                ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
-                                            ]) . '
+                ':code' => $e->getCode(),
+                ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
+            ]) . '
                                     </td>
                                 </tr>
                                 <tr>
@@ -3443,8 +3469,8 @@ class Core implements CoreInterface
         }
 
         Notification::new()
-                    ->setException($e)
-                    ->send();
+            ->setException($e)
+            ->send();
 
         showdie($e);
     }
@@ -3487,6 +3513,7 @@ class Core implements CoreInterface
                 Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
                     ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
                 ]));
+
                 Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
 
                 Debug::setEnabled(true);
@@ -3503,12 +3530,12 @@ class Core implements CoreInterface
                 if (!Debug::isEnabled()) {
                     if (sql(connect: false)->isConnected()) {
                         Notification::new()
-                                    ->setException($f)
-                                    ->send();
+                            ->setException($f)
+                            ->send();
 
                         Notification::new()
-                                    ->setException($e)
-                                    ->send();
+                            ->setException($e)
+                            ->send();
                     } else {
                         Log::error(tr('Not sending notifications for failed uncaught exception handling, the system database is not available'));
                     }

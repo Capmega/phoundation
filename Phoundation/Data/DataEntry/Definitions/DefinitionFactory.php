@@ -54,7 +54,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getDatabaseId(?DataEntryInterface $data_entry, ?string $column = 'id'): DefinitionInterface
+    public static function newDatabaseId(?DataEntryInterface $data_entry, ?string $column = 'id'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -72,7 +72,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getCategoriesId(?DataEntryInterface $data_entry, ?string $column = 'categories_id', array $filters = null): DefinitionInterface
+    public static function newCategoriesId(?DataEntryInterface $data_entry, ?string $column = 'categories_id', array $filters = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -90,7 +90,12 @@ class DefinitionFactory
                              // Ensure categories id exists and that its or category
                              $validator->orColumn('categories_name')
                                        ->isDbId()
-                                       ->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id']);
+                                       ->isQueryResult('SELECT `id` 
+                                                        FROM   `categories` 
+                                                        WHERE  `id` = :id 
+                                                          AND  `status` IS NULL', [
+                                                              ':id' => '$categories_id'
+                                       ]);
                          });
     }
 
@@ -103,7 +108,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getCategory(?DataEntryInterface $data_entry, ?string $column = 'categories_name'): DefinitionInterface
+    public static function newCategory(?DataEntryInterface $data_entry, ?string $column = 'categories_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -113,19 +118,22 @@ class DefinitionFactory
                          ->setLabel(tr('Category'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
-                                 return Categories::new()
-                                                  ->keepMatchingKeys($word);
+                                 return Categories::new()->keepMatchingKeys($word);
                              },
                              'noword' => function () {
-                                 return Categories::new()
-                                                  ->getSource();
+                                 return Categories::new()->getSource();
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure category exists and that its a category id or category name
                              $validator->orColumn('categories_id')
                                        ->isName()
-                                       ->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':id' => '$categories_name']);
+                                       ->setColumnFromQuery('categories_id', 'SELECT `id` 
+                                                                              FROM   `categories` 
+                                                                              WHERE  `name` = :name 
+                                                                                AND  `status` IS NULL', [
+                                                                                    ':id' => '$categories_name'
+                                       ]);
                          });
     }
 
@@ -139,7 +147,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getServersId(?DataEntryInterface $data_entry, ?string $column = 'servers_id', array $filters = null): DefinitionInterface
+    public static function newServersId(?DataEntryInterface $data_entry, ?string $column = 'servers_id', array $filters = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -157,7 +165,12 @@ class DefinitionFactory
                              // Ensure servers id exists and that its or server
                              $validator->orColumn('servers_name')
                                        ->isDbId()
-                                       ->isQueryResult('SELECT `id` FROM `servers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$servers_id']);
+                                       ->isQueryResult('SELECT `id` 
+                                                        FROM   `servers` 
+                                                        WHERE  `id` = :id
+                                                          AND  `status` IS NULL', [
+                                                              ':id' => '$servers_id'
+                                       ]);
                          });
     }
 
@@ -170,7 +183,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getServer(?DataEntryInterface $data_entry, ?string $column = 'servers_name'): DefinitionInterface
+    public static function newServer(?DataEntryInterface $data_entry, ?string $column = 'servers_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -180,19 +193,22 @@ class DefinitionFactory
                          ->setLabel(tr('Server'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
-                                 return Servers::new()
-                                               ->keepMatchingKeys($word);
+                                 return Servers::new()->keepMatchingKeys($word);
                              },
                              'noword' => function () {
-                                 return Servers::new()
-                                               ->getSource();
+                                 return Servers::new()->getSource();
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure server exists and that its a server id or server name
                              $validator->orColumn('servers_id')
                                        ->isName()
-                                       ->setColumnFromQuery('servers_id', 'SELECT `id` FROM `servers` WHERE `name` = :name AND `status` IS NULL', [':id' => '$servers_name']);
+                                       ->setColumnFromQuery('servers_id', 'SELECT `id` 
+                                                                           FROM   `servers` 
+                                                                           WHERE  `name` = :name 
+                                                                             AND  `status` IS NULL', [
+                                                                                 ':id' => '$servers_name'
+                                       ]);
                          });
     }
 
@@ -205,7 +221,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getParentsId(?DataEntryInterface $data_entry, ?string $column = 'parents_id'): DefinitionInterface
+    public static function newParentsId(?DataEntryInterface $data_entry, ?string $column = 'parents_id'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -222,7 +238,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getParent(?DataEntryInterface $data_entry, ?string $column = 'parents_name'): DefinitionInterface
+    public static function newParent(?DataEntryInterface $data_entry, ?string $column = 'parents_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -242,7 +258,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getCompaniesId(?DataEntryInterface $data_entry, ?string $column = 'companies_id', array $filters = null): DefinitionInterface
+    public static function newCompaniesId(?DataEntryInterface $data_entry, ?string $column = 'companies_id', array $filters = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -260,7 +276,12 @@ class DefinitionFactory
                              // Ensure companies id exists and that its or company
                              $validator->orColumn('companies_name')
                                        ->isDbId()
-                                       ->isQueryResult('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id']);
+                                       ->isQueryResult('SELECT `id` 
+                                                        FROM   `business_companies` 
+                                                        WHERE  `id` = :id 
+                                                          AND  `status` IS NULL', [
+                                                              ':id' => '$companies_id'
+                                       ]);
                          });
     }
 
@@ -273,7 +294,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getCompany(?DataEntryInterface $data_entry, ?string $column = 'companies_name'): DefinitionInterface
+    public static function newCompany(?DataEntryInterface $data_entry, ?string $column = 'companies_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -283,19 +304,22 @@ class DefinitionFactory
                          ->setLabel(tr('Company'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
-                                 return Companies::new()
-                                                 ->keepMatchingKeys($word);
+                                 return Companies::new()->keepMatchingKeys($word);
                              },
                              'noword' => function () {
-                                 return Companies::new()
-                                                 ->getSource();
+                                 return Companies::new()->getSource();
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure company exists and that its or company
                              $validator->orColumn('companies_id')
                                        ->isName()
-                                       ->setColumnFromQuery('companies_id', 'SELECT `id` FROM `business_companies` WHERE `name` = :name AND `status` IS NULL', [':name' => '$companies_name']);
+                                       ->setColumnFromQuery('companies_id', 'SELECT `id` 
+                                                                             FROM   `business_companies` 
+                                                                             WHERE  `name` = :name 
+                                                                               AND  `status` IS NULL', [
+                                                                                   ':name' => '$companies_name'
+                                       ]);
                          });
     }
 
@@ -309,7 +333,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getLanguagesId(?DataEntryInterface $data_entry, ?string $column = 'languages_id', array $filters = null): DefinitionInterface
+    public static function newLanguagesId(?DataEntryInterface $data_entry, ?string $column = 'languages_id', array $filters = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -344,7 +368,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getLanguage(?DataEntryInterface $data_entry, ?string $column = 'languages_name'): DefinitionInterface
+    public static function newLanguage(?DataEntryInterface $data_entry, ?string $column = 'languages_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -355,19 +379,22 @@ class DefinitionFactory
                          ->setLabel(tr('Language'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
-                                 return Languages::new()
-                                                 ->keepMatchingKeys($word);
+                                 return Languages::new()->keepMatchingKeys($word);
                              },
                              'noword' => function () {
-                                 return Languages::new()
-                                                 ->getSource();
+                                 return Languages::new()->getSource();
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure language exists and that its or language
                              $validator->orColumn('languages_id')
                                        ->isName()
-                                       ->setColumnFromQuery('languages_id', 'SELECT `id` FROM `core_languages` WHERE `code_639_1` = :code AND `status` IS NULL', [':code' => '$language']);
+                                       ->setColumnFromQuery('languages_id', 'SELECT `id` 
+                                                                             FROM   `core_languages` 
+                                                                             WHERE  `code_639_1` = :code 
+                                                                               AND  `status` IS NULL', [
+                                                                                   ':code' => '$language'
+                                       ]);
                          });
     }
 
@@ -381,7 +408,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getProvidersId(?DataEntryInterface $data_entry, ?string $column = 'providers_id', array $filters = null): DefinitionInterface
+    public static function newProvidersId(?DataEntryInterface $data_entry, ?string $column = 'providers_id', array $filters = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -399,7 +426,12 @@ class DefinitionFactory
                              // Ensure providers id exists and that its or provider
                              $validator->orColumn('providers_name')
                                        ->isDbId()
-                                       ->isQueryResult('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$providers_id']);
+                                       ->isQueryResult('SELECT `id` 
+                                                        FROM   `business_providers` 
+                                                        WHERE  `id` = :id 
+                                                          AND  `status` IS NULL', [
+                                                              ':id' => '$providers_id'
+                                       ]);
                          });
     }
 
@@ -412,7 +444,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getProvider(?DataEntryInterface $data_entry, ?string $column = 'providers_name'): DefinitionInterface
+    public static function newProvider(?DataEntryInterface $data_entry, ?string $column = 'providers_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -421,19 +453,22 @@ class DefinitionFactory
                          ->setLabel(tr('Provider'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
-                                 return Providers::new()
-                                                 ->keepMatchingKeys($word);
+                                 return Providers::new()->keepMatchingKeys($word);
                              },
                              'noword' => function () {
-                                 return Providers::new()
-                                                 ->getSource();
+                                 return Providers::new()->getSource();
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure provider exists and that its providers id or providers name
                              $validator->orColumn('providers_id')
                                        ->isName()
-                                       ->setColumnFromQuery('providers_id', 'SELECT `id` FROM `business_providers` WHERE `name` = :name AND `status` IS NULL', [':code' => '$providers_name']);
+                                       ->setColumnFromQuery('providers_id', 'SELECT `id` 
+                                                                             FROM   `business_providers` 
+                                                                             WHERE  `name` = :name 
+                                                                               AND  `status` IS NULL', [
+                                                                                   ':code' => '$providers_name'
+                                       ]);
                          });
     }
 
@@ -447,7 +482,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getCustomersId(?DataEntryInterface $data_entry, ?string $column = 'customers_id', array $filters = null): DefinitionInterface
+    public static function newCustomersId(?DataEntryInterface $data_entry, ?string $column = 'customers_id', array $filters = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -465,7 +500,12 @@ class DefinitionFactory
                              // Ensure customers id exists and that its or customer
                              $validator->orColumn('customers_name')
                                        ->isDbId()
-                                       ->isQueryResult('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$customers_id']);
+                                       ->isQueryResult('SELECT `id` 
+                                                        FROM   `business_customers` 
+                                                        WHERE  `id` = :id 
+                                                          AND  `status` IS NULL', [
+                                                              ':id' => '$customers_id'
+                                       ]);
                          });
     }
 
@@ -478,7 +518,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getCustomer(?DataEntryInterface $data_entry, ?string $column = 'customers_name'): DefinitionInterface
+    public static function newCustomer(?DataEntryInterface $data_entry, ?string $column = 'customers_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -487,19 +527,22 @@ class DefinitionFactory
                          ->setLabel(tr('Customer'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
-                                 return Customers::new()
-                                                 ->keepMatchingKeys($word);
+                                 return Customers::new()->keepMatchingKeys($word);
                              },
                              'noword' => function () {
-                                 return Customers::new()
-                                                 ->getSource();
+                                 return Customers::new()->getSource();
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure customer exists and that its or customer
                              $validator->orColumn('customers_id')
                                        ->isName()
-                                       ->setColumnFromQuery('customers_id', 'SELECT `id` FROM `business_customers` WHERE `name` = :name AND `status` IS NULL', [':id' => '$customers_name']);
+                                       ->setColumnFromQuery('customers_id', 'SELECT `id` 
+                                                                             FROM   `business_customers` 
+                                                                             WHERE  `name` = :name 
+                                                                               AND  `status` IS NULL', [
+                                                                                   ':id' => '$customers_name'
+                                       ]);
                          });
     }
 
@@ -513,7 +556,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getTimezonesId(?DataEntryInterface $data_entry, ?string $column = 'timezones_id', array $filters = null): DefinitionInterface
+    public static function newTimezonesId(?DataEntryInterface $data_entry, ?string $column = 'timezones_id', array $filters = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -549,7 +592,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getTimezone(?DataEntryInterface $data_entry, ?string $column = 'timezones_name'): DefinitionInterface
+    public static function newTimezone(?DataEntryInterface $data_entry, ?string $column = 'timezones_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -559,19 +602,22 @@ class DefinitionFactory
                          ->setLabel(tr('Timezone'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
-                                 return Timezones::new()
-                                                 ->keepMatchingKeys($word);
+                                 return Timezones::new()->keepMatchingKeys($word);
                              },
                              'noword' => function () {
-                                 return Timezones::new()
-                                                 ->getSource();
+                                 return Timezones::new()->getSource();
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure timezone exists and that its or timezone
                              $validator->orColumn('timezones_id')
                                        ->isName()
-                                       ->setColumnFromQuery('timezones_id', 'SELECT `id` FROM `geo_timezones` WHERE `name` = :name AND `status` IS NULL', [':name' => '$timezone']);
+                                       ->setColumnFromQuery('timezones_id', 'SELECT `id` 
+                                                                             FROM   `geo_timezones` 
+                                                                             WHERE  `name` = :name 
+                                                                               AND  `status` IS NULL', [
+                                                                                   ':name' => '$timezone'
+                                       ]);
                          });
     }
 
@@ -585,7 +631,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getCountriesId(?DataEntryInterface $data_entry, ?string $column = 'countries_id', array $filters = null): DefinitionInterface
+    public static function newCountriesId(?DataEntryInterface $data_entry, ?string $column = 'countries_id', array $filters = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -605,7 +651,12 @@ class DefinitionFactory
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->orColumn('countries_name')
                                        ->isDbId()
-                                       ->isQueryResult('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
+                                       ->isQueryResult('SELECT `id` 
+                                                        FROM   `geo_countries` 
+                                                        WHERE  `id` = :id 
+                                                          AND  `status` IS NULL', [
+                                                              ':id' => '$countries_id'
+                                       ]);
                          });
     }
 
@@ -618,7 +669,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getCountry(?DataEntryInterface $data_entry, ?string $column = 'countries_name'): DefinitionInterface
+    public static function newCountry(?DataEntryInterface $data_entry, ?string $column = 'countries_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -628,19 +679,22 @@ class DefinitionFactory
                          ->setLabel(tr('Country'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
-                                 return Countries::new()
-                                                 ->keepMatchingKeys($word);
+                                 return Countries::new()->keepMatchingKeys($word);
                              },
                              'noword' => function () {
-                                 return Countries::new()
-                                                 ->getSource();
+                                 return Countries::new()->getSource();
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure country exists and that its or countries_id
                              $validator->orColumn('countries_id')
                                        ->isName(200)
-                                       ->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
+                                       ->setColumnFromQuery('countries_id', 'SELECT `id` 
+                                                                             FROM   `geo_countries` 
+                                                                             WHERE  `name` = :name 
+                                                                               AND  `status` IS NULL', [
+                                                                                   ':name' => '$country'
+                                       ]);
                          });
     }
 
@@ -654,7 +708,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getStatesId(?DataEntryInterface $data_entry, ?string $column = 'states_id', array $filters = null): DefinitionInterface
+    public static function newStatesId(?DataEntryInterface $data_entry, ?string $column = 'states_id', array $filters = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -674,9 +728,13 @@ class DefinitionFactory
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->orColumn('states_name')
                                        ->isDbId()
-                                       ->isQueryResult('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [
-                                           ':id'           => '$states_id',
-                                           ':countries_id' => '$countries_id',
+                                       ->isQueryResult('SELECT `id` 
+                                                        FROM   `geo_states` 
+                                                        WHERE  `id` = :id 
+                                                          AND  `countries_id` = :countries_id 
+                                                          AND  `status` IS NULL', [
+                                                              ':id'           => '$states_id',
+                                                              ':countries_id' => '$countries_id',
                                        ]);
                          });
     }
@@ -690,7 +748,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getState(?DataEntryInterface $data_entry, ?string $column = 'states_name'): DefinitionInterface
+    public static function newState(?DataEntryInterface $data_entry, ?string $column = 'states_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -700,21 +758,23 @@ class DefinitionFactory
                          ->setLabel(tr('State'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
-                                 return States::new()
-                                              ->keepMatchingKeys($word);
+                                 return States::new()->keepMatchingKeys($word);
                              },
                              'noword' => function () {
-                                 return States::new()
-                                              ->getSource();
+                                 return States::new()->getSource();
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure state exists and that its or states_id
                              $validator->orColumn('states_id')
                                        ->isName()
-                                       ->setColumnFromQuery('states_id', 'SELECT `name` FROM `geo_states` WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [
-                                           ':name'         => '$state',
-                                           ':countries_id' => '$countries_id',
+                                       ->setColumnFromQuery('states_id', 'SELECT `name` 
+                                                                          FROM   `geo_states` 
+                                                                          WHERE  `name` = :name 
+                                                                            AND  `countries_id` = :countries_id 
+                                                                            AND  `status` IS NULL', [
+                                                                                ':name'         => '$state',
+                                                                                ':countries_id' => '$countries_id',
                                        ]);
                          });
     }
@@ -729,7 +789,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getCitiesId(?DataEntryInterface $data_entry, ?string $column = 'cities_id', array $filters = null): DefinitionInterface
+    public static function newCitiesId(?DataEntryInterface $data_entry, ?string $column = 'cities_id', array $filters = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -749,9 +809,13 @@ class DefinitionFactory
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->orColumn('cities_name')
                                        ->isDbId()
-                                       ->isQueryResult('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [
-                                           ':id'        => '$cities_id',
-                                           ':states_id' => '$states_id',
+                                       ->isQueryResult('SELECT `id` 
+                                                        FROM   `geo_cities` 
+                                                        WHERE  `id` = :id 
+                                                          AND  `states_name`  = :states_id    
+                                                          AND  `status` IS NULL', [
+                                                              ':id'        => '$cities_id',
+                                                              ':states_id' => '$states_id',
                                        ]);
                          });
     }
@@ -765,7 +829,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getCity(?DataEntryInterface $data_entry, ?string $column = 'cities_name'): DefinitionInterface
+    public static function newCity(?DataEntryInterface $data_entry, ?string $column = 'cities_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -775,21 +839,23 @@ class DefinitionFactory
                          ->setLabel(tr('City'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
-                                 return Cities::new()
-                                              ->keepMatchingKeys($word);
+                                 return Cities::new()->keepMatchingKeys($word);
                              },
                              'noword' => function () {
-                                 return Cities::new()
-                                              ->getSource();
+                                 return Cities::new()->getSource();
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure city exists and that its or cities_id
                              $validator->orColumn('cities_id')
                                        ->isName()
-                                       ->setColumnFromQuery('cities_id', 'SELECT `name` FROM `geo_cities` WHERE `name` = :name AND `states_name`  = :states_id    AND `status` IS NULL', [
-                                           ':name'      => '$city',
-                                           ':states_id' => '$states_id',
+                                       ->setColumnFromQuery('cities_id', 'SELECT `name` 
+                                                                          FROM   `geo_cities` 
+                                                                          WHERE  `name` = :name 
+                                                                            AND  `states_name`  = :states_id    
+                                                                            AND  `status` IS NULL', [
+                                                                                ':name'      => '$city',
+                                                                                ':states_id' => '$states_id',
                                        ]);
                          });
     }
@@ -804,7 +870,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getUsersId(?DataEntryInterface $data_entry, ?string $column = 'users_id', array $filters = null): DefinitionInterface
+    public static function newUsersId(?DataEntryInterface $data_entry, ?string $column = 'users_id', array $filters = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -823,8 +889,11 @@ class DefinitionFactory
                          })
                          ->addValidationFunction(function (ValidatorInterface $validator) use ($column) {
                              $validator->isDbId()
-                                       ->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [
-                                           ':id' => '$' . $column
+                                       ->isQueryResult('SELECT `id` 
+                                                        FROM   `accounts_users` 
+                                                        WHERE  `id` = :id 
+                                                          AND  `status` IS NULL', [
+                                                              ':id' => '$' . $column
                                        ]);
                          });
     }
@@ -838,7 +907,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getId(?DataEntryInterface $data_entry, string $column): DefinitionInterface
+    public static function newId(?DataEntryInterface $data_entry, string $column): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -857,7 +926,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getUsersEmail(?DataEntryInterface $data_entry, ?string $column = 'email'): DefinitionInterface
+    public static function newUsersEmail(?DataEntryInterface $data_entry, ?string $column = 'email'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -868,17 +937,19 @@ class DefinitionFactory
                          ->setLabel(tr('User'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
-                                 return Users::new()
-                                             ->keepMatchingKeys($word);
+                                 return Users::new()->keepMatchingKeys($word);
                              },
                              'noword' => function () {
-                                 return Users::new()
-                                             ->getSource();
+                                 return Users::new()->getSource();
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->orColumn('users_id')
-                                       ->setColumnFromQuery('users_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email', [':email' => '$email']);
+                                       ->setColumnFromQuery('users_id', 'SELECT `id` 
+                                                                         FROM   `accounts_users` 
+                                                                         WHERE  `email` = :email', [
+                                                                             ':email' => '$email'
+                                       ]);
                          });
     }
 
@@ -891,7 +962,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getUsername(?DataEntryInterface $data_entry, ?string $column = 'username'): DefinitionInterface
+    public static function newUsername(?DataEntryInterface $data_entry, ?string $column = 'username'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -912,7 +983,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getRolesId(?DataEntryInterface $data_entry, ?string $column = 'roles_id', array $filters = null): DefinitionInterface
+    public static function newRolesId(?DataEntryInterface $data_entry, ?string $column = 'roles_id', array $filters = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -930,7 +1001,12 @@ class DefinitionFactory
                          })
                          ->addValidationFunction(function (ValidatorInterface $validator) use ($column) {
                              $validator->isDbId()
-                                       ->isQueryResult('SELECT `id` FROM `accounts_roles` WHERE `id` = :id AND `status` IS NULL', [':id' => '$' . $column]);
+                                       ->isQueryResult('SELECT `id` 
+                                                        FROM   `accounts_roles` 
+                                                        WHERE  `id` = :id 
+                                                          AND `status` IS NULL', [
+                                                              ':id' => '$' . $column
+                                       ]);
                          });
     }
 
@@ -943,7 +1019,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getRolesName(?DataEntryInterface $data_entry, ?string $column = 'name'): DefinitionInterface
+    public static function newRolesName(?DataEntryInterface $data_entry, ?string $column = 'name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -954,17 +1030,19 @@ class DefinitionFactory
                          ->setLabel(tr('Role'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
-                                 return Roles::new()
-                                             ->keepMatchingKeys($word);
+                                 return Roles::new()->keepMatchingKeys($word);
                              },
                              'noword' => function () {
-                                 return Roles::new()
-                                             ->getSource();
+                                 return Roles::new()->getSource();
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->orColumn('roles_id')
-                                       ->setColumnFromQuery('roles_id', 'SELECT `id` FROM `accounts_roles` WHERE `name` = :name', [':name' => '$name']);
+                                       ->setColumnFromQuery('roles_id', 'SELECT `id`  
+                                                                         FROM   `accounts_roles` 
+                                                                         WHERE  `name` = :name', [
+                                                                             ':name' => '$name'
+                                       ]);
                          });
     }
 
@@ -977,7 +1055,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getCode(?DataEntryInterface $data_entry, ?string $column = 'code'): DefinitionInterface
+    public static function newCode(?DataEntryInterface $data_entry, ?string $column = 'code'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -999,7 +1077,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getHash(?DataEntryInterface $data_entry, ?string $column = 'hash'): DefinitionInterface
+    public static function newHash(?DataEntryInterface $data_entry, ?string $column = 'hash'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -1021,7 +1099,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getDateTime(?DataEntryInterface $data_entry, ?string $column = 'datetime'): DefinitionInterface
+    public static function newDateTime(?DataEntryInterface $data_entry, ?string $column = 'datetime'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -1039,7 +1117,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getDate(?DataEntryInterface $data_entry, ?string $column = 'date'): DefinitionInterface
+    public static function newDate(?DataEntryInterface $data_entry, ?string $column = 'date'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -1058,7 +1136,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getHostname(?DataEntryInterface $data_entry, ?string $column = 'name'): DefinitionInterface
+    public static function newHostname(?DataEntryInterface $data_entry, ?string $column = 'name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setMaxLength(255)
@@ -1080,7 +1158,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getVariable(?DataEntryInterface $data_entry, ?string $column = 'name'): DefinitionInterface
+    public static function newVariable(?DataEntryInterface $data_entry, ?string $column = 'name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setMaxLength(255)
@@ -1103,7 +1181,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getNumber(?DataEntryInterface $data_entry, ?string $column = 'number', ?int $default = null): DefinitionInterface
+    public static function newNumber(?DataEntryInterface $data_entry, ?string $column = 'number', ?int $default = null): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true, $default)
@@ -1125,7 +1203,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getPassword(?DataEntryInterface $data_entry, ?string $column = 'password'): DefinitionInterface
+    public static function newPassword(?DataEntryInterface $data_entry, ?string $column = 'password'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setMaxLength(255)
@@ -1147,7 +1225,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getTime(?DataEntryInterface $data_entry, ?string $column = 'time'): DefinitionInterface
+    public static function newTime(?DataEntryInterface $data_entry, ?string $column = 'time'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -1166,7 +1244,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getTitle(?DataEntryInterface $data_entry, ?string $column = 'title'): DefinitionInterface
+    public static function newTitle(?DataEntryInterface $data_entry, ?string $column = 'title'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -1189,7 +1267,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getName(?DataEntryInterface $data_entry, ?string $column = 'name'): DefinitionInterface
+    public static function newName(?DataEntryInterface $data_entry, ?string $column = 'name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setMaxLength(128)
@@ -1215,7 +1293,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getFile(?DataEntryInterface $data_entry, ?FsDirectoryInterface $exists_in_directory = null, ?FsDirectoryInterface $prefix = null, ?string $column = 'file'): DefinitionInterface
+    public static function newFile(?DataEntryInterface $data_entry, ?FsDirectoryInterface $exists_in_directory = null, ?FsDirectoryInterface $prefix = null, ?string $column = 'file'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
             ->setMaxLength(2048)
@@ -1241,7 +1319,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getFilename(?DataEntryInterface $data_entry, ?string $column = 'filename'): DefinitionInterface
+    public static function newFilename(?DataEntryInterface $data_entry, ?string $column = 'filename'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
             ->setMaxLength(2048)
@@ -1265,7 +1343,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getEmail(?DataEntryInterface $data_entry, ?string $column = 'email'): DefinitionInterface
+    public static function newEmail(?DataEntryInterface $data_entry, ?string $column = 'email'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -1285,7 +1363,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getUrl(?DataEntryInterface $data_entry, ?string $column = 'url'): DefinitionInterface
+    public static function newUrl(?DataEntryInterface $data_entry, ?string $column = 'url'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -1309,7 +1387,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getIpAddress(?DataEntryInterface $data_entry, ?string $column = 'ip_address'): DefinitionInterface
+    public static function newIpAddress(?DataEntryInterface $data_entry, ?string $column = 'ip_address'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setReadonly(true)
@@ -1329,7 +1407,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getDomain(?DataEntryInterface $data_entry, ?string $column = 'domain'): DefinitionInterface
+    public static function newDomain(?DataEntryInterface $data_entry, ?string $column = 'domain'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setReadonly(true)
@@ -1349,7 +1427,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getPhone(?DataEntryInterface $data_entry, ?string $column = 'phone'): DefinitionInterface
+    public static function newPhone(?DataEntryInterface $data_entry, ?string $column = 'phone'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -1371,7 +1449,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getPhones(?DataEntryInterface $data_entry, ?string $column = 'phones'): DefinitionInterface
+    public static function newPhones(?DataEntryInterface $data_entry, ?string $column = 'phones'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -1398,7 +1476,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getSeoName(?DataEntryInterface $data_entry, ?string $column = 'seo_name'): DefinitionInterface
+    public static function newSeoName(?DataEntryInterface $data_entry, ?string $column = 'seo_name'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setMaxlength(128)
@@ -1416,7 +1494,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getUuid(?DataEntryInterface $data_entry, ?string $column = 'uuid'): DefinitionInterface
+    public static function newUuid(?DataEntryInterface $data_entry, ?string $column = 'uuid'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setReadonly(true)
@@ -1436,7 +1514,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getBoolean(?DataEntryInterface $data_entry, ?string $column): DefinitionInterface
+    public static function newBoolean(?DataEntryInterface $data_entry, ?string $column): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -1457,13 +1535,14 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getData(?DataEntryInterface $data_entry, string $column): DefinitionInterface
+    public static function newData(?DataEntryInterface $data_entry, string $column): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
                          ->setElement(EnumElement::textarea)
                          ->setInputType(EnumInputType::array_json)
                          ->setSize(12)
+                         ->setRows(5)
                          ->setMaxlength(16_777_200)
                          ->setLabel(tr('Data'))
                          ->setCliAutoComplete(true);
@@ -1478,12 +1557,13 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getDescription(?DataEntryInterface $data_entry, ?string $column = 'description'): DefinitionInterface
+    public static function newDescription(?DataEntryInterface $data_entry, ?string $column = 'description'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::description)
                          ->setSize(12)
+                         ->setRows(5)
                          ->setMaxlength(65_535)
                          ->setCliColumn('-d,--description "DESCRIPTION"')
                          ->setCliAutoComplete(true)
@@ -1499,7 +1579,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getContent(?DataEntryInterface $data_entry, ?string $column = 'content'): DefinitionInterface
+    public static function newContent(?DataEntryInterface $data_entry, ?string $column = 'content'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -1520,12 +1600,13 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getComments(?DataEntryInterface $data_entry, ?string $column = 'comments'): DefinitionInterface
+    public static function newComments(?DataEntryInterface $data_entry, ?string $column = 'comments'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::description)
                          ->setSize(12)
+                         ->setRows(5)
                          ->setMaxlength(65_535)
                          ->setCliColumn('--comments "COMMENTS"')
                          ->setCliAutoComplete(true)
@@ -1541,7 +1622,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getButton(?DataEntryInterface $data_entry, ?string $column): DefinitionInterface
+    public static function newButton(?DataEntryInterface $data_entry, ?string $column): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
@@ -1563,7 +1644,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getSubmit(?DataEntryInterface $data_entry, ?string $column): DefinitionInterface
+    public static function newSubmit(?DataEntryInterface $data_entry, ?string $column): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
@@ -1711,6 +1792,159 @@ class DefinitionFactory
      * @return DefinitionInterface
      */
     public static function getDivider(?DataEntryInterface $data_entry, ?string $column = null): DefinitionInterface
+    {
+        if (!$column) {
+            $column = 'divider' . Strings::getUuid();
+        }
+
+        return Definition::new($data_entry, $column)
+                         ->setVirtual(true)
+                         ->setElement(EnumElement::hr)
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             // Nothing to validate, this is not an input
+                             $validator->doNotValidate();
+                         });
+    }
+
+
+    /**
+     * Returns a Definition object for created_by
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newCreatedBy(?DataEntryInterface $data_entry, ?string $column = 'created_by'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+                         ->setDisabled(true)
+                         ->setSize(3)
+                         ->setLabel(tr('Created by'))
+                         ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
+                         ->setInputType(EnumInputType::dbid)
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             $validator->dbIdExists('accounts_users', tr('must be an existing user'));
+                         })
+                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($data_entry) {
+                             if ($data_entry->isNew()) {
+                                 // This is a new DataEntry object, so the creator is.. Well, you!
+                                 return InputText::new()
+                                                 ->setDisabled(true)
+                                                 ->addClasses('text-center')
+                                                 ->setValue(Session::getUserObject()
+                                                     ->getDisplayName());
+                             } else {
+                                 // This is created by a user or by the system user
+                                 if ($source[$key]) {
+                                     return InputText::new()
+                                                     ->setDisabled(true)
+                                                     ->addClasses('text-center')
+                                                     ->setValue(User::load($source[$key])
+                                                         ->getDisplayName());
+                                 } else {
+                                     return InputText::new()
+                                                     ->setDisabled(true)
+                                                     ->addClasses('text-center')
+                                                     ->setValue(tr('System'));
+                                 }
+                             }
+                         });
+    }
+
+
+    /**
+     * Returns a Definition object for created_on
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newCreatedOn(?DataEntryInterface $data_entry, ?string $column = 'created_on'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+                         ->setDisabled(true)
+                         ->setInputType(EnumInputType::datetime_local)
+                         ->setDbNullInputType(EnumInputType::text)
+                         ->addClasses('text-center')
+                         ->setSize(3)
+                         ->setTooltip(tr('This column contains the exact date / time when this object was created'))
+                         ->setLabel(tr('Created on'));
+    }
+
+
+    /**
+     * Returns a Definition object for meta_id
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newMetaId(?DataEntryInterface $data_entry, ?string $column = 'meta_id'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+                         ->setDisabled(true)
+                         ->setRender(false)
+                         ->setInputType(EnumInputType::dbid)
+                         ->setDbNullInputType(EnumInputType::text)
+                         ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
+                         ->setLabel(tr('Meta ID'));
+    }
+
+
+    /**
+     * Returns a Definition object for status
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newStatus(?DataEntryInterface $data_entry, ?string $column = 'status'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+                         ->setOptional(true)
+                         ->setDisabled(true)
+                         ->setInputType(EnumInputType::text)
+                         ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
+                         ->addClasses('text-center')
+                         ->setSize(3)
+                         ->setMaxlength(32)
+                         ->setLabel(tr('Status'));
+    }
+
+
+    /**
+     * Returns a Definition object for meta_state
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newMetaState(?DataEntryInterface $data_entry, ?string $column = 'meta_state'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+                         ->setDisabled(true)
+                         ->setRender(false)
+                         ->setInputType(EnumInputType::text)
+                         ->setTooltip(tr('This column contains a cache identifier value for this object. This information usually is of no importance to normal users'))
+                         ->setLabel(tr('Meta state'));
+    }
+
+
+
+    /**
+     * Returns a Definition object for meta_state
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newDivider(?DataEntryInterface $data_entry, ?string $column = null): DefinitionInterface
     {
         if (!$column) {
             $column = 'divider' . Strings::getUuid();

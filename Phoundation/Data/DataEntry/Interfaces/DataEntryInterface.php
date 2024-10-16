@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Interfaces;
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Data\DataEntry\DataEntryCore;
@@ -359,9 +360,13 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
      *       will not become available outside this object
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
      * @return array
      */
-    public function get(string $key): mixed;
+    public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
 
     /**
      * Sets the value for the specified data key
@@ -651,4 +656,11 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return static
      */
     public function setQueryBuilder(QueryBuilderInterface $query_builder): static;
+
+    /**
+     * Returns a SpreadSheet object with this object's source data in it
+     *
+     * @return SpreadSheetInterface
+     */
+    public function getSpreadSheet(): SpreadSheetInterface;
 }
