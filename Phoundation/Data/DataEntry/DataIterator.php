@@ -140,6 +140,9 @@ class DataIterator extends Iterator implements DataIteratorInterface
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
         parent::__construct($source);
+
+        // If this data iterator had a source specified, consider it loaded
+        $this->is_loaded = (bool) $source;
     }
 
 
@@ -276,6 +279,8 @@ class DataIterator extends Iterator implements DataIteratorInterface
      */
     public function setQuery(?string $query, ?array $execute = null): static
     {
+        unset($this->query_builder);
+
         $this->query   = $query;
         $this->execute = $execute;
 
@@ -527,11 +532,14 @@ class DataIterator extends Iterator implements DataIteratorInterface
      */
     public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface
     {
+Log::checkpoint('aaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+Log::printr($this->is_loaded);
         if ($this->is_loaded) {
             // Source is already loaded, use that
             return parent::getHtmlDataTableObject($columns)->setId(static::getTable());
         }
 
+        // This DataIterator is empty, automatically load
         $this->selectQuery();
 
         $columns = $columns ?? $this->columns;
@@ -1075,6 +1083,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
                 }
             }
 
+            $this->is_loaded = true;
             return $this;
         }
 
@@ -1086,7 +1095,6 @@ class DataIterator extends Iterator implements DataIteratorInterface
         }
 
         $this->is_loaded = true;
-
         return $this;
     }
 
@@ -1184,5 +1192,19 @@ class DataIterator extends Iterator implements DataIteratorInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if this DataIterator has data loaded into it's source
+     *
+     * Data will be considered loaded into the source if either it was specified as a source during constructor, or
+     * whendata was loaded using the DataIterator::load() method
+     *
+     * @return bool
+     */
+    public function isLoaded(): bool
+    {
+        return $this->is_loaded;
     }
 }

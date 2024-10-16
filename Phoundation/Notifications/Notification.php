@@ -606,6 +606,18 @@ FILES variables:
 
         $user = User::load($user);
 
+        if (!Core::isProductionEnvironment()) {
+            if ($user->hasAllRights('developer,test,admin')) {
+                // We're not in production environment, don't send any notifications!
+                Log::warning(tr('Not sending notification ":title" to user ":user" because we are not in production environment', [
+                    ':title' => $this->getTitle(),
+                    ':user'  => $user->getEmail()
+                ]));
+
+                return $this;
+            }
+        }
+
         Pho::new()
            ->setPhoCommands('email send')
            ->addArgument('-h')

@@ -19,6 +19,8 @@ namespace Phoundation\Web\Html\Components\Forms;
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataRequestMethod;
+use Phoundation\Data\Validator\Exception\GetValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Element;
@@ -77,6 +79,13 @@ class Form extends Element implements FormInterface
      */
     protected ?string $rel = null;
 
+    /**
+     * Tracks if current GET variables should be automatically passed along if the form has a GET method
+     *
+     * @var bool $auto_pass_get_variables
+     */
+    protected bool $auto_pass_get_variables = true;
+
 
     /**
      * Form class constructor
@@ -90,6 +99,31 @@ class Form extends Element implements FormInterface
         $this->setRequestMethod(EnumHttpRequestMethod::post)
              ->setElement('form')
              ->setAcceptCharset(Config::get('languages.encoding.', 'utf-8'));
+    }
+
+
+    /**
+     * Returns if current GET variables should be automatically passed along if the form has a GET method
+     *
+     * @return bool
+     */
+    public function getAutoPassGetVariables(): bool
+    {
+        return $this->auto_pass_get_variables;
+    }
+
+
+    /**
+     * Sets if current GET variables should be automatically passed along if the form has a GET method
+     *
+     * @param bool $auto_pass_get_variables
+     *
+     * @return Form
+     */
+    public function setAutoPassGetVariables(bool $auto_pass_get_variables): static
+    {
+        $this->auto_pass_get_variables = $auto_pass_get_variables;
+        return $this;
     }
 
 
@@ -317,8 +351,25 @@ class Form extends Element implements FormInterface
      */
     public function render(): ?string
     {
-        // Ensure the CSRF variable is injected before rendering.
-        $this->content = Csrf::addHiddenElement($this->content);
+        switch ($this->request_method) {
+            case EnumHttpRequestMethod::post:
+                // Ensure the CSRF variable is injected before rendering.
+                $this->content = Csrf::addHiddenElement($this->content);
+                return parent::render();
+
+            case EnumHttpRequestMethod::get:
+                if ($this->auto_pass_get_variables) {
+                    // Automatically add any current GET variables
+                    $get  = GetValidator::getBackup();
+                    $html = null;
+
+                    foreach ($get as $key => $value) {
+                        $html .= '<input type="hidden" name="' . $key . '" value="' . $value . '">';
+                    }
+
+                    $this->content = $html . $this->content;
+                }
+        }
 
         return parent::render();
     }

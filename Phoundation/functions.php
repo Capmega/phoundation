@@ -36,6 +36,7 @@ use Phoundation\Date\Interfaces\DateTimeZoneInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
@@ -228,17 +229,21 @@ function is_enum(mixed $source)
  *
  * @note Internally this function will convert the enum to an array and then use in_array()
  *
- * @param mixed    $needle
- * @param UnitEnum $haystack
- * @param bool     $strict
+ * @param mixed  $needle
+ * @param string $haystack
+ * @param bool   $strict
  *
  * @return bool
  */
-function in_enum(mixed $needle, UnitEnum $haystack, bool $strict = false): bool
+function in_enum(mixed $needle, string $haystack): bool
 {
-    $haystack = Arrays::fromEnum($haystack);
+    try {
+        $haystack::{$needle};
+        return true;
 
-    return in_array($needle, $haystack, $strict);
+    } catch (PhpException) {
+        return false;
+    }
 }
 
 

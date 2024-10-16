@@ -50,28 +50,28 @@ class Url implements UrlInterface
     /**
      * The url to work with
      *
-     * @var string $url
+     * @var string $source
      */
-    protected string $url;
+    protected string $source;
 
 
     /**
      * Url class constructor
      *
-     * @param Stringable|string|null $url
+     * @param Stringable|string|null $source
      */
-    protected function __construct(Stringable|string|null $url = null)
+    protected function __construct(Stringable|string|null $source = null)
     {
-        $url = trim((string) $url);
+        $source = trim((string) $source);
 
         // This is either part of a URL or a complete URL
-        if (!Url::isValid($url)) {
+        if (!Url::isValid($source)) {
             // This is a section
-            $this->url = Strings::ensureStartsNotWith($url, '/');
+            $this->source = Strings::ensureStartsNotWith($source, '/');
 
         } else {
             // This is a valid URL, continue.
-            $this->url = $url;
+            $this->source = $source;
         }
     }
 
@@ -183,7 +183,7 @@ class Url implements UrlInterface
     public function getSource(bool $strip_queries = false): string
     {
         // Auto cloak URL's?
-        $domain = static::getDomainFromUrl($this->url);
+        $domain = static::getDomainFromUrl($this->source);
 
         try {
             if (Domains::getConfigurationKey($domain, 'cloaked')) {
@@ -195,10 +195,10 @@ class Url implements UrlInterface
         }
 
         if ($strip_queries) {
-            return Strings::until($this->url, '?');
+            return Strings::until($this->source, '?');
         }
 
-        return $this->url;
+        return $this->source;
     }
 
 
@@ -244,7 +244,7 @@ class Url implements UrlInterface
                                          FROM   `url_cloaks`
                                          WHERE  `url`        = :url
                                          AND    `created_by` = :created_by', [
-            ':url'        => $this->url,
+            ':url'        => $this->source,
             ':created_by' => isset_get($_SESSION['user']['id']),
         ]);
 
@@ -253,7 +253,7 @@ class Url implements UrlInterface
             sql()->query('UPDATE `url_cloaks` 
                                 SET    `created_on` = NOW() 
                                 WHERE  `url`        = :url', [
-                ':url' => $this->url,
+                ':url' => $this->source,
             ]);
 
         } else {
@@ -262,11 +262,11 @@ class Url implements UrlInterface
                 'created_by' => Session::getUserObject()
                                        ->getId(),
                 'cloak'      => $cloak,
-                'url'        => $this->url,
+                'url'        => $this->source,
             ]);
         }
 
-        $this->url = $cloak;
+        $this->source = $cloak;
 
         return $this;
     }
@@ -903,15 +903,15 @@ class Url implements UrlInterface
     {
         $url = sql()->getColumn('SELECT `created_by`, `url` 
                                        FROM   `url_cloaks` 
-                                       WHERE  `cloak` = :cloak', [':cloak' => $this->url]);
+                                       WHERE  `cloak` = :cloak', [':cloak' => $this->source]);
 
         if (!$url) {
             throw new NotExistsException(tr('The specified cloaked URL ":url" does not exist', [
-                ':url' => $this->url,
+                ':url' => $this->source,
             ]));
         }
 
-        sql()->delete('url_cloaks', [':cloak' => $this->url]);
+        sql()->delete('url_cloaks', [':cloak' => $this->source]);
 
         return $this;
     }
@@ -924,7 +924,7 @@ class Url implements UrlInterface
      */
     public function clearQueries(): static
     {
-        $this->url = Strings::until($this->url, '?');
+        $this->source = Strings::until($this->source, '?');
 
         return $this;
     }
@@ -933,74 +933,35 @@ class Url implements UrlInterface
     /**
      * Remove specified queries from the specified URL and return
      *
-     * @param array|string|bool ...$queries All the queries to add to this URL
+     * @param array|string|null ...$keys All the query keys to add to this URL
      *
      * @return static
      */
-    public function removeQueries(array|string|bool ...$queries): static
+    public function removeQueryKeys(array|string|null ...$keys): static
     {
-        throw new UnderConstructionException();
-        if (!$queries) {
-            throw new OutOfBoundsException(tr('No queries specified to remove from the specified URL'));
+        if (!$keys) {
+            return $this;
         }
-        foreach ($queries as $query) {
-            if (!$query) {
-                continue;
-            }
-            if (is_array($query)) {
-                // The queries were specified as an array. Add each individual entry separately and we're done
-                foreach ($query as $key => &$value) {
-                    $this->addQueries($key . '=' . $value);
-                }
-                continue;
-            }
-            // Break the query up in multiple entries, if specified
-            if (is_string($query) and str_contains($query, '&')) {
-                $query = explode('&', $query);
-                foreach ($query as $key => $value) {
-                    if (is_numeric($key)) {
-                        // $value should contain key=value
-                        static::addQueries($this->url, $value);
 
-                    } else {
-                        static::addQueries($this->url, $key . '=' . $value);
-                    }
-                }
+        // Break the key up in multiple entries, if specified
+        if (is_string($keys)) {
+            if (str_contains($keys, ',')) {
+                return $this->removeQueryKeys(explode(',', $keys));
+            }
+
+            $keys = [$keys];
+        }
+
+        foreach ($keys as $key) {
+            if (!$key) {
                 continue;
             }
-            if ($query === true) {
-                $query = $_SERVER['QUERY_STRING'];
-            }
-            if ($query[0] === '-') {
-                // Remove this query instead of adding it
-                $this->url = preg_replace('/' . substr($query, 1) . '/', '', $this->url);
-                $this->url = str_replace('&&', '', $this->url);
-                $this->url = Strings::ensureEndsNotWith($this->url, [
-                    '?',
-                    '&',
-                ]);
-                continue;
-            }
-            $this->url = Strings::ensureEndsNotWith($this->url, '?');
-            if (!preg_match('/.+?=.*?/', $query)) {
-                throw new OutOfBoundsException(tr('Invalid query ":query" specified. Please ensure it has the "key=value" format', [
-                    ':query' => $query,
-                ]));
-            }
-            $key = Strings::until($query, '=');
-            if (!str_contains($this->url, '?')) {
-                // This URL has no query yet, begin one
-                $this->url .= '?' . $query;
 
-            } elseif (str_contains($this->url, $key . '=')) {
-                // The query already exists in the specified URL, replace it.
-                $replace   = Strings::cut($this->url, $key . '=', '&');
-                $this->url = str_replace($key . '=' . $replace, $key . '=' . Strings::from($query, '='), $this->url);
-
-            } else {
-                // Append the query to the URL
-                $this->url = $this->url . Strings::ensureEndsWith($this->url, '&');
-            }
+            $this->source .= '&';
+            $this->source  = preg_replace('/&'  . $key . '=.+?&/', '' , $this->source);
+            $this->source  = preg_replace('/\?' . $key . '=.+?&/', '?', $this->source);
+            $this->source  = Strings::ensureEndsNotWith($this->source, '&');
+            $this->source  = Strings::ensureEndsNotWith($this->source, '?');
         }
 
         return $this;
@@ -1050,7 +1011,7 @@ class Url implements UrlInterface
                 $query = $_SERVER['QUERY_STRING'];
             }
 
-            $this->url = Strings::ensureEndsNotWith($this->url, '?');
+            $this->source = Strings::ensureEndsNotWith($this->source, '?');
 
             if (!preg_match('/^[a-z0-9-_]+?=.*?$/i', $query)) {
                 throw new OutOfBoundsException(tr('Invalid query ":query" specified. Please ensure it has the "key=value" format', [
@@ -1063,18 +1024,18 @@ class Url implements UrlInterface
             $key   = urlencode($key);
             $value = urlencode($value);
 
-            if (!str_contains($this->url, '?')) {
+            if (!str_contains($this->source, '?')) {
                 // This URL has no query yet, begin one
-                $this->url .= '?' . $key . '=' . $value;
+                $this->source .= '?' . $key . '=' . $value;
 
-            } elseif (str_contains($this->url, $key . '=')) {
+            } elseif (str_contains($this->source, $key . '=')) {
                 // The query already exists in the specified URL, replace it.
-                $replace   = Strings::cut($this->url, $key . '=', '&', false);
-                $this->url = str_replace($key . '=' . $replace, $key . '=' . $value, $this->url);
+                $replace      = Strings::cut($this->source, $key . '=', '&', false);
+                $this->source = str_replace($key . '=' . $replace, $key . '=' . $value, $this->source);
 
             } else {
                 // Append the query to the URL
-                $this->url .= '&' . $key . '=' . $value;
+                $this->source .= '&' . $key . '=' . $value;
             }
         }
 

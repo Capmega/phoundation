@@ -268,11 +268,11 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * This method ensures that the specified array key is a scalar value
      *
-     * @param UnitEnum $enum
+     * @param string $enum
      *
      * @return static
      */
-    public function isInEnum(UnitEnum $enum): static;
+    public function isInEnum(string $enum): static;
 
     /**
      * Ensures that the value has the specified string

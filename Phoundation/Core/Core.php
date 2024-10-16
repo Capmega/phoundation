@@ -292,7 +292,7 @@ class Core implements CoreInterface
         // DIRECTORY_WEB      is the system cache location for all web pages
         // DIRECTORY_COMMANDS is the system cache location for all commands
 
-        define('REQUEST'           , substr(uniqid(), 7));
+        define('REQUEST', substr(uniqid(), 7));
         define('DIRECTORY_START'   , Strings::slash(getcwd()));
         define('DIRECTORY_ROOT'    , realpath(__DIR__ . '/../..') . '/');
         define('DIRECTORY_DATA'    , DIRECTORY_ROOT . 'data/');
@@ -377,8 +377,7 @@ class Core implements CoreInterface
             static::startPlatform();
 
             // Check if we're in readonly mode
-            static::$readonly = (bool) static::getReadonlyMode();
-
+            static::$readonly = (bool)static::getReadonlyMode();
         } catch (Throwable $e) {
             Config::allowNoEnvironment();
             Core::ensureCoreDefines();
@@ -440,11 +439,10 @@ class Core implements CoreInterface
             }
 
             define('PROJECT', $project);
-
         } catch (Throwable $e) {
             static::$failed = true;
 
-            define('PROJECT'          , 'UNKNOWN');
+            define('PROJECT', 'UNKNOWN');
             define('DIRECTORY_PROJECT', DIRECTORY_DATA . 'sources/' . PROJECT . '/');
 
             if ($e instanceof OutOfBoundsException) {
@@ -486,16 +484,16 @@ class Core implements CoreInterface
         // Check what platform we're in
         switch (php_sapi_name()) {
             case 'cli':
-                define('PLATFORM'    , 'cli');
+                define('PLATFORM', 'cli');
                 define('PLATFORM_WEB', false);
                 define('PLATFORM_CLI', true);
                 break;
 
             default:
-                define('PLATFORM'    , 'web');
+                define('PLATFORM', 'web');
                 define('PLATFORM_WEB', true);
                 define('PLATFORM_CLI', false);
-                define('NOCOLOR'     , (getenv('NOCOLOR') ? 'NOCOLOR' : null));
+                define('NOCOLOR', (getenv('NOCOLOR') ? 'NOCOLOR' : null));
                 break;
         }
     }
@@ -520,7 +518,6 @@ class Core implements CoreInterface
             }
 
             static::$state = 'startup';
-
         } catch (ConfigFileDoesNotExistsException $e) {
             throw new EnvironmentNotExistsException(tr('Failed to start platform ":platform", the configured or requested environment ":environment" does not exist', [
                 ':environment' => ENVIRONMENT,
@@ -827,7 +824,7 @@ class Core implements CoreInterface
                                     $function[0]->$function[1]($value);
                                     continue;
                                 }
-
+                                // no break
                             } elseif (is_string($function[0])) {
                                 if (is_string($function[1])) {
                                     // Ensure the class file is loaded
@@ -836,8 +833,11 @@ class Core implements CoreInterface
                                     $function[0]::{$function[1]}($value);
                                     continue;
                                 }
+                                // no break
                             }
+                            // no break
                         }
+                        // no break
                     }
 
                     Log::warning(tr('Unknown function information ":function" encountered, quietly skipping', [
@@ -960,7 +960,6 @@ class Core implements CoreInterface
             foreach (Timers::pop('sql', false) as $timer) {
                 Log::write('[' . number_format($timer->getTotal(), 6) . '] ' . $timer->getLabel(), 'debug', 10);
             }
-
         } else {
             Log::warning('-', 10);
         }
@@ -1082,7 +1081,6 @@ class Core implements CoreInterface
                 // Great! The uncaught exception handler caused an exception itself! Try to log / notify both
                 static::processUncaughtExceptionException($e, $f, $state);
             }
-
         } catch (Throwable $g) {
             // Well, we tried. Here we just give up all together. Just try to log to error_log, then exit the process
             echo 'Fatal error. check data/syslog, application server logs, or webserver logs for more information' . PHP_EOL;
@@ -1220,7 +1218,6 @@ class Core implements CoreInterface
             if (empty($_SESSION['language'])) {
                 $_SESSION['language'] = LANGUAGE;
             }
-
         } catch (Throwable $e) {
             // Language selection failed
             if (!defined('LANGUAGE')) {
@@ -1278,7 +1275,7 @@ class Core implements CoreInterface
         // First set LC_ALL as a baseline, then each entry
         if (isset($locale[LC_ALL])) {
             $locale[LC_ALL] = str_replace(':LANGUAGE', $language, $locale[LC_ALL]);
-            $locale[LC_ALL] = str_replace(':COUNTRY' , $country , $locale[LC_ALL]);
+            $locale[LC_ALL] = str_replace(':COUNTRY', $country, $locale[LC_ALL]);
 
             setlocale(LC_ALL, $locale[LC_ALL]);
             unset($locale[LC_ALL]);
@@ -1296,8 +1293,8 @@ class Core implements CoreInterface
                 continue;
             }
 
-            $value = str_replace(':LANGUAGE', $language, (string) $value);
-            $value = str_replace(':COUNTRY' , $country , (string) $value);
+            $value = str_replace(':LANGUAGE', $language, (string)$value);
+            $value = str_replace(':COUNTRY', $country, (string)$value);
 
             setlocale($key, $value);
         }
@@ -1432,7 +1429,7 @@ class Core implements CoreInterface
         }
 
         if (empty($env)) {
-            Core::requireCliEnvironment((bool) $argv['auto_complete']);
+            Core::requireCliEnvironment((bool)$argv['auto_complete']);
         }
 
         if ($argv['json_input']) {
@@ -1470,10 +1467,10 @@ class Core implements CoreInterface
             // We're in auto complete mode. Show only direct output, don't use any color, don't log to screen
             Log::disableScreen();
 
-            $argv['no_color']      = true;
+            $argv['no_color'] = true;
             $argv['auto_complete'] = explode(' ', trim($argv['auto_complete']));
 
-            $location = (int) array_shift($argv['auto_complete']);
+            $location = (int)array_shift($argv['auto_complete']);
 
             // Reset the $argv array to the auto complete data
             ArgvValidator::hideData($argv['auto_complete']);
@@ -1559,7 +1556,7 @@ class Core implements CoreInterface
         // Set timeout
         if ($argv['timeout']) {
             // User set timeout
-            static::setTimeout((int) $argv['timeout']);
+            static::setTimeout((int)$argv['timeout']);
 
         } else {
             // Use default timeout
@@ -1610,7 +1607,7 @@ class Core implements CoreInterface
             }
 
             define('LANGUAGE', $language);
-            define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
+            define('LOCALE', $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
 
             $_SESSION['language'] = $language;
 
@@ -1787,7 +1784,6 @@ class Core implements CoreInterface
                         'subkey' => $subkey,
                     ]));
                 }
-
             } else {
                 // Libraries the register subarray
                 static::$register[$key] = [];
@@ -1836,9 +1832,8 @@ class Core implements CoreInterface
      * @return bool Returns TRUE on success, or FALSE on failure.
      * @see     set_time_limit()
      */
-    public static function addTimeout(int $timeout = null): bool
+    public static function addTimeout(?int $timeout = null): bool
     {
-        return static::setTimeout(static::getTimeout() + $timeout);
     }
 
 
@@ -1997,6 +1992,33 @@ class Core implements CoreInterface
     }
 
 
+//    /**
+//     * Allows to change the Core class state
+//     *
+//     * @note This method only allows a change to the states "error" or "phperror"
+//     * @param string|null $state
+//     * @return void
+//     */
+//    public static function setState(#[ExpectedValues(values: ['error', 'phperror'])] ?string $state): void
+//    {
+//        switch ($state) {
+//            case 'startup':
+//                // no break
+//            case 'script':
+//                // no break
+//            case 'shutdown':
+//                // These are not allowed
+//                throw new OutOfBoundsException(tr('Core state update to ":state" is not allowed. Core state can only be updated to "error" or "phperror"', [
+//                    ':state' => $state
+//                ]));
+//
+//            default:
+//                // Wut?
+//                throw new OutOfBoundsException(tr('Unknown core state ":state" specified. Core state can only be updated to "error" or "phperror"', [
+//                    ':state' => $state
+//                ]));
+//        }
+//    }
     /**
      * Implementation of the sleep() method that is process interrupt signal safe.
      *
@@ -2142,7 +2164,7 @@ class Core implements CoreInterface
         }
 
         $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'maintenance', FsRestrictions::newSystem())
-                                ->setAutoMount(false);
+            ->setAutoMount(false);
 
         if ($directory->exists()) {
             // The system is in maintenance mode, show who put it there
@@ -2517,6 +2539,96 @@ class Core implements CoreInterface
     }
 
 
+    //    /**
+//     * ???
+//     *
+//     * @param string $section
+//     * @param bool $writable
+//     * @return string
+//     */
+//    public static function getGlobalDataDirectory(string $section = '', bool $writable = true): string
+//    {
+//        // First find the global data path.
+//        // For now, either the same height as this project, OR one up the filesystem tree
+//        $directories = [
+//            '/var/lib/data/',
+//            '/var/www/data/',
+//            DIRECTORY_ROOT . '../data/',
+//            DIRECTORY_ROOT . '../../data/'
+//        ];
+//
+//        if (!empty($_SERVER['HOME'])) {
+//            // Also check the users home directory
+//            $directories[] = $_SERVER['HOME'] . '/projects/data/';
+//            $directories[] = $_SERVER['HOME'] . '/data/';
+//        }
+//
+//        $found = false;
+//
+//        foreach ($directories as $directory) {
+//            if (file_exists($directory)) {
+//                $found = $directory;
+//                break;
+//            }
+//        }
+//
+//        if ($found) {
+//            // Cleanup path. If realpath fails, we know something is amiss
+//            if (!$found = realpath($found)) {
+//                throw new CoreException(tr('Found directory ":directory" failed realpath() check', [
+//                    ':directory' => $directory
+//                ]));
+//            }
+//        }
+//
+//        if (!$found) {
+//            if (!PLATFORM_CLI) {
+//                throw new CoreException('Global data path not found');
+//            }
+//
+//            try {
+//                Log::warning(tr('Warning: Global data path not found. Normally this path should exist either 1 directory up, 2 directories up, in /var/lib/data, /var/www/data, $USER_HOME/projects/data, or $USER_HOME/data'));
+//                Log::warning(tr('Warning: If you are sure this simply does not exist yet, it can be created now automatically. If it should exist already, then abort this script and check the location!'));
+//
+//                // TODO Do this better, this is crap
+//                $directory = Process::newCliScript('base/init_global_data_path')->executeReturnArray();
+//
+//                if (!file_exists($directory)) {
+//                    // Something went wrong and it was not created anyway
+//                    throw new CoreException(tr('Configured directory ":directory" was created but it could not be found', [
+//                        ':directory' => $directory
+//                    ]));
+//                }
+//
+//                // Its now created! Strip "data/"
+//                $directory = Strings::slash($directory);
+//
+//            } catch (Exception $e) {
+//                throw new CoreException('get_global_data_path(): Global data path not found, or init_global_data_path failed / aborted', $e);
+//            }
+//        }
+//
+//        // Now check if the specified section exists
+//        if ($section and !file_exists($directory . $section)) {
+//            Directory::ensure($directory . $section);
+//        }
+//
+//        if ($writable and !is_writable($directory . $section)) {
+//            throw new CoreException(tr('The global directory ":directory" is not writable', [
+//                ':directory' => $directory . $section
+//            ]));
+//        }
+//
+//        if (!$global_path = realpath($directory . $section)) {
+//            // Curious, the path exists, but realpath failed and returned false. This should never happen since we
+//            // ensured the path above! This is just an extra check in case of.. Weird problems :)
+//            throw new CoreException(tr('The found global data directory ":directory" is invalid (realpath returned false)', [
+//                ':directory' => $directory
+//            ]));
+//        }
+//
+//        return Strings::slash($global_path);
+//    }
     /**
      * Returns true if the system is shutting down
      *
@@ -2622,15 +2734,15 @@ class Core implements CoreInterface
             // Wut? We're not even ready to go! Likely we don't have configuration available, so we cannot even send out
             // notifications. Just crash with a standard PHP exception
             throw PhpException::new('Core startup PHP ERROR: ' . $errstr)
-                              ->setCode($errno)
-                              ->setFile($errfile)
-                              ->setLine($errline);
+                ->setCode($errno)
+                ->setFile($errfile)
+                ->setLine($errline);
         }
 
         throw PhpException::new('PHP ERROR: ' . $errstr)
-                          ->setCode($errno)
-                          ->setFile($errfile)
-                          ->setLine($errline);
+            ->setCode($errno)
+            ->setFile($errfile)
+            ->setLine($errline);
     }
 
 
@@ -2711,7 +2823,7 @@ class Core implements CoreInterface
             $limit = ceil($free['memory']['available'] * .8);
         }
 
-        return (int) floor($limit);
+        return (int)floor($limit);
     }
 
 
@@ -2973,7 +3085,6 @@ class Core implements CoreInterface
                             }
                         }
                     }
-
                 } else {
                     Log::error('Not attempting to register the following uncaught exception incident, environment has not yet been defined');
                 }
@@ -3085,7 +3196,6 @@ class Core implements CoreInterface
                         Log::notice($file, 10);
                     }
                 }
-
             } elseif ($e instanceof CliCommandNotFoundException) {
                 if ($data = $e->getData()) {
                     Log::information('Available sub methods:', 9, echo_prefix: false);
@@ -3107,6 +3217,15 @@ class Core implements CoreInterface
         ]));
 
         Log::error($e);
+
+        //                        Log::error();
+        //                        Log::write(tr('Extended trace:'), 'debug', 10, false);
+        //                        Log::write(print_r($e->getTrace(), true), 'debug', 10, false);
+        //                        Log::error();
+        //                        Log::write(tr('Super extended trace:'), 'debug', 10, false);
+        //                        Log::write(print_r(debug_backtrace(), true), 'debug', 10, false);
+        //                        Log::printr(debug_backtrace());
+
         Core::exit(1);
     }
 

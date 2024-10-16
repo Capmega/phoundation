@@ -1731,7 +1731,10 @@ class Log
         }
 
         if (empty($messages)) {
-            if (($messages !== 0) and ($messages !== 0.0)) {
+            if (is_bool($messages)) {
+                $messages = Strings::fromBoolean($messages);
+
+            } elseif (($messages !== 0) and ($messages !== 0.0)) {
                 $messages = '-';
             }
         }
@@ -1755,7 +1758,7 @@ class Log
      */
     public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        $query = SqlQueries::renderQueryString($query, $execute);
+        $query = SqlQueries::renderQueryString($query, $execute, true);
         $query = Strings::ensureEndsWith($query, ';');
 
         return static::write('SQL QUERY: ' . $query, 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);

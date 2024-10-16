@@ -435,6 +435,9 @@ class SqlQueries
         $query = trim($query);
 
         if ($clean) {
+            // Remove whitespace and comments
+            $query = preg_replace('/#.+\n/', '', $query);
+            $query = preg_replace('/--.+\n/', '', $query);
             $query = Strings::cleanWhiteSpace($query);
         }
 
