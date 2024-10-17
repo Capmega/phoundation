@@ -57,7 +57,7 @@ $argv = ArgvValidator::new()
 
 
 // Rebuild Hook cache
-Libraries::rebuildHookCache();
+Libraries::rebuildHooksCache();
 
 
 // Try to auto commit the cache rebuild

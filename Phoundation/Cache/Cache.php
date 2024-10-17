@@ -16,10 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Cache;
 
-use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
-use Phoundation\Core\Hooks\Hook;
-use Phoundation\Core\Hooks\Hooks;
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
@@ -30,11 +28,9 @@ use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Tests\Tests;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
-use Phoundation\Web\Web;
 
 
 class Cache
@@ -64,10 +60,11 @@ class Cache
         }
 
         // Clear web cache, but rebuild (clear & build) command cache as we will ALWAYS need commands available
-        Web::rebuildCache();
-        Hooks::rebuildCache();
-        Tests::rebuildCache();
-        CliCommand::rebuildCache();
+        Libraries::rebuildWebCache();
+        Libraries::rebuildHooksCache();
+        Libraries::rebuildCronCache();
+        Libraries::rebuildTestsCache();
+        Libraries::rebuildCommandsCache();
 
         Log::action(tr('Clearing file caches'), 3);
 
