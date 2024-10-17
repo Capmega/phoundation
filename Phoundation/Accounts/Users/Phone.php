@@ -263,6 +263,7 @@ class Phone extends DataEntry implements PhoneInterface
                                            ->setHelpText(tr('The date when this user was phone verified. Empty if not yet verified')))
 
                     ->add(Definition::new($this, 'delete')
+                                    ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setInputType(EnumInputType::submit)
                                     ->setSize(2)

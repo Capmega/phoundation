@@ -1801,7 +1801,7 @@ class User extends DataEntry implements UserInterface
         try {
             $authentication = Authentication::new()->setAction(EnumAuthenticationAction::authentication);
 
-            static::doAuthenticate($this->source['email'], $password, isset_get($this->source['domain']), $authentication, true);
+            static::doAuthenticate(['email' => $this->source['email']], $password, $authentication, isset_get($this->source['domain']), true);
             throw new PasswordNotChangedException(tr('The specified password is the same as the current password'));
 
         } catch (AuthenticationException) {

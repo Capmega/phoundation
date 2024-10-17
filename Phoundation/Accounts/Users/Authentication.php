@@ -436,10 +436,12 @@ class Authentication extends DataEntry implements AuthenticationInterface
         // Ensure status will be limited to the defined possible states
         $definitions->get('status')->setDataSource(static::getStatuses());
 
-        $definitions->add(DefinitionFactory::newCreatedBy($this))
+        $definitions->add(DefinitionFactory::newCreatedBy($this)
+                                           ->setOptional(true))
 
                     ->add(Definition::new($this, 'account')
                                     ->setLabel(tr('Used user account'))
+                                    ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setMaxlength(128)
                                     ->setSize(6))

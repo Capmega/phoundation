@@ -29,6 +29,7 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
+use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -535,12 +536,10 @@ class Users extends DataIterator implements UsersInterface
     /**
      * Returns Users list object with users for the specified role.
      *
-     * Will throw an NotEx
-     *
      * @param RoleInterface|Stringable|string $role
      *
      * @return static
-     * @throws SqlMultipleResultsException, NotExistsException
+     * @throws SqlMultipleResultsException
      */
     public function loadForRole(RoleInterface|Stringable|string $role): static
     {
