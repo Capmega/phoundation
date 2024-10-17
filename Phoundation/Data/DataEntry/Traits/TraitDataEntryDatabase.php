@@ -22,22 +22,22 @@ trait TraitDataEntryDatabase
     /**
      * Returns the database for this object
      *
-     * @return string|null
+     * @return string|int|null
      */
-    public function getDatabase(): ?string
+    public function getDatabase(): string|int|null
     {
-        return $this->getTypesafe('string', 'database');
+        return $this->getTypesafe('string|int', 'database');
     }
 
 
     /**
      * Sets the database for this object
      *
-     * @param string|null $database
+     * @param string|int|null $database
      *
      * @return static
      */
-    public function setDatabase(?string $database): static
+    public function setDatabase(string|int|null $database): static
     {
         return $this->set($database, 'database');
     }
