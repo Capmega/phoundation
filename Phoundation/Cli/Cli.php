@@ -271,7 +271,7 @@ class Cli
             case 'normal':
                 // Display header
                 if ($key_header and $value_header) {
-                    Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key_header, $key_size), 'white') . ' ' . $value_header);
+                    Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key_header, $key_size), 'cyan') . ' ' . CliColor::apply($value_header, 'cyan'));
                 }
 
                 // Display source

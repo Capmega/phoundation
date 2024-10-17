@@ -7,6 +7,10 @@
  * Taken from
  * http://www.if-not-true-then-false.com/2010/php-class-for-coloring-php-command-line-cli-scripts-output-php-output-colorizing-using-bash-shell-colors/
  *
+ * @see https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences
+ *
+ * @todo Improve to full color using https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences
+ *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -38,6 +42,8 @@ class CliColor
         'success'      => '0;32',
         'light_green'  => '1;32',
         'cyan'         => '0;36',
+        'orange'       => '0;33',
+        'magenta'      => '0;35',
         'action'       => '0;36',
         'light_cyan'   => '1;36',
         'red'          => '0;31',
@@ -51,7 +57,7 @@ class CliColor
         'light_gray'   => '0;37',
         'white'        => '1;37',
         'info'         => '1;37',
-        'information'  => '1;37',
+        'information'  => '3;37',
     ];
 
     /**
@@ -69,6 +75,7 @@ class CliColor
         'magenta'    => '45',
         'cyan'       => '46',
         'light_gray' => '47',
+        'orange'     => '43',
     ];
 
 
@@ -90,23 +97,29 @@ class CliColor
             // Do NOT apply color
             return $source;
         }
+
         $return = '';
+
         // Validate the specified foreground and background colors
         if (!array_key_exists($foreground_color, static::$available_foreground_colors)) {
             throw new CliColorException(tr('The specified foreground color ":color" does not exist', [
                 ':color' => $foreground_color,
             ]));
         }
+
         if (!array_key_exists($background_color, static::$available_background_colors)) {
             throw new CliColorException(tr('The specified background color ":color" does not exist', [
                 ':color' => $background_color,
             ]));
         }
+
         // Apply colors
         $return .= "\033[" . static::$available_foreground_colors[$foreground_color] . "m";
         $return .= "\033[" . static::$available_background_colors[$background_color] . "m";
+
         // Add the specified string that should be colored and the coloring reset tag
         $return .= $source;
+
         if ($reset) {
             $return .= static::getColorReset();
         }

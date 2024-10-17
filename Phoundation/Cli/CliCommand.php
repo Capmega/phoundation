@@ -757,8 +757,6 @@ class CliCommand
                 // See if the command execution should be stopped for some reason.
                 static::limitCommand(isset_get($parameters['limit']), isset_get($parameters['reason']));
 
-                global $argv;
-                $argv['help'] = true;
                 static::documentation();
                 CliAutoComplete::ensureAvailable();
                 exit();
@@ -1068,6 +1066,11 @@ GLOBAL SYSTEM ARGUMENTS
             
             
 ') . static::getHelpGlobalArguments(), false);
+
+            Log::cli(tr('This is the Phoundation CLI command "pho". It can be used to execute all internal Phoundation commands. 
+For more basic information please execute the command ./pho intro which will print an introduction text to Phoundation
+For details about system command line parameters, try executing ./pho -H, or for command specific parameters, try ./pho command [... command] -H
+For usage examples, try ./pho -U, or ./pho command [... command] -U'));
         }
     }
 
