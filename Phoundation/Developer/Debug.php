@@ -134,28 +134,51 @@ class Debug
     /**
      * Returns a backtrace
      *
-     * @param string|int     $start
-     * @param array|string[] $remove_sections
+     * @param string|int|null $start       Either a positive number indicating what parts of the backtrace to skip, or
+     *                                     one of "auto" or "script", which will return the backtrace until where the
+     *                                     script started
+     * @param string|int|null $stop        Either a positive number indicating until what part of the backtrace to
+     *                                     return, or "auto" or "script", which will return the backtrace from where the
+     *                                     script started
+     * @param array|string[]  $remove_keys The backtrace call data keys that should be removed, defaults to
+     *                                     ["args", "object"]
      *
      * @return array
      */
-    public static function getBacktrace(string|int $start = 1, array|string $remove_sections = ['args', 'object']): array
+    public static function getBacktrace(string|int|null $start = null, string|int|null $stop = null, array|string $remove_keys = ['args', 'object']): array
     {
-        $trace           = [];
-        $remove_sections = Arrays::force($remove_sections);
+        $trace       = [];
+        $remove_keys = Arrays::force($remove_keys);
+
+        if (is_numeric($start) and ($start < 0)) {
+            throw new OutOfBoundsException(tr('Invalid backtrace start ":start" specified. Must be a positive integer or one of "auto", "script"', [
+                ':start' => $start,
+            ]));
+        }
+
+        if (is_numeric($stop) and ($stop < 0)) {
+            throw new OutOfBoundsException(tr('Invalid backtrace stop ":stop" specified. Must be a positive integer or one of "auto", "script"', [
+                ':stop' => $stop,
+            ]));
+        }
 
         foreach (debug_backtrace() as $key => $value) {
             if ($start) {
                 if (is_string($start)) {
-                    if ($start === 'auto') {
-                        if (str_contains($value['file'], 'functions.php') and str_contains($value['function'], 'include(')) {
-                            break;
-                        }
+                    switch ($start) {
+                        case 'auto':
+                            // no break
+                        case 'script':
+                            if (str_contains($value['file'], 'functions.php') and str_contains($value['function'], 'include(')) {
+                                break 2;
+                            }
 
-                    } else {
-                        throw new OutOfBoundsException(tr('Invalid backtrace start ":start" specified. Must be a positive integer or "auto"', [
-                            ':start' => $start,
-                        ]));
+                            break;
+
+                        default:
+                            throw new OutOfBoundsException(tr('Invalid backtrace start ":start" specified. Must be a positive integer or "auto"', [
+                                ':start' => $start,
+                            ]));
                     }
 
                 } elseif ($key < $start) {
@@ -164,7 +187,7 @@ class Debug
                 }
             }
 
-            foreach ($remove_sections as $section) {
+            foreach ($remove_keys as $section) {
                 unset($value[$section]);
             }
 

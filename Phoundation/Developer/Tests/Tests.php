@@ -14,29 +14,38 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Tests;
+namespace Phoundation\Developer\Tests;
 
 use Phoundation\Core\Libraries\Libraries;
-use Phoundation\Core\Log\Log;
+use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
-
 
 class Tests
 {
     /**
+     * Start running PHPUnit tests
+     *
      * @return void
      */
-    public static function startPhpUnitTests(): void
+    public static function start(): void
     {
+        // No update unit tests cache
+        static::rebuildCache();
+
         // First try loading all classes, plugins, and templates to see if there are any syntax errors
         Libraries::loadAllPhoundationClassesIntoMemory();
         Libraries::loadAllPluginClassesIntoMemory();
-        // No update unit tests cache
-        static::rebuildCache();
-        // Now run unit tests
-        Log::action(tr('Executing unit tests'));
-        Process::new('phpunit')
-               ->executePassthru();
+
+        try {
+            Process::new(DIRECTORY_ROOT . 'vendor/bin/phpunit')
+                   ->setExecutionDirectory(FsDirectory::newRootObject())
+                   ->execute(EnumExecuteMethod::passthru);
+
+        } catch (ProcessFailedException $e) {
+            throw $e->makeWarning();
+        }
     }
 
 
