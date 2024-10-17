@@ -406,24 +406,6 @@ interface TaskInterface extends DataEntryInterface
 
 
     /**
-     * Returns access restrictions for this task
-     *
-     * @return FsRestrictions|null
-     */
-    public function getRestrictions(): ?FsRestrictions;
-
-
-    /**
-     * Sets access restrictions for this task
-     *
-     * @param FsRestrictionsInterface|array|string|null $restrictions
-     *
-     * @return static
-     */
-    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions): static;
-
-
-    /**
      * Returns packages required for this task
      *
      * @return string|null

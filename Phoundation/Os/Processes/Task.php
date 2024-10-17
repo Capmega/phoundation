@@ -31,6 +31,8 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntrySpent;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryStart;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryStop;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryValues;
+use Phoundation\Data\Traits\TraitDataEntryRestrictions;
+use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
@@ -68,6 +70,8 @@ class Task extends DataEntry implements TaskInterface
     use TraitDataEntryTask;
     use TraitDataEntryValues;
     use TraitDataEntryWorkers;
+    use TraitDataEntryRestrictions;
+
 
     /**
      * Cached parent Task object
@@ -321,19 +325,6 @@ class Task extends DataEntry implements TaskInterface
     public function setPipe(?string $pipe): static
     {
         return $this->set($pipe, 'pipe');
-    }
-
-
-    /**
-     * Sets access restrictions for this task
-     *
-     * @param FsRestrictionsInterface|array|string|null $restrictions
-     *
-     * @return static
-     */
-    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions): static
-    {
-        return $this->set($restrictions, 'restrictions');
     }
 
 
@@ -909,17 +900,6 @@ class Task extends DataEntry implements TaskInterface
     public function getCommand(): ?string
     {
         return $this->getTypesafe('string', 'command');
-    }
-
-
-    /**
-     * Returns access restrictions for this task
-     *
-     * @return string|null
-     */
-    public function getRestrictions(): ?string
-    {
-        return $this->getTypesafe('string', 'restrictions');
     }
 
 
