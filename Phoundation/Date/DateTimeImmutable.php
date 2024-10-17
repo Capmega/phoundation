@@ -49,9 +49,11 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
     public static function new(Date|DateTime|string $datetime = 'now', \DateTimeZone|DateTimeZone|string|null $timezone = null): static
     {
         $timezone = get_null($timezone);
+
         if (is_string($timezone)) {
             $timezone = new DateTimeZone($timezone);
         }
+
         if (is_object($datetime)) {
             // Return a new DateTime object with the specified date in the specified timezone
             return new static($datetime->format('Y-m-d H:i:s.v.u'), $timezone);
@@ -139,6 +141,8 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
     /**
      * Returns a new DateTime object with the specified timezone
      *
+     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     *
      * @return static
      */
     public function setTimezone(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
@@ -149,5 +153,27 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns a new DateTimeImmutable object for the start of this day
+     *
+     * @return static
+     */
+    public function getDayStart(): static
+    {
+        return DateTimeImmutable::new($this->format('Y-m-d 00:00:00'), $this->getTimezone());
+    }
+
+
+    /**
+     * Returns a new DateTimeImmutable object for the end of this day
+     *
+     * @return static
+     */
+    public function getDayStop(): static
+    {
+        return DateTimeImmutable::new($this->format('Y-m-d 23:59:59.999999'), $this->getTimezone());
     }
 }
