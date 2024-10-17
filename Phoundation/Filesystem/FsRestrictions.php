@@ -28,6 +28,7 @@ use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Exception\WriteRestrictionsException;
 use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Web;
@@ -103,6 +104,45 @@ class FsRestrictions implements FsRestrictionsInterface
     public static function new(Stringable|string|array|null $directories = null, bool $write = false, ?string $label = null): static
     {
         return new static($directories, $write, $label);
+    }
+
+
+    /**
+     * Imports the restrictions data array into a new restrictions object and returns it
+     *
+     * @param array|string $source
+     *
+     * @return FsRestrictions
+     */
+    public static function newFromImport(array|string $source): static
+    {
+        if (is_string($source)) {
+            $source = Json::decode($source);
+        }
+
+        return FsRestrictions::new()->setSource($source);
+    }
+
+
+    /**
+     * Exports this "restrictions" object to an array
+     *
+     * @return array
+     */
+    public function exportToArray(): array
+    {
+        return $this->source;
+    }
+
+
+    /**
+     * Exports this "restrictions" object to a JSON string
+     *
+     * @return string
+     */
+    public function exportToString(): string
+    {
+        return Json::encode($this->exportToArray());
     }
 
 

@@ -527,7 +527,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
             } else {
                 Log::warning(tr('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
                     ':file' => $this->source . $file,
-                ]));
+                ]), 2);
             }
 
             // Return original file mode

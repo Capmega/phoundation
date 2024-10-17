@@ -49,23 +49,23 @@ class FsDuplicates extends Iterator implements FsDuplicatesInterface
     protected FsFilesInterface $deleted_files;
 
     /**
-     * The parent object that generated this FsDuplicates object
+     * The parent_directory object that generated this FsDuplicates object
      *
-     * @var FsDirectoryInterface
+     * @var FsDirectoryInterface $parent_directory
      */
-    protected ?FsDirectoryInterface $parent;
+    protected FsDirectoryInterface $parent_directory;
 
 
     /**
      * FsDuplicates class constructor
      *
-     * @param FsDirectoryInterface|null                        $parent
+     * @param FsDirectoryInterface|null                        $parent_directory
      * @param IteratorInterface|array|string|PDOStatement|null $source
      */
-    public function __construct(?FsDirectoryInterface $parent, IteratorInterface|array|string|PDOStatement|null $source = null)
+    public function __construct(?FsDirectoryInterface $parent_directory, IteratorInterface|array|string|PDOStatement|null $source = null)
     {
         $this->setAcceptedDataTypes(FsFilesInterface::class);
-        $this->parent = $parent;
+        $this->parent_directory = $parent_directory;
         parent::__construct($source);
     }
 
@@ -75,9 +75,9 @@ class FsDuplicates extends Iterator implements FsDuplicatesInterface
      *
      * @return FsDirectoryInterface|null
      */
-    public function getPArent(): ?FsDirectoryInterface
+    public function getParentDirectory(): ?FsDirectoryInterface
     {
-        return $this->parent;
+        return $this->parent_directory;
     }
 
 
@@ -121,7 +121,7 @@ class FsDuplicates extends Iterator implements FsDuplicatesInterface
      */
     public function deleteKeepFirst(): static
     {
-        $this->deleted_files = new FsFiles($this->parent);
+        $this->deleted_files = new FsFiles($this->parent_directory);
 
         foreach ($this->source as $files) {
             $first = true;
