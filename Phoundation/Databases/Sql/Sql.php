@@ -2037,7 +2037,7 @@ class Sql implements SqlInterface
      *
      * @param FsFileInterface $file
      *
-     * @return void
+     * @return static
      */
     public function import(FsFileInterface $file): static
     {

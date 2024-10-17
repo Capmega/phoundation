@@ -231,7 +231,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     function getDisplayName(): string
     {
-        return $this->getType() . ':' . $this->getUsername() . '@' . $this->getHostname() . '/' . $this->getDatabase();
+        return $this->getLogId();
     }
 
 
@@ -588,8 +588,12 @@ class Connector extends DataEntry implements ConnectorInterface
             'host'           => $this->getHostname(),
             'port'           => $this->getPort() ?? 6379,
             'options'        => null,
-            'driver_options' => null,
             'database'       => $this->getDatabase(),
+            'timeout'        => 0,
+            'persistent_id'  => null,
+            'retry_interval' => 0,
+            'read_timeout'   => 0,
+            'context'        => [],
         ];
     }
 

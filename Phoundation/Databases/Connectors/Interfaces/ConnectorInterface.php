@@ -157,21 +157,23 @@ interface ConnectorInterface extends DataEntryInterface
      */
     public function setTimezonesName(?string $timezones_name): static;
 
+
     /**
      * Returns the database for this object
      *
-     * @return string|null
+     * @return string|int|null
      */
-    public function getDatabase(): ?string;
+    public function getDatabase(): string|int|null;
+
 
     /**
      * Sets the database for this object
      *
-     * @param string|null $database
+     * @param string|int|null $database
      *
      * @return static
      */
-    public function setDatabase(?string $database): static;
+    public function setDatabase(string|int|null $database): static;
 
     /**
      * Returns the character_set for this object
