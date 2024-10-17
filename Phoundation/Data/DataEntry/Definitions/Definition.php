@@ -599,19 +599,6 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns if this definition is for the specified column
-     *
-     * @param string|null $column
-     *
-     * @return bool
-     */
-    public function isColumn(?string $column): bool
-    {
-        return ($this->getColumn() === $column);
-    }
-
-
-    /**
      * Sets the column name for this definition
      *
      * @return string|null
@@ -2696,8 +2683,8 @@ class Definition implements DefinitionInterface
                   ->select($column, !$bool);
 
         // Should this value be forced NULL in the database if empty?
-        if ($this->getNullDefault()) {
-            if (!$validator->get($column)) {
+        if (!$validator->get($column)) {
+            if ($this->getNullDefault()) {
                 // Yep!
                 $validator->set(null, $column);
             }
@@ -2708,21 +2695,51 @@ class Definition implements DefinitionInterface
             if ($this->getReadonly() or $this->getDisabled()) {
                 // This column CAN be submitted, but will not be modified, so validation is not required
                 // This behavior changes if a static value was specified, though, check that here.
-                if (!$this->setStaticValue($validator, $prefix, $column)) {
+                if (!$this->processStaticValue($validator, $prefix, $column)) {
                     // Yeah, just your standard "readonly / disabled" column, do not validate it
                     $validator->doNotValidate();
                     return false;
                 }
             }
 
-            if (!$this->getRender()) {
-                // This column isn't rendered (so not sent to the user) which means that it CANNOT be submitted.
-                // If the user submitted it, they're messing around, don't allow it!
-                if ($validator->get($column)) {
-                    // This column isn't rendered and should not have a value whilst applying unless forced processing.
-                    if (!$this->getForcedProcessing()) {
-                        // Frack...
-                        Incident::new()
+            $this->processAppliedNotRendering($validator, $prefix, $column);
+
+        } else {
+            // Do not validate this column, does this column require a static value?
+            $this->setNoValidation(true);
+            $this->processStaticValue($validator, $prefix, $column);
+        }
+
+        if ($this->processNoValidationOrDefaults($validator, $prefix, $column)) {
+            // Apply all other validations
+            foreach ($this->validations as $validation) {
+                $validation($validator);
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Process not rendering columns
+     *
+     * @param ValidatorInterface $validator
+     * @param string|null        $prefix
+     * @param string             $column
+     *
+     * @return void
+     */
+    protected function processAppliedNotRendering(ValidatorInterface $validator, ?string $prefix, string $column): void
+    {
+        if (!$this->getRender()) {
+            // This column isn't rendered (so not sent to the user) which means that it CANNOT be submitted.
+            // If the user submitted it, they're messing around, don't allow it!
+            if ($validator->get($column)) {
+                // This column isn't rendered and should not have a value whilst applying unless forced processing.
+                if (!$this->getForcedProcessing()) {
+                    // Frack...
+                    Incident::new()
                             ->setSeverity(EnumSeverity::high)
                             ->setType('Non rendered data submitted')
                             ->setTitle(tr('User submitted column ":column" which was not rendered and MAY NOT be specified', [
@@ -2735,32 +2752,21 @@ class Definition implements DefinitionInterface
                             ->notifyRoles('security')
                             ->save();
 
-                        $validator->addFailure(tr('The field ":field" is unknown', [':field' => $column]));
-                    }
+                    $validator->addFailure(tr('The field ":field" is unknown', [':field' => $column]));
                 }
-
-                // Does this column require a static value?
-                $this->setStaticValue($validator, $prefix, $column);
             }
 
-        } else {
+            // Do not validate this column
+            $this->setNoValidation(true);
+
             // Does this column require a static value?
-            $this->setStaticValue($validator, $prefix, $column);
+            $this->processStaticValue($validator, $prefix, $column);
         }
-
-        if ($this->applyNoValidationOrDefaults($validator, $prefix, $column)) {
-            // Apply all other validations
-            foreach ($this->validations as $validation) {
-                $validation($validator);
-            }
-        }
-
-        return true;
     }
 
 
     /**
-     * Applies novalidation or default values
+     * Applies no-validation or default values
      *
      * @param ValidatorInterface $validator
      * @param string|null        $prefix
@@ -2768,7 +2774,7 @@ class Definition implements DefinitionInterface
      *
      * @return bool
      */
-    protected function applyNoValidationOrDefaults(ValidatorInterface $validator, ?string $prefix, string $column): bool
+    protected function processNoValidationOrDefaults(ValidatorInterface $validator, ?string $prefix, string $column): bool
     {
         if ($this->getNoValidation() or $this->getIgnored()) {
             // Don't perform validations, or ignore the column completely
@@ -2805,7 +2811,7 @@ class Definition implements DefinitionInterface
      *
      * @return bool
      */
-    protected function setStaticValue(ValidatorInterface $validator, ?string $prefix, string $column): bool
+    protected function processStaticValue(ValidatorInterface $validator, ?string $prefix, string $column): bool
     {
         if ($this->getValue()) {
             // For buttons, value is the button label, NOT THE DEFAULT VALUE!

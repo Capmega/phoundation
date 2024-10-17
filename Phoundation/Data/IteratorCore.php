@@ -217,6 +217,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
         $this->checkDataType($value);
 
+        // If the value is a DataEntry object, make sure its saved
+        if ($value instanceof DataEntryInterface) {
+            if (!$value->isSaved()) {
+                $value->save();
+            }
+        }
+
         // NULL keys will be added as numerical "next" entries
         if ($key === null) {
             $key = $this->fetchKeyFromValue($value);
@@ -365,6 +372,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         $this->checkDataType($value);
+
+        // If the value is a DataEntry object, make sure its saved
+        if ($value instanceof DataEntryInterface) {
+            if (!$value->isSaved()) {
+                $value->save();
+            }
+        }
 
         // NULL keys will be added as numerical "first" entries
         if ($key === null) {
@@ -1499,8 +1513,8 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Returns value for the specified key
      *
-     * @param Stringable|string|float|int $key $key
-     * @param bool                  $exception
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
      *
      * @return mixed
      */

@@ -748,7 +748,9 @@ class DataIterator extends Iterator implements DataIteratorInterface
 
 
     /**
-     * Add the specified data entry to the data list
+     * Add the specified data entry to the end of the source list
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
@@ -766,7 +768,57 @@ class DataIterator extends Iterator implements DataIteratorInterface
             }
         }
 
-        if (!$value instanceof DataEntryInterface) {
+        $key = $this->prepareValue($value, $key, $skip_null_values);
+
+        return parent::append($value, $key, $skip_null_values, $exception);
+    }
+
+
+    /**
+     * Add the specified data entry to the beginning of the source list
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                      $value
+     * @param Stringable|string|int|null $key
+     * @param bool                       $skip_null_values
+     * @param bool                       $exception
+     *
+     * @return static
+     */
+    public function prepend(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null_values) {
+                return $this;
+            }
+        }
+
+        $key = $this->prepareValue($value, $key, $skip_null_values);
+
+        return parent::prepend($value, $key, $skip_null_values, $exception);
+    }
+
+
+    /**
+     * Prepares the value to be added to the source
+     *
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool                             $skip_null_values
+     *
+     * @return string
+     */
+    public function prepareValue(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true): string
+    {
+        // If the value is a DataEntry object, make sure its saved
+        if ($value instanceof DataEntryInterface) {
+            if (!$value->isSaved()) {
+                $value->save();
+            }
+
+        } else {
             // Value might be NULL if we skip NULLs?
             if (($value !== null) or !$skip_null_values) {
                 if (is_data_scalar($value)) {
@@ -837,7 +889,7 @@ class DataIterator extends Iterator implements DataIteratorInterface
             }
         }
 
-        return parent::append($value, $key, $skip_null_values, $exception);
+        return $key;
     }
 
 
