@@ -41,6 +41,4 @@ class Cron
     {
         Libraries::rebuildCronCache();
     }
-
-
 }
