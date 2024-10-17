@@ -267,6 +267,13 @@ class Core implements CoreInterface
      */
     protected static bool $ignore_readonly = false;
 
+    /**
+     * Tracks if we're running unit tests
+     *
+     * @var bool $unit_test_mode
+     */
+    protected static bool $unit_test_mode = false;
+
 
     /**
      * Core class constructor
@@ -3746,5 +3753,29 @@ class Core implements CoreInterface
             default:
                 $child_callback($pid);
         }
+    }
+
+
+    /**
+     * Returns the value of the Unit Testing Mode flag
+     *
+     * @return bool
+     */
+    public static function getUnitTestMode(): bool
+    {
+        return static::$unit_test_mode;
+    }
+
+
+    /**
+     * Sets or unsets the Unit Testing Mode flag
+     *
+     * @param bool $mode
+     *
+     * @return void
+     */
+    public static function setUnitTestMode(bool $mode): void
+    {
+        static::$unit_test_mode = $mode;
     }
 }
