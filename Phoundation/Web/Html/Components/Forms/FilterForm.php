@@ -210,7 +210,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         $definition = $this->definitions->get($key, false);
 
         if (!$definition?->getRender()) {
-            // NOTE: Non rendered elements will always return null
+            // NOTE: Non-rendered elements will always return null
             return null;
         }
 
@@ -352,7 +352,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
         } else {
             // Only return the split date range if the date range itself is set too
-            if (parent::get('date_range')) {
+            if (parent::get('date_range', false)) {
                 return $this->get('date_range_split');
             }
         }
@@ -373,8 +373,8 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         static $return;
 
         if (!isset($return)) {
-            $range = parent::get('date_range');
-            $split = parent::get('date_range_split');
+            $range = parent::get('date_range'      , false);
+            $split = parent::get('date_range_split', false);
 
             if ($range and $split) {
                 $return = DateTime::getBeginningOfDay($split[0], $timezone);
@@ -400,8 +400,8 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         static $return;
 
         if (!isset($return)) {
-            $range = parent::get('date_range');
-            $split = parent::get('date_range_split');
+            $range = parent::get('date_range'      , false);
+            $split = parent::get('date_range_split', false);
 
             if ($range and $split) {
                 $return = DateTime::getEndOfDay($split[1], $timezone);

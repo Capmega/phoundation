@@ -353,4 +353,20 @@ interface InputSelectInterface extends ResourceElementInterface
      * @return static
      */
     public function setSize(?int $size): static;
+
+    /**
+     * Returns the data column that will contain the values. If not specified, the first column will be assumed
+     *
+     * @return string|null
+     */
+    public function getValueColumn(): ?string;
+
+    /**
+     * Sets the data column that will contain the values. If not specified, the first column will be assumed
+     *
+     * @param string|null $value_column
+     *
+     * @return static
+     */
+    public function setValueColumn(?string $value_column): static;
 }

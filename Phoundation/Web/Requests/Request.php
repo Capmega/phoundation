@@ -1858,10 +1858,10 @@ class Request implements RequestInterface
      * Returns a validated useragent
      *
      * @todo Implement useragent validation
-     * @return string
+     * @return string|null
      */
-    public static function getUserAgent(): string
+    public static function getUserAgent(): ?string
     {
-        return $_SERVER['HTTP_USER_AGENT'];
+        return isset_get($_SERVER['HTTP_USER_AGENT']);
     }
 }
