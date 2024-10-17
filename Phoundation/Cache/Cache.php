@@ -22,7 +22,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
-use Phoundation\Databases\Redis;
+use Phoundation\Databases\Redis\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Filesystem\FsDirectory;
@@ -31,7 +31,6 @@ use Phoundation\Filesystem\FsRestrictions;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
-
 
 class Cache
 {
