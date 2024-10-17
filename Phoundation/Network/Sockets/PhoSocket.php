@@ -37,10 +37,9 @@ class PhoSocket
     /**
      * The actual PHP socket interface
      *
-     * @var \Socket $resource
+     * @var \Socket|null $resource
      */
-    protected \Socket $resource;
-
+    protected ?\Socket $resource;
 
     /**
      * @var EnumNetworkSocketDomain $domain Should be set to one of the php predefined constants for Sockets -
@@ -60,21 +59,13 @@ class PhoSocket
      */
     protected int $protocol;
 
-    
+
     /**
-     * Sets up the Socket Resource and stores it in the local map.
      *
-     * <p>This class uses the <a href="https://en.wikipedia.org/wiki/Factory_(object-oriented_programming)">
-     * Factory pattern</a> to create instances. Please use the <code>create</code> method to create new instances
-     * of this class.
      *
-     * @param \Socket $resource The php socket resource. This is just a reference to the socket object created
-     *                          using the <code>socket_create</code> method.
-     *
-     * @see PhoSocket::create()
-     *
+     * @param \Socket|null $resource
      */
-    protected function __construct(\Socket $resource)
+    public function __construct(?\Socket $resource = null)
     {
         $this->resource = $resource;
     }
@@ -149,8 +140,10 @@ class PhoSocket
      * Sets the resource / socket object for this socket
      *
      * @param \Socket $resource
+     *
+     * @return PhoSocket
      */
-    public function setResource(\Socket $resource): static
+    protected function setResource(\Socket $resource): static
     {
         $this->resource = $resource;
         return $this;
@@ -182,15 +175,18 @@ class PhoSocket
      */
     public function accept(): static
     {
-        $return = socket_accept($this->resource);
+        $resource = socket_accept($this->resource);
 
-        if ($return === false) {
-            throw SocketException::new(tr('Failed to accept '))->setData([
+        if ($resource === false) {
+            throw SocketException::new(tr('Failed to accept connection from ":interface::port"', [
+                ':interface' => $this->interface,
+                ':port'      => $this->port
+            ]))->setData([
                 'socket' => $this->getSource(),
             ]);
         }
 
-        return new static($return);
+        return new static($resource);
     }
 
 
@@ -223,17 +219,22 @@ class PhoSocket
     /**
      * Close the socket.
      *
-     * <p>Closes the php socket resource currently in use and removes the reference to it in the internal map.</p>
+     * This method closes the php socket resource currently in use and removes the reference to it in the internal map.
+     *
+     * @return void
+     *
+     * @throws SocketException
      */
     public function close(): void
     {
         try {
             socket_close($this->resource);
 
-        } catch (Error $e) {
-            if (!str_contains($e->getMessage(), 'has already been closed')) {
-                throw $e;
-            }
+        } catch (\Throwable $e) {
+            throw new SocketException(tr('Failed to close socket ":interface::port"', [
+                ':interface' => $this->interface,
+                ':port'      => $this->port,
+            ]), $e);
         }
     }
 

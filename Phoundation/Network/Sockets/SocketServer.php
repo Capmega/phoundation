@@ -10,6 +10,7 @@
  *
  * @author    Navarr Barnier https://tiktok.com/@nyavarr, https://tiktok.com/@nyavarr, http://navarr.me/
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ *
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
