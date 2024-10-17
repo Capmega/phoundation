@@ -479,7 +479,8 @@ class Incident extends DataEntry implements IncidentInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::newCreatedBy($this))
+        $definitions->add(DefinitionFactory::newCreatedBy($this)
+                                           ->setOptional(true))
 
                     ->add(Definition::new($this, 'type')
                                     ->setLabel(tr('Incident type'))
