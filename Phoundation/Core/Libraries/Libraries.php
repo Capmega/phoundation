@@ -88,7 +88,8 @@ class Libraries
      */
     public static function reset(): void
     {
-        Log::warning('Executing system reset, dropping all databases!');
+        Log::warning('Executing system reset, dropping all init enabled databases!');
+        Log::warning('Check your configuration to see which databases are configured with the init flag!');
 
         $connectors = Config::getArray('databases.connectors');
 
@@ -120,7 +121,7 @@ class Libraries
                 case 'mongo':
                 case 'redis':
                 case 'elasticsearch':
-                    Log::error(tr('Ignoring connector ":driver", support for required driver ":driver" is under construction', [
+                    Log::error(tr('Ignoring connector ":connector", support for required driver ":driver" is under construction', [
                         ':driver'    => $configuration['driver'],
                         ':connector' => $connector,
                     ]));
@@ -165,14 +166,6 @@ class Libraries
         Tmp::clear();
         Core::enableInitState();
 
-        try {
-            // Wipe all cache data
-            Cache::clear();
-
-        } catch (ConfigPathDoesNotExistsException $e) {
-            Log::warning($e->getMessage());
-        }
-
         // Ensure the system database exists
         static::ensureSystemsDatabaseAccessible();
 
@@ -197,6 +190,14 @@ class Libraries
                             'comment'   => $comments,
                         ])
                         ->send();
+        }
+
+        try {
+            // Wipe all cache data
+            Cache::clear();
+
+        } catch (ConfigPathDoesNotExistsException $e) {
+            Log::warning($e->getMessage());
         }
     }
 
@@ -562,7 +563,7 @@ class Libraries
      *
      * @return void
      */
-    public static function rebuildHookCache(): void
+    public static function rebuildHooksCache(): void
     {
         static::clearHooksCache();
 
@@ -583,7 +584,7 @@ class Libraries
         }
 
         foreach (static::listLibraries() as $library) {
-            $library->rebuildHookCache($cache, $temporary);
+            $library->rebuildHooksCache($cache, $temporary);
         }
 
         $target = FsFile::new(DIRECTORY_ROOT . 'hooks', FsRestrictions::newRoot(true))->delete();

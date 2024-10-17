@@ -734,7 +734,7 @@ class Library implements LibraryInterface
         $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library does not have a web/ directory, we're fine
+            // This library does not have a commands/ directory, we're fine
             return;
         }
 
@@ -751,9 +751,9 @@ class Library implements LibraryInterface
      * @return void
      * @todo Add support for hook sharing!
      */
-    public function rebuildHookCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
+    public function rebuildHooksCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
     {
-        Log::action(tr('Rebuilding hook cache for library ":library"', [
+        Log::action(tr('Rebuilding hooks cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
@@ -762,7 +762,7 @@ class Library implements LibraryInterface
         $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library does not have a web/ directory, we're fine
+            // This library does not have a hooks/ directory, we're fine
             return;
         }
 
@@ -809,7 +809,7 @@ class Library implements LibraryInterface
      */
     public function rebuildTestsCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
     {
-        Log::action(tr('Rebuilding web page cache for library ":library"', [
+        Log::action(tr('Rebuilding tests cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
@@ -818,7 +818,35 @@ class Library implements LibraryInterface
         $path         = FsDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library does not have a web/ directory, we're fine
+            // This library does not have a tests/ directory, we're fine
+            return;
+        }
+
+        $path->symlinkTreeToTarget($cache, $tmp, rename: true);
+    }
+
+
+    /**
+     * Ensures that the Library/cron directory contents are symlinked in DIRECTORY_SYSTEM/cache/system/cron
+     *
+     * @param FsDirectoryInterface $cache
+     * @param FsDirectoryInterface $tmp
+     *
+     * @return void
+     * @todo Add support for command sharing!
+     */
+    public function rebuildCronCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
+    {
+        Log::action(tr('Rebuilding cron cache for library ":library"', [
+            ':library' => $this->getName(),
+        ]), 3);
+
+        $path         = Strings::slash($this->directory) . 'Library/cron/';
+        $restrictions = FsRestrictions::newWritable([$path, DIRECTORY_TMP]);
+        $path         = FsDirectory::new($path, $restrictions);
+
+        if (!$path->exists()) {
+            // This library does not have a cron/ directory, we're fine
             return;
         }
 

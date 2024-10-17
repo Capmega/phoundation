@@ -18,8 +18,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Tests\Tests;
-
+use Phoundation\Developer\Tests\Tests;
 
 CliDocumentation::setUsage('./pho system test [OPTIONS]
 ./pho system test --unit');

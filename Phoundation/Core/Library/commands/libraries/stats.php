@@ -110,7 +110,7 @@ if ($argv['library']) {
         $statistics[$type]['total_statistics']['size'] = Numbers::getHumanReadableBytes($statistics[$type]['total_statistics']['size']);
 
         Log::cli(' ');
-        Log::cli(CliColor::apply(tr('Statistics for ":type" libraries:', [':type' => $type]), 'white'));
+        Log::cli(CliColor::apply(tr('Statistics for ":type" libraries:', [':type' => $type]), 'information'));
         Cli::displayForm($statistics[$type]['total_statistics']);
         Log::cli(' ');
     }

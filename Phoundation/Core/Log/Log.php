@@ -1078,7 +1078,7 @@ class Log
             static::write(tr('Script    : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
             static::write(Request::getExecutedPath(true), $class, $threshold, true, true, false, $echo_screen);
             static::write(tr('Location  : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-            static::write($exception->getFile() . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
+            static::write(Strings::from($exception->getFile(), DIRECTORY_ROOT) . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
 
             // Log the exception data, the trace, and previous exception, if any.
             static::logExceptionTrace($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);

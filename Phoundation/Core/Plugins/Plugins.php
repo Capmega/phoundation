@@ -462,17 +462,18 @@ class Plugins extends DataIterator implements PluginsInterface
     public static function getEnabled(): IteratorInterface
     {
         $return = sql()->list('SELECT   `id`, 
-                                              `name`,
-                                              `status`, 
-                                              `priority`, 
-                                              `vendor`, 
-                                              `class`, 
-                                              `directory`,
-                                              NULL AS `blacklisted`
-                                     FROM     `core_plugins` 
-                                     WHERE    `name`    != "Phoundation"
-                                     AND      `status`  IS NULL 
-                                     ORDER BY `priority` ASC');
+                                        `name`,
+                                        `status`, 
+                                        `priority`, 
+                                        `vendor`, 
+                                        `class`, 
+                                        `directory`,
+                                        NULL AS `blacklisted`
+
+                               FROM     `core_plugins` 
+                               WHERE    `name`    != "Phoundation"
+                               AND      `status`  IS NULL 
+                               ORDER BY `priority` ASC');
 
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
@@ -514,16 +515,17 @@ class Plugins extends DataIterator implements PluginsInterface
     public static function getAvailable(): IteratorInterface
     {
         $return = sql()->list('SELECT   `id`, 
-                                              `name`, 
-                                              `status`, 
-                                              `priority`, 
-                                              `vendor`, 
-                                              `class`, 
-                                              `directory`,
-                                              NULL AS `blacklisted`
-                                     FROM     `core_plugins`
-                                     WHERE    `name` != "Phoundation" 
-                                     ORDER BY `priority` ASC');
+                                        `name`, 
+                                        `status`, 
+                                        `priority`, 
+                                        `vendor`, 
+                                        `class`, 
+                                        `directory`,
+                                        NULL AS `blacklisted`
+
+                               FROM     `core_plugins`
+                               WHERE    `name` != "Phoundation" 
+                               ORDER BY `priority` ASC');
 
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
