@@ -105,7 +105,7 @@ class Schema implements SchemaInterface
             $database = Config::getString('databases.connectors.system.database');
         }
 
-        // If we don't have this database yet, create it now
+        // If we don't have this database object  yet, create it now
         if (!array_key_exists($database, $this->databases)) {
             $this->databases[$database] = new Database($database, $this->sql, $this);
         }

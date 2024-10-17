@@ -26,7 +26,6 @@ use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Timers;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -43,7 +42,6 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Databases\Sql\Exception\SqlServerNotAvailableException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
-use Phoundation\Databases\Sql\Interfaces\SqlDataEntryInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
@@ -52,9 +50,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Enums\EnumFileOpenMode;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Servers\Servers;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -1284,6 +1280,11 @@ class Sql implements SqlInterface
 
         $database = $this->getDatabaseName($database);
 
+        if ($database === $this->getCurrentDatabase()) {
+            // We're already using this database, no need to switch
+            return $this;
+        }
+
         Log::action(tr('(:uniqueid) Using database ":database"', [
             ':uniqueid' => $this->uniqueid,
             ':database' => $database,
@@ -1364,8 +1365,8 @@ class Sql implements SqlInterface
             $update = SqlQueries::getUpdateKeyValues($update);
 
             $this->query('INSERT INTO            `' . $table . '` (' . $columns . ') 
-                                VALUES                                  (' . $keys . ') 
-                                ON DUPLICATE KEY UPDATE ' . $update, $values);
+                          VALUES                                  (' . $keys . ') 
+                          ON DUPLICATE KEY UPDATE ' . $update, $values);
 
         } else {
             // Build bound variables for query
@@ -2015,4 +2016,32 @@ class Sql implements SqlInterface
     //        throw new SqlException(tr('Failed'), $e);
     //    }
     //}
+
+
+    /**
+     * Connects to this database and executes a test query
+     *
+     * @param FsFileInterface $file
+     *
+     * @return static
+     */
+    public function export(FsFileInterface $file): static
+    {
+        throw new UnderConstructionException();
+        // TODO: Implement export() method.
+    }
+
+
+    /**
+     * Import data from specified file
+     *
+     * @param FsFileInterface $file
+     *
+     * @return void
+     */
+    public function import(FsFileInterface $file): static
+    {
+        throw new UnderConstructionException();
+        // TODO: Implement import() method.
+    }
 }

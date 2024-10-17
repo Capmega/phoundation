@@ -374,17 +374,6 @@ interface SqlInterface extends DatabaseInterface
 
 
     /**
-     * Import data from specified file
-     *
-     * @param string                                    $file
-     * @param FsRestrictionsInterface|array|string|null $restrictions
-     *
-     * @return void
-     */
-    public function import(string $file, FsRestrictionsInterface|array|string|null $restrictions): void;
-
-
-    /**
      * Get the current last insert id for this SQL database connector
      *
      * @return ?int

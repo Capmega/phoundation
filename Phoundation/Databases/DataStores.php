@@ -30,6 +30,7 @@ class DataStores
 {
     /**
      * The register with all SQL database connectors
+     * @todo Move all connectors (sql, mc, redis, etc) into a connectors Iterator object
      *
      * @var array $sql
      */
@@ -147,8 +148,7 @@ class DataStores
         }
 
         if (!array_key_exists($connector_name, static::$sql)) {
-            // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it.
-            // Connect and add it
+            // This connector isn't registered yet, so connect and add it to the connectors list
             static::$sql[$connector_name] = new Sql($connector, $use_database, $connect);
         }
 
@@ -284,7 +284,5 @@ class DataStores
         }
 
         return static::$null_db[$connector];
-
-
     }
 }
