@@ -65,6 +65,7 @@ class CliCommand
 {
     use TraitDataStaticExecuted;
 
+
     /**
      * Management object for the runfile for this command
      *
@@ -142,6 +143,13 @@ class CliCommand
      */
     protected static bool $require_default = true;
 
+    /**
+     * Tracks whether the CliCommand object has started up or not
+     *
+     * @var bool $started_up
+     */
+    protected static bool $started_up = false;
+
 
     /**
      * Returns if the default command will be executed if no command was specified
@@ -151,6 +159,17 @@ class CliCommand
     public static function getRequireDefault(): bool
     {
         return static::$require_default;
+    }
+
+
+    /**
+     * Returns true if the CliCommand has started up
+     *
+     * @return bool
+     */
+    public function hasStartedUp(): bool
+    {
+        return static::$started_up;
     }
 
 
@@ -251,8 +270,12 @@ class CliCommand
      *
      * @return array
      */
-    protected static function startup(): array
+    public static function startup(): array
     {
+        if (static::$started_up) {
+            throw new CliCommandException(tr('Cannot startup the CliCommand class, it has already been started up'));
+        }
+
         static::detectProcessUidMatchesPhoundationOwner();
 
         $return = [

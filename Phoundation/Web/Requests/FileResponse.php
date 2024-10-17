@@ -33,7 +33,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Web\Http\Exception;
 use Stringable;
 
-throw new UnderConstructionException(tr('Rebuild the Web\Http\File class, now extending Filesystem\File'));
 
 class FileResponse extends FsFile
 {
@@ -109,6 +108,8 @@ class FileResponse extends FsFile
      */
     public function __construct(Stringable|string|null $source = null, FsRestrictionsInterface|array|string|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
     {
+        throw new UnderConstructionException(tr('Rebuild the Web\Http\File class, now extending Filesystem\File'));
+
         parent::__construct($source, $restrictions, $absolute_prefix);
         $this->compression = Config::get('web.http.download.compression', 'auto');
     }

@@ -68,11 +68,15 @@ class Branches extends IteratorCore implements BranchesInterface
 
 
     /**
-     * Display the branches on the CLI
+     * Creates and returns a CLI table for the data in this list
      *
-     * @return void
+     * @param array|string|null $columns
+     * @param array             $filters
+     * @param string|null       $id_column
+     *
+     * @return static
      */
-    public function displayCliTable(): void
+    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'branch'): static
     {
         $list = [];
 
@@ -80,8 +84,20 @@ class Branches extends IteratorCore implements BranchesInterface
             $list[$branch] = ['selected' => $selected ? '*' : ''];
         }
 
-        Cli::displayTable($list, ['branch'   => tr('Branch'),
-                                  'selected' => tr('Selected'),
-        ], 'branch');
+        $filters = array_replace(
+            $filters,
+            [
+                'branch'   => tr('Branch'),
+                'selected' => tr('Selected'),
+            ]
+        );
+
+        Cli::displayTable(
+            $list,
+            $filters,
+            $id_column
+        );
+
+        return $this;
     }
 }

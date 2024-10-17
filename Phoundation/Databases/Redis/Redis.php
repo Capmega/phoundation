@@ -368,12 +368,12 @@ class Redis implements DatabaseInterface, RedisInterface
     /**
      * Pops the last value off the queue (from the right) from the queue and returns it
      *
-     * @param string   $queue
-     * @param int|null $timeout
+     * @param string $queue
+     * @param int    $timeout
      *
      * @return mixed
      */
-    public function pop(string $queue, ?int $timeout = null): mixed
+    public function pop(string $queue, int $timeout = 0): mixed
     {
         try {
             return Json::decode($this->client->brPop('queue_' . $queue, $timeout));

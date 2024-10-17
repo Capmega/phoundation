@@ -14,9 +14,16 @@ declare(strict_types=1);
 
 namespace Phoundation\Tests;
 
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
 
-require('./vendor/autoload.php');
+try {
+    include_once('./vendor/autoload.php');
 
-Core::startup();
+} catch (\Throwable $e) {
+    throw new \Exception('Failed to start autoloader', $e);
+}
+
+// Startup Phoundation Core
+CliCommand::startup();
 Core::setUnitTestMode(true);

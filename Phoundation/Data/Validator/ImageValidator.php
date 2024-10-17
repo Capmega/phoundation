@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FileValidator class
+ * ImageValidator class
  *
  * This class can be used to validate files
  *

@@ -487,7 +487,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
 
                     $repository = new Repository(
                         $path,
-                        FsRestrictions::newWritable($path->getParentDirectory()) . $path)
+                        FsRestrictions::newWritable($path->getParentDirectory() . $path)
                     );
 
                     if (!$repository->isRepository()) {

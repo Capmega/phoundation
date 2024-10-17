@@ -49,17 +49,24 @@ class RemoteRepositories extends IteratorCore implements RemoteRepositoriesInter
 
 
     /**
-     * Display the repositories on the CLI
+     * Creates and returns a CLI table for the data in this list
      *
-     * @return void
+     * @param array|string|null $columns
+     * @param array             $filters
+     * @param string|null       $id_column
+     *
+     * @return static
      */
-    public function displayCliTable(): void
+    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'repository'): static
     {
         $list = [];
+
         foreach ($this->getSource() as $repository) {
             $list[$repository] = [];
         }
+
         Cli::displayTable($list, ['repository' => tr('Repository')], 'repository');
+        return $this;
     }
 
 

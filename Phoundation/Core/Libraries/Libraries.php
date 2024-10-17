@@ -989,9 +989,10 @@ class Libraries
                     require_once($file);
 
                 } catch (Throwable $e) {
-                    Log::warning(tr('Pre-loading library file ":file" caused exception ":message", ignoring', [
+                    Log::warning(tr('Pre-loading system library file ":file" caused exception ":message" at ":file@:line", ignoring', [
                         ':file'    => Strings::from($file, DIRECTORY_ROOT),
                         ':message' => $e->getMessage(),
+                        ':line'    => $e->getLine(),
                     ]), 4);
                 }
             })
@@ -1045,9 +1046,10 @@ class Libraries
                         require_once($file);
 
                     } catch (Throwable $e) {
-                        Log::warning(tr('Pre-loading library file ":file" caused exception ":message", ignoring', [
+                        Log::warning(tr('Pre-loading plugin library file ":file" caused exception ":message" at ":file@:line", ignoring', [
                             ':file'    => Strings::from($file, DIRECTORY_ROOT),
                             ':message' => $e->getMessage(),
+                            ':line'    => $e->getLine(),
                         ]), 4);
                     }
                 })

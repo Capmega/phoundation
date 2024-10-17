@@ -53,7 +53,7 @@ class FileValidator implements FileValidatorInterface
      */
     public static function new(FsFileInterface $source): static
     {
-        return static($source);
+        return new static($source);
     }
 
 
@@ -71,9 +71,9 @@ class FileValidator implements FileValidatorInterface
             $primary .= '/' . $secondary;
         }
 
-        if (!$this->source->hasMimetype($primary)) {
-            $this->addFailure(tr());
-        }
+//        if (!$this->source->hasMimetype($primary)) {
+//            $this->addFailure(tr());
+//        }
 
         return $this;
     }

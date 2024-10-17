@@ -121,11 +121,15 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
 
 
     /**
-     * Display the files status on the CLI
+     * Creates and returns a CLI table for the data in this list
      *
-     * @return void
+     * @param array|string|null $columns
+     * @param array             $filters
+     * @param string|null       $id_column
+     *
+     * @return static
      */
-    public function displayCliTable(): void
+    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'file'): static
     {
         $list = [];
 
@@ -142,7 +146,9 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
 
         Cli::displayTable($list, ['file'   => tr('File'),
                                   'status' => tr('Status'),
-        ], 'file');
+        ], $id_column);
+
+        return $this;
     }
 
 
