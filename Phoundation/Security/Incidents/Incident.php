@@ -23,6 +23,7 @@ namespace Phoundation\Security\Incidents;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
@@ -305,10 +306,26 @@ class Incident extends DataEntry implements IncidentInterface
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-        // Save the incident
         $severity = strtolower($this->getSeverity());
-        $incident = parent::save($force, $skip_validation, $comments);
-        $details  = $this->getDetails();
+
+        // Save the incident
+        try {
+            parent::save($force, $skip_validation, $comments);
+
+        } catch (CoreReadonlyException $e) {
+            // Cannot save incidents when Core is in readonly mode!
+            Log::warning(tr('Cannot save Incident object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
+                ':session'  => Session::getId(),
+                ':user'     => Session::getUserObject()->getLogId(),
+                ':ip'       => Session::getIpAddress(),
+            ]));
+
+            // Force logging and make it always severe to be sure it gets attention
+            $this->log = true;
+            $severity  = 'severe';
+        }
+
+        $details = $this->getDetails();
 
         // Default details added to security incidents medium or higher
         if ($this->severityIsEqualOrHigherThan(EnumSeverity::medium)) {
@@ -382,7 +399,7 @@ class Incident extends DataEntry implements IncidentInterface
                          ->send();
         }
 
-        return $incident;
+        return $this;
     }
 
 
