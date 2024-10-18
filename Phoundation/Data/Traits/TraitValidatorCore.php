@@ -774,6 +774,8 @@ trait TraitValidatorCore
                 return '';
             }
 
+            $this->test_count++;
+
             if ($strict) {
                 if ($value !== $this->source[$field]) {
                     $this->addFailure(tr('must contain exactly the same value as the field ":field"', [':field' => $field]));

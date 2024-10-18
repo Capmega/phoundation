@@ -175,4 +175,13 @@ interface DefinitionsInterface extends IteratorInterface
      * @return static
      */
     public function setSize(Stringable|string|float|int $key, int $size, bool $exception = true): static;
+
+    /**
+     * Sets if meta-information is visible at all, or not
+     *
+     * @param bool $meta_visible
+     *
+     * @return static
+     */
+    public function setMetaVisible(bool $meta_visible): static;
 }

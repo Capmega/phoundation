@@ -717,6 +717,7 @@ class Definition implements DefinitionInterface
         if (!isset($this->source['data'])) {
             $this->source['data'] = [];
         }
+
         $this->source['data'][$key] = $value;
 
         return $this;
@@ -2782,7 +2783,7 @@ class Definition implements DefinitionInterface
 
             Log::warning(tr('Not validating DataEntry object ":object" column ":column" because it has one of the "no_validation" or "ignored" flag set', [
                 ':column' => $column,
-                ':object' => get_class($this->getDataEntry()),
+                ':object' => $this->getDataEntry() ? get_class($this->getDataEntry()) : '-',
             ]), 3);
 
             return false;
