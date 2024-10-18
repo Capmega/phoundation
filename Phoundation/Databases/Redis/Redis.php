@@ -30,6 +30,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\P;
 use Throwable;
 use function PHPUnit\Framework\throwException;
 
@@ -71,8 +72,8 @@ class Redis implements DatabaseInterface, RedisInterface
      *
      * @var bool $debug
      */
-
     protected bool $debug = false;
+
 
     /**
      * Initialize the class object through the constructor.
@@ -148,24 +149,30 @@ class Redis implements DatabaseInterface, RedisInterface
     }
 
 
+    /**
+     * Closes the Redis database connection
+     *
+     * @return $this
+     */
     public function close(): static
     {
         try {
-            $this->client->close();
-
-            if ($this->client->ping()) {
-                throw new RedisException(tr('Failed to close Redis connector ":connector', [
-                    ':connector' => $this->getConnectorObject()->getName()
-                ]));
-            }
-
-            return $this;
+            $result = $this->client->close();
+            unset($this->client);
 
         } catch (Throwable $e) {
-            throw new RedisException(tr('Failed to close Redis connector ":connector', [
+            throw new RedisException(tr('Exception while closing Redis connector ":connector"', [
                 ':connector' => $this->getConnectorObject()->getName()
             ]), $e);
         }
+
+        if ($result) {
+            return $this;
+        }
+
+        throw new RedisException(tr('Failed to close Redis connector ":connector"', [
+            ':connector' => $this->getConnectorObject()->getName()
+        ]));
     }
 
 
@@ -267,11 +274,11 @@ class Redis implements DatabaseInterface, RedisInterface
             ]));
 
         } elseif ($database === 0) {
-            if (!Core::getUnitTestMode()) {
-                throw new OutOfBoundsException(tr('Redis database "0" is reserved for testing and may not be used', [
-                    ':database' => $database
-                ]));
-            }
+//            if (!Core::getUnitTestMode()) {
+//                throw new OutOfBoundsException(tr('Redis database "0" is reserved for testing and may not be used', [
+//                    ':database' => $database
+//                ]));
+//            }
 
         } elseif ($database > 1024) {
             throw new OutOfBoundsException(tr('Redis database ":database" is not a valid database id for Redis, the database must be an integer between 1 and 1024', [
@@ -352,8 +359,11 @@ class Redis implements DatabaseInterface, RedisInterface
      */
     public function push(mixed $value, string $queue): static
     {
-        try {
-            $this->client->lPush('queue_' . $queue, Json::encode($value));
+        if ($value === null) {
+            return $this;
+
+        } try {
+            $this->client->rPush('queue_' . $queue, Json::encode($value));
             return $this;
 
         } catch (Throwable $e) {
@@ -375,11 +385,16 @@ class Redis implements DatabaseInterface, RedisInterface
      */
     public function pop(string $queue, int $timeout = 0): mixed
     {
-        try {
-            return Json::decode($this->client->brPop('queue_' . $queue, $timeout));
 
+        if ($this->getQueueLength($queue) < 1) {
+            return null;
+        }
+
+        try {
+            $result = $this->client->blPop('queue_' . $queue, $timeout);
+            return Json::decode($result[1]);
         } catch (Throwable $e) {
-            throw new RedisException(tr('Failed to pop from Redis connector ":connector', [
+            throw new RedisException(tr('Failed to pop from Redis connector ":connector"', [
                 ':connector' => $this->getConnectorObject()->getName()
             ]), $e);
         }
@@ -409,8 +424,18 @@ class Redis implements DatabaseInterface, RedisInterface
     public function queueExists(string $queue): bool
     {
         try {
-        return $this->connect()
+        $result = $this->connect()
                     ->client->exists('queue_' . $queue);
+        if ($result === 0) {
+            return false;
+
+        } elseif (is_int($result) && $result > 0) {
+            return true;
+
+        } else {
+            return $result;
+        }
+
         } catch (Throwable $e) {
             throw new RedisException(tr('Failed to search for queue ":queue" from Redis connector ":connector', [
                 ':queue' => $queue,
@@ -481,7 +506,7 @@ class Redis implements DatabaseInterface, RedisInterface
                     ->lRange('queue_' . $queue, $start, $end);
 
             if (!$return) {
-                return null;
+                return [];
             }
 
             foreach ($return as &$value) {
@@ -511,6 +536,11 @@ class Redis implements DatabaseInterface, RedisInterface
     public function queuePeek(string $queue, int $index = 0): mixed
     {
         try {
+
+            if ($index > ($this->getQueueLength($queue) - 1)) {
+                return null;
+            }
+
             $return = $this->connect()
                 ->client->lIndex('queue_' . $queue, $index);
 
@@ -537,21 +567,22 @@ class Redis implements DatabaseInterface, RedisInterface
     public function clearQueue(string $queue): static
     {
         try {
-            $result = $this->connect()
-                ->client->lTrim('queue_' . $queue, 1, 0);
+            if ($this->queueExists($queue)) {
+                $this->connect()->client->set('queue_' . $queue, []);
 
-            if (!$result) {
+                return $this;
+
+            } else {
                 throw new RedisException(tr('Failed find queue ":queue"', [
                     ':queue' => $queue
                 ]));
             }
 
-            return $this;
 
         } catch (Throwable $e) {
             throw new RedisException(tr('Failed to clear queue ":queue" with connector ":connector"', [
                 ':connector' => $this->getConnectorObject()->getName(),
-                ':queue' => $queue
+                ':queue'     => $queue
             ]), $e);
         }
     }
@@ -567,8 +598,22 @@ class Redis implements DatabaseInterface, RedisInterface
     public function getQueueLength(string $queue): int
     {
         try {
-            return $this->connect()
-                ->client->lLen('queue_' . $queue);
+
+            if ($this->getQueue($queue) == []) {
+                return 0;
+            }
+
+            $result = $this->connect()->client->lLen('queue_' . $queue);
+
+            if ($result === false) {
+                throw new RedisException(tr('Failed to get find Redis queue ":queue" with connector ":connector"', [
+                    ':connector' => $this->getConnectorObject()->getName(),
+                    ':queue' => $queue
+                ]));
+
+            } else {
+                return $result;
+            }
 
         } catch (Throwable $e) {
             throw new RedisException(tr('Failed to get length of Redis queue ":queue" from connector ":connector"', [
@@ -582,20 +627,52 @@ class Redis implements DatabaseInterface, RedisInterface
     /**
      * Pings connection
      *
+     * @param string|null $message
+     * @param bool        $exception
+     *
      * @return bool|string
      */
-    public function ping(): bool|string
+    public function ping(?string $message = null, bool $exception = false): bool|string
     {
         try {
-            return $this->connect()
-                ->client->ping();
+            $return = $this->client->ping($message);
+
+            if ($return === false) {
+                throw new RedisException(tr('Ping returned false'));
+            }
+
+            return $return;
 
         } catch (Throwable $e) {
-            throw new RedisException(tr('Failed to ping ":connector"', [
-                ':connector' => $this->getConnectorObject()->getName()
-            ]), $e);
+            if ($exception) {
+                throw new RedisException(tr('Failed to ping Redis server ":server" with message ":message"', [
+                    ':server' => $this->getConnectorObject()->getLogId(),
+                ]));
+            }
+
+            return false;
         }
     }
+
+
+    /**
+     * Shows all keys/queues
+     *
+     *
+     * @return array
+     */
+    public function showAll(): array
+    {
+        try {
+            return $this->client->keys('*');
+
+        } catch (Throwable $e) {
+            throw new RedisException(tr('Failed to get all keys for server ":server"', [
+                ':server' => $this->getConnectorObject()->getLogId(),
+            ]));
+        }
+    }
+
 
 // /**
 //     * Check if a value exists in the list.
