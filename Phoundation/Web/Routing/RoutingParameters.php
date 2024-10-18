@@ -201,20 +201,12 @@ class RoutingParameters implements RoutingParametersInterface
 
         // Check defined rights and directory rights, both have to pass
         if ($this->require_directory_rights) {
-            if (substr_count($this->require_directory_rights, '/') > 1) {
-                $dirname = dirname($this->require_directory_rights);
-
-            } else {
-                $dirname = $this->require_directory_rights;
-            }
-
             // First cut to WWW directory
             // Then the rest, as the directory may be partial
             // Then remove the file name to only have the directory parts
             // Ensure it doesn't start with a slash to avoid empty right entries
             // Then explode to array
-            $directory = Strings::from($target, DIRECTORY_WEB);
-            $directory = Strings::from($directory, $dirname);
+            $directory = Strings::from($target, $this->require_directory_rights);
             $directory = Strings::ensureStartsNotWith($directory, '/');
             $directory = dirname($directory);
 
@@ -264,10 +256,10 @@ class RoutingParameters implements RoutingParametersInterface
      */
     public function setRequireDirectoryRights(string $require_directory_rights, array|string|null $rights_exceptions = null): static
     {
-        $this->require_directory_rights = Strings::slash($require_directory_rights);
+        $this->require_directory_rights = DIRECTORY_WEB . 'pages' . Strings::slash($require_directory_rights);
 
         if ($rights_exceptions) {
-            $this->rights_exceptions = Arrays::force($rights_exceptions, null);
+            $this->rights_exceptions = get_null(Arrays::force($rights_exceptions));
         }
 
         return $this;

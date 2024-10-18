@@ -1728,7 +1728,10 @@ class Route
     protected static function applyVariableReplacement(string &$url, array &$queries, string $replacement): void
     {
         if (!$replacement or empty(static::$regex_matches[$replacement])) {
-            throw new RouteException(tr('Non existing regex replacement ":replacement" specified in route ":route"', [
+            // This will be an exception, but that will be turned into a log entry. Replace the variable with nothing
+            static::$regex_matches[$replacement] = [0 => ''];
+
+            $e = new RouteException(tr('Non existing regex replacement ":replacement" specified in route ":route"', [
                 ':replacement' => '$' . $replacement,
                 ':route'       => static::$route,
             ]));
@@ -1749,6 +1752,11 @@ class Route
                     $queries[$location] = str_replace('$' . $replacement, static::$regex_matches[$replacement][0], $query);
                 }
             }
+        }
+
+        // Do we have an exception? Throw it!
+        if (isset($e)) {
+            throw $e;
         }
     }
 
