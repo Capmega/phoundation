@@ -42,10 +42,10 @@ class PhoSocket
     protected ?\Socket $resource;
 
     /**
-     * @var EnumNetworkSocketDomain $domain Should be set to one of the php predefined constants for Sockets -
+     * @var EnumNetworkSocketDomain $interface Should be set to one of the php predefined constants for Sockets -
      *                                      AF_UNIX, AF_INET, or AF_INET6
      */
-    protected EnumNetworkSocketDomain $domain;
+    protected EnumNetworkSocketDomain $interface;
 
     /**
      * @var int Should be set to one of the php predefined constants for Sockets - SOCK_STREAM, SOCK_DGRAM,
@@ -58,6 +58,11 @@ class PhoSocket
      *          Alternatively, there are two predefined constants for Sockets that could be used - SOL_TCP, SOL_UDP
      */
     protected int $protocol;
+
+    /**
+     * @var int Should be set to the int corresponding to the port number
+     */
+    protected int $port;
 
 
     /**
@@ -76,6 +81,8 @@ class PhoSocket
      */
     public function __destruct()
     {
+        showdie("tried to close socket");
+
         $this->close();
         unset($this->resource);
     }
@@ -105,26 +112,51 @@ class PhoSocket
      *
      * @return EnumNetworkSocketDomain
      */
-    public function getDomain(): EnumNetworkSocketDomain
+    public function getInterface(): EnumNetworkSocketDomain
     {
-        return $this->domain;
+        return $this->interface;
     }
 
 
     /**
      * Sets the domain / protocol family used for this socket
      *
-     * @param EnumNetworkSocketDomain $domain
+     * @param EnumNetworkSocketDomain $interface
+     *
      * @return $this
      */
-    public function setDomain(EnumNetworkSocketDomain $domain): static
+    public function setInterface(EnumNetworkSocketDomain $interface): static
     {
-        $this->domain = $domain;
+        $this->$interface = $interface;
         return $this;
     }
 
 
-    //TODO: harry added these, haven't been checked by sven
+    /**
+     * Returns the port used for this socket
+     *
+     * @return int
+     */
+    public function getPort(): int
+    {
+        return $this->port;
+    }
+
+
+    /**
+     * Sets the domain / protocol family used for this socket
+     *
+     * @param EnumNetworkSocketDomain $interface
+     *
+     * @return $this
+     */
+    public function setPort(int $port): static
+    {
+        $this->port = $port;
+        return $this;
+    }
+
+
     /**
      * Returns the resource / socket object for this socket
      *
@@ -148,7 +180,7 @@ class PhoSocket
         $this->resource = $resource;
         return $this;
     }
-    //TODO: end
+
 
 
     /**
@@ -327,7 +359,7 @@ class PhoSocket
      */
     public function create(): static
     {
-        $resource = socket_create($this->domain->value, $this->type, $this->protocol);
+        $resource = socket_create($this->interface->value, $this->type, $this->protocol);
 
         if ($resource === false) {
             throw new SocketException(tr(''));
