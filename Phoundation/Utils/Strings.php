@@ -1467,9 +1467,9 @@ throw new UnderConstructionException();
             }
 
         } elseif (is_string($source)) {
-            if (!$source) {
+            if (!$source and !is_numeric($source)) {
                 if ($ensure_visible) {
-                    $source = 'EMPTY';
+                    $source = '>>> EMPTY <<<';
 
                 } else {
                     $source = '';
