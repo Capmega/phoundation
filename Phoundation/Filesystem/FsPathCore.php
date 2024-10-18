@@ -863,7 +863,7 @@ class FsPathCore implements FsPathInterface
                     'extension' => $extension,
                 ])
                 ->save()
-                ->throw();
+                ->throw(FilesystemException::class);
     }
 
 
@@ -2023,7 +2023,7 @@ class FsPathCore implements FsPathInterface
                     ':mode' => $mode,
                 ]));
 
-                $this->chmod('u+w');
+                $this->chmod('u+r');
 
             } catch (ProcessesException) {
                 throw new FileNotWritableException(tr('The file ":file" :realis not writable, and could not be made writable', [
