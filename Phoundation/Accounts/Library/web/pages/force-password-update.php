@@ -42,13 +42,13 @@ if (Request::isPostRequestMethod()) {
                              ->select('passwordv')->isEqualTo('password')
                              ->validate();
 
-        // Update the password for this sessions user and remove the forced redirect to this page
+        // Update the password for this session's user and remove the forced redirect to this page
         Session::getUserObject()
                ->changePassword($post['password'], $post['passwordv'])
                ->setRedirect()
                ->save();
 
-        // Add flash message and redirect to original target
+        // Add a flash message and redirect to the original target
         Response::getFlashMessagesObject()->addSuccess(tr('Your password has been updated'));
         Response::redirect('prev');
 
@@ -71,6 +71,6 @@ Response::setPageTitle(tr('Please update your password before continuing...'));
 
 
 // Render the page
-echo ForcePasswordUpdatePage::new()
-                            ->setEmail(Session::getUserObject()->getEmail())
-                            ->render();
+return ForcePasswordUpdatePage::new()->setGetdata([
+    'email' => Session::getUserObject()->getEmail()
+]);

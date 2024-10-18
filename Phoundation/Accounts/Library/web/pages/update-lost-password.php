@@ -50,25 +50,39 @@ if (Request::isPostRequestMethod()) {
                              ->validate();
 
         // Update the password for this session user
-        Session::getUserObject()->changePassword($post['password'], $post['passwordv'])->save();
+        $user = Session::getUserObject();
 
-        // Register a security incident
-        Incident::new()
-                ->setSeverity(EnumSeverity::medium)
-                ->setType(tr('User lost password update'))
-                ->setTitle(tr('The user ":user" updated their lost password using UUID key ":key"', [
-                    ':key'  => Session::getSignInKey(),
-                    ':user' => Session::getUserObject()->getLogId(),
-                ]))
-                ->setDetails([
-                                 ':key'  => Session::getSignInKey(),
-                                 ':user' => Session::getUserObject()->getLogId(),
-                             ])
-                ->save();
+        if ($user->hasPassword($post['password'])) {
+            // User used the same password, don't update
+            Response::getFlashMessagesObject()->addSuccess(tr('You supplied your actual password, password was not updated'));
+            $updated = true;
 
-        // Add a flash message and redirect to the original target
-        Response::getFlashMessagesObject()->addSuccess(tr('Your password has been updated'));
-        $updated = true;
+        } else {
+            // Update the password
+            $user->changePassword($post['password'], $post['passwordv'], true)
+                 ->save();
+
+            // Register a security incident
+            Incident::new()
+                    ->setSeverity(EnumSeverity::medium)
+                    ->setType(tr('User lost password update'))
+                    ->setTitle(tr('The user ":user" updated their lost password using UUID key ":key"', [
+                        ':key'  => Session::getSignInKey(),
+                        ':user' => Session::getUserObject()->getLogId(),
+                    ]))
+                    ->setDetails([
+                        ':key'  => Session::getSignInKey(),
+                        ':user' => Session::getUserObject()->getLogId(),
+                    ])
+                    ->save();
+
+            // Yay, the password was updated! Now, auto sign-in so that the user won't have to sign in manually
+            Session::signIn($user->getEmail(), $post['password']);
+
+            // Add a flash message and redirect to the original target
+            Response::getFlashMessagesObject()->addSuccess(tr('Your password has been updated'));
+            $updated = true;
+        }
 
     } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
         Response::getFlashMessagesObject()->addWarning(tr('Please specify at least ":count" characters for the password', [
@@ -91,19 +105,17 @@ if (isset($updated)) {
     // Set page meta data
     Response::setPageTitle(tr('Your password has been updated, please go to the sign-in page in to continue...'));
 
-
     // Render the page
-    LostPasswordUpdatedPage::new()
-                           ->setEmail(Session::getUserObject()->getEmail())
-                           ->render();
+    return LostPasswordUpdatedPage::new()->setGetData([
+        'email' => Session::getUserObject()->getEmail(),
+    ]);
 
 } else {
     // Set page meta data
     Response::setPageTitle(tr('Please update your password before continuing...'));
 
-
     // Render the page
-    UpdateLostPasswordPage::new()
-                          ->setEmail(Session::getUserObject()->getEmail())
-                          ->render();
+    return UpdateLostPasswordPage::new()->setGetData([
+        'email' => Session::getUserObject()->getEmail(),
+    ]);
 }

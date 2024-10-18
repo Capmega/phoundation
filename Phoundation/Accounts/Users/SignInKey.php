@@ -175,8 +175,9 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         }
 
         $this->setUuid($uuid)->save();
+
         $url       = Url::getWww('sign-key');
-        $url       = str_replace(':key', $uuid, $url);
+        $url       = str_replace(':key', $uuid, (string) $url);
         $this->url = Url::getWww($url)->getSource();
 
         return $this;

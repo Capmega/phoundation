@@ -1156,6 +1156,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->query('UPDATE `accounts_users` SET    `last_sign_in` = NULL WHERE `last_sign_in` = "0000-00-00 00:00:00"');
             sql()->query('UPDATE `accounts_users` SET    `locked_until` = NULL WHERE `locked_until` = "0000-00-00 00:00:00"');
             sql()->query('UPDATE `accounts_users` SET    `verified_on`  = NULL WHERE `verified_on`  = "0000-00-00 00:00:00"');
+
+        })->addUpdate('0.5.3', function () {
+            sql()->getSchemaObject()
+                 ->getTableObject('accounts_authentications')
+                    ->alter()->changeColumn('`action`', '`action` enum("authentication", "signin", "signout", "startimpersonation", "stopimpersonation", "test", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,');
         });
     }
 }

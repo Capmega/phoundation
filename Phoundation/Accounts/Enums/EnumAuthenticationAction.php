@@ -23,5 +23,6 @@ enum EnumAuthenticationAction: string
     case signout            = 'signout';
     case startimpersonation = 'startimpersonation';
     case stopimpersonation  = 'stopimpersonation';
+    case test               = 'test';
     case other              = 'other';
 }

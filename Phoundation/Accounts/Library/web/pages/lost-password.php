@@ -52,7 +52,7 @@ if (Request::isPostRequestMethod()) {
                              ->select('email')->isEmail()
                              ->validate();
 
-        $user = User::load($post['email']);
+        $user = User::load(['email' => $post['email']]);
 
         if ($user->isLocked() or $user->isDeleted()) {
             // Yikes, this cannot be impersonated!
@@ -152,6 +152,4 @@ Response::setPageTitle(tr('Request a new password'));
 
 
 // Render the page
-LostPasswordPage::new()
-                ->setEmail(isset_get($get['email']))
-                ->render();
+return LostPasswordPage::new()->setGetData($get);

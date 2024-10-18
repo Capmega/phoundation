@@ -534,10 +534,11 @@ interface UserInterface extends DataEntryInterface
      *
      * @param string $password
      * @param string $validation
+     * @param bool $permit_same_password
      *
      * @return static
      */
-    public function changePassword(string $password, string $validation): static;
+    public function changePassword(string $password, string $validation, bool $permit_same_password = false): static;
 
 
     /**
@@ -545,10 +546,11 @@ interface UserInterface extends DataEntryInterface
      *
      * @param string $password
      * @param string $validation
+     * @param bool $permit_same_password
      *
      * @return static
      */
-    public function validatePassword(string $password, string $validation): static;
+    public function validatePassword(string $password, string $validation, bool $permit_same_password = false): static;
 
 
     /**
@@ -813,4 +815,13 @@ interface UserInterface extends DataEntryInterface
      * @return ProfileImagesInterface
      */
     public function getProfileImagesObject(): ProfileImagesInterface;
+
+    /**
+     * Returns true if this user has the specified password
+     *
+     * @param string $password
+     *
+     * @return bool
+     */
+    public function hasPassword(string $password): bool;
 }

@@ -122,9 +122,12 @@ if (Request::isPostRequestMethod()) {
 }
 
 
-// This page will build its own body
+// Set page meta data
 Response::setRenderMainWrapper(false);
+Response::setPageTitle(tr('Request a new password'));
 
+
+// This page will build its own body
 ?>
 <?= Response::getFlashMessagesObject()->render() ?>
     <body class="hold-transition login-page"
@@ -137,7 +140,7 @@ Response::setRenderMainWrapper(false);
                    class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
             </div>
             <div class="card-body">
-                <p class="login-box-msg"><?= tr('Please provide your email address and we will send you a link where you can re-establish your password') ?></p>
+                <p class="login-box-msg"><?= tr('Please provide your email address and we will send you a link which you can use to login directly') ?></p>
 
                 <form action="<?= Url::getWww() ?>" method="post">
                     <?php Csrf::getHiddenElement() ?>
@@ -178,6 +181,3 @@ Response::setRenderMainWrapper(false);
     </div>
     </body>
 <?php
-
-// Set page meta data
-Response::setPageTitle(tr('Request a new password'));

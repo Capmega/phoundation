@@ -95,6 +95,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\A;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Json\Users;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
@@ -239,6 +240,17 @@ class User extends DataEntry implements UserInterface
      * @return bool
      */
     public function isSystem(): bool
+    {
+        return (array_get_safe($this->source, 'email') === 'system');
+    }
+
+
+    /**
+     * Returns true if this user object is the system user
+     *
+     * @return bool
+     */
+    public function isSystemUser(): bool
     {
         return (array_get_safe($this->source, 'status') === 'system');
     }
@@ -538,8 +550,6 @@ class User extends DataEntry implements UserInterface
      * @param bool                    $test
      *
      * @return static
-     *
-     * @throws Throwable
      */
     protected static function doAuthenticate(array $identifier, string $password, AuthenticationInterface $authentication, ?string $domain, bool $test = false): static
     {
@@ -881,7 +891,7 @@ class User extends DataEntry implements UserInterface
                 Rights::ensure($this->getMissingRights($rights));
 
             } else {
-                if ($this->isSystem()) {
+                if (PLATFORM_CLI and $this->isSystem()) {
                     // System user has all rights
                     return true;
                 }
@@ -1725,16 +1735,17 @@ class User extends DataEntry implements UserInterface
      *
      * @param string $password
      * @param string $validation
+     * @param bool   $permit_same_password
      *
      * @return static
      */
-    public function changePassword(string $password, string $validation): static
+    public function changePassword(string $password, string $validation, bool $permit_same_password = false): static
     {
         $password   = trim($password);
         $validation = trim($validation);
 
         try {
-            $this->validatePassword($password, $validation);
+            $this->validatePassword($password, $validation, $permit_same_password);
             $this->setPassword(Password::hash($password, $this->source['id']));
 
             Hook::new('phoundation/accounts/password/change/')
@@ -1762,10 +1773,11 @@ class User extends DataEntry implements UserInterface
      *
      * @param string $password
      * @param string $validation
+     * @param bool   $permit_same_password
      *
      * @return static
      */
-    public function validatePassword(string $password, string $validation): static
+    public function validatePassword(string $password, string $validation, bool $permit_same_password = false): static
     {
         $password   = trim($password);
         $validation = trim($validation);
@@ -1798,17 +1810,39 @@ class User extends DataEntry implements UserInterface
         Password::testSecurity($password, $this->source['email'], $this->source['id']);
 
         // Is the password not the same as the current password?
-        try {
-            $authentication = Authentication::new()->setAction(EnumAuthenticationAction::authentication);
-
-            static::doAuthenticate(['email' => $this->source['email']], $password, $authentication, isset_get($this->source['domain']), true);
-            throw new PasswordNotChangedException(tr('The specified password is the same as the current password'));
-
-        } catch (AuthenticationException) {
-            // This password is new, yay! We can continue;
+        if (!$permit_same_password) {
+            if (!$this->hasPassword($password)) {
+                throw new PasswordNotChangedException(tr('The specified password is the same as the current password'));
+            }
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if this user has the specified password
+     *
+     * @param string $password
+     *
+     * @return bool
+     */
+    public function hasPassword(string $password): bool
+    {
+        try {
+            static::doAuthenticate(
+                ['email' => $this->source['email']],
+                $password,
+                Authentication::new()->setAction(EnumAuthenticationAction::test),
+                isset_get($this->source['domain']),
+                true
+            );
+
+            return true;
+
+        } catch (AuthenticationException) {
+            return false;
+        }
     }
 
 
@@ -2206,7 +2240,7 @@ class User extends DataEntry implements UserInterface
 
         if ($new) {
             // System and Guest users are never new!
-            if ($this->isGuest() or $this->isSystem()) {
+            if ($this->isSystemUser()) {
                 return false;
             }
         }

@@ -19,6 +19,7 @@ namespace Phoundation\Accounts\Users;
 
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Users\Interfaces\AuthenticationInterface;
+use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
@@ -256,11 +257,23 @@ class Authentication extends DataEntry implements AuthenticationInterface
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-        if (!$this->isNew()) {
-            throw new DataEntryAlreadySavedException(tr('Cannot save Authentication DataEntry, has already been saved before'));
-        }
+        try {
+            if (!$this->isNew()) {
+                throw new DataEntryAlreadySavedException(tr('Cannot save Authentication DataEntry, has already been saved before'));
+            }
 
-        return parent::save($force, $skip_validation, $comments);
+            return parent::save($force, $skip_validation, $comments);
+
+        } catch (CoreReadonlyException) {
+            // Core is readonly we cannot write to the database!
+            Log::warning(tr('Cannot save Authentication object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
+                ':session' => Session::getId(),
+                ':user'    => Session::getUserObject()->getLogId(),
+                ':ip'      => Session::getIpAddress(),
+            ]));
+
+            return $this;
+        }
     }
 
 
