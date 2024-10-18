@@ -216,6 +216,17 @@ class Session implements SessionInterface
 
 
     /**
+     * Returns the unique session identifier
+     *
+     * @return string|null
+     */
+    public static function getId(): ?string
+    {
+        return get_null(session_id());
+    }
+
+
+    /**
      * Returns the IP address for this session when it was started
      *
      * @return string|null
@@ -1609,6 +1620,7 @@ class Session implements SessionInterface
                 ->notifyRoles('developers');
         }
 
+        // Attempt sign-out
         static::$user_changed = !static::getUserObject()->isGuest();
 
         // Destroy all in the session but the flash messages
