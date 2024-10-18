@@ -1787,9 +1787,9 @@ class Response implements ResponseInterface
                 Log::success(tr('Script(s) ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
                     ':script'    => Request::getExecutedPath(true),
                     ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':usage'     => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':http_code' => Response::getHttpCode(),
-                    ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
+                    ':sent'      => Numbers::getHumanReadableAndPreciseBytes(Response::getBytesSent()),
                 ]));
                 break;
 
@@ -1801,9 +1801,9 @@ class Response implements ResponseInterface
                 Log::error(tr('Script(s) ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
                     ':script'    => Request::getExecutedPath(true),
                     ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':usage'     => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':http_code' => Response::getHttpCode(),
-                    ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
+                    ':sent'      => Numbers::getHumanReadableAndPreciseBytes(Response::getBytesSent()),
                 ]));
         }
 

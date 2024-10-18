@@ -511,7 +511,7 @@ class CliCommand
                 Log::warning(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                     ':command'  => static::getCommandsString(),
                     ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code,
                 ]), 10);
 
@@ -522,7 +522,7 @@ class CliCommand
                 Log::error(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                     ':command'  => static::getCommandsString(),
                     ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code,
                 ]), 10);
             }
@@ -537,7 +537,7 @@ class CliCommand
                     Log::warning(tr('Command ":command" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
                         ':command'  => static::getCommandsString(),
                         ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                        ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                        ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code,
                     ]), 8);
                 }
@@ -551,7 +551,7 @@ class CliCommand
                     Log::error(tr('Command ":command" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                         ':command'  => static::getCommandsString(),
                         ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                        ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                        ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code,
                     ]), 8);
                 }
@@ -572,7 +572,7 @@ class CliCommand
                     ':command' => static::getCommandsString(),
                     ':pid'     => getmypid(),
                     ':time'    => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'   => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':usage'   => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                 ]), 8);
             }
         }

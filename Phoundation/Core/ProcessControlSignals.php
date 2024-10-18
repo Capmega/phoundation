@@ -295,7 +295,7 @@ class ProcessControlSignals
             ':signal'   => $signal,
             ':script'   => Core::getExecutedPath(),
             ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-            ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+            ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
             ':exitcode' => $exit_code,
         ]));
     }
