@@ -88,7 +88,9 @@ abstract class Command extends ProcessCore implements CommandInterface
 
             foreach (Arrays::force($commands) as $command) {
                 Process::new($command, $restrictions)
-                       ->setSudo(true)
+                       ->setSudo('sudo -Esp "Testing sudo for \"' . $command . '\"..."')
+                       ->setTimeout(0.3)
+                       ->addArgument('--version')
                        ->addArgument('--version')
                        ->executeReturnArray();
             }

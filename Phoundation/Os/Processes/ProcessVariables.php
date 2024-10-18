@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
 
+use Phoundation\Cache\InstanceCache;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -128,12 +129,12 @@ trait ProcessVariables
     protected ?int $exit_code = null;
 
     /**
-     * The maximum number of time in seconds that a command is allowed to run before it will time out. Zero to disable,
-     * defaults to 30
+     * The maximum amount of time in seconds that a command is allowed to run before it will time out. Zero to disable,
+     * default to 30
      *
-     * @var int $timeout
+     * @var float|int $timeout
      */
-    protected int $timeout = 30;
+    protected float|int $timeout = 30;
 
     /**
      * The signal that the timeout will give to the process
@@ -1210,8 +1211,13 @@ trait ProcessVariables
                 // Check if the command exist on disk
                 if (($command !== 'which') and !file_exists($command)) {
                     // The specified command was not found, we'll have to look for it anyway!
+                    if (InstanceCache::exists('Process::setCommand', $command)) {
+                        return InstanceCache::getLastChecked();
+                    }
+
                     try {
                         $real_command = Which::new($this->execution_directory)->which($command);
+                        $real_command = InstanceCache::set($real_command, 'Process::setCommand', $command);
 
                     } catch (CommandsException) {
                         // The command does not exist, but maybe we can auto install?
@@ -2022,15 +2028,15 @@ trait ProcessVariables
      * If the process requires more time than the specified timeout value, it will be terminated automatically. Set to
      * 0 seconds  to disable, defaults to 30 seconds
      *
-     * @param int|null $timeout
+     * @param float|int|null $timeout
      *
      * @return static
      */
-    public function setTimeout(?int $timeout): static
+    public function setTimeout(float|int|null $timeout): static
     {
-        if (!is_natural($timeout, 0)) {
+        if ($timeout < 0) {
             if ($timeout) {
-                throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [
+                throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be an integer or float number 0 or higher', [
                     ':timeout' => $timeout,
                 ]));
             }

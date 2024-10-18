@@ -272,6 +272,11 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterfac
         // Build up the basic command line
         $this->cached_command_line = $this->getBasicCommandLine();
 
+        // Add sudo
+        if (!$this->server and $this->sudo) {
+            $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
+        }
+
         // Add timeout
         if ($this->timeout) {
             $this->cached_command_line = 'timeout --signal ' . $this->signal . ' --foreground ' . escapeshellarg((string) $this->timeout) . ' ' . $this->cached_command_line;
