@@ -35,113 +35,423 @@ class Time
     public static function difference(float $start, float $stop, string $precision = 'auto', int $decimals = 2): string
     {
         $time = $stop - $start;
-        $ceil = ceil($time);
+
+        //// TEST VALUES
+        // 2 hours 7 minutes 53.8236 seconds
+        //$time = 7673.8237;
+        // 2 days 4 hours 7 minutes 53.8236 seconds
+        //$time = 7673.8237 + 7200 + (86400 * 2);
+        // 2 weeks 5 days 4 hours 7 minutes 53.8236 seconds
+        //$time = 7673.8237 + 7200 + (86400 * 5) + (86400 * 14);
+        // 2 months 5 days 4 hours 7 minutes 53.8236 seconds
+        //$time = 7673.8237 + 7200 + (86400 * 5) + (86400 * 60);
+        // 6 years 2 months 5 days 4 hours 7 minutes 53.8236 seconds
+        $time = 7673.8237 + 7200 + (86400 * 5) + (86400 * 60) + ((86400 * 365) * 6);
+
         switch ($precision) {
             case 'second':
                 // no break
             case 'seconds':
-                $time = number_format($time, $decimals);
+                return static::differenceSeconds($time, $decimals);
 
-                return Strings::plural($ceil, tr(':time second', [
-                    ':time' => $time,
-                ]), tr(':time seconds', [
-                    ':time' => $time,
-                ]));
             case 'minute':
                 // no break
             case 'minutes':
-                $time = number_format($time / 60, $decimals);
+                return static::differenceMinutes($time, $decimals);
 
-                return Strings::plural($ceil, tr(':time minute', [
-                    ':time' => $time,
-                ]), tr(':time minutes', [
-                    ':time' => $time,
-                ]));
             case 'hour':
                 // no break
             case 'hours':
-                $time = number_format($time / 3600, $decimals);
+                return static::differenceHours($time, $decimals);
 
-                return Strings::plural($ceil, tr(':time hour', [
-                    ':time' => $time,
-                ]), tr(':time hours', [
-                    ':time' => $time,
-                ]));
             case 'day':
                 // no break
             case 'days':
-                $time = number_format($time / 86400, $decimals);
+                return static::differenceDays($time, $decimals);
 
-                return Strings::plural($ceil, tr(':time day', [
-                    ':time' => $time,
-                ]), tr(':time days', [
-                    ':time' => $time,
-                ]));
             case 'week':
                 // no break
             case 'weeks':
-                $time = number_format($time / 604800, $decimals);
+                return static::differenceWeeks($time, $decimals);
 
-                return Strings::plural($ceil, tr(':time week', [
-                    ':time' => $time,
-                ]), tr(':time weeks', [
-                    ':time' => $time,
-                ]));
             case 'month':
                 // no break
             case 'months':
-                // NOTE: Month is assumed 30 days!
-                $time = number_format($time / 2592000, $decimals);
+                return static::differenceMonths($time, $decimals);
 
-                return Strings::plural($ceil, tr(':time month', [
-                    ':time' => $time,
-                ]), tr(':time months', [
-                    ':time' => $time,
-                ]));
             case 'year':
                 // no break
             case 'years':
-                // NOTE: Year is assumed 365 days!
-                $time = number_format($time / 31536000, $decimals);
+                return static::differenceYears($time, $decimals);
 
-                return Strings::plural($ceil, tr(':time year', [
-                    ':time' => $time,
-                ]), tr(':time years', [
-                    ':time' => $time,
-                ]));
             case 'auto':
-                if ($time < 60) {
-                    // Seconds
-                    return Time::difference($start, $stop, 'seconds', $decimals);
-                }
-                if ($time / 60 < 60) {
-                    // Minutes
-                    return Time::difference($start, $stop, 'minutes', $decimals);
-                }
-                if ($time / 3600 < 24) {
-                    // Hours
-                    return Time::difference($start, $stop, 'hours', $decimals);
-                }
-                if ($time / 86400 < 7) {
-                    // Days
-                    return Time::difference($start, $stop, 'days', $decimals);
-                }
-                if ($time / 604800 < 52) {
-                    // Weeks
-                    return Time::difference($start, $stop, 'weeks', $decimals);
-                }
-                if ($time / 2592000 < 12) {
-                    // Months
-                    return Time::difference($start, $stop, 'months', $decimals);
-                }
+                return static::differenceAuto($time, $start, $stop, $decimals);
 
-                // Years
-                return Time::difference($start, $stop, 'years', $decimals);
             default:
                 throw new OutOfBoundsException(tr('Unknown precision ":precision" specified', [
                     ':precision' => $precision,
                 ]));
         }
+    }
+
+
+    /**
+     * Returns the difference in times with automatic precision
+     *
+     * @param float $time
+     * @param float $start
+     * @param float $stop
+     * @param int   $decimals
+     *
+     * @return string
+     */
+    protected static function differenceAuto(float $time, float $start, float $stop, int $decimals = 2): string
+    {
+        if ($time < 60) {
+            // Seconds
+            return Time::difference($start, $stop, 'seconds', $decimals);
+        }
+
+        if ($time / 60 < 60) {
+            // Minutes
+            return Time::difference($start, $stop, 'minutes', $decimals);
+        }
+
+        if ($time / 3600 < 24) {
+            // Hours
+            return Time::difference($start, $stop, 'hours', $decimals);
+        }
+
+        if ($time / 86400 < 7) {
+            // Days
+            return Time::difference($start, $stop, 'days', $decimals);
+        }
+
+        if ($time / 604800 < 52) {
+            // Weeks
+            return Time::difference($start, $stop, 'weeks', $decimals);
+        }
+
+        if ($time / 2592000 < 12) {
+            // Months
+            return Time::difference($start, $stop, 'months', $decimals);
+        }
+
+        // Years
+        return Time::difference($start, $stop, 'years', $decimals);
+    }
+
+
+    /**
+     * Returns the correct string for years
+     *
+     * @param int $years
+     *
+     * @return string
+     */
+    protected static function getYearsString(int $years): string
+    {
+        return Strings::plural($years, tr(':time year', [
+            ':time' => $years,
+        ]), tr(':time years', [
+            ':time' => $years,
+        ]));
+    }
+
+
+    /**
+     * Returns the correct string for months
+     *
+     * @param int $months
+     *
+     * @return string
+     */
+    protected static function getMonthString(int $months): string
+    {
+        return Strings::plural($months, tr(':time month', [
+            ':time' => $months,
+        ]), tr(':time months', [
+            ':time' => $months,
+        ]));
+    }
+
+
+    /**
+     * Returns the correct string for weeks
+     *
+     * @param int $weeks
+     *
+     * @return string
+     */
+    protected static function getWeeksString(int $weeks): string
+    {
+        return Strings::plural($weeks, tr(':time week', [
+            ':time' => $weeks,
+        ]), tr(':time weeks', [
+            ':time' => $weeks,
+        ]));
+    }
+
+
+    /**
+     * Returns the correct string for days
+     *
+     * @param int $days
+     *
+     * @return string
+     */
+    protected static function getDaysString(int $days): string
+    {
+        return Strings::plural($days, tr(':time day', [
+            ':time' => $days,
+        ]), tr(':time days', [
+            ':time' => $days,
+        ]));
+    }
+
+
+    /**
+     * Returns the correct string for hours
+     *
+     * @param int $hours
+     *
+     * @return string
+     */
+    protected static function getHoursString(int $hours): string
+    {
+        return Strings::plural($hours, tr(':time hour', [
+            ':time' => $hours,
+        ]), tr(':time hours', [
+            ':time' => $hours,
+        ]));
+    }
+
+
+    /**
+     * Returns the correct string for minutes
+     *
+     * @param int $minutes
+     *
+     * @return string
+     */
+    protected static function getMinutesString(int $minutes): string
+    {
+        return Strings::plural($minutes, tr(':time minute', [
+            ':time' => $minutes,
+        ]), tr(':time minutes', [
+            ':time' => $minutes,
+        ]));
+    }
+
+
+    /**
+     * Returns the correct string for seconds
+     *
+     * @param float $seconds
+     *
+     * @return string
+     */
+    protected static function getSecondsString(float $seconds): string
+    {
+        return Strings::plural($seconds, tr(':time second', [
+            ':time' => $seconds,
+        ]), tr(':time seconds', [
+            ':time' => $seconds,
+        ]));
+    }
+
+
+    /**
+     * Returns the difference in times with the pointed precision for weeks
+     *
+     * @param float $time
+     * @param int   $decimals
+     *
+     * @return string
+     */
+    protected static function differenceYears(float $time, int $decimals = 2): string
+    {
+        // Calculate the times
+        // NOTE: Year is assumed 365 days!
+        $years   = (int) floor($time / 31536000);
+        $months  = (int) floor(($time - ($years * 31536000)) / 2592000);
+        $days    = (int) floor(($time - ($years * 31536000) - ($months * 2592000)) / 86400);
+        $hours   = (int) floor(($time - ($years * 31536000) - ($months * 2592000) - ($days * 86400)) / 3600);
+        $minutes = (float) number_format(($time - ($years * 31536000) - ($months * 2592000) - ($days * 86400) - ($hours * 3600)) / 60, $decimals);
+        $seconds = $minutes - (int) $minutes;
+        $minutes = (int) ($minutes - $seconds);
+        $seconds *= 60;
+
+        // Build the time strings
+        $years   = static::getYearsString($years);
+        $months  = static::getMonthString($months);
+        $days    = static::getDaysString($days);
+        $hours   = static::getHoursString($hours);
+        $minutes = static::getMinutesString($minutes);
+        $seconds = static::getSecondsString($seconds);
+
+        // Return the difference string
+        return $years . ' ' . $months . ' ' . $days . ' ' . $hours . ' ' . $minutes . ' ' . $seconds;
+    }
+
+
+
+    /**
+     * Returns the difference in times with the pointed precision for weeks
+     *
+     * @param float  $time
+     * @param int    $decimals
+     *
+     * @return string
+     */
+    protected static function differenceMonths(float $time, int $decimals = 2): string
+    {
+        // Calculate the times
+        // NOTE: Month is assumed 30 days!
+        $months   = (int) floor($time / 2592000);
+        $days     = (int) floor(($time - ($months * 2592000)) / 86400);
+        $hours    = (int) floor(($time - ($months * 2592000) - ($days * 86400)) / 3600);
+        $minutes  = (float) number_format(($time - ($months * 2592000) - ($days * 86400) - ($hours * 3600)) / 60, $decimals);
+        $seconds  = $minutes - (int) $minutes;
+        $minutes  = (int) ($minutes - $seconds);
+        $seconds *= 60;
+
+        // Build the time strings
+        $months  = static::getMonthString($months);
+        $days    = static::getDaysString($days);
+        $hours   = static::getHoursString($hours);
+        $minutes = static::getMinutesString($minutes);
+        $seconds = static::getSecondsString($seconds);
+
+        // Return the difference string
+        return $months . ' ' . $days . ' ' . $hours . ' ' . $minutes . ' ' . $seconds;
+    }
+
+
+
+    /**
+     * Returns the difference in times with the pointed precision for weeks
+     *
+     * @param float  $time
+     * @param int    $decimals
+     *
+     * @return string
+     */
+    protected static function differenceWeeks(float $time, int $decimals = 2): string
+    {
+        // Calculate the times
+        $weeks    = (int) floor($time / 604800);
+        $days     = (int) floor(($time - ($weeks * 604800)) / 86400);
+        $hours    = (int) floor(($time - ($weeks * 604800) - ($days * 86400)) / 3600);
+        $minutes  = (float) number_format(($time - ($weeks * 604800) - ($days * 86400) - ($hours * 3600)) / 60, $decimals);
+        $seconds  = $minutes - (int) $minutes;
+        $minutes  = (int) ($minutes - $seconds);
+        $seconds *= 60;
+
+        // Build the time strings
+        $weeks  = static::getWeeksString($weeks);
+        $days    = static::getDaysString($days);
+        $hours   = static::getHoursString($hours);
+        $minutes = static::getMinutesString($minutes);
+        $seconds = static::getSecondsString($seconds);
+
+        // Return the difference string
+        return $weeks . ' ' . $days . ' ' . $hours . ' ' . $minutes . ' ' . $seconds;
+    }
+
+
+    /**
+     * Returns the difference in times with the pointed precision for days
+     *
+     * @param float  $time
+     * @param int    $decimals
+     *
+     * @return string
+     */
+    protected static function differenceDays(float $time, int $decimals = 2): string
+    {
+        // Calculate the times
+        $days     = (int) floor($time / 86400);
+        $hours    = (int) floor(($time - ($days * 86400)) / 3600);
+        $minutes  = (float) number_format(($time - ($days * 86400) - ($hours * 3600)) / 60, $decimals);
+        $seconds  = $minutes - (int) $minutes;
+        $minutes  = (int) ($minutes - $seconds);
+        $seconds *= 60;
+
+        // Build the time strings
+        $days    = static::getDaysString($days);
+        $hours   = static::getHoursString($hours);
+        $minutes = static::getMinutesString($minutes);
+        $seconds = static::getSecondsString($seconds);
+
+        // Return the difference string
+        return $days . ' ' . $hours . ' ' . $minutes . ' ' . $seconds;
+    }
+
+
+    /**
+     * Returns the difference in times with the pointed precision for hours
+     *
+     * @param float  $time
+     * @param int    $decimals
+     *
+     * @return string
+     */
+    protected static function differenceHours(float $time, int $decimals = 2): string
+    {
+        // Calculate the times
+        $hours    = (int) floor($time / 3600);
+        $minutes  = (float) number_format(($time - ($hours * 3600)) / 60, $decimals);
+        $seconds  = $minutes - (int) $minutes;
+        $minutes  = (int) ($minutes - $seconds);
+        $seconds *= 60;
+
+        // Build the time strings
+        $hours   = static::getHoursString($hours);
+        $minutes = static::getMinutesString($minutes);
+        $seconds = static::getSecondsString($seconds);
+
+        // Return the difference string
+        return $hours . ' ' . $minutes . ' ' . $seconds;
+    }
+
+
+    /**
+     * Returns the difference in times with the pointed precision for minutes
+     *
+     * @param float  $time
+     * @param int    $decimals
+     *
+     * @return string
+     */
+    protected static function differenceMinutes(float $time, int $decimals = 2): string
+    {
+        // Calculate the times
+        $minutes  = (float) number_format($time / 60, $decimals);
+        $seconds  = $minutes - (int) $minutes;
+        $minutes  = (int) ($minutes - $seconds);
+        $seconds *= 60;
+
+        // Build the time strings
+        $minutes = static::getMinutesString($minutes);
+        $seconds = static::getSecondsString($seconds);
+
+        // Return the difference string
+        return $minutes . ' ' . $seconds;
+    }
+
+
+    /**
+     * Returns the difference in times with the pointed precision for minutes
+     *
+     * @param float  $time
+     * @param int    $decimals
+     *
+     * @return string
+     */
+    protected static function differenceSeconds(float $time, int $decimals = 2): string
+    {
+        return static::getSecondsString((float) number_format($time, $decimals));
     }
 
 
@@ -157,48 +467,28 @@ class Time
     public static function ago(float $original): string
     {
         // Common time periods as an array of arrays
-        $periods = [
-            [
-                60 * 60 * 24 * 365,
-                tr('year'),
-            ],
-            [
-                60 * 60 * 24 * 30,
-                tr('month'),
-            ],
-            [
-                60 * 60 * 24 * 7,
-                tr('week'),
-            ],
-            [
-                60 * 60 * 24,
-                tr('day'),
-            ],
-            [
-                60 * 60,
-                tr('hour'),
-            ],
-            [
-                60,
-                tr('minute'),
-            ],
-        ];
-        $today = time();
-        $since = $today - $original; // Find the difference of time between now and the past
+        $periods = static::getPeriods();
+        $today   = time();
+        $since   = $today - $original; // Find the difference of time between now and the past
+
         // Loop around the periods, starting with the biggest
         for ($i = 0, $j = count($periods); $i < $j; $i++) {
             $seconds = $periods[$i][0];
             $name    = $periods[$i][1];
+
             // Find the biggest whole period
             if (($count = floor($since / $seconds)) != 0) {
                 break;
             }
         }
+
         $output = ($count == 1) ? '1 ' . $name : "$count {$name}s";
+
         if ($i + 1 < $j) {
             // Retrieving the second relevant period
             $seconds2 = $periods[$i + 1][0];
             $name2    = $periods[$i + 1][1];
+
             // Only show it if it's greater than 0
             if (($count2 = floor(($since - ($seconds * $count)) / $seconds2)) != 0) {
                 $output .= ($count2 == 1) ? ', 1 ' . $name2 : ", $count2 {$name2}s";
@@ -206,6 +496,42 @@ class Time
         }
 
         return $output;
+    }
+
+
+    /**
+     * Returns all available periods
+     *
+     * @return array
+     */
+    public function getPeriods(): array
+    {
+        return [
+            [
+                31536000,
+                tr('year'),
+            ],
+            [
+                2592000,
+                tr('month'),
+            ],
+            [
+                604800,
+                tr('week'),
+            ],
+            [
+                86400,
+                tr('day'),
+            ],
+            [
+                3600,
+                tr('hour'),
+            ],
+            [
+                60,
+                tr('minute'),
+            ],
+        ];
     }
 
 
@@ -221,40 +547,75 @@ class Time
     public static function format(float $time, int $format = 24, string $separator = ':'): string
     {
         $time = static::validate($time);
+
         switch ($format) {
             case 12:
-                // Go for 12H format
-                if ($time['format'] == '12') {
-                    return $time['time'];
-                }
-                if ($time['hours'] > 11) {
-                    $time['hours']  -= 12;
-                    $time['period'] = 'PM';
+                return static::format12Hours($time, $separator);
 
-                } else {
-                    $time['period'] = 'AM';
-                }
-                if ($time['seconds'] === null) {
-                    return $time['hours'] . $separator . $time['minutes'] . ' ' . $time['period'];
-                }
-
-                return $time['hours'] . $separator . $time['minutes'] . $separator . $time['seconds'] . ' ' . $time['period'];
             case 24:
-                // Go for 24H format
-                if ($time['format'] == '24') {
-                    return $time['time'];
-                }
-                if ($time['period'] == 'PM') {
-                    $time['hours'] += 12;
-                }
-                if ($time['seconds'] === null) {
-                    return $time['hours'] . $separator . $time['minutes'];
-                }
+                return static::format24Hours($time, $separator);
 
-                return $time['hours'] . $separator . $time['minutes'] . $separator . $time['seconds'];
             default:
                 throw new OutOfBoundsException(tr('Unknown format ":format" specified', [':format' => $format]));
         }
+    }
+
+
+    /**
+     * Format the specified time to 12H
+     *
+     * @param array  $time
+     * @param string $separator
+     *
+     * @return string
+     */
+    protected static function format12Hours(array $time, string $separator = ':'): string
+    {
+        // Go for 12H format
+        if ($time['format'] == '12') {
+            return $time['time'];
+        }
+
+        if ($time['hours'] > 11) {
+            $time['hours']  -= 12;
+            $time['period'] = 'PM';
+
+        } else {
+            $time['period'] = 'AM';
+        }
+
+        if ($time['seconds'] === null) {
+            return $time['hours'] . $separator . $time['minutes'] . ' ' . $time['period'];
+        }
+
+        return $time['hours'] . $separator . $time['minutes'] . $separator . $time['seconds'] . ' ' . $time['period'];
+    }
+
+
+    /**
+     * Format the specified time to 12H
+     *
+     * @param array  $time
+     * @param string $separator
+     *
+     * @return string
+     */
+    protected static function format24Hours(array $time, string $separator = ':'): string
+    {
+        // Go for 24H format
+        if ($time['format'] == '24') {
+            return $time['time'];
+        }
+
+        if ($time['period'] == 'PM') {
+            $time['hours'] += 12;
+        }
+
+        if ($time['seconds'] === null) {
+            return $time['hours'] . $separator . $time['minutes'];
+        }
+
+        return $time['hours'] . $separator . $time['minutes'] . $separator . $time['seconds'];
     }
 
 
@@ -272,6 +633,7 @@ class Time
     public static function validate(float|string $time, bool $format = false, string $separator = ':'): array
     {
         $time = trim($time);
+
         // Check for 12 hours format
         if (!$format or ($format = '12')) {
             if (preg_match('/^(0?\d|(?:1(?:0|1)))\s?' . $separator . '\s?((?:0?|[1-5])\d)(?:\s?' . $separator . '\s?((?:0?|[1-5])\d)|)\s*(am|pm)$/i', $time, $matches)) {
@@ -285,6 +647,7 @@ class Time
                 ];
             }
         }
+
         // Check for 24 hours format
         if (!$format or ($format = '24')) {
             if (preg_match('/^((?:0?|1)\d|(?:2[0-3]))\s?' . $separator . '\s?((?:0?|[1-5])\d)(?:\s?' . $separator . '\s?((?:0?|[1-5])\d)|)$/', $time, $matches)) {
@@ -297,6 +660,7 @@ class Time
                 ];
             }
         }
+
         if ($format) {
             // The time format is either not valid at all, or not valid for the specifed 12H or 24H format
             throw new OutOfBoundsException('Specified time ":time" is not a valid ":format" format time', [
@@ -304,6 +668,7 @@ class Time
                 ':format' => $format,
             ]);
         }
+
         // The time format is not valid
         throw new OutOfBoundsException(tr('Specified time ":time" is not a valid time format', [':time' => $time]));
     }
