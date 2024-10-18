@@ -16,18 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages;
 
-use PDOStatement;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\TraitDataEmail;
-use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\Html\Components\ElementsBlock;
 
-
-class SetupPage extends ElementsBlock
+class SetupPage extends Page
 {
-    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null) {
-        throw new UnderConstructionException();
-
-        parent::__construct($source);
-    }
 }

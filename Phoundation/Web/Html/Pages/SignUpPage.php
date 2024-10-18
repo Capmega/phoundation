@@ -16,10 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages;
 
-use Phoundation\Data\Traits\TraitDataEmail;
-use Phoundation\Web\Html\Components\ElementsBlock;
 
-
-class SignUpPage extends ElementsBlock
+class SignUpPage extends Page
 {
 }
