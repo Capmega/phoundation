@@ -184,4 +184,15 @@ interface DefinitionsInterface extends IteratorInterface
      * @return static
      */
     public function setMetaVisible(bool $meta_visible): static;
+
+    /**
+     * Modify the specified definition directly
+     *
+     * @param Stringable|string|float|int $key
+     * @param array $key_values
+     * @param bool $exception
+     *
+     * @return static
+     */
+    public function modify(Stringable|string|float|int $key, array $key_values, bool $exception = true): static;
 }

@@ -41,6 +41,7 @@ use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Html\Traits\TraitBeforeAfterButtons;
+use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
 use ValueError;
@@ -646,7 +647,7 @@ class Definition implements DefinitionInterface
      * @param Stringable|string|float|int $key
      * @param bool                        $exception
      *
-     * @return DataEntry|null
+     * @return mixed
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
@@ -663,6 +664,21 @@ class Definition implements DefinitionInterface
         }
 
         return null;
+    }
+
+
+    /**
+     * Sets the specified definition rule directly
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int $key
+     *
+     * @return static
+     */
+    #[ReturnTypeWillChange] public function set(mixed $value, Stringable|string|float|int $key): static
+    {
+        $this->source[$key] = $value;
+        return $this;
     }
 
 
