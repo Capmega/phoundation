@@ -49,18 +49,18 @@ $card     = Card::new()
 
 
 // Build relevant links
-$relevant = Card::new()
-                ->setMode(EnumDisplayMode::info)
-                ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                              <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+$relevant_card = Card::new()
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Relevant links'))
+                     ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
+                                   <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation
-$documentation = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Documentation'))
-                     ->setContent('This page shows the details of a single specific incident. The information on this page cannot be modified');
+$documentation_card = Card::new()
+                          ->setMode(EnumDisplayMode::info)
+                          ->setTitle(tr('Documentation'))
+                          ->setContent('This page shows the details of a single specific incident. The information on this page cannot be modified');
 
 
 // Set page meta data
@@ -80,5 +80,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($card, EnumDisplaySize::nine)
-           ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+           ->addGridColumn($card                               , EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

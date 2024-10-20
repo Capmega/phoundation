@@ -95,30 +95,23 @@ $card = Card::new()
             ->setButtons($buttons);
 
 
-// Build the grid column with a form containing the password card
-$column = GridColumn::new()
-                    ->addContent($card->render())
-                    ->setSize(9)
-                    ->useForm(true);
-
-
 // Build relevant links
-$relevant = Card::new()
-                ->setMode(EnumDisplayMode::info)
-                ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('Manage my profile') . '</a><br>
-                              <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage my settings') . '</a><br>
-                              <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage my API access') . '</a><br>
-                              <a href="' . Url::getWww('/my/authentication-history.html') . '">' . tr('Review my authentication history') . '</a>');
+$relevant_card = Card::new()
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Relevant links'))
+                     ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('Manage my profile') . '</a><br>
+                                   <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage my settings') . '</a><br>
+                                   <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage my API access') . '</a><br>
+                                   <a href="' . Url::getWww('/my/authentication-history.html') . '">' . tr('Review my authentication history') . '</a>');
 
 
 // Build documentation
-$documentation = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Documentation'))
-                     ->setContent('<p>Here you can update your password</p>
-                                   <p>Please first supply your current password to be sure that it\'s you.</p>
-                                   <p>Then please supply your new password twice to avoid typos.</p>');
+$documentation_card = Card::new()
+                          ->setMode(EnumDisplayMode::info)
+                          ->setTitle(tr('Documentation'))
+                          ->setContent('<p>Here you can update your password</p>
+                                        <p>Please first supply your current password to be sure that it\'s you.</p>
+                                        <p>Then please supply your new password twice to avoid typos.</p>');
 
 
 // Set page meta data
@@ -133,5 +126,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($column)
-           ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+           ->addGridColumn($card                               , EnumDisplaySize::nine, true)
+           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

@@ -195,31 +195,19 @@ $connector_card = Card::new()
 
 
 // Build relevant links
-$relevant = Card::new()
-                ->setMode(EnumDisplayMode::info)
-                ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/phoundation/databases/databases.html') . '">' . tr('Manage databases') . '</a><br>');
+$relevant_card = Card::new()
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Relevant links'))
+                     ->setContent('<a href="' . Url::getWww('/phoundation/databases/databases.html') . '">' . tr('Manage databases') . '</a><br>');
 
 
 // Build documentation
-$documentation = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Documentation'))
-                     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
-                         <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
-                         <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
-
-
-// Render and return the page grid
-$grid = Grid::new()
-            ->addGridColumn(GridColumn::new()
-                            // The connector card and all additional cards
-                                  ->addContent($connector_card)
-                                  ->setSize(9)
-                                  ->useForm(true))
-            ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
+$documentation_card = Card::new()
+                          ->setMode(EnumDisplayMode::info)
+                          ->setTitle(tr('Documentation'))
+                          ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
+                                        <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
+                                        <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
 // Set page meta data
@@ -227,9 +215,15 @@ Response::setPageTitle(tr('Connector :connector', [':connector' => $connector->g
 Response::setHeaderTitle(tr('Connector'));
 Response::setHeaderSubTitle($connector->getDisplayName() . ($connector->isConfigured() ? ' [' . tr('Configured') . ']' : ''));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'                                                 => tr('Home'),
-                                                           '/system-administration.html'                       => tr('System administration'),
-                                                           '/phoundation/databases.html'                       => tr('Databases'),
-                                                           '/phoundation/databases/connectors/connectors.html' => tr('Connectors'),
-                                                           ''                                                  => $connector->getDisplayName(),
-                                                       ]));
+    '/'                                                 => tr('Home'),
+    '/system-administration.html'                       => tr('System administration'),
+    '/phoundation/databases.html'                       => tr('Databases'),
+    '/phoundation/databases/connectors/connectors.html' => tr('Connectors'),
+    ''                                                  => $connector->getDisplayName(),
+]));
+
+
+// Render and return the page grid
+return Grid::new()
+           ->addGridColumn($connector_card                     , EnumDisplaySize::nine, true)
+           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

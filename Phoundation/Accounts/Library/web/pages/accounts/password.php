@@ -101,36 +101,35 @@ $column = GridColumn::new()
 
 
 // Build relevant links
-$relevant = Card::new()
-                ->setMode(EnumDisplayMode::info)
-                ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/accounts/user+' . $user->getId() . '.html') . '">' . tr('Modify profile for this user') . '</a><br>
-                         <a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+$relevant_card = Card::new()
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Relevant links'))
+                     ->setContent('<a href="' . Url::getWww('/accounts/user+' . $user->getId() . '.html') . '">' . tr('Modify profile for this user') . '</a><br>
+                                   <a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
+                                   <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation
-$documentation = Card::new()
+$documentation_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Documentation'))
                      ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
-                         <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
-                         <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
+                                   <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
+                                   <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
-
-// Render and return the page grid
-$grid = Grid::new()
-            ->addGridColumn($column)
-            ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
 
 // Set page meta data
 Response::setHeaderTitle(tr('Change password'));
 Response::setHeaderSubTitle($user->getName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'                                          => tr('Home'),
-                                                           '/accounts/users.html'                       => tr('Users'),
-                                                           '/accounts/user+' . $user->getId() . '.html' => $user->getDisplayName(),
-                                                           ''                                           => tr('Modify password'),
-                                                       ]));
+    '/'                                          => tr('Home'),
+    '/accounts/users.html'                       => tr('Users'),
+    '/accounts/user+' . $user->getId() . '.html' => $user->getDisplayName(),
+    ''                                           => tr('Modify password'),
+]));
+
+
+// Render and return the page grid
+return Grid::new()
+           ->addGridColumn($column)
+           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

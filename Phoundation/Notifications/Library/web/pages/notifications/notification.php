@@ -79,30 +79,23 @@ $notification_card = Card::new()
 
 
 // Build relevant links
-$relevant = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . Url::getWww('/notifications/all.html') . '">' . tr('All notifications') . '</a><br>
-                          <a href="' . Url::getWww('/notifications/unread.html') . '">' . tr('Unread notifications') . '</a><br>
-                          <hr>
-                          <a href="' . Url::getWww('/security/incidents.html') . '">' . tr('Security incidents') . '</a>');
+$relevant_card = Card::new()
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Relevant links'))
+                     ->setContent('<a href="' . Url::getWww('/notifications/all.html') . '">' . tr('All notifications') . '</a><br>
+                                   <a href="' . Url::getWww('/notifications/unread.html') . '">' . tr('Unread notifications') . '</a><br>
+                                   <hr>
+                                   <a href="' . Url::getWww('/security/incidents.html') . '">' . tr('Security incidents') . '</a>');
 
 
 // Build documentation
-$documentation = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Documentation'))
-    ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
-                         <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
-                         <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
+$documentation_card = Card::new()
+                          ->setMode(EnumDisplayMode::info)
+                          ->setTitle(tr('Documentation'))
+                          ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
+                                        <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
+                                        <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
-
-// Render and return the page grid
-$grid = Grid::new()
-    ->addGridColumn($notification_card, EnumDisplaySize::nine, true)
-    ->addGridColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
 
 // Set page meta data
 Response::setHeaderTitle(tr('Notification'));
@@ -115,3 +108,9 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
         ':id'    => $notification->getId()
     ])
 ]));
+
+
+// Render and return the page grid
+return Grid::new()
+           ->addGridColumn($notification_card                  , EnumDisplaySize::nine, true)
+           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
