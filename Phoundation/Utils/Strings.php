@@ -1070,6 +1070,7 @@ throw new UnderConstructionException();
             }
         }
 
+
         if ($pos === false) {
             if ($needle_required) {
                 return '';

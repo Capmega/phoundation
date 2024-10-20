@@ -6,7 +6,7 @@ use Error;
 use Phoundation\Network\Sockets\Exception\SocketException;
 use RuntimeException;
 
-class SocketServer
+class Server
 {
     /**
      * A Multi-dimensional array of callable arrays mapped by hook name.

@@ -15,7 +15,7 @@ use function spl_object_hash;
  *
  * <p>A simple wrapper for PHP's socket functions.</p>
  */
-class PhoSocket implements Stringable
+class Socket implements Stringable
 {
     /**
      * @var int Should be set to one of the php predefined constants for Sockets - AF_UNIX, AF_INET, or AF_INET6
@@ -54,7 +54,7 @@ class PhoSocket implements Stringable
      */
     protected function __construct(protected SocketResource $resource)
     {
-        static::$map[$this->__toString()] = $this;
+        self::$map[$this->__toString()] = $this;
     }
 
     /**
@@ -106,15 +106,15 @@ class PhoSocket implements Stringable
      *
      * @see PhoSocket::create()
      */
-    public function accept(): static
+    public function accept(): self
     {
-        $return = socket_accept($this->resource);
+        $return = @socket_accept($this->resource);
 
         if ($return === false) {
-            throw new SocketException('!!!TODO');
+            throw new SocketException($this->resource);
         }
 
-        return new static($return);
+        return new self($return);
     }
 
     /**
@@ -134,21 +134,12 @@ class PhoSocket implements Stringable
      */
     public function bind(string $address, int $port = 0): bool
     {
-        try {
-            $result = socket_bind($this->resource, $address, $port);
-
-            if ($result === true) {
-                return true;
-
-            } elseif ($result === false) {
-    //            $errorCode = socket_last_error($this->resource);
-    //            $errorMessage = socket_strerror($errorCode);
-                throw new SocketException("Failed to bind socket: !!!TODO");
+        return static::exceptionOnFalse(
+            $this->resource,
+            static function ($resource) use ($address, $port) {
+                return @socket_bind($resource, $address, $port);
             }
-        } catch(\Throwable $e) {
-            throw new SocketException("Failed to bind socket: !!!TODO");
-        }
-        return false;
+        );
     }
 
     /**
@@ -158,11 +149,9 @@ class PhoSocket implements Stringable
      */
     public function close(): void
     {
-        unset(static::$map[$this->__toString()]);
-
+        unset(self::$map[$this->__toString()]);
         try {
-            socket_close($this->resource);
-
+            @socket_close($this->resource);
         } catch (Error $e) {
             if (!str_contains($e->getMessage(), 'has already been closed')) {
                 throw $e;
@@ -191,21 +180,12 @@ class PhoSocket implements Stringable
      */
     public function connect(string $address, int $port = 0): bool
     {
-        try {
-            $result = socket_connect($this->resource, $address, $port);
-
-            if ($result === true) {
-                return true;
-
-            } elseif ($result === false) {
-                throw new SocketException('!!!TODO');
+        return static::exceptionOnFalse(
+            $this->resource,
+            static function ($resource) use ($address, $port) {
+                return @socket_connect($resource, $address, $port);
             }
-
-        } catch (\Throwable $e) {
-            throw new SocketException("Failed to connect to socket: {$e->getMessage()}");
-        }
-
-        return false;
+        );
     }
 
     /**
@@ -217,17 +197,9 @@ class PhoSocket implements Stringable
      */
     protected static function constructFromResources(array $resources): array
     {
-        try {
-            $sockets = [];
-            foreach ($resources as $resource) {
-                $sockets[] = new static($resource);
-            }
-
-            return $sockets;
-
-        } catch (\Throwable $e) {
-            throw new SocketException("Failed to construct from socket: !!!TODO");
-        }
+        return array_map(static function ($resource) {
+            return new self($resource);
+        }, $resources);
     }
 
     /**
@@ -273,23 +245,18 @@ class PhoSocket implements Stringable
      */
     public static function create(int $domain, int $type, int $protocol): self
     {
-        try {
-        $return = socket_create($domain, $type, $protocol);
+        $return = @socket_create($domain, $type, $protocol);
 
         if ($return === false) {
-            throw new SocketException('!!!TODO');
+            throw new SocketException();
         }
 
-        $socket = new static($return);
-        $socket->domain   = $domain;
-        $socket->type     = $type;
+        $socket = new self($return);
+        $socket->domain = $domain;
+        $socket->type = $type;
         $socket->protocol = $protocol;
 
         return $socket;
-
-        } catch (\Throwable $e) {
-            throw new SocketException("Failed to construct from socket: !!!TODO");
-        }
     }
 
     /**
@@ -312,22 +279,16 @@ class PhoSocket implements Stringable
      */
     public static function createListen(int $port, int $backlog = 128): self
     {
-        try {
-            $return = socket_create_listen($port, $backlog);
+        $return = @socket_create_listen($port, $backlog);
 
-            if ($return === false) {
-                throw new SocketException();
-            }
-
-            $socket         = new self($return);
-            $socket->domain = AF_INET;
-
-            return $socket;
-
-        } catch (\Throwable $e) {
-            throw new SocketException("Failed to construct from socket: !!!TODO");
+        if ($return === false) {
+            throw new SocketException();
         }
 
+        $socket = new self($return);
+        $socket->domain = AF_INET;
+
+        return $socket;
     }
 
     /**
@@ -354,27 +315,22 @@ class PhoSocket implements Stringable
      */
     public static function createPair(int $domain, int $type, int $protocol): array
     {
-        try {
-            $array = [];
-            $return = socket_create_pair($domain, $type, $protocol, $array);
+        $array = [];
+        $return = @socket_create_pair($domain, $type, $protocol, $array);
 
-            if ($return === false) {
-                throw new SocketException('!!!TODO');
-            }
-
-            $sockets = static::constructFromResources($array);
-
-            foreach ($sockets as $socket) {
-                $socket->domain   = $domain;
-                $socket->type     = $type;
-                $socket->protocol = $protocol;
-            }
-
-            return $sockets;
-
-        } catch (\Throwable $e) {
-            throw new SocketException("Failed to construct from socket: !!!TODO");
+        if ($return === false) {
+            throw new SocketException();
         }
+
+        $sockets = self::constructFromResources($array);
+
+        foreach ($sockets as $socket) {
+            $socket->domain = $domain;
+            $socket->type = $type;
+            $socket->protocol = $protocol;
+        }
+
+        return $sockets;
     }
 
     /**
@@ -433,47 +389,40 @@ class PhoSocket implements Stringable
      */
     public function getOption(int $level, int $optname): mixed
     {
-        $this->checkSocketOpen();
-
-        $return = socket_get_option($this->resource, $level, $optname);
-
-        if ($return === false) {
-            throw new SocketException(tr('Failed to set socket option ":option"', [
-                ':option' => $optname,
-            ]));
-        }
-
-        return $return;
+        return static::exceptionOnFalse(
+            $this->resource,
+            static function ($resource) use ($level, $optname) {
+                return @socket_get_option($resource, $level, $optname);
+            }
+        );
     }
 
     /**
      * Queries the remote side of the given socket which may either result in host/port or in a Unix filesystem
      * path, dependent on its type.
      *
-     * @param string $address  <p>If the given socket is of type <code>AF_INET</code> or <code>AF_INET6</code>,
-     *                         <code>getPeerName()</code> will return the peers (remote) IP address in appropriate
-     *                         notation (e.g. <code>127.0.0.1</code> or <code>fe80::1</code>) in the address parameter
-     *                         and, if the optional port parameter is  present, also the associated port.</p><p>If the
-     *                         given socket is of type <code>AF_UNIX</code>, <code>getPeerName()</code> will return the
-     *                         Unix filesystem path (e.g. <code>/var/run/daemon.sock</cod>) in the address
-     *                         parameter.</p>
-     * @param int $port        (Optional) If given, this will hold the port associated to the address.
+     * @param string $address <p>If the given socket is of type <code>AF_INET</code> or <code>AF_INET6</code>,
+     * <code>getPeerName()</code> will return the peers (remote) IP address in appropriate notation (e.g.
+     * <code>127.0.0.1</code> or <code>fe80::1</code>) in the address parameter and, if the optional port parameter
+     * is  present, also the associated port.</p><p>If the given socket is of type <code>AF_UNIX</code>,
+     * <code>getPeerName()</code> will return the Unix filesystem path (e.g. <code>/var/run/daemon.sock</cod>) in
+     * the address parameter.</p>
+     * @param int $port (Optional) If given, this will hold the port associated to the address.
      *
-     * @return void            Returns nothing, but will set byref the $address and $port variables
+     * @return bool <p>Returns <code>true</code> if the retrieval of the peer name was successful.</p>
      * @throws SocketException <p>If the retrieval of the peer name fails or if the socket type is not
-     *                         <code>AF_INET</code>, <code>AF_INET6</code>, or <code>AF_UNIX</code>.</p>
+     *                                   <code>AF_INET</code>, <code>AF_INET6</code>, or <code>AF_UNIX</code>.</p>
+     *
      */
-    public function getPeerName(string &$address, int &$port): void
+    public function getPeerName(string &$address, int &$port): bool
     {
-        $this->checkSocketOpen();
-
-        $return = socket_getpeername($this->resource, $address, $port);
-
-        if ($return === false) {
-            throw new SocketException(tr('Failed to get peer name'));
-        }
+        return static::exceptionOnFalse(
+            $this->resource,
+            static function ($resource) use (&$address, &$port) {
+                return @socket_getpeername($resource, $address, $port);
+            }
+        );
     }
-
 
     /**
      * Queries the local side of the given socket which may either result in host/port or in a Unix filesystem path,
@@ -504,7 +453,7 @@ class PhoSocket implements Stringable
         return static::exceptionOnFalse(
             $this->resource,
             static function ($resource) use (&$address, &$port) {
-                return socket_getsockname($resource, $address, $port);
+                return @socket_getsockname($resource, $address, $port);
             }
         );
     }
@@ -525,7 +474,7 @@ class PhoSocket implements Stringable
         if (get_resource_type($stream) === 'Unknown') {
             throw new InvalidArgumentException('$stream must be a resource');
         }
-        $return = socket_import_stream($stream);
+        $return = @socket_import_stream($stream);
 
         // As of PHP 8, `$return` can only be {@see SocketResource} or `false`
         if ($return === false) {
@@ -559,7 +508,7 @@ class PhoSocket implements Stringable
         return static::exceptionOnFalse(
             $this->resource,
             static function ($resource) use ($backlog) {
-                return socket_listen($resource, $backlog);
+                return @socket_listen($resource, $backlog);
             }
         );
     }
@@ -589,7 +538,7 @@ class PhoSocket implements Stringable
         return static::exceptionOnFalse(
             $this->resource,
             static function ($resource) use ($length, $type) {
-                return socket_read($resource, $length, $type);
+                return @socket_read($resource, $length, $type);
             }
         );
     }
@@ -622,7 +571,7 @@ class PhoSocket implements Stringable
         return static::exceptionOnFalse(
             $this->resource,
             static function ($resource) use (&$buffer, $length, $flags) {
-                return socket_recv($resource, $buffer, $length, $flags);
+                return @socket_recv($resource, $buffer, $length, $flags);
             }
         );
     }
@@ -665,7 +614,7 @@ class PhoSocket implements Stringable
         $writeSockets = self::mapClassToRawSocket($write);
         $exceptSockets = self::mapClassToRawSocket($except);
 
-        $return = socket_select(
+        $return = @socket_select(
             $readSockets,
             $writeSockets,
             $exceptSockets,
@@ -776,7 +725,7 @@ class PhoSocket implements Stringable
 
         // make sure everything is written
         do {
-            $return = socket_write($this->resource, $buffer, $length);
+            $return = @socket_write($this->resource, $buffer, $length);
 
             if (false !== $return && $return < $length) {
                 $buffer = substr($buffer, $return);
@@ -819,7 +768,7 @@ class PhoSocket implements Stringable
 
         // make sure everything is written
         do {
-            $return = socket_send($this->resource, $buffer, $length, $flags);
+            $return = @socket_send($this->resource, $buffer, $length, $flags);
 
             if ((false !== $return) and  ($return < $length)) {
                 $buffer = substr($buffer, $return);
@@ -854,25 +803,10 @@ class PhoSocket implements Stringable
     public function setBlocking(bool $bool): void
     {
         if ($bool) {
-            socket_set_block($this->resource);
+            @socket_set_block($this->resource);
 
         } else {
-            socket_set_nonblock($this->resource);
+            @socket_set_nonblock($this->resource);
         }
-    }
-
-
-    /**
-     * Checks if a socket is available and open, throws exception otherwise
-     *
-     * @return void
-     */
-    public function checkSocketOpen(): void
-    {
-        if ($this->resource) {
-            return;
-        }
-
-        throw new SocketException('Socket is not connected');
     }
 }
