@@ -297,15 +297,22 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     /**
      * Returns the exception messages
      *
-     * @param array|null $messages
+     * @param array|string|null $messages
      *
      * @return static
      */
-    public function addMessages(array|null $messages): static
+    public function addMessages(array|string|null $messages): static
     {
         if ($messages) {
-            foreach ($messages as $message) {
-                $this->messages[] = trim($message);
+            if (is_array($messages)) {
+                // Add multiple message
+                foreach ($messages as $message) {
+                    $this->messages[] = trim($message);
+                }
+
+            } else {
+                // Add a single message
+                $this->messages[] = trim($messages);
             }
         }
 

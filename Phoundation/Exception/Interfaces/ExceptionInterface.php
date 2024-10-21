@@ -42,11 +42,11 @@ interface ExceptionInterface extends Throwable, ArrayableInterface
     /**
      * Returns the exception messages
      *
-     * @param array $messages
+     * @param array|string|null $messages
      *
      * @return Exception
      */
-    public function addMessages(array $messages): static;
+    public function addMessages(array|string|null $messages): static;
 
 
     /**
