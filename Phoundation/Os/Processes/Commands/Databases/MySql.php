@@ -259,6 +259,7 @@ class MySql extends Command
             $this->deletePasswordFile($restrictions);
 
             return $results;
+
         } catch (MysqlException $e) {
             // Ensure that the password file will be removed
             $this->deletePasswordFile($restrictions);

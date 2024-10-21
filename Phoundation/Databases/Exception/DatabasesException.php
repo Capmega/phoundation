@@ -16,10 +16,57 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Exception;
 
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Exception\Interfaces\DatabasesExceptionInterface;
 use Phoundation\Exception\Exception;
 
 
 class DatabasesException extends Exception implements DatabasesExceptionInterface
 {
+    /**
+     * Returns the connector interface or null if it is not found
+     *
+     * @return ConnectorInterface|null
+     */
+    public function getConnectorObject(): ?ConnectorInterface
+    {
+        return $this->getDataKey('connector');
+    }
+
+
+    /**
+     * Adds the connector object information to a DatabasesException
+     *
+     * @param ConnectorInterface|null $connector
+     *
+     * @return static
+     */
+    public function setConnectorObject(?ConnectorInterface $connector): static
+    {
+        return $this->addData($connector, 'connector');
+    }
+
+
+    /**
+     * Returns the database name
+     *
+     * @return string|int|null
+     */
+    public function getDatabase(): string|int|null
+    {
+        return $this->getDataKey('database');
+    }
+
+
+    /**
+     * Sets the database name
+     *
+     * @param string|int|null $database
+     *
+     * @return static
+     */
+    public function setDatabase(string|int|null $database): static
+    {
+        return $this->addData($database, 'database');
+    }
 }

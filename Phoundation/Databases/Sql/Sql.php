@@ -1923,10 +1923,12 @@ class Sql implements SqlInterface
             return $this;
         }
 
-        throw new DatabaseTestException(tr('Database test for connector ":connector" should return "1" but returned ":result" instead', [
+        throw DatabaseTestException::new(tr('Database test for connector ":connector" should return "1" but returned ":result" instead', [
             ':connector' => $this->connector,
             ':result'    => $result,
-        ]));
+        ]))
+        ->setDatabase($this->getDatabase())
+        ->setConnectorObject($this->getConnectorObject());
     }
 
 //    /**
