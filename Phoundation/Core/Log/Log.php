@@ -24,6 +24,8 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\DateTime;
@@ -1197,7 +1199,20 @@ class Log
                     }
 
                 } else {
-                    static::write(print_r($data, true), 'debug', $threshold, false, $echo_newline, $echo_prefix, $echo_screen);
+                    foreach ($data as $key => $value) {
+                        if (is_object($value)) {
+                            if ($value instanceof DataEntryInterface) {
+                                $value = [
+                                    'datatype' => 'object (DataEntryInterface)',
+                                    'class'    => $value::class,
+                                    'data'     => $value->getSource(),
+                                ];
+                            }
+                        }
+
+                        static::write($key . ': '          , 'debug', $threshold, false, false, $echo_prefix, $echo_screen);
+                        static::write(print_r($value, true), 'debug', $threshold, false, true , $echo_prefix, $echo_screen);
+                    }
                 }
 
             } else {
