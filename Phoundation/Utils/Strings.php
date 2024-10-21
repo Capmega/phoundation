@@ -1737,6 +1737,10 @@ throw new UnderConstructionException();
      */
     public static function fromBoolean(mixed $value): string
     {
+        if ($value === 'false') {
+            return $value;
+        }
+
         if ($value) {
             return 'true';
         }
