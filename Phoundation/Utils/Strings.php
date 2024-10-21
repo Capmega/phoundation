@@ -20,13 +20,11 @@ namespace Phoundation\Utils;
 use Phoundation\Cli\CliColor;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Html\Components\P;
 use StephenHill\Base58;
 use Stringable;
 use Throwable;
@@ -1452,10 +1450,11 @@ throw new UnderConstructionException();
      * truncated to (by default) 8192 characters
      *
      * @param mixed $source
-     * @param int $truncate
-     * @param bool $ensure_visible
+     * @param int   $truncate
+     * @param bool  $ensure_visible
      * @return string The string, truncated if required, according to the specified truncating rules
-     * @see       Strings::truncate()
+     *
+     * @see Strings::truncate()
      */
     public static function log(mixed $source, int $truncate = 65536, bool $ensure_visible = false): string
     {
