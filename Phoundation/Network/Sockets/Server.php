@@ -4,11 +4,17 @@ namespace Phoundation\Network\Sockets;
 
 use Error;
 use Phoundation\Core\Core;
+use Phoundation\Data\Traits\TraitDataUSleep;
 use Phoundation\Network\Sockets\Exception\SocketException;
+use Phoundation\Utils\Config;
 use RuntimeException;
+use Throwable;
 
 class Server
 {
+    use TraitDataUSleep;
+
+
     /**
      * A Multi-dimensional array of callable arrays mapped by hook name.
      *
@@ -127,6 +133,7 @@ class Server
             $this->address = $address;
             $this->port    = $port;
             $this->timeout = $timeout;
+            $this->usleep  = Config::getInteger('network.sockets.usleep', 10);
 
             switch (true) {
                 case filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4):
@@ -141,7 +148,7 @@ class Server
                     $this->domain = AF_UNIX;
             }
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new SocketException($e->getMessage());
         }
     }
@@ -163,7 +170,7 @@ class Server
                                            ->getSockName($this->address, $this->port)
                                            ->listen();
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new SocketException($e->getMessage());
         }
     }
@@ -190,8 +197,8 @@ class Server
 
             $this->shutDownEverything();
 
-        } catch (\Throwable $e) {
-            throw new SocketException($e->getMessage());
+        } catch (Throwable $e) {
+            throw new SocketException($e->getMessage(), $e);
         }
     }
 
@@ -248,7 +255,7 @@ class Server
             // Clean up
             unset($read, $write, $except);
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new SocketException($e->getMessage());
         }
 
@@ -320,7 +327,7 @@ class Server
         try {
             $return = $client->read($this->maxRead, $this->readType);
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new SocketException($e->getMessage());
         }
 
@@ -437,7 +444,7 @@ class Server
         try {
             $this->masterSocket?->close();
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // TODO: writer says this is needed to "catch harmless error"
             if (!str_contains($e->getMessage(), 'must not be accessed before initialization')) {
                 throw new SocketException($e->getMessage());
