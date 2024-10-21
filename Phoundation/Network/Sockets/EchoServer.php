@@ -2,25 +2,25 @@
 
 namespace Phoundation\Network\Sockets;
 
-class EchoServer extends SocketServer
+class EchoServer extends Server
 {
-    const DEFAULT_PORT = 4097;
+    const DEFAULT_PORT = 4098;
 
     public function __construct($ip = null, $port = self::DEFAULT_PORT)
     {
         parent::__construct($ip, $port);
-        $this->addHook(SocketServer::HOOK_CONNECT, array($this, 'onConnect'));
-        $this->addHook(SocketServer::HOOK_INPUT, array($this, 'onInput'));
-        $this->addHook(SocketServer::HOOK_DISCONNECT, array($this, 'onDisconnect'));
+        $this->addHook(Server::HOOK_CONNECT   , [$this, 'onConnect']);
+        $this->addHook(Server::HOOK_INPUT     , [$this, 'onInput']);
+        $this->addHook(Server::HOOK_DISCONNECT, [$this, 'onDisconnect']);
         $this->run();
     }
 
-    public function onConnect(SocketServer $server, PhoSocket $client, $message)
+    public function onConnect(Server $server, PhoSocket $client, $message)
     {
         echo 'Connection Established',"\n";
     }
 
-    public function onInput(SocketServer $server, PhoSocket $client, $message)
+    public function onInput(Server $server, PhoSocket $client, $message)
     {
         $message = trim($message);
 
@@ -28,11 +28,13 @@ class EchoServer extends SocketServer
             die();
         }
 
+        $response = 'Echoing: ' . $message . "\n";
+
         echo 'Received "',$message,'"',"\n";
-        $client->write($message, strlen($message));
+        $client->write($response, strlen($response));
     }
 
-    public function onDisconnect(SocketServer $server, PhoSocket $client, $message)
+    public function onDisconnect(Server $server, PhoSocket $client, $message)
     {
         echo 'Disconnection',"\n";
     }

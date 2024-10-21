@@ -3,6 +3,7 @@
 namespace Phoundation\Network\Sockets;
 
 use Error;
+use Phoundation\Core\Log\Log;
 use Phoundation\Network\Sockets\Exception\SocketException;
 use RuntimeException;
 
@@ -367,7 +368,10 @@ class SocketServer
             if (!str_contains($e->getMessage(), 'must not be accessed before initialization')) {
                 throw $e;
             }
+
+            Log::warning(tr('Ignoring socket exception ":e"', [':e' => $e->getMessage()]));
         }
+
         unset(
             $this->hooks,
             $this->address,
