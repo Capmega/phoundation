@@ -107,7 +107,7 @@ class RedisTest extends TestCase
         $this->assertTrue($this->redis->ping(), 'Pinging connection (from string) should return true');
         $this->redis->close();
 
-        $this->expectException(RedisConnectionFailedException::class);
+        $this->expectException(RedisException::class);
         $this->redis = Redis::new(Connector::new('new-connector'), false);
 
         $this->redis->close();

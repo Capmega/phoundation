@@ -159,7 +159,7 @@ class Redis implements DatabaseInterface, RedisInterface
     {
         try {
             $result = $this->client->close();
-            unset($this->client);
+//            unset($this->client);
 
         } catch (Throwable $e) {
             throw RedisException::new(tr('Exception while closing Redis connector ":connector"', [
@@ -249,21 +249,26 @@ class Redis implements DatabaseInterface, RedisInterface
     }
 
 
+    /**
+     *
+     *
+     * @return int
+     */
     public function getDatabase(): int
     {
         try {
-            $result = $this->connect()->client->getDbNum();
+            $return = $this->connect()->client->getDbNum();
 
-            if ($result) {
-                return $result;
+            if ($return === false) {
+                throw new RedisException(tr('PHP driver Redis::getDbNum() returned false'));
             }
 
-            throw new RedisException(tr('Redis driver returned false????'));
+            return $return;
 
         } catch (Throwable $e) {
-            throw RedisException::new(tr('Failed to get Database number from Redis connector ":connector', [
-                ':connector' => $this->getConnectorObject()->getName()]), $e)
-            ->setDatabase($this->getDatabase())
+            throw RedisException::new(tr('Failed to get Database from Redis connector ":connector"', [
+                ':connector' => $this->getConnectorObject()->getLogId()]), $e)
+            ->setDatabase(-1)
             ->setConnectorObject($this->getConnectorObject());
         }
     }
@@ -324,8 +329,12 @@ class Redis implements DatabaseInterface, RedisInterface
     public function dropQueue(string $queue): static
     {
         try {
-            $this->connect()
-                 ->client->del('queue_' . $queue);
+            $result = $this->connect()
+                        ->client->del('queue_' . $queue);
+
+            if ($result === false) {
+                throw new RedisException(tr('PHP driver Redis::del() returned false'));
+            }
 
             return $this;
 
@@ -349,8 +358,12 @@ class Redis implements DatabaseInterface, RedisInterface
     public function delValue(string $key): static
     {
         try {
-            $this->connect()
-                ->client->del('value_' . $key);
+            $result = $this->connect()
+                        ->client->del('value_' . $key);
+
+            if ($result === false) {
+                throw new RedisException(tr('PHP driver Redis::del() returned false'));
+            }
 
             return $this;
 
