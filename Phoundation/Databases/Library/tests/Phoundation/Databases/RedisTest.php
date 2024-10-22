@@ -353,8 +353,9 @@ class RedisTest extends TestCase
     public function testShowAll()
     {
         $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $this->redis->clearAll();
 
-        $this->redis->push('value1','test-queue');
+        $this->redis->push('value-1','test-queue');
         $this->redis->push('value-2', 'test-queue');
         $this->redis->push('value-3', 'test-queue-2');
         $this->redis->push('value-4', 'test-queue-3');

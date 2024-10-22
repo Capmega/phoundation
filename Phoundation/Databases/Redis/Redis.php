@@ -159,23 +159,22 @@ class Redis implements DatabaseInterface, RedisInterface
     {
         try {
             $result = $this->client->close();
-//            unset($this->client);
+            unset($this->client);
+
+            if ($result) {
+                return $this;
+            }
+
+            throw RedisException::new(tr('Failed to close Redis connector ":connector"', [
+                ':connector' => $this->getConnectorObject()->getName()]));
 
         } catch (Throwable $e) {
             throw RedisException::new(tr('Exception while closing Redis connector ":connector"', [
-                ':connector' => $this->getConnectorObject()->getName()]), $e)
-                ->setDatabase($this->getDatabase())
-                ->setConnectorObject($this->getConnectorObject());
+                ':connector' => $this->getConnectorObject()->getName()
+            ]), $e)
+            ->setDatabase($this->getDatabase())
+            ->setConnectorObject($this->getConnectorObject());
         }
-
-        if ($result) {
-            return $this;
-        }
-
-        throw RedisException::new(tr('Failed to close Redis connector ":connector"', [
-            ':connector' => $this->getConnectorObject()->getName()]))
-        ->setDatabase($this->getDatabase())
-        ->setConnectorObject($this->getConnectorObject());
     }
 
 
@@ -313,8 +312,8 @@ class Redis implements DatabaseInterface, RedisInterface
             throw RedisException::new(tr('Failed to set database to ":database" with value ":value" from Redis connector ":connector', [
                 ':database' => $database,
                 ':connector' => $this->getConnectorObject()->getName()]), $e)
-                ->setDatabase($this->getDatabase())
-                ->setConnectorObject($this->getConnectorObject());
+            ->setDatabase($this->getDatabase())
+            ->setConnectorObject($this->getConnectorObject());
         }
     }
 
@@ -342,14 +341,14 @@ class Redis implements DatabaseInterface, RedisInterface
             throw RedisException::new(tr('Failed to drop queue ":$queue" from Redis connector ":connector', [
                 ':$queue'      => $queue,
                 ':connector' => $this->getConnectorObject()->getName()]), $e)
-                ->setDatabase($this->getDatabase())
-                ->setConnectorObject($this->getConnectorObject());
+            ->setDatabase($this->getDatabase())
+            ->setConnectorObject($this->getConnectorObject());
         }
     }
 
 
     /**
-     * Drop a queue from the Redis database
+     * Drop/deletes a queue from the Redis database
      *
      * @param string $key
      *
@@ -371,14 +370,15 @@ class Redis implements DatabaseInterface, RedisInterface
             throw RedisException::new(tr('Failed to delete key ":key" from Redis connector ":connector', [
                 ':$key'      => $key,
                 ':connector' => $this->getConnectorObject()->getName()]), $e)
-                ->setDatabase($this->getDatabase())
-                ->setConnectorObject($this->getConnectorObject());
+            ->setDatabase($this->getDatabase())
+            ->setConnectorObject($this->getConnectorObject());
         }
     }
 
 
     /**
-     * Pushes the specified value to the beginning of the queue (on the left) to the queue
+     * Pushes the specified value to the end of the queue (on the right)
+     * e.g. if array[0] = a, array[1] = b, array[2] = c and we run push(d, array), now array[3] = d
      *
      * @param mixed  $value
      * @param string $queue
@@ -391,21 +391,28 @@ class Redis implements DatabaseInterface, RedisInterface
             return $this;
 
         } try {
-            $this->client->rPush('queue_' . $queue, Json::encode($value));
-            return $this;
+            $result = $this->client->rPush('queue_' . $queue, Json::encode($value));
+
+        if ($result === false) {
+            throw new RedisException(tr('PHP driver Redis::rPush() returned false'));
+        }
+
+        return $this;
 
         } catch (Throwable $e) {
             throw RedisException::new(tr('Failed to push value ":value" to Redis connector ":connector', [
                 ':value'     => $value,
                 ':connector' => $this->getConnectorObject()->getName()]), $e)
-                ->setDatabase($this->getDatabase())
-                ->setConnectorObject($this->getConnectorObject());
+            ->setDatabase($this->getDatabase())
+            ->setConnectorObject($this->getConnectorObject());
         }
     }
 
 
     /**
-     * Pops the last value off the queue (from the right) from the queue and returns it
+     * Pops the first value off the queue (from the left) from the queue and returns it
+     * e.g. if array[0] = a, array[1] = b, array[2] = c and we run pop(array),
+     *      now array[0] = b, array[1] = c, array[2] = null.
      *
      * @param string $queue
      * @param int    $timeout
@@ -421,14 +428,19 @@ class Redis implements DatabaseInterface, RedisInterface
 
         try {
             $result = $this->client->blPop('queue_' . $queue, $timeout);
+
+            if ($result === false) {
+                throw new RedisException(tr('PHP driver Redis::del() returned false'));
+            }
+
             return Json::decode($result[1]);
+
         } catch (Throwable $e) {
             throw RedisException::new(tr('Failed to pop from Redis connector ":connector"', [
                 ':connector' => $this->getConnectorObject()->getName()]), $e)
-                ->setDatabase($this->getDatabase())
-                ->setConnectorObject($this->getConnectorObject());
+            ->setDatabase($this->getDatabase())
+            ->setConnectorObject($this->getConnectorObject());
         }
-
     }
 
 
@@ -440,12 +452,11 @@ class Redis implements DatabaseInterface, RedisInterface
     public function test(): static
     {
         throw new UnderConstructionException();
-
     }
 
 
     /**
-     * Check if a queue exists
+     * Check if a queue exists by name and returns a boolean value
      *
      * @param string $queue
      *
@@ -468,16 +479,16 @@ class Redis implements DatabaseInterface, RedisInterface
 
         } catch (Throwable $e) {
             throw RedisException::new(tr('Failed to search for queue ":queue" from Redis connector ":connector', [
-                ':queue' => $queue,
+                ':queue'     => $queue,
                 ':connector' => $this->getConnectorObject()->getName()]), $e)
-                ->setDatabase($this->getDatabase())
-                ->setConnectorObject($this->getConnectorObject());
+            ->setDatabase($this->getDatabase())
+            ->setConnectorObject($this->getConnectorObject());
         }
     }
 
 
     /**
-     * Check if a key exists
+     * Check if a key exists and returns a boolean value
      *
      * @param string $key
      *
@@ -486,14 +497,16 @@ class Redis implements DatabaseInterface, RedisInterface
     public function keyExists(string $key): bool
     {
         try {
-            return $this->connect()
-                ->client->exists('value_' . $key);
+            $return = $this->connect()->client->exists('value_' . $key);
+
+            return (bool) $return;
+
         } catch (Throwable $e) {
             throw RedisException::new(tr('Failed to search for key ":key" from Redis connector ":connector', [
-                ':key' => $key,
+                ':key'       => $key,
                 ':connector' => $this->getConnectorObject()->getName()]), $e)
-                ->setDatabase($this->getDatabase())
-                ->setConnectorObject($this->getConnectorObject());
+            ->setDatabase($this->getDatabase())
+            ->setConnectorObject($this->getConnectorObject());
         }
     }
 
@@ -506,24 +519,22 @@ class Redis implements DatabaseInterface, RedisInterface
     public function clearAll(): static
     {
         try {
-            $this->connect()
-                 ->client->flushAll();
-
+            $this->connect()->client->flushAll();
             return $this;
 
         } catch (Throwable $e) {
             throw RedisException::new(tr('Failed to clear all from Redis connector ":connector', [
                 ':connector' => $this->getConnectorObject()->getName()]), $e)
-                ->setDatabase($this->getDatabase())
-                ->setConnectorObject($this->getConnectorObject());
+            ->setDatabase($this->getDatabase())
+            ->setConnectorObject($this->getConnectorObject());
         }
     }
 
 
     /**
-     * Return an array which lists all values in the Redis connector stored at the specified queue in the range
-     * [start, end]. start and stop are interpreted as indices: 0 the first element, 1 the second ... -1 the last
-     * element, -2 the penultimate ...
+     * Return an array which lists all values in the Redis connector. If $start and $end are specified, return an array
+     * which lists all values stored in the specified queue in the range [start, end]. start and stop are interpreted
+     * as indices: 0 the first element, 1 the second ... -1 the last element, -2 the penultimate ...
      *
      * @param string $queue
      * @param int    $start
@@ -550,11 +561,10 @@ class Redis implements DatabaseInterface, RedisInterface
             return $return;
 
         } catch (Throwable $e) {
-            throw RedisException::new(tr('Failed to get queue ":queue" from Redis connector ":connector"', [
-                ':connector' => $this->getConnectorObject()->getName(),
-                ':queue' => $queue]), $e)
-                ->setDatabase($this->getDatabase())
-                ->setConnectorObject($this->getConnectorObject());
+            throw RedisException::new(tr('Failed to get Queue from Redis connector ":connector', [
+                ':connector' => $this->getConnectorObject()->getName()]), $e)
+                                ->setDatabase($this->getDatabase())
+                                ->setConnectorObject($this->getConnectorObject());
         }
     }
 
@@ -595,7 +605,7 @@ class Redis implements DatabaseInterface, RedisInterface
 
 
     /**
-     * Takes the queue and clears all values from it
+     * Takes a queue and clears all values from it, leaving it as an empty array
      *
      * @return $this
      */
@@ -603,17 +613,17 @@ class Redis implements DatabaseInterface, RedisInterface
     {
         try {
             if ($this->queueExists($queue)) {
-                $this->connect()->client->set('queue_' . $queue, []);
+                $result = $this->connect()->client->set('queue_' . $queue, []);
 
-                return $this;
-
-            } else {
-                throw RedisException::new(tr('Failed find queue ":queue"', [
-                    ':queue' => $queue]))
-                ->setDatabase($this->getDatabase())
-                ->setConnectorObject($this->getConnectorObject());
+                if ($result) {
+                    return $this;
+                }
             }
 
+            throw RedisException::new(tr('Failed find queue ":queue"', [
+                ':queue' => $queue]))
+            ->setDatabase($this->getDatabase())
+            ->setConnectorObject($this->getConnectorObject());
 
         } catch (Throwable $e) {
             throw RedisException::new(tr('Failed to clear queue ":queue" with connector ":connector"', [
@@ -643,7 +653,7 @@ class Redis implements DatabaseInterface, RedisInterface
             $result = $this->connect()->client->lLen('queue_' . $queue);
 
             if ($result === false) {
-                throw RedisException::new(tr('Failed to get find Redis queue ":queue" with connector ":connector"', [
+                throw RedisException::new(tr('PHP driver Redis::lLen() returned false', [
                     ':connector' => $this->getConnectorObject()->getName(),
                     ':queue' => $queue]))
                 ->setDatabase($this->getDatabase())
@@ -664,7 +674,7 @@ class Redis implements DatabaseInterface, RedisInterface
 
 
     /**
-     * Pings connection
+     * Pings a connection to a Redis database
      *
      * @param string|null $message
      * @param bool        $exception
@@ -677,7 +687,8 @@ class Redis implements DatabaseInterface, RedisInterface
             $return = $this->client->ping($message);
 
             if ($return === false) {
-                throw RedisException::new(tr('Ping returned false'))
+                throw RedisException::new(tr('PHP driver Redis::ping() returned false', [
+                    ':connector' => $this->getConnectorObject()->getName()]))
                 ->setDatabase($this->getDatabase())
                 ->setConnectorObject($this->getConnectorObject());
             }
@@ -687,26 +698,34 @@ class Redis implements DatabaseInterface, RedisInterface
         } catch (Throwable $e) {
             if ($exception) {
                 throw RedisException::new(tr('Failed to ping Redis server ":server" with message ":message"', [
-                    ':server' => $this->getConnectorObject()->getLogId(),]))
+                    ':server' => $this->getConnectorObject()->getLogId(),
+                    ':message' => $e->getMessage()]))
                 ->setDatabase($this->getDatabase())
                 ->setConnectorObject($this->getConnectorObject());
             }
-
             return false;
         }
     }
 
 
     /**
-     * Shows all keys/queues
-     *
+     * Shows all keys and queues in the database
      *
      * @return array
      */
     public function showAll(): array
     {
         try {
-            return $this->client->keys('*');
+            $return =  $this->client->keys('*');
+
+            if ($return === false) {
+                throw RedisException::new(tr('PHP driver Redis::keys() returned false', [
+                    ':connector' => $this->getConnectorObject()->getName()]))
+                ->setDatabase($this->getDatabase())
+                ->setConnectorObject($this->getConnectorObject());
+            }
+
+            return $return;
 
         } catch (Throwable $e) {
             throw RedisException::new(tr('Failed to get all keys for server ":server"', [
@@ -715,146 +734,6 @@ class Redis implements DatabaseInterface, RedisInterface
             ->setConnectorObject($this->getConnectorObject());
         }
     }
-
-
-// /**
-//     * Check if a value exists in the list.
-//     *
-//     * @param string $queue
-//     * @param mixed  $value
-//     *
-//     * @return bool
-//     */
-//    public function itemExists(string $queue, mixed $value): bool
-//    {
-//        try {
-//            return $this->connect()
-//                ->client->sIsMember($queue, $value);
-//
-//        } catch (Throwable $e) {
-//            throw RedisException::new(tr('Failed to search list ":queue" for item ":value" with connector ":connector"', [
-//                ':value' => $value,
-//                ':connector' => $this->getConnectorObject()->getName(),
-//                ':queue' => $queue
-//            ]), $e);
-//        }
-//    }
-
-
-//    /**
-//     * Returns the values of multiple lists.
-//     *
-//     * @param array $lists The lists to find in the Redis database
-//     *
-//     * @return array|null An array containing all the values for the specified lists. If a list was not found in the Redis
-//     *                    database, it's value will be NULL
-//     */
-//    public function getMultiple(array $lists): ?array
-//    {
-//        try {
-//            foreach ($lists as &$key) {
-//                $key = 'value_' . $key;
-//            }
-//
-//            // Creates an array with empty values as 'false'
-//            $return = $this->connect()
-//                           ->client->mGet($key);
-//
-//            // Set false values to null, or return null if no values
-//            if ($return) {
-//                foreach ($return as &$value) {
-//                    if (!$value) {
-//                        $value = null;
-//                    }
-//                }
-//
-//                unset($value);
-//            }
-//
-//            return null;
-//
-//        } catch (Throwable $e) {
-//            throw RedisException::new(tr('Failed to return lists ":lists" from Redis connector ":connector"', [
-//                ':lists' => $lists,
-//                ':connector' => $this->getConnectorObject()->getName()
-//            ]), $e);
-//        }
-//    }
-
-
-//    /**
-//     * Gets the item from the list at a specified index
-//     *
-//     * @param int $index
-//     *
-//     * @return mixed
-//     */
-//    public function getListElement(int $index): mixed
-//    {
-//        try {
-//            return $this->connect()
-//                ->client->lIndex($this->list_name, $index);
-//
-//        } catch (Throwable $e) {
-//            throw RedisException::new(tr('Failed to get item at index ":index" of Redis list ":list" from connector ":connector"', [
-//                ':connector' => $this->getConnectorObject()->getName(),
-//                ':index' => $index,
-//                ':list' => $this->list_name
-//            ]), $e);
-//        }
-//    }
-//
-//
-//    /**
-//     * Sets an item's value in the list at a specified index
-//     *
-//     * @param mixed $value
-//     * @param int $index
-//     *
-//     * @return mixed
-//     */
-//    public function setListElement(mixed $value, int $index): static
-//    {
-//        try {
-//            return $this->connect()
-//                ->client->lSet($this->list_name, $index, $value);
-//
-//        } catch (Throwable $e) {
-//            throw RedisException::new(tr('Failed to set item at index ":index" of Redis list ":list" from connector ":connector"', [
-//                ':connector' => $this->getConnectorObject()->getName(),
-//                ':index' => $index,
-//                ':list' => $this->list_name
-//            ]), $e);
-//        }
-//    }
-
-
-///**
-//     * Removes the first 'n' occurrences of the value element from the list.
-//     *  If count is zero, all the matching elements are removed. If count is negative,
-//     *  elements are removed from tail to head. By default, remove all matching elements.
-//     *
-//     * @param string   $value
-//     * @param int|null $count
-//     *
-//     * @return $this
-//     */
-//    public function deleteFrom(string $value, ?int $count = 0): static
-//    {
-//        try {
-//            $this->connect()
-//                ->client->lRem($this->list_name, $value, $count);
-//
-//            return $this;
-//
-//        } catch (Throwable $e) {
-//            throw RedisException::new(tr('Failed to delete value ":value: from list ":list" with connector ":connector"', [
-//                ':value' => $value,
-//                ':connector' => $this->getConnectorObject()->getName(),
-//                ':list' => $this->list_name
-//            ]), $e);
-//        }
-//    }
 
 
     /**
