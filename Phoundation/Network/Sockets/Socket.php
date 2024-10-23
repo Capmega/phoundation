@@ -1,55 +1,44 @@
 <?php
 
-/**
- * Class PhoSocket
- *
- *
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Network
- */
-
-
-declare(strict_types=1);
-
 namespace Phoundation\Network\Sockets;
 
-use Phoundation\Data\Traits\TraitDataStaticSourceArray;
+use Error;
+use InvalidArgumentException;
 use Phoundation\Network\Sockets\Exception\SocketException;
-use Socket;
+use Socket as SocketResource;
 use Stringable;
 
+use function spl_object_hash;
 
 /**
  * Class Socket.
  *
  * <p>A simple wrapper for PHP's socket functions.</p>
  */
-class PhoSocket implements Stringable
+class Socket implements Stringable
 {
-    use TraitDataStaticSourceArray;
-
-
     /**
      * @var int Should be set to one of the php predefined constants for Sockets - AF_UNIX, AF_INET, or AF_INET6
      */
-    public int $domain;
+    protected int $domain;
 
     /**
      * @var int Should be set to one of the php predefined constants for Sockets - SOCK_STREAM, SOCK_DGRAM,
      *          SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM
      */
-    public int $type;
+    protected int $type;
 
     /**
      * @var int Should be set to the protocol number to be used. Can use getprotobyname to get the value.
      *          Alternatively, there are two predefined constants for Sockets that could be used - SOL_TCP, SOL_UDP
      */
-    public int $protocol;
+    protected int $protocol;
 
-    
+    /**
+     * @var array<string, PhoSocket> An internal storage of php socket resources and their associated Socket object.
+     */
+    protected static array $map = [];
+
     /**
      * Sets up the Socket Resource and stores it in the local map.
      *
@@ -57,17 +46,16 @@ class PhoSocket implements Stringable
      * Factory pattern</a> to create instances. Please use the <code>create</code> method to create new instances
      * of this class.
      *
-     * @param Socket $resource The php socket resource. This is just a reference to the socket object created
+     * @param SocketResource $resource The php socket resource. This is just a reference to the socket object created
      *                                 using the <code>socket_create</code> method.
      *
      * @see PhoSocket::create()
      *
      */
-    protected function __construct(Socket $resource)
+    protected function __construct(protected SocketResource $resource)
     {
-        static::$source[$this->__toString()] = $this;
+        self::$map[$this->__toString()] = $this;
     }
-
 
     /**
      * Cleans up the Socket and dereferences the internal resource.
@@ -77,7 +65,6 @@ class PhoSocket implements Stringable
         $this->close();
         unset($this->resource);
     }
-
 
     /**
      * Return the php socket resource name.
@@ -96,7 +83,6 @@ class PhoSocket implements Stringable
     {
         return spl_object_hash($this->resource);
     }
-
 
     /**
      * Accept a connection.
@@ -120,19 +106,16 @@ class PhoSocket implements Stringable
      *
      * @see PhoSocket::create()
      */
-    public function accept(): static
+    public function accept(): self
     {
-        $result = socket_accept($this->resource);
+        $return = @socket_accept($this->resource);
 
-        if (!$result) {
-            throw SocketException::new(tr('Failed to accept socket'))
-                                 ->setCode(socket_last_error($this->resource))
-                                 ->addMessages(socket_strerror(socket_last_error($this->resource)));
+        if ($return === false) {
+            throw new SocketException($this->resource);
         }
 
-        return new static($result);
+        return new self($return);
     }
-
 
     /**
      * Binds a name to a socket.
@@ -141,53 +124,40 @@ class PhoSocket implements Stringable
      * connection is established using <code>connect()</code> or <code>listen()</code>.</p>
      *
      * @param string $address <p>If the socket is of the AF_INET family, the address is an IP in dotted-quad notation
-     *                        (e.g. <code>127.0.0.1</code>).</p> <p>If the socket is of the AF_UNIX family, the address is the path of the
-     *                        Unix-domain socket (e.g. <code>/tmp/my.sock</code>).</p>
-     * @param int    $port    <p>(Optional) The port parameter is only used when binding an AF_INET socket, and
-     *                        designates the port on which to listen for connections.</p>
+     * (e.g. <code>127.0.0.1</code>).</p> <p>If the socket is of the AF_UNIX family, the address is the path of the
+     * Unix-domain socket (e.g. <code>/tmp/my.sock</code>).</p>
+     * @param int $port <p>(Optional) The port parameter is only used when binding an AF_INET socket, and
+     * designates the port on which to listen for connections.</p>
      *
-     * @return PhoSocket Returns $this
+     * @return bool Returns `true` if the bind was successful.
+     * @throws SocketException If the bind was unsuccessful.
      */
-    public function bind(string $address, int $port = 0): static
+    public function bind(string $address, int $port = 0): bool
     {
-            $result = socket_bind($this->resource, $address, $port);
-
-            if (!$result) {
-                throw SocketException::new(tr('Failed to bind socket ":address::port"', [
-                    ':address' => $address,
-                    ':port'    => $port
-                ]))
-                ->setCode(socket_last_error($this->resource))
-                ->addMessages(socket_strerror(socket_last_error($this->resource)));
+        return static::exceptionOnFalse(
+            $this->resource,
+            static function ($resource) use ($address, $port) {
+                return @socket_bind($resource, $address, $port);
             }
-
-            return $this;
+        );
     }
-
 
     /**
-     * Closes a PhoSocket
+     * Close the socket.
      *
-     * @return PhoSocket
+     * <p>Closes the php socket resource currently in use and removes the reference to it in the internal map.</p>
      */
-    public function close(): static
+    public function close(): void
     {
-        unset(static::$source[$this->__toString()]);
-
+        unset(self::$map[$this->__toString()]);
         try {
-            socket_close($this->resource);
-
-        } catch (\Throwable $e) {
+            @socket_close($this->resource);
+        } catch (Error $e) {
             if (!str_contains($e->getMessage(), 'has already been closed')) {
-                throw SocketException::new(tr('Failed to close socket'))
-                ->setCode(socket_last_error($this->resource))
-                ->addMessages(socket_strerror(socket_last_error($this->resource)));
+                throw $e;
             }
         }
-
-        return $this;
     }
-
 
     /**
      * Connect to a socket.
@@ -196,52 +166,41 @@ class PhoSocket implements Stringable
      * socket resource created with <code>create()</code>.
      *
      * @param string $address <p>The address parameter is either an IPv4 address in dotted-quad notation (e.g.
-     *                        <code>127.0.0.1</code>) if the socket is AF_INET, a valid IPv6 address (e.g. <code>::1</code>) if IPv6 support
-     *                        is enabled and the socket is AF_INET6, or the pathname of a Unix domain socket, if the socket family is
-     *                        AF_UNIX.</p>
-     * @param int    $port    <p>(Optional) The port parameter is only used and is mandatory when connecting to an AF_INET
-     *                        or an AF_INET6 socket, and designates the port on the remote host to which a connection should be made.</p>
+     * <code>127.0.0.1</code>) if the socket is AF_INET, a valid IPv6 address (e.g. <code>::1</code>) if IPv6 support
+     * is enabled and the socket is AF_INET6, or the pathname of a Unix domain socket, if the socket family is
+     * AF_UNIX.</p>
+     * @param int $port <p>(Optional) The port parameter is only used and is mandatory when connecting to an AF_INET
+     * or an AF_INET6 socket, and designates the port on the remote host to which a connection should be made.</p>
      *
-     * @return PhoSocket Returns <code>true</code> if connection was successful.
+     * @return bool Returns <code>true</code> if connection was successful.
+     * @throws SocketException If connection was unsuccessful or if the socket is non-blocking.
      * @see PhoSocket::listen()
      * @see PhoSocket::create()
      * @see PhoSocket::bind()
      */
-    public function connect(string $address, int $port = 0): static
+    public function connect(string $address, int $port = 0): bool
     {
-        $result = socket_connect($this->resource, $address, $port);
-
-        if (!$result) {
-            throw SocketException::new(tr('Failed to connect to socket ":address::port"', [
-                ':address' => $address,
-                ':port'    => $port
-            ]))
-                                 ->setCode(socket_last_error($this->resource))
-                                 ->addMessages(socket_strerror(socket_last_error($this->resource)));
-        }
-
-        return $this;
+        return static::exceptionOnFalse(
+            $this->resource,
+            static function ($resource) use ($address, $port) {
+                return @socket_connect($resource, $address, $port);
+            }
+        );
     }
-
 
     /**
      * Build Socket objects based on an array of php socket resources.
      *
-     * @param Socket[] $resources A list of php socket resource objects.
+     * @param SocketResource[] $resources A list of php socket resource objects.
      *
      * @return PhoSocket[] <p>Returns an array of Socket objects built from the given php socket resources.</p>
      */
     protected static function constructFromResources(array $resources): array
     {
-        $sockets = [];
-
-        foreach ($resources as $resource) {
-            $sockets[] = new static($resource);
-        }
-
-        return $sockets;
+        return array_map(static function ($resource) {
+            return new self($resource);
+        }, $resources);
     }
-
 
     /**
      * Create a socket.
@@ -284,26 +243,21 @@ class PhoSocket implements Stringable
      * @throws SocketException If there is an error creating the php socket.
      *
      */
-    public static function create(int $domain, int $type, int $protocol): static
+    public static function create(int $domain, int $type, int $protocol): self
     {
-        $result = socket_create($domain, $type, $protocol);
+        $return = @socket_create($domain, $type, $protocol);
 
-        if (!$result) {
-            throw SocketException::new(tr('Failed to create socket with domain ":domain", type ":type", protocol ":protocol"', [
-                ':domain'   => $domain,
-                ':type'     => $type,
-                ':protocol' => $protocol
-            ]));
+        if ($return === false) {
+            throw new SocketException();
         }
 
-        $socket           = new static($result);
-        $socket->domain   = $domain;
-        $socket->type     = $type;
+        $socket = new self($return);
+        $socket->domain = $domain;
+        $socket->type = $type;
         $socket->protocol = $protocol;
 
         return $socket;
     }
-
 
     /**
      * Opens a socket on port to accept connections.
@@ -323,23 +277,19 @@ class PhoSocket implements Stringable
      *
      * @see PhoSocket::create()
      */
-    public static function createListen(int $port, int $backlog = 128): static
+    public static function createListen(int $port, int $backlog = 128): self
     {
+        $return = @socket_create_listen($port, $backlog);
 
-        $result = socket_create_listen($port, $backlog);
-
-        if (!$result) {
-            throw SocketException::new(tr('Failed to create socket and listen on port ":port"', [
-                ':port'   => $port,
-            ]));
+        if ($return === false) {
+            throw new SocketException();
         }
 
-        $socket         = new self($result);
+        $socket = new self($return);
         $socket->domain = AF_INET;
 
         return $socket;
     }
-
 
     /**
      * Creates a pair of indistinguishable sockets and stores them in an array.
@@ -366,27 +316,22 @@ class PhoSocket implements Stringable
     public static function createPair(int $domain, int $type, int $protocol): array
     {
         $array = [];
-        $result = socket_create_pair($domain, $type, $protocol, $array);
+        $return = @socket_create_pair($domain, $type, $protocol, $array);
 
-        if (!$result) {
-        throw SocketException::new(tr('Failed to create socket pair at domain ":domain" with type ":type" and protocol ":protocol"', [
-            ':domain'   => $domain,
-            ':type'     => $type,
-            ':protocol' => $protocol
-            ]));
+        if ($return === false) {
+            throw new SocketException();
         }
 
-        $sockets = static::constructFromResources($array);
+        $sockets = self::constructFromResources($array);
 
         foreach ($sockets as $socket) {
-            $socket->domain   = $domain;
-            $socket->type     = $type;
+            $socket->domain = $domain;
+            $socket->type = $type;
             $socket->protocol = $protocol;
         }
 
         return $sockets;
     }
-
 
     /**
      * Gets socket options.
@@ -444,56 +389,40 @@ class PhoSocket implements Stringable
      */
     public function getOption(int $level, int $optname): mixed
     {
-        $this->checkSocketOpen();
-
-        $return = socket_get_option($this->resource, $level, $optname);
-
-        if (!$return) {
-            throw SocketException::new(tr('Failed to get socket option ":optname" at leve; :"level"', [
-                ':optname' => $optname,
-                ':level'   => $level
-            ]))
-            ->setCode(socket_last_error($this->resource))
-            ->addMessages(socket_strerror(socket_last_error($this->resource)));
-        }
-
-        return $return;
+        return static::exceptionOnFalse(
+            $this->resource,
+            static function ($resource) use ($level, $optname) {
+                return @socket_get_option($resource, $level, $optname);
+            }
+        );
     }
-
 
     /**
      * Queries the remote side of the given socket which may either result in host/port or in a Unix filesystem
      * path, dependent on its type.
      *
-     * @param string $address  <p>If the given socket is of type <code>AF_INET</code> or <code>AF_INET6</code>,
-     *                         <code>getPeerName()</code> will return the peers (remote) IP address in appropriate
-     *                         notation (e.g. <code>127.0.0.1</code> or <code>fe80::1</code>) in the address parameter
-     *                         and, if the optional port parameter is  present, also the associated port.</p><p>If the
-     *                         given socket is of type <code>AF_UNIX</code>, <code>getPeerName()</code> will return the
-     *                         Unix filesystem path (e.g. <code>/var/run/daemon.sock</cod>) in the address
-     *                         parameter.</p>
-     * @param int    $port     (Optional) If given, this will hold the port associated to the address.
+     * @param string $address <p>If the given socket is of type <code>AF_INET</code> or <code>AF_INET6</code>,
+     * <code>getPeerName()</code> will return the peers (remote) IP address in appropriate notation (e.g.
+     * <code>127.0.0.1</code> or <code>fe80::1</code>) in the address parameter and, if the optional port parameter
+     * is  present, also the associated port.</p><p>If the given socket is of type <code>AF_UNIX</code>,
+     * <code>getPeerName()</code> will return the Unix filesystem path (e.g. <code>/var/run/daemon.sock</cod>) in
+     * the address parameter.</p>
+     * @param int $port (Optional) If given, this will hold the port associated to the address.
      *
-     * @return PhoSocket Returns nothing, but will set byref the $address and $port variables
+     * @return bool <p>Returns <code>true</code> if the retrieval of the peer name was successful.</p>
+     * @throws SocketException <p>If the retrieval of the peer name fails or if the socket type is not
+     *                                   <code>AF_INET</code>, <code>AF_INET6</code>, or <code>AF_UNIX</code>.</p>
+     *
      */
-    public function getPeerName(string &$address, int &$port): static
+    public function getPeerName(string &$address, int &$port): bool
     {
-        $this->checkSocketOpen();
-
-        $result = socket_getpeername($this->resource, $address, $port);
-
-        if (!$result) {
-            throw SocketException::new(tr('Failed to get peer name for socket at ":address::port"', [
-                ':address' => $address,
-                ':port'    => $port
-            ]))
-            ->setCode(socket_last_error($this->resource))
-            ->addMessages(socket_strerror(socket_last_error($this->resource)));
-        }
-
-        return $this;
+        return static::exceptionOnFalse(
+            $this->resource,
+            static function ($resource) use (&$address, &$port) {
+                return @socket_getpeername($resource, $address, $port);
+            }
+        );
     }
-
 
     /**
      * Queries the local side of the given socket which may either result in host/port or in a Unix filesystem path,
@@ -504,36 +433,30 @@ class PhoSocket implements Stringable
      * call to <code>bind()</code> will return meaningful values.</p>
      *
      * @param string $address <p>If the given socket is of type <code>AF_INET</code> or <code>AF_INET6</code>,
-     *                        <code>getSockName()</code> will return the local IP address in appropriate notation (e.g. <code>127.0.0.1</code>
-     *                        or <code>fe80::1</code>) in the address parameter and, if the optional port parameter is present, also the
-     *                        associated port.</p><p>If the given socket is of type <code>AF_UNIX</code>, <code>getSockName()</code> will
-     *                        return the Unix filesystem path (e.g. <code>/var/run/daemon.sock</cod>) in the address parameter.</p>
-     * @param int    $port    If provided, this will hold the associated port.
+     * <code>getSockName()</code> will return the local IP address in appropriate notation (e.g. <code>127.0.0.1</code>
+     * or <code>fe80::1</code>) in the address parameter and, if the optional port parameter is present, also the
+     * associated port.</p><p>If the given socket is of type <code>AF_UNIX</code>, <code>getSockName()</code> will
+     * return the Unix filesystem path (e.g. <code>/var/run/daemon.sock</cod>) in the address parameter.</p>
+     * @param int $port If provided, this will hold the associated port.
      *
-     * @return PhoSocket <p>Returns <code>true</code> if the retrieval of the socket name was successful.</p>
+     * @return bool <p>Returns <code>true</code> if the retrieval of the socket name was successful.</p>
+     * @throws SocketException <p>If the retrieval of the socket name fails or if the socket type is not
+     *                                   <code>AF_INET</code>, <code>AF_INET6</code>, or <code>AF_UNIX</code>.</p>
+     *
      */
-    public function getSockName(string &$address, int &$port): static
+    public function getSockName(string &$address, int &$port): bool
     {
         if (!in_array($this->domain, [AF_UNIX, AF_INET, AF_INET6])) {
-            throw new SocketException(tr('Invalid socket domain ::domain"', [
-                ':domain' => $this->domain
-            ]));
+            return false;
         }
 
-        $result = socket_getsockname($this->resource, $address, $port);
-
-        if (!$result) {
-            throw SocketException::new(tr('Failed to get peer name for socket at ":address::port"', [
-                ':address' => $address,
-                ':port'    => $port
-            ]))
-            ->setCode(socket_last_error($this->resource))
-            ->addMessages(socket_strerror(socket_last_error($this->resource)));
-        }
-
-        return $this;
+        return static::exceptionOnFalse(
+            $this->resource,
+            static function ($resource) use (&$address, &$port) {
+                return @socket_getsockname($resource, $address, $port);
+            }
+        );
     }
-
 
     /**
      * Imports a stream.
@@ -546,25 +469,20 @@ class PhoSocket implements Stringable
      * @throws SocketException If the import of the stream is not successful.
      *
      */
-    public static function importStream($stream): static
+    public static function importStream($stream): self
     {
         if (get_resource_type($stream) === 'Unknown') {
-            throw new SocketException(tr('Invalid stream type: ":stream"', [
-                ':steam' => $stream
-            ]));
+            throw new InvalidArgumentException('$stream must be a resource');
+        }
+        $return = @socket_import_stream($stream);
+
+        // As of PHP 8, `$return` can only be {@see SocketResource} or `false`
+        if ($return === false) {
+            throw new SocketException();
         }
 
-        $result = socket_import_stream($stream);
-
-        if (!$result) {
-            throw SocketException::new(tr('Failed to import socket at stream ":stream"', [
-                ':stream' => $stream
-            ]));
-        }
-
-        return new static($result);
+        return new self($return);
     }
-
 
     /**
      * Listens for a connection on a socket.
@@ -573,29 +491,27 @@ class PhoSocket implements Stringable
      * it may be told to listen for incoming connections on socket.</p>
      *
      * @param int $backlog <p>A maximum of backlog incoming connections will be queued for processing. If a
-     *                     connection request arrives with the queue full the client may receive an error with an indication of
-     *                     ECONNREFUSED, or, if the underlying protocol supports retransmission, the request may be ignored so that
-     *                     retries may succeed.</p><p> <b>Note:</b> The maximum number passed to the backlog parameter highly depends on
-     *                     the underlying platform. On Linux, it is silently truncated to <code>SOMAXCONN</code>. On win32, if passed
-     *                     <code>SOMAXCONN</code>, the underlying service provider responsible for the socket will set the backlog to a
-     *                     maximum reasonable value. There is no standard provision to find out the actual backlog value on this platform.
-     *                     </p>
+     * connection request arrives with the queue full the client may receive an error with an indication of
+     * ECONNREFUSED, or, if the underlying protocol supports retransmission, the request may be ignored so that
+     * retries may succeed.</p><p> <b>Note:</b> The maximum number passed to the backlog parameter highly depends on
+     * the underlying platform. On Linux, it is silently truncated to <code>SOMAXCONN</code>. On win32, if passed
+     * <code>SOMAXCONN</code>, the underlying service provider responsible for the socket will set the backlog to a
+     * maximum reasonable value. There is no standard provision to find out the actual backlog value on this platform.
+     * </p>
      *
-     * @return PhoSocket Returns <code>true</code> on success.
+     * @return bool Returns <code>true</code> on success.
+     * @throws SocketException If the listen fails.
+     *
      */
-    public function listen(int $backlog = 0): static
+    public function listen(int $backlog = 0): bool
     {
-        $result = socket_listen($this->resource, $backlog);
-
-        if (!$result) {
-            throw SocketException::new(tr('Socket failed to listen'))
-            ->setCode(socket_last_error($this->resource))
-            ->addMessages(socket_strerror(socket_last_error($this->resource)));
-        }
-
-        return $this;
+        return static::exceptionOnFalse(
+            $this->resource,
+            static function ($resource) use ($backlog) {
+                return @socket_listen($resource, $backlog);
+            }
+        );
     }
-
 
     /**
      * reads a maximum of length bytes from a socket.
@@ -619,22 +535,13 @@ class PhoSocket implements Stringable
      */
     public function read(int $length, int $type = PHP_BINARY_READ): string
     {
-        $this->checkSocketOpen();
-
-        $return = socket_read($this->resource, $length, $type);
-
-        if ($return === false) {
-            throw SocketException::new(tr('Failed to read from socket with length ":length" and type ":type"', [
-                ':length'    => $length,
-                ':type'      => $type
-            ]))
-            ->setCode(socket_last_error($this->resource))
-            ->addMessages(socket_strerror(socket_last_error($this->resource)));
-        }
-
-        return $return;
+        return static::exceptionOnFalse(
+            $this->resource,
+            static function ($resource) use ($length, $type) {
+                return @socket_read($resource, $length, $type);
+            }
+        );
     }
-
 
     /**
      * Receives data from a connected socket.
@@ -661,21 +568,13 @@ class PhoSocket implements Stringable
      */
     public function receive(string &$buffer, int $length, int $flags): int
     {
-        $return = socket_recv($this->resource, $buffer, $length, $flags);
-
-        if ($return === false) {
-            throw SocketException::new(tr('Failed to receive from socket with buffer ":buffer" and length ":length" and flags ":flags"', [
-                ':buffer'    => $buffer,
-                ':length'    => $length,
-                ':flags'      => $flags
-            ]))
-            ->setCode(socket_last_error($this->resource))
-            ->addMessages(socket_strerror(socket_last_error($this->resource)));
-        }
-
-        return $return;
+        return static::exceptionOnFalse(
+            $this->resource,
+            static function ($resource) use (&$buffer, $length, $flags) {
+                return @socket_recv($resource, $buffer, $length, $flags);
+            }
+        );
     }
-
 
     /**
      * Runs the select() system call on the given arrays of sockets with a specified timeout.
@@ -704,12 +603,18 @@ class PhoSocket implements Stringable
      * @throws SocketException If there was an error.
      *
      */
-    public static function select(array &$read, array &$write, array &$except, ?int $timeoutSeconds, int $timeoutMilliseconds = 0): int {
-        $readSockets   = self::mapClassToRawSocket($read);
-        $writeSockets  = self::mapClassToRawSocket($write);
+    public static function select(
+        array &$read,
+        array &$write,
+        array &$except,
+        ?int $timeoutSeconds,
+        int $timeoutMilliseconds = 0
+    ): int {
+        $readSockets = self::mapClassToRawSocket($read);
+        $writeSockets = self::mapClassToRawSocket($write);
         $exceptSockets = self::mapClassToRawSocket($except);
 
-        $return = socket_select(
+        $return = @socket_select(
             $readSockets,
             $writeSockets,
             $exceptSockets,
@@ -718,92 +623,86 @@ class PhoSocket implements Stringable
         );
 
         if ($return === false) {
-            throw SocketException::new(tr('Failed to select socket'));
+            throw new SocketException();
         }
 
-        $read   = $readSockets   ? static::mapRawSocketToClass($readSockets)   : [];
-        $write  = $writeSockets  ? static::mapRawSocketToClass($writeSockets)  : [];
-        $except = $exceptSockets ? static::mapRawSocketToClass($exceptSockets) : [];
+        $read = [];
+        $write = [];
+        $except = [];
+
+        if ($readSockets) {
+            $read = static::mapRawSocketToClass($readSockets);
+        }
+        if ($writeSockets) {
+            $write = static::mapRawSocketToClass($writeSockets);
+        }
+        if ($exceptSockets) {
+            $except = static::mapRawSocketToClass($exceptSockets);
+        }
 
         return $return;
     }
-
 
     /**
      * Maps an array of Sockets to an array of socket resources.
      *
      * @param PhoSocket[] $sockets An array of sockets to map.
      *
-     * @return Socket[] Returns the corresponding array of resources.
+     * @return SocketResource[] Returns the corresponding array of resources.
      */
     protected static function mapClassToRawSocket(array $sockets): array
     {
-        $result = [];
-
-        foreach ($sockets as $socket) {
-            if ($socket instanceof PhoSocket) {
-                if ($socket->resource) {
-                    $result[] = $socket->resource;
-                }
-            }
-        }
-
-        return $result;
+        return array_filter(
+            array_map(
+                static function (PhoSocket $socket) {
+                    return $socket->resource;
+                },
+                $sockets
+            )
+        );
     }
-
 
     /**
      * Maps an array of socket resources to an array of Sockets.
      *
-     * @param Socket[] $sockets An array of socket resources to map.
+     * @param SocketResource[] $sockets An array of socket resources to map.
      *
      * @return PhoSocket[] Returns the corresponding array of Socket objects.
      */
     protected static function mapRawSocketToClass(array $sockets): array
     {
-        $return = [];
-
-        foreach ($sockets as $rawSocket) {
-            $socketHash = spl_object_hash($rawSocket);
-
-            if (empty(static::$source[$socketHash])) {
-                throw SocketException::new(tr('Failed to map socket with hash ":hash"', [
-                    ':hash' => $socketHash
-                ]));
-            }
-
-            $return[$socketHash] = static::$source[$socketHash];
-        }
-
-        return $return;
+        return array_map(
+            static function ($rawSocket) {
+                return self::$map[spl_object_hash($rawSocket)];
+            },
+            $sockets
+        );
     }
-
 
     /**
      * Performs the closure function.  If it returns false, throws a SocketException using the provided resource.
      *
      * @template T
-     * @param ?Socket $resource Socket Resource
-     * @param callable(Socket):T $closure A function that takes 1 parameter (a socket resource)
+     * @param ?SocketResource $resource Socket Resource
+     * @param callable(SocketResource):T $closure A function that takes 1 parameter (a socket resource)
      * @return T
      *
      * @throws SocketException
      */
-    protected static function exceptionOnFalse(?Socket $resource, callable $closure): mixed
+    protected static function exceptionOnFalse(?SocketResource $resource, callable $closure): mixed
     {
         if ($resource === null) {
             throw new SocketException('Socket is not connected');
         }
 
-        $return = $closure($resource);
+        $result = $closure($resource);
 
-        if ($return === false) {
+        if ($result === false) {
             throw new SocketException($resource);
         }
 
-        return $return;
+        return $result;
     }
-
 
     /**
      * Write to a socket.
@@ -820,38 +719,28 @@ class PhoSocket implements Stringable
      */
     public function write(string $buffer, int $length = null): int
     {
-        if ($length === null) {
+        if (null === $length) {
             $length = strlen($buffer);
         }
 
-        if ($length === 0) {
-            return 0;
-        }
+        // make sure everything is written
+        do {
+            $return = @socket_write($this->resource, $buffer, $length);
 
-        while (true) {
-            $return = socket_write($this->resource, $buffer, $length);
-
-            if (!$return) {
-                throw SocketException::new(tr('Failed to write to socket with buffer ":buffer" and length ":length"', [
-                    ':buffer' => $buffer,
-                    ':length' => $length
-                ]))
-                ->setCode(socket_last_error($this->resource))
-                ->addMessages(socket_strerror(socket_last_error($this->resource)));
-            }
-
-            if ($return < $length) {
+            if (false !== $return && $return < $length) {
                 $buffer = substr($buffer, $return);
                 $length -= $return;
-
             } else {
                 break;
             }
+        } while (true);
+
+        if ($return === false) {
+            throw new SocketException($this->resource);
         }
 
         return $return;
     }
-
 
     /**
      * Sends data to a connected socket.
@@ -873,35 +762,30 @@ class PhoSocket implements Stringable
      */
     public function send(string $buffer, int $flags = 0, int $length = null): int
     {
-        if ($length === null) {
+        if (null === $length) {
             $length = strlen($buffer);
         }
 
-        while (true) {
-            $return = socket_send($this->resource, $buffer, $length, $flags);
+        // make sure everything is written
+        do {
+            $return = @socket_send($this->resource, $buffer, $length, $flags);
 
-            if ($return === false) {
-                throw SocketException::new(tr('Failed to send data to socket with buffer ":buffer" and length ":length" and flags ":flags"', [
-                    ':buffer' => $buffer,
-                    ':length' => $length,
-                    ':flags'  => $flags
-                ]))
-                ->setCode(socket_last_error($this->resource))
-                ->addMessages(socket_strerror(socket_last_error($this->resource)));
-            }
-
-            if ($return < $length) {
+            if ((false !== $return) and  ($return < $length)) {
                 $buffer = substr($buffer, $return);
                 $length -= $return;
 
             } else {
                 break;
             }
+
+        } while (true);
+
+        if ($return === false) {
+            throw new SocketException($this->resource);
         }
 
         return $return;
     }
-
 
     /**
      * Set the socket to blocking / non blocking.
@@ -916,36 +800,13 @@ class PhoSocket implements Stringable
      *                   (<code>false</code>).
      * @throws SocketException
      */
-    public function setBlocking(bool $bool): static
+    public function setBlocking(bool $bool): void
     {
-        $result = $bool ? socket_set_block($this->resource)
-                        : socket_set_nonblock($this->resource);
+        if ($bool) {
+            @socket_set_block($this->resource);
 
-        if ($result === false) {
-            throw SocketException::new(tr('Failed to set blocking to ":bool"', [
-                ':bool' => $bool
-            ]))
-            ->setCode(socket_last_error($this->resource))
-            ->addMessages(socket_strerror(socket_last_error($this->resource)));
+        } else {
+            @socket_set_nonblock($this->resource);
         }
-
-        return $this;
-    }
-
-
-    /**
-     * Checks if a socket is available and open, throws exception otherwise
-     *
-     * @return void
-     */
-    public function checkSocketOpen(): void
-    {
-        if ($this->resource) {
-            return;
-        }
-
-        throw new SocketException(tr('Socket is not connected', [
-            ':resource' => $this->resource
-        ]));
     }
 }

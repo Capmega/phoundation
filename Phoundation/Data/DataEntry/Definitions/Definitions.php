@@ -294,6 +294,27 @@ class Definitions extends IteratorCore implements DefinitionsInterface
 
 
     /**
+     * Modify the specified definition directly
+     *
+     * @param Stringable|string|float|int $key
+     * @param array $key_values
+     * @param bool $exception
+     *
+     * @return static
+     */
+    public function modify(Stringable|string|float|int $key, array $key_values, bool $exception = true): static
+    {
+        $definition = $this->get($key, $exception);
+
+        foreach ($key_values as $key => $value) {
+            $definition->set($value, $key);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Direct method to render or not render entries
      *
      * @param Stringable|string|float|int $key
@@ -305,7 +326,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     public function setRender(Stringable|string|float|int $key, bool $render, bool $exception = true): static
     {
         $this->get($key, $exception)
-            ->setRender($render);
+             ->setRender($render);
 
         return $this;
     }
@@ -341,7 +362,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     public function setReadonly(Stringable|string|float|int $key, bool $render, bool $exception = true): static
     {
         $this->get($key, $exception)
-            ->setReadonly($render);
+             ->setReadonly($render);
 
         return $this;
     }

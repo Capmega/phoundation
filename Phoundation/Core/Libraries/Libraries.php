@@ -990,7 +990,7 @@ class Libraries
 
                 } catch (Throwable $e) {
                     Log::warning(tr('Pre-loading system library file ":file" caused exception ":message" at ":file@:line", ignoring', [
-                        ':file'    => Strings::from($file, DIRECTORY_ROOT),
+                        ':file'    => Strings::from($e->getFile(), DIRECTORY_ROOT),
                         ':message' => $e->getMessage(),
                         ':line'    => $e->getLine(),
                     ]), 4);

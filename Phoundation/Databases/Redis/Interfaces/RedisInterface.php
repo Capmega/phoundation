@@ -178,6 +178,15 @@ interface RedisInterface
 
 
     /**
+     * Shows all keys/queues
+     *
+     *
+     * @return array
+     */
+    public function showAll(): array;
+
+
+    /**
      * Import the data dump from the specified file into the current corrected Redis database
      *
      * @param FsFileInterface $file

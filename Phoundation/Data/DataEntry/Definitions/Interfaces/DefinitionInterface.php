@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
 use PDOStatement;
+use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -29,6 +30,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumElement;
+use ReturnTypeWillChange;
 use Stringable;
 
 interface DefinitionInterface
@@ -1410,4 +1412,24 @@ interface DefinitionInterface
      * @return bool
      */
     public function isColumn(?string $column): bool;
+
+    /**
+     * Returns the entry with the specified identifier
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
+     * @return DataEntry|null
+     */
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
+
+    /**
+     * Sets the specified definition rule directly
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int $key
+     *
+     * @return static
+     */
+    #[ReturnTypeWillChange] public function set(mixed $value, Stringable|string|float|int $key): static;
 }

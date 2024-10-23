@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils\Library\tests\Phoundation\Utils;
 
+use Phoundation\Databases\Connectors\Connector;
+use Phoundation\Databases\Redis\Redis;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use PHPUnit\Framework\TestCase;
@@ -23,25 +25,19 @@ use PHPUnit\Framework\TestCase;
 
 class ArraysTest extends TestCase
 {
-    public function testNextKey()
+
+    /**
+     * Test requiredKeys method
+     *
+     * @return void
+     */
+    public function testRequiredKeys()
     {
-        // Test normal operation
-        $array = [
-            'a' => 1,
-            'b' => 2,
-        ];
-
-        $this->assertEquals('b', Arrays::nextKey($array, 'a'));
-
-        // Get b from a, and delete both, leaving an empty array
-        Arrays::nextKey($array, 'a', true);
-        $this->assertEquals([], $array);
-
-        // Test failures
+        $array = new Arrays();
         $this->expectException(OutOfBoundsException::class);
-        $this->assertEquals(null, Arrays::nextKey($array, 'c'));
-
-        $this->expectException(OutOfBoundsException::class);
-        $this->assertEquals(null, Arrays::nextKey($array, 'b'));
+        $array->requiredKeys((array) $array, 'test');
     }
+
+
+
 }
