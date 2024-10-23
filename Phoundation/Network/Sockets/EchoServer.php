@@ -1,26 +1,85 @@
 <?php
 
+/**
+ * Class EchoServer
+ *
+ * A test class to show the functionality of PhoSocketServer.
+ * Everything the client sends to the EchoServer will be echoed back.
+ *
+ * To start, follow these steps:
+ *
+ * Choose a DEFAULT_PORT value
+ * Include in a runnable php file: '$server = new EchoServer('0.0.0.0');'
+ * Run the PHP file
+ * in bash, do 'telnet 127.0.0.1 4096' but replace 4096 with you DEFAULT_PORT value
+ * you are now connected, anything you type in the telnet window will be echoed back to you
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author    Harrison Macey <harrison@medinet.ca>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Network
+ */
+
+
+declare(strict_types=1);
+
 namespace Phoundation\Network\Sockets;
 
-class EchoServer extends Server
-{
-    const DEFAULT_PORT = 4098;
+use Phoundation\Core\Log\Log;
 
+class EchoServer extends PhoSocketServer
+{
+    /**
+     * This is the port used for the server
+     */
+    const int DEFAULT_PORT = 4006;
+
+
+    /**
+     * Constructs a new instance of an EchoServer object
+     *
+     * @param $ip
+     * @param $port
+     */
     public function __construct($ip = null, $port = self::DEFAULT_PORT)
     {
         parent::__construct($ip, $port);
-        $this->addHook(Server::HOOK_CONNECT   , [$this, 'onConnect']);
-        $this->addHook(Server::HOOK_INPUT     , [$this, 'onInput']);
-        $this->addHook(Server::HOOK_DISCONNECT, [$this, 'onDisconnect']);
+
+        Log::action(tr('Awaiting Connection'));
+
+        $this->addHook(PhoSocketServer::HOOK_CONNECT   , [$this, 'onConnect']);
+        $this->addHook(PhoSocketServer::HOOK_INPUT     , [$this, 'onInput']);
+        $this->addHook(PhoSocketServer::HOOK_DISCONNECT, [$this, 'onDisconnect']);
         $this->run();
     }
 
-    public function onConnect(Server $server, PhoSocket $client, $message)
+
+    /**
+     * Callback function that will be called when there is a new connection to the EchoServer
+     *
+     * @param PhoSocketServer $server
+     * @param PhoSocket       $client
+     * @param                 $message
+     *
+     * @return void
+     */
+    public function onConnect(PhoSocketServer $server, PhoSocket $client, $message): void
     {
-        echo 'Connection Established',"\n";
+        Log::action(tr('Connection Established'));
     }
 
-    public function onInput(Server $server, PhoSocket $client, $message)
+
+    /**
+     * Callback function that will be called when the EchoServer receives an input
+     *
+     * @param PhoSocketServer $server
+     * @param PhoSocket       $client
+     * @param                 $message
+     *
+     * @return void
+     */
+    public function onInput(PhoSocketServer $server, PhoSocket $client, $message): void
     {
         $message = trim($message);
 
@@ -28,16 +87,28 @@ class EchoServer extends Server
             die();
         }
 
-        $response = 'Echoing: ' . $message . "\n";
+        $response = 'Echoing (' . count($this->clients) . '): ' . $message . "\n";
 
-        echo 'Received "',$message,'"',"\n";
+        Log::action(tr('Received ":message"', [
+            ":message" => $message]));
+
         $client->write($response, strlen($response));
     }
 
-    public function onDisconnect(Server $server, PhoSocket $client, $message)
+
+    /**
+     * Callback function that will be called when disconnected from
+     *
+     * @param PhoSocketServer $server
+     * @param PhoSocket       $client
+     * @param                 $message
+     *
+     * @return void
+     */
+    public function onDisconnect(PhoSocketServer $server, PhoSocket $client, $message): void
     {
-        echo 'Disconnection',"\n";
+        Log::action(tr('Disconnection'));
     }
 }
 
-$server = new EchoServer('0.0.0.0');
+

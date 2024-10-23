@@ -19,7 +19,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Network\Enums\EnumNetworkSocketDomain;
 use Phoundation\Network\Sockets\PhoSocket;
-use Phoundation\Network\Sockets\Server;
+use Phoundation\Network\Sockets\PhoSocketServer;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Utils;
 
@@ -82,10 +82,10 @@ PhoSocket::new()
     ->create();
 
 // Start the socket server
-Log::cli(Server::new()
-               ->setInterface($argv['interface'])
-               ->setProtocol($argv['protocol'])
-               ->setPort($argv['port'])
-               ->onData(function (string $data) {
+Log::cli(PhoSocketServer::new()
+                        ->setInterface($argv['interface'])
+                        ->setProtocol($argv['protocol'])
+                        ->setPort($argv['port'])
+                        ->onData(function (string $data) {
                          // This callback will be executed on data reception
                      }));

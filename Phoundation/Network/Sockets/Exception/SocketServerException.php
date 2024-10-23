@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class ServerException
+ * Class SocketServerException
  *
  *
  *
@@ -17,6 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Network\Sockets\Exception;
 
 
-class ServerException extends SocketException
+class SocketServerException extends SocketException
 {
 }
