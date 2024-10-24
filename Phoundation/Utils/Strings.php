@@ -365,7 +365,7 @@ class Strings extends Utils
     public static function interleave(Stringable|string $source, Stringable|string|int $interleave, int $end = 0, int $chunk_size = 1): string
     {
         if (!$source) {
-            throw new OutOfBoundsException(tr('Empty source specified'));
+            return '';
         }
 
         if (!$interleave) {
@@ -1649,6 +1649,7 @@ throw new UnderConstructionException();
                 }
 
                 return trim($return) . $fill;
+
             case 'center':
                 return mb_substr($source, 0, (int) floor($length / 2)) . $fill . mb_substr($source, (int) -ceil($length / 2));
 
