@@ -72,7 +72,7 @@ use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlDataEntry;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
@@ -3008,7 +3008,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             return null;
         }
 
-        return new DateTime($created_on);
+        return new PhoDateTime($created_on);
     }
 
 

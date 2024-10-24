@@ -1334,7 +1334,7 @@ function in_range(float|int $value, float|int $begin, float|int $end, bool $allo
  */
 function now(DateTimeZoneInterface|string|null $timezone = 'system'): DateTimeInterface
 {
-    return new \Phoundation\Date\DateTime('now', $timezone);
+    return new \Phoundation\Date\PhoDateTime('now', $timezone);
 }
 
 

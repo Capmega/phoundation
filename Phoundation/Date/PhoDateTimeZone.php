@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class DateTimeZone
+ * Class PhoDateTimeZone
  *
  *
  *
@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Date;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Exception\DateTimeZoneException;
@@ -25,14 +24,14 @@ use Phoundation\Utils\Config;
 use Throwable;
 
 
-class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
+class PhoDateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
 {
     /**
      * Ensures we have a valid DateTimeZone object, even when "system" or "user" or a timezone name string was specified
      *
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     * @param \DateTimeZone|PhoDateTimeZone|string|null $timezone
      */
-    public function __construct(\DateTimeZone|DateTimeZone|string|null $timezone)
+    public function __construct(\DateTimeZone|PhoDateTimeZone|string|null $timezone)
     {
         if (!is_object($timezone)) {
             switch ($timezone) {
@@ -69,8 +68,8 @@ class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
             }
 
             // Ensure the specified timezone is valid
-            if (!in_array($detected, DateTimeZone::listIdentifiers())) {
-                if (!array_key_exists(strtolower($detected), DateTimeZone::listAbbreviations())) {
+            if (!in_array($detected, PhoDateTimeZone::listIdentifiers())) {
+                if (!array_key_exists(strtolower($detected), PhoDateTimeZone::listAbbreviations())) {
                     throw new DateTimeException(tr('Detected timezone ":detected" (from specified ":timezone") is not supported', [
                         ':timezone' => $timezone,
                         ':detected' => $detected,
@@ -114,13 +113,13 @@ class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
     /**
      * Returns a new DateTimeZone object
      *
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     * @param \DateTimeZone|PhoDateTimeZone|string|null $timezone
      *
      * @return static
      */
-    public static function new(\DateTimeZone|DateTimeZone|string|null $timezone): static
+    public static function new(\DateTimeZone|PhoDateTimeZone|string|null $timezone): static
     {
-        return new DateTimeZone($timezone);
+        return new PhoDateTimeZone($timezone);
     }
 
 

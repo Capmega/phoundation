@@ -20,7 +20,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsPath;
 use Phoundation\Filesystem\Interfaces\FsFileInterface;
@@ -405,7 +405,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
         if (!$file) {
             // Generate default file
             $file  = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName();
-            $file .= DateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
+            $file .= PhoDateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
             $file  = new FsFile($file);
 
         } elseif ($this->gzip) {

@@ -30,7 +30,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Databases\Sql\Exception\SqlException;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
@@ -4453,7 +4453,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getAtime(): DateTimeInterface
     {
-        return DateTime::new()->setTimestamp($this->getStat('atime'));
+        return PhoDateTime::new()->setTimestamp($this->getStat('atime'));
     }
 
 
@@ -4464,7 +4464,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getMtime(): DateTimeInterface
     {
-        return DateTime::new()->setTimestamp(filemtime($this->source));
+        return PhoDateTime::new()->setTimestamp(filemtime($this->source));
     }
 
 
@@ -4475,7 +4475,7 @@ class FsPathCore implements FsPathInterface
      */
     public function getCtime(): DateTimeInterface
     {
-        return DateTime::new()->setTimestamp(filemtime($this->source));
+        return PhoDateTime::new()->setTimestamp(filemtime($this->source));
     }
 
 

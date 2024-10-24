@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class Date
+ * Class PhoDate
  *
  * This class contains various date handling methods
  *
@@ -28,7 +28,7 @@ use Phoundation\Utils\Strings;
 use Throwable;
 
 
-class Date
+class PhoDate
 {
     /**
      * ???
@@ -67,23 +67,23 @@ class Date
     /**
      * Return a random date
      *
-     * @param null|DateTime $min
-     * @param null|DateTime $max
+     * @param null|PhoDateTime $min
+     * @param null|PhoDateTime $max
      *
-     * @return DateTime
+     * @return PhoDateTime
      * @throws Exception
      */
     public static function random(?DateTime $min = null, ?DateTime $max = null): DateTime
     {
         if ($min) {
-            $min = new DateTime(Date::convert($min, 'y-m-d'));
+            $min = new DateTime(PhoDate::convert($min, 'y-m-d'));
             $min = $min->getTimestamp();
 
         } else {
             $min = 1;
         }
         if ($max) {
-            $max = new DateTime(Date::convert($max, 'y-m-d'));
+            $max = new DateTime(PhoDate::convert($max, 'y-m-d'));
             $max = $max->getTimestamp();
 
         } else {
@@ -204,7 +204,7 @@ class Date
                 return $return;
             }
 
-            return Date::translate($return);
+            return PhoDate::translate($return);
 
         } catch (Throwable $e) {
             throw new DateException(tr('Failed to convert to format ":format" because ":e"', [
@@ -226,7 +226,7 @@ class Date
      *
      * So for now we have this barf solution
      *
-     * @param DateTime|string $date
+     * @param PhoDateTime|string $date
      *
      * @return string The result
      * @example When executed with LANGUAGE "es"
@@ -313,7 +313,7 @@ class Date
     {
         Arrays::ensure($params);
         Arrays::default($params, 'name', 'timezone');
-        $params['resource'] = Date::timezonesList();
+        $params['resource'] = PhoDate::timezonesList();
         asort($params['resource']);
 // :DELETE: Remove MySQL requirement because production users will not have access to "mysql" database
         //$params['resource'] = Sql::query('SELECT   LCASE(SUBSTR(`Name`, 7)) AS `id`,
@@ -356,7 +356,7 @@ class Date
      */
     public static function timezonesExists(string $timezone): bool
     {
-        return isset_get(Date::timezonesList()[strtolower($timezone)]);
+        return isset_get(PhoDate::timezonesList()[strtolower($timezone)]);
     }
 
 
@@ -367,17 +367,17 @@ class Date
      * If $interval is "negative", i.e. preceded by a - sign, the interval will be subtraced. Else the interval will be
      * added Return date will be formatted according to Date::convert() $format
      *
-     * @param DateTime     $date
-     * @param DateInterval $interval
-     * @param string|null  $format
+     * @param PhoDateTime     $date
+     * @param PhoDateInterval $interval
+     * @param string|null     $format
      *
-     * @return array|DateTime|string|string[]
+     * @return array|PhoDateTime|string|string[]
      * @throws Exception
      */
     public static function interval(DateTime $date, DateInterval $interval, ?string $format = null)
     {
         throw new UnderConstructionException();
-        $date = Date::convert($date, 'd-m-Y');
+        $date = PhoDate::convert($date, 'd-m-Y');
         $date = new DateTime($date);
 
         if (substr($interval, 0, 1) == '-') {
@@ -387,19 +387,19 @@ class Date
             $date->add(new DateInterval($interval));
         }
 
-        return Date::convert($date, $format);
+        return PhoDate::convert($date, $format);
     }
 
 
     /**
      * Returns a string representation of how long ago the specified date was, from now
      *
-     * @param Date|DateTime|string|int $date
-     * @param bool                     $microseconds
+     * @param PhoDate|PhoDateTime|string|int $date
+     * @param bool                           $microseconds
      *
      * @return string
      */
-    public static function getAge(Date|DateTime|string|int $date, bool $microseconds = false): string
+    public static function getAge(PhoDate|DateTime|string|int $date, bool $microseconds = false): string
     {
         if (!is_object($date)) {
             if (is_integer($date)) {

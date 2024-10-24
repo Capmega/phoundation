@@ -30,8 +30,8 @@ use Phoundation\Data\Traits\TraitDataStaticFlashMessages;
 use Phoundation\Data\Traits\TraitDataStaticContentType;
 use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Traits\TraitGetInstance;
-use Phoundation\Date\Date;
-use Phoundation\Date\Time;
+use Phoundation\Date\PhoDate;
+use Phoundation\Date\PhoTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\FsFile;
@@ -1567,10 +1567,10 @@ class Response implements ResponseInterface
 
         if (static::$http_code == 200) {
             if (empty($params['last_modified'])) {
-                $headers[] = 'Last-Modified: ' . Date::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
+                $headers[] = 'Last-Modified: ' . PhoDate::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
 
             } else {
-                $headers[] = 'Last-Modified: ' . Date::convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT') . ' GMT';
+                $headers[] = 'Last-Modified: ' . PhoDate::convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT') . ' GMT';
             }
         }
 
@@ -1786,7 +1786,7 @@ class Response implements ResponseInterface
 
                 Log::success(tr('Script(s) ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
                     ':script'    => Request::getExecutedPath(true),
-                    ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':time'      => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'     => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':http_code' => Response::getHttpCode(),
                     ':sent'      => Numbers::getHumanReadableAndPreciseBytes(Response::getBytesSent()),
@@ -1800,7 +1800,7 @@ class Response implements ResponseInterface
 
                 Log::error(tr('Script(s) ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
                     ':script'    => Request::getExecutedPath(true),
-                    ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':time'      => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'     => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':http_code' => Response::getHttpCode(),
                     ':sent'      => Numbers::getHumanReadableAndPreciseBytes(Response::getBytesSent()),

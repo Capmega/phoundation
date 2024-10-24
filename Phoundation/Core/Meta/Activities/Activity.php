@@ -22,7 +22,7 @@ use Phoundation\Core\Meta\Activities\Interfaces\ActivityInterface;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Data\Traits\TraitDataSourceArray;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
@@ -186,7 +186,7 @@ class Activity implements ActivityInterface, RenderInterface
     {
         if (array_key_exists('created_on', $this->source)) {
             if (empty($this->date)) {
-                $this->date = new DateTime($this->source['created_on']);
+                $this->date = new PhoDateTime($this->source['created_on']);
             }
 
             return $this->date->getAge();

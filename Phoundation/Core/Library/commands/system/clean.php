@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsRestrictions;
 
@@ -59,14 +59,14 @@ $argv = ArgvValidator::new()
 
 // Convert timestamp to ISO-8601 date
 if ($argv['date']) {
-    $argv['date'] = DateTime::new($argv['timestamp'])->format('Y-m-d H:i:s');
+    $argv['date'] = PhoDateTime::new($argv['timestamp'])->format('Y-m-d H:i:s');
 
 } elseif ($argv['days']) {
-    $sub          = \Phoundation\Date\DateInterval::new($argv['days'] . ' days');
-    $argv['date'] = DateTime::new()->sub($sub)->format('Y-m-d H:i:s');
+    $sub          = \Phoundation\Date\PhoDateInterval::new($argv['days'] . ' days');
+    $argv['date'] = PhoDateTime::new()->sub($sub)->format('Y-m-d H:i:s');
 
 } elseif ($argv['timestamp']) {
-    $argv['date'] = DateTime::new($argv['timestamp'])->format('Y-m-d H:i:s');
+    $argv['date'] = PhoDateTime::new($argv['timestamp'])->format('Y-m-d H:i:s');
 }
 
 

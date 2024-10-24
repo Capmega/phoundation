@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class DateTimeFormats
+ * Class PhoDateTimeFormats
  *
- * PHP / Javascript date time format handling
+ * PHP / JavaScript date time format handling
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -20,7 +20,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Utils\Config;
 
 
-class DateTimeFormats extends DateFormats
+class PhoDateTimeFormats extends PhoDateFormats
 {
     /**
      * The default date formats

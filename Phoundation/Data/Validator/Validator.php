@@ -27,9 +27,9 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Date\DateFormats;
-use Phoundation\Date\DateTime;
-use Phoundation\Date\DateTimeFormats;
+use Phoundation\Date\PhoDateFormats;
+use Phoundation\Date\PhoDateTime;
+use Phoundation\Date\PhoDateTimeFormats;
 use Phoundation\Date\Exception\UnsupportedDateFormatException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
@@ -1991,7 +1991,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             }
 
             // Ensure we have formats to work with, default to a number of acceptable formats
-            $formats = $formats ?? DateFormats::getSupportedPhp();
+            $formats = $formats ?? PhoDateFormats::getSupportedPhp();
             $formats = Arrays::force($formats, null);
 
             // We must be able to create a date object using the given formats without failure, and the resulting date
@@ -2050,7 +2050,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
                 foreach ($dates as $date) {
                     // Ensure we have formats to work with, default to a number of acceptable formats
-                    $formats = $formats ?? DateFormats::getSupportedPhp();
+                    $formats = $formats ?? PhoDateFormats::getSupportedPhp();
                     $formats = Arrays::force($formats, null);
 
                     // We must be able to create a date object using the given formats without failure, and the resulting date
@@ -2082,17 +2082,17 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     {
         // We must be able to create a date object using the given formats without failure, and the resulting date
         // must be the same as the specified date
-        $given = DateFormats::normalizeDate($date);
+        $given = PhoDateFormats::normalizeDate($date);
 
         foreach ($formats as $format) {
             try {
                 // Create DateTime object
-                $format = DateFormats::normalizeDateFormat($format);
-                $value  = DateTime::createFromFormat($format, $given);
+                $format = PhoDateFormats::normalizeDateFormat($format);
+                $value  = PhoDateTime::createFromFormat($format, $given);
 
                 if ($value) {
                     // DateTime object created successfully! Now get a dateformat, and normalize it
-                    $test = DateFormats::normalizeDate($value->format($format));
+                    $test = PhoDateFormats::normalizeDate($value->format($format));
 
                     // Test the normalized test DateTime against the specified normalized date time string
                     if ($test === $given) {
@@ -2151,7 +2151,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
             // Validate the user time against all allowed formats
             foreach ($formats as $format) {
-                if (is_object(DateTime::createFromFormat($format, $value))) {
+                if (is_object(PhoDateTime::createFromFormat($format, $value))) {
                     // The specified time matches one of the allowed formats
                     return;
                 }
@@ -2190,7 +2190,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             // Ensure we have formats to work with
             if (!$formats) {
                 // Default to a number of acceptable formats
-                $formats = DateTimeFormats::getSupportedPhp();
+                $formats = PhoDateTimeFormats::getSupportedPhp();
             }
 
             $formats = Arrays::force($formats, null);
@@ -2207,11 +2207,11 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates that the selected field is in the past
      *
-     * @param DateTime|null $before
+     * @param PhoDateTime|null $before
      *
      * @return static
      */
-    public function isBefore(?DateTime $before): static
+    public function isBefore(?PhoDateTime $before): static
     {
         $this->test_count++;
 
@@ -2225,7 +2225,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 return;
             }
 
-            $value = new DateTime($value);
+            $value = new PhoDateTime($value);
 
             if ($value > $before) {
                 $this->addFailure(tr('must be a valid date before ":date"', [
@@ -2239,11 +2239,11 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates that the selected field is in the past
      *
-     * @param DateTime|null $after
+     * @param PhoDateTime|null $after
      *
      * @return static
      */
-    public function isAfter(?DateTime $after): static
+    public function isAfter(?PhoDateTime $after): static
     {
         $this->test_count++;
 
@@ -2256,7 +2256,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 return;
             }
 
-            $value = new DateTime($value);
+            $value = new PhoDateTime($value);
 
             if ($value > $after) {
                 $this->addFailure(tr('must be a valid date after ":date"', [

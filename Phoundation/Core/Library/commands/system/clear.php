@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\FsFile;
 use Phoundation\Filesystem\FsRestrictions;
@@ -56,7 +56,7 @@ $argv = ArgvValidator::new()
 
 // Convert timestamp to ISO-8601 date
 if ($argv['timestamp']) {
-    $argv['date'] = DateTime::new($argv['timestamp'])->format('Y-m-d H:i:s');
+    $argv['date'] = PhoDateTime::new($argv['timestamp'])->format('Y-m-d H:i:s');
 }
 
 

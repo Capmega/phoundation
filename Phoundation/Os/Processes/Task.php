@@ -34,7 +34,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryValues;
 use Phoundation\Data\Traits\TraitDataEntryRestrictions;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
@@ -136,7 +136,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setExecuteAfter(DateTimeInterface|string|null $execute_after): static
     {
-        return $this->set($execute_after ? new DateTime($execute_after, 'system') : null, 'execute_after');
+        return $this->set($execute_after ? new PhoDateTime($execute_after, 'system') : null, 'execute_after');
     }
 
 
@@ -1147,7 +1147,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setStart(DateTimeInterface|string|null $start): static
     {
-        return $this->set($start ? new DateTime($start, 'system') : null, 'start');
+        return $this->set($start ? new PhoDateTime($start, 'system') : null, 'start');
     }
 
 
@@ -1212,7 +1212,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setStop(DateTimeInterface|string|null $stop): static
     {
-        return $this->set($stop ? new DateTime($stop, 'system') : null, 'stop');
+        return $this->set($stop ? new PhoDateTime($stop, 'system') : null, 'stop');
     }
 
 

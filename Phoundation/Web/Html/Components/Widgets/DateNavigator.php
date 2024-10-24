@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets;
 
 use Phoundation\Data\Traits\TraitDataDate;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
@@ -223,7 +223,7 @@ class DateNavigator extends ElementsBlock
                                                                                 ->setAutoSubmit(true)
                                                                                 ->addClasses('text-center')
                                                                                 ->setValue($this->date)
-                                                                                ->setMax(DateTime::getToday('user')))
+                                                                                ->setMax(PhoDateTime::getToday('user')))
                                                           ->render()))
                    ->addGridColumn(GridColumn::new()
                                          ->setSize(2)

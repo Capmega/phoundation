@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class DateFormats
+ * Class PhoDateFormats
  *
- * PHP / Javascript date format handling
+ * PHP / JavaScript date format handling
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -27,7 +27,7 @@ use Phoundation\Utils\Exception\ConfigurationInvalidException;
 use Phoundation\Utils\Strings;
 
 
-class DateFormats
+class PhoDateFormats
 {
     /**
      * The default date formats
@@ -83,7 +83,7 @@ class DateFormats
         $supported = static::getSupportedPhp();
 
         foreach ($supported as &$date) {
-            $date = DateFormats::convertPhpToJs($date);
+            $date = PhoDateFormats::convertPhpToJs($date);
         }
 
         return $supported;

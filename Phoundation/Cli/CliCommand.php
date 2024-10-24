@@ -41,7 +41,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
-use Phoundation\Date\Time;
+use Phoundation\Date\PhoTime;
 use Phoundation\Exception\EnvironmentException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -510,7 +510,7 @@ class CliCommand
                 Log::warning($e->getMessage());
                 Log::warning(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                     ':command'  => static::getCommandsString(),
-                    ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code,
                 ]), 10);
@@ -521,7 +521,7 @@ class CliCommand
                 Log::error($e->getMessage());
                 Log::error(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                     ':command'  => static::getCommandsString(),
-                    ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code,
                 ]), 10);
@@ -536,7 +536,7 @@ class CliCommand
                     // Script ended with warning
                     Log::warning(tr('Command ":command" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
                         ':command'  => static::getCommandsString(),
-                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code,
                     ]), 8);
@@ -550,7 +550,7 @@ class CliCommand
                     // Script ended with error
                     Log::error(tr('Command ":command" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                         ':command'  => static::getCommandsString(),
-                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code,
                     ]), 8);
@@ -571,7 +571,7 @@ class CliCommand
                 Log::success(tr('Finished command ":command" with PID ":pid" in ":time" with ":usage" peak memory usage', [
                     ':command' => static::getCommandsString(),
                     ':pid'     => getmypid(),
-                    ':time'    => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':time'    => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'   => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                 ]), 8);
             }

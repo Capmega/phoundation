@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class DateTime
+ * Class PhoDateTime
  *
  *
  *
@@ -21,37 +21,37 @@ use Exception;
 use Stringable;
 
 
-class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interfaces\DateTimeInterface
+class PhoDateTimeImmutable extends \DateTimeImmutable implements Stringable, Interfaces\DateTimeInterface
 {
     /**
      * Returns a new DateTime object for today
      *
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     * @param \DateTimeZone|PhoDateTimeZone|string|null $timezone
      *
      * @return static
      * @throws Exception
      */
-    public static function today(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    public static function today(\DateTimeZone|PhoDateTimeZone|string|null $timezone = null): static
     {
-        return new static('today 00:00:00', DateTimeZone::new($timezone));
+        return new static('today 00:00:00', PhoDateTimeZone::new($timezone));
     }
 
 
     /**
      * Returns a new DateTime object
      *
-     * @param Date|DateTime|string                   $datetime
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     * @param PhoDate|PhoDateTime|string                $datetime
+     * @param \DateTimeZone|PhoDateTimeZone|string|null $timezone
      *
      * @return static
      * @throws Exception
      */
-    public static function new(Date|DateTime|string $datetime = 'now', \DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    public static function new(PhoDate|PhoDateTime|string $datetime = 'now', \DateTimeZone|PhoDateTimeZone|string|null $timezone = null): static
     {
         $timezone = get_null($timezone);
 
         if (is_string($timezone)) {
-            $timezone = new DateTimeZone($timezone);
+            $timezone = new PhoDateTimeZone($timezone);
         }
 
         if (is_object($datetime)) {
@@ -85,28 +85,28 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
     /**
      * Returns a new DateTime object for tomorrow
      *
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     * @param \DateTimeZone|PhoDateTimeZone|string|null $timezone
      *
      * @return static
      * @throws Exception
      */
-    public static function tomorrow(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    public static function tomorrow(\DateTimeZone|PhoDateTimeZone|string|null $timezone = null): static
     {
-        return new static('tomorrow 00:00:00', DateTimeZone::new($timezone));
+        return new static('tomorrow 00:00:00', PhoDateTimeZone::new($timezone));
     }
 
 
     /**
      * Returns a new DateTime object for yesterday
      *
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     * @param \DateTimeZone|PhoDateTimeZone|string|null $timezone
      *
      * @return static
      * @throws Exception
      */
-    public static function yesterday(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    public static function yesterday(\DateTimeZone|PhoDateTimeZone|string|null $timezone = null): static
     {
-        return new static(' 00:00:00', DateTimeZone::new($timezone));
+        return new static(' 00:00:00', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -130,26 +130,26 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
      * @param bool               $absolute
      * @param bool               $roundup
      *
-     * @return DateInterval
+     * @return PhoDateInterval
      */
-    public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): DateInterval
+    public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): PhoDateInterval
     {
-        return new DateInterval(parent::diff($targetObject, $absolute));
+        return new PhoDateInterval(parent::diff($targetObject, $absolute));
     }
 
 
     /**
      * Returns a new DateTime object with the specified timezone
      *
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     * @param \DateTimeZone|PhoDateTimeZone|string|null $timezone
      *
      * @return static
      */
-    public function setTimezone(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    public function setTimezone(\DateTimeZone|PhoDateTimeZone|string|null $timezone = null): static
     {
         if ($timezone) {
-            parent::setTimezone(DateTimeZone::new($timezone)
-                                            ->getPhpDateTimeZone());
+            parent::setTimezone(PhoDateTimeZone::new($timezone)
+                                               ->getPhpDateTimeZone());
         }
 
         return $this;
@@ -163,7 +163,7 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
      */
     public function getDayStart(): static
     {
-        return DateTimeImmutable::new($this->format('Y-m-d 00:00:00'), $this->getTimezone());
+        return PhoDateTimeImmutable::new($this->format('Y-m-d 00:00:00'), $this->getTimezone());
     }
 
 
@@ -174,6 +174,6 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
      */
     public function getDayStop(): static
     {
-        return DateTimeImmutable::new($this->format('Y-m-d 23:59:59.999999'), $this->getTimezone());
+        return PhoDateTimeImmutable::new($this->format('Y-m-d 23:59:59.999999'), $this->getTimezone());
     }
 }

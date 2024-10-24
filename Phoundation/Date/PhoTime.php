@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class Time
+ * Class PhoTime
  *
  * This class contains various time handling methods
  *
@@ -20,7 +20,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 
 
-class Time
+class PhoTime
 {
     /**
      * Returns the difference in times with the pointed precision
@@ -109,36 +109,36 @@ class Time
     {
         if ($time < 60) {
             // Seconds
-            return Time::difference($start, $stop, 'seconds', $decimals);
+            return PhoTime::difference($start, $stop, 'seconds', $decimals);
         }
 
         if ($time / 60 < 60) {
             // Minutes
-            return Time::difference($start, $stop, 'minutes', $decimals);
+            return PhoTime::difference($start, $stop, 'minutes', $decimals);
         }
 
         if ($time / 3600 < 24) {
             // Hours
-            return Time::difference($start, $stop, 'hours', $decimals);
+            return PhoTime::difference($start, $stop, 'hours', $decimals);
         }
 
         if ($time / 86400 < 7) {
             // Days
-            return Time::difference($start, $stop, 'days', $decimals);
+            return PhoTime::difference($start, $stop, 'days', $decimals);
         }
 
         if ($time / 604800 < 52) {
             // Weeks
-            return Time::difference($start, $stop, 'weeks', $decimals);
+            return PhoTime::difference($start, $stop, 'weeks', $decimals);
         }
 
         if ($time / 2592000 < 12) {
             // Months
-            return Time::difference($start, $stop, 'months', $decimals);
+            return PhoTime::difference($start, $stop, 'months', $decimals);
         }
 
         // Years
-        return Time::difference($start, $stop, 'years', $decimals);
+        return PhoTime::difference($start, $stop, 'years', $decimals);
     }
 
 

@@ -18,7 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use DateTimeInterface;
 use DateTimeZone;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 
 
 trait TraitDataStopDate
@@ -58,9 +58,9 @@ trait TraitDataStopDate
         } else {
             // Make sure that the stop_date has no time component
             if (!$stop_date or is_string($stop_date)) {
-                $stop_date = DateTime::new($stop_date, $timezone);
+                $stop_date = PhoDateTime::new($stop_date, $timezone);
             }
-            $this->stop_date = DateTime::new($stop_date->format('Y-m-d'), $stop_date->getTimezone());
+            $this->stop_date = PhoDateTime::new($stop_date->format('Y-m-d'), $stop_date->getTimezone());
         }
 
         return $this;

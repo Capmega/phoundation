@@ -47,8 +47,8 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validator;
-use Phoundation\Date\Date;
-use Phoundation\Date\DateTimeZone;
+use Phoundation\Date\PhoDate;
+use Phoundation\Date\PhoDateTimeZone;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\EnvironmentException;
@@ -1323,7 +1323,7 @@ class Core implements CoreInterface
         $timezone = isset_get($_SESSION['user']['timezone'], Config::get('system.timezone.system', 'UTC'));
 
         try {
-            date_default_timezone_set(DateTimeZone::new($timezone)->getName());
+            date_default_timezone_set(PhoDateTimeZone::new($timezone)->getName());
 
         } catch (Throwable $e) {
             // Accounts timezone failed, default to UTC
@@ -1650,7 +1650,7 @@ class Core implements CoreInterface
         if (Debug::isEnabled()) {
             if (Debug::isEnabled()) {
                 Log::warning(tr('Running in DEBUG mode, started @ ":datetime"', [
-                    ':datetime' => Date::convert(STARTTIME, 'ISO8601'),
+                    ':datetime' => PhoDate::convert(STARTTIME, 'ISO8601'),
                 ]), 8);
 
                 Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [

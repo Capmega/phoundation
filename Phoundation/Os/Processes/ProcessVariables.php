@@ -21,9 +21,9 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataLogLevel;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
-use Phoundation\Date\Time;
+use Phoundation\Date\PhoTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
 use Phoundation\Filesystem\FsFile;
@@ -340,9 +340,9 @@ trait ProcessVariables
     /**
      * Tracks when this command executed
      *
-     * @var DateTime|null $executed_on
+     * @var PhoDateTime|null $executed_on
      */
-    protected ?DateTime $executed_on = null;
+    protected ?PhoDateTime $executed_on = null;
 
     /**
      * Tracks if this process runs as a stand-alone service or not.
@@ -580,7 +580,7 @@ trait ProcessVariables
      */
     public function getExecutionTimeHumanReadable(bool $require_stop = true, int $decimals = 5): string
     {
-        return Time::difference($this->start, $this->getStopTime($require_stop), 'auto', $decimals);
+        return PhoTime::difference($this->start, $this->getStopTime($require_stop), 'auto', $decimals);
     }
 
 
@@ -2177,7 +2177,7 @@ trait ProcessVariables
             return $this;
         }
 
-        $this->executed_on = DateTime::new();
+        $this->executed_on = PhoDateTime::new();
         $this->method      = $method;
         return $this;
     }

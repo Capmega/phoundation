@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class DateTime
+ * Class PhoDateTime
  *
  *
  *
@@ -33,26 +33,26 @@ use Stringable;
 use Throwable;
 
 
-class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInterface
+class PhoDateTime extends \DateTime implements Stringable, Interfaces\DateTimeInterface
 {
     /**
      * Returns a new DateTime object
      *
-     * @param DateTime|string|int|null  $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param PhoDateTime|string|int|null $datetime
+     * @param \DateTimeZone|string|null   $timezone
      */
-    public function __construct(DateTime|string|int|null $datetime = 'now', \DateTimeZone|string|null $timezone = null)
+    public function __construct(PhoDateTime|string|int|null $datetime = 'now', \DateTimeZone|string|null $timezone = null)
     {
         // Ensure we have NULL or timezone object for parent constructor
         $timezone = get_null($timezone);
         $datetime = $datetime ?? 'now';
 
         if (is_string($timezone)) {
-            $timezone = new DateTimeZone(trim($timezone));
+            $timezone = new PhoDateTimeZone(trim($timezone));
         }
 
         if (is_int($datetime)) {
-            $datetime = DateTime::new('now', $timezone)->setTimestamp($datetime)->format('Y-m-d H:i:s.u');
+            $datetime = PhoDateTime::new('now', $timezone)->setTimestamp($datetime)->format('Y-m-d H:i:s.u');
         }
 
         // Return Phoundation DateTime object for whatever given $datetime
@@ -62,7 +62,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
                 parent::__construct($datetime->format('Y-m-d H:i:s.u'), $timezone ?? $datetime->getTimezone());
 
             } else {
-                $normalized = DateFormats::normalizeDate($datetime, '-');
+                $normalized = PhoDateFormats::normalizeDate($datetime, '-');
                 parent::__construct($normalized, $timezone);
             }
 
@@ -90,13 +90,13 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
                 return SessionConfig::getString('locale.dates.formats.human.time', 'H:i:s');
 
             case 'human_date':
-                return SessionConfig::getString('locale.dates.formats.human.date', DateFormats::getDefaultPhp());
+                return SessionConfig::getString('locale.dates.formats.human.date', PhoDateFormats::getDefaultPhp());
 
             case 'human_datetime':
                 // no break
 
             case 'human_date_time':
-                return SessionConfig::getString('locale.dates.formats.human.datetime', DateTimeFormats::getDefaultPhp());
+                return SessionConfig::getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultPhp());
 
             case 'iso_date':
                 return 'd-m-Y';
@@ -155,26 +155,26 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Returns a new DateTime object for the end of the day of the specified date
      *
-     * @param DateTime|string|null      $datetime
+     * @param PhoDateTime|string|null   $datetime
      * @param \DateTimeZone|string|null $timezone
      *
      * @return static
      */
-    public static function getBeginningOfDay(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
+    public static function getBeginningOfDay(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
     {
-        return new static(static::new($datetime)->format('Y-m-d 00:00:00'), DateTimeZone::new($timezone));
+        return new static(static::new($datetime)->format('Y-m-d 00:00:00'), PhoDateTimeZone::new($timezone));
     }
 
 
     /**
      * Returns a new DateTime object
      *
-     * @param DateTime|string|int|null  $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param PhoDateTime|string|int|null $datetime
+     * @param \DateTimeZone|string|null   $timezone
      *
      * @return static
      */
-    public static function new(DateTime|string|int|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
+    public static function new(PhoDateTime|string|int|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
     {
         return new static($datetime, $timezone);
     }
@@ -183,14 +183,14 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Returns a new DateTime object for the end of the day of the specified date
      *
-     * @param DateTime|string|null      $datetime
+     * @param PhoDateTime|string|null   $datetime
      * @param \DateTimeZone|string|null $timezone
      *
      * @return static
      */
-    public static function getEndOfDay(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
+    public static function getEndOfDay(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
     {
-        return new static(static::new($datetime)->format('Y-m-d 23:59:59.999999'), DateTimeZone::new($timezone));
+        return new static(static::new($datetime)->format('Y-m-d 23:59:59.999999'), PhoDateTimeZone::new($timezone));
     }
 
 
@@ -203,7 +203,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getToday(\DateTimeZone|string|null $timezone = null): static
     {
-        return new static('today', DateTimeZone::new($timezone));
+        return new static('today', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -216,7 +216,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getTomorrow(\DateTimeZone|string|null $timezone = null): static
     {
-        return new static('tomorrow', DateTimeZone::new($timezone));
+        return new static('tomorrow', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -229,7 +229,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getYesterday(\DateTimeZone|string|null $timezone = null): static
     {
-        return new static('yesterday', DateTimeZone::new($timezone));
+        return new static('yesterday', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -242,7 +242,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getFirstDayOfYear(\DateTimeZone|string|null $timezone = null): static
     {
-        return new static('Y-01-01', DateTimeZone::new($timezone));
+        return new static('Y-01-01', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -255,7 +255,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getLastDayOfYear(\DateTimeZone|string|null $timezone = null): static
     {
-        return new static('Y-12-31', DateTimeZone::new($timezone));
+        return new static('Y-12-31', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -268,7 +268,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getLastDayOfMonth(\DateTimeZone|string|null $timezone = null): static
     {
-        return new static('Y-m-t', DateTimeZone::new($timezone));
+        return new static('Y-m-t', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -281,7 +281,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getFirstDayOfWeek(\DateTimeZone|string|null $timezone = null): static
     {
-        return new static(SessionConfig::getString('datetime.week.start', 'monday') . ' this week', DateTimeZone::new($timezone));
+        return new static(SessionConfig::getString('datetime.week.start', 'monday') . ' this week', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -294,7 +294,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getLastDayOfWeek(\DateTimeZone|string|null $timezone = null): static
     {
-        return new static(SessionConfig::getString('datetime.week.stop', 'sunday') . ' this week', DateTimeZone::new($timezone));
+        return new static(SessionConfig::getString('datetime.week.stop', 'sunday') . ' this week', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -320,7 +320,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getFirstDayOfMonth(\DateTimeZone|string|null $timezone = null): static
     {
-        return new static('Y-m-01', DateTimeZone::new($timezone));
+        return new static('Y-m-01', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -333,7 +333,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function getLastPeriodStart(\DateTimeZone|string|null $timezone = null): static
     {
-        return new static('Y-m-15', DateTimeZone::new($timezone));
+        return new static('Y-m-15', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -357,13 +357,13 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      * @param bool              $absolute
      * @param bool              $roundup
      *
-     * @return DateInterval
+     * @return PhoDateInterval
      * @throws DateIntervalException
      */
-    public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): DateInterval
+    public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): PhoDateInterval
     {
         // DateInterval doesn't calculate milliseconds / microseconds, do that manually
-        $diff    = new DateInterval(parent::diff($targetObject, $absolute), $roundup);
+        $diff    = new PhoDateInterval(parent::diff($targetObject, $absolute), $roundup);
         $diff->u = (int) $this->format('u') - (int) $targetObject->format('u');
 
         if ($diff->u < 0) {
@@ -397,13 +397,13 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
         if ($date_day >= 16) {
             // 1 - 15 this month
-            return DateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
+            return PhoDateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) previous month
-        $start = $datetime->sub(DateInterval::createFromDateString('1 month'));
+        $start = $datetime->sub(PhoDateInterval::createFromDateString('1 month'));
 
-        return DateTime::new($start->format('Y-m-16 00:00:00'), $datetime->getTimezone());
+        return PhoDateTime::new($start->format('Y-m-16 00:00:00'), $datetime->getTimezone());
     }
 
 
@@ -418,7 +418,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function sub(\DateInterval $interval): \DateTime
     {
-        return new DateTime(parent::sub($interval));
+        return new PhoDateTime(parent::sub($interval));
     }
 
 
@@ -434,13 +434,13 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
         if ($date_day >= 16) {
             // 1 - 15 next month
-            $start = $datetime->add(DateInterval::createFromDateString('1 month'));
+            $start = $datetime->add(PhoDateInterval::createFromDateString('1 month'));
 
-            return DateTime::new($start->format('Y-m-1 00:00:00'), $datetime->getTimezone());
+            return PhoDateTime::new($start->format('Y-m-1 00:00:00'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return DateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
+        return PhoDateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
     }
 
 
@@ -455,7 +455,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function add(\DateInterval $interval): \DateTime
     {
-        return new DateTime(parent::add($interval));
+        return new PhoDateTime(parent::add($interval));
     }
 
 
@@ -471,11 +471,11 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
         if ($date_day >= 16) {
             // 15-30 this month
-            return DateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
+            return PhoDateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return DateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
+        return PhoDateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
     }
 
 
@@ -491,11 +491,11 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
         if ($date_day >= 16) {
             // 15-30 this month
-            return DateTime::new($datetime->format('Y-m-t 23:59:59.999999'), $datetime->getTimezone());
+            return PhoDateTime::new($datetime->format('Y-m-t 23:59:59.999999'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return DateTime::new($datetime->format('Y-m-15 23:59:59.999999'), $datetime->getTimezone());
+        return PhoDateTime::new($datetime->format('Y-m-15 23:59:59.999999'), $datetime->getTimezone());
     }
 
 
@@ -506,7 +506,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function getMonthStart(): static
     {
-        return DateTime::new($this->format('Y-m-1 00:00:00'), $this->getTimezone());
+        return PhoDateTime::new($this->format('Y-m-1 00:00:00'), $this->getTimezone());
     }
 
 
@@ -517,7 +517,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function getMonthStop(): static
     {
-        return DateTime::new($this->format('Y-m-t 23:59:59.999999'), $this->getTimezone());
+        return PhoDateTime::new($this->format('Y-m-t 23:59:59.999999'), $this->getTimezone());
     }
 
 
@@ -528,7 +528,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function getDayStart(): static
     {
-        return DateTime::new($this->format('Y-m-d 00:00:00'), $this->getTimezone());
+        return PhoDateTime::new($this->format('Y-m-d 00:00:00'), $this->getTimezone());
     }
 
 
@@ -539,7 +539,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function getDayStop(): static
     {
-        return DateTime::new($this->format('Y-m-d 23:59:59.999999'), $this->getTimezone());
+        return PhoDateTime::new($this->format('Y-m-d 23:59:59.999999'), $this->getTimezone());
     }
 
 
@@ -563,7 +563,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function isToday(\DateTimeZone|string|null $timezone = null): bool
     {
-        $today = static::new('today', DateTimeZone::new($timezone ?? $this->getTimezone()))
+        $today = static::new('today', PhoDateTimeZone::new($timezone ?? $this->getTimezone()))
                        ->format('y-m-d');
 
         return $this->format('y-m-d') == $today;
@@ -579,7 +579,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function isTomorrow(\DateTimeZone|string|null $timezone = null): bool
     {
-        $tomorrow = static::new('tomorrow', DateTimeZone::new($timezone ?? $this->getTimezone()))
+        $tomorrow = static::new('tomorrow', PhoDateTimeZone::new($timezone ?? $this->getTimezone()))
                           ->format('y-m-d');
 
         return $this->format('y-m-d') == $tomorrow;
@@ -595,7 +595,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public function isYesterday(\DateTimeZone|string|null $timezone = null): bool
     {
-        $yesterday = static::new('yesterday', DateTimeZone::new($timezone ?? $this->getTimezone()))
+        $yesterday = static::new('yesterday', PhoDateTimeZone::new($timezone ?? $this->getTimezone()))
                            ->format('y-m-d');
 
         return $this->format('y-m-d') == $yesterday;
@@ -605,17 +605,17 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Returns a new DateTime object with the specified timezone
      *
-     * @param \DateTimeZone|DateTimeZone|string $timezone
+     * @param \DateTimeZone|PhoDateTimeZone|string $timezone
      *
      * @return static
      */
-    public function setTimezone(\DateTimeZone|DateTimeZone|string $timezone): static
+    public function setTimezone(\DateTimeZone|PhoDateTimeZone|string $timezone): static
     {
         if (!$timezone) {
             throw new OutOfBoundsException(tr('Cannot set timezone, no timezone specified'));
         }
 
-        return parent::setTimezone(DateTimeZone::new($timezone)->getPhpDateTimeZone());
+        return parent::setTimezone(PhoDateTimeZone::new($timezone)->getPhpDateTimeZone());
     }
 
 
@@ -723,9 +723,9 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @return static
      */
-    public function makeCurrentTime(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    public function makeCurrentTime(\DateTimeZone|PhoDateTimeZone|string|null $timezone = null): static
     {
-        $time = DateTime::new('now', $timezone ?? $this->getTimezone())->format('H i s u');
+        $time = PhoDateTime::new('now', $timezone ?? $this->getTimezone())->format('H i s u');
         $time = explode(' ', $time);
 
         $this->setTime((int) $time[0], (int) $time[1], (int) $time[2], (int) $time[3]);
@@ -737,56 +737,56 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Returns the current year
      *
-     * @param DateTime|string|null      $datetime
+     * @param PhoDateTime|string|null   $datetime
      * @param \DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getYear(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public static function getYear(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
     {
-        return (int) DateTime::new($datetime, $timezone)->format('Y');
+        return (int) PhoDateTime::new($datetime, $timezone)->format('Y');
     }
 
 
     /**
      * Returns the current month of the year
      *
-     * @param DateTime|string|null      $datetime
+     * @param PhoDateTime|string|null   $datetime
      * @param \DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getMonth(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public static function getMonth(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
     {
-        return (int) DateTime::new($datetime, $timezone)->format('m');
+        return (int) PhoDateTime::new($datetime, $timezone)->format('m');
     }
 
 
     /**
      * Returns the current week of the year
      *
-     * @param DateTime|string|null      $datetime
+     * @param PhoDateTime|string|null   $datetime
      * @param \DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getWeek(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public static function getWeek(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
     {
-        return (int) DateTime::new($datetime, $timezone)->format('W');
+        return (int) PhoDateTime::new($datetime, $timezone)->format('W');
     }
 
 
     /**
      * Returns the current day of the month
      *
-     * @param DateTime|string|null      $datetime
+     * @param PhoDateTime|string|null   $datetime
      * @param \DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getDay(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public static function getDay(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
     {
-        return (int) DateTime::new($datetime, $timezone)->format('d');
+        return (int) PhoDateTime::new($datetime, $timezone)->format('d');
     }
 
 
@@ -795,91 +795,91 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      *
      * @note will return the hour in 24 hours format
      *
-     * @param DateTime|string|null      $datetime
+     * @param PhoDateTime|string|null   $datetime
      * @param \DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getHour(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public static function getHour(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
     {
-        return (int) DateTime::new($datetime, $timezone)->format('H');
+        return (int) PhoDateTime::new($datetime, $timezone)->format('H');
     }
 
 
     /**
      * Returns the current minute of the hour
      *
-     * @param DateTime|string|null      $datetime
+     * @param PhoDateTime|string|null   $datetime
      * @param \DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getMinute(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public static function getMinute(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
     {
-        return (int) DateTime::new($datetime, $timezone)->format('i');
+        return (int) PhoDateTime::new($datetime, $timezone)->format('i');
     }
 
 
     /**
      * Returns the current second of the minute
      *
-     * @param DateTime|string|null      $datetime
+     * @param PhoDateTime|string|null   $datetime
      * @param \DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getSecond(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public static function getSecond(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
     {
-        return (int) DateTime::new($datetime, $timezone)->format('s');
+        return (int) PhoDateTime::new($datetime, $timezone)->format('s');
     }
 
 
     /**
      * Returns the current millisecond of the second
      *
-     * @param DateTime|string|null      $datetime
+     * @param PhoDateTime|string|null   $datetime
      * @param \DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getMillisecond(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public static function getMillisecond(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
     {
-        return (int) DateTime::new($datetime, $timezone)->format('v');
+        return (int) PhoDateTime::new($datetime, $timezone)->format('v');
     }
 
 
     /**
      * Returns the current microsecond of the second
      *
-     * @param DateTime|string|null      $datetime
+     * @param PhoDateTime|string|null   $datetime
      * @param \DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getMicroSecond(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public static function getMicroSecond(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
     {
-        return (int) DateTime::new($datetime, $timezone)->format('u');
+        return (int) PhoDateTime::new($datetime, $timezone)->format('u');
     }
 
 
     /**
      * Returns a string representation of how long ago the specified date was, from now
      *
-     * @param Date|DateTime|string|int|null $date
-     * @param bool                          $microseconds
+     * @param PhoDate|PhoDateTime|string|int|null $date
+     * @param bool                                $microseconds
      *
      * @return string
      */
-    public function getAge(Date|DateTime|string|int|null $date = null, bool $microseconds = false): string
+    public function getAge(PhoDate|PhoDateTime|string|int|null $date = null, bool $microseconds = false): string
     {
         if (!is_object($date)) {
             if (is_integer($date)) {
                 $timestamp = $date;
-                $date      = new DateTime();
+                $date      = new PhoDateTime();
                 $date->setTimestamp($timestamp);
 
             } else {
-                $date = new DateTime($date);
+                $date = new PhoDateTime($date);
             }
         }
 

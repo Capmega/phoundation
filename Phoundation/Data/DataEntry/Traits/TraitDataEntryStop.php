@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 
 
@@ -42,6 +42,6 @@ trait TraitDataEntryStop
      */
     public function setStop(DateTimeInterface|string|null $stop): static
     {
-        return $this->set(new DateTime($stop, 'system'), 'stop');
+        return $this->set(new PhoDateTime($stop, 'system'), 'stop');
     }
 }

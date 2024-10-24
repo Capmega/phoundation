@@ -28,7 +28,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\SqlQueries;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\Interfaces\ExceptionInterface;
@@ -876,7 +876,7 @@ class Log
             // TODO Check max process id in /proc/sys/kernel/pid_max and use that as max length instead of static 7
             if (is_bool($echo_prefix)) {
                 // Build the log message with the default prefix
-                $prefix = DateTime::new(null, 'server')->format('Y-m-d H:i:s.v') . ' ' .
+                $prefix = PhoDateTime::new(null, 'server')->format('Y-m-d H:i:s.v') . ' ' .
                           ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
                           Strings::size(getmypid(), 7, ' ', true) . ' ' .
                           Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isShuttingDown() ? '#' : ' ');
@@ -1857,7 +1857,7 @@ class Log
     {
         $current = static::$file;
         $file    = FsFile::new(static::$file, FsRestrictions::newWritable(DIRECTORY_DATA . 'log/'));
-        $target  = $file->getSource() . '~' . DateTime::new()->format('Ymd');
+        $target  = $file->getSource() . '~' . PhoDateTime::new()->format('Ymd');
         $target  = FsFile::getAvailableVersion($target, '.gz');
 
         static::action(tr('Rotating to next syslog file'));

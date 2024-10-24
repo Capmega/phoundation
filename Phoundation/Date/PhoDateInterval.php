@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class DateInterval
+ * Class PhoDateInterval
  *
  *
  *
@@ -24,7 +24,7 @@ use Phoundation\Utils\Strings;
 use Stringable;
 
 
-class DateInterval extends \DateInterval implements Stringable
+class PhoDateInterval extends \DateInterval implements Stringable
 {
     /**
      * Number of years
@@ -119,12 +119,12 @@ class DateInterval extends \DateInterval implements Stringable
      *
      * @note If the $date_interval was specified as an integer, it will be interpreted as seconds
      *
-     * @param \DateInterval|DateInterval|array|string|float|int $date_interval
-     * @param bool                                              $round_up
+     * @param \DateInterval|PhoDateInterval|array|string|float|int $date_interval
+     * @param bool                                                 $round_up
      *
      * @throws DateIntervalException
      */
-    public function __construct(\DateInterval|DateInterval|array|string|float|int $date_interval, bool $round_up = true)
+    public function __construct(\DateInterval|PhoDateInterval|array|string|float|int $date_interval, bool $round_up = true)
     {
         if (is_string($date_interval)) {
             try {
@@ -140,8 +140,8 @@ class DateInterval extends \DateInterval implements Stringable
             // Diff will always give a tiny number of micro/milliseconds difference. Since we're on seconds resolution
             // here, we can round that off
             $round_up      = not_null($round_up, true);
-            $date_interval = DateTime::new($date_interval . ' seconds')
-                                     ->diff(DateTime::new());
+            $date_interval = PhoDateTime::new($date_interval . ' seconds')
+                                        ->diff(PhoDateTime::new());
             if ($date_interval->f > 500) {
                 // Dude, WTF PHP? go to -1s + 1000ms?
                 $date_interval->s++;
@@ -155,8 +155,8 @@ class DateInterval extends \DateInterval implements Stringable
             $microseconds  = (int) round(($date_interval - $seconds) * 1_000_000);
             $milliseconds  = (int) round($microseconds / 1_000);
             $microseconds  = $microseconds - ($milliseconds * 1000);
-            $date_interval = DateTime::new($seconds . ' seconds')
-                                     ->diff(DateTime::new());
+            $date_interval = PhoDateTime::new($seconds . ' seconds')
+                                        ->diff(PhoDateTime::new());
             $date_interval->f = $milliseconds;
             $date_interval->u = $microseconds;
             $round_up         = not_null($round_up, false);
@@ -176,13 +176,13 @@ class DateInterval extends \DateInterval implements Stringable
     /**
      * Returns a new DateTime object
      *
-     * @param DateInterval|array|string|float|int $date_interval
-     * @param bool                                $round_up
+     * @param PhoDateInterval|array|string|float|int $date_interval
+     * @param bool                                   $round_up
      *
      * @return static
      * @throws Exception
      */
-    public static function new(DateInterval|array|string|float|int $date_interval, bool $round_up = true): static
+    public static function new(PhoDateInterval|array|string|float|int $date_interval, bool $round_up = true): static
     {
         return new static($date_interval, $round_up);
     }

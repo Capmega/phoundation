@@ -79,7 +79,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\FsDirectory;
@@ -1227,7 +1227,7 @@ class User extends DataEntry implements UserInterface
         $update_password = $this->getTypesafe('string', 'update_password');
 
         if ($update_password) {
-            return new DateTime($update_password);
+            return new PhoDateTime($update_password);
         }
 
         return null;
@@ -1245,7 +1245,7 @@ class User extends DataEntry implements UserInterface
     {
         if (is_bool($date_time)) {
             // Update password immediately
-            $date_time = new DateTime('1970');
+            $date_time = new PhoDateTime('1970');
 
         } elseif ($date_time) {
             $date_time = $date_time->getTimestamp();
@@ -1366,7 +1366,7 @@ class User extends DataEntry implements UserInterface
     {
         $fingerprint = $this->getTypesafe('string', 'fingerprint');
 
-        return new DateTime($fingerprint);
+        return new PhoDateTime($fingerprint);
     }
 
 
@@ -1381,7 +1381,7 @@ class User extends DataEntry implements UserInterface
     {
         if ($fingerprint) {
             if (!is_object($fingerprint)) {
-                $fingerprint = new DateTime($fingerprint);
+                $fingerprint = new PhoDateTime($fingerprint);
             }
 
             return $this->set($fingerprint->format('Y-m-d H:i:s'), 'fingerprint');
@@ -1710,7 +1710,7 @@ class User extends DataEntry implements UserInterface
         $birthdate = $this->getTypesafe('string', 'birthdate');
 
         if ($birthdate) {
-            return new DateTime($birthdate);
+            return new PhoDateTime($birthdate);
         }
 
         return null;
@@ -2136,7 +2136,7 @@ class User extends DataEntry implements UserInterface
     {
         Sessions::new()->drop($this);
 
-        return $this->setLockedUntil(DateTime::new('2999/12/31 23:59:59'))
+        return $this->setLockedUntil(PhoDateTime::new('2999/12/31 23:59:59'))
                     ->save()
                     ->setStatus('locked', $comments);
     }
@@ -2598,7 +2598,7 @@ class User extends DataEntry implements UserInterface
                                            ->setHelpText(tr('The birthdate for this user'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isDate()
-                                                         ->isBefore(DateTime::getTomorrow());
+                                                         ->isBefore(PhoDateTime::getTomorrow());
                                            }))
 
                     ->add(DefinitionFactory::newPhone($this)

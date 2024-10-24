@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class DateRangePickerRanges
+ * Class PhoDateRangePickerRanges
  *
  *
  *
@@ -22,7 +22,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
 
-class DateRangePickerRanges extends Iterator implements DateRangePickerRangesInterface
+class PhoDateRangePickerRanges extends Iterator implements DateRangePickerRangesInterface
 {
     /**
      * Set the default daterangepicker ranges

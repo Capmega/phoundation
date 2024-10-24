@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Date\Interfaces;
 
-use Phoundation\Date\DateInterval;
-use Phoundation\Date\DateTime;
-use Phoundation\Date\DateTimeZone;
+use Phoundation\Date\PhoDateInterval;
+use Phoundation\Date\PhoDateTime;
+use Phoundation\Date\PhoDateTimeZone;
 
 interface DateTimeInterface extends \DateTimeInterface
 {
@@ -19,19 +19,19 @@ interface DateTimeInterface extends \DateTimeInterface
      * @param bool               $absolute
      * @param bool               $roundup
      *
-     * @return DateInterval
+     * @return PhoDateInterval
      */
-    public function diff(\DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): DateInterval;
+    public function diff(\DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): PhoDateInterval;
 
 
     /**
      * Returns a new DateTime object with the specified timezone
      *
-     * @param \DateTimeZone|DateTimeZone|string $timezone
+     * @param \DateTimeZone|PhoDateTimeZone|string $timezone
      *
      * @return DateTimeInterface
      */
-    public function setTimezone(\DateTimeZone|DateTimeZone|string $timezone): static;
+    public function setTimezone(\DateTimeZone|PhoDateTimeZone|string $timezone): static;
 
 
     /**
