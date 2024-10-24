@@ -30,6 +30,7 @@ class PhoSocket implements Stringable
 {
     use TraitDataStaticSourceArray;
 
+
     /**
      * @var bool indicate whether this PhoSocket is supposed to be open or closed
      */
@@ -53,12 +54,14 @@ class PhoSocket implements Stringable
     protected int $protocol;
 
     /**
-     * @var string ???????????????????
+     * @var string The IP address in string form for this socket. If the socket is not created or connected yet,
+     *             value will be not be set
      */
     protected string $address;
 
     /**
-     * @var int ???????????????????
+     * @var int The Port value in int form for this socket. If the socket is not created or connected yet,
+ *              value will be not be set
      */
     protected int $port;
 
@@ -88,7 +91,7 @@ class PhoSocket implements Stringable
      */
     protected function __construct(SocketResource $resource)
     {
-        $this->setOpen(true);
+        $this->open     = true;
         $this->options  = [];
         $this->resource = $resource;
 
@@ -101,11 +104,7 @@ class PhoSocket implements Stringable
      */
     public function __destruct()
     {
-        if (!$this->open) {
-            $this->close(1, true);
-        }
-
-
+        $this->close(1, true);
         unset($this->resource);
     }
 
@@ -210,22 +209,27 @@ class PhoSocket implements Stringable
     public function close(int $linger = 0, bool $force = false): static
     {
         if ($this->getOpen()) {
-
-            $this->setOpen(false);
             $hash = $this->__toString();
+
             Log::action(tr('Closing connection for socket ID ":id" with linger ":linger" and force ":force"', [
-                ':id'     => rtrim(ltrim($hash, '0'),'0'),
+                ':id'     => $hash,
                 ':linger' => $linger,
                 ':force'  => $force,
             ]));
+
             unset(static::$source[$hash]);
+
             try {
                 $linger_options = [
                     'l_linger' => $linger,
                     'l_onoff'  => (int) $force
                 ];
+
                 socket_set_option($this->resource, SOL_SOCKET, SO_LINGER, $linger_options);
                 socket_close($this->resource);
+                $this->open = false;
+
+
             } catch (Throwable $e) {
                 if (!str_contains($e->getMessage(), 'has already been closed')) {
                     throw SocketException::new(tr('Failed to close socket'))
@@ -314,20 +318,6 @@ class PhoSocket implements Stringable
     public function getOpen(): bool
     {
         return $this->open;
-    }
-
-
-    /**
-     * Sets the 'open' boolean property of this PhoSocket
-     *
-     * @param bool $bool
-     *
-     * @return static
-     */
-    public function setOpen(bool $bool): static
-    {
-        $this->open = $bool;
-        return $this;
     }
 
 
@@ -1050,12 +1040,12 @@ class PhoSocket implements Stringable
                 ->addMessages(socket_strerror(socket_last_error($this->resource)));
             }
 
-            if ($return < $length) {
-                $buffer = substr($buffer, $return);
-                $length -= $return;
-            } else {
+            if ($return >= $length) {
                 break;
             }
+
+            $buffer = substr($buffer, $return);
+            $length -= $return;
         }
 
         return $return;
