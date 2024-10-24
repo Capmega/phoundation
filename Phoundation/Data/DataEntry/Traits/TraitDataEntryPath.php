@@ -16,10 +16,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 
 
 trait TraitDataEntryPath
@@ -27,24 +27,24 @@ trait TraitDataEntryPath
     /**
      * Returns the path for this object
      *
-     * @return FsPathInterface|null
+     * @return PhoPathInterface|null
      */
-    public function getPath(): ?FsPathInterface
+    public function getPath(): ?PhoPathInterface
     {
-        return $this->getValueTypesafe(FsPathInterface::class, 'path');
+        return $this->getValueTypesafe(PhoPathInterface::class, 'path');
     }
 
 
     /**
      * Sets the path for this object
      *
-     * @param FsPathInterface|string|null  $path
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoPathInterface|string|null  $path
+     * @param PhoRestrictionsInterface|null $restrictions
      *
      * @return static
      */
-    public function setPath(FsPathInterface|string|null $path, ?FsRestrictionsInterface $restrictions = null): static
+    public function setPath(PhoPathInterface|string|null $path, ?PhoRestrictionsInterface $restrictions = null): static
     {
-        return $this->set(is_string($path) ? new FsPath($path, $restrictions) : $path, 'path');
+        return $this->set(is_string($path) ? new PhoPath($path, $restrictions) : $path, 'path');
     }
 }

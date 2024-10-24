@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class FsDirectoryCore
+ * Class PhoDirectoryCore
  *
  * This class represents a single directory and contains various methods to manipulate directories.
  *
@@ -31,13 +31,13 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsDuplicatesInterface;
-use Phoundation\Filesystem\Interfaces\FsExecuteInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsFilesInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDuplicatesInterface;
+use Phoundation\Filesystem\Interfaces\PhoExecuteInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Mounts\FsMounts;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
@@ -50,7 +50,7 @@ use Stringable;
 use Throwable;
 
 
-class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
+class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 {
     use TraitDataRestrictions {
         setRestrictions as protected __setRestrictions;
@@ -60,30 +60,30 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     /**
      * Temporary process  directory (public data), if set
      *
-     * @var FsDirectoryInterface|null $process_temporary_private
+     * @var PhoDirectoryInterface|null $process_temporary_private
      */
-    protected static ?FsDirectoryInterface $process_temporary_private = null;
+    protected static ?PhoDirectoryInterface $process_temporary_private = null;
 
     /**
      * Temporary process directory (private data), if set
      *
-     * @var FsDirectoryInterface|null $process_temporary_public
+     * @var PhoDirectoryInterface|null $process_temporary_public
      */
-    protected static ?FsDirectoryInterface $process_temporary_public = null;
+    protected static ?PhoDirectoryInterface $process_temporary_public = null;
 
     /**
      * Temporary session directory (public data), if set
      *
-     * @var FsDirectoryInterface|null $session_temporary_private
+     * @var PhoDirectoryInterface|null $session_temporary_private
      */
-    protected static ?FsDirectoryInterface $session_temporary_private = null;
+    protected static ?PhoDirectoryInterface $session_temporary_private = null;
 
     /**
      * Temporary session directory (private data), if set
      *
-     * @var FsDirectoryInterface|null $session_temporary_public
+     * @var PhoDirectoryInterface|null $session_temporary_public
      */
-    protected static ?FsDirectoryInterface $session_temporary_public = null;
+    protected static ?PhoDirectoryInterface $session_temporary_public = null;
 
 
     /**
@@ -93,9 +93,9 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      *
      * @param bool $public
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public static function getProcessTemporaryPath(bool $public = false): FsDirectoryInterface
+    public static function getProcessTemporaryPath(bool $public = false): PhoDirectoryInterface
     {
         if ($public) {
             if (empty(static::$process_temporary_public)) {
@@ -120,9 +120,9 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      *
      * @param bool $public
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public static function getSessionTemporaryPath(bool $public = false): FsDirectoryInterface
+    public static function getSessionTemporaryPath(bool $public = false): PhoDirectoryInterface
     {
         if ($public) {
             if (empty(static::$session_temporary_public)) {
@@ -148,15 +148,15 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      * @param string $identifier
      * @param bool   $public
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    protected static function getTemporaryPath(string $identifier, bool $public = false): FsDirectoryInterface
+    protected static function getTemporaryPath(string $identifier, bool $public = false): PhoDirectoryInterface
     {
         // Initialize private temp directory and return
         $path = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $identifier;
-        $path = FsDirectory::new($path, FsRestrictions::newWritable($path))
-                           ->delete()
-                           ->ensure();
+        $path = PhoDirectory::new($path, PhoRestrictions::newWritable($path))
+                            ->delete()
+                            ->ensure();
 
         // Put lock file to avoid delete directory auto cleanup removing this temporary directory
         $path->addFile('.lock')->touch();
@@ -178,28 +178,28 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             $action = false;
 
             if (static::$process_temporary_private) {
-                FsFile::new(static::$process_temporary_private, FsRestrictions::new(DIRECTORY_TMP, true))
+                PhoFile::new(static::$process_temporary_private, PhoRestrictions::new(DIRECTORY_TMP, true))
                       ->delete();
 
                 $action = true;
             }
 
             if (static::$process_temporary_public) {
-                FsFile::new(static::$process_temporary_public, FsRestrictions::new(DIRECTORY_PUBTMP, true))
+                PhoFile::new(static::$process_temporary_public, PhoRestrictions::new(DIRECTORY_PUBTMP, true))
                       ->delete();
 
                 $action = true;
             }
 
             if (static::$session_temporary_public) {
-                FsFile::new(static::$session_temporary_public, FsRestrictions::new(DIRECTORY_TMP, true))
+                PhoFile::new(static::$session_temporary_public, PhoRestrictions::new(DIRECTORY_TMP, true))
                       ->delete();
 
                 $action = true;
             }
 
             if (static::$session_temporary_private) {
-                FsFile::new(static::$session_temporary_private, FsRestrictions::new(DIRECTORY_PUBTMP, true))
+                PhoFile::new(static::$session_temporary_private, PhoRestrictions::new(DIRECTORY_PUBTMP, true))
                       ->delete();
 
                 $action = true;
@@ -351,7 +351,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                 break;
             }
 
-            if (!FsDirectory::new($this->source, $this->restrictions)->isEmpty()) {
+            if (!PhoDirectory::new($this->source, $this->restrictions)->isEmpty()) {
                 // Do not remove anything more, there is contents here!
                 break;
             }
@@ -477,9 +477,9 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             $single = Config::getBoolean('filesystem.target-directory.single', false);
         }
 
-        $this->source = Strings::unslash(FsDirectory::new($this->source, $this->restrictions)
-                                                  ->ensure()
-                                                  ->getSource());
+        $this->source = Strings::unslash(PhoDirectory::new($this->source, $this->restrictions)
+                                                     ->ensure()
+                                                     ->getSource());
 
         if ($single) {
             // Assign directory in one dir, like abcde/
@@ -492,21 +492,21 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         }
 
         // Ensure again to be sure the target directories too have been created
-        return Strings::slash(FsDirectory::new($this->source, $this->restrictions)
-                                         ->ensure()
-                                         ->getSource());
+        return Strings::slash(PhoDirectory::new($this->source, $this->restrictions)
+                                          ->ensure()
+                                          ->getSource());
     }
 
 
     /**
      * Returns the path
      *
-     * @param FsPathInterface|string|null $from
-     * @param bool                        $remove_terminating_slash
+     * @param PhoPathInterface|string|null $from
+     * @param bool                         $remove_terminating_slash
      *
      * @return string|null
      */
-    public function getSource(FsPathInterface|string|null $from = null, bool $remove_terminating_slash = false): ?string
+    public function getSource(PhoPathInterface|string|null $from = null, bool $remove_terminating_slash = false): ?string
     {
         $path = parent::getSource($from);
 
@@ -540,7 +540,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
 
         if ($clear) {
             // Delete the currently existing directory, so we can  be sure we have a clean directory to work with
-            FsFile::new($this->source, $this->restrictions)->delete(false, $sudo);
+            PhoFile::new($this->source, $this->restrictions)->delete(false, $sudo);
         }
 
         if (!file_exists(Strings::unslash($this->source))) {
@@ -556,7 +556,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                 if (file_exists($this->source)) {
                     if (!is_dir($this->source)) {
                         // Some normal file is in the way. Delete the file, and retry
-                        FsFile::new($this->source, $this->restrictions)->delete(false, $sudo);
+                        PhoFile::new($this->source, $this->restrictions)->delete(false, $sudo);
 
                         return $this->ensure($mode, $clear, $sudo);
                     }
@@ -565,13 +565,13 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
 
                 } elseif (is_link($this->source)) {
                     // This is a dead symlink, delete it
-                    FsFile::new($this->source, $this->restrictions)->delete(false, $sudo);
+                    PhoFile::new($this->source, $this->restrictions)->delete(false, $sudo);
                 }
 
                 try {
                     // Make sure that the parent directory is writable when creating the directory
                     // Since we're modifying the item $id of $count, be sure to get matching restrictions
-                    FsDirectory::new(dirname($this->source), $this->restrictions->getParent($count - $id)->makeWritable())
+                    PhoDirectory::new(dirname($this->source), $this->restrictions->getParent($count - $id)->makeWritable())
                                ->execute()
                                    ->setMode(0770)
                                    ->onDirectoryOnly(function () use ($mode) {
@@ -599,7 +599,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         } elseif (!is_dir($this->source)) {
             // Some other file is in the way. Delete the file, and retry.
             // Ensure that the "file" is not accidentally specified as a directory ending in a /
-            FsFile::new(Strings::ensureEndsNotWith($this->source, '/'), $this->restrictions)
+            PhoFile::new(Strings::ensureEndsNotWith($this->source, '/'), $this->restrictions)
                 ->delete(false, $sudo);
 
             return $this->ensure($mode, $clear, $sudo);
@@ -612,23 +612,23 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     /**
      * Returns an Execute object to execute callbacks on each file in specified directories
      *
-     * @return FsExecuteInterface
+     * @return PhoExecuteInterface
      */
-    public function execute(): FsExecuteInterface
+    public function execute(): PhoExecuteInterface
     {
         $this->source = Strings::slash($this->source);
 
-        return new FsExecute($this->source, $this->restrictions);
+        return new PhoExecute($this->source, $this->restrictions);
     }
 
 
     /**
      * Return all files in this directory
      *
-     * @todo Merge this with FsDirectoryCore::scan()
-     * @return FsFilesInterface The files
+     * @return PhoFilesInterface The files
+     *@todo Merge this with FsDirectoryCore::scan()
      */
-    public function list(): FsFilesInterface
+    public function list(): PhoFilesInterface
     {
         $return = [];
         $list   = Arrays::removeMatchingValues(scandir($this->source), [
@@ -641,7 +641,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             $return[$value] = $value;
         }
 
-        return new FsFiles($this, $return, $this->restrictions);
+        return new PhoFiles($this, $return, $this->restrictions);
     }
 
 
@@ -690,7 +690,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             // Add the file to the list. If the file is a directory, then recurse instead. Do NOT add the directory
             // itself, only files!
             if (is_dir($file) and $recursive) {
-                $return = array_merge($return, FsDirectory::new($file, $this->restrictions)->listTree());
+                $return = array_merge($return, PhoDirectory::new($file, $this->restrictions)->listTree());
 
             } else {
                 $return[] = $file;
@@ -788,8 +788,8 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             try {
                 if (is_dir($this->source . $file)) {
                     // Recurse
-                    $return += FsDirectory::new($this->source . $file, $this->restrictions)
-                                          ->treeFileSize();
+                    $return += PhoDirectory::new($this->source . $file, $this->restrictions)
+                                           ->treeFileSize();
                 } else {
                     $return += filesize($this->source . $file);
                 }
@@ -825,8 +825,8 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
 
             try {
                 if (is_dir($this->source . $file)) {
-                        $return += FsDirectory::new($this->source . $file, $this->restrictions)
-                                              ->treeFileCount();
+                        $return += PhoDirectory::new($this->source . $file, $this->restrictions)
+                                               ->treeFileCount();
                 } else {
                     $return++;
                 }
@@ -887,7 +887,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
              ->onFiles(function (string $path) use (&$return) {
                 try {
 
-                    $file      = FsFile::new($path, $this->restrictions);
+                    $file      = PhoFile::new($path, $this->restrictions);
                     $extension = $file->getExtension();
 
                     // Add file type and extension statistics
@@ -998,12 +998,13 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     /**
      * Tars this directory and returns a file object for the tar file
      *
-     * @param FsFileInterface|null $target
-     * @param bool $compression
-     * @param int $timeout
-     * @return FsFileInterface
+     * @param PhoFileInterface|null $target
+     * @param bool                  $compression
+     * @param int                   $timeout
+     *
+     * @return PhoFileInterface
      */
-    public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface
+    public function tar(?PhoFileInterface $target = null, bool $compression = true, int $timeout = 600): PhoFileInterface
     {
         return Tar::new()->tar($this, $target, $compression);
     }
@@ -1015,11 +1016,11 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      * @param string|null $regex
      * @param bool        $allow_multiple
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getSingleFile(?string $regex = null, bool $allow_multiple = false): FsFileInterface
+    public function getSingleFile(?string $regex = null, bool $allow_multiple = false): PhoFileInterface
     {
-        return FsFile::new($this->source . $this->getSingle($regex, false, $allow_multiple), $this->restrictions);
+        return PhoFile::new($this->source . $this->getSingle($regex, false, $allow_multiple), $this->restrictions);
     }
 
 
@@ -1106,11 +1107,11 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      * @param string|null $regex
      * @param bool        $allow_multiple
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): FsDirectoryInterface
+    public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): PhoDirectoryInterface
     {
-        return FsDirectory::new($this->source . $this->getSingle($regex, true, $allow_multiple), $this->restrictions);
+        return PhoDirectory::new($this->source . $this->getSingle($regex, true, $allow_multiple), $this->restrictions);
     }
 
 
@@ -1123,7 +1124,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function getCount(bool $recursive = true): int
     {
-        if ($this instanceof FsFileInterface) {
+        if ($this instanceof PhoFileInterface) {
             if ($this->exists()) {
                 // This is a single file!
                 return 1;
@@ -1167,15 +1168,15 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      * @param int         $glob_flags    Flags for the internal glob() call
      * @param int         $match_flags   Flags for the internal fnmatch() call
      *
-     * @return FsFilesInterface          The resulting directory files
+     * @return PhoFilesInterface          The resulting directory files
      */
-    public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): FsFilesInterface
+    public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): PhoFilesInterface
     {
         $this->restrictions->check($this->source, false);
 
         // Get directory pattern part and file pattern part
         if ($file_patterns) {
-            $file_patterns     = FsFile::realPath($file_patterns, $this->getSource());
+            $file_patterns     = PhoFile::realPath($file_patterns, $this->getSource());
             $file_patterns     = Strings::from($file_patterns, $this->source);
             $directory_pattern = dirname($file_patterns);
             $file_patterns     = basename($file_patterns);
@@ -1267,7 +1268,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             }
         }
 
-        return new FsFiles($this, $return, $this->restrictions);
+        return new PhoFiles($this, $return, $this->restrictions);
     }
 
 
@@ -1285,9 +1286,9 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     /**
      * @inheritDoc
      */
-    public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): FsDirectoryInterface
+    public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): PhoDirectoryInterface
     {
-        return FsDirectory::new($this->getRealPath($absolute_prefix, $must_exist), $this->restrictions);
+        return PhoDirectory::new($this->getRealPath($absolute_prefix, $must_exist), $this->restrictions);
     }
 
 
@@ -1297,9 +1298,9 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      * @param string|null $file_pattern The single or multiple pattern(s) that should be matched
      * @param int         $glob_flags   Flags for the internal glob() call
      *
-     * @return FsFilesInterface         The resulting directory files
+     * @return PhoFilesInterface         The resulting directory files
      */
-    public function scanRegex(?string $file_pattern = null, int $glob_flags = GLOB_MARK): FsFilesInterface
+    public function scanRegex(?string $file_pattern = null, int $glob_flags = GLOB_MARK): PhoFilesInterface
     {
         $this->restrictions->check($this->source, false);
 
@@ -1326,7 +1327,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             }
         }
 
-        return new FsFiles($this, $return, $this->restrictions);
+        return new PhoFiles($this, $return, $this->restrictions);
     }
 
 
@@ -1384,7 +1385,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                 $mount = FsMounts::getDirectoryMountInformation($this);
 
                 foreach ($sources as $source) {
-                    if ($mount['source'] == FsDirectory::new($source)->getSource()) {
+                    if ($mount['source'] == PhoDirectory::new($source)->getSource()) {
                         return true;
                     }
                 }
@@ -1455,7 +1456,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      */
     public function mount(Stringable|string|null $source, ?string $filesystem = null, ?array $options = null): static
     {
-        FsMounts::mount(FsFile::new($source, FsRestrictions::newReadonly($source)), $this,
+        FsMounts::mount(PhoFile::new($source, PhoRestrictions::newReadonly($source)), $this,
                         $filesystem, $options);
 
         return $this;
@@ -1476,7 +1477,7 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
         $options[] = '--bind';
 
         // Source must be a directory
-        return $this->mount(FsDirectory::new($source), $options);
+        return $this->mount(PhoDirectory::new($source), $options);
     }
 
 
@@ -1507,11 +1508,11 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     /**
      * Copy this directory with progress notification
      *
-     * @param Stringable|string            $target
-     * @param FsRestrictionsInterface|null $restrictions
-     * @param callable|null                $callback
-     * @param mixed|null                   $context
-     * @param bool                         $recursive
+     * @param Stringable|string             $target
+     * @param PhoRestrictionsInterface|null $restrictions
+     * @param callable|null                 $callback
+     * @param mixed|null                    $context
+     * @param bool                          $recursive
      *
      * @return static
      * @example:
@@ -1521,11 +1522,11 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true): static
+    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true): static
     {
         $context      = $context ?? stream_context_create();
         $restrictions = $this->ensureRestrictions($restrictions);
-        $target       = FsDirectory::new($target, $restrictions)->ensure();
+        $target       = PhoDirectory::new($target, $restrictions)->ensure();
 
         $this->checkRestrictions(false);
         $target->checkRestrictions(true);
@@ -1556,37 +1557,37 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
     /**
      * Returns the specified directory added to this directory
      *
-     * @param FsPathInterface|string|int $directory
+     * @param PhoPathInterface|string|int $directory
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function addDirectory(FsPathInterface|string|int $directory): FsDirectoryInterface
+    public function addDirectory(PhoPathInterface|string|int $directory): PhoDirectoryInterface
     {
         $directory = $this->getSource() . Strings::ensureStartsNotWith((string) $directory, '/');
 
-        return FsDirectory::new($directory, $this->restrictions)
-                          ->setAutoMount($this->auto_mount);
+        return PhoDirectory::new($directory, $this->restrictions)
+                           ->setAutoMount($this->auto_mount);
     }
 
 
     /**
      * Returns the specified directory added to this directory
      *
-     * @param FsPathInterface|string $file
+     * @param PhoPathInterface|string $file
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function addFile(FsPathInterface|string $file): FsFileInterface
+    public function addFile(PhoPathInterface|string $file): PhoFileInterface
     {
         $file = $this->getSource() . Strings::ensureStartsNotWith((string) $file, '/');
 
-        return FsFile::new($file, $this->restrictions)
-                     ->setAutoMount($this->auto_mount);
+        return PhoFile::new($file, $this->restrictions)
+                      ->setAutoMount($this->auto_mount);
     }
 
 
     /**
-     * Returns a new Find object
+     * Returns a new FindInterface object
      *
      * @return FindInterface
      */
@@ -1620,9 +1621,9 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      * @param int|null $recurse_levels
      * @param int      $max_size
      *
-     * @return FsDuplicatesInterface
+     * @return PhoDuplicatesInterface
      */
-    public function getDuplicateFiles(?int $recurse_levels = 1_000_000, int $max_size = 1_073_741_824): FsDuplicatesInterface
+    public function getDuplicateFiles(?int $recurse_levels = 1_000_000, int $max_size = 1_073_741_824): PhoDuplicatesInterface
     {
         Log::action(tr('Scanning path ":path" for duplicate files', [
             ':path' => $this->source
@@ -1649,16 +1650,16 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
                 foreach ($files as $file => $hash) {
                     if (array_key_exists($hash, $duplicates)) {
                         // Merge the recursive files with the already existing files for this size
-                        $duplicates[$hash]->add(new FsFile($file, $this->restrictions), $file);
+                        $duplicates[$hash]->add(new PhoFile($file, $this->restrictions), $file);
 
                     } else {
-                        $duplicates[$hash]   = new FsFiles($this, [$file => new FsFile($file, $this->restrictions)]);
+                        $duplicates[$hash]   = new PhoFiles($this, [$file => new PhoFile($file, $this->restrictions)]);
                     }
                 }
             }
         }
 
-        return new FsDuplicates($this, $duplicates);
+        return new PhoDuplicates($this, $duplicates);
     }
 
 
@@ -1667,13 +1668,13 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
      *
      * Used by FsDirectoryCore::getDuplicateFiles()
      *
-     * @param FsDirectoryInterface $path
-     * @param int|null             $recurse_levels
-     * @param int                  $max_size
+     * @param PhoDirectoryInterface $path
+     * @param int|null              $recurse_levels
+     * @param int                   $max_size
      *
      * @return array
      */
-    protected function getSizesTable(FsDirectoryInterface $path, ?int $recurse_levels, int $max_size): array
+    protected function getSizesTable(PhoDirectoryInterface $path, ?int $recurse_levels, int $max_size): array
     {
         $sizes  = [];
 
@@ -1775,8 +1776,8 @@ class FsDirectoryCore extends FsPathCore implements FsDirectoryInterface
             if (is_dir($file)) {
                 if ($recursive) {
                     // Get filesize of this entire directory
-                    $size += FsPath::new($file, $this->restrictions)
-                                   ->getSize($recursive);
+                    $size += PhoPath::new($file, $this->restrictions)
+                                    ->getSize($recursive);
                 }
             } else {
                 // Get file size of this file

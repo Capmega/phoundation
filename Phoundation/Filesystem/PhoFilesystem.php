@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class Filesystem
+ * Class PhoFilesystem
  *
  *
  *
@@ -24,21 +24,21 @@ use Phoundation\Filesystem\Commands\Df;
 use Phoundation\Filesystem\Exception\FilesystemDoesNotExistException;
 use Phoundation\Filesystem\Exception\NoFilesystemSpecifiedException;
 use Phoundation\Filesystem\Exception\NotAFilesystemException;
-use Phoundation\Filesystem\Interfaces\FsFilesystemInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesystemInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Stringable;
 
 
-class FsFilesystem extends FsFile implements FsFilesystemInterface
+class PhoFilesystem extends PhoFile implements PhoFilesystemInterface
 {
     /**
-     * Filesystem class constructor
+     * PhoFilesystem class constructor
      *
-     * @param mixed|null                        $source
-     * @param FsRestrictionsInterface|bool|null $restrictions
-     * @param Stringable|string|bool|null       $absolute_prefix
+     * @param mixed|null                         $source
+     * @param PhoRestrictionsInterface|bool|null $restrictions
+     * @param Stringable|string|bool|null        $absolute_prefix
      */
-    public function __construct(Stringable|string|null $source = null, FsRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false) {
+    public function __construct(Stringable|string|null $source = null, PhoRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false) {
         parent::__construct($source, $restrictions, $absolute_prefix);
 
         if (!$this->source) {
@@ -53,7 +53,7 @@ class FsFilesystem extends FsFile implements FsFilesystemInterface
 
         $this->followLink(true);
 
-        if (!FsFilesystems::new()->get($this->source, false)) {
+        if (!PhoFilesystems::new()->get($this->source, false)) {
             throw new NotAFilesystemException(tr('The specified value ":filesystem" is not a filesystem', [
                 ':filesystem' => $this->source
             ]));

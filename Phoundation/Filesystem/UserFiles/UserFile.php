@@ -22,7 +22,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
@@ -84,7 +84,7 @@ class UserFile extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::newFile($this, FsDirectory::newUserFilesObject())
+        $definitions->add(DefinitionFactory::newFile($this, PhoDirectory::newUserFilesObject())
                         ->setOptional(false)
                         ->setSize(12)
                         ->setHelpText(tr('Filename'))
@@ -92,7 +92,7 @@ class UserFile extends DataEntry
                             $validator->isUnique();
                         }))
 
-                    ->add(DefinitionFactory::newFile($this, FsDirectory::newUserFilesObject(), column: 'seo_file')
+                    ->add(DefinitionFactory::newFile($this, PhoDirectory::newUserFilesObject(), column: 'seo_file')
                         ->setOptional(false)
                         ->setRender(false)
                         ->setSize(12)

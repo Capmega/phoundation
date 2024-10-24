@@ -32,12 +32,12 @@ use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoDateTimeFormats;
 use Phoundation\Date\Exception\UnsupportedDateFormatException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\JsonException;
@@ -2787,27 +2787,27 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * Checks if the specified path exists in one the required directories or not, and if its of the correct type
      *
      * @param string                      $path
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool                        $must_be_directory
      * @param bool|null                   $require_exist
      * @param Stringable|string|bool|null $prefix
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    protected function validatePath(string $path, FsDirectoryInterface|array $exists_in_directories, ?bool $must_be_directory, ?bool $require_exist, Stringable|string|bool|null $prefix = null): FsPathInterface
+    protected function validatePath(string $path, PhoDirectoryInterface|array $exists_in_directories, ?bool $must_be_directory, ?bool $require_exist, Stringable|string|bool|null $prefix = null): PhoPathInterface
     {
         // Determine filetype, if any
         if ($must_be_directory) {
             $type  = 'directory';
-            $class = FsDirectory::class;
+            $class = PhoDirectory::class;
 
         } elseif (is_bool($must_be_directory)) {
             $type = 'file';
-            $class = FsFile::class;
+            $class = PhoFile::class;
 
         } else {
             $type  = null;
-            $class = FsPath::class;
+            $class = PhoPath::class;
         }
 
         // Was a path specified? We need a path here!
@@ -2822,7 +2822,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         if (is_array($exists_in_directories)) {
             // We need the restrictions from $exists_in_directories.
             // If multiple directories were specified, get restrictions from them all
-            $restrictions = new FsRestrictions();
+            $restrictions = new PhoRestrictions();
 
             foreach ($exists_in_directories as $exists_in_directory) {
                 $restrictions->addRestrictions($exists_in_directory->getRestrictions());
@@ -2833,12 +2833,12 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         }
 
         // Get the absolute "path", "file" does not need to exist here, we'll check that later
-        $path = FsPath::new($path, $restrictions)
-                      ->makeReal($prefix, false)
-                      ->getSource();
+        $path = PhoPath::new($path, $restrictions)
+                       ->makeReal($prefix, false)
+                       ->getSource();
 
         foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
-            if (!$exists_in_directory instanceof FsDirectoryInterface) {
+            if (!$exists_in_directory instanceof PhoDirectoryInterface) {
                 throw new OutOfBoundsException(tr('Cannot validate if path ":path", the specified "$exists_in_directory" value ":value" must be an FsDirectoryInterface object or an array with FsDirectoryInterface objects', [
                     ':path'  => $path,
                     ':value' => $exists_in_directory
@@ -2910,13 +2910,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file path
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isPath(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function isPath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
@@ -2937,13 +2937,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isDirectory(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function isDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
@@ -2964,13 +2964,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isFile(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function isFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
@@ -2991,13 +2991,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file path and converts the value into FsPath object
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizePath(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function sanitizePath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
@@ -3018,13 +3018,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid directory and converts the value into FsDirectory object
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeDirectory(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function sanitizeDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
@@ -3045,13 +3045,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file and converts the value into an FsFile object
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeFile(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function sanitizeFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 

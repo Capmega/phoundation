@@ -19,8 +19,8 @@ namespace Phoundation\Filesystem\Commands;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataPath;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsMountedStorageDevices;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoMountedStorageDevices;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
@@ -56,7 +56,7 @@ class LsBlk extends Command
         $return  = [];
         $results = Json::decode($this->getStringOutput());
         $results = $results['blockdevices'];
-        $devices = FsMountedStorageDevices::new()->scan();
+        $devices = PhoMountedStorageDevices::new()->scan();
 
         // Fix the device names and update the keys
         foreach ($results as $result) {
@@ -68,8 +68,8 @@ class LsBlk extends Command
 
                 if ($match) {
                     // This is a "linked" device
-                    $result['device'] = FsFile::new($match)->getLinkTarget()->getSource();
-                    $result['device'] = FsFile::absolutePath($result['device']);
+                    $result['device'] = PhoFile::new($match)->getLinkTarget()->getSource();
+                    $result['device'] = PhoFile::absolutePath($result['device']);
 
                 } else {
                     // This is a hard device

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class FsFile
+ * Class PhoFile
  *
  * This library contains various filesystem file-related functions
  *
@@ -16,13 +16,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Traits\TraitPathConstructor;
 use Phoundation\Filesystem\Traits\TraitPathNew;
 use Phoundation\Utils\Strings;
 
 
-class FsFile extends FsFileCore
+class PhoFile extends PhoFileCore
 {
     use TraitPathConstructor;
     use TraitPathNew;
@@ -40,9 +40,9 @@ class FsFile extends FsFileCore
      */
     public static function getTemporaryObject(bool $public = false, ?string $name = null, bool $create = true, bool $persist = false): static
     {
-        $directory = FsDirectory::newTemporaryObject($public, $persist);
+        $directory = PhoDirectory::newTemporaryObject($public, $persist);
         $name      = ($name ?? Strings::getUuid());
-        $file      = static::new($directory->getSource() . $name, FsRestrictions::newWritable($directory->getSource() . $name));
+        $file      = static::new($directory->getSource() . $name, PhoRestrictions::newWritable($directory->getSource() . $name));
 
         if ($create) {
             $file->create();

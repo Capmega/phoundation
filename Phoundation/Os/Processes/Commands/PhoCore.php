@@ -19,10 +19,10 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataEnvironment;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\PhoInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\WorkersCore;
@@ -45,21 +45,21 @@ class PhoCore extends WorkersCore implements PhoInterface
     /**
      * Initializes the PhoCore class.
      *
-     * @param array|string|null    $commands
-     * @param FsFileInterface|null $pho
+     * @param array|string|null     $commands
+     * @param PhoFileInterface|null $pho
      */
-    protected function init(array|string|null $commands, ?FsFileInterface $pho = null)
+    protected function init(array|string|null $commands, ?PhoFileInterface $pho = null)
     {
         if (is_string($commands)) {
             $commands = str_replace('/', ' ', $commands);
         }
 
         if (!$pho) {
-            $pho = FsFile::new(DIRECTORY_ROOT . 'pho', FsRestrictions::newRoot());
+            $pho = PhoFile::new(DIRECTORY_ROOT . 'pho', PhoRestrictions::newRoot());
         }
 
         // Ensure that the run files directory is available
-        FsDirectory::new(DIRECTORY_SYSTEM . 'run/', FsRestrictions::new(DIRECTORY_SYSTEM . 'run'))
+        PhoDirectory::new(DIRECTORY_SYSTEM . 'run/', PhoRestrictions::new(DIRECTORY_SYSTEM . 'run'))
                    ->ensure();
 
         // Generate the process

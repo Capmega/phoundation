@@ -4,6 +4,6 @@
 
 use Phoundation\Data\Interfaces\EntryInterface;
 
-interface FsInfoInterface extends EntryInterface
+interface PhoInfoInterface extends EntryInterface
 {
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class FsMountedStorageDevices
+ * Class PhoMountedStorageDevices
  *
  * This class represents the directory "/dev/disk/by-id/" and contains all mounted storage devices
  *
@@ -19,19 +19,19 @@ namespace Phoundation\Filesystem;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 
 
-class FsMountedStorageDevices extends FsDirectoryCore
+class PhoMountedStorageDevices extends PhoDirectoryCore
 {
     use TraitStaticMethodNew;
 
 
     /**
-     * FsMountedStorageDevices class constructor
+     * PhoMountedStorageDevices class constructor
      *
      * @param bool $writable
      */
     public function __construct(bool $writable = false)
     {
         $this->source         = '/dev/disk/by-id/';
-        $this->restrictions = FsRestrictions::new($this->source, $writable, 'FsMountedStorageDevices');
+        $this->restrictions = PhoRestrictions::new($this->source, $writable, 'FsMountedStorageDevices');
     }
 }

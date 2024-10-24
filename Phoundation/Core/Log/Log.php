@@ -35,11 +35,11 @@ use Phoundation\Exception\Interfaces\ExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -165,9 +165,9 @@ class Log
     /**
      * Log file access restrictions
      *
-     * @var FsRestrictionsInterface $restrictions
+     * @var PhoRestrictionsInterface $restrictions
      */
-    protected static FsRestrictionsInterface $restrictions;
+    protected static PhoRestrictionsInterface $restrictions;
 
     /**
      * Tracks whether the syslog filter ini setting has been applied
@@ -237,13 +237,13 @@ class Log
                 static::setThreshold($threshold);
             }
 
-            static::$restrictions = FsRestrictions::newWritable(DIRECTORY_DATA . 'log/');
+            static::$restrictions = PhoRestrictions::newWritable(DIRECTORY_DATA . 'log/');
             static::setFile(Config::get('log.file', DIRECTORY_ROOT . 'data/log/syslog'));
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
 
         } catch (Throwable $e) {
             // Likely configuration read failed. Set defaults
-            static::$restrictions = FsRestrictions::new(DIRECTORY_DATA . 'log/', true, 'Log');
+            static::$restrictions = PhoRestrictions::new(DIRECTORY_DATA . 'log/', true, 'Log');
             static::setThreshold(10);
             static::setFile(DIRECTORY_ROOT . 'data/log/syslog');
             static::setBacktraceDisplay(self::BACKTRACE_DISPLAY_BOTH);
@@ -580,7 +580,7 @@ class Log
      */
     public static function getFileEnabled(): bool
     {
-        return static::$enabled and static::$file_enabled and FsFile::getWriteEnabled();
+        return static::$enabled and static::$file_enabled and PhoFile::getWriteEnabled();
     }
 
 
@@ -1104,11 +1104,11 @@ class Log
     /**
      * Returns the file to which log messages will be written
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public static function getFile(): FsFileInterface
+    public static function getFile(): PhoFileInterface
     {
-        return new FsFile(static::$file);
+        return new PhoFile(static::$file);
     }
 
 
@@ -1151,10 +1151,10 @@ class Log
             }
 
             // Open the specified log file
-            static::$streams[$file] = FsFile::new($file, static::$restrictions)
-                                            ->ensureWritable(0640)          // Log file should always be 0640
-                                            ->setForceAccess(true)     // Log file must always be accessible
-                                            ->open(EnumFileOpenMode::writeOnlyAppend);
+            static::$streams[$file] = PhoFile::new($file, static::$restrictions)
+                                             ->ensureWritable(0640)          // Log file should always be 0640
+                                             ->setForceAccess(true)     // Log file must always be accessible
+                                             ->open(EnumFileOpenMode::writeOnlyAppend);
 
             // Set the class file to the specified file and return the old value and
             static::$file = $file;
@@ -1851,14 +1851,14 @@ class Log
     /**
      * Rotates the current log file
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public static function rotate(): FsFileInterface
+    public static function rotate(): PhoFileInterface
     {
         $current = static::$file;
-        $file    = FsFile::new(static::$file, FsRestrictions::newWritable(DIRECTORY_DATA . 'log/'));
+        $file    = PhoFile::new(static::$file, PhoRestrictions::newWritable(DIRECTORY_DATA . 'log/'));
         $target  = $file->getSource() . '~' . PhoDateTime::new()->format('Ymd');
-        $target  = FsFile::getAvailableVersion($target, '.gz');
+        $target  = PhoFile::getAvailableVersion($target, '.gz');
 
         static::action(tr('Rotating to next syslog file'));
 
@@ -1906,7 +1906,7 @@ class Log
             ':age' => $age_in_days,
         ]));
 
-        Find::new(new FsDirectory(DIRECTORY_DATA . 'log/', FsRestrictions::newWritable(DIRECTORY_DATA . 'log/')))
+        Find::new(new PhoDirectory(DIRECTORY_DATA . 'log/', PhoRestrictions::newWritable(DIRECTORY_DATA . 'log/')))
             ->setMtime('+' . ($age_in_days * 1440))
             ->setExec('rf {} -rf')
             ->executeNoReturn();

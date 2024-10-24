@@ -19,12 +19,12 @@ namespace Phoundation\Filesystem\Filetypes;
 
 use Phoundation\Data\Entry;
 use Phoundation\Data\Interfaces\EntryInterface;
-use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 
 
-class FsPdf extends FsFile
+class FsPdf extends PhoFile
 {
     /**
      * This method will return

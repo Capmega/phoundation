@@ -29,7 +29,7 @@ use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\Countries\Country;
@@ -1286,14 +1286,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column file
      *
-     * @param DataEntryInterface|null   $data_entry
-     * @param FsDirectoryInterface|null $exists_in_directory
-     * @param FsDirectoryInterface|null $prefix
-     * @param string|null               $column
+     * @param DataEntryInterface|null    $data_entry
+     * @param PhoDirectoryInterface|null $exists_in_directory
+     * @param PhoDirectoryInterface|null $prefix
+     * @param string|null                $column
      *
      * @return DefinitionInterface
      */
-    public static function newFile(?DataEntryInterface $data_entry, ?FsDirectoryInterface $exists_in_directory = null, ?FsDirectoryInterface $prefix = null, ?string $column = 'file'): DefinitionInterface
+    public static function newFile(?DataEntryInterface $data_entry, ?PhoDirectoryInterface $exists_in_directory = null, ?PhoDirectoryInterface $prefix = null, ?string $column = 'file'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
             ->setMaxLength(2048)

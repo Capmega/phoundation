@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Interface ExecuteInterface
+ * Interface PhoExecuteInterface
  *
  * This library contains various filesystem file related functions
  *
@@ -18,7 +18,7 @@ namespace Phoundation\Filesystem\Interfaces;
 
 use Phoundation\Exception\OutOfBoundsException;
 
-interface FsExecuteInterface extends FsDirectoryInterface
+interface PhoExecuteInterface extends PhoDirectoryInterface
 {
     /**
      * Returns the extensions that are blacklisted

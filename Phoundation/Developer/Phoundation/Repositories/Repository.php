@@ -30,17 +30,17 @@ use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Strings;
 use Stringable;
 
 
-class Repository extends FsDirectory implements RepositoryInterface
+class Repository extends PhoDirectory implements RepositoryInterface
 {
     /**
      * Git command object
@@ -60,11 +60,11 @@ class Repository extends FsDirectory implements RepositoryInterface
     /**
      * Repository class constructor
      *
-     * @param mixed|null                   $source
-     * @param FsRestrictionsInterface|null $restrictions
-     * @param Stringable|string|bool|null  $absolute_prefix
+     * @param mixed|null                    $source
+     * @param PhoRestrictionsInterface|null $restrictions
+     * @param Stringable|string|bool|null   $absolute_prefix
      */
-    public function __construct(FsDirectoryInterface|Stringable|string $source, ?FsRestrictionsInterface $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
+    public function __construct(PhoDirectoryInterface|Stringable|string $source, ?PhoRestrictionsInterface $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
     {
         parent::__construct($source, $restrictions, $absolute_prefix);
         $this->detectType();
@@ -144,7 +144,7 @@ class Repository extends FsDirectory implements RepositoryInterface
         }
 
         // The project file must contain "phoundation"
-        $project = FsFile::new($this . 'config/project', $this->getRestrictions())->getContentsAsString();
+        $project = PhoFile::new($this . 'config/project', $this->getRestrictions())->getContentsAsString();
         $project = trim($project);
 
         if ($project === 'phoundation') {
@@ -592,7 +592,7 @@ class Repository extends FsDirectory implements RepositoryInterface
                         $stash->add($file);
 
                         // Deleted files cannot be stashed after being added, un-add, and then stash
-                        if (FsFile::new($file)->exists()) {
+                        if (PhoFile::new($file)->exists()) {
                             $o_git->add($file);
 
                         } else {

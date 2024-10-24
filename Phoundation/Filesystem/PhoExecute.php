@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class FsExecute
+ * Class PhoExecute
  *
  * This library contains various filesystem file related functions
  *
@@ -19,13 +19,13 @@ namespace Phoundation\Filesystem;
 use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\FsExecuteInterface;
+use Phoundation\Filesystem\Interfaces\PhoExecuteInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Utils\Arrays;
 use Throwable;
 
 
-class FsExecute extends FsDirectory implements FsExecuteInterface
+class PhoExecute extends PhoDirectory implements PhoExecuteInterface
 {
     use TraitDataRestrictions;
 
@@ -327,7 +327,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
     public function addSkipDirectory(string $directory): static
     {
         if ($directory) {
-            $this->skip[] = FsPath::absolutePath($directory);
+            $this->skip[] = PhoPath::absolutePath($directory);
         }
 
         return $this;
@@ -373,7 +373,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
 
         foreach (Arrays::force($this->source, '') as $this->source) {
             // Get al files in this directory
-            $this->source = FsPath::absolutePath($this->source);
+            $this->source = PhoPath::absolutePath($this->source);
 
             // Skip this directory
             if ($this->skip($this->source)) {
@@ -433,7 +433,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
         $files = [];
 
         // Get al files in this directory
-        $this->source = FsPath::absolutePath($this->source);
+        $this->source = PhoPath::absolutePath($this->source);
         // Skip this directory?
         if ($this->skip($this->source)) {
             return 0;
@@ -446,7 +446,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
             $files = scandir($this->source);
 
         } catch (Exception $e) {
-            FsDirectory::new($this->source, $this->restrictions)
+            PhoDirectory::new($this->source, $this->restrictions)
                      ->checkReadable(previous_e: $e);
         }
 
@@ -484,7 +484,7 @@ class FsExecute extends FsDirectory implements FsExecuteInterface
             } elseif (file_exists($this->source . $file)) {
                 // Execute the callback
                 $count++;
-                $extension = FsPath::new($file, $this->restrictions)->getExtension();
+                $extension = PhoPath::new($file, $this->restrictions)->getExtension();
 
                 if ($this->whitelist_extensions) {
                     // Extension MUST be on this list

@@ -21,7 +21,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Exception\PhoundationBranchNotExistException;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Project;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 
 
 CliDocumentation::setAutoComplete([
@@ -31,8 +31,8 @@ CliDocumentation::setAutoComplete([
                                               'noword' => function () { return Phoundation::new()->getPhoundationBranches()->getSourceKeys(); },
                                           ],
                                           '-p,--phoundation' => [
-                                              'word'   => function ($word) { return FsDirectory::new('/var/www/html', '/var/www/html')->scan($word . '*'); },
-                                              'noword' => function () { return FsDirectory::new('/var/www/html', '/var/www/html')->scan(); },
+                                              'word'   => function ($word) { return PhoDirectory::new('/var/www/html', '/var/www/html')->scan($word . '*'); },
+                                              'noword' => function () { return PhoDirectory::new('/var/www/html', '/var/www/html')->scan(); },
                                           ],
                                           '-c,--check'       => false,
                                           '-l,--local'       => false,

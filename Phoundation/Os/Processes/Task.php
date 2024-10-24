@@ -37,10 +37,10 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Exception\TaskAlreadyExecutedException;
@@ -845,11 +845,11 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Sets execution_directory for this task
      *
-     * @param FsDirectoryInterface|null $execution_directory
+     * @param PhoDirectoryInterface|null $execution_directory
      *
      * @return static
      */
-    public function setExecutionDirectory(?FsDirectoryInterface $execution_directory): static
+    public function setExecutionDirectory(?PhoDirectoryInterface $execution_directory): static
     {
         return $this->set($execution_directory, 'execution_directory');
     }
@@ -928,14 +928,14 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns execution_directory for this task
      *
-     * @return FsDirectoryInterface|null
+     * @return PhoDirectoryInterface|null
      */
-    public function getExecutionDirectory(): ?FsDirectoryInterface
+    public function getExecutionDirectory(): ?PhoDirectoryInterface
     {
         $directory = $this->getTypesafe('string', 'execution_directory');
 
         if ($directory) {
-            return new FsDirectory($directory, $this->restrictions);
+            return new PhoDirectory($directory, $this->restrictions);
         }
 
         return null;
@@ -1389,7 +1389,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setCliColumn('[-d,--execution-directory PATH]')
                                     ->setSize(4)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDirectory(FsDirectory::newFilesystemRootObject());
+                                        $validator->isDirectory(PhoDirectory::newFilesystemRootObject());
                                     }))
                     ->add(Definition::new($this, 'command')
                                     ->setInputType(EnumInputType::text)

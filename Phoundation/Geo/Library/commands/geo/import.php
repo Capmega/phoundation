@@ -18,8 +18,8 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Geo\Import;
 
 
@@ -57,7 +57,7 @@ ARGUMENTS
 
 
 $argv = ArgvValidator::new()
-                     ->select('-t,--target_path', true)->isOptional(DIRECTORY_DATA . 'sources/geo')->sanitizeDirectory(FsDirectory::newDataObject())
+                     ->select('-t,--target_path', true)->isOptional(DIRECTORY_DATA . 'sources/geo')->sanitizeDirectory(PhoDirectory::newDataObject())
                      ->select('-l,--no-download')->isOptional(false)->isBoolean()
                      ->select('-i,--no-import')->isOptional(false)->isBoolean()
                      ->select('--ignore-sha-fail')->isOptional(false)->isBoolean()
@@ -79,7 +79,7 @@ if (!$argv['no_import']) {
 
     // Process the files
     Log::action(tr('Processing geonames files'));
-    Import::process($argv['target_path'], $argv['target_path'] . '_processed', FsRestrictions::new(DIRECTORY_DATA, true, 'import'));
+    Import::process($argv['target_path'], $argv['target_path'] . '_processed', PhoRestrictions::new(DIRECTORY_DATA, true, 'import'));
 
     // Load the datafiles into a geonames database
     Log::action(tr('Loading geonames files into temporary database'));

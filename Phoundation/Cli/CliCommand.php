@@ -47,9 +47,9 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
@@ -243,7 +243,7 @@ class CliCommand
 
         // Execute the command and finish execution
         try {
-            Request::setRestrictions(FsRestrictions::newRoot());
+            Request::setRestrictions(PhoRestrictions::newRoot());
             Request::execute(static::$command . '.php');
 
         } catch (SqlNoTimezonesException $e) {
@@ -350,7 +350,7 @@ class CliCommand
 
         // UID mismatch, stop logging to file as that likely won't be possible at all. Also stop all file access
         Log::disableFile();
-        FsFile::disable();
+        PhoFile::disable();
     }
 
 
@@ -1139,9 +1139,9 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
         global $argv;
 
         if ($argv['usage']) {
-            $results = FsFile::new(
+            $results = PhoFile::new(
                 static::$command . '.php',
-                FsRestrictions::newCommands(false, 'CliCommand::checkUsage()')
+                PhoRestrictions::newCommands(false, 'CliCommand::checkUsage()')
             )->grep(['CliDocumentation::setUsage('], 100);
 
             if (empty($results)) {
@@ -1163,8 +1163,8 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
         global $argv;
 
         if ($argv['help']) {
-            $results = FsFile::new(static::$command . '.php', FsRestrictions::newCommands(false))
-                             ->grep(['CliDocumentation::setHelp('], 100);
+            $results = PhoFile::new(static::$command . '.php', PhoRestrictions::newCommands(false))
+                              ->grep(['CliDocumentation::setHelp('], 100);
 
             if (empty($results)) {
                 throw CliCommandException::new(tr('The command ":command" has no help information available', [
@@ -1263,7 +1263,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
             }
 
             $return = null;
-            $stdin  = FsFile::new(STDIN);
+            $stdin  = PhoFile::new(STDIN);
 
             while (!$stdin->isEof()) {
                 if ($binary_safe) {

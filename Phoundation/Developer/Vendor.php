@@ -24,9 +24,9 @@ use Phoundation\Developer\Interfaces\VendorInterface;
 use Phoundation\Developer\Traits\TraitDataRepositoryType;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsFilesInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Utils\Arrays;
 
 
@@ -40,10 +40,10 @@ class Vendor implements VendorInterface
     /**
      * ProjectVendor class constructor
      *
-     * @param FsDirectoryInterface $directory
-     * @param EnumRepositoryType   $type
+     * @param PhoDirectoryInterface $directory
+     * @param EnumRepositoryType    $type
      */
-    public function __construct(FsDirectoryInterface $directory, EnumRepositoryType $type)
+    public function __construct(PhoDirectoryInterface $directory, EnumRepositoryType $type)
     {
         $this->type      = $type;
         $this->directory = $directory;
@@ -65,9 +65,9 @@ class Vendor implements VendorInterface
     /**
      * Returns the files for this vendor in a FsFilesInterface object
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getFiles(): FsFilesInterface
+    public function getFiles(): PhoFilesInterface
     {
         return $this->directory->find()
                                ->setType('f')

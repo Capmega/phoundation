@@ -18,8 +18,8 @@ namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Strings;
 
 
@@ -52,8 +52,8 @@ class Import extends \Phoundation\Developer\Project\Import
             Log::notice('Ignoring "demo" mode for Languages, this does not do anything for this library');
         }
 
-        $file  = FsFile::new(DIRECTORY_DATA . 'sources/languages/languages', FsRestrictions::newReadonly(DIRECTORY_DATA))
-                       ->open(EnumFileOpenMode::readOnly);
+        $file  = PhoFile::new(DIRECTORY_DATA . 'sources/languages/languages', PhoRestrictions::newReadonly(DIRECTORY_DATA))
+                        ->open(EnumFileOpenMode::readOnly);
 
         $table = sql()->getSchemaObject()
                       ->getTableObject('core_languages');

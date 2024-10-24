@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FsRestrictions class
+ * Class PhoRestrictions
  *
  * This class manages file access restrictions
  *
@@ -26,7 +26,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Exception\WriteRestrictionsException;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -36,7 +36,7 @@ use Stringable;
 use Throwable;
 
 
-class FsRestrictions implements FsRestrictionsInterface
+class PhoRestrictions implements PhoRestrictionsInterface
 {
     use TraitDataSourceArray;
 
@@ -57,7 +57,7 @@ class FsRestrictions implements FsRestrictionsInterface
 
 
     /**
-     * FsRestrictions constructor
+     * PhoRestrictions class constructor
      *
      * @param Stringable|string|array|null $directories
      * @param bool                         $write
@@ -70,7 +70,7 @@ class FsRestrictions implements FsRestrictionsInterface
 
         } else {
             // Autodetect the label, it should be the function call name (or class::method()) that called this
-            $call        = Debug::getCallBefore(null, FsRestrictions::class);
+            $call        = Debug::getCallBefore(null, PhoRestrictions::class);
             $this->label = $call?->getCall() ?? tr('unknown');
 
             if ($this->label === 'include()') {
@@ -93,7 +93,7 @@ class FsRestrictions implements FsRestrictionsInterface
 
 
     /**
-     * Returns a new FsRestrictions object with the specified restrictions
+     * Returns a new PhoRestrictions object with the specified restrictions
      *
      * @param Stringable|string|array|null $directories
      * @param bool                         $write
@@ -112,7 +112,7 @@ class FsRestrictions implements FsRestrictionsInterface
      *
      * @param array|string $source
      *
-     * @return FsRestrictions
+     * @return PhoRestrictions
      */
     public static function newFromImport(array|string $source): static
     {
@@ -120,7 +120,7 @@ class FsRestrictions implements FsRestrictionsInterface
             $source = Json::decode($source);
         }
 
-        return FsRestrictions::new()->setSource($source);
+        return PhoRestrictions::new()->setSource($source);
     }
 
 
@@ -306,7 +306,7 @@ class FsRestrictions implements FsRestrictionsInterface
      * @param bool        $write
      * @param string|null $sub_directory
      *
-     * @return FsRestrictions
+     * @return PhoRestrictions
      */
     public static function newWeb(bool $write = false, ?string $sub_directory = null): static
     {
@@ -345,11 +345,11 @@ class FsRestrictions implements FsRestrictionsInterface
     /**
      * Returns the first specified restrictions object that is not empty, or system restrictions is all were empty
      *
-     * @param FsRestrictionsInterface|null ...$restrictions
+     * @param PhoRestrictionsInterface|null ...$restrictions
      *
      * @return static
      */
-    public static function getRestrictionsOrDefault(FsRestrictionsInterface|null ...$restrictions): static
+    public static function getRestrictionsOrDefault(PhoRestrictionsInterface|null ...$restrictions): static
     {
         // Find the first restrictions object
         foreach ($restrictions as $restriction) {
@@ -368,30 +368,30 @@ class FsRestrictions implements FsRestrictionsInterface
      * With this, availability of restrictions is guaranteed, even if a function did not receive restrictions. If Core
      * restrictions are returned, these core restrictions are the ones that apply
      *
-     * @param FsRestrictionsInterface|array|string|null $restrictions The restriction data that must be ensured to be a
+     * @param PhoRestrictionsInterface|array|string|null $restrictions The restriction data that must be ensured to be a
      *                                                                FsRestrictions object
-     * @param bool                                      $write        If $restrictions is not specified as a
+     * @param bool                                       $write        If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a directory string,
      *                                                                or array of directory strings, then this method
      *                                                                will convert that into a FsRestrictions object and
      *                                                                this is the $write modifier for that object
-     * @param string|null                               $label        If $restrictions is not specified as a
+     * @param string|null                                $label        If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a directory string,
      *                                                                or array of directory strings, then this method
      *                                                                will convert that into a FsRestrictions object and
      *                                                                this is the $label modifier for that object
      *
-     * @return FsRestrictions|null                                    An FsRestrictions object or NULL. If possible, the
+     * @return PhoRestrictions|null                                    An FsRestrictions object or NULL. If possible, the
      *                                                                specified restrictions will be returned but if no
      *                                                                $restictions were specified ($restrictions was
      *                                                                null or an empty string), NULL will be returned
      */
-    public static function ensure(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): ?FsRestrictionsInterface
+    public static function ensure(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): ?PhoRestrictionsInterface
     {
         if ($restrictions) {
             if (!is_object($restrictions)) {
                 // FsRestrictions were specified by simple directory string or array of directories. Convert to restrictions object
-                $restrictions = new FsRestrictions($restrictions, $write, $label);
+                $restrictions = new PhoRestrictions($restrictions, $write, $label);
             }
 
             return $restrictions;
@@ -420,9 +420,9 @@ class FsRestrictions implements FsRestrictionsInterface
      *
      * @param int|null $levels
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function getParent(?int $levels = null): FsRestrictionsInterface
+    public function getParent(?int $levels = null): PhoRestrictionsInterface
     {
         if (!$levels) {
             $levels = 1;
@@ -434,7 +434,7 @@ class FsRestrictions implements FsRestrictionsInterface
             ]));
         }
 
-        $restrictions = FsRestrictions::new()->setLabel($this->label);
+        $restrictions = PhoRestrictions::new()->setLabel($this->label);
 
         foreach ($this->source as $directory => $write) {
             for ($l = 0; $l < $levels; $l++) {
@@ -459,7 +459,7 @@ class FsRestrictions implements FsRestrictionsInterface
     public function addDirectory(Stringable|string|null $directory, bool $write = false): static
     {
         if ($directory) {
-            $this->source[FsPath::realPath($directory)] = $write;
+            $this->source[PhoPath::realPath($directory)] = $write;
         }
 
         unset($this->ordered);
@@ -475,11 +475,11 @@ class FsRestrictions implements FsRestrictionsInterface
      * @param string|array $child_directories
      * @param bool|null    $write
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function getChild(string|array $child_directories, ?bool $write = null): FsRestrictionsInterface
+    public function getChild(string|array $child_directories, ?bool $write = null): PhoRestrictionsInterface
     {
-        $restrictions      = FsRestrictions::new()->setLabel($this->label);
+        $restrictions      = PhoRestrictions::new()->setLabel($this->label);
         $child_directories = Arrays::force($child_directories);
 
         foreach ($this->source as $directory => $original_write) {
@@ -508,11 +508,11 @@ class FsRestrictions implements FsRestrictionsInterface
     /**
      * Adds restrictions from the specified restrictions object to these restrictions
      *
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $restrictions
      *
      * @return static
      */
-    public function addRestrictions(?FsRestrictionsInterface $restrictions): static
+    public function addRestrictions(?PhoRestrictionsInterface $restrictions): static
     {
         if ($restrictions) {
             return $this->addLabel($restrictions->getLabel())
@@ -717,8 +717,8 @@ class FsRestrictions implements FsRestrictionsInterface
 
         // Check each specified directory pattern to see if its allowed or restricted
         foreach ($this->ordered as $path => $allow_write) {
-            $path    = FsPath::absolutePath($path   , null, false);
-            $pattern = FsPath::absolutePath($pattern, null, false);
+            $path    = PhoPath::absolutePath($path   , null, false);
+            $pattern = PhoPath::absolutePath($pattern, null, false);
 
             if (str_starts_with($pattern, Strings::ensureEndsNotWith($path, '/'))) {
                 if ($write and !$allow_write) {
@@ -737,11 +737,11 @@ class FsRestrictions implements FsRestrictionsInterface
     /**
      * Return these restrictions but with write enabled
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function makeWritable(): FsRestrictionsInterface
+    public function makeWritable(): PhoRestrictionsInterface
     {
-        $restrictions = new FsRestrictions();
+        $restrictions = new PhoRestrictions();
 
         foreach ($this->source as $path => $write) {
             $restrictions->addDirectory($path, true);

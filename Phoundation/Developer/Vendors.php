@@ -26,9 +26,9 @@ use Phoundation\Developer\Interfaces\VendorsInterface;
 use Phoundation\Developer\Traits\TraitDataProject;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
-use Phoundation\Filesystem\FsFiles;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFilesInterface;
+use Phoundation\Filesystem\PhoFiles;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 
 
 class Vendors extends IteratorCore implements VendorsInterface
@@ -46,9 +46,9 @@ class Vendors extends IteratorCore implements VendorsInterface
     /**
      * Tracks the main directory for all the vendors in this object
      *
-     * @var FsDirectoryInterface
+     * @var PhoDirectoryInterface
      */
-    protected FsDirectoryInterface $directory;
+    protected PhoDirectoryInterface $directory;
 
     /**
      * The type of repository files
@@ -78,9 +78,9 @@ class Vendors extends IteratorCore implements VendorsInterface
     /**
      * Returns the directory where this projects vendor list may be found
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getDirectory(): FsDirectoryInterface
+    public function getDirectory(): PhoDirectoryInterface
     {
         return $this->directory;
     }
@@ -100,11 +100,11 @@ class Vendors extends IteratorCore implements VendorsInterface
     /**
      * Returns all files for this vendor
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getFiles(): FsFilesInterface
+    public function getFiles(): PhoFilesInterface
     {
-        $return = new FsFiles();
+        $return = new PhoFiles();
 
         foreach ($this->source as $vendor) {
             $return->addSource($vendor->getFiles());

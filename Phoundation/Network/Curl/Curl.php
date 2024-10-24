@@ -20,8 +20,8 @@ use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Network\Browsers\UserAgents;
 use Phoundation\Network\Curl\Interfaces\CurlInterface;
 use Phoundation\Web\Exception\WebException;
@@ -92,9 +92,9 @@ abstract class Curl implements CurlInterface
     /**
      * File access restrictions for logging
      *
-     * @var FsRestrictions|null $log_restrictions
+     * @var PhoRestrictions|null $log_restrictions
      */
-    protected ?FsRestrictions $log_restrictions = null;
+    protected ?PhoRestrictions $log_restrictions = null;
 
     /**
      * The maximum number of retries executed for this request
@@ -478,9 +478,9 @@ abstract class Curl implements CurlInterface
     /**
      * Returns the restrictions for curl output logging
      *
-     * @return FsRestrictions|null
+     * @return PhoRestrictions|null
      */
-    public function getLogRestrictions(): ?FsRestrictions
+    public function getLogRestrictions(): ?PhoRestrictions
     {
         return $this->log_restrictions;
     }
@@ -508,8 +508,8 @@ abstract class Curl implements CurlInterface
     public function setLogDirectory(string $log_directory, string $restrictions = DIRECTORY_DATA . 'log/'): static
     {
         if ($log_directory) {
-            $this->log_restrictions = FsRestrictions::new($restrictions, true);
-            FsDirectory::new($log_directory, $this->log_restrictions)->ensure();
+            $this->log_restrictions = PhoRestrictions::new($restrictions, true);
+            PhoDirectory::new($log_directory, $this->log_restrictions)->ensure();
         }
 
         $this->log_directory = $log_directory;

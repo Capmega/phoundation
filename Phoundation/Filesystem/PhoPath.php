@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class FsPath
+ * Class PhoPath
  *
  * This library contains the basic functionalities to manage filesystem paths
  *
@@ -20,7 +20,7 @@ use Phoundation\Filesystem\Traits\TraitPathConstructor;
 use Phoundation\Filesystem\Traits\TraitPathNew;
 
 
-class FsPath extends FsPathCore
+class PhoPath extends PhoPathCore
 {
     use TraitPathConstructor;
     use TraitPathNew;

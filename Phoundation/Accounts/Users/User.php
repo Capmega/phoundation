@@ -82,8 +82,8 @@ use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Incident;
@@ -2032,7 +2032,7 @@ class User extends DataEntry implements UserInterface
     public function erase(bool $secure = false): static
     {
         // Delete the users data directory, then erase the user from the database
-        FsDirectory::new(DIRECTORY_DATA . 'home/' . $this->getId(), FsRestrictions::new(DIRECTORY_DATA . 'home/', true))
+        PhoDirectory::new(DIRECTORY_DATA . 'home/' . $this->getId(), PhoRestrictions::new(DIRECTORY_DATA . 'home/', true))
                  ->delete(DIRECTORY_DATA . 'home/');
 
         return parent::erase();
@@ -2851,8 +2851,8 @@ class User extends DataEntry implements UserInterface
                                                }
 
                                                $validator->isFile(
-                                                   FsDirectory::newCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
-                                                   prefix: FsDirectory::newCdnObject()
+                                                   PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
+                                                   prefix: PhoDirectory::newCdnObject()
                                                );
                                            }))
 

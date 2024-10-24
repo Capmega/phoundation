@@ -20,10 +20,10 @@ use Phoundation\Cdn\Cdn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsFilesystem;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoFilesystem;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
@@ -72,7 +72,7 @@ class Bundler
      */
     public function __construct()
     {
-        $this->setRestrictions(FsRestrictions::new([
+        $this->setRestrictions(PhoRestrictions::new([
             DIRECTORY_CDN . 'js',
             DIRECTORY_CDN . 'css',
         ],                                         true, 'Bundler'));
@@ -188,7 +188,7 @@ class Bundler
         if (!filesize($bundle_file)) {
             Log::warning(tr('Encountered empty bundle file ":file"', [':file' => $bundle_file]));
             Log::warning(tr('Deleting empty bundle file ":file"', [':file' => $bundle_file]));
-            FsFile::new($bundle_file, $this->restrictions)
+            PhoFile::new($bundle_file, $this->restrictions)
                 ->delete();
 
             return false;
@@ -196,7 +196,7 @@ class Bundler
         // Bundle files are essentially cached files. Ensure the cache is not too old
         if (Config::get('cache.bundler.max-age', 3600) and (filemtime($bundle_file) + Config::get('cache.bundler.max-age', 3600)) < time()) {
             Log::warning(tr('Deleting expired cached bundle file ":file"', [':file' => $bundle_file]));
-            FsFile::new($bundle_file, $this->restrictions)
+            PhoFile::new($bundle_file, $this->restrictions)
                 ->delete();
 
             return false;
@@ -216,7 +216,7 @@ class Bundler
     protected function bundleFiles(array $files): void
     {
         // Generate new bundle file. This requires the pub/$files path to be writable
-        FsDirectory::new(dirname($this->bundle_file), $this->restrictions)
+        PhoDirectory::new(dirname($this->bundle_file), $this->restrictions)
                  ->execute()
                  ->setMode(0770)
                  ->onDirectoryOnly(function () use ($files) {
@@ -248,11 +248,11 @@ class Bundler
                              $data = $this->processCssData($file, $org_file, $data);
                          }
                          if (Debug::isEnabled()) {
-                             FsFile::new($this->bundle_file, $this->restrictions)
+                             PhoFile::new($this->bundle_file, $this->restrictions)
                                  ->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
 
                          } else {
-                             FsFile::new($this->bundle_file, $this->restrictions)
+                             PhoFile::new($this->bundle_file, $this->restrictions)
                                  ->append($data . (Config::get('web.minify', true) ? '' : "\n"));
                          }
                          if ($this->count) {
@@ -374,8 +374,8 @@ class Bundler
     protected function purgeCss(): string
     {
         try {
-            $html_file_object = FsFilesystem::createTempFile(false, 'html')
-                                            ->append(Request::getHtml());
+            $html_file_object = PhoFilesystem::createTempFile(false, 'html')
+                                             ->append(Request::getHtml());
             $bundle_file = Css::purge($this->bundle_file, $html_file_object->getSource());
             Log::success(tr('Purged not-used CSS rules from bundled file ":file"', [
                 ':file' => $bundle_file,

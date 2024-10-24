@@ -30,12 +30,12 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryOptions;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryTimeout;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\NotExistsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsMountInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoMountInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\MountsException;
-use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\PhoPath;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Mount;
 use Phoundation\Os\Processes\Commands\UnMount;
@@ -43,7 +43,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
-class FsMount extends DataEntry implements FsMountInterface
+class PhoMount extends DataEntry implements PhoMountInterface
 {
     use TraitDataEntryNameDescription;
     use TraitDataRestrictions;
@@ -57,9 +57,9 @@ class FsMount extends DataEntry implements FsMountInterface
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool|null                                $meta_enabled
      * @param bool                                     $init
-     * @param FsRestrictionsInterface|null             $restrictions
+     * @param PhoRestrictionsInterface|null            $restrictions
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true, ?FsRestrictionsInterface $restrictions = null)
+    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true, ?PhoRestrictionsInterface $restrictions = null)
     {
         parent::__construct($identifier, $meta_enabled, $init);
 
@@ -97,12 +97,12 @@ class FsMount extends DataEntry implements FsMountInterface
     /**
      * Returns the mount object for the path that is mounted as close as possible to the specified path
      *
-     * @param FsPath|string           $path
-     * @param FsRestrictionsInterface $restrictions
+     * @param PhoPath|string           $path
+     * @param PhoRestrictionsInterface $restrictions
      *
      * @return static|null
      */
-    public static function getForPath(FsPath|string $path, FsRestrictionsInterface $restrictions): ?static
+    public static function getForPath(PhoPath|string $path, PhoRestrictionsInterface $restrictions): ?static
     {
         if (sql()->getDatabase()) {
             $paths = sql()->query('SELECT   `id`, `target_path` 
@@ -110,7 +110,7 @@ class FsMount extends DataEntry implements FsMountInterface
                                          ORDER BY LENGTH(`target_path`)');
 
             while ($mount_path = $paths->fetch()) {
-                $mount_path['target_path'] = FsPath::absolutePath($mount_path['target_path'], must_exist: false);
+                $mount_path['target_path'] = PhoPath::absolutePath($mount_path['target_path'], must_exist: false);
 
                 if (str_starts_with($path, $mount_path['target_path'])) {
                     return static::new($mount_path['id'], 'id')->setRestrictions($restrictions);
@@ -139,12 +139,12 @@ class FsMount extends DataEntry implements FsMountInterface
 
                 case 'source_path':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = FsMounts::getMountSources(new FsDirectory($identifier));
+                    $mount = FsMounts::getMountSources(new PhoDirectory($identifier));
                     return static::new($mount, meta_enabled: $meta_enabled);
 
                 case 'target_path':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = FsMounts::getMountTargets(new FsDirectory($identifier));
+                    $mount = FsMounts::getMountTargets(new PhoDirectory($identifier));
                     return static::new($mount, meta_enabled: $meta_enabled);
             }
 
@@ -199,7 +199,7 @@ class FsMount extends DataEntry implements FsMountInterface
      */
     public function getAbsoluteSourcePath(): ?string
     {
-        return FsPath::absolutePath($this->getSourcePath(), must_exist: false);
+        return PhoPath::absolutePath($this->getSourcePath(), must_exist: false);
     }
 
 
@@ -346,7 +346,7 @@ class FsMount extends DataEntry implements FsMountInterface
      */
     public function getAbsoluteTargetPath(): ?string
     {
-        return FsPath::absolutePath($this->getTargetPath(), must_exist: false);
+        return PhoPath::absolutePath($this->getTargetPath(), must_exist: false);
     }
 
 
@@ -472,7 +472,7 @@ class FsMount extends DataEntry implements FsMountInterface
                                     ->setLabel(tr('Source'))
                                     ->setHelpText(tr('The source file for this mount'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isFile([FsDirectory::newFilesystemRootObject(), FsDirectory::newDomainObject('*')]);
+                                        $validator->isFile([PhoDirectory::newFilesystemRootObject(), PhoDirectory::newDomainObject('*')]);
                                     }))
 
                     ->add(Definition::new($this, 'target_path')
@@ -482,7 +482,7 @@ class FsMount extends DataEntry implements FsMountInterface
                                     ->setLabel(tr('Target'))
                                     ->setHelpText(tr('The target file for this mount'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDirectory(FsDirectory::newFilesystemRootObject());
+                                        $validator->isDirectory(PhoDirectory::newFilesystemRootObject());
                                     }))
 
                     ->add(Definition::new($this, 'filesystem')

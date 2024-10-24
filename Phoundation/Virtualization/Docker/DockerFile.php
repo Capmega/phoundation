@@ -19,7 +19,7 @@ namespace Phoundation\Virtualization\Docker;
 use Phoundation\Data\Traits\TraitDataDirectory;
 use Phoundation\Data\Traits\TraitDataPort;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Virtualization\Traits\TraitDataImage;
@@ -90,19 +90,19 @@ class DockerFile
     public function writeConfig(): static
     {
         // Delete old docker configuration files
-        FsFile::new($this->directory . '.docker')
+        PhoFile::new($this->directory . '.docker')
             ->setRestrictions($this->restrictions->getChild('.docker'))
             ->delete();
-        FsFile::new($this->directory . 'docker-compose.yml')
+        PhoFile::new($this->directory . 'docker-compose.yml')
             ->setRestrictions($this->restrictions->getChild('docker-compose.yml'))
             ->delete();
-        FsFile::new($this->directory . '.docker/Dockerfile')
+        PhoFile::new($this->directory . '.docker/Dockerfile')
             ->setRestrictions($this->restrictions->getChild('.docker/Dockerfile'))
             ->create('FROM php:8.2-apache
 COPY . /app
 COPY .docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN chown -R www-data:www-data /app && a2enmod rewrite');
-        FsFile::new($this->directory . '.docker/vhost.conf')
+        PhoFile::new($this->directory . '.docker/vhost.conf')
             ->setRestrictions($this->restrictions->getChild('.docker/vhost.conf'))
             ->create('<VirtualHost *:80>
     DocumentRoot /app/public
@@ -113,7 +113,7 @@ RUN chown -R www-data:www-data /app && a2enmod rewrite');
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>');
-        FsFile::new($this->directory . 'docker-compose.yml')
+        PhoFile::new($this->directory . 'docker-compose.yml')
             ->setRestrictions($this->restrictions->getChild('docker-compose.yml'))
             ->create('version: ‘3’
 services:

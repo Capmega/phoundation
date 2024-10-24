@@ -31,7 +31,7 @@ use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
@@ -146,9 +146,9 @@ class Definition implements DefinitionInterface
     /**
      * Restrictions for within what directories paths must exist
      *
-     * @var FsDirectoryInterface|array|null $in_directories
+     * @var PhoDirectoryInterface|array|null $in_directories
      */
-    protected FsDirectoryInterface|array|null $in_directories = null;
+    protected PhoDirectoryInterface|array|null $in_directories = null;
 
 
     /**
@@ -167,9 +167,9 @@ class Definition implements DefinitionInterface
     /**
      * Returns the in_directories restrictions for this definition
      *
-     * @return FsDirectoryInterface|array|null
+     * @return PhoDirectoryInterface|array|null
      */
-    public function getInDirectories(): FsDirectoryInterface|array|null
+    public function getInDirectories(): PhoDirectoryInterface|array|null
     {
         return $this->in_directories;
     }
@@ -178,10 +178,11 @@ class Definition implements DefinitionInterface
     /**
      * Sets the in_directories restrictions for this definition
      *
-     * @param FsDirectoryInterface|array|null $in_directories
+     * @param PhoDirectoryInterface|array|null $in_directories
+     *
      * @return static
      */
-    public function setInDirectories(FsDirectoryInterface|array|null $in_directories): static
+    public function setInDirectories(PhoDirectoryInterface|array|null $in_directories): static
     {
         $this->in_directories = $in_directories;
 

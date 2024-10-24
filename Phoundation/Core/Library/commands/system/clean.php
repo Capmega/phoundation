@@ -18,8 +18,8 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 
 
 CliDocumentation::setUsage('./pho system clean [OPTIONS]
@@ -81,9 +81,9 @@ $paths = [
 
 foreach ($paths as $path) {
     // Configure find to find all files and directories older than $argv[date]
-    $find = FsDirectory::new($path, FsRestrictions::new($path, true))
-                       ->find()
-                       ->olderThan($argv['date']);
+    $find = PhoDirectory::new($path, PhoRestrictions::new($path, true))
+                        ->find()
+                        ->olderThan($argv['date']);
 
     // Delete or shred?
     if ($argv['shred']) {

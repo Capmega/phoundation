@@ -17,10 +17,10 @@ declare(strict_types=1);
 namespace Phoundation\Security;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 
 
 class Crypt
@@ -34,20 +34,20 @@ class Crypt
      */
     public static function createCryptString(int $size = 32): string
     {
-        return FsFile::new('/dev/urandom', FsRestrictions::newReadonly('/dev/'))
-                     ->readBytes($size);
+        return PhoFile::new('/dev/urandom', PhoRestrictions::newReadonly('/dev/'))
+                      ->readBytes($size);
     }
 
 
     /**
      * Returns a file containing random bytes directly from /dev/urandom
      *
-     * @param FsFileInterface $file
-     * @param int             $size
+     * @param PhoFileInterface $file
+     * @param int              $size
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public static function createCryptFile(FsFileInterface $file, int $size = 4_096): FsFileInterface
+    public static function createCryptFile(PhoFileInterface $file, int $size = 4_096): PhoFileInterface
     {
         if ($size > 16_777_216) {
             // Yeah, 16M keys is not enough? Really?
@@ -56,8 +56,8 @@ class Crypt
             ]));
         }
 
-        $bytes = FsFile::new('/dev/urandom', FsRestrictions::newReadonly('/dev/'))
-                       ->readBytes($size);
+        $bytes = PhoFile::new('/dev/urandom', PhoRestrictions::newReadonly('/dev/'))
+                        ->readBytes($size);
 
         return $file->putContents($bytes);
     }

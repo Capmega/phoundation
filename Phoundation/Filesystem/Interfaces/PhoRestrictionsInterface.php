@@ -7,12 +7,11 @@ namespace Phoundation\Filesystem\Interfaces;
 use PDOStatement;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Filesystem\FsRestrictions;
 use Stringable;
 use Throwable;
 
 
-interface FsRestrictionsInterface extends ArraySourceInterface
+interface PhoRestrictionsInterface extends ArraySourceInterface
 {
     /**
      * Returns a restrictions object with parent directories for all directories in this restrictions object
@@ -20,9 +19,9 @@ interface FsRestrictionsInterface extends ArraySourceInterface
      * This is useful for the Directory object where one will want to be able to access or create the parent directory
      * of the file that needs to be accessed
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function getParent(?int $levels = null): FsRestrictionsInterface;
+    public function getParent(?int $levels = null): PhoRestrictionsInterface;
 
     /**
      * Returns a restrictions object with the current directory and the specified child directory attached
@@ -32,9 +31,9 @@ interface FsRestrictionsInterface extends ArraySourceInterface
      * @param string|array $child_directories
      * @param bool|null    $write
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function getChild(string|array $child_directories, ?bool $write = null): FsRestrictionsInterface;
+    public function getChild(string|array $child_directories, ?bool $write = null): PhoRestrictionsInterface;
 
     /**
      * Clear all directories for this restriction
@@ -118,18 +117,18 @@ interface FsRestrictionsInterface extends ArraySourceInterface
     /**
      * Return these restrictions but with write enabled
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function makeWritable(): FsRestrictionsInterface;
+    public function makeWritable(): PhoRestrictionsInterface;
 
     /**
      * Adds restrictions from the specified restrictions object to these restrictions
      *
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $restrictions
      *
      * @return static
      */
-    public function addRestrictions(?FsRestrictionsInterface $restrictions): static;
+    public function addRestrictions(?PhoRestrictionsInterface $restrictions): static;
 
     /**
      * Returns true if access to the specified pattern is restricted by this object

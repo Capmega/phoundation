@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Traits;
 
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Stringable;
 
 
@@ -25,13 +25,13 @@ trait TraitPathNew
     /**
      * Returns a new Path object with the specified restrictions
      *
-     * @param Stringable|string                 $source
-     * @param FsRestrictionsInterface|bool|null $restrictions
-     * @param Stringable|string|bool|null       $absolute_prefix
+     * @param Stringable|string                  $source
+     * @param PhoRestrictionsInterface|bool|null $restrictions
+     * @param Stringable|string|bool|null        $absolute_prefix
      *
      * @return static
      */
-    public static function new(Stringable|string $source, FsRestrictionsInterface|bool|null $restrictions = null, bool $absolute_prefix = false): static
+    public static function new(Stringable|string $source, PhoRestrictionsInterface|bool|null $restrictions = null, bool $absolute_prefix = false): static
     {
         return new static($source, $restrictions, $absolute_prefix);
     }

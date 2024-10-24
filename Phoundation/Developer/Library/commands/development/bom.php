@@ -20,7 +20,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Tests\BomFile;
 use Phoundation\Developer\Tests\Exception\BomException;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 
 
 CliDocumentation::setHelp('The bom script can search for and clear the BOM (Byte Order Mark) from all PHP files found in the specified path.
@@ -52,7 +52,7 @@ $argv = ArgvValidator::new()
                      ->select('--test')->isOptional(false)->isBoolean()
                      ->select('--no-mtime')->isOptional(false)->isBoolean()
                      ->select('--cache-mtime', true)->isOptional()->isDateTime()
-                     ->select('file')->sanitizeFile(FsDirectory::newRootObject(true))
+                     ->select('file')->sanitizeFile(PhoDirectory::newRootObject(true))
                      ->validate();
 
 

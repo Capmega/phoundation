@@ -20,7 +20,7 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Config;
 
@@ -50,7 +50,7 @@ class Sessions
             ':age' => $age_in_minutes,
         ]));
 
-        Find::new(FsDirectory::newTemporaryObject())
+        Find::new(PhoDirectory::newTemporaryObject())
             ->setOlderThan($age_in_minutes)
             ->setExecute('rf {} -rf')
             ->executeNoReturn();

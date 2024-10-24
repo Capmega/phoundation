@@ -5,61 +5,61 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Filesystem\FsFiles;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoFiles;
+use Phoundation\Filesystem\PhoRestrictions;
 use ReturnTypeWillChange;
 use Stringable;
 
-interface FsFilesInterface extends IteratorInterface
+interface PhoFilesInterface extends IteratorInterface
 {
     /**
      * Returns the server restrictions
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function getRestrictions(): FsRestrictionsInterface;
+    public function getRestrictions(): PhoRestrictionsInterface;
 
     /**
      * Sets the server and filesystem restrictions for this FsFile object
      *
-     * @param FsRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
-     * @param bool                                      $write        If $restrictions is not specified as a
+     * @param PhoRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
+     * @param bool                                       $write        If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
      *                                                                convert that into a FsRestrictions object and
      *                                                                this is the $write modifier for that object
-     * @param string|null                               $label        If $restrictions is not specified as a
+     * @param string|null                                $label        If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
      *                                                                convert that into a FsRestrictions object and
      *                                                                this is the $label modifier for that object
      */
-    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $restrictions
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function ensureRestrictions(?FsRestrictionsInterface $restrictions): FsRestrictionsInterface;
+    public function ensureRestrictions(?PhoRestrictionsInterface $restrictions): PhoRestrictionsInterface;
 
     /**
      * Returns the parent Path (if available) that contains these files
      *
-     * @return FsPathInterface|null
+     * @return PhoPathInterface|null
      */
-    public function getParentDirectory(): ?FsPathInterface;
+    public function getParentDirectory(): ?PhoPathInterface;
 
     /**
      * Returns the parent Path (if available) that contains these files
      *
-     * @param FsPathInterface|null $parent_directory
+     * @param PhoPathInterface|null $parent_directory
      *
-     * @return FsFiles
+     * @return PhoFiles
      */
-    public function setParentDirectory(?FsPathInterface $parent_directory): static;
+    public function setParentDirectory(?PhoPathInterface $parent_directory): static;
 
     /**
      * Move all files to the specified target
@@ -67,12 +67,12 @@ interface FsFilesInterface extends IteratorInterface
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
      *
-     * @param Stringable|string   $target
-     * @param FsRestrictions|null $restrictions
+     * @param Stringable|string    $target
+     * @param PhoRestrictions|null $restrictions
      *
      * @return static
      */
-    public function move(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null): static;
+    public function move(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null): static;
 
     /**
      * Copy all files to the specified target
@@ -80,20 +80,20 @@ interface FsFilesInterface extends IteratorInterface
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
      *
-     * @param Stringable|string            $target
-     * @param FsRestrictionsInterface|null $restrictions
-     * @param callable|null                $callback
+     * @param Stringable|string             $target
+     * @param PhoRestrictionsInterface|null $restrictions
+     * @param callable|null                 $callback
      *
      * @return static
      */
-    public function copy(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static;
+    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static;
 
     /**
      * Returns the current file
      *
-     * @return FsPathInterface|null
+     * @return PhoPathInterface|null
      */
-    #[ReturnTypeWillChange] public function current(): ?FsPathInterface;
+    #[ReturnTypeWillChange] public function current(): ?PhoPathInterface;
 
     /**
      * Returns if the current pointer is valid or not
@@ -139,15 +139,15 @@ interface FsFilesInterface extends IteratorInterface
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?FsPathInterface;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?PhoPathInterface;
 
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function getFirstValue(): ?FsPathInterface;
+    #[ReturnTypeWillChange] public function getFirstValue(): ?PhoPathInterface;
 
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function getLastValue(): ?FsPathInterface;
+    #[ReturnTypeWillChange] public function getLastValue(): ?PhoPathInterface;
 }

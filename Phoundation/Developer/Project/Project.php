@@ -41,10 +41,10 @@ use Phoundation\Exception\EnvironmentExistsException;
 use Phoundation\Exception\NoLongerSupportedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Rsync;
@@ -87,13 +87,13 @@ class Project implements ProjectInterface
     /**
      * Project constructor
      *
-     * @param FsDirectoryInterface|null $directory
+     * @param PhoDirectoryInterface|null $directory
      */
-    public function __construct(FsDirectoryInterface|null $directory = null)
+    public function __construct(PhoDirectoryInterface|null $directory = null)
     {
         if (!$directory) {
             // Default to the directory of this project
-            $directory = new FsDirectory(DIRECTORY_ROOT, FsRestrictions::newWritable(DIRECTORY_ROOT));
+            $directory = new PhoDirectory(DIRECTORY_ROOT, PhoRestrictions::newWritable(DIRECTORY_ROOT));
         }
 
         $this->___construct($directory);
@@ -115,7 +115,7 @@ class Project implements ProjectInterface
                 throw new OutOfBoundsException(tr('Project file "config/project" already exist'));
             }
 
-            FsFile::new(DIRECTORY_ROOT . 'config/project', FsRestrictions::newWritable(DIRECTORY_ROOT))
+            PhoFile::new(DIRECTORY_ROOT . 'config/project', PhoRestrictions::newWritable(DIRECTORY_ROOT))
                   ->delete();
         }
 
@@ -280,7 +280,7 @@ class Project implements ProjectInterface
 
         // Remove the project file
         Log::warning(tr('Removing project file "config/project"'));
-        FsFile::new(DIRECTORY_ROOT . 'config/project', FsRestrictions::new(DIRECTORY_ROOT . 'config/project', true))
+        PhoFile::new(DIRECTORY_ROOT . 'config/project', PhoRestrictions::new(DIRECTORY_ROOT . 'config/project', true))
             ->delete();
     }
 
@@ -507,10 +507,10 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public static function fixFileModes(): void
     {
-        $directory = FsDirectory::newRootObject(true, 'Project::fixFileModes');
+        $directory = PhoDirectory::newRootObject(true, 'Project::fixFileModes');
 
         // Don't check for root user, check sudo access to these commands individually, perhaps the user has it?
-        Command::checkSudoAvailable('chown,chmod,mkdir,touch,rm', FsRestrictions::new('/bin,/usr/bin'), true);
+        Command::checkSudoAvailable('chown,chmod,mkdir,touch,rm', PhoRestrictions::new('/bin,/usr/bin'), true);
 
         // Fix file modes, first make everything readonly
         Process::new('chmod')
@@ -626,9 +626,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     public function isPhoundationProject(string $directory): bool
     {
         // Is the path readable?
-        $directory = FsDirectory::new($directory, $this->restrictions)
-                                ->checkReadable()
-                                ->getSource();
+        $directory = PhoDirectory::new($directory, $this->restrictions)
+                                 ->checkReadable()
+                                 ->getSource();
 
         // All these files and directories must be available.
         $files = [
@@ -977,7 +977,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Enum/EnumExecuteMethod.php');
 
         // Move /Phoundation and /scripts out of the way
-        FsDirectory::new(DIRECTORY_ROOT . 'data/garbage/', FsRestrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))
+        PhoDirectory::new(DIRECTORY_ROOT . 'data/garbage/', PhoRestrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))
                  ->delete();
         // Copy new core library versions
         Log::action('Updating Phoundation core libraries');
@@ -1273,7 +1273,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                         $stash->add($file);
 
                         // Deleted files cannot be stashed after being added, un-add, and then stash
-                        if (FsFile::new($file)->exists()) {
+                        if (PhoFile::new($file)->exists()) {
                             $git->add($file);
 
                         } else {

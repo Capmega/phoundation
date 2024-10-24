@@ -26,7 +26,7 @@ use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpConfigurationException;
-use Phoundation\Filesystem\Interfaces\FsUploadedFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoUploadedFileInterface;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;

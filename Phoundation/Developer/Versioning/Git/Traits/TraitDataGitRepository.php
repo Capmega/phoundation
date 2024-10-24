@@ -19,7 +19,7 @@ namespace Phoundation\Developer\Versioning\Git\Traits;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 
 
 trait TraitDataGitRepository
@@ -27,9 +27,9 @@ trait TraitDataGitRepository
     /**
      * The path that will be checked
      *
-     * @var FsDirectoryInterface $repository
+     * @var PhoDirectoryInterface $repository
      */
-    protected FsDirectoryInterface $repository;
+    protected PhoDirectoryInterface $repository;
 
     /**
      * The git command interface for this repository
@@ -42,9 +42,9 @@ trait TraitDataGitRepository
     /**
      * GitRepository class constructor
      *
-     * @param FsDirectoryInterface $repository
+     * @param PhoDirectoryInterface $repository
      */
-    public function __construct(FsDirectoryInterface $repository)
+    public function __construct(PhoDirectoryInterface $repository)
     {
         $this->setRepository($repository);
     }
@@ -53,11 +53,11 @@ trait TraitDataGitRepository
     /**
      * Returns a new GitRepository object
      *
-     * @param FsDirectoryInterface $repository
+     * @param PhoDirectoryInterface $repository
      *
      * @return static
      */
-    public static function new(FsDirectoryInterface $repository): static
+    public static function new(PhoDirectoryInterface $repository): static
     {
         return new static($repository);
     }
@@ -77,9 +77,9 @@ trait TraitDataGitRepository
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getRepository(): FsDirectoryInterface
+    public function getRepository(): PhoDirectoryInterface
     {
         return $this->repository;
     }
@@ -88,11 +88,11 @@ trait TraitDataGitRepository
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @param FsDirectoryInterface $repository
+     * @param PhoDirectoryInterface $repository
      *
      * @return static
      */
-    public function setRepository(FsDirectoryInterface $repository): static
+    public function setRepository(PhoDirectoryInterface $repository): static
     {
         $this->repository = $repository->makeAbsolute();
 

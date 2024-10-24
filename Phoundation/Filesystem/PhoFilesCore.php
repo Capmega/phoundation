@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FsFilesCore class
+ * Class PhoFilesCore
  *
  * This class manages a list of files that are not necessarily confined to the same directory
  *
@@ -22,16 +22,16 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFilesInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use ReturnTypeWillChange;
 use Stringable;
 
 
-class FsFilesCore extends IteratorCore implements FsFilesInterface
+class PhoFilesCore extends IteratorCore implements PhoFilesInterface
 {
     use TraitDataRestrictions;
 
@@ -39,9 +39,9 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
     /**
      * The parent directory containing these files
      *
-     * @var FsDirectoryInterface|null
+     * @var PhoDirectoryInterface|null
      */
-    protected FsDirectoryInterface|null $parent_directory = null;
+    protected PhoDirectoryInterface|null $parent_directory = null;
 
 
     /**
@@ -60,9 +60,9 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
     /**
      * Returns the parent Path (if available) that contains these files
      *
-     * @return FsPathInterface|null
+     * @return PhoPathInterface|null
      */
-    public function getParentDirectory(): ?FsPathInterface
+    public function getParentDirectory(): ?PhoPathInterface
     {
         return $this->parent_directory;
     }
@@ -71,11 +71,11 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
     /**
      * Returns the parent Path (if available) that contains these files
      *
-     * @param FsPathInterface|null $parent_directory
+     * @param PhoPathInterface|null $parent_directory
      *
-     * @return FsFiles
+     * @return PhoFiles
      */
-    public function setParentDirectory(?FsPathInterface $parent_directory): static
+    public function setParentDirectory(?PhoPathInterface $parent_directory): static
     {
         $this->parent_directory = $parent_directory;
 
@@ -89,19 +89,19 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
      *
-     * @param Stringable|string   $target
-     * @param FsRestrictions|null $restrictions
+     * @param Stringable|string    $target
+     * @param PhoRestrictions|null $restrictions
      *
      * @return static
      */
-    public function move(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null): static
+    public function move(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null): static
     {
         $restrictions = $this->ensureRestrictions($restrictions);
 
-        FsDirectory::new($target, $restrictions)->ensure();
+        PhoDirectory::new($target, $restrictions)->ensure();
 
         foreach ($this->source as $file) {
-            FsFile::new($file)->move($target, $restrictions);
+            PhoFile::new($file)->move($target, $restrictions);
         }
 
         return $this;
@@ -114,20 +114,20 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
      *
-     * @param Stringable|string            $target
-     * @param FsRestrictionsInterface|null $restrictions
-     * @param callable|null                $callback
-     * @param mixed|null                   $context
+     * @param Stringable|string             $target
+     * @param PhoRestrictionsInterface|null $restrictions
+     * @param callable|null                 $callback
+     * @param mixed|null                    $context
      *
      * @return static
      */
-    public function copy(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static
+    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static
     {
         $restrictions = $this->ensureRestrictions($restrictions);
-        FsDirectory::new($target, $restrictions)->ensure();
+        PhoDirectory::new($target, $restrictions)->ensure();
 
         foreach ($this->source as $file) {
-            FsFile::new($file)->copy($target, $restrictions, $callback, $context);
+            PhoFile::new($file)->copy($target, $restrictions, $callback, $context);
         }
 
         return $this;
@@ -137,7 +137,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function current(): ?FsPathInterface
+    #[ReturnTypeWillChange] public function current(): ?PhoPathInterface
     {
         return parent::current();
     }
@@ -146,7 +146,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?FsPathInterface
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?PhoPathInterface
     {
         return parent::get($key, $exception);
     }
@@ -155,7 +155,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function getFirstValue(): ?FsPathInterface
+    #[ReturnTypeWillChange] public function getFirstValue(): ?PhoPathInterface
     {
         return parent::getFirstValue();
     }
@@ -164,7 +164,7 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function getLastValue(): ?FsPathInterface
+    #[ReturnTypeWillChange] public function getLastValue(): ?PhoPathInterface
     {
         return parent::getLastValue();
     }
@@ -195,20 +195,20 @@ class FsFilesCore extends IteratorCore implements FsFilesInterface
                 }
 
                 if (is_dir($file)) {
-                    $file = FsDirectory::new($file, $this->restrictions);
+                    $file = PhoDirectory::new($file, $this->restrictions);
 
                 } elseif (file_exists($file)) {
-                    $file = FsFile::new($file, $this->restrictions);
+                    $file = PhoFile::new($file, $this->restrictions);
 
                 } else {
                     // Non-existing file, just return the path
-                    $file = FsPath::new($file, $this->restrictions);
+                    $file = PhoPath::new($file, $this->restrictions);
                 }
 
                 continue;
             }
 
-            if ($file instanceof FsPathInterface) {
+            if ($file instanceof PhoPathInterface) {
                 // Ensure $file is an absolute path
                 $file->makeAbsolute($this->parent_directory?->getSource(), false);
                 continue;

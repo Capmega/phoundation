@@ -7,9 +7,9 @@ namespace Phoundation\Os\Processes\Interfaces;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\Interfaces\DateTimeInterface;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 
 interface TaskInterface extends DataEntryInterface
 {
@@ -488,19 +488,19 @@ interface TaskInterface extends DataEntryInterface
     /**
      * Returns execution_directory for this task
      *
-     * @return FsDirectoryInterface|null
+     * @return PhoDirectoryInterface|null
      */
-    public function getExecutionDirectory(): ?FsDirectoryInterface;
+    public function getExecutionDirectory(): ?PhoDirectoryInterface;
 
 
     /**
      * Sets execution_directory for this task
      *
-     * @param FsDirectoryInterface|null $execution_directory
+     * @param PhoDirectoryInterface|null $execution_directory
      *
      * @return static
      */
-    public function setExecutionDirectory(?FsDirectoryInterface $execution_directory): static;
+    public function setExecutionDirectory(?PhoDirectoryInterface $execution_directory): static;
 
 
     /**

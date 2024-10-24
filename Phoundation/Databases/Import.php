@@ -28,8 +28,8 @@ use Phoundation\Data\Traits\TraitDataUserPass;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Utils\Numbers;
@@ -68,11 +68,11 @@ class Import
     /**
      * Exporter class constructor
      *
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $restrictions
      */
-    public function __construct(?FsRestrictionsInterface $restrictions = null)
+    public function __construct(?PhoRestrictionsInterface $restrictions = null)
     {
-        $this->restrictions = FsRestrictions::getRestrictionsOrDefault($restrictions, FsRestrictions::newWritable('/'));
+        $this->restrictions = PhoRestrictions::getRestrictionsOrDefault($restrictions, PhoRestrictions::newWritable('/'));
     }
 
 
@@ -258,11 +258,11 @@ class Import
     /**
      * Returns a new Export object
      *
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $restrictions
      *
      * @return static
      */
-    public static function new(?FsRestrictionsInterface $restrictions = null): static
+    public static function new(?PhoRestrictionsInterface $restrictions = null): static
     {
         return new static($restrictions);
     }

@@ -26,9 +26,9 @@ use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\Project\Configuration;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigFailedException;
 use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
@@ -730,7 +730,7 @@ class Config implements ConfigInterface
         $store = [];
 
         // Scan all files for Config::get() and Config::set() calls
-        FsDirectory::new(DIRECTORY_ROOT, FsRestrictions::newWritable(DIRECTORY_ROOT))
+        PhoDirectory::new(DIRECTORY_ROOT, PhoRestrictions::newWritable(DIRECTORY_ROOT))
                  ->execute()
                  ->addSkipDirectories([
                      DIRECTORY_DATA,
@@ -738,10 +738,10 @@ class Config implements ConfigInterface
                      DIRECTORY_ROOT . 'garbage',
                  ])
                  ->setRecurse(true)
-                 ->setRestrictions(new FsRestrictions(DIRECTORY_ROOT))
+                 ->setRestrictions(new PhoRestrictions(DIRECTORY_ROOT))
                  ->onFiles(function (string $file) use (&$store) {
-                     $files = FsFile::new($file, FsRestrictions::newReadonly(DIRECTORY_ROOT))
-                                    ->grep([
+                     $files = PhoFile::new($file, PhoRestrictions::newReadonly(DIRECTORY_ROOT))
+                                     ->grep([
                                       'Config::get(\'',
                                       'Config::set(\'',
                                   ]);
@@ -1024,7 +1024,7 @@ class Config implements ConfigInterface
                 try {
                     $file = DIRECTORY_ROOT . 'config/' . self::$section . $environment . '.yaml';
 
-                    FsRestrictions::new(DIRECTORY_ROOT . 'config/')->check($file, false);
+                    PhoRestrictions::new(DIRECTORY_ROOT . 'config/')->check($file, false);
 
                     // Check if a configuration file exists for this environment
                     if (!file_exists($file)) {

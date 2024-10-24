@@ -17,8 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Data\Traits\TraitDataFile;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
 
@@ -29,11 +29,11 @@ class Zcat extends Command
     /**
      * Zcat class constructor
      *
-     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
-     * @param string|null                                       $operating_system
-     * @param string|null                                       $packages
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory
+     * @param string|null                                         $operating_system
+     * @param string|null                                         $packages
      */
-    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null)
+    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null)
     {
         parent::__construct($execution_directory, $operating_system, $packages);
         $this->setCommand('zcat');

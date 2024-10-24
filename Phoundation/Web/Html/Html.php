@@ -20,7 +20,7 @@ use PDOStatement;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Core\Core;
 use Phoundation\Developer\Debug;
-use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
@@ -1349,11 +1349,11 @@ class Html
                     if (!filesize($file . '.js')) {
                         // The javascript file is empty
                         log_file(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', [':file' => $file . '.js']), 'html-script', 'yellow');
-                        FsFile::new(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')
-                              ->executeMode(0770, function () use ($file) {
-                                FsFile::new($file . '.js,' . $file . '.min.js', 'ug+w', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')
+                        PhoFile::new(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')
+                               ->executeMode(0770, function () use ($file) {
+                                PhoFile::new($file . '.js,' . $file . '.min.js', 'ug+w', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')
                                     ->chmod();
-                                FsFile::new($file . '.js,' . $file . '.min.js', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')
+                                PhoFile::new($file . '.js,' . $file . '.min.js', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')
                                     ->delete();
                             });
 
@@ -1362,7 +1362,7 @@ class Html
                          * External cached file is too old
                          */
                         log_file(tr('Deleting externally cached javascript file ":file" because the file cache time expired', [':file' => $file . '.js']), 'html-script', 'yellow');
-                        FsFile::new()
+                        PhoFile::new()
                             ->executeMode(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js', 0770, function () use ($file) {
                                 file_delete([
                                     'patterns'       => $file . '.js,' . $file . '.min.js',
@@ -1378,7 +1378,7 @@ class Html
                  * deleted it
                  */
                 if (!file_exists($file . '.js')) {
-                    FsFile::new()
+                    PhoFile::new()
                         ->executeMode(dirname($file), 0770, function () use ($file, $return) {
                             log_file(tr('Writing internal javascript to externally cached file ":file"', [':file' => $file . '.js']), 'html-script', 'cyan');
                             file_put_contents($file . '.js', $return);
@@ -1678,9 +1678,9 @@ class Html
             if (!file_exists($target)) {
                 log_file(tr('Modified format target ":target" does not exist, converting original source', [':target' => $target]), 'html', 'VERYVERBOSE/warning');
                 load_libs('image');
-                FsFile::new()
-                      ->executeMode(dirname($file_src), 0770, function () use ($file_src, $target, $format) {
-                        FsFile::new()
+                PhoFile::new()
+                       ->executeMode(dirname($file_src), 0770, function () use ($file_src, $target, $format) {
+                        PhoFile::new()
                             ->executeMode($file_src, 0660, function () use ($file_src, $target, $format) {
                                 global $_CONFIG;
                                 image_convert([
@@ -2050,7 +2050,7 @@ class Html
                         if (!file_exists($file_target)) {
                             log_file(tr('Resized version of ":src" does not yet exist, converting', [':src' => $params['src']]), 'html', 'VERBOSE/cyan');
                             load_libs('image');
-                            FsFile::new()
+                            PhoFile::new()
                                 ->executeMode(dirname($file_src), 0770, function () use ($file_src, $file_target, $params) {
                                     global $_CONFIG;
                                     ImageFile::convert([
@@ -2113,11 +2113,11 @@ class Html
                 try {
                     if (!file_exists(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/jquery.lazy/jquery.lazy.js')) {
                         // jquery.lazy is not available, auto install it.
-                        $file      = FsFile::download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
+                        $file      = PhoFile::download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
                         $directory = cli_unzip($file);
-                        FsFile::new()
-                              ->executeMode(DIRECTORY_ROOT . 'www/en/pub/js', 0770, function () use ($directory) {
-                                FsFile::delete(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/jquery.lazy/', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/');
+                        PhoFile::new()
+                               ->executeMode(DIRECTORY_ROOT . 'www/en/pub/js', 0770, function () use ($directory) {
+                                PhoFile::delete(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/jquery.lazy/', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/');
                                 rename($directory . 'jquery.lazy-master/', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/jquery.lazy');
                             });
                         file_delete($directory);

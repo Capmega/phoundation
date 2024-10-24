@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Utils\Traits\TraitVersion;
 
 
@@ -31,9 +31,9 @@ class Version
     /**
      * The file containing the version
      *
-     * @var FsFileInterface $file
+     * @var PhoFileInterface $file
      */
-    protected FsFileInterface $file;
+    protected PhoFileInterface $file;
 
     /**
      * The version from the version file
@@ -46,12 +46,12 @@ class Version
     /**
      * Version class constructor
      *
-     * @param FsFileInterface|string       $file
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoFileInterface|string       $file
+     * @param PhoRestrictionsInterface|null $restrictions
      */
-    public function __construct(FsFileInterface|string $file, ?FsRestrictionsInterface $restrictions = null)
+    public function __construct(PhoFileInterface|string $file, ?PhoRestrictionsInterface $restrictions = null)
     {
-        $this->file    = new FsFile($file, $restrictions);
+        $this->file    = new PhoFile($file, $restrictions);
         $this->version = $this->file->getContentsAsString();
 
         $this->___construct($this->version);

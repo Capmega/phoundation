@@ -20,8 +20,8 @@ namespace Phoundation\Os\Processes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataLabel;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Ps;
 use Phoundation\Os\Processes\Exception\WorkersException;
 use Phoundation\Os\Processes\Interfaces\WorkersCoreInterface;
@@ -99,9 +99,9 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     /**
      * Workers constructor
      *
-     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory
      */
-    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null)
+    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory = null)
     {
         parent::__construct($execution_directory);
     }

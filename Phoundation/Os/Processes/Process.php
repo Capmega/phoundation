@@ -17,8 +17,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
 
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 
 
 class Process extends ProcessCore
@@ -26,12 +26,12 @@ class Process extends ProcessCore
     /**
      * Processes constructor.
      *
-     * @param string|null                                       $command
-     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory_or_restrictions
-     * @param string|null                                       $operating_system
-     * @param string|null                                       $packages
+     * @param string|null                                         $command
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions
+     * @param string|null                                         $operating_system
+     * @param string|null                                         $packages
      */
-    public function __construct(?string $command = null, FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null)
+    public function __construct(?string $command = null, PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null)
     {
         parent::__construct($execution_directory_or_restrictions);
 
@@ -48,14 +48,14 @@ class Process extends ProcessCore
     /**
      * Create a new process factory
      *
-     * @param string|null                                       $command
-     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory_or_restrictions
-     * @param string|null                                       $operating_system
-     * @param string|null                                       $packages
+     * @param string|null                                         $command
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions
+     * @param string|null                                         $operating_system
+     * @param string|null                                         $packages
      *
      * @return static
      */
-    public static function new(?string $command = null, FsRestrictionsInterface|FsDirectoryInterface $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null): static
+    public static function new(?string $command = null, PhoRestrictionsInterface|PhoDirectoryInterface $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null): static
     {
         return new static($command, $execution_directory_or_restrictions, $operating_system, $packages);
     }

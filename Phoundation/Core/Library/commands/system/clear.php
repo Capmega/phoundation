@@ -19,8 +19,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 
 
 CliDocumentation::setUsage('./pho system clear [OPTIONS]
@@ -68,14 +68,14 @@ if ($argv['date']) {
 
 } else {
     if ($argv['shred']) {
-        FsFile::new(DIRECTORY_DATA . 'tmp', FsRestrictions::new(DIRECTORY_DATA, true))->shred();
-        FsFile::new(DIRECTORY_DATA . 'content/cdn/tmp', FsRestrictions::new(DIRECTORY_DATA, true))->shred();
-        FsFile::new(DIRECTORY_DATA . 'cache', FsRestrictions::new(DIRECTORY_DATA, true))->shred();
+        PhoFile::new(DIRECTORY_DATA . 'tmp', PhoRestrictions::new(DIRECTORY_DATA, true))->shred();
+        PhoFile::new(DIRECTORY_DATA . 'content/cdn/tmp', PhoRestrictions::new(DIRECTORY_DATA, true))->shred();
+        PhoFile::new(DIRECTORY_DATA . 'cache', PhoRestrictions::new(DIRECTORY_DATA, true))->shred();
 
     } else {
-        FsFile::new(DIRECTORY_DATA . 'tmp', FsRestrictions::new(DIRECTORY_DATA, true))->delete();
-        FsFile::new(DIRECTORY_DATA . 'content/cdn/tmp', FsRestrictions::new(DIRECTORY_DATA, true))->delete();
-        FsFile::new(DIRECTORY_DATA . 'cache', FsRestrictions::new(DIRECTORY_DATA, true))->delete();
+        PhoFile::new(DIRECTORY_DATA . 'tmp', PhoRestrictions::new(DIRECTORY_DATA, true))->delete();
+        PhoFile::new(DIRECTORY_DATA . 'content/cdn/tmp', PhoRestrictions::new(DIRECTORY_DATA, true))->delete();
+        PhoFile::new(DIRECTORY_DATA . 'cache', PhoRestrictions::new(DIRECTORY_DATA, true))->delete();
     }
 }
 

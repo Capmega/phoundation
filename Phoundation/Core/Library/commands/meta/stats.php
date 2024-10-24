@@ -19,8 +19,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 
 
 CliDocumentation::setUsage('./pho meta stats

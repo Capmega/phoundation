@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Interfaces;
 
-interface FsDuplicatesInterface
+interface PhoDuplicatesInterface
 {
     /**
      * Deletes the duplicate files
@@ -30,7 +30,7 @@ interface FsDuplicatesInterface
     /**
      * Returns the number of bytes freed by the deleting of duplicate files
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getDeletedFiles(): FsFilesInterface;
+    public function getDeletedFiles(): PhoFilesInterface;
 }

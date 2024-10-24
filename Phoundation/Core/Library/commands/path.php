@@ -17,10 +17,10 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Strings;
 
@@ -50,11 +50,11 @@ $like = $argv['like'] ? '*' : null;
 // Search and initialize results iterator
 $results     = new Iterator();
 
-$files       = Find::new(FsDirectory::newCommandsObject())
+$files       = Find::new(PhoDirectory::newCommandsObject())
                    ->setName($like . $argv['command'] . '.php' . $like)
                    ->executeReturnIterator();
 
-$directories = Find::new(FsDirectory::newCommandsObject())
+$directories = Find::new(PhoDirectory::newCommandsObject())
                    ->setName($like . $argv['command'] . $like)
                    ->setType('d')
                    ->executeReturnIterator();
@@ -71,7 +71,7 @@ if ($files->getCount()) {
         $result    = Strings::from($path, DIRECTORY_COMMANDS);
         $result    = Strings::until($result, '.php');
         $result    = str_replace('/', ' ', $result);
-        $path      = FsFile::new($path, FsRestrictions::newReadonly(DIRECTORY_COMMANDS));
+        $path      = PhoFile::new($path, PhoRestrictions::newReadonly(DIRECTORY_COMMANDS));
         $real_path = ($path->isLink() ? Strings::from($path->getLinkTarget()->getRealPath(), DIRECTORY_ROOT) : ('*** ' . Strings::from($path->getRealPath(), DIRECTORY_ROOT)));
         $path      = Strings::from($path->getRealPath(), DIRECTORY_ROOT);
 

@@ -5,7 +5,7 @@ namespace Phoundation\Filesystem\Interfaces;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
 
-interface FsMimetypeInterface extends DataEntryInterface
+interface PhoMimetypeInterface extends DataEntryInterface
 {
     /**
      * Returns the extension for this object

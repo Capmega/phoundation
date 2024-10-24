@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 
 
 trait TraitStaticMethodNewWithDirectory
@@ -24,11 +24,11 @@ trait TraitStaticMethodNewWithDirectory
     /**
      * Returns a new static object that accepts $directory in the constructor
      *
-     * @param FsDirectoryInterface|null $directory
+     * @param PhoDirectoryInterface|null $directory
      *
      * @return static
      */
-    public static function new(FsDirectoryInterface|null $directory = null): static
+    public static function new(PhoDirectoryInterface|null $directory = null): static
     {
         return new static($directory);
     }

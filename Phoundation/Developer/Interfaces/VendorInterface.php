@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Interfaces;
 
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFilesInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 
 interface VendorInterface
 {
     /**
      * Returns the directory
      *
-     * @return FsDirectoryInterface|null
+     * @return PhoDirectoryInterface|null
      */
-    public function getDirectory(): ?FsDirectoryInterface;
+    public function getDirectory(): ?PhoDirectoryInterface;
 
     /**
      * Returns the vendor identifier
@@ -27,9 +27,9 @@ interface VendorInterface
     /**
      * Returns the files for this vendor in a FsFilesInterface object
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getFiles(): FsFilesInterface;
+    public function getFiles(): PhoFilesInterface;
 
     /**
      * Returns the modified files for this vendor in a StatusFilesInterface object

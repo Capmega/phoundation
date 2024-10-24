@@ -41,8 +41,8 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Incident;
@@ -625,9 +625,9 @@ class Session implements SessionInterface
         // What handler to use?
         switch (Config::getString('web.sessions.handler', 'files')) {
             case 'files':
-                $directory = FsDirectory::new(
+                $directory = PhoDirectory::new(
                     Config::getString('web.sessions.path', DIRECTORY_SYSTEM . 'sessions/'),
-                    FsRestrictions::new([
+                    PhoRestrictions::new([
                         DIRECTORY_DATA,
                         '/var/lib/php/sessions/',
                     ], true)

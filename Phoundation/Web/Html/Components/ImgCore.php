@@ -19,7 +19,7 @@ namespace Phoundation\Web\Html\Components;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\ImgInterface;
@@ -35,9 +35,9 @@ class ImgCore extends SpanCore implements ImgInterface
     /**
      * Server object where the image conversion commands will be executed
      *
-     * @var FsRestrictions $restrictions
+     * @var PhoRestrictions $restrictions
      */
-    protected FsRestrictions $restrictions;
+    protected PhoRestrictions $restrictions;
 
     /**
      * Sets whether the image will be lazily loaded as-needed or directly

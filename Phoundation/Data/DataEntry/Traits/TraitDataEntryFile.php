@@ -18,8 +18,8 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 
 
 trait TraitDataEntryFile
@@ -30,14 +30,14 @@ trait TraitDataEntryFile
     /**
      * Returns the file for this object
      *
-     * @return FsFileInterface|null
+     * @return PhoFileInterface|null
      */
-    public function getFile(): ?FsFileInterface
+    public function getFile(): ?PhoFileInterface
     {
-        $file = $this->getTypesafe(FsFileInterface::class . '|string', 'file');
+        $file = $this->getTypesafe(PhoFileInterface::class . '|string', 'file');
 
         if ($file and is_string($file)) {
-            $file = new FsFile($file, $this->restrictions);
+            $file = new PhoFile($file, $this->restrictions);
         }
 
         return $file;
@@ -47,11 +47,11 @@ trait TraitDataEntryFile
     /**
      * Sets the file for this object
      *
-     * @param FsFileInterface|string|null $file
+     * @param PhoFileInterface|string|null $file
      *
      * @return static
      */
-    public function setFile(FsFileInterface|string|null $file): static
+    public function setFile(PhoFileInterface|string|null $file): static
     {
         if (is_string($file)) {
             if (strlen($file) > 2048) {

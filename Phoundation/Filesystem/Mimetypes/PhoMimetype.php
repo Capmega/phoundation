@@ -23,12 +23,12 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryPriority;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Filesystem\Interfaces\FsMimetypeInterface;
+use Phoundation\Filesystem\Interfaces\PhoMimetypeInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
-class FsMimetype extends DataEntry implements FsMimetypeInterface
+class PhoMimetype extends DataEntry implements PhoMimetypeInterface
 {
     use TraitDataEntryNameDescription;
     use TraitDataEntryPriority;

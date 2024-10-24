@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FsRestrictionsAllowAll class
+ * Class PhoRestrictionsAllowAll
  *
  * This class extends the FsRestrictions class, but allows everything, always. Currently only used by
  * FsPathCore::realPath() to avoid endless loops with FsRestrictions, and that method requires
@@ -25,7 +25,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Exception\WriteRestrictionsException;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
@@ -33,7 +33,7 @@ use Stringable;
 use Throwable;
 
 
-class FsRestrictionsAllowAll extends FsRestrictions implements FsRestrictionsInterface
+class PhoRestrictionsAllowAll extends PhoRestrictions implements PhoRestrictionsInterface
 {
     public function addDirectory(Stringable|string|null $directory, bool $write = false): static
     {
@@ -83,9 +83,9 @@ class FsRestrictionsAllowAll extends FsRestrictions implements FsRestrictionsInt
      *
      * @param int|null $levels
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function getParent(?int $levels = null): FsRestrictionsInterface
+    public function getParent(?int $levels = null): PhoRestrictionsInterface
     {
         return $this;
     }
@@ -99,9 +99,9 @@ class FsRestrictionsAllowAll extends FsRestrictions implements FsRestrictionsInt
      * @param string|array $child_directories
      * @param bool|null    $write
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function getChild(string|array $child_directories, ?bool $write = null): FsRestrictionsInterface
+    public function getChild(string|array $child_directories, ?bool $write = null): PhoRestrictionsInterface
     {
         return $this;
     }
@@ -110,9 +110,9 @@ class FsRestrictionsAllowAll extends FsRestrictions implements FsRestrictionsInt
     /**
      * Return these restrictions but with write enabled
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function makeWritable(): FsRestrictionsInterface
+    public function makeWritable(): PhoRestrictionsInterface
     {
         return $this;
     }

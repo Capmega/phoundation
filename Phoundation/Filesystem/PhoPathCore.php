@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class FsPathCore
+ * Class PhoPathCore
  *
  * This library contains the basic functionalities to manage filesystem paths
  *
@@ -58,16 +58,16 @@ use Phoundation\Filesystem\Exception\NotASymlinkException;
 use Phoundation\Filesystem\Exception\PathNotDomainException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Filesystem\Exception\SymlinkBrokenException;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsFilesInterface;
-use Phoundation\Filesystem\Interfaces\FsFilesystemInterface;
-use Phoundation\Filesystem\Interfaces\FsInfoInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesystemInterface;
+use Phoundation\Filesystem\Interfaces\PhoInfoInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Mimetypes\Exception\FilesystemMimetypeNotSupported;
 use Phoundation\Filesystem\Mimetypes\FsMimetypes;
-use Phoundation\Filesystem\Mounts\FsMount;
+use Phoundation\Filesystem\Mounts\PhoMount;
 use Phoundation\Filesystem\Mounts\FsMounts;
 use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
 use Phoundation\Filesystem\Requirements\Requirements;
@@ -91,7 +91,7 @@ use Stringable;
 use Throwable;
 
 
-class FsPathCore implements FsPathInterface
+class PhoPathCore implements PhoPathInterface
 {
     use TraitDataRestrictions;
     use TraitDataBufferSize;
@@ -147,9 +147,9 @@ class FsPathCore implements FsPathInterface
     /**
      * FsFiles under this path. If the current path is a file, this Iterator will contain only one entry, THIS file.
      *
-     * @var FsFilesInterface $files
+     * @var PhoFilesInterface $files
      */
-    protected FsFilesInterface $files;
+    protected PhoFilesInterface $files;
 
     /**
      * Cache for the mime type of this file
@@ -235,23 +235,23 @@ class FsPathCore implements FsPathInterface
 
 
     /**
-     * Returns a new Fs{atjInterface object with the specified restrictions
+     * Returns a new PhoPathInterface object with the specified restrictions
      *
-     * @param mixed                                     $source
-     * @param FsRestrictionsInterface|array|string|null $restrictions
+     * @param mixed                                      $source
+     * @param PhoRestrictionsInterface|array|string|null $restrictions
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      * @throws FileNotExistException
      */
-    public static function newExisting(Stringable|string|null $source = null, FsRestrictionsInterface|array|string|null $restrictions = null): FsPathInterface
+    public static function newExisting(Stringable|string|null $source = null, PhoRestrictionsInterface|array|string|null $restrictions = null): PhoPathInterface
     {
-        if ($source instanceof FsPathInterface) {
+        if ($source instanceof PhoPathInterface) {
             if ($source->isDirectory()) {
-                return FsDirectory::new($source, $restrictions);
+                return PhoDirectory::new($source, $restrictions);
             }
 
             if ($source->exists()) {
-                return FsFile::new($source, $restrictions);
+                return PhoFile::new($source, $restrictions);
             }
 
         }
@@ -259,11 +259,11 @@ class FsPathCore implements FsPathInterface
             $source = (string)$source;
 
             if (is_dir($source)) {
-                return FsDirectory::new($source, $restrictions);
+                return PhoDirectory::new($source, $restrictions);
             }
 
             if (file_exists($source)) {
-                return FsFile::new($source, $restrictions);
+                return PhoFile::new($source, $restrictions);
             }
         }
 
@@ -301,17 +301,17 @@ class FsPathCore implements FsPathInterface
     /**
      * Returns a version of the specified path that does not yet exist
      *
-     * @param FsPathInterface|string $path
-     * @param string|null            $extension
+     * @param PhoPathInterface|string $path
+     * @param string|null             $extension
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public static function getAvailableVersion(FsPathInterface|string $path, ?string $extension = null): FsPathInterface
+    public static function getAvailableVersion(PhoPathInterface|string $path, ?string $extension = null): PhoPathInterface
     {
         $prefix    = '';
         $version   = 97;
         $extension = Strings::ensureStartsWith($extension, '.');
-        $path      = FsPath::new($path)->appendPath($extension);
+        $path      = PhoPath::new($path)->appendPath($extension);
 
         $path->getParentDirectory()->ensure();
 
@@ -342,16 +342,16 @@ class FsPathCore implements FsPathInterface
     /**
      * Returns a FsPathInterface object with the specified path appended to this path
      *
-     * @param FsPathInterface|string      $path
+     * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function appendPath(FsPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): FsPathInterface
+    public function appendPath(PhoPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): PhoPathInterface
     {
         $path = $this->getSource() . Strings::ensureStartsNotWith((string)$path, '/');
 
-        return FsPath::new($path, $this->restrictions, $absolute_prefix);
+        return PhoPath::new($path, $this->restrictions, $absolute_prefix);
     }
 
 
@@ -369,11 +369,11 @@ class FsPathCore implements FsPathInterface
     /**
      * Returns the path
      *
-     * @param FsPathInterface|string|null $from
+     * @param PhoPathInterface|string|null $from
      *
      * @return string|null
      */
-    public function getSource(FsPathInterface|string|null $from = null): ?string
+    public function getSource(PhoPathInterface|string|null $from = null): ?string
     {
         if ($this->isDirectory()) {
             $return = Strings::slash($this->source);
@@ -384,7 +384,7 @@ class FsPathCore implements FsPathInterface
         }
 
         if ($from) {
-            if ($from instanceof FsPathInterface) {
+            if ($from instanceof PhoPathInterface) {
                 $from = $from->getSource();
             }
 
@@ -463,11 +463,11 @@ class FsPathCore implements FsPathInterface
     /**
      * Make this (absolute) path a relative path
      *
-     * @param FsDirectoryInterface $from
+     * @param PhoDirectoryInterface $from
      *
      * @return static
      */
-    public function makeRelative(FsDirectoryInterface $from): static
+    public function makeRelative(PhoDirectoryInterface $from): static
     {
         $this->source = static::relativePath($this, $from)->getSource();
 
@@ -513,11 +513,11 @@ class FsPathCore implements FsPathInterface
      * @param Stringable|string|bool|null $prefix
      * @param bool                        $must_exist
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function getAbsolute(Stringable|string|bool|null $prefix = null, bool $must_exist = true): FsPathInterface
+    public function getAbsolute(Stringable|string|bool|null $prefix = null, bool $must_exist = true): PhoPathInterface
     {
-        return FsPath::new($this->getAbsolutePath($prefix, $must_exist), $this->restrictions);
+        return PhoPath::new($this->getAbsolutePath($prefix, $must_exist), $this->restrictions);
     }
 
 
@@ -528,18 +528,18 @@ class FsPathCore implements FsPathInterface
      * . Is DIRECTORY_ROOT
      * ~ is the current shell's user home directory
      *
-     * @param FsPathInterface      $path
-     * @param FsDirectoryInterface $from
+     * @param PhoPathInterface      $path
+     * @param PhoDirectoryInterface $from
      *
      * @return static
      */
-    public function relativePath(FsPathInterface $path, FsDirectoryInterface $from): FsPathInterface
+    public function relativePath(PhoPathInterface $path, PhoDirectoryInterface $from): PhoPathInterface
     {
         $relative = Strings::from($path->getSource(), $from->getSource(), needle_required: true);
         $relative = Strings::ensureStartsNotWith($relative, '/');
 
         if ($relative) {
-            return new FsPath($relative, $path->getRestrictions());
+            return new PhoPath($relative, $path->getRestrictions());
         }
 
         // Either the specified $from is exactly the same as from, or path does not start with from
@@ -1022,7 +1022,7 @@ class FsPathCore implements FsPathInterface
      */
     public function setTarget(Stringable|string $target): static
     {
-        $this->target = FsPathCore::absolutePath($target, null, false);
+        $this->target = PhoPathCore::absolutePath($target, null, false);
 
         return $this;
     }
@@ -1176,7 +1176,7 @@ class FsPathCore implements FsPathInterface
         } else {
             try {
                 // Check if this path has a mount somewhere. If so, see if it needs auto-mounting
-                $mount = FsMount::getForPath($this->source, $this->restrictions->makeWritable());
+                $mount = PhoMount::getForPath($this->source, $this->restrictions->makeWritable());
 
                 if ($mount) {
                     if ($mount->autoMount()) {
@@ -1209,7 +1209,7 @@ class FsPathCore implements FsPathInterface
      * @param bool        $use_run_file
      *
      * @return static
-     * @see FsRestrictions::check() This function uses file location restrictions
+     * @see PhoRestrictions::check() This function uses file location restrictions
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
@@ -1238,7 +1238,7 @@ class FsPathCore implements FsPathInterface
                 $clean_path = null;
             }
 
-            FsDirectory::new(dirname($this->source), $this->restrictions->getParent())
+            PhoDirectory::new(dirname($this->source), $this->restrictions->getParent())
                        ->clearDirectory($clean_path, $sudo, use_run_file: $use_run_file);
         }
 
@@ -1705,7 +1705,7 @@ class FsPathCore implements FsPathInterface
                 $clean_path = null;
             }
 
-            FsDirectory::new(dirname($this->source))->clearDirectory($clean_path, $sudo);
+            PhoDirectory::new(dirname($this->source))->clearDirectory($clean_path, $sudo);
         }
 
         return $this;
@@ -1715,14 +1715,14 @@ class FsPathCore implements FsPathInterface
     /**
      * Moves this file to the specified target, will try to ensure target directory exists
      *
-     * @param Stringable|string   $target
-     * @param FsRestrictions|null $restrictions
+     * @param Stringable|string    $target
+     * @param PhoRestrictions|null $restrictions
      *
      * @return static
      */
-    public function move(Stringable|string $target, ?FsRestrictions $restrictions = null): static
+    public function move(Stringable|string $target, ?PhoRestrictions $restrictions = null): static
     {
-        $target = new FsPath($target, $restrictions);
+        $target = new PhoPath($target, $restrictions);
         $target->makeAbsolute(must_exist: false);
 
         // Check the target directory exists, if so must be directory
@@ -1739,7 +1739,7 @@ class FsPathCore implements FsPathInterface
 
         } else {
             // Target does not exist
-            if ($target instanceof FsDirectoryInterface) {
+            if ($target instanceof PhoDirectoryInterface) {
                 // If the target is indicated to be a directory (because it ends with a slash) then it should be created
                 $target->ensure();
 
@@ -2034,7 +2034,7 @@ class FsPathCore implements FsPathInterface
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
-        FsDirectory::new(dirname($this->source), $this->restrictions)->ensure();
+        PhoDirectory::new(dirname($this->source), $this->restrictions)->ensure();
 
         Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
             ':mode' => Strings::fromOctal($mode),
@@ -2073,7 +2073,7 @@ class FsPathCore implements FsPathInterface
      */
     public static function realPath(string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string
     {
-        $real = FsPath::absolutePath($path, $absolute_prefix, $must_exist);
+        $real = PhoPath::absolutePath($path, $absolute_prefix, $must_exist);
 
         if (static::onDomain($real)) {
             // This is a domain:/file URL, we can't make this real
@@ -2084,7 +2084,7 @@ class FsPathCore implements FsPathInterface
         // Use FsRestrictionsAllowAll as FsRestrictions will use FsPathCore::realPath() and cause endless loops!
         $base   = basename($real);
         $parent = dirname($real);
-        $parent = FsDirectory::new($parent, new FsRestrictionsAllowAll())->ensure()->getSource();
+        $parent = PhoDirectory::new($parent, new PhoRestrictionsAllowAll())->ensure()->getSource();
         $parent = realpath($parent);
 
         if (!$parent) {
@@ -2119,10 +2119,10 @@ class FsPathCore implements FsPathInterface
     /**
      * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
      *
-     * @return FsPathInterface The real directory extrapolated from the specified $directory, if exists. False if
+     * @return PhoPathInterface The real directory extrapolated from the specified $directory, if exists. False if
      *                         whatever was specified does not exist.
      */
-    public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): FsPathInterface
+    public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): PhoPathInterface
     {
         return static::new($this->getRealPath($absolute_prefix, $must_exist), $this->restrictions);
     }
@@ -2169,7 +2169,7 @@ class FsPathCore implements FsPathInterface
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
-        FsDirectory::new(dirname($this->source), $this->restrictions->getParent())
+        PhoDirectory::new(dirname($this->source), $this->restrictions->getParent())
                  ->ensure();
 
         return false;
@@ -2293,12 +2293,12 @@ class FsPathCore implements FsPathInterface
      *
      * @note Will return a NEW Path object (FsPathInterface) for the specified target
      *
-     * @param FsPathInterface             $target
-     * @param FsPathInterface|string|bool $make_relative
+     * @param PhoPathInterface             $target
+     * @param PhoPathInterface|string|bool $make_relative
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function symlinkTargetFromThis(FsPathInterface $target, FsPathInterface|string|bool $make_relative = true): FsPathInterface
+    public function symlinkTargetFromThis(PhoPathInterface $target, PhoPathInterface|string|bool $make_relative = true): PhoPathInterface
     {
         $target->getRestrictions()->addRestrictions($this->restrictions);
 
@@ -2376,12 +2376,12 @@ class FsPathCore implements FsPathInterface
     /**
      * Returns the relative path between the specified path and this object's path
      *
-     * @param FsPathInterface|string      $target
-     * @param FsPathInterface|string|bool $absolute_prefix
+     * @param PhoPathInterface|string      $target
+     * @param PhoPathInterface|string|bool $absolute_prefix
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function getRelativePathTo(FsPathInterface|string $target, FsPathInterface|string|bool $absolute_prefix = null): FsPathInterface
+    public function getRelativePathTo(PhoPathInterface|string $target, PhoPathInterface|string|bool $absolute_prefix = null): PhoPathInterface
     {
         $target      = static::new($target, $this->restrictions);
         $target_path = Strings::ensureEndsNotWith($target->getAbsolutePath($absolute_prefix, false), '/');
@@ -2409,7 +2409,7 @@ class FsPathCore implements FsPathInterface
         if (empty($source_path)) {
             if (empty($target_path)) {
                 // The specified target is the same as this path
-                return new FsPath('.');
+                return new PhoPath('.');
             }
         } else {
             array_pop($source_path);
@@ -2423,7 +2423,7 @@ class FsPathCore implements FsPathInterface
             $return[] = $section;
         }
 
-        return FsPath::new(implode('/', $return), $target->getRestrictions());
+        return PhoPath::new(implode('/', $return), $target->getRestrictions());
     }
 
 
@@ -2511,11 +2511,11 @@ class FsPathCore implements FsPathInterface
     /**
      * Returns the path that this link points to
      *
-     * @param FsPathInterface|string|bool $absolute_prefix
+     * @param PhoPathInterface|string|bool $absolute_prefix
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function readLink(FsPathInterface|string|bool $absolute_prefix = false): FsPathInterface
+    public function readLink(PhoPathInterface|string|bool $absolute_prefix = false): PhoPathInterface
     {
         if (!$this->isLink()) {
             throw new FilesystemException(tr('Cannot readlink path ":path", it is not a symlink', [
@@ -2536,11 +2536,11 @@ class FsPathCore implements FsPathInterface
 
         // Return (possibly) relative links
         if (is_dir($path)) {
-            return new FsDirectory($path, $this->restrictions, $this->getParentDirectory());
+            return new PhoDirectory($path, $this->restrictions, $this->getParentDirectory());
         }
 
         if (file_exists($path)) {
-            return new FsFile($path, $this->restrictions, $this->getParentDirectory());
+            return new PhoFile($path, $this->restrictions, $this->getParentDirectory());
         }
 
         return new static($path, $this->restrictions, $this->getParentDirectory());
@@ -2591,13 +2591,13 @@ class FsPathCore implements FsPathInterface
     /**
      * Returns the parent directory for this file
      *
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $restrictions
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getParentDirectory(?FsRestrictionsInterface $restrictions = null): FsDirectoryInterface
+    public function getParentDirectory(?PhoRestrictionsInterface $restrictions = null): PhoDirectoryInterface
     {
-        return FsDirectory::new(dirname($this->source), $restrictions ?? $this->restrictions?->getParent());
+        return PhoDirectory::new(dirname($this->source), $restrictions ?? $this->restrictions?->getParent());
     }
 
 
@@ -3022,7 +3022,7 @@ class FsPathCore implements FsPathInterface
             }
 
             // File doesn't exist, check if the parent directory is writable so that the file can be created
-            FsDirectory::new(dirname($this->source), $this->restrictions)->checkWritable($type, $previous_e);
+            PhoDirectory::new(dirname($this->source), $this->restrictions)->checkWritable($type, $previous_e);
 
         } elseif (!is_writable($this->source)) {
             throw new FileNotWritableException(tr('The:type file ":file" cannot be written', [
@@ -3178,7 +3178,7 @@ class FsPathCore implements FsPathInterface
              ->checkClosed('putContents')
              ->mountIfNeeded();
 
-        FsDirectory::new(dirname($this->source), $this->restrictions->getParent()->getParent())->ensure();
+        PhoDirectory::new(dirname($this->source), $this->restrictions->getParent()->getParent())->ensure();
 
         file_put_contents($this->source, $data, $flags, $context);
 
@@ -3249,7 +3249,7 @@ class FsPathCore implements FsPathInterface
         if ($this->exists()) {
             // Just touch it, I dare you.
             touch($this->source);
-        } elseif ($this instanceof FsDirectoryInterface) {
+        } elseif ($this instanceof PhoDirectoryInterface) {
             // If this is supposed to be a directory, create it
             return $this->ensure();
         } else {
@@ -3276,7 +3276,7 @@ class FsPathCore implements FsPathInterface
              ->mountIfNeeded();
 
         // Ensure the target path exists
-        FsDirectory::new(dirname($this->source), $this->restrictions)->ensure();
+        PhoDirectory::new(dirname($this->source), $this->restrictions)->ensure();
 
         // Open target file
         $this->open(EnumFileOpenMode::writeOnlyAppend);
@@ -3284,7 +3284,7 @@ class FsPathCore implements FsPathInterface
         // Open each source file
         foreach (Arrays::force($sources, null) as $source) {
             try {
-                $source = FsFile::new($source, $this->restrictions)->open(EnumFileOpenMode::readOnly);
+                $source = PhoFile::new($source, $this->restrictions)->open(EnumFileOpenMode::readOnly);
 
                 while (!$source->isEof()) {
                     $this->write($source->read(1048576));
@@ -3391,7 +3391,7 @@ class FsPathCore implements FsPathInterface
             ]));
         }
 
-        if ($this instanceof FsDirectoryInterface) {
+        if ($this instanceof PhoDirectoryInterface) {
             // Recurse into sub directories, initialize all files
             throw new UnderConstructionException();
         }
@@ -3455,7 +3455,7 @@ class FsPathCore implements FsPathInterface
     {
         if ($this->isDirectory()) {
             // Return the size of this entire directory
-            return FsDirectory::new($this)->getSize($recursive);
+            return PhoDirectory::new($this)->getSize($recursive);
         }
 
         // Return the size of a single file
@@ -3528,18 +3528,18 @@ class FsPathCore implements FsPathInterface
      * Replaces the current path by moving it out of the way and moving the target in its place, then deleting the
      * original
      *
-     * @param FsPathInterface|string $target
+     * @param PhoPathInterface|string $target
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function replaceWithPath(FsPathInterface|string $target): FsPathInterface
+    public function replaceWithPath(PhoPathInterface|string $target): PhoPathInterface
     {
-        $target = FsPath::new($target);
+        $target = PhoPath::new($target);
 
         if ($this->exists()) {
             // Move the old out of the way, push the new in, delete the current
             $new = clone $this;
-            $this->rename(FsDirectory::newTemporaryObject());
+            $this->rename(PhoDirectory::newTemporaryObject());
             $target->rename($new);
             $this->delete();
 
@@ -3582,7 +3582,7 @@ class FsPathCore implements FsPathInterface
 
         $this->source = $to;
 
-        if ($to_filename instanceof FsPathInterface) {
+        if ($to_filename instanceof PhoPathInterface) {
             $this->setRestrictions($to_filename->getRestrictions());
         }
 
@@ -3621,11 +3621,11 @@ class FsPathCore implements FsPathInterface
     /**
      * Wrapper for Path::readlink()
      *
-     * @param FsPathInterface|string|bool $absolute
+     * @param PhoPathInterface|string|bool $absolute
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function getLinkTarget(FsPathInterface|string|bool $absolute = false): FsPathInterface
+    public function getLinkTarget(PhoPathInterface|string|bool $absolute = false): PhoPathInterface
     {
         return $this->readLink($absolute);
     }
@@ -3634,16 +3634,16 @@ class FsPathCore implements FsPathInterface
     /**
      * Returns a FsPathInterface object with the specified path prepended to this path
      *
-     * @param FsPathInterface|string      $path
+     * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function prependPath(FsPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): FsPathInterface
+    public function prependPath(PhoPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): PhoPathInterface
     {
         $path = Strings::ensureEndsWith((string) $path, '/') . $this->getSource();
 
-        return FsPath::new($path, $this->restrictions, $absolute_prefix);
+        return PhoPath::new($path, $this->restrictions, $absolute_prefix);
     }
 
 
@@ -3653,17 +3653,17 @@ class FsPathCore implements FsPathInterface
      *
      * Directories will remain directories, all files will be symlinks
      *
-     * @param FsPathInterface|string       $target
-     * @param FsPathInterface|string|null  $alternate_path
-     * @param FsRestrictionsInterface|null $restrictions
-     * @param bool                         $rename
+     * @param PhoPathInterface|string       $target
+     * @param PhoPathInterface|string|null  $alternate_path
+     * @param PhoRestrictionsInterface|null $restrictions
+     * @param bool                          $rename
      *
      * @return static
      */
-    public function symlinkTreeToTarget(FsPathInterface|string $target, FsPathInterface|string|null $alternate_path = null, ?FsRestrictionsInterface $restrictions = null, bool $rename = false): FsPathInterface
+    public function symlinkTreeToTarget(PhoPathInterface|string $target, PhoPathInterface|string|null $alternate_path = null, ?PhoRestrictionsInterface $restrictions = null, bool $rename = false): PhoPathInterface
     {
         // Ensure target is a Path object with restrictions
-        $target = FsPath::new($target, $restrictions ?? $this->restrictions);
+        $target = PhoPath::new($target, $restrictions ?? $this->restrictions);
 
         if (empty($alternate_path)) {
             // We'll create the symlinks in the same directory as where we're linking from. Use "target" object
@@ -3672,13 +3672,13 @@ class FsPathCore implements FsPathInterface
         } else {
             // We'll create the symlink in a different directory than where we're linking from. Ensure "alternate_path"
             // is a Path object
-            $alternate_path = FsPath::new($alternate_path, $target->restrictions);
+            $alternate_path = PhoPath::new($alternate_path, $target->restrictions);
         }
 
         if ($this->isDirectory()) {
             // Source is a directory, target must be a directory too, process all files in this directory
-            $dir_target         = FsDirectory::new($target);
-            $dir_alternate_path = FsDirectory::new($alternate_path)->ensure();
+            $dir_target         = PhoDirectory::new($target);
+            $dir_alternate_path = PhoDirectory::new($alternate_path)->ensure();
 
             // Go over each file in this directory.
             // If the file is a directory then create it in the target, if it is a normal file, then create a symlink
@@ -3733,9 +3733,9 @@ class FsPathCore implements FsPathInterface
      *
      * @param bool $reload
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getFilesObject(bool $reload = false): FsFilesInterface
+    public function getFilesObject(bool $reload = false): PhoFilesInterface
     {
         $this->checkRestrictions(false);
 
@@ -3744,11 +3744,11 @@ class FsPathCore implements FsPathInterface
 
             if ($this->isDirectory()) {
                 // Load all files in this directory
-                $this->files = FsFiles::new(new FsDirectory($this), scandir($this->source), $this->restrictions);
+                $this->files = PhoFiles::new(new PhoDirectory($this), scandir($this->source), $this->restrictions);
 
             } else {
                 // This is a file, so there are no files beyond THIS file.
-                $this->files = FsFiles::new($this->getParentDirectory(), [$this->source], $this->restrictions);
+                $this->files = PhoFiles::new($this->getParentDirectory(), [$this->source], $this->restrictions);
             }
         }
 
@@ -3761,14 +3761,14 @@ class FsPathCore implements FsPathInterface
      *
      * @note Will return a NEW Path object (FsFile or FsDirectory, basically) for the specified target
      *
-     * @param FsPathInterface|string      $target
-     * @param FsPathInterface|string|bool $make_relative
+     * @param PhoPathInterface|string      $target
+     * @param PhoPathInterface|string|bool $make_relative
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function symlinkThisToTarget(FsPathInterface|string $target, FsPathInterface|string|bool $make_relative = true): FsPathInterface
+    public function symlinkThisToTarget(PhoPathInterface|string $target, PhoPathInterface|string|bool $make_relative = true): PhoPathInterface
     {
-        $target = new FsPath($target, $this->restrictions);
+        $target = new PhoPath($target, $this->restrictions);
 
         // Calculate absolute or relative path
         if ($make_relative and $target->isAbsolute()) {
@@ -3840,11 +3840,11 @@ class FsPathCore implements FsPathInterface
     {
         if ($this->exists()) {
             $list = Find::new($this->restrictions)
-                        ->setExecutionDirectory(new FsDirectory($this))
+                        ->setExecutionDirectory(new PhoDirectory($this))
                         ->setPath($this)
                         ->setType('l')
                         ->setCallback(function ($file) use ($clean) {
-                            FsPath::new($file, $this->restrictions)->delete(true);
+                            PhoPath::new($file, $this->restrictions)->delete(true);
                         })
                         ->getFiles();
 
@@ -3871,7 +3871,7 @@ class FsPathCore implements FsPathInterface
 
         // Make sure the file path exists. NOTE: FsRestrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        FsDirectory::new(dirname($this->source), $this->restrictions->getParent()->getParent())->ensure();
+        PhoDirectory::new(dirname($this->source), $this->restrictions->getParent()->getParent())->ensure();
 
         return $this->open($write_mode)
                     ->write($data)
@@ -3915,12 +3915,12 @@ class FsPathCore implements FsPathInterface
     /**
      * Returns the filesystem for the current path
      *
-     * @return FsFilesystemInterface
+     * @return PhoFilesystemInterface
      */
-    public function getFilesystemObject(): FsFilesystemInterface
+    public function getFilesystemObject(): PhoFilesystemInterface
     {
         try {
-            $results = Df::new($this->isDirectory() ? new FsDirectory($this) : $this->getParentDirectory())
+            $results = Df::new($this->isDirectory() ? new PhoDirectory($this) : $this->getParentDirectory())
                          ->executeNoReturn()
                          ->getResults();
 
@@ -3943,7 +3943,7 @@ class FsPathCore implements FsPathInterface
             }
         }
 
-        return new FsFilesystem($filesystem['filesystem']);
+        return new PhoFilesystem($filesystem['filesystem']);
     }
 
 
@@ -4165,11 +4165,11 @@ class FsPathCore implements FsPathInterface
      * Returns an FsInfoInterface object  for this path, which can be used to gather and or display information about
      * this path
      *
-     * @return FsInfoInterface
+     * @return PhoInfoInterface
      */
-    public function getInfoObject(): FsInfoInterface
+    public function getInfoObject(): PhoInfoInterface
     {
-        return new FsInfo($this);
+        return new PhoInfo($this);
     }
 
 
@@ -4367,10 +4367,11 @@ class FsPathCore implements FsPathInterface
      *
      * To be in the specified directory, this path must start with the directory path.
      *
-     * @param FsDirectoryInterface|string $directory
+     * @param PhoDirectoryInterface|string $directory
+     *
      * @return bool
      */
-    public function isInDirectory(FsDirectoryInterface|string $directory): bool
+    public function isInDirectory(PhoDirectoryInterface|string $directory): bool
     {
         if ($this->isOnDomain()) {
             return $this->isInDomain($directory);
@@ -4389,12 +4390,13 @@ class FsPathCore implements FsPathInterface
      *
      * @note: This method supports * domains
      *
-     * @param FsDirectoryInterface|string $domain
+     * @param PhoDirectoryInterface|string $domain
+     *
      * @return bool
      */
-    public function isInDomain(FsDirectoryInterface|string $domain): bool
+    public function isInDomain(PhoDirectoryInterface|string $domain): bool
     {
-        if ($domain instanceof FsDirectoryInterface){
+        if ($domain instanceof PhoDirectoryInterface){
             $domain = $domain->getSource();
         }
 
@@ -4502,12 +4504,13 @@ class FsPathCore implements FsPathInterface
     /**
      * Tars this file and returns a file object for the tar file
      *
-     * @param FsFileInterface|null $target
-     * @param bool $compression
-     * @param int $timeout
-     * @return FsFileInterface
+     * @param PhoFileInterface|null $target
+     * @param bool                  $compression
+     * @param int                   $timeout
+     *
+     * @return PhoFileInterface
      */
-    public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface
+    public function tar(?PhoFileInterface $target = null, bool $compression = true, int $timeout = 600): PhoFileInterface
     {
         return Tar::new($this->getParentDirectory())->tar($this, $target, $compression, $timeout);
     }
@@ -4564,11 +4567,11 @@ class FsPathCore implements FsPathInterface
     /**
      * Returns true if this path is the same as the specified path
      *
-     * @param FsPathInterface $path
+     * @param PhoPathInterface $path
      *
      * @return bool
      */
-    public function isSameAs(FsPathInterface $path): bool
+    public function isSameAs(PhoPathInterface $path): bool
     {
         if ($this->getRealPath()->getSource() === $path->getRealPath()->getSource()){
             // Doh, it's the same path!

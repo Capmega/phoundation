@@ -17,22 +17,22 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Numbers;
 
 
-$restrictions = FsRestrictions::newReadonly('/');
+$restrictions = PhoRestrictions::newReadonly('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan($word . '*');
+                return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan('*');
+                return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan('*');
             },
         ],
     ]
@@ -56,7 +56,7 @@ PATH                                    The path of which the size needs to be c
 
 // Get arguments
 $argv = ArgvValidator::new()
-    ->select('path')->sanitizeDirectory(FsDirectory::newFilesystemRootObject())
+    ->select('path')->sanitizeDirectory(PhoDirectory::newFilesystemRootObject())
     ->select('-h,--human-readable')->isOptional(false)->isBoolean()
     ->validate();
 
@@ -64,8 +64,8 @@ $argv = ArgvValidator::new()
 // Get size for the specified path
 if ($argv['human_readable']) {
     CliCommand::echo(
-        Numbers::getHumanReadableBytes(FsPath::newExisting($argv['path'], FsRestrictions::new('/'))->getSize())
+        Numbers::getHumanReadableBytes(PhoPath::newExisting($argv['path'], PhoRestrictions::new('/'))->getSize())
     );
 } else {
-    CliCommand::echo(FsPath::newExisting($argv['path'], FsRestrictions::new('/'))->getSize());
+    CliCommand::echo(PhoPath::newExisting($argv['path'], PhoRestrictions::new('/'))->getSize());
 }

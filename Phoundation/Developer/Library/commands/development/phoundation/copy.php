@@ -19,8 +19,8 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Phoundation\Plugins;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 
 
 CliDocumentation::setUsage('./pho project copy FILE');
@@ -45,7 +45,7 @@ FILE                                    The file to copy
 $argv = ArgvValidator::new()
                      ->select('-b,--branch', true)->isOptional()->isVariableName()
                      ->select('-c,--allow-changes')->isOptional(false)->isBoolean()
-                     ->selectAll('files')->eachField()->sanitizePath(FsDirectory::newRootObject(false))
+                     ->selectAll('files')->eachField()->sanitizePath(PhoDirectory::newRootObject(false))
                      ->validate();
 
 

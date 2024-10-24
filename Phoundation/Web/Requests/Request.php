@@ -39,8 +39,8 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Traits\TraitDataStaticRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\EnumSeverity;
@@ -106,9 +106,9 @@ class Request implements RequestInterface
     /**
      * The file that is currently executed for this request
      *
-     * @var FsFileInterface $target
+     * @var PhoFileInterface $target
      */
-    protected static FsFileInterface $target;
+    protected static PhoFileInterface $target;
 
     /**
      * The file that is currently executed for this system page request
@@ -120,9 +120,9 @@ class Request implements RequestInterface
     /**
      * The real / initial target that was executed for this request
      *
-     * @var FsFileInterface $main_target
+     * @var PhoFileInterface $main_target
      */
-    protected static FsFileInterface $main_target;
+    protected static PhoFileInterface $main_target;
 
     /**
      * The file that is currently executed for this request
@@ -942,9 +942,9 @@ class Request implements RequestInterface
     /**
      * Returns the file executed for this request
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public static function getTarget(): FsFileInterface
+    public static function getTarget(): PhoFileInterface
     {
         return static::$target;
     }
@@ -964,17 +964,17 @@ class Request implements RequestInterface
     /**
      * Sets the target for this request
      *
-     * @param FsFileInterface|string|int $target
+     * @param PhoFileInterface|string|int $target
      *
      * @return void
      */
-    protected static function setTarget(FsFileInterface|string|int $target): void
+    protected static function setTarget(PhoFileInterface|string|int $target): void
     {
         // Get a target string
         if (is_integer($target)) {
             $target = 'system/' . $target . '.php';
 
-        } elseif ($target instanceof FsFileInterface) {
+        } elseif ($target instanceof PhoFileInterface) {
             $target = $target->getSource();
         }
 
@@ -983,7 +983,7 @@ class Request implements RequestInterface
 
         // Determine the target file that is to be executed
         $target         = static::ensureRequestPathPrefix($target);
-        static::$target = FsFile::new($target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
+        static::$target = PhoFile::new($target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
 
         static::$target->checkRestrictions(false);
         static::getTargets()->add(static::$target);
@@ -1440,11 +1440,11 @@ class Request implements RequestInterface
     /**
      * Execute the specified target for this request and returns the output
      *
-     * @param FsFileInterface|string|int $target
+     * @param PhoFileInterface|string|int $target
      *
      * @return string|null
      */
-    public static function execute(FsFileInterface|string|int $target): ?string
+    public static function execute(PhoFileInterface|string|int $target): ?string
     {
         return static::doExecute($target, false, false);
     }
@@ -1453,12 +1453,12 @@ class Request implements RequestInterface
     /**
      * Execute the specified target for this request and returns the output
      *
-     * @param FsFileInterface|string $target
-     * @param bool                   $die
+     * @param PhoFileInterface|string $target
+     * @param bool                    $die
      *
      * @return string|null
      */
-    public static function executeAndFlush(FsFileInterface|string $target, bool $die = false): ?string
+    public static function executeAndFlush(PhoFileInterface|string $target, bool $die = false): ?string
     {
         return static::doExecute($target, true, $die);
     }
@@ -1467,13 +1467,13 @@ class Request implements RequestInterface
     /**
      * Execute the specified target for this request and returns the output
      *
-     * @param FsFileInterface|string|int $target
-     * @param bool                       $flush
-     * @param bool                       $die
+     * @param PhoFileInterface|string|int $target
+     * @param bool                        $flush
+     * @param bool                        $die
      *
      * @return string|null
      */
-    protected static function doExecute(FsFileInterface|string|int $target, bool $flush, bool $die): ?string
+    protected static function doExecute(PhoFileInterface|string|int $target, bool $flush, bool $die): ?string
     {
         // Set target and check if we have this target in the cache
         try {
@@ -1538,13 +1538,13 @@ class Request implements RequestInterface
     /**
      * Process a FileNotFoundException
      *
-     * @param FileNotExistException  $e
-     * @param FsFileInterface|string $target
+     * @param FileNotExistException   $e
+     * @param PhoFileInterface|string $target
      *
      * @return never
      * @throws FileNotExistException
      */
-    #[NoReturn] protected static function processFileNotFound(FileNotExistException $e, FsFileInterface|string $target): never
+    #[NoReturn] protected static function processFileNotFound(FileNotExistException $e, PhoFileInterface|string $target): never
     {
         if (static::$stack_level >= 0) {
             Log::warning(tr('Sub target ":target" does not exist, displaying 500 page instead', [

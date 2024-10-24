@@ -22,9 +22,9 @@ use GeoIp2\Model\City;
 use MaxMind\Db\Reader\InvalidDatabaseException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataDirectory;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Network\Network;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
@@ -56,7 +56,7 @@ class MaxMind extends GeoIp
      */
     public function __construct()
     {
-        $this->directory = new FsDirectory(DIRECTORY_DATA . 'sources/geoip/maxmind/', FsRestrictions::newReadonly(DIRECTORY_DATA . 'sources/geoip/maxmind/'));
+        $this->directory = new PhoDirectory(DIRECTORY_DATA . 'sources/geoip/maxmind/', PhoRestrictions::newReadonly(DIRECTORY_DATA . 'sources/geoip/maxmind/'));
         $this->pro       = Config::getBoolean('geo.ip.maxmind.pro', false);
     }
 

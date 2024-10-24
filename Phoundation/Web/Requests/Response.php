@@ -34,9 +34,9 @@ use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Traits\TraitDataStaticRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Process;
@@ -573,12 +573,12 @@ class Response implements ResponseInterface
             if (!$url) {
                 $url  = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
                 $url  = static::versionFile($url, 'img');
-                $file = FsPath::absolutePath(LANGUAGE . '/' . $url, DIRECTORY_CDN);
+                $file = PhoPath::absolutePath(LANGUAGE . '/' . $url, DIRECTORY_CDN);
 
                 static::$page_headers['link'][$url] = [
                     'rel'  => 'icon',
                     'href' => Url::getImg($url),
-                    'type' => FsFile::new($file, FsRestrictions::newCdn())->getMimetype(),
+                    'type' => PhoFile::new($file, PhoRestrictions::newCdn())->getMimetype(),
                 ];
 
             } else {
@@ -1721,7 +1721,7 @@ class Response implements ResponseInterface
     {
         if (Request::getAttachment()) {
             // Send download headers and send the $html payload
-            FileResponse::new(Request::getTarget(), FsRestrictions::newWeb())
+            FileResponse::new(Request::getTarget(), PhoRestrictions::newWeb())
                         ->setAttachment(true)
                         ->setData(static::getOutput())
                         ->setFilename(basename(Request::getTarget()->getSource()))

@@ -18,7 +18,7 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataBatch;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -488,12 +488,12 @@ class ScanImage extends Command
     /**
      * Execute the configured scan
      *
-     * @param FsPathInterface   $path
+     * @param PhoPathInterface  $path
      * @param EnumExecuteMethod $method
      *
      * @return static
      */
-    public function scan(FsPathInterface $path, EnumExecuteMethod $method = EnumExecuteMethod::noReturn): static
+    public function scan(PhoPathInterface $path, EnumExecuteMethod $method = EnumExecuteMethod::noReturn): static
     {
         if (empty($this->profile)) {
             throw new ScannersException(tr('Cannot execute document scan, no profile specified'));

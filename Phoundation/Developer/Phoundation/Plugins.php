@@ -26,10 +26,10 @@ use Phoundation\Developer\Versioning\Git\Exception\GitHasChangesException;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\Exception\FileNotExistException;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Cp;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -77,7 +77,7 @@ class Plugins extends Project
 
         if ($location) {
             $directory          = realpath($location);
-            $this->restrictions = FsRestrictions::new(dirname($directory));
+            $this->restrictions = PhoRestrictions::new(dirname($directory));
 
             if (!$directory) {
                 throw new FileNotExistException(tr('The specified Phoundation plugins location ":file" does not exist', [
@@ -96,7 +96,7 @@ class Plugins extends Project
                 ':directory' => $directory,
             ]));
 
-            $this->directory = new FsDirectory($directory);
+            $this->directory = new PhoDirectory($directory);
 
             return $directory;
         }
@@ -104,7 +104,7 @@ class Plugins extends Project
         // Scan for phoundation installation location.
         foreach ($directories as $directory) {
             try {
-                $directory = FsPath::absolutePath($directory);
+                $directory = PhoPath::absolutePath($directory);
 
             } catch (FileNotExistException) {
                 // Okay, that was easy, doesn't exist. NEXT!
@@ -123,7 +123,7 @@ class Plugins extends Project
             // The main phoundation directory should be called either phoundation or Phoundation.
             foreach ($names as $name) {
                 $test_path          = $directory . $name . '/';
-                $this->restrictions = FsRestrictions::new(dirname($test_path));
+                $this->restrictions = PhoRestrictions::new(dirname($test_path));
 
                 if (!file_exists($test_path)) {
                     Log::warning(tr('Ignoring directory ":directory", it does not exist', [
@@ -145,7 +145,7 @@ class Plugins extends Project
                     ':directory' => $test_path,
                 ]));
 
-                $this->directory = new FsDirectory($test_path);
+                $this->directory = new PhoDirectory($test_path);
 
                 return $test_path;
             }
@@ -165,7 +165,7 @@ class Plugins extends Project
      */
     public function isPhoundationPlugins(string $directory): bool
     {
-        return FsDirectory::new($directory . 'Plugins', $this->restrictions)->isReadable();
+        return PhoDirectory::new($directory . 'Plugins', $this->restrictions)->isReadable();
     }
 
 
@@ -225,7 +225,7 @@ class Plugins extends Project
 
         // Ensure specified source files exist and make files absolute
         foreach ($files as $id => $file) {
-            $source  = FsPath::absolutePath($file, DIRECTORY_ROOT);
+            $source  = PhoPath::absolutePath($file, DIRECTORY_ROOT);
             $test    = Strings::from($source, DIRECTORY_ROOT);
             $test    = Strings::until($test, '/');
             $plugins = [
@@ -251,7 +251,7 @@ class Plugins extends Project
         foreach (Arrays::force($files) as $file) {
             $target = Strings::from($file, DIRECTORY_ROOT);
 
-            Cp::new()->archive($file, FsRestrictions::new(DIRECTORY_ROOT), $this->getDirectory() . $target, FsRestrictions::new($this->getDirectory(), true));
+            Cp::new()->archive($file, PhoRestrictions::new(DIRECTORY_ROOT), $this->getDirectory() . $target, PhoRestrictions::new($this->getDirectory(), true));
         }
     }
 
@@ -450,7 +450,7 @@ class Plugins extends Project
                 continue;
             }
 
-            if (FsDirectory::new(DIRECTORY_ROOT . 'Plugins/' . $plugin)->containFiles()) {
+            if (PhoDirectory::new(DIRECTORY_ROOT . 'Plugins/' . $plugin)->containFiles()) {
                 $return[] = $plugin;
 
             } else {
@@ -471,9 +471,9 @@ class Plugins extends Project
      */
     public function getLocalPlugins(): IteratorInterface
     {
-        return FsDirectory::new(DIRECTORY_ROOT . 'Plugins/', FsRestrictions::newRoot(false, 'Plugins/'))
-                          ->scan()
-                          ->eachField(function (&$value, $key) {
+        return PhoDirectory::new(DIRECTORY_ROOT . 'Plugins/', PhoRestrictions::newRoot(false, 'Plugins/'))
+                           ->scan()
+                           ->eachField(function (&$value, $key) {
                               $value = Strings::ensureEndsNotWith($value, '/');
                           });
     }
@@ -486,9 +486,9 @@ class Plugins extends Project
      */
     public function getPhoundationPlugins(): IteratorInterface
     {
-        return FsDirectory::new($this->directory . 'Plugins/', $this->directory->getRestrictions())
-                          ->scan()
-                          ->eachField(function (&$value, $key) {
+        return PhoDirectory::new($this->directory . 'Plugins/', $this->directory->getRestrictions())
+                           ->scan()
+                           ->eachField(function (&$value, $key) {
                               $value = Strings::ensureEndsNotWith($value, '/');
                           });
     }
@@ -505,8 +505,8 @@ class Plugins extends Project
     {
         $paths = $this->git
                       ->getStatusFilesObject(
-                          FsDirectory::new(DIRECTORY_ROOT . 'Plugins/',
-                          FsRestrictions::newRoot(false, 'Plugins/')
+                          PhoDirectory::new(DIRECTORY_ROOT . 'Plugins/',
+                          PhoRestrictions::newRoot(false, 'Plugins/')
                       ));
 
         foreach ($paths as $path => $info) {
@@ -539,7 +539,7 @@ class Plugins extends Project
         $return = [];
 
         foreach ($plugins as $plugin) {
-            $return[$plugin] = FsDirectory::new(DIRECTORY_ROOT . 'Plugins/' . $plugin)->getSource();
+            $return[$plugin] = PhoDirectory::new(DIRECTORY_ROOT . 'Plugins/' . $plugin)->getSource();
         }
 
         return $return;

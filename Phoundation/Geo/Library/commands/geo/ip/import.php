@@ -18,8 +18,8 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Geo\GeoIp\Import;
 
 
@@ -45,8 +45,8 @@ ARGUMENTS
 
 $argv = ArgvValidator::new()
                      ->select('-p,--provider', true)->isOptional()->hasMaxCharacters(24)->isInArray(['maxmind', 'ip2location'])
-                     ->select('-s,--source-path', true)->isOptional()->sanitizeDirectory(FsDirectory::newDataObject())
-                     ->select('-t,--target-path', true)->isOptional()->sanitizeDirectory(FsDirectory::newDataObject())
+                     ->select('-s,--source-path', true)->isOptional()->sanitizeDirectory(PhoDirectory::newDataObject())
+                     ->select('-t,--target-path', true)->isOptional()->sanitizeDirectory(PhoDirectory::newDataObject())
                      ->validate();
 
 
@@ -68,7 +68,7 @@ if ($argv['source_path']) {
 
 
 // Process the files
-$provider::process($directory, $argv['target_path'], FsRestrictions::new([
+$provider::process($directory, $argv['target_path'], PhoRestrictions::new([
     $directory->getRestrictions(),
     DIRECTORY_DATA,
 ], true));

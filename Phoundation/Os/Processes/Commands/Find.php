@@ -20,13 +20,13 @@ use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Data\Traits\TraitDataName;
 use Phoundation\Data\Traits\TraitDataPath;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFiles;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFilesInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFiles;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Arrays;
@@ -44,9 +44,9 @@ class Find extends Command implements FindInterface
     /**
      * Result files cache
      *
-     * @var FsFilesInterface|null
+     * @var PhoFilesInterface|null
      */
-    protected ?FsFilesInterface $files;
+    protected ?PhoFilesInterface $files;
 
     /**
      * Tracks to follow symlinks or not
@@ -182,22 +182,22 @@ class Find extends Command implements FindInterface
     /**
      * Find the specified path
      *
-     * @var FsDirectoryInterface|null $find_path
+     * @var PhoDirectoryInterface|null $find_path
      */
-    protected ?FsDirectoryInterface $find_path = null;
+    protected ?PhoDirectoryInterface $find_path = null;
 
 
     /**
      * Find class constructor
      *
-     * @param FsDirectoryInterface|FsRestrictionsInterface|null $execution_directory
-     * @param \Stringable|string|null                           $operating_system
-     * @param string|null                                       $packages
+     * @param PhoDirectoryInterface|PhoRestrictionsInterface|null $execution_directory
+     * @param \Stringable|string|null                             $operating_system
+     * @param string|null                                         $packages
      */
-    public function __construct(FsDirectoryInterface|FsRestrictionsInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null) {
+    public function __construct(PhoDirectoryInterface|PhoRestrictionsInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null) {
         parent::__construct($execution_directory, $operating_system, $packages);
 
-        if ($execution_directory instanceof FsDirectoryInterface) {
+        if ($execution_directory instanceof PhoDirectoryInterface) {
             $this->setPath($execution_directory);
         }
     }
@@ -206,24 +206,24 @@ class Find extends Command implements FindInterface
     /**
      * Sets the path in which to find
      *
-     * @param FsPathInterface|null $path
+     * @param PhoPathInterface|null $path
      *
      * @return static
      */
-    public function setPath(FsPathInterface|null $path): static
+    public function setPath(PhoPathInterface|null $path): static
     {
         $this->__setPath($path);
 
-        return $this->setExecutionDirectory(new FsDirectory($this->path));
+        return $this->setExecutionDirectory(new PhoDirectory($this->path));
     }
 
 
     /**
      * Returns if find should find empty files
      *
-     * @return FsDirectoryInterface|null
+     * @return PhoDirectoryInterface|null
      */
-    public function getFindPath(): ?FsDirectoryInterface
+    public function getFindPath(): ?PhoDirectoryInterface
     {
         return $this->find_path;
     }
@@ -234,11 +234,11 @@ class Find extends Command implements FindInterface
      *
      * @note This is true by default for security to avoid searching on remote filesystems by accident
      *
-     * @param FsPathInterface|null $find_path
+     * @param PhoPathInterface|null $find_path
      *
      * @return static
      */
-    public function setFindPath(FsPathInterface|null $find_path): static
+    public function setFindPath(PhoPathInterface|null $find_path): static
     {
         $this->find_path = $find_path;
 
@@ -761,23 +761,23 @@ class Find extends Command implements FindInterface
     /**
      * Returns a FsFiles-object containing the found files
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getFoundFiles(): FsFilesInterface
+    public function getFoundFiles(): PhoFilesInterface
     {
-        return FsFiles::new($this->path, $this->output, $this->restrictions);
+        return PhoFiles::new($this->path, $this->output, $this->restrictions);
     }
 
 
     /**
      * Returns a FsFiles-object containing the found files
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getFiles(): FsFilesInterface
+    public function getFiles(): PhoFilesInterface
     {
         if (empty($this->files)) {
-            $this->files = FsFiles::new($this->path, $this->executeReturnArray(), $this->restrictions);
+            $this->files = PhoFiles::new($this->path, $this->executeReturnArray(), $this->restrictions);
         }
 
         return $this->files;
@@ -818,7 +818,7 @@ class Find extends Command implements FindInterface
                  ->addArguments($this->exec            ? ['-exec'    , $this->exec]                   : null);
 
         } catch (ProcessFailedException $e) {
-            FsPath::new($this->path)
+            PhoPath::new($this->path)
                 ->checkReadable('find', $e);
         }
 

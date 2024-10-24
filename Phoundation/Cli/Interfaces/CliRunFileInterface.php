@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Cli\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 
-interface CliRunFileInterface extends FsFileInterface
+interface CliRunFileInterface extends PhoFileInterface
 {
     /**
      * Returns the command for this runfile
@@ -26,16 +26,16 @@ interface CliRunFileInterface extends FsFileInterface
     /**
      * Returns the path where all run files are located
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getDirectory(): FsDirectoryInterface;
+    public function getDirectory(): PhoDirectoryInterface;
 
     /**
      * Returns the run file for this process
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getFile(): FsFileInterface;
+    public function getFile(): PhoFileInterface;
 
     /**
      * Returns the first found PID for the specified command, if it currently runs. NULL otherwise

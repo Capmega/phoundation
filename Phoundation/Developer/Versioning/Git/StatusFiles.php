@@ -26,17 +26,17 @@ use Phoundation\Developer\Versioning\Git\Exception\GitUnknownStatusException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsFilesCore;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoFilesCore;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Strings;
 
 
-class StatusFiles extends FsFilesCore implements StatusFilesInterface
+class StatusFiles extends PhoFilesCore implements StatusFilesInterface
 {
     use TraitGitProcess {
         __construct as protected ___construct;
@@ -54,12 +54,12 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
     /**
      * StatusFiles class constructor
      *
-     * @param FsDirectoryInterface $directory
+     * @param PhoDirectoryInterface $directory
      */
-    public function __construct(FsDirectoryInterface $directory)
+    public function __construct(PhoDirectoryInterface $directory)
     {
         $this->parent              = $directory;
-        $this->accepted_data_types = [FsPathInterface::class];
+        $this->accepted_data_types = [PhoPathInterface::class];
         $this->restrictions        = $directory->getRestrictions();
 
         $this->___construct($directory);
@@ -103,7 +103,7 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
             }
 
             try {
-                $this->source[$file] = StatusFile::new($status, new FsFile($file), new FsFile($target));
+                $this->source[$file] = StatusFile::new($status, new PhoFile($file), new PhoFile($target));
 
             } catch (GitUnknownStatusException $e) {
                 throw GitUnknownStatusException::new(tr('Unknown git status ":status" encountered for file ":file"', [
@@ -159,7 +159,7 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
      *
      * @return static
      */
-    public function patch(FsDirectoryInterface $target_path): static
+    public function patch(PhoDirectoryInterface $target_path): static
     {
         try {
             // Add all paths to index, create the patch file, apply it, delete it, done
@@ -171,7 +171,7 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
 
             if ($patch_file) {
                 Git::new($target_path)->apply($patch_file);
-                FsFile::new($patch_file, FsRestrictions::newTemporary(true, 'StatusFiles::patch()'))->delete();
+                PhoFile::new($patch_file, PhoRestrictions::newTemporary(true, 'StatusFiles::patch()'))->delete();
             }
 
             return $this;
@@ -186,7 +186,7 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
             if (isset($patch_file)) {
                 // Delete the temporary patch file
                 Core::ExecuteIfNotInTestMode(function () use ($patch_file) {
-                    FsFile::new($patch_file, FsRestrictions::new(DIRECTORY_TMP, true))->delete();
+                    PhoFile::new($patch_file, PhoRestrictions::new(DIRECTORY_TMP, true))->delete();
                 }, tr('Removing git patch files'));
             }
 
@@ -236,9 +236,9 @@ class StatusFiles extends FsFilesCore implements StatusFilesInterface
      *
      * @param bool $cached
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getPatchFile(bool $cached = false): FsFileInterface
+    public function getPatchFile(bool $cached = false): PhoFileInterface
     {
         return Git::new($this->directory->getParentDirectory())->saveDiff($this->directory->getBasename(), $cached);
     }

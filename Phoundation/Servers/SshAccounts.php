@@ -19,8 +19,8 @@ namespace Phoundation\Servers;
 
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
@@ -127,7 +127,7 @@ class SshAccounts extends DataIterator
 
             if (array_key_exists('file', $entry)) {
                 if ($entry['file']) {
-                    $entry['ssh_key'] = FsFile::new($entry['file'], FsRestrictions::newFilesystemRoot())->getContentsAsString();
+                    $entry['ssh_key'] = PhoFile::new($entry['file'], PhoRestrictions::newFilesystemRoot())->getContentsAsString();
                 }
             }
         }

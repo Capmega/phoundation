@@ -19,7 +19,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Data\Validator\Interfaces\FileValidatorInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Utils\Numbers;
 
 
@@ -28,17 +28,17 @@ class FileValidator implements FileValidatorInterface
     /**
      * The file being validated
      *
-     * @var FsFileInterface
+     * @var PhoFileInterface
      */
-    protected FsFileInterface $source;
+    protected PhoFileInterface $source;
 
 
     /**
      * FileValidator constructor
      *
-     * @param FsFileInterface $source
-\     */
-    public function __construct(FsFileInterface $source)
+     * @param PhoFileInterface $source
+* \     */
+    public function __construct(PhoFileInterface $source)
     {
         $this->source = &$source;
     }
@@ -47,11 +47,11 @@ class FileValidator implements FileValidatorInterface
     /**
      * Returns a new FileValidator object
      *
-     * @param FsFileInterface $source
+     * @param PhoFileInterface $source
      *
      * @return static
      */
-    public static function new(FsFileInterface $source): static
+    public static function new(PhoFileInterface $source): static
     {
         return new static($source);
     }

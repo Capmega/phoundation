@@ -6,11 +6,11 @@ namespace Phoundation\Filesystem\Interfaces;
 
 use Exception;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 use Stringable;
 use Throwable;
 
-interface FsFileInterface extends FsPathInterface
+interface PhoFileInterface extends PhoPathInterface
 {
     /**
      * Ensure that the object file exists in the specified path
@@ -38,10 +38,10 @@ interface FsFileInterface extends FsPathInterface
     /**
      * Copy a file with progress notification
      *
-     * @param Stringable|string            $target
-     * @param FsRestrictionsInterface|null $restrictions
-     * @param callable|null                $callback
-     * @param mixed|null                   $context
+     * @param Stringable|string             $target
+     * @param PhoRestrictionsInterface|null $restrictions
+     * @param callable|null                 $callback
+     * @param mixed|null                    $context
      *
      * @return static
      * @example:
@@ -51,7 +51,7 @@ interface FsFileInterface extends FsPathInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static;
+    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static;
 
     /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown
@@ -92,13 +92,13 @@ interface FsFileInterface extends FsPathInterface
     /**
      * Search / replace the object files
      *
-     * @param array                $replaces The list of keys that will be replaced by values
-     * @param FsFileInterface|null $target
-     * @param bool                 $regex
+     * @param array                 $replaces The list of keys that will be replaced by values
+     * @param PhoFileInterface|null $target
+     * @param bool                  $regex
      *
      * @return static
      */
-    public function replace(array $replaces, ?FsFileInterface $target = null, bool $regex = false): static;
+    public function replace(array $replaces, ?PhoFileInterface $target = null, bool $regex = false): static;
 
     /**
      * Return line count for the specified text file
@@ -183,7 +183,7 @@ interface FsFileInterface extends FsPathInterface
     public function copyTree(string $destination, array $search = null, array $replace = null, string|array $extensions = null, mixed $mode = true, bool $novalidate = false): string;
 
     /**
-     * Makes a backup of this file to the specified target and returns a new FsFileInterface object for the target
+     * Makes a backup of this file to the specified target and returns a new PhoFileInterface object for the target
      *
      * @param string $pattern
      * @param bool   $move
@@ -243,32 +243,32 @@ interface FsFileInterface extends FsPathInterface
     /**
      * Untars the file
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function untar(): FsPathInterface;
+    public function untar(): PhoPathInterface;
 
     /**
      * Unzips the file
      *
-     * @param FsDirectoryInterface|null $directory
+     * @param PhoDirectoryInterface|null $directory
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function unzip(FsDirectoryInterface|null $directory = null): FsPathInterface;
+    public function unzip(PhoDirectoryInterface|null $directory = null): PhoPathInterface;
 
     /**
      * Gzips the file
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function gzip(): FsFileInterface;
+    public function gzip(): PhoFileInterface;
 
     /**
      * Ungzips the file
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function gunzip(): FsFileInterface;
+    public function gunzip(): PhoFileInterface;
 
     /**
      * Ensure that the line endings in this file are as specified

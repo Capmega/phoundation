@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Stringable;
 
 interface GitInterface
@@ -26,18 +26,18 @@ interface GitInterface
     /**
      * Returns the path for this git repository
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getDirectory(): FsDirectoryInterface;
+    public function getDirectory(): PhoDirectoryInterface;
 
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @param FsDirectoryInterface $directory
+     * @param PhoDirectoryInterface $directory
      *
      * @return static
      */
-    public function setDirectory(FsDirectoryInterface $directory): static;
+    public function setDirectory(PhoDirectoryInterface $directory): static;
 
     /**
      * Clone the specified URL to this path
@@ -124,20 +124,20 @@ interface GitInterface
     /**
      * Returns a ChangedFiles object containing all the files that have changes according to git
      *
-     * @param FsPathInterface|null $path
+     * @param PhoPathInterface|null $path
      *
      * @return StatusFilesInterface
      */
-    public function getStatusFilesObject(?FsPathInterface $path = null): StatusFilesInterface;
+    public function getStatusFilesObject(?PhoPathInterface $path = null): StatusFilesInterface;
 
     /**
      * Returns if this git directory has any changes
      *
-     * @param FsDirectoryInterface|null $directory
+     * @param PhoDirectoryInterface|null $directory
      *
      * @return bool
      */
-    public function hasChanges(?FsDirectoryInterface $directory = null): bool;
+    public function hasChanges(?PhoDirectoryInterface $directory = null): bool;
 
     /**
      * Get a diff for the specified file
@@ -158,18 +158,18 @@ interface GitInterface
      * @param array|string $files
      * @param bool         $cached
      *
-     * @return FsFileInterface|null
+     * @return PhoFileInterface|null
      */
-    public function saveDiff(array|string $files, bool $cached = false): ?FsFileInterface;
+    public function saveDiff(array|string $files, bool $cached = false): ?PhoFileInterface;
 
     /**
      * Apply the specified patch to the specified target file
      *
-     * @param FsFileInterface|null $patch_file
+     * @param PhoFileInterface|null $patch_file
      *
      * @return static
      */
-    public function apply(?FsFileInterface $patch_file): static;
+    public function apply(?PhoFileInterface $patch_file): static;
 
     /**
      * Push the local changes to the remote repository / branch

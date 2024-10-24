@@ -52,7 +52,7 @@ class FsMimetypes extends DataIterator
      */
     public static function getDefaultContentDataType(): ?string
     {
-        return FsMimetype::class;
+        return PhoMimetype::class;
     }
 
 
@@ -151,7 +151,7 @@ class FsMimetypes extends DataIterator
      */
     public static function getBestExtensionForMimetype(string $mimetype): string
     {
-        return FsMimetype::load([
+        return PhoMimetype::load([
             'mimetype' => $mimetype,
             'priority' => static::getHighestMimetypePriority($mimetype)
         ])->getExtension();
@@ -167,7 +167,7 @@ class FsMimetypes extends DataIterator
      */
     public static function getBestMimetypeForExtension(string $extension): string
     {
-        return FsMimetype::load([
+        return PhoMimetype::load([
             'mimetype' => $extension,
             'priority' => static::getHighestExtensionPriority($extension)
         ])->getMimetype();

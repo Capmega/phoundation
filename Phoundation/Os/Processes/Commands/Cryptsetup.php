@@ -18,7 +18,7 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Os\Devices\Storage\Device;
 use Phoundation\Os\Devices\Storage\Interfaces\DeviceInterface;
 use Phoundation\Os\Processes\Process;
@@ -29,13 +29,13 @@ class Cryptsetup extends Command
     /**
      * Formats the specified LUKS device
      *
-     * @param DeviceInterface      $device
-     * @param string|null          $key
-     * @param FsFileInterface|null $key_file
+     * @param DeviceInterface       $device
+     * @param string|null           $key
+     * @param PhoFileInterface|null $key_file
      *
      * @return void
      */
-    public function luksFormat(DeviceInterface $device, string $key = null, ?FsFileInterface $key_file = null): void
+    public function luksFormat(DeviceInterface $device, string $key = null, ?PhoFileInterface $key_file = null): void
     {
         // Get restrictions from the specified device
         $this->setRestrictions($device->getRestrictions());

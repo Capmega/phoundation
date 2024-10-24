@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Interface FsPathInterface
+ * Interface PhoPathInterface
  *
  * This library contains the basic functionalities to manage filesystem paths
  *
@@ -22,14 +22,14 @@ use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileInvalidFormatException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\ZipInterface;
 use Stringable;
 use Throwable;
 
 
-interface FsPathInterface extends Stringable
+interface PhoPathInterface extends Stringable
 {
     /**
      * Returns the extension of the objects path
@@ -106,11 +106,11 @@ interface FsPathInterface extends Stringable
     /**
      * Returns the path
      *
-     * @param FsPathInterface|string|null $from
+     * @param PhoPathInterface|string|null $from
      *
      * @return string|null
      */
-    public function getSource(FsPathInterface|string|null $from = null): ?string;
+    public function getSource(PhoPathInterface|string|null $from = null): ?string;
 
     /**
      * Returns true if this object is the specified path
@@ -329,19 +329,19 @@ interface FsPathInterface extends Stringable
      * @param bool        $use_run_file
      *
      * @return static
-     * @see FsRestrictions::check() This function uses file location restrictions
+     * @see PhoRestrictions::check() This function uses file location restrictions
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static;
 
     /**
      * Moves this file to the specified target, will try to ensure target directory exists
      *
-     * @param Stringable|string   $target
-     * @param FsRestrictions|null $restrictions
+     * @param Stringable|string    $target
+     * @param PhoRestrictions|null $restrictions
      *
      * @return static
      */
-    public function move(Stringable|string $target, ?FsRestrictions $restrictions = null): static;
+    public function move(Stringable|string $target, ?PhoRestrictions $restrictions = null): static;
 
     /**
      * Switches file mode to the new value and returns the previous value
@@ -450,7 +450,7 @@ interface FsPathInterface extends Stringable
     /**
      * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
      *
-     * @return FsPathInterface string The real path extrapolated from the specified $directory, if exists. False if
+     * @return PhoPathInterface string The real path extrapolated from the specified $directory, if exists. False if
      *                         whatever was specified does not exist.
      */
     public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string;
@@ -458,10 +458,10 @@ interface FsPathInterface extends Stringable
     /**
      * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
      *
-     * @return FsPathInterface string The real path extrapolated from the specified $directory, if exists. False if
+     * @return PhoPathInterface string The real path extrapolated from the specified $directory, if exists. False if
      *                         whatever was specified does not exist.
      */
-    public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): FsPathInterface;
+    public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): PhoPathInterface;
 
     /**
      * Make this path a real path
@@ -498,11 +498,11 @@ interface FsPathInterface extends Stringable
     /**
      * Returns the parent directory for this file
      *
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $restrictions
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getParentDirectory(?FsRestrictionsInterface $restrictions = null): FsDirectoryInterface;
+    public function getParentDirectory(?PhoRestrictionsInterface $restrictions = null): PhoDirectoryInterface;
 
     /**
      * This is an fopen() wrapper with some built-in error handling
@@ -524,20 +524,20 @@ interface FsPathInterface extends Stringable
     /**
      * Returns the path that this link points to
      *
-     * @param FsPathInterface|string|bool $absolute_prefix
+     * @param PhoPathInterface|string|bool $absolute_prefix
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function readLink(FsPathInterface|string|bool $absolute_prefix = false): FsPathInterface;
+    public function readLink(PhoPathInterface|string|bool $absolute_prefix = false): PhoPathInterface;
 
     /**
      * Wrapper for Path::readlink()
      *
-     * @param FsPathInterface|string|bool $absolute
+     * @param PhoPathInterface|string|bool $absolute
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function getLinkTarget(FsPathInterface|string|bool $absolute = false): FsPathInterface;
+    public function getLinkTarget(PhoPathInterface|string|bool $absolute = false): PhoPathInterface;
 
     /**
      * Returns true if the file is a symlink AND its target exists
@@ -601,24 +601,24 @@ interface FsPathInterface extends Stringable
      *
      * @note Will return a NEW Path object (FsFileInterface or FsDirectory, basically) for the specified target
      *
-     * @param FsPathInterface             $target
-     * @param FsPathInterface|string|bool $make_relative
+     * @param PhoPathInterface             $target
+     * @param PhoPathInterface|string|bool $make_relative
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function symlinkTargetFromThis(FsPathInterface $target, FsPathInterface|string|bool $make_relative = true): FsPathInterface;
+    public function symlinkTargetFromThis(PhoPathInterface $target, PhoPathInterface|string|bool $make_relative = true): PhoPathInterface;
 
     /**
      * Makes this path a symlink that points to the specified target.
      *
      * @note Will return a NEW Path object (FsFile or FsDirectory, basically) for the specified target
      *
-     * @param FsPathInterface|string      $target
-     * @param FsPathInterface|string|bool $make_relative
+     * @param PhoPathInterface|string      $target
+     * @param PhoPathInterface|string|bool $make_relative
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function symlinkThisToTarget(FsPathInterface|string $target, FsPathInterface|string|bool $make_relative = true): FsPathInterface;
+    public function symlinkThisToTarget(PhoPathInterface|string $target, PhoPathInterface|string|bool $make_relative = true): PhoPathInterface;
 
     /**
      * Returns true if the file pointer is at EOF
@@ -849,12 +849,12 @@ interface FsPathInterface extends Stringable
     /**
      * Returns the relative path between the specified path and this object's path
      *
-     * @param FsPathInterface|string      $target
-     * @param FsPathInterface|string|bool $absolute_prefix
+     * @param PhoPathInterface|string      $target
+     * @param PhoPathInterface|string|bool $absolute_prefix
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function getRelativePathTo(FsPathInterface|string $target, FsPathInterface|string|bool $absolute_prefix = null): FsPathInterface;
+    public function getRelativePathTo(PhoPathInterface|string $target, PhoPathInterface|string|bool $absolute_prefix = null): PhoPathInterface;
 
 
     /**
@@ -871,11 +871,11 @@ interface FsPathInterface extends Stringable
      * Replaces the current path by moving it out of the way and moving the target in its place, then deleting the
      * original
      *
-     * @param FsPathInterface|string $target
+     * @param PhoPathInterface|string $target
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function replaceWithPath(FsPathInterface|string $target): FsPathInterface;
+    public function replaceWithPath(PhoPathInterface|string $target): PhoPathInterface;
 
     /**
      * Ensures that this path is a symlink
@@ -887,31 +887,31 @@ interface FsPathInterface extends Stringable
     /**
      * Returns a FsPathInterface object with the specified path appended to this path
      *
-     * @param FsPathInterface|string      $path
+     * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function appendPath(FsPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): FsPathInterface;
+    public function appendPath(PhoPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): PhoPathInterface;
 
     /**
      * Returns a FsPathInterface object with the specified path prepended to this path
      *
-     * @param FsPathInterface|string      $path
+     * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function prependPath(FsPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): FsPathInterface;
+    public function prependPath(PhoPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): PhoPathInterface;
 
     /**
      * Returns a FsFilesInterface object that will contain all the files under this current path
      *
      * @param bool $reload
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getFilesObject(bool $reload = false): FsFilesInterface;
+    public function getFilesObject(bool $reload = false): PhoFilesInterface;
 
     /**
      * Copies all directories as directories and all files as symlinks in the tree starting at this objects path to the
@@ -919,14 +919,14 @@ interface FsPathInterface extends Stringable
      *
      * Directories will remain directories, all files will be symlinks
      *
-     * @param FsPathInterface|string       $target
-     * @param FsPathInterface|string|null  $alternate_path
-     * @param FsRestrictionsInterface|null $restrictions
-     * @param bool                         $rename
+     * @param PhoPathInterface|string       $target
+     * @param PhoPathInterface|string|null  $alternate_path
+     * @param PhoRestrictionsInterface|null $restrictions
+     * @param bool                          $rename
      *
      * @return static
      */
-    public function symlinkTreeToTarget(FsPathInterface|string $target, FsPathInterface|string|null $alternate_path = null, ?FsRestrictionsInterface $restrictions = null, bool $rename = false): FsPathInterface;
+    public function symlinkTreeToTarget(PhoPathInterface|string $target, PhoPathInterface|string|null $alternate_path = null, ?PhoRestrictionsInterface $restrictions = null, bool $rename = false): PhoPathInterface;
 
     /**
      * Will scan this path for symlinks and delete all of them one by one
@@ -938,37 +938,37 @@ interface FsPathInterface extends Stringable
     /**
      * Returns the server restrictions
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function getRestrictions(): FsRestrictionsInterface;
+    public function getRestrictions(): PhoRestrictionsInterface;
 
     /**
      * Sets the server and filesystem restrictions for this FsPath object
      *
-     * @param FsRestrictionsInterface|array|string|null      $restrictions The file restrictions to apply to this object
-     * @param bool                                           $write        If $restrictions is not specified as a
+     * @param PhoRestrictionsInterface|array|string|null $restrictions     The file restrictions to apply to this object
+     * @param bool                                       $write            If $restrictions is not specified as a
      *                                                                     FsRestrictions class, but as a path string,
      *                                                                     or array of path strings, then this method
      *                                                                     will convert that into a FsRestrictions
      *                                                                     object and this is the $write modifier for
      *                                                                     that object
-     * @param string|null                                    $label        If $restrictions is not specified as a
+     * @param string|null                                $label            If $restrictions is not specified as a
      *                                                                     FsRestrictions class, but as a path string,
      *                                                                     or array of path strings, then this method
      *                                                                     will convert that into a FsRestrictions
      *                                                                     object and this is the $label modifier for
      *                                                                     that object
      */
-    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $restrictions
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function ensureRestrictions(?FsRestrictionsInterface $restrictions): FsRestrictionsInterface;
+    public function ensureRestrictions(?PhoRestrictionsInterface $restrictions): PhoRestrictionsInterface;
 
     /**
      * Ensures the existence of the parent directory
@@ -1000,9 +1000,9 @@ interface FsPathInterface extends Stringable
     /**
      * Returns the filesystem for the current path
      *
-     * @return FsFilesystemInterface
+     * @return PhoFilesystemInterface
      */
-    public function getFilesystemObject(): FsFilesystemInterface;
+    public function getFilesystemObject(): PhoFilesystemInterface;
 
     /**
      * Returns true if this file is stored on an encrypted filesystem
@@ -1087,10 +1087,11 @@ interface FsPathInterface extends Stringable
      *
      * To be in the specified directory, this path must start with the directory path.
      *
-     * @param FsDirectoryInterface|string $directory
+     * @param PhoDirectoryInterface|string $directory
+     *
      * @return bool
      */
-    public function isInDirectory(FsDirectoryInterface|string $directory): bool;
+    public function isInDirectory(PhoDirectoryInterface|string $directory): bool;
 
     /**
      * Returns true if the specified path is on a domain
@@ -1117,12 +1118,13 @@ interface FsPathInterface extends Stringable
     /**
      * Zips this path and returns a file object for the tar file
      *
-     * @param FsFileInterface|null $target
-     * @param bool $compression
-     * @param int $timeout
-     * @return FsFileInterface
+     * @param PhoFileInterface|null $target
+     * @param bool                  $compression
+     * @param int                   $timeout
+     *
+     * @return PhoFileInterface
      */
-    public function tar(?FsFileInterface $target = null, bool $compression = true, int $timeout = 600): FsFileInterface;
+    public function tar(?PhoFileInterface $target = null, bool $compression = true, int $timeout = 600): PhoFileInterface;
 
 
     /**
@@ -1135,11 +1137,11 @@ interface FsPathInterface extends Stringable
     /**
      * Make this (absolute) path a relative path
      *
-     * @param FsDirectoryInterface $from
+     * @param PhoDirectoryInterface $from
      *
      * @return static
      */
-    public function makeRelative(FsDirectoryInterface $from): static;
+    public function makeRelative(PhoDirectoryInterface $from): static;
 
     /**
      * Checks if write access is available for this file
@@ -1194,11 +1196,11 @@ interface FsPathInterface extends Stringable
     /**
      * Returns true if this path is the same as the specified path
      *
-     * @param FsPathInterface $path
+     * @param PhoPathInterface $path
      *
      * @return bool
      */
-    public function isSameAs(FsPathInterface $path): bool;
+    public function isSameAs(PhoPathInterface $path): bool;
 
     /**
      * Checks that this file is a binary file or throws a FileInvalidFormatException
@@ -1243,9 +1245,9 @@ interface FsPathInterface extends Stringable
      * @param Stringable|string|bool|null $prefix
      * @param bool                        $must_exist
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function getAbsolute(Stringable|string|bool|null $prefix = null, bool $must_exist = true): FsPathInterface;
+    public function getAbsolute(Stringable|string|bool|null $prefix = null, bool $must_exist = true): PhoPathInterface;
 
     /**
      * Checks if the specified file exists

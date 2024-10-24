@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class FsFilesystems
+ * Class PhoFilesystems
  *
  *
  *
@@ -20,10 +20,10 @@ use Phoundation\Data\IteratorCore;
 use Phoundation\Filesystem\Commands\LsBlk;
 
 
-class FsFilesystems extends IteratorCore
+class PhoFilesystems extends IteratorCore
 {
     /**
-     * Filesystems class constructor
+     * PhoFilesystems class constructor
      */
     public function __construct()
     {
@@ -32,7 +32,7 @@ class FsFilesystems extends IteratorCore
 
 
     /**
-     * Returns a new Filesystems object
+     * Returns a new PhoFilesystems object
      *
      * @param bool $devices_too
      *

@@ -18,8 +18,8 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Exception\ComposerException;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
@@ -31,11 +31,11 @@ class Composer extends Command
     /**
      * Composer class constructor
      *
-     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
-     * @param Stringable|string|null                            $operating_system
-     * @param string|null                                       $packages
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory
+     * @param Stringable|string|null                              $operating_system
+     * @param string|null                                         $packages
      */
-    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null)
+    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null)
     {
         parent::__construct($execution_directory, $operating_system, $packages);
         $this->setCommand(DIRECTORY_ROOT . 'data/bin/composer.phar', false);

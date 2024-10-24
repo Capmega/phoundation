@@ -19,12 +19,12 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Security\Luks\Device;
 
 
-$restrictions = FsRestrictions::newReadonly('/'));
+$restrictions = PhoRestrictions::newReadonly('/'));
 
 CliDocumentation::setUsage('./pho security luks try -f FILE
 echo "SECTION SECTION SECTION" | ./pho security luks try -f FILE');
@@ -49,10 +49,10 @@ CliDocumentation::setAutoComplete([
       '-f,--file' => [
           'arguments' => [
               'word'   => function ($word) use ($restrictions) {
-                 return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan($word . '*');
+                 return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan($word . '*');
               },
               'noword' => function () use ($restrictions) {
-                  return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan('*');
+                  return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan('*');
               },
           ],
       ],
@@ -61,7 +61,7 @@ CliDocumentation::setAutoComplete([
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('-f,--file', true)->sanitizeFile(FsDirectory::newFilesystemRootObject())
+                     ->select('-f,--file', true)->sanitizeFile(PhoDirectory::newFilesystemRootObject())
                      ->validate();
 
 
@@ -71,7 +71,7 @@ $argv['sections'] = explode(' ', $argv['sections']);
 
 
 // Open the LUKS file
-$device = Device::new($argv['file'], FsRestrictions::newWritable($argv['file']));
+$device = Device::new($argv['file'], PhoRestrictions::newWritable($argv['file']));
 
 if (FORCE) {
     $device->luksClose(true);

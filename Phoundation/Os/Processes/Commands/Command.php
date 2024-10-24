@@ -16,10 +16,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
 use Phoundation\Os\Processes\Commands\Interfaces\CommandInterface;
@@ -35,18 +35,18 @@ abstract class Command extends ProcessCore implements CommandInterface
     /**
      * Command constructor.
      *
-     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
-     * @param Stringable|string|null                            $operating_system
-     * @param string|null                                       $packages
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory
+     * @param Stringable|string|null                              $operating_system
+     * @param string|null                                         $packages
      */
-    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null)
+    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null)
     {
         parent::__construct($execution_directory);
 
         // Ensure that the run files directory is available
-        FsDirectory::new(
+        PhoDirectory::new(
             DIRECTORY_SYSTEM . 'run/',
-            FsRestrictions::new(DIRECTORY_SYSTEM . 'run', true)
+            PhoRestrictions::new(DIRECTORY_SYSTEM . 'run', true)
         )->ensure();
 
         if ($operating_system or $packages) {
@@ -58,13 +58,13 @@ abstract class Command extends ProcessCore implements CommandInterface
     /**
      * Create a new process factory for a specific command
      *
-     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
-     * @param string|null                                       $operating_system
-     * @param string|null                                       $packages
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory
+     * @param string|null                                         $operating_system
+     * @param string|null                                         $packages
      *
      * @return static
      */
-    public static function new(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null): static
+    public static function new(PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null): static
     {
         return new static($execution_directory, $operating_system, $packages);
     }
@@ -73,15 +73,15 @@ abstract class Command extends ProcessCore implements CommandInterface
     /**
      * Returns true if the specified commands can be executed with sudo privileges
      *
-     * @param array|string   $commands
-     * @param FsRestrictions $restrictions
-     * @param bool           $exception
+     * @param array|string    $commands
+     * @param PhoRestrictions $restrictions
+     * @param bool            $exception
      *
      * @return bool
      * @todo Find a better option than "--version" which may not be available for everything. What about shell commands
      *       like "true", or "which", etc?
      */
-    public static function checkSudoAvailable(array|string $commands, FsRestrictions $restrictions, bool $exception = false): bool
+    public static function checkSudoAvailable(array|string $commands, PhoRestrictions $restrictions, bool $exception = false): bool
     {
         try {
             $command = null;

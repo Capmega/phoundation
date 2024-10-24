@@ -16,11 +16,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Devices\Storage;
 
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsFileCore;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoFileCore;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Devices\Storage\Exception\StorageException;
 use Phoundation\Os\Devices\Storage\Interfaces\DeviceInterface;
 use Phoundation\Os\Processes\Commands\Cryptsetup;
@@ -31,17 +31,17 @@ use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 
 
-class Device extends FsFile implements DeviceInterface
+class Device extends PhoFile implements DeviceInterface
 {
     /**
      * Device class constructor
      *
      * @return void
      */
-    public function __construct(mixed $file = null, FsRestrictionsInterface|array|string|null $restrictions = null)
+    public function __construct(mixed $file = null, PhoRestrictionsInterface|array|string|null $restrictions = null)
     {
         if (!$restrictions) {
-            $restrictions = FsRestrictions::new('/dev/', false, 'default device');
+            $restrictions = PhoRestrictions::new('/dev/', false, 'default device');
         }
 
         parent::__construct($file, $restrictions);
@@ -141,12 +141,12 @@ class Device extends FsFile implements DeviceInterface
     /**
      * Formats this device for encryption using LUKS
      *
-     * @param string|null          $key
-     * @param FsFileInterface|null $key_file
+     * @param string|null           $key
+     * @param PhoFileInterface|null $key_file
      *
      * @return static
      */
-    public function encrypt(?string $key, ?FsFileInterface $key_file = null): static
+    public function encrypt(?string $key, ?PhoFileInterface $key_file = null): static
     {
         $this->checkUnmounted();
 

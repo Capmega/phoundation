@@ -17,10 +17,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Tests;
 
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 
 
-class BomDirectory extends FsDirectory
+class BomDirectory extends PhoDirectory
 {
     /**
      * Checks for BOM bytes from all files in this path and returns the number of files that have it

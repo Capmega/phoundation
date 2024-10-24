@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FsInfo class
+ * Class PhoInfo
  *
  * This class gathers and returns or displays file information
  *
@@ -18,11 +18,11 @@ namespace Phoundation\Filesystem;
 
 use Phoundation\Data\EntryCore;
 use Phoundation\Data\Traits\TraitDataPath;
-use Phoundation\Filesystem\Interfaces\FsInfoInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoInfoInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
 
-class FsInfo extends EntryCore implements FsInfoInterface
+class PhoInfo extends EntryCore implements PhoInfoInterface
 {
     use TraitDataPath {
         setPath as protected __setPath;
@@ -30,11 +30,11 @@ class FsInfo extends EntryCore implements FsInfoInterface
 
 
     /**
-     * FsPathInfo class constructor
+     * PhoInfo class constructor
      *
-     * @param FsPathInterface $path
+     * @param PhoPathInterface $path
      */
-    public function __construct(FsPathInterface $path)
+    public function __construct(PhoPathInterface $path)
     {
         $this->path = $path;
 

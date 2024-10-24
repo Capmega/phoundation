@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Interface FsDirectoryInterface
+ * Interface PhoDirectoryInterface
  *
  * This class represents a single directory and contains various methods to manipulate directories.
  *
@@ -23,17 +23,17 @@ use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Stringable;
 use Throwable;
 
-interface FsDirectoryInterface extends FsPathInterface
+interface PhoDirectoryInterface extends PhoPathInterface
 {
     /**
      * Returns the path
      *
-     * @param FsPathInterface|string|null $from
-     * @param bool                        $remove_terminating_slash
+     * @param PhoPathInterface|string|null $from
+     * @param bool                         $remove_terminating_slash
      *
      * @return string|null
      */
-    public function getSource(FsPathInterface|string|null $from = null, bool $remove_terminating_slash = false): ?string;
+    public function getSource(PhoPathInterface|string|null $from = null, bool $remove_terminating_slash = false): ?string;
 
     /**
      * @inheritDoc
@@ -43,14 +43,14 @@ interface FsDirectoryInterface extends FsPathInterface
     /**
      * @inheritDoc
      */
-    public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): FsPathInterface;
+    public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): PhoPathInterface;
 
     /**
      * Returns an Execute object to execute callbacks on each file in specified directories
      *
-     * @return FsExecuteInterface
+     * @return PhoExecuteInterface
      */
-    public function execute(): FsExecuteInterface;
+    public function execute(): PhoExecuteInterface;
 
     /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown
@@ -143,9 +143,9 @@ interface FsDirectoryInterface extends FsPathInterface
     /**
      * Return all files in this directory
      *
-     * @return FsFilesInterface The files
+     * @return PhoFilesInterface The files
      */
-    public function list(): FsFilesInterface;
+    public function list(): PhoFilesInterface;
 
     /**
      * Return all files in a directory that match the specified pattern with optional recursion.
@@ -232,9 +232,9 @@ interface FsDirectoryInterface extends FsPathInterface
      * @param string|null $regex
      * @param bool        $allow_multiple
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getSingleFile(?string $regex = null, bool $allow_multiple = false): FsFileInterface;
+    public function getSingleFile(?string $regex = null, bool $allow_multiple = false): PhoFileInterface;
 
     /**
      * Returns the single one directory in this directory IF there is only one file
@@ -242,9 +242,9 @@ interface FsDirectoryInterface extends FsPathInterface
      * @param string|null $regex
      * @param bool        $allow_multiple
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): FsDirectoryInterface;
+    public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): PhoDirectoryInterface;
 
     /**
      * Returns the number of available files in the current file directory
@@ -262,9 +262,9 @@ interface FsDirectoryInterface extends FsPathInterface
      * @param int         $glob_flags    Flags for the internal glob() call
      * @param int         $match_flags   Flags for the internal fnmatch() call
      *
-     * @return FsFilesInterface          The resulting directory files
+     * @return PhoFilesInterface          The resulting directory files
      */
-    public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): FsFilesInterface;
+    public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): PhoFilesInterface;
 
     /**
      * Returns a list of all available files in this directory matching the specified (multiple) pattern(s)
@@ -272,9 +272,9 @@ interface FsDirectoryInterface extends FsPathInterface
      * @param string|null $file_pattern The single or multiple pattern(s) that should be matched
      * @param int         $glob_flags   Flags for the internal glob() call
      *
-     * @return FsFilesInterface         The resulting directory files
+     * @return PhoFilesInterface         The resulting directory files
      */
-    public function scanRegex(?string $file_pattern = null, int $glob_flags = GLOB_MARK): FsFilesInterface;
+    public function scanRegex(?string $file_pattern = null, int $glob_flags = GLOB_MARK): PhoFilesInterface;
 
     /**
      * Returns true if this specific directory is mounted from somewhere, false if not mounted, NULL if mounted, but
@@ -348,11 +348,11 @@ interface FsDirectoryInterface extends FsPathInterface
     /**
      * Copy this directory with progress notification
      *
-     * @param Stringable|string            $target
-     * @param FsRestrictionsInterface|null $restrictions
-     * @param callable                     $callback
-     * @param mixed|null                   $context
-     * @param bool                         $recursive
+     * @param Stringable|string             $target
+     * @param PhoRestrictionsInterface|null $restrictions
+     * @param callable                      $callback
+     * @param mixed|null                    $context
+     * @param bool                          $recursive
      *
      * @return static
      * @example:
@@ -362,10 +362,10 @@ interface FsDirectoryInterface extends FsPathInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true): static;
+    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true): static;
 
     /**
-     * Returns a new Find object
+     * Returns a new FindInterface object
      *
      * @return FindInterface
      */
@@ -374,11 +374,11 @@ interface FsDirectoryInterface extends FsPathInterface
     /**
      * Returns the specified directory added to this directory
      *
-     * @param FsPathInterface|string|int $directory
+     * @param PhoPathInterface|string|int $directory
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function addDirectory(FsPathInterface|string|int $directory): FsDirectoryInterface;
+    public function addDirectory(PhoPathInterface|string|int $directory): PhoDirectoryInterface;
 
     /**
      * Returns true if this path contains any files
@@ -390,11 +390,11 @@ interface FsDirectoryInterface extends FsPathInterface
     /**
      * Returns the specified directory added to this directory
      *
-     * @param FsPathInterface|string $file
+     * @param PhoPathInterface|string $file
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function addFile(FsPathInterface|string $file): FsFileInterface;
+    public function addFile(PhoPathInterface|string $file): PhoFileInterface;
 
     /**
      * Executes the specified callback on each file

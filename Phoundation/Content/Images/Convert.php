@@ -19,8 +19,8 @@ namespace Phoundation\Content\Images;
 use Phoundation\Content\Images\Interfaces\ConvertInterface;
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Os\Processes\Commands\Command;
 
 
@@ -208,10 +208,11 @@ class Convert extends Command implements ConvertInterface
      * Returns a new Directory object with the restrictions for this image object
      *
      * @param string $directory
-     * @return FsDirectoryInterface
+     *
+     * @return PhoDirectoryInterface
      */
-    protected function getDirectory(string $directory): FsDirectoryInterface
+    protected function getDirectory(string $directory): PhoDirectoryInterface
     {
-        return new FsDirectory($directory, $this->restrictions);
+        return new PhoDirectory($directory, $this->restrictions);
     }
 }

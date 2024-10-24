@@ -16,24 +16,24 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
-interface StatusFileInterface extends FsFileInterface
+interface StatusFileInterface extends PhoFileInterface
 {
 /**
      * Returns the file name
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getFile(): FsFileInterface;
+    public function getFile(): PhoFileInterface;
 
     /**
      * Returns the target file
      *
-     * @return FsFileInterface|null
+     * @return PhoFileInterface|null
      */
-    public function getGitTarget(): ?FsFileInterface;
+    public function getGitTarget(): ?PhoFileInterface;
 
     /**
      * Returns the status for this file
@@ -52,16 +52,16 @@ interface StatusFileInterface extends FsFileInterface
     /**
      * Applies the patch for this file on the specified target file
      *
-     * @param FsPathInterface $target_path
+     * @param PhoPathInterface $target_path
      *
      * @return static
      */
-    public function patch(FsPathInterface $target_path): static;
+    public function patch(PhoPathInterface $target_path): static;
 
     /**
      * Generates a diff patch file for this file and returns the file name for the patch file
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getPatchFile(): FsFileInterface;
+    public function getPatchFile(): PhoFileInterface;
 }

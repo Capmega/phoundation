@@ -70,10 +70,10 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Os\Processes\Commands\Grep;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
@@ -690,8 +690,8 @@ class CliAutoComplete
         $command          = explode('/', $command);
         static::$position = static::$position - count($command);
 
-        return !empty(FsFile::new(static::$command . '.php', FsRestrictions::newRoot())
-                            ->grep(['Documentation::setAutoComplete('], 500));
+        return !empty(PhoFile::new(static::$command . '.php', PhoRestrictions::newRoot())
+                             ->grep(['Documentation::setAutoComplete('], 500));
     }
 
 
@@ -702,8 +702,8 @@ class CliAutoComplete
      */
     public static function ensureAvailable(): void
     {
-        $file = FsFile::new('~/.bash_completion', FsRestrictions::newWritable('~/.bash_completion'))
-                      ->makeAbsolute(must_exist: false);
+        $file = PhoFile::new('~/.bash_completion', PhoRestrictions::newWritable('~/.bash_completion'))
+                       ->makeAbsolute(must_exist: false);
 
         if ($file->exists()) {
             if (!$file->uidMatchesPuid()) {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FsDuplicates class
+ * Class PhoDuplicates
  *
  * This class adds duplicate file control functionalities to the FsFiles class
  *
@@ -20,12 +20,12 @@ use PDOStatement;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsDuplicatesInterface;
-use Phoundation\Filesystem\Interfaces\FsFilesInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDuplicatesInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 
 
-class FsDuplicates extends Iterator implements FsDuplicatesInterface
+class PhoDuplicates extends Iterator implements PhoDuplicatesInterface
 {
     /**
      * The number of files deleted
@@ -44,27 +44,27 @@ class FsDuplicates extends Iterator implements FsDuplicatesInterface
     /**
      * Contains a list of all files that were deleted
      *
-     * @var FsFilesInterface
+     * @var PhoFilesInterface
      */
-    protected FsFilesInterface $deleted_files;
+    protected PhoFilesInterface $deleted_files;
 
     /**
      * The parent_directory object that generated this FsDuplicates object
      *
-     * @var FsDirectoryInterface $parent_directory
+     * @var PhoDirectoryInterface $parent_directory
      */
-    protected FsDirectoryInterface $parent_directory;
+    protected PhoDirectoryInterface $parent_directory;
 
 
     /**
-     * FsDuplicates class constructor
+     * PhoDuplicates class constructor
      *
-     * @param FsDirectoryInterface|null                        $parent_directory
+     * @param PhoDirectoryInterface|null                       $parent_directory
      * @param IteratorInterface|array|string|PDOStatement|null $source
      */
-    public function __construct(?FsDirectoryInterface $parent_directory, IteratorInterface|array|string|PDOStatement|null $source = null)
+    public function __construct(?PhoDirectoryInterface $parent_directory, IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        $this->setAcceptedDataTypes(FsFilesInterface::class);
+        $this->setAcceptedDataTypes(PhoFilesInterface::class);
         $this->parent_directory = $parent_directory;
         parent::__construct($source);
     }
@@ -73,9 +73,9 @@ class FsDuplicates extends Iterator implements FsDuplicatesInterface
     /**
      * Returns the number of bytes freed by the deleting of duplicate files
      *
-     * @return FsDirectoryInterface|null
+     * @return PhoDirectoryInterface|null
      */
-    public function getParentDirectory(): ?FsDirectoryInterface
+    public function getParentDirectory(): ?PhoDirectoryInterface
     {
         return $this->parent_directory;
     }
@@ -106,9 +106,9 @@ class FsDuplicates extends Iterator implements FsDuplicatesInterface
     /**
      * Returns the number of bytes freed by the deleting of duplicate files
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getDeletedFiles(): FsFilesInterface
+    public function getDeletedFiles(): PhoFilesInterface
     {
         return $this->deleted_files;
     }
@@ -121,7 +121,7 @@ class FsDuplicates extends Iterator implements FsDuplicatesInterface
      */
     public function deleteKeepFirst(): static
     {
-        $this->deleted_files = new FsFiles($this->parent_directory);
+        $this->deleted_files = new PhoFiles($this->parent_directory);
 
         foreach ($this->source as $files) {
             $first = true;

@@ -17,11 +17,11 @@ namespace Phoundation\Audio;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Exception\FileNotExistException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Mpg123;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Utils\Config;
@@ -31,12 +31,12 @@ use Phoundation\Web\Requests\Response;
 use Stringable;
 
 
-class Audio extends FsFile
+class Audio extends PhoFile
 {
-    public function __construct(Stringable|string|null $source = null, bool|FsRestrictionsInterface|null $restrictions = null, bool|Stringable|string|null $absolute_prefix = false)
+    public function __construct(Stringable|string|null $source = null, bool|PhoRestrictionsInterface|null $restrictions = null, bool|Stringable|string|null $absolute_prefix = false)
     {
-        if (!$source instanceof FsPathInterface) {
-            $restrictions = $restrictions ?? FsRestrictions::newReadonly(DIRECTORY_DATA . 'audio');
+        if (!$source instanceof PhoPathInterface) {
+            $restrictions = $restrictions ?? PhoRestrictions::newReadonly(DIRECTORY_DATA . 'audio');
         }
 
         parent::__construct($source, $restrictions, $absolute_prefix);
@@ -55,7 +55,7 @@ class Audio extends FsFile
         if (Config::getBoolean('audio.local.enabled', true)) {
             if (!defined('NOAUDIO') or !NOAUDIO) {
                 try {
-                    Mpg123::new(new FsDirectory(DIRECTORY_DATA . 'audio', FsRestrictions::newData()))
+                    Mpg123::new(new PhoDirectory(DIRECTORY_DATA . 'audio', PhoRestrictions::newData()))
                           ->setFile($this->makeAbsolute(DIRECTORY_DATA . 'audio'))
                           ->play($background);
 

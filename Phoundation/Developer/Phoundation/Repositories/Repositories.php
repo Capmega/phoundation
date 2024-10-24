@@ -37,9 +37,9 @@ use Phoundation\Developer\Versioning\Git\Traits\TraitDataBranch;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Utils\Config;
 use Stringable;
 
@@ -410,8 +410,8 @@ class Repositories extends IteratorCore implements RepositoriesInterface
         $directories = new Iterator($directories);
 
         foreach ($directories as $path => $directory) {
-            $directory = FsDirectory::absolutePath($directory, must_exist: false);
-            $directory = FsDirectory::realPath($directory);
+            $directory = PhoDirectory::absolutePath($directory, must_exist: false);
+            $directory = PhoDirectory::realPath($directory);
 
             $directories->set($directory, $path);
         }
@@ -421,9 +421,9 @@ class Repositories extends IteratorCore implements RepositoriesInterface
 
         // Convert to directory objects
         foreach ($directories as $directory) {
-            $return[$directory] = FsDirectory::new(
+            $return[$directory] = PhoDirectory::new(
                 $directory,
-                FsRestrictions::newWritable($directory)
+                PhoRestrictions::newWritable($directory)
             );
         }
 
@@ -487,7 +487,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
 
                     $repository = new Repository(
                         $path,
-                        FsRestrictions::newWritable($path->getParentDirectory() . $path)
+                        PhoRestrictions::newWritable($path->getParentDirectory() . $path)
                     );
 
                     if (!$repository->isRepository()) {
@@ -704,7 +704,7 @@ showdie('Woah, from here we start patching!!');
      *
      * @return static
      */
-    public function copyModified(FsFileInterface|array|null $files = null): static
+    public function copyModified(PhoFileInterface|array|null $files = null): static
     {
 throw new UnderConstructionException();
     }

@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Template\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 
 interface TemplateInterface
@@ -70,7 +70,7 @@ interface TemplateInterface
     /**
      * Returns the root path for this template
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getDirectory(): FsDirectoryInterface;
+    public function getDirectory(): PhoDirectoryInterface;
 }

@@ -23,7 +23,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Stringable;
 use UnitEnum;
 
@@ -692,73 +692,73 @@ interface ValidatorInterface extends IteratorBaseInterface
     /**
      * Validates if the selected field is a valid path
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isPath(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+    public function isPath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
 
 
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isDirectory(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+    public function isDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
 
 
     /**
      * Validates if the selected field is a valid file
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isFile(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+    public function isFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
 
 
     /**
      * Validates if the selected field is a valid path and converts the value into FsPath object
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizePath(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+    public function sanitizePath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
 
 
     /**
      * Validates if the selected field is a valid directory and converts the value into FsDirectory object
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeDirectory(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+    public function sanitizeDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
 
 
     /**
      * Validates if the selected field is a valid file and converts the value into FsFile object
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeFile(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+    public function sanitizeFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
 
     /**
      * Validates if the selected field is a valid description

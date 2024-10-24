@@ -2,7 +2,7 @@
 
 namespace Phoundation\Filesystem\Interfaces;
 
-interface FsUploadedFileInterface extends FsFileInterface
+interface PhoUploadedFileInterface extends PhoFileInterface
 {
     /**
      * Returns the error code for this file

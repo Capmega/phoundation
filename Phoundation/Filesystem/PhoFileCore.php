@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class FsFileCore
+ * Class PhoFileCore
  *
  * This library contains various filesystem file-related functions
  *
@@ -27,10 +27,10 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
 use Phoundation\Filesystem\Exception\NotEnoughStorageSpaceAvailableException;
 use Phoundation\Filesystem\Exception\Sha256MismatchException;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Gzip;
 use Phoundation\Os\Processes\Commands\Sha256;
 use Phoundation\Os\Processes\Commands\Tar;
@@ -44,7 +44,7 @@ use Stringable;
 use Throwable;
 
 
-class FsFileCore extends FsPathCore implements FsFileInterface
+class PhoFileCore extends PhoPathCore implements PhoFileInterface
 {
     /**
      * Create the specified file
@@ -146,11 +146,11 @@ class FsFileCore extends FsPathCore implements FsFileInterface
 
         $this->restrictions->check($directory, true);
 
-        FsDirectory::new(dirname($this->source), $this->restrictions)->ensure($pattern_mode);
+        PhoDirectory::new(dirname($this->source), $this->restrictions)->ensure($pattern_mode);
 
         if (!file_exists($this->source)) {
             // Create the file
-            FsDirectory::new(dirname($this->source), $this->restrictions)
+            PhoDirectory::new(dirname($this->source), $this->restrictions)
                      ->execute()
                      ->setMode(0770)
                      ->onDirectoryOnly(function () use ($mode) {
@@ -220,14 +220,14 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     /**
      * Copy a file with progress notification
      *
-     * @todo Remove the second "restrictions" parameter, those should be included in the $target, which should be just FsPathInterface
-     *
      * @param Stringable|string            $target
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $restrictions
      * @param callable|null                $callback
      * @param mixed|null                   $context
      *
      * @return static
+     *
+     * @todo Remove the second "restrictions" parameter, those should be included in the $target, which should be just FsPathInterface
      *
      * @example:
      * FsFile::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message,
@@ -236,7 +236,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, ?FsRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static
+    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static
     {
         $context      = $context ?? stream_context_create();
         $restrictions = $this->ensureRestrictions($restrictions);
@@ -895,7 +895,7 @@ class FsFileCore extends FsPathCore implements FsFileInterface
 
 
     /**
-     * Makes a backup of this file to the specified target and returns a new FsFile object for the target
+     * Makes a backup of this file to the specified target and returns a new PhoFile object for the target
      *
      * @param string $pattern
      * @param bool   $move
@@ -1179,22 +1179,22 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     /**
      * Untars this file
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function untar(): FsPathInterface
+    public function untar(): PhoPathInterface
     {
         Tar::new()->untar($this);
 
-        return FsPath::new(dirname($this->source), $this->restrictions);
+        return PhoPath::new(dirname($this->source), $this->restrictions);
     }
 
 
     /**
      * Gzips the file
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function gzip(): FsFileInterface
+    public function gzip(): PhoFileInterface
     {
         return Gzip::new($this->restrictions)->gzip($this);
     }
@@ -1205,9 +1205,9 @@ class FsFileCore extends FsPathCore implements FsFileInterface
      *
      * @note If no directory is specified, the file will be unzipped into the same parent directory as the file itself
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function gunzip(): FsFileInterface
+    public function gunzip(): PhoFileInterface
     {
         return Gzip::new($this->restrictions)->gunzip($this);
     }
@@ -1216,11 +1216,11 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     /**
      * Unzips this file
      *
-     * @param FsDirectoryInterface|null $directory
+     * @param PhoDirectoryInterface|null $directory
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function unzip(?FsDirectoryInterface $directory = null): FsPathInterface
+    public function unzip(?PhoDirectoryInterface $directory = null): PhoPathInterface
     {
         $directory = $directory ?? $this->getParentDirectory();
 
@@ -1248,13 +1248,13 @@ class FsFileCore extends FsPathCore implements FsFileInterface
     /**
      * Search / replace the object files
      *
-     * @param array                $replaces The list of keys that will be replaced by values
-     * @param FsFileInterface|null $target
-     * @param bool                 $regex
+     * @param array                 $replaces The list of keys that will be replaced by values
+     * @param PhoFileInterface|null $target
+     * @param bool                  $regex
      *
      * @return static
      */
-    public function replace(array $replaces, ?FsFileInterface $target = null, bool $regex = false): static
+    public function replace(array $replaces, ?PhoFileInterface $target = null, bool $regex = false): static
     {
         if (!$target) {
             // Default to replacing within the same file

@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem\Library;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Filesystem\Mimetypes\FsMimetype;
+use Phoundation\Filesystem\Mimetypes\PhoMimetype;
 use Phoundation\Filesystem\Mimetypes\FsMimetypesInit;
 use Phoundation\Utils\Arrays;
 

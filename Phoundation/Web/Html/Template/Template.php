@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Template;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Template\Exception\TemplateException;
@@ -229,9 +229,9 @@ abstract class Template implements TemplateInterface
     /**
      * Returns the root path for this template
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    abstract public function getDirectory(): FsDirectoryInterface;
+    abstract public function getDirectory(): PhoDirectoryInterface;
 
 
     /**

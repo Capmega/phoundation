@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFilesInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Stringable;
 
 interface FindInterface extends CommandInterface
@@ -14,11 +14,11 @@ interface FindInterface extends CommandInterface
     /**
      * Sets the path in which to find
      *
-     * @param FsPathInterface|null $path
+     * @param PhoPathInterface|null $path
      *
      * @return static
      */
-    public function setPath(FsPathInterface|null $path): static;
+    public function setPath(PhoPathInterface|null $path): static;
 
 
     /**
@@ -26,19 +26,19 @@ interface FindInterface extends CommandInterface
      *
      * @note This is true by default for security to avoid searching on remote filesystems by accident
      *
-     * @param FsPathInterface|null $find_path
+     * @param PhoPathInterface|null $find_path
      *
      * @return static
      */
-    public function setFindPath(FsPathInterface|null $find_path): static;
+    public function setFindPath(PhoPathInterface|null $find_path): static;
 
 
     /**
      * Returns if find should find empty files
      *
-     * @return FsDirectoryInterface|null
+     * @return PhoDirectoryInterface|null
      */
-    public function getFindPath(): ?FsDirectoryInterface;
+    public function getFindPath(): ?PhoDirectoryInterface;
 
 
     /**
@@ -347,9 +347,9 @@ interface FindInterface extends CommandInterface
     /**
      * Returns a FsFiles-object containing the found files
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getFoundFiles(): FsFilesInterface;
+    public function getFoundFiles(): PhoFilesInterface;
 
 
     /**
@@ -363,7 +363,7 @@ interface FindInterface extends CommandInterface
     /**
      * Returns a FsFiles-object containing the found files
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getFiles(): FsFilesInterface;
+    public function getFiles(): PhoFilesInterface;
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
 interface MysqlDumpInterface
@@ -188,10 +188,10 @@ interface MysqlDumpInterface
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param FsFileInterface|null       $file
-     * @param EnumExecuteMethod $method
+     * @param PhoFileInterface|null $file
+     * @param EnumExecuteMethod     $method
      *
      * @return string
      */
-    public function dump(?FsFileInterface $file, EnumExecuteMethod $method = EnumExecuteMethod::passthru): string;
+    public function dump(?PhoFileInterface $file, EnumExecuteMethod $method = EnumExecuteMethod::passthru): string;
 }

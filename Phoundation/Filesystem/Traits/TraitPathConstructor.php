@@ -19,8 +19,8 @@ namespace Phoundation\Filesystem\Traits;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\NoPathSpecifiedExceptions;
 use Phoundation\Filesystem\Exception\NoRestrictionsSpecifiedExceptions;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Stringable;
 
 
@@ -29,13 +29,13 @@ trait TraitPathConstructor
     /**
      * TraitPathConstructor class constructor
      *
-     * @param Stringable|string                 $source
-     * @param FsRestrictionsInterface|bool|null $restrictions
-     * @param Stringable|string|bool|null       $absolute_prefix
+     * @param Stringable|string                  $source
+     * @param PhoRestrictionsInterface|bool|null $restrictions
+     * @param Stringable|string|bool|null        $absolute_prefix
      */
-    public function __construct(Stringable|string $source, FsRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
+    public function __construct(Stringable|string $source, PhoRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
     {
-        if ($source instanceof FsPathInterface) {
+        if ($source instanceof PhoPathInterface) {
             // The Specified file was actually a FsPathInterface object, get the file from there
             $this->setSource($source, $absolute_prefix)
                  ->setTarget($source->getTarget())

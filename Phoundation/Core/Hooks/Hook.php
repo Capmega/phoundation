@@ -26,10 +26,10 @@ use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\P;
@@ -55,9 +55,9 @@ class Hook implements HookInterface
     /**
      * The place where all hook scripts live
      *
-     * @var FsDirectoryInterface $directory
+     * @var PhoDirectoryInterface $directory
      */
-    protected FsDirectoryInterface $directory;
+    protected PhoDirectoryInterface $directory;
 
     /**
      * Parameters sent by the executing script
@@ -74,7 +74,7 @@ class Hook implements HookInterface
      */
     public function __construct(?string $class = null)
     {
-        $this->directory = new FsDirectory(DIRECTORY_HOOKS, FsRestrictions::newHooks());
+        $this->directory = new PhoDirectory(DIRECTORY_HOOKS, PhoRestrictions::newHooks());
         $this->class     = Strings::ensureEndsNotWith(trim($class), '/') . '/';
 
         if ($this->class) {
@@ -154,7 +154,7 @@ class Hook implements HookInterface
      *
      * @return mixed
      */
-    public function getFile(?string $hook = null): FsFileInterface
+    public function getFile(?string $hook = null): PhoFileInterface
     {
         return $this->directory->addFile(($hook ?? $this->hook) . '.php');
     }

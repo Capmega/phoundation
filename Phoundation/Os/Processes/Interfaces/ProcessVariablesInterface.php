@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Interfaces;
 
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\ProcessVariables;
@@ -124,19 +124,19 @@ interface ProcessVariablesInterface
     /**
      * Returns if the process will first CD to this directory before continuing
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getExecutionDirectory(): FsDirectoryInterface;
+    public function getExecutionDirectory(): PhoDirectoryInterface;
 
 
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param FsDirectoryInterface|null $execution_directory
+     * @param PhoDirectoryInterface|null $execution_directory
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionDirectory(FsDirectoryInterface|null $execution_directory): static;
+    public function setExecutionDirectory(PhoDirectoryInterface|null $execution_directory): static;
 
 
     /**
@@ -285,9 +285,9 @@ interface ProcessVariablesInterface
      * Returns the server on which the command should be executed for this process
      *
      * @note NULL means this local server
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function getRestrictions(): FsRestrictionsInterface;
+    public function getRestrictions(): PhoRestrictionsInterface;
 
 
     /**
@@ -295,13 +295,13 @@ interface ProcessVariablesInterface
      *
      * @note NULL means this local server
      *
-     * @param FsRestrictionsInterface|array|string|null $restrictions
-     * @param bool                                      $write
-     * @param string|null                               $label
+     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     * @param bool                                       $write
+     * @param string|null                                $label
      *
      * @return static
      */
-    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
 
 
     /**
@@ -411,19 +411,19 @@ interface ProcessVariablesInterface
     /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
-     * @return ProcessInterface|FsFileInterface|string|null
+     * @return ProcessInterface|PhoFileInterface|string|null
      */
-    public function getPipe(): ProcessInterface|FsFileInterface|string|null;
+    public function getPipe(): ProcessInterface|PhoFileInterface|string|null;
 
 
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param ProcessInterface|FsFileInterface|string|null $pipe
+     * @param ProcessInterface|PhoFileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipe(ProcessInterface|FsFileInterface|string|null $pipe): static;
+    public function setPipe(ProcessInterface|PhoFileInterface|string|null $pipe): static;
 
 
     /**

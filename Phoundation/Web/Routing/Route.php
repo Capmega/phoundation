@@ -33,8 +33,8 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\RegexException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -266,7 +266,7 @@ class Route
 
         // Get routing parameters and find the correct web page file for this route
         $parameters = static::getParametersObject()->select(static::$url);
-        $route      = new FsFile(static::$page, FsRestrictions::newReadonly(DIRECTORY_WEB));
+        $route      = new PhoFile(static::$page, PhoRestrictions::newReadonly(DIRECTORY_WEB));
 
         // Setup the request object, send parameters, attachment configuration and if this is a system request
         Request::setRoutingParameters($parameters);
@@ -359,7 +359,7 @@ class Route
      */
     protected static function init(): void
     {
-        Request::setRestrictions(FsRestrictions::newRoot());
+        Request::setRestrictions(PhoRestrictions::newRoot());
         Response::initialize();
 
         if (Core::getMaintenanceMode()) {

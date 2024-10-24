@@ -58,9 +58,9 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
 use Phoundation\Os\Processes\Commands\Id;
@@ -937,7 +937,7 @@ class Core implements CoreInterface
 
                 // Cleanup
                 Session::exit();
-                FsDirectory::removeTemporary();
+                PhoDirectory::removeTemporary();
             }
         }
 
@@ -2121,7 +2121,7 @@ class Core implements CoreInterface
     public static function setMaintenanceMode(bool $enable): void
     {
         $enabled = static::getMaintenanceMode();
-        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'maintenance', FsRestrictions::newSystem(true));
+        $directory = PhoDirectory::new(DIRECTORY_SYSTEM . 'maintenance', PhoRestrictions::newSystem(true));
 
         if ($enable) {
             // Enable maintenance mode
@@ -2171,8 +2171,8 @@ class Core implements CoreInterface
             return $maintenance;
         }
 
-        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'maintenance', FsRestrictions::newSystem())
-            ->setAutoMount(false);
+        $directory = PhoDirectory::new(DIRECTORY_SYSTEM . 'maintenance', PhoRestrictions::newSystem())
+                                 ->setAutoMount(false);
 
         if ($directory->exists()) {
             // The system is in maintenance mode, show who put it there
@@ -2204,7 +2204,7 @@ class Core implements CoreInterface
     public static function setReadonlyMode(bool $enable): void
     {
         $enabled   = static::getReadonlyMode();
-        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'readonly', FsRestrictions::newSystem(true));
+        $directory = PhoDirectory::new(DIRECTORY_SYSTEM . 'readonly', PhoRestrictions::newSystem(true));
 
         if ($enable) {
             // Enable readonly mode
@@ -2274,7 +2274,7 @@ class Core implements CoreInterface
             return $readonly;
         }
 
-        $directory = FsDirectory::new(DIRECTORY_SYSTEM . 'readonly', FsRestrictions::newSystem());
+        $directory = PhoDirectory::new(DIRECTORY_SYSTEM . 'readonly', PhoRestrictions::newSystem());
 
         if ($directory->exists()) {
             // The system is in readonly mode, show who put it there
@@ -2299,17 +2299,17 @@ class Core implements CoreInterface
      */
     public static function resetModes(): void
     {
-        $restrictions = FsRestrictions::newSystem(true);
+        $restrictions = PhoRestrictions::newSystem(true);
         $maintenance  = static::getMaintenanceMode();
         $readonly     = static::getReadonlyMode();
 
         if ($maintenance) {
-            FsFile::new(DIRECTORY_SYSTEM . 'maintenance', $restrictions)->delete();
+            PhoFile::new(DIRECTORY_SYSTEM . 'maintenance', $restrictions)->delete();
             Log::warning(tr('System has been relieved from maintenace mode. All web requests will now again be processed, all commands are available'), 10);
         }
 
         if ($readonly) {
-            FsFile::new(DIRECTORY_SYSTEM . 'readonly', $restrictions)->delete();
+            PhoFile::new(DIRECTORY_SYSTEM . 'readonly', $restrictions)->delete();
             Log::warning(tr('System has been relieved from readonly mode. All write requests will now again be answered, all commands are available'), 10);
         }
 

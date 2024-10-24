@@ -25,8 +25,8 @@ use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -550,8 +550,8 @@ class Plugins extends DataIterator implements PluginsInterface
         // Delete all plugins from disk
         $directory = DIRECTORY_ROOT . 'Plugins/';
 
-        FsFile::new($directory)->delete();
-        FsDirectory::new($directory)->ensure();
+        PhoFile::new($directory)->delete();
+        PhoDirectory::new($directory)->ensure();
 
         return $this;
     }

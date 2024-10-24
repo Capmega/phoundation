@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class FsFile
+ * Class PhoUploadedFile
  *
  * This library contains various filesystem file-related functions
  *
@@ -18,14 +18,14 @@ namespace Phoundation\Filesystem;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Exception\FileUploadException;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\Interfaces\FsUploadedFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoUploadedFileInterface;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Web\Uploads\Interfaces\UploadInterface;
 
 
-class FsUploadedFile extends FsFileCore implements FsUploadedFileInterface
+class PhoUploadedFile extends PhoFileCore implements PhoUploadedFileInterface
 {
     /**
      * Tracks the file upload error code
@@ -43,17 +43,17 @@ class FsUploadedFile extends FsFileCore implements FsUploadedFileInterface
 
 
     /**
-     * TraitPathConstructor class constructor
+     * PhoUploadedFile class constructor
      *
-     * @param UploadInterface              $source
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param UploadInterface               $source
+     * @param PhoRestrictionsInterface|null $restrictions
      *
      * @throws \Exception
      */
-    public function __construct(UploadInterface $source, ?FsRestrictionsInterface $restrictions = null)
+    public function __construct(UploadInterface $source, ?PhoRestrictionsInterface $restrictions = null)
     {
         // Uploaded file restrictions always require write access to /tmp/ and DIRECTORY_TMP
-        $restrictions = $restrictions ?? new FsRestrictions();
+        $restrictions = $restrictions ?? new PhoRestrictions();
         $restrictions->addDirectory(DIRECTORY_TMP, true);
         $restrictions->addDirectory('/tmp/', true);
 
@@ -105,7 +105,7 @@ class FsUploadedFile extends FsFileCore implements FsUploadedFileInterface
         }
 
         // Move the uploaded file to the Phoundation temporary directory
-        $tmp = FsFile::getTemporaryObject(false, $this->real_name);
+        $tmp = PhoFile::getTemporaryObject(false, $this->real_name);
 
         Log::action(tr('Moving uploaded file from PHP temporary directory ":tmp" to Phoundation temporary directory ":phoundation"', [
             ':tmp'         => $this->getSource(),
@@ -121,12 +121,12 @@ class FsUploadedFile extends FsFileCore implements FsUploadedFileInterface
     /**
      * Returns a new Path object with the specified restrictions
      *
-     * @param UploadInterface         $source
-     * @param FsRestrictionsInterface $restrictions
+     * @param UploadInterface          $source
+     * @param PhoRestrictionsInterface $restrictions
      *
      * @return static
      */
-    public static function new(UploadInterface $source, FsRestrictionsInterface $restrictions): static
+    public static function new(UploadInterface $source, PhoRestrictionsInterface $restrictions): static
     {
         return new static($source, $restrictions);
     }

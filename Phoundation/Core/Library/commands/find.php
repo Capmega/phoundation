@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Strings;
 
@@ -46,11 +46,11 @@ $like = $argv['like'] ? '*' : null;
 
 
 // Find the files that match the specified command
-$files = Find::new(FsDirectory::newCommandsObject())
+$files = Find::new(PhoDirectory::newCommandsObject())
     ->setName($like . $argv['command'] . '.php' . $like)
     ->executeReturnIterator();
 
-$directories = Find::new(FsDirectory::newCommandsObject())
+$directories = Find::new(PhoDirectory::newCommandsObject())
     ->setName($like . $argv['command'] . $like)
     ->setType('d')
     ->executeReturnIterator();

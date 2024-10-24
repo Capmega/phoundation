@@ -17,8 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Enums;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 
 enum EnumRepositoryType: string
 {

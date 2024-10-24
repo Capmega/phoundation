@@ -50,7 +50,7 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Servers\Servers;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -2023,11 +2023,11 @@ class Sql implements SqlInterface
     /**
      * Connects to this database and executes a test query
      *
-     * @param FsFileInterface $file
+     * @param PhoFileInterface $file
      *
      * @return static
      */
-    public function export(FsFileInterface $file): static
+    public function export(PhoFileInterface $file): static
     {
         throw new UnderConstructionException();
         // TODO: Implement export() method.
@@ -2037,11 +2037,11 @@ class Sql implements SqlInterface
     /**
      * Import data from specified file
      *
-     * @param FsFileInterface $file
+     * @param PhoFileInterface $file
      *
      * @return static
      */
-    public function import(FsFileInterface $file): static
+    public function import(PhoFileInterface $file): static
     {
         throw new UnderConstructionException();
         // TODO: Implement import() method.

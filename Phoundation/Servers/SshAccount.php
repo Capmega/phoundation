@@ -32,9 +32,9 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Servers\Interfaces\SshAccountInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -57,7 +57,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
     public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
         $this->configuration_path = 'ssh.accounts';
-        $this->restrictions       = FsRestrictions::newFilesystemRoot();
+        $this->restrictions       = PhoRestrictions::newFilesystemRoot();
 
         parent::__construct($identifier, $meta_enabled, $init);
     }
@@ -153,7 +153,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
 
             if (array_key_exists('file', $this->source)) {
                 if ($this->source['file']) {
-                    $this->source['ssh_key'] = FsFile::new($this->source['file'], FsRestrictions::newFilesystemRoot())->getContentsAsString();
+                    $this->source['ssh_key'] = PhoFile::new($this->source['file'], PhoRestrictions::newFilesystemRoot())->getContentsAsString();
                 }
             }
         }
@@ -196,7 +196,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                            ->setCliColumn(tr('-i,--ssh-key-file FILE'))
                                            ->setHelpText(tr('The SSH key file for this account'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isFile(FsDirectory::newFilesystemRootObject());
+                                               $validator->isFile(PhoDirectory::newFilesystemRootObject());
                                            }))
 
                     ->add(Definition::new($this, 'ssh_key')

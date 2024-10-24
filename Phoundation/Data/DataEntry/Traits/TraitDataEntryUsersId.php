@@ -19,8 +19,8 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log\Log;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
 
 
 trait TraitDataEntryUsersId

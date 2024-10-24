@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Interfaces;
 
-interface FsFilesystemInterface
+interface PhoFilesystemInterface
 {
     /**
      * Returns the total space in bytes for this filesystem

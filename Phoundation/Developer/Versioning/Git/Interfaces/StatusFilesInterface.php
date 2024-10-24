@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsFilesInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 
-interface StatusFilesInterface extends FsFilesInterface
+interface StatusFilesInterface extends PhoFilesInterface
 {
     /**
      * Scans for changes
@@ -33,11 +33,11 @@ interface StatusFilesInterface extends FsFilesInterface
     /**
      * Applies the patch for this file on the specified target file
      *
-     * @param FsDirectoryInterface $target_path
+     * @param PhoDirectoryInterface $target_path
      *
      * @return static
      */
-    public function patch(FsDirectoryInterface $target_path): static;
+    public function patch(PhoDirectoryInterface $target_path): static;
 
 
     /**
@@ -45,9 +45,9 @@ interface StatusFilesInterface extends FsFilesInterface
      *
      * @param bool $cached
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getPatchFile(bool $cached = false): FsFileInterface;
+    public function getPatchFile(bool $cached = false): PhoFileInterface;
 
 
     /**
