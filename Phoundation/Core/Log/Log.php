@@ -1608,7 +1608,7 @@ class Log
      *
      * @return bool
      */
-    public static function hex(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
+    public static function hex(mixed $messages = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
             static::logDebugHeader('HEX', 1, $threshold, echo_screen: $echo_screen);
@@ -1616,7 +1616,7 @@ class Log
 
         $messages = Strings::log($messages);
 
-        return static::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return static::write(Strings::interleave(bin2hex($messages), ' ', chunk_size: 2), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
