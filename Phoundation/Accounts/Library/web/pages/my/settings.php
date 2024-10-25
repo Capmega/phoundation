@@ -33,7 +33,7 @@ $get = GetValidator::new()
 
 // Build the "settings" card
 $user = Session::getUserObject();
-$form = $user->getSettingsObject()->getHtmlDataEntryFormObject();
+$form = $user->getConfigurationsObject()->getHtmlDataEntryFormObject();
 
 $settings_card = Card::new()
                      ->setTitle(tr('Edit data for right :name', [':name' => $user->getName()]))

@@ -376,16 +376,6 @@ interface UserInterface extends DataEntryInterface
 
 
     /**
-     * Sets the leader for this user
-     *
-     * @param string|null $leaders_name
-     *
-     * @return static
-     */
-    public function setLeadersName(?string $leaders_name): static;
-
-
-    /**
      * Returns the latitude for this user
      *
      * @return float|null

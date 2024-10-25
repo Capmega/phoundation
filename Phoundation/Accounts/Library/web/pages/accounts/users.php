@@ -67,14 +67,14 @@ if (Request::isPostRequestMethod()) {
         }
 
     } catch (ValidationFailedException $e) {
-        // Oops! Show validation errors and remain on page
+        // Oops! Show validation errors and remain on the page
         Response::getFlashMessagesObject()->addMessage($e);
     }
 }
 
 
 // Get the users list and apply filters
-$users   = Users::new();
+$users   = Users::new()->setFilterFormObject($filters);
 $builder = $users->getQueryBuilder()
                  ->addSelect('
                      `accounts_users`.`id`, 
@@ -93,36 +93,8 @@ $builder = $users->getQueryBuilder()
                  ->addWhere('`accounts_users`.`email` != "guest"')
                  ->addGroupBy('`accounts_users`.`id`');
 
-switch ($filters->get('status')) {
-    case 'all':
-        break;
 
-    case null:
-        $builder->addWhere('`accounts_users`.`status` IS NULL');
-        break;
-
-    default:
-        $builder->addWhere('`accounts_users`.`status` = :status', [
-            ':status' => $filters->get('status'),
-        ]);
-}
-
-if ($filters->get('roles_id')) {
-    $builder->addWhere('`accounts_users_roles`.`roles_id` = :roles_id', [
-        ':roles_id' => $filters->get('roles_id'),
-    ]);
-}
-
-if ($filters->get('rights_id')) {
-    $builder->addJoin('JOIN `accounts_users_rights` 
-                         ON `accounts_users_rights`.`rights_id` = :rights_id 
-                        AND `accounts_users_rights`.`users_id`  = `accounts_users`.`id`', [
-                            ':rights_id' => $filters->get('rights_id'),
-    ]);
-}
-
-
-// Build users table
+// Build "users" table
 $buttons = Buttons::new()
                   ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')
                   ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);

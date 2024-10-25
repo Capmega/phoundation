@@ -28,6 +28,8 @@ use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Roles\RolesBySeoName;
+use Phoundation\Accounts\Users\Configuration\Configurations;
+use Phoundation\Accounts\Users\Configuration\Interfaces\ConfigurationsInterface;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\UsersException;
 use Phoundation\Accounts\Users\Interfaces\AuthenticationInterface;
@@ -304,18 +306,18 @@ class User extends DataEntry implements UserInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
+     * @param bool                                     $init
      * @param bool                                     $ignore_deleted
      *
      * @return static
-     * @throws DataEntryNotExistsException
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
     {
         try {
-            $user = parent::load($identifier, $meta_enabled, $ignore_deleted);
+            $user = parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
 
         } catch (DataEntryNotExistsException $e) {
-            $user = static::loadFromAlternativeEmail($identifier, $meta_enabled, $ignore_deleted);
+            $user = static::loadFromAlternativeEmail($identifier, $meta_enabled, $init, $ignore_deleted);
 
             if (!$user) {
                 // The requested user identifier doesn't exist
@@ -332,11 +334,12 @@ class User extends DataEntry implements UserInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
+     * @param bool                                     $init
      * @param bool                                     $ignore_deleted
      *
      * @return static|null
      */
-    protected static function loadFromAlternativeEmail(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): ?static
+    protected static function loadFromAlternativeEmail(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): ?static
     {
         if (static::determineColumn($identifier) === 'email') {
             if ((static::getDefaultConnector() === 'system') and (static::getTable() === 'accounts_users')) {
@@ -350,7 +353,7 @@ class User extends DataEntry implements UserInterface
 
                 if ($user) {
                     if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
-                        $user = static::load($user['users_id'], $meta_enabled);
+                        $user = static::load($user['users_id'], $meta_enabled, $init, $ignore_deleted);
 
                         Log::warning(tr('Identified user ":user" with alternate email ":email"', [
                             ':user'  => $user->getLogId(),
@@ -1464,7 +1467,35 @@ class User extends DataEntry implements UserInterface
 
 
     /**
-     * Returns the leader for this user
+     * Returns the leader email for this user
+     *
+     * @return string|null
+     */
+    public function getLeadersEmail(): ?string
+    {
+        return $this->getLeader()->getEmail();
+    }
+
+
+    /**
+     * Sets the leader email for this user
+     *
+     * @param string|null $leaders_email
+     *
+     * @return static
+     */
+    public function setLeadersEmail(?string $leaders_email): static
+    {
+        if ($leaders_email) {
+            $leaders_id = User::load(['email' => $leaders_email])->getId();
+        }
+
+        return $this->setLeadersId(isset_get($leaders_id));
+    }
+
+
+    /**
+     * Returns the leader id for this user
      *
      * @return int|null
      */
@@ -1475,7 +1506,7 @@ class User extends DataEntry implements UserInterface
 
 
     /**
-     * Sets the leader for this user
+     * Sets the leader id for this user
      *
      * @param int|null $leaders_id
      *
@@ -1494,12 +1525,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLeader(): ?UserInterface
     {
-        $leaders_id = $this->getTypesafe('int', 'leaders_id');
-        if ($leaders_id) {
-            return new static($leaders_id);
-        }
-
-        return null;
+        return static::loadOrNull($this->getTypesafe('int', 'leaders_id'));
     }
 
 
@@ -1510,20 +1536,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLeadersName(): ?string
     {
-        return $this->getTypesafe('string', 'leaders_name');
-    }
-
-
-    /**
-     * Sets the name for the leader for this user
-     *
-     * @param string|null $leaders_name
-     *
-     * @return static
-     */
-    public function setLeadersName(?string $leaders_name): static
-    {
-        return $this->set($leaders_name, 'leaders_name');
+        return $this->getLeader()->getDisplayName();
     }
 
 
@@ -2380,6 +2393,17 @@ class User extends DataEntry implements UserInterface
         }
 
         return $this->profile_images;
+    }
+
+
+    /**
+     * Returns the "configurations" object for this user
+     *
+     * @return ConfigurationsInterface
+     */
+    public function getConfigurationsObject(): ConfigurationsInterface
+    {
+        return Configurations::new($this);
     }
 
 

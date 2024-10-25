@@ -202,14 +202,15 @@ class Role extends DataEntry implements RoleInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
+     * @param bool                                     $init
      * @param bool                                     $ignore_deleted
      *
      * @return Role
      */
-    public static function load(DataEntryInterface|array|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
+    public static function load(DataEntryInterface|array|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
     {
         try {
-            return parent::load(static::convertToLowerCaseDash($identifier), $meta_enabled, $ignore_deleted);
+            return parent::load(static::convertToLowerCaseDash($identifier), $meta_enabled, $init, $ignore_deleted);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RoleNotExistsException($e);

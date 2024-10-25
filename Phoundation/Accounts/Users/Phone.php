@@ -95,14 +95,15 @@ class Phone extends DataEntry implements PhoneInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
+     * @param bool                                     $init
      * @param bool                                     $ignore_deleted
      *
      * @return Phone
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
     {
         try {
-            return parent::load($identifier, $meta_enabled, $ignore_deleted);
+            return parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new PhoneNotExistsException($e);
@@ -262,14 +263,12 @@ class Phone extends DataEntry implements PhoneInterface
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The date when this user was phone verified. Empty if not yet verified')))
 
-                    ->add(Definition::new($this, 'delete')
-                                    ->setOptional(true)
-                                    ->setVirtual(true)
-                                    ->setInputType(EnumInputType::submit)
-                                    ->setSize(2)
-                                    ->setLabel(tr('Delete'))
-                                    ->addClasses('btn btn-outline-warning')
-                                    ->setValue(tr('Delete')))
+                    ->add(DefinitionFactory::newButton($this, 'delete')
+                                           ->setInputType(EnumInputType::submit)
+                                           ->setSize(2)
+                                           ->setLabel(tr('Delete'))
+                                           ->addClasses('btn btn-outline-warning')
+                                           ->setValue(tr('Delete')))
 
                     ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this phone')));

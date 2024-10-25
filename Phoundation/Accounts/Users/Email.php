@@ -205,13 +205,12 @@ class Email extends DataEntry implements EmailInterface
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
 
-                    ->add(Definition::new($this, 'delete')
-                                    ->setVirtual(true)
-                                    ->setInputType(EnumInputType::submit)
-                                    ->setSize(2)
-                                    ->setLabel(tr('Delete'))
-                                    ->addClasses('btn btn-outline-warning')
-                                    ->setValue(tr('Delete')))
+                    ->add(DefinitionFactory::newButton($this, 'delete')
+                                           ->setInputType(EnumInputType::submit)
+                                           ->setSize(2)
+                                           ->setLabel(tr('Delete'))
+                                           ->addClasses('btn btn-outline-warning')
+                                           ->setValue(tr('Delete')))
 
                     ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this email')));
@@ -227,14 +226,15 @@ class Email extends DataEntry implements EmailInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
+     * @param bool                                     $init
      * @param bool                                     $ignore_deleted
      *
      * @return Email
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
     {
         try {
-            return parent::load($identifier, $meta_enabled, $ignore_deleted);
+            return parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new EmailNotExistsException($e);
