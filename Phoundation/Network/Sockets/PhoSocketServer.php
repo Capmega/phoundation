@@ -87,7 +87,7 @@ class PhoSocketServer
      *
      * @var int
      */
-    protected int $max_read = 1024;
+    protected int $max_read = 4;
 
     /**
      * Connected Clients.

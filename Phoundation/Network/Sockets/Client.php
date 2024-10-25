@@ -26,6 +26,14 @@ class Client
      */
     protected PhoSocket $socket;
 
+    /**
+     * Maximum amount of characters to send at once
+     * This integer is passed directly to socket_read.
+     *
+     * @var int
+     */
+    protected int $max_send = 10;
+
 
     /**
      * Constructs a Client object by creating a socket and connecting the socket to the specified server
@@ -67,7 +75,6 @@ class Client
      */
     public function send(string $message): static
     {
-
         $this->socket->write($message);
 
         return $this;
@@ -77,13 +84,11 @@ class Client
     /**
      * Receives data from the server
      *
-     * @param int $length
-     *
      * @return string
      */
-    public function receive(int $length = 1024): string
+    public function receive(): string
     {
-        return $this->socket->read($length);
+        return $this->socket->read($this->max_send);
     }
 
 
@@ -95,6 +100,56 @@ class Client
     public function close(): static
     {
         $this->socket->close();
+        return $this;
+    }
+
+
+    /**
+     * Returns the max_send value of this Client object
+     *
+     * @return int
+     */
+    public function getMaxSend(): int
+    {
+        return $this->max_send;
+    }
+
+
+    /**
+     * Sets the max_send value of this Client object, returns static
+     *
+     * @param int $max_send
+     *
+     * @return static
+     */
+    public function setMaxSend(int $max_send): static
+    {
+        $this->max_send = $max_send;
+        return $this;
+    }
+
+
+    /**
+     * Returns the PhoSocket object for this Client object
+     *
+     * @param PhoSocket $socket
+     */
+    protected function getSocket(PhoSocket $socket): void
+    {
+        $this->socket = $socket;
+    }
+
+
+    /**
+     * Sets the PhoSocket object for this Client object
+     *
+     * @param PhoSocket $socket
+     *
+     * @returns static
+     */
+    protected function setSocket(PhoSocket $socket): static
+    {
+        $this->socket = $socket;
         return $this;
     }
 }

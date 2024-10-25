@@ -82,7 +82,10 @@ Log::success(tr('Opened connection'));
 
 // Send message loop
 for ($i = 1; $i <= $argv['repeat']; ++$i) {
-    Log::action(tr('Sending message ":count"', [':count' => $i]));
+    Log::action(tr('Sending message ":count", length: ":length"', [
+        ':count' => $i,
+        ':length' => strlen($argv['message'])
+    ]));
     $client->send($argv['message']);
 
     Log::action(tr('Server responded: ":message"',[

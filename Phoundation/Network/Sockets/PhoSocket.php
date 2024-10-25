@@ -77,6 +77,13 @@ class PhoSocket implements Stringable
      */
     protected array $options;
 
+    /**
+     * Int that stores the maximum block size to write to the socket
+     *
+     * @var int $block_size
+     */
+    public int $block_size;
+
 
     /**
      * Sets up the Socket Resource and stores it in the local map.
@@ -91,9 +98,10 @@ class PhoSocket implements Stringable
      */
     protected function __construct(SocketResource $resource)
     {
-        $this->open     = true;
-        $this->options  = [];
-        $this->resource = $resource;
+        $this->open       = true;
+        $this->options    = [];
+        $this->resource   = $resource;
+        $this->block_size = 4;      //TODO: debug!!!
 
         static::$source[$this->__toString()] = $this;
     }
@@ -306,6 +314,31 @@ class PhoSocket implements Stringable
     public function setDomain(int $domain): static
     {
         $this->domain = $domain;
+        return $this;
+    }
+
+
+    /**
+     * Returns the block_size property of this PhoSocket
+     *
+     * @return int
+     */
+    public function getBlockSize(): int
+    {
+        return $this->block_size;
+    }
+
+
+    /**
+     * Sets the block_size property of this PhoSocket
+     *
+     * @param int $block_size
+     *
+     * @return static
+     */
+    public function setBlockSize(int $block_size): static
+    {
+        $this->block_size = $block_size;
         return $this;
     }
 
@@ -1029,26 +1062,50 @@ class PhoSocket implements Stringable
             return 0;
         }
 
-        while (true) {
-            $return = socket_write($this->resource, $buffer, $length);
+        $total_transferred = 0;
 
-            if (!$return) {
-                throw SocketException::new(tr('Failed to write to socket with buffer ":buffer" and length ":length"', [
-                    ':buffer' => $buffer,
-                    ':length' => $length]))
-                ->setCode(socket_last_error($this->resource))
-                ->addMessages(socket_strerror(socket_last_error($this->resource)));
+    show("Message size: " . $length . ", block_size: " . $this->block_size);
+
+    show("resource send buffer size: " . $this->getOption(1, SO_SNDBUF));
+    show("resource rec buffer size: " . $this->getOption(1, SO_RCVBUF));
+
+        try {
+            for ($i = 0; $i < $length; $i += $this->getBlockSize()) {
+        show("i: " . $i);
+        show("buffer: " . $buffer);
+
+                $part        = substr($buffer, $i, $this->getBlockSize());
+
+        show("part: " . $part);
+
+
+                try {
+                    $transferred = socket_write($this->resource, $part, strlen($part));
+                } catch (Throwable $e) {
+showdie("PHP SOCKET WRITE FAILED");
+                }
+
+                if ($transferred === false) {
+                    throw SocketException::new(tr('PHP socket_write() failed'));
+                }
+
+                $total_transferred += $transferred;
             }
 
-            if ($return >= $length) {
-                break;
+            if ($total_transferred < $length) {
+                throw SocketException::new(tr('Incomplete transfer'));
             }
 
-            $buffer = substr($buffer, $return);
-            $length -= $return;
+        } catch (Throwable $e) {
+            throw SocketException::new(tr('Failed to write to socket with buffer ":buffer" and length ":length"', [
+                ':buffer' => $buffer,
+                ':length' => $length
+            ]))
+                                 ->setCode(socket_last_error($this->resource))
+                                 ->addMessages(socket_strerror(socket_last_error($this->resource)));
         }
 
-        return $return;
+        return $total_transferred;
     }
 
 

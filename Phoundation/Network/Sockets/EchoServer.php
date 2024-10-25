@@ -33,7 +33,7 @@ class EchoServer extends PhoSocketServer
     /**
      * This is the port used for the server
      */
-    const int DEFAULT_PORT = 4096;
+    const int DEFAULT_PORT = 4097;
 
 
     /**
@@ -83,8 +83,9 @@ class EchoServer extends PhoSocketServer
     {
         $message = trim($message);
 
-        Log::success(tr('Received ":message"', [
-            ":message" => $message
+        Log::success(tr('Received ":message", length: ":length"', [
+            ":message" => $message,
+            ":length" => strlen($message)
         ]));
 
         switch ($message) {
@@ -92,13 +93,13 @@ class EchoServer extends PhoSocketServer
                 exit();
         }
 
-        $response = '(' . count($this->clients) . ') ' . $message;
+//        $response = '(' . count($this->clients) . ') ' . $message;
+        $response = $message;
 
         Log::action(tr('Responding with ":message"', [
-            ":message" => $response
-        ]));
+            ":message" => $response]));
 
-        $client->write($response, strlen($response));
+        $client->write($response);
     }
 
 
