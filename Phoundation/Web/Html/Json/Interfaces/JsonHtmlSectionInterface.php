@@ -47,17 +47,17 @@ interface JsonHtmlSectionInterface extends RenderJsonInterface
     /**
      * Returns the HTML for this section
      *
-     * @return string
+     * @return string|null
      */
-    public function getHtml(): string;
+    public function getHtml(): ?string;
 
 
     /**
      * Sets the HTML for this section
      *
-     * @param string $html
+     * @param string|null $html
      *
      * @return static
      */
-    public function setHtml(string $html): static;
+    public function setHtml(?string $html): static;
 }

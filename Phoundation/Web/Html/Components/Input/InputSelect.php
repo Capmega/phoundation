@@ -813,8 +813,10 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                     }
 
                     if (!$this->value_column) {
-                        throw OutOfBoundsException::new(tr('The specified select source array contains array values, but no value column was specified'))
-                                                  ->addData($this->source);
+                        throw OutOfBoundsException::new(tr('The specified ":id" select source array contains array values, but no value column was specified', [
+                            ':id' => $this->getId() . ' / ' . $this->getName(),
+                        ]))
+                        ->addData($this->source);
                     }
 
                     try {

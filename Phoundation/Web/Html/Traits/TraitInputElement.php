@@ -73,6 +73,7 @@ trait TraitInputElement
     {
         $element    = new static();
         $attributes = $definition->getSource();
+
         // Set all attributes from the definition file
         foreach ($attributes as $key => $value) {
             $method = 'set' . Strings::capitalize($key);
@@ -219,6 +220,17 @@ trait TraitInputElement
 
 
     /**
+     * Returns onchange functionality
+     *
+     * @return string|null
+     */
+    public function getOnChange(): ?string
+    {
+        return $this->attributes->get('on_change', false);
+    }
+
+
+    /**
      * Sets onchange functionality
      *
      * @param string|null $on_change
@@ -228,17 +240,6 @@ trait TraitInputElement
     public function setOnChange(?string $on_change): static
     {
         return $this->setAttribute($on_change, 'on_change');
-    }
-
-
-    /**
-     * Returns onchange functionality
-     *
-     * @return string|null
-     */
-    public function getOnChange(): ?string
-    {
-        return $this->attributes->get('on_change', false);
     }
 
 

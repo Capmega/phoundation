@@ -20,7 +20,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Utils\Strings;
 
 
-class InputTextArea extends Input
+class InputTextArea extends InputText
 {
     /**
      * The number of columns to use for this text area
@@ -45,6 +45,7 @@ class InputTextArea extends Input
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
+
         $this->requires_closing_tag = true;
         $this->element              = 'textarea';
         $this->input_type           = null;

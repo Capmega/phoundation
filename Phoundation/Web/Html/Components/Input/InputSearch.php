@@ -19,7 +19,7 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
-class InputSearch extends Input
+class InputSearch extends InputText
 {
     /**
      * InputSearch class constructor

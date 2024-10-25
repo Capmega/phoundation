@@ -5,6 +5,10 @@
  *
  *
  *
+ * @see https://datatables.net/examples/datetime/auto-locale-moment.html
+ * @see https://momentjs.com/docs/#/displaying/format/ for JavaScript datetime formatting
+ * @todo Switch from moment.js to Luxon as moment.js is deprecated and will be replaced with Luxon
+ *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

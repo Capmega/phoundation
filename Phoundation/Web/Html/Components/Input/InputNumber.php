@@ -19,7 +19,7 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
-class InputNumber extends Input
+class InputNumber extends InputText
 {
     /**
      * InputNumeric class constructor

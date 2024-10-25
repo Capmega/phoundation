@@ -43,7 +43,7 @@ class JsonHtmlSection implements JsonHtmlSectionInterface
      *
      * @var string|null $html
      */
-    protected ?string $html;
+    protected ?string $html = null;
 
 
 
@@ -124,9 +124,9 @@ class JsonHtmlSection implements JsonHtmlSectionInterface
     /**
      * Returns the HTML for this section
      *
-     * @return string
+     * @return string|null
      */
-    public function getHtml(): string
+    public function getHtml(): ?string
     {
         return $this->html;
     }
@@ -135,18 +135,18 @@ class JsonHtmlSection implements JsonHtmlSectionInterface
     /**
      * Sets the HTML for this section
      *
-     * @param RenderInterface|string $html
+     * @param RenderInterface|string|null $html
      *
      * @return static
      */
-    public function setHtml(RenderInterface|string $html): static
+    public function setHtml(RenderInterface|string|null $html): static
     {
         if ($html instanceof RenderInterface) {
             // Auto render to HTML
             $html = $html->render();
         }
 
-        $this->html = $html;
+        $this->html = get_null($html);
         return $this;
     }
 

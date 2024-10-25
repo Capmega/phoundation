@@ -20,7 +20,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
-class InputText extends Input
+class InputText extends Input implements InputTextInterface
 {
     /**
      * InputText class constructor
@@ -103,5 +103,29 @@ class InputText extends Input
     public function setAutoComplete(bool $auto_complete): static
     {
         return $this->setAttribute($auto_complete ? 'on' : 'off', 'autocomplete');
+    }
+
+
+    /**
+     * Returns placeholder text
+     *
+     * @return string|null
+     */
+    public function getPlaceholder(): ?string
+    {
+        return $this->attributes->get('placeholder', false);
+    }
+
+
+    /**
+     * Sets placeholder text
+     *
+     * @param string|null $placeholder
+     *
+     * @return static
+     */
+    public function setPlaceholder(?string $placeholder): static
+    {
+        return $this->setAttribute($placeholder, 'placeholder');
     }
 }

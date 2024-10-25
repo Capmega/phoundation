@@ -86,76 +86,69 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
             return $this;
         }
 
-        if ($message instanceof ValidationFailedException) {
-            // Title was specified as an exception, add each validation failure as a separate flash message
-            $title = trim((string) $title);
-
-            if (empty($title)) {
-                $title = tr('Validation failed');
-            }
-
-            if (str_starts_with($title, '(')) {
-                // This message is prefixed with the class name. Remove the class name as we don't want to show this to
-                // the end users.
-                $title = trim(Strings::from($title, '('));
-            }
-
-            if ($message->getData()) {
-                $count = 0;
-
-                if ($message->dataKeyExists('failures')) {
-                    foreach ($message->getDataKey('failures') as $message) {
-                        if (!trim($message)) {
-                            continue;
-                        }
-
-                        $count++;
-                        $this->addValidationFailed($message);
-                    }
-
-                } else {
-                    foreach ($message->getData() as $message) {
-                        if (!trim($message)) {
-                            continue;
-                        }
-
-                        $count++;
-                        $this->addValidationFailed($message);
-                    }
-                }
-
-                if (!$count) {
-                    throw new OutOfBoundsException(tr('The specified Validation exception ":e" has no or empty messages in the exception data', [
-                        ':e' => $title,
-                    ]));
-                }
-
-                return $this;
-            }
-
-            $mode = EnumDisplayMode::warning;
-
-        } elseif ($message instanceof Exception) {
-            // Title was specified as a Phoundation exception, add each validation failure as a separate flash
-            // message
-            if (empty($title)) {
-                $title = tr('Error');
-            }
-
-            foreach ($message->getMessages() as $message) {
-                $this->addException($message, $title);
-            }
-
-            return $this;
-        }
-
         if ($message instanceof Throwable) {
-            // Title was specified as a PHP exception, add the exception message as flash message
-            $message = $message->getMessage();
+            if ($message instanceof ValidationFailedException) {
+                // Title was specified as an exception, add each validation failure as a separate flash message
+                $title = trim((string) $title);
 
-            if (empty($title)) {
-                $title = tr('Error');
+                if (empty($title)) {
+                    $title = tr('Validation failed');
+                }
+
+                if (str_starts_with($title, '(')) {
+                    // This message is prefixed with the class name. Remove the class name as we don't want to show this to
+                    // the end users.
+                    $title = trim(Strings::from($title, '('));
+                }
+                if ($message->getData()) {
+                    $count = 0;
+
+                    if ($message->dataKeyExists('failures')) {
+                        foreach ($message->getDataKey('failures') as $message) {
+                            if (!trim($message)) {
+                                continue;
+                            }
+                            $count++;
+                            $this->addValidationFailed($message);
+                        }
+
+                    } else {
+                        foreach ($message->getData() as $message) {
+                            if (!trim($message)) {
+                                continue;
+                            }
+
+                            $count++;
+                            $this->addValidationFailed($message);
+                        }
+                    }
+
+                    if (!$count) {
+                        throw new OutOfBoundsException(tr('The specified Validation exception ":e" has no or empty messages in the exception data', [
+                            ':e' => $title,
+                        ]));
+                    }
+
+                    return $this;
+                }
+
+                $mode = EnumDisplayMode::warning;
+
+            } elseif ($message instanceof Exception) {
+                // Title was specified as a Phoundation exception, add each validation failure as a separate flash
+                // message
+                if ($message->isWarning()) {
+                    // These are warnings
+                    if (empty($title)) {
+                        $title = tr('Warning');
+                    }
+
+                    return $this->addWarning($message->getMessage(), $title);
+                }
             }
+
+            // These are full on error exceptions or PHP exceptions
+            return $this->addException(tr('Something did not function correctly on our side, please try again later or contact your IT department'));
         }
 
         if (!$title) {

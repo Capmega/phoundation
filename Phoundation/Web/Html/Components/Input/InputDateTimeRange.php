@@ -26,6 +26,7 @@ class InputDateTimeRange extends InputText
     use TraitDataStartDateTime;
     use TraitDataStopDate;
 
+
     /**
      * InputDate class constructor
      *
