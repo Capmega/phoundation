@@ -281,17 +281,17 @@ class Incident extends DataEntry implements IncidentInterface
     /**
      * Sets the severity for this object
      *
-     * @param EnumSeverity|string $severity
+     * @param EnumSeverity|string|null $severity
      *
      * @return static
      */
-    public function setSeverity(EnumSeverity|string $severity): static
+    public function setSeverity(EnumSeverity|string|null $severity): static
     {
         if (is_string($severity)) {
             $severity = EnumSeverity::from($severity);
         }
 
-        return $this->set($severity->value, 'severity');
+        return $this->set($severity?->value, 'severity');
     }
 
 
