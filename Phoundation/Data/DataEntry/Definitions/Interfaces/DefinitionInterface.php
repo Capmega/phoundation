@@ -1433,4 +1433,82 @@ interface DefinitionInterface
      * @return static
      */
     #[ReturnTypeWillChange] public function set(mixed $value, Stringable|string|float|int $key): static;
+
+    /**
+     * Returns if this column contains data that should be processed
+     *
+     * @note Defaults to true
+     * @return bool|null
+     * @see  Definition::getVirtual()
+     */
+    public function getContainsData(): ?bool;
+
+    /**
+     * Sets if this column contains data that should be processed
+     *
+     * @note Defaults to true
+     *
+     * @param bool $value
+     *
+     * @return static
+     * @see  Definition::setVirtual()
+     */
+    public function setContainsData(bool $value): static;
+
+    /**
+     * Returns the pre_render_functions for this column
+     *
+     * @return array|null
+     */
+    public function getPreRenderFunctions(): ?array;
+
+    /**
+     * Sets the pre_render_functions for this column
+     *
+     * @param array|callable|null $value
+     *
+     * @return static
+     */
+    public function setPreRenderFunctions(array|callable|null $value): static;
+    /**
+     * Adds the pre_render_functions for this column
+     *
+     * @param array|callable|null $value
+     *
+     * @return static
+     */
+    public function addPreRenderFunctions(array|callable|null $value): static;
+
+    /**
+     * Clears the pre_render_functions for this column
+     *
+     * @param callable|null $value
+     *
+     * @return static
+     */
+    public function clearPreRenderFunctions($value): static;
+
+    /**
+     * Sets if this column is linked_to another column
+     * *
+     * * If this column is linked_to a different column, it will NOT try to use its data if this column is NULL and the
+     * * other column has a value
+     *
+     * @return string|null
+     * @see  Definition::getRender()
+     */
+    public function getLinkedTo(): ?string;
+
+    /**
+     * Sets if this column is linked_to another column
+     *
+     * If this column is linked_to a different column, it will NOT try to use its data if this column is NULL and the
+     * other column has a value
+     *
+     * @param string|null $linked_to
+     *
+     * @return static
+     * @see  Definition::setRender()
+     */
+    public function setLinkedTo(?string $linked_to = null): static;
 }

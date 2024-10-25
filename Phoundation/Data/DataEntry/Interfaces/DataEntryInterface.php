@@ -74,11 +74,12 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
+     * @param bool                                     $init
      * @param bool                                     $ignore_deleted
      *
      * @return DataEntryInterface
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static;
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static;
 
     /**
      * Returns if this DataEntry validates data before saving

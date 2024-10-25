@@ -73,9 +73,10 @@ trait TraitMethodBuildManualQuery
             $not = '';
 
             if (!is_data_scalar($value, true)) {
-                throw new OutOfBoundsException(tr('Invalid value ":value" specified for column ":column", must be a data scalar (either string, integer, float, or null)', [
+                throw new OutOfBoundsException(tr('Invalid query value ":value / :type" specified for column ":column", must be a data scalar (either string, integer, float, or null)', [
                     ':column' => $column,
                     ':value'  => $value,
+                    ':type'   => get_class_or_data_type($value),
                 ]));
             }
 

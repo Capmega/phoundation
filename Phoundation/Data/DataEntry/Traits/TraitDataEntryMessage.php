@@ -41,7 +41,7 @@ trait TraitDataEntryMessage
      */
     public function setMessage(?string $message): static
     {
-        if (strlen((string) $message) > 65536) {
+        if (strlen((string) $message) > 16_777_215) {
             throw new OutOfBoundsException(tr('Specified message length ":length" is invalid, it should be 65536 characters or less', [
                 ':length' => strlen($message),
             ]));

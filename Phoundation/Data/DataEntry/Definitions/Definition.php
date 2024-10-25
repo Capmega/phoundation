@@ -462,6 +462,35 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns if this column contains data that should be processed
+     *
+     * @note Defaults to true
+     * @return bool|null
+     * @see  Definition::getVirtual()
+     */
+    public function getContainsData(): ?bool
+    {
+        return isset_get_typed('bool', $this->source['contains_data'], true);
+    }
+
+
+    /**
+     * Sets if this column contains data that should be processed
+     *
+     * @note Defaults to true
+     *
+     * @param bool $value
+     *
+     * @return static
+     * @see  Definition::setVirtual()
+     */
+    public function setContainsData(bool $value): static
+    {
+        return $this->setKey($value, 'contains_data');
+    }
+
+
+    /**
      * Returns if this column is visible in HTML clients
      *
      * If false, the column will have the "invisible" class added
@@ -885,14 +914,51 @@ class Definition implements DefinitionInterface
      *
      * @note Defaults to false
      *
-     * @param bool|null $value
+     * @param bool|null   $value
+     * @param string|null $linked_to
      *
      * @return static
      * @see  Definition::setRender()
      */
-    public function setVirtual(?bool $value): static
+    public function setVirtual(?bool $value, ?string $linked_to = null): static
     {
+        if ($linked_to) {
+            $this->setLinkedTo($linked_to);
+        }
+
         return $this->setKey((bool) $value, 'virtual');
+    }
+
+
+    /**
+     * Sets if this column is linked_to another column
+     * *
+     * * If this column is linked_to a different column, it will NOT try to use its data if this column is NULL and the
+     * * other column has a value
+     *
+     * @return string|null
+     * @see  Definition::getRender()
+     */
+    public function getLinkedTo(): ?string
+    {
+        return isset_get_typed('bool', $this->source['linked_to']);
+    }
+
+
+    /**
+     * Sets if this column is linked_to another column
+     *
+     * If this column is linked_to a different column, it will NOT try to use its data if this column is NULL and the
+     * other column has a value
+     *
+     * @param string|null $linked_to
+     *
+     * @return static
+     * @see  Definition::setRender()
+     */
+    public function setLinkedTo(?string $linked_to = null): static
+    {
+        return $this->setKey($linked_to, 'linked_to');
     }
 
 
@@ -1075,6 +1141,70 @@ class Definition implements DefinitionInterface
         }
 
         return $this->setKey($value, 'content');
+    }
+
+
+    /**
+     * Returns the pre_render_functions for this column
+     *
+     * @return array|null
+     */
+    public function getPreRenderFunctions(): ?array
+    {
+        return isset_get_typed('array', $this->source['pre_render_functions']);
+    }
+
+
+    /**
+     * Sets the pre_render_functions for this column
+     *
+     * @param array|callable|null $value
+     *
+     * @return static
+     */
+    public function setPreRenderFunctions(array|callable|null $value): static
+    {
+        if (is_array($value)) {
+            foreach ($value as $function) {
+                if (!is_callable($function)) {
+                    throw new OutOfBoundsException(tr('Cannot add pre-render function ":function", it is not a function', [
+                        ':function' => $function
+                    ]));
+                }
+            }
+        }
+
+        return $this->setKey($value, 'pre_render_functions');
+    }
+
+
+    /**
+     * Adds the pre_render_functions for this column
+     *
+     * @param array|callable|null $value
+     *
+     * @return static
+     */
+    public function addPreRenderFunctions(array|callable|null $value): static
+    {
+        if (!is_array($value)) {
+            $value = [$value];
+        }
+
+        return $this->setPreRenderFunctions(array_replace($this->getPreRenderFunctions() ?? [], $value));
+    }
+
+
+    /**
+     * Clears the pre_render_functions for this column
+     *
+     * @param callable|null $value
+     *
+     * @return static
+     */
+    public function clearPreRenderFunctions($value): static
+    {
+        return $this->setKey(null, 'pre_render_functions');
     }
 
 
@@ -2723,13 +2853,12 @@ class Definition implements DefinitionInterface
             $this->processAppliedNotRendering($validator, $prefix, $column);
 
         } else {
-            // Do not validate this column, does this column require a static value?
-            $this->setNoValidation(true);
+            // Does this column require a static value?
             $this->processStaticValue($validator, $prefix, $column);
         }
 
         if ($this->processNoValidationOrDefaults($validator, $prefix, $column)) {
-            // Apply all other validations
+            // Apply all validations
             foreach ($this->validations as $validation) {
                 $validation($validator);
             }

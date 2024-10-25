@@ -506,6 +506,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                         if ($value !== null) {
                             $this->addFailure(tr('must have an integer value'));
                         }
+
                         $value = 0;
                     }
                 }

@@ -1629,6 +1629,7 @@ class DefinitionFactory
                          ->addClasses('btn-primary')
                          ->setRender(true)
                          ->setVirtual(true)
+                         ->setContainsData(false)
                          ->setElement(EnumElement::input)
                          ->setInputType(EnumInputType::button)
                          ->setLabel(tr(' '))
@@ -1937,7 +1938,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for meta_state
+     * Returns a Definition object that will display an <hr> divider
      *
      * @param DataEntryInterface|null $data_entry
      * @param string|null             $column
@@ -1947,11 +1948,12 @@ class DefinitionFactory
     public static function newDivider(?DataEntryInterface $data_entry, ?string $column = null): DefinitionInterface
     {
         if (!$column) {
-            $column = 'divider' . Strings::getUuid();
+            $column = 'divider-' . Strings::getUuid();
         }
 
         return Definition::new($data_entry, $column)
                          ->setVirtual(true)
+                         ->setContainsData(false)
                          ->setElement(EnumElement::hr)
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Nothing to validate, this is not an input
