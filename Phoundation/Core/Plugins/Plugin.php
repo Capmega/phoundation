@@ -115,13 +115,14 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
+     * @param bool                                     $init
      * @param bool                                     $ignore_deleted
      *
      * @return static
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
     {
-        $plugin = parent::load($identifier, $meta_enabled, $ignore_deleted);
+        $plugin = parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
         $file   = DIRECTORY_ROOT . $plugin->getDirectory() . 'Library/Plugin.php';
         $class  = Library::getClassPath($file);
         $class  = Library::includeClassFile($class);
