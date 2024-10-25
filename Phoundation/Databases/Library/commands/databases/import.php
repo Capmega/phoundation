@@ -18,14 +18,10 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Import;
 use Phoundation\Filesystem\PhoDirectory;
-use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Utils;
 
 
 $restrictions = PhoRestrictions::newReadonly( [
@@ -61,37 +57,47 @@ ARGUMENTS
                                         (defaults to 3600)');
 
 CliDocumentation::setAutoComplete([
-                                      'arguments' => [
-                                          '-f,--file'      => [
-                                              'word'   => function ($word) use ($restrictions) { return PhoDirectory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan($word . '*.{sql,sql.gz}'); },
-                                              'noword' => function ()      use ($restrictions) { return PhoDirectory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.{sql,sql.gz}'); },
-                                          ],
-                                          '-c,--connector' => [
-                                              'word'   => function ($word) {
-                                                  return Connectors::new()
-                                                                   ->load(null, true, true)
-                                                                   ->keepMatchingValuesStartingWith($word, column: 'name');
-                                              },
-                                              'noword' => function () {
-                                                  return Connectors::new()
-                                                                   ->load(null, true, true)
-                                                                   ->getAllRowsSingleColumn('name');
-                                              },
-                                          ],
-                                          '-b,--database'  => [
-                                              'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES 
-                                                                                                       LIKE :word', [
-                                                                                                           ':word' => '%' . $word . '%'
-                                                                                                    ]);
-                                                                            },
-                                              'noword' => function () { return sql()->listScalar('SHOW DATABASES'); },
-                                          ],
-                                          '-t,--timeout'   => true,
-                                          '--comments'     => true,
-                                          '--no-init'      => false,
-                                          '--no-drop'      => false,
-                                      ],
-                                  ]);
+    'arguments' => [
+        '--file'         => [
+            'word'   => function ($word) use ($restrictions) {
+                return PhoDirectory::new(
+                    DIRECTORY_DATA . 'sources/',
+                    $restrictions
+                )->scan($word . '*[.sql|.gz]');
+            },
+            'noword' => function () use ($restrictions) {
+                return PhoDirectory::new(
+                    DIRECTORY_DATA . 'sources/',
+                    $restrictions
+                )->scan('*[.sql|.gz]');
+            },
+        ],
+        '-c,--connector' => [
+            'word'   => function ($word) {
+                return Connectors::new()
+                                 ->load(null, true, true)
+                                 ->keepMatchingValuesStartingWith($word, column: 'name');
+            },
+            'noword' => function () {
+                return Connectors::new()
+                                 ->load(null, true, true)
+                                 ->getAllRowsSingleColumn('name');
+            },
+        ],
+        '-b,--database'  => [
+            'word'   => function ($word) {
+                return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']);
+            },
+            'noword' => function () {
+                return sql()->listScalar('SHOW DATABASES');
+            },
+        ],
+        '-t,--timeout'   => true,
+        '--comments'     => true,
+        '--no-init'      => false,
+        '--no-drop'      => false,
+    ],
+]);
 
 
 // Validate arguments

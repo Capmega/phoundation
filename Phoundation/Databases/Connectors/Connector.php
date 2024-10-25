@@ -176,11 +176,12 @@ class Connector extends DataEntry implements ConnectorInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
+     * @param bool                                     $init
      * @param bool                                     $ignore_deleted
      *
      * @return Connector
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
     {
         if (is_numeric($identifier) and ($identifier < 0)) {
             // Negative identifier is a configured connector!
@@ -188,7 +189,7 @@ class Connector extends DataEntry implements ConnectorInterface
         }
 
         try {
-            return parent::load($identifier, $meta_enabled, $ignore_deleted);
+            return parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
 
         } catch (DataEntryNotExistsException $e) {
             throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [
@@ -447,6 +448,30 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
+     * Returns the environment for this connector
+     *
+     * @return string|null
+     */
+    public function getEnvironment(): ?string
+    {
+        return $this->getTypesafe('string', 'environment');
+    }
+
+
+    /**
+     * Sets the environment for this connector
+     *
+     * @param string|null $environment
+     *
+     * @return static
+     */
+    public function setEnvironment(string|null $environment): static
+    {
+        return $this->set($environment, 'environment');
+    }
+
+
+    /**
      * Returns the persist flag for this connector
      *
      * @return bool|null
@@ -699,6 +724,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
                     ->add(DefinitionFactory::newTimezone($this, 'timezones_name')
                                            ->setLabel(tr('Timezone'))
+                                           ->setDefault('UTC')
                                            ->setRender(false)
                                            ->setSize(2)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {

@@ -416,6 +416,10 @@ class Sql implements SqlInterface
         $log = false;
 
         try {
+            if (!trim($query)) {
+                throw new SqlException(tr('Cannot execute empty query'));
+            }
+
             if (!$this->pdo) {
                 throw new SqlException(tr('Cannot execute query ":query", on instance ":instance", it is not connected to a server', [
                     ':query'    => $query,
