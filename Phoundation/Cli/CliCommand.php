@@ -764,6 +764,7 @@ class CliCommand
     /**
      * Either finds the command to execute, or executes documentation
      *
+     * @param array $parameters
      * @return void
      */
     protected static function setCommandOrExecuteDocumentation(array $parameters): void

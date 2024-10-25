@@ -77,6 +77,7 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Os\Processes\Commands\Grep;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
@@ -726,7 +727,7 @@ class CliAutoComplete
                            ->grep(EnumExecuteMethod::returnArray);
 
             if ($results) {
-                // bash_completion contains rule for phoundation
+                // bash_completion contains rule for Phoundation
                 return;
             }
 
@@ -744,6 +745,11 @@ COMPREPLY+=($(compgen -W "$PHO"));
 }
 
 complete -F _phoundation pho' . PHP_EOL);
+
+        // Source the .bash_completion file
+        Process::new('source')
+               ->setArgument('~/.bash_completion')
+               ->executePassthru();
 
         Log::success('Setup auto complete for Phoundation in ~/.bash_completion');
         Log::success('You may need to logout and login again for auto complete to work correctly');
