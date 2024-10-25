@@ -46,7 +46,7 @@ $reply = [
     'buttons' => isset_get($button) . Button::new()
                                             ->setOutlined(true)
                                             ->setAnchorUrl(Url::getWww('notifications/notification+' . $notification->getId() . '.html'))
-                                            ->setContent(tr('See details'))
+                                            ->setContent(tr('See notification details'))
                                             ->render(),
 ];
 
