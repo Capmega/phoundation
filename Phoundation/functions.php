@@ -23,6 +23,7 @@ use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Interfaces\FloatableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\DataStores;
@@ -34,6 +35,7 @@ use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Date\Interfaces\DateTimeZoneInterface;
 use Phoundation\Developer\Debug;
+use Phoundation\Developer\FunctionCall;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
@@ -763,6 +765,11 @@ function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bo
         }
 
         return Debug::show($source, $sort, $trace_offset, $quiet, var_dump: $var_dump);
+
+    } else {
+        Log::warning(tr('Ignoring show() call at ":location" because debug mode is not enabled', [
+            ':location' => Strings::from(FunctionCall::new(1)->getLocation(), DIRECTORY_ROOT)
+        ]));
     }
 
     return null;
@@ -783,6 +790,11 @@ function showhex(mixed $source = null, bool $sort = true, int $trace_offset = 1,
 {
     if (Debug::isEnabled()) {
         return show(bin2hex($source), $sort, $trace_offset);
+
+    } else {
+        Log::warning(tr('Ignoring showhex() call at ":location" because debug mode is not enabled', [
+            ':location' => Strings::from(FunctionCall::new(1)->getLocation(), DIRECTORY_ROOT)
+        ]));
     }
 
     return null;
@@ -809,6 +821,11 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
         }
 
         return show($backtrace, true, $trace_offset, $quiet);
+
+    } else {
+        Log::warning(tr('Ignoring showbacktrace() call at ":location" because debug mode is not enabled', [
+            ':location' => Strings::from(FunctionCall::new(1)->getLocation(), DIRECTORY_ROOT)
+        ]));
     }
 
     return null;
@@ -839,6 +856,11 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
         }
 
         Debug::showdie($source, $sort, $trace_offset, $quiet, $var_dump);
+
+    } else {
+        Log::warning(tr('Ignoring showdie() call at ":location" because debug mode is not enabled', [
+            ':location' => Strings::from(FunctionCall::new(1)->getLocation(), DIRECTORY_ROOT)
+        ]));
     }
 }
 
