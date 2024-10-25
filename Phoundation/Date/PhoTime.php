@@ -46,7 +46,7 @@ class PhoTime
         // 2 months 5 days 4 hours 7 minutes 53.8236 seconds
         //$time = 7673.8237 + 7200 + (86400 * 5) + (86400 * 60);
         // 6 years 2 months 5 days 4 hours 7 minutes 53.8236 seconds
-        $time = 7673.8237 + 7200 + (86400 * 5) + (86400 * 60) + ((86400 * 365) * 6);
+        //$time = 7673.8237 + 7200 + (86400 * 5) + (86400 * 60) + ((86400 * 365) * 6);
 
         switch ($precision) {
             case 'second':

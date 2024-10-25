@@ -9,6 +9,8 @@
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Date
+ * @see https://momentjs.com/docs/#/displaying/format/ for JavaScript date/time formatting options
+ * @see https://www.php.net/manual/en/datetime.format.php for PHP date/time formatting options
  */
 
 
@@ -106,8 +108,11 @@ class PhoDateFormats
      *
      * @param string $php_format
      *
-     * @todo Improve this method by supporting more conversions
      * @return string
+     * @todo Improve this method by supporting more conversions
+     * @see https://www.php.net/manual/en/datetime.format.php for PHP date/time formatting options
+     * @see https://blog.stevenlevithan.com/archives/javascript-date-format
+     * @see https://momentjs.com/docs/#/displaying/format/ for JavaScript date/time formatting options
      */
     public static function convertPhpToJs(string $php_format): string
     {
@@ -230,6 +235,7 @@ class PhoDateFormats
      *
      * @return string
      * @throws OutOfBoundsException|UnsupportedException
+     * @see https://momentjs.com/docs/#/displaying/format/ for JavaScript date/time formatting options
      */
     public static function convertJsToPhp(string $js_format): string
     {
@@ -342,6 +348,73 @@ class PhoDateFormats
         }
 
         return $php_format;
+    }
+
+
+    /**
+     * Returns the date time format from JS to JS DatePicker Moment library format
+     *
+     * @param string $js_format
+     *
+     * @return string
+     * @throws OutOfBoundsException|UnsupportedException
+     */
+    public static function convertJsToMoment(string $js_format): string
+    {
+        $out_format = $js_format;
+        $lookup     = [
+            'M'         => ['out' => 'M'],
+            'MM'        => ['out' => 'MM'],
+            'MMM'       => ['out' => 'MMM'],
+            'MMMM'      => ['out' => 'MMMM'],
+            'D'         => ['out' => 'd'],
+            'DD'        => ['out' => 'dd'],
+            'DDD'       => ['out' => 'ddd'],
+            'DDDd'      => ['out' => 'dddd'],
+            'YY'        => ['out' => 'yy'],
+            'YYYY'      => ['out' => 'yyyy'],
+            'H'         => ['out' => 'H'],
+            'HH'        => ['out' => 'HH'],
+            'h'         => ['out' => 'h'],
+            'hh'        => ['out' => 'hh'],
+            'm'         => ['out' => 'm'],
+            'mm'        => ['out' => 'mm'],
+            's'         => ['out' => 's'],
+            'ss'        => ['out' => 'ss'],
+            'T'         => ['out' => 'T'],
+        ];
+
+        // Get all javascript matches
+        preg_match_all('/([a-z])+/i', $js_format, $matches);
+
+        if (empty($matches)) {
+            throw new OutOfBoundsException(tr('Failed to convert JavaScript date time format string ":format" to JavaScript DatePicker Moment format', [
+                ':format' => $js_format,
+            ]));
+        }
+
+        $matches = $matches[0];
+        $matches = Arrays::sortByValueLength($matches);
+
+        foreach ($matches as $match) {
+            if (!array_key_exists($match, $lookup)) {
+                throw new OutOfBoundsException(tr('Unknown Javascript date time format string identifier ":identifier" encountered in Javascript date time format string ":format"', [
+                    ':identifier' => $match,
+                    ':format'     => $js_format,
+                ]));
+            }
+
+            if ($lookup[$match] === null) {
+                throw new UnsupportedException(tr('Javascript date time format string identifier ":identifier" encountered in Javascript date time format string ":format" is currently not supported', [
+                    ':identifier' => $match,
+                    ':format'     => $js_format,
+                ]));
+            }
+
+            $out_format = str_replace($match, $lookup[$match]['out'], $out_format);
+        }
+
+        return $out_format;
     }
 
 
