@@ -1186,7 +1186,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                                                     KEY `path` (`path`),
                                                 ')->setForeignKeys('
                                                     CONSTRAINT `fk_accounts_configurations_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                                                    CONSTRAINT `fk_accounts_configurations_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+                                                    CONSTRAINT `fk_accounts_configurations_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                                                     CONSTRAINT `fk_accounts_configurations_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                                                 ')->create();
         });
