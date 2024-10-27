@@ -1547,6 +1547,25 @@ class Log
 
 
     /**
+     * Write a debug message containing the hash and size of the specified message
+     *
+     * @param mixed       $messages
+     * @param int         $threshold
+     * @param bool        $clean
+     * @param bool        $echo_newline
+     * @param string|bool $echo_prefix
+     * @param bool        $echo_screen
+     * @param bool        $echo_header
+     *
+     * @return bool
+     */
+    public static function hash(mixed $messages = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
+    {
+        return Log::debug(hash('sha256', Strings::force($messages), false) . ' / ' . strlen($messages), $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen, $echo_header);
+    }
+
+
+    /**
      * Write a debug header message in the log file
      *
      * @param string      $keyword
