@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Os\Processes;
+namespace Phoundation\Os\Workers;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataLabel;
@@ -25,8 +25,8 @@ use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Ps;
 use Phoundation\Os\Processes\Exception\WorkersException;
 use Phoundation\Os\Processes\Interfaces\WorkersCoreInterface;
+use Phoundation\Os\Processes\ProcessCore;
 use Phoundation\Utils\Strings;
-
 
 class WorkersCore extends ProcessCore implements WorkersCoreInterface
 {

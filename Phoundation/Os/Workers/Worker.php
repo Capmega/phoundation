@@ -15,11 +15,10 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Os\Processes;
+namespace Phoundation\Os\Workers;
 
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessWorkerInterface;
-
 
 class Worker extends WorkersCore implements ProcessWorkerInterface
 {
